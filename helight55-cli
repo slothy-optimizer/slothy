@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+set -x
+./slothy-cli Arm_v81M Arm_Cortex_M55 $*

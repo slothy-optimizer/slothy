@@ -1,0 +1,187 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2022 Arm Limited
+# Copyright (c) 2022 Hanno Becker
+# SPDX-License-Identifier: MIT
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+import sys, argparse, logging
+
+from slothy.slothy import Slothy
+from slothy.config import Config as SlothyConfig
+from targets.query import Archery
+
+def main(argv):
+
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("arch", type=str,
+                        choices=Archery.list_archs(), help="The target architecture")
+    parser.add_argument("target", type=str,
+                        choices=Archery.list_targets(), help="The target microarchitecture")
+    parser.add_argument("input", type=str,
+                        help="The name of the assembly source file.")
+    parser.add_argument("-d", "--debug", default=False, action='store_true',
+                        help="Show debug output")
+    parser.add_argument("-o", "--output", type=str, default=None,
+                        help="The name of the file to write the generated assembly to. "
+                        "If unspecified, the assembly will be printed on the standard output.")
+    parser.add_argument("-c", "--config", default=[], action="append", nargs='*', metavar="OPTION=VALUE",
+                        help="""A (potentially empty) list of modifications to the default configuration of Slothy.""")
+    parser.add_argument("-l", "--loop", default=None, type=str,
+                        help="""The starting label for the loop to optimize. This is mutually
+                        exclusive with -s/--start and -e/--end, which allowv you to specify
+                        the code to optimize via start/end separately.""")
+    parser.add_argument("-s", "--start", default=None, type=str,
+                        help="""The label or line at which the to code to optimize begins.
+                        This is mutually exclusive with -l/--loop.""")
+    parser.add_argument("-e", "--end", default=None, type=str,
+                        help="""The label or line at which the to code to optimize ends
+                        This is mutually exclusive with -l/--loop.""")
+
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level = logging.DEBUG)
+    else:
+        logging.basicConfig(level = logging.INFO)
+
+    logger = logging.getLogger("slothy-cli")
+
+    Arch   = Archery.get_arch(args.arch)
+    Target = Archery.get_target(args.target)
+    slothy = Slothy(Arch,Target,debug=args.debug, logger=logger)
+
+    def parse_config_value_as(val, ty):
+        def parse_as_float(val):
+            try:
+                res = float(val)
+                return res
+            except:
+                return None
+        def check_ty(ty_real):
+            if ty == None or ty == type(None) or ty == ty_real:
+                return
+            raise Exception(f"Configuration value {val} isn't correctly typed -- " \
+                            f"expected {ty}, but got {ty_real}")
+        if val == "":
+            raise Exception("Invalid configuration value")
+        logger.debug(f"Parsing configuration value {val} with expected type {ty}")
+        val = val.lower()
+        if val.isdigit():
+            check_ty(int)
+            logger.debug(f"Value {val} parsed as integer")
+            return int(val)
+        if val == "true":
+            check_ty(bool)
+            logger.debug(f"Value {val} parsed as Boolean")
+            return True
+        if val == "false":
+            check_ty(bool)
+            logger.debug(f"Value {val} parsed as Boolean")
+            return False
+        # Try to parse as RegisterType
+        ty = Arch.RegisterType.from_string(val)
+        if ty != None:
+            logger.debug(f"Value {val} parsed as RegisterType")
+            return ty
+        f = parse_as_float(val)
+        if f != None:
+            check_ty(float)
+            logger.debug(f"Value {val} parsed as float")
+            return f
+        if val[0] == '[' and val[-1] == ']':
+            check_ty(list)
+            val = val[1:-1].split(',')
+            logger.debug(f"Parsing {val} is a list -- parse recursively")
+            return [ parse_config_value_as(v,None) for v in val ]
+        if val[0] == '{' and val[-1] == '}':
+            check_ty(dict)
+            kvs = val[1:-1].split(',')
+            kvs = [ kv.split(':')  for kv in kvs ]
+            for kv in kvs:
+                if not len(kv) == 2:
+                    raise Exception("Invalid dictionary entry")
+            logger.debug(f"Parsing {val} is a dictionary -- parse recursively")
+            return { parse_config_value_as(k, None) : parse_config_value_as(v, None)
+                     for k,v in kvs }
+        logger.debug(f"Parsing {val} as string")
+        return val
+
+    # A plain '-c' without arguments should list all available configuration options
+    if [] in args.config:
+        slothy.config.list_options()
+        return
+
+    # Parse and set Slothy configuration
+
+    def setattr_recursive(obj, attr,val):
+        attr.strip()
+        # If attr starts with
+        attrs = attr.split('.')
+        while len(attrs) > 1:
+            obj = getattr(obj,attrs.pop(0))
+        attr = attrs.pop(0)
+        val = parse_config_value_as(val, type(getattr(obj,attr)))
+        logger.info(f"- Setting configuration option {attr} to value {val}")
+        setattr(obj,attr,val)
+
+    def check_list_of_fixed_len_list(lst, fixlen):
+        invalid = next(filter(lambda o: len(o) != 1, lst), None)
+        if invalid != None:
+            raise Exception(f"Invalid configuration argument {invalid} in {lst}")
+    check_list_of_fixed_len_list(args.config,1)
+    config_kv_pairs = [ c[0].split('=') for c in args.config ]
+    for kv in config_kv_pairs:
+        # We allow shorthands for boolean configurations
+        # "-c config.options" as a shorthand for "-c config.options=True"
+        # "-c /config.options" as a shorthand for "-c config.options=False"
+        # '!' would be more intuitive, but this confuses some shells.
+        negate_char = '/'
+        if len(kv) == 1:
+            kv[0] = kv[0].strip()
+            if kv[0][0] == negate_char:
+                val = False
+                kv[0] = kv[0][1:]
+            else:
+                val = True
+            setattr_recursive(slothy.config, kv[0], str(val))
+        elif len(kv) == 2:
+            setattr_recursive(slothy.config, kv[0], kv[1])
+        else:
+            raise Exception(f"Invalid configuration {kv}")
+
+    # Read input
+    slothy.load_source_from_file(args.input)
+
+    # Optimize
+    if args.loop:
+        slothy.optimize_loop(args.loop)
+    else:
+        slothy.optimize(start=args.start, end=args.end)
+
+    # Write output
+    if args.output is not None:
+        slothy.write_source_to_file(args.output)
+    else:
+        slothy.print_code()
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
