@@ -1,4 +1,4 @@
-# Slothy
+# Slothy: Assembly Super Optimization via Constraint Solving
 
 ## Introduction
 
