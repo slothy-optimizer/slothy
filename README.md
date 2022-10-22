@@ -58,25 +58,51 @@ instructions/constraints), making it practical for real-world kernels.
 
 ### Dependencies
 
-Slothy and HeLight rely on [Google OR-Tools](https://developers.google.com/optimization) as the underlying constraint
-solver, which can be installed via the Python package manager or through compilation from scratch. You need at least
-v9.3, and we recommend version >=v9.5.2040 because of
-[https://github.com/google/or-tools/issues/3483](https://github.com/google/or-tools/issues/3483), but HeLight has a
+Slothy relies on [Google OR-Tools](https://developers.google.com/optimization) as the underlying constraint
+solver. You need at least v9.3, and we recommend version >=v9.5.2040 because of
+[https://github.com/google/or-tools/issues/3483](https://github.com/google/or-tools/issues/3483), but Slothy has a
 workaround in place otherwise.
 
-If you compile from scratch, you need to build the Python interface by setting `BUILD_PYTHON`. For example, if you have
-are in the base directory and `build` is the desired build directory, do
+Unless you already have a working installation, you can clone Google OR-Tools as a submodule of this repository.
+
 ```
+> git submodule init
+> git submodule update
+```
+
+When compiling from scratch, note that you need to build the Python interface by setting `BUILD_PYTHON`. For example, if
+you're in the base directory of repository and use OR-Tools as a submodule, do the following:
+```
+> cd submodules/or-tools
+> mkdir build
 > cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON
 > cd build
 > make
 ```
-Once done, you can activate OR-Tools virtual Python environment via
+
+You also need to install `sympy`. To add it to the virtual Python environment provided by OR-Tools, do
 ```
-source {BUILD_DIR}/python/venv/bin/activate
+> source submodules/or-tools/build/python/venv/bin/activate
+> pip3 install sympy
+> deactivate
 ```
 
-You also need `sympy`.
+All of the above commands are run by the shell script [submodules/setup-ortools.sh](submodules/setup-ortools.sh)
+provided for convenience.
+
+Once set up, you only need to start the virtual environment
+
+```
+> source submodules/or-tools/build/python/venv/bin/activate
+```
+
+To reduce the typing burden
+
+```
+> source init.sh
+```
+
+does this.
 
 ### Quick check
 
