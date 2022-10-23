@@ -218,6 +218,7 @@ class NttRootGen():
             root_chunk = [list(x) for x in root_chunk]
             root_twisted_chunk = [list(x) for x in root_twisted_chunk]
             roots = zip(root_chunk,root_twisted_chunk)
+            yield "// block"
             yield from [(z,stride) for x in roots for y in x for z in y]
 
     def get_roots_of_unity_core(self):
@@ -225,6 +226,7 @@ class NttRootGen():
         if self.inverse:
             iters.reverse()
         for cur_iter, merged in iters:
+            yield f"// layer {cur_iter}"
             yield from self.roots_of_unity_for_layer(cur_iter,merged)
 
     def get_roots_of_unity_real(self):
@@ -237,7 +239,11 @@ class NttRootGen():
 
         count = 0
         last_stride = None
-        for twiddle, stride in self.get_roots_of_unity_core():
+        for x in self.get_roots_of_unity_core():
+            if isinstance(x,str):
+                yield x
+                continue
+            twiddle, stride = x
             if stride == 1:
                 if self.widen_single_twiddles_to_words:
                     yield f".word {twiddle}"
@@ -268,6 +274,7 @@ class NttRootGen():
         license = """
 ///
 /// Copyright (c) 2022 Arm Limited
+/// Copyright (c) 2022 Hanno Becker
 /// SPDX-License-Identifier: MIT
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -300,6 +307,10 @@ def main():
     ntt_kyber_l345 = NttRootGen(size=256,modulus=3329,root=17,layers=7,iters=[(0,2),(2,3),(5,2)], word_offset_mod_4=2)
     ntt_kyber_l345.export("../naive/ntt_kyber_12_345_67_twiddles.s")
     ntt_kyber_l345.export("../opt/ntt_kyber_12_345_67_twiddles.s")
+
+    ntt_kyber_l123 = NttRootGen(size=256,modulus=3329,root=17,layers=7,iters=[(0,3),(3,2),(5,2)])
+    ntt_kyber_l123.export("../naive/ntt_kyber_123_45_67_twiddles.s")
+    ntt_kyber_l123.export("../opt/ntt_kyber_123_45_67_twiddles.s")
 
     ntt_kyber = NttRootGen(size=256,modulus=3329,root=17,layers=7)
     ntt_kyber.export("../naive/ntt_kyber_1_23_45_67_twiddles.s")
