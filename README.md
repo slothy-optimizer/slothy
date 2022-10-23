@@ -36,25 +36,25 @@ periodic loop interleavings. Those variables and constraints are then passed to 
 case of success, the satisfying assignment returned from the solver converted back into a piece of code. As it stands,
 Slothy uses [Google OR-Tools](https://developers.google.com/optimization) as its constraint solver.
 
-HeLight is the result of instantiating Slothy with aspects of the Armv8.1-M + Helium architecture and the Cortex-M55
+HeLight55 is the result of instantiating Slothy with aspects of the Armv8.1-M + Helium architecture and the Cortex-M55
 microarchitecture.
 
 ### Performance
 
-In average, Slothy + HeLight + OR-Tools appear to superoptimize Helium assembly of ~50 instructions in a few seconds to
+In average, Slothy + HeLight55 + OR-Tools appear to superoptimize Helium assembly of ~50 instructions in a few seconds to
 minutes (there's a high variability depending on the difficulty of the optimization, not merely the number of
 instructions/constraints), making it practical for real-world kernels.
 
 ### IMPORTANT
 
 1. The software optimization information on Cortex-M55 (such as latencies and throughputs of instructions) captured
-   in HeLight may contain mistakes. They do _not_ constitute official software optimization guide!
-2. HeLight can only optimize code with respect to constraints it knows about, such as latencies and throughput. Those
+   in HeLight55 may contain mistakes. They do _not_ constitute official software optimization guide!
+2. HeLight55 can only optimize code with respect to constraints it knows about, such as latencies and throughput. Those
    being approximative as just mentioned, _and_ not a complete model of the microarchitecture, it is not guaranteed that
-   code which HeLight reports as satisfying all constraints is actually stall-free on Cortex-M55. You should always
+   code which HeLight55 reports as satisfying all constraints is actually stall-free on Cortex-M55. You should always
    double-check the actual performance by running the optimized code on real hardware!
 
-## Getting started
+## Setup
 
 ### Dependencies
 
@@ -106,7 +106,7 @@ does this.
 
 ### Quick check
 
-To check that your setup is complete, try the following from the HeLight base directory:
+To check that your setup is complete, try the following from the base directory:
 
 ```
 > ./helight55-cli examples/naive/simple1.s
@@ -148,33 +148,47 @@ INFO:slothy-cli.slothy.selfcheck:OK!
         // vstrw.u32 q0, [r1]          // ...*
 ```
 
-### Basic usage
+## Basic usage
 
-There are two basic forms of usage for `Slothy`:  Stateless and stateful.
+### Command line interface
 
-_Stateless / one-shot optimization_ takes a triple of (a) Slothy configuration, (a) input assembly, (c) list of output
-registers, and conducts a single optimization attempt (in the sense that one constraint model is created and passed to
-the underlying constraint solver). On success, the one-shot optimization returns a result object, including not only
-optimized source code but also other information like the permutation and renamings that relate it to the original
-source code.
+The quickest way to experiment with `Slothy` is via its command line interface `slothy-cli`:
 
-_Stateful optimization_ is a shim convenience wrapper around multiple invocations of the one-shot
-  optimization. You can load entire assembly files, including register aliases and macro definitions, and perform
-  multiple passes of cut-optimize-replace for selected regions in the code. Moreover, stateful optimization implements
-  some heuristics for the optimization of large assembly snippets for which a one-shot optimization appears
-  infeasible. It also implements a binary search for the minimization of stalls (there is also the option to make the
-  number of stalls a flexible varaible in the constraint model, but this does not appear to perform well so far).
+```
+% slothy-cli ARCH TARGET INPUT [options]
+```
 
-#### Stateless / one-shot optimization
+For example, the above `helight55-cli examples/naive/simple1.s` is merely an abbreviation for `slothy-cli Arm_v81M
+Arm_Cortex_M55 examples/naive/simple1.s`.
 
-TODO: Document
+The most important command line options are the following:
 
-#### Stateful optimization
+* Configuration of `Slothy`: You can set various configuration options via `-c option=value`. For example, to enable
+  software pipelining, use `-c sw_pipelining.enabled=True`, or just `-c sw_pipelining.enabled` (generally, `-c option`
+  is a shortcut for `-c option=True`, while `-c /option` is a shortcut for `-c option=False`). The hierarchy of
+  configuration options is the same as for `Slothy.Config` in [slothy/config.py](slothy/config.py).
 
-For stateful optimization, the basic usage flow is as follows:
+* Defining the part of the source code to operate on: Rather than asking `Slothy` to optimize an entire file, one will
+  usually want to direct it to the optimization of some selected parts of assembly -- for example, the core loop. This
+  can be done via the `-start/end {label}` options, which expect assembly labels delimiting the code to be
+  optimized. Alternatively, `-loop {label}` can be used to operate on the body of a loop starting at the given label.
+
+* An output file can be specified with `-o`.
+
+You may find Slothy complaining about ambiguity of register types if you use symbolic registers rather names sthan
+architectural ones. In this case, you need to set `-c config.typing_hints={name1:regtype1,name2:regtype2,...}`. For
+example, if the symbolic register name `foo` should be a general purpose register, add `-c config.typing_hints={foo:GPR}`.
+
+For more details, see `slothy-cli --help` and/or the Python documentation.
+
+### Python interface
+
+`Slothy` can also be called from Python, as demonstrated in the source code for [slothy-cli](slothy-cli) or the numerous
+examples in [example.py](example.py). The basic flow is as follows:
 
 1. Setup a `Slothy` instance, passing the architecture and target microarchitecture modules as arguments.
-   For example, for Helight, do `helight = Slothy(targets.arm_v81m.arch_v81m, targets.arm_v81m.cortex_m55r1)`.
+   You can specify architecture modules directly, e.g. `helight55 = Slothy(targets.arm_v81m.arch_v81m,
+   targets.arm_v81m.cortex_m55r1)`, or query them from `targets.query` as done in [slothy-cli](slothy-cli).
 2. Load the source code to optimize via `load_source_from_file()`
 3. Modify the default configuration as desired
 4. Call `helight.optimize(first=START_LABEL, end=END_LABEL)` to optimize and replace the part of the current source code
@@ -185,17 +199,7 @@ For stateful optimization, the basic usage flow is as follows:
 
 If you want to optimize the intermediate code between two loops which have been optimized via software pipelining,
 you'll need to know the dependencies carried across the optimized iterations. After a call to `helight.optimize_loop()`,
-you can query those as `helight.result.kernel.kernel_input_output`. More generally,
-`helight.result.{preamble,kernel,postamble}` contains result objects for the optimization of loop preamble, kernel, and
-postamble, if applicable.
-
-You may find Slothy complaining about ambiguity of register types if you use symbolic registers rather names sthan
-architectural ones. In this case, you need to set `config.typing_hints`. For example, if the symbolic register name
-`foo` should be a general purpose register, you add `config.typing_hints['foo'] = RegisterType.GPR`.
-
-See [example.py](example.py) for many examples of the usage of Slothy/Helight from Python.
-
-Alternatively, you can use `helight55-cli`, which however is less flexible.
+you can query those as `helight.last_result.kernel_input_output`.
 
 ## Further examples
 
