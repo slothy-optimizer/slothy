@@ -29,6 +29,8 @@ class NttRootGen():
                  modulus,
                  root,
                  layers,
+                 print_label=False,
+                 pad = [],
                  bitsize     = 16,
                  inverse     = False,
                  vector_length = 128,
@@ -41,6 +43,8 @@ class NttRootGen():
 
         assert bitsize in [16,32]
 
+        self.pad = pad
+        self.print_label=print_label
         self.word_offset_mod_4 = word_offset_mod_4
 
         self.negacyclic = negacyclic
@@ -171,7 +175,12 @@ class NttRootGen():
                 root2, root2_twisted = \
                     self.root_of_unity_for_block(snd_layer, 2*cur_block+1)
 
-                yield ([root0, root1, root2], [root0_twisted, root1_twisted, root2_twisted])
+                if layer in self.pad:
+                    yield ([root0, root1, root2, 0],
+                           [root0_twisted, root1_twisted, root2_twisted, 0])
+                else:
+                    yield ([root0, root1, root2], [root0_twisted, root1_twisted, root2_twisted])
+
             elif merged == 3:
                 # Compute the roots of unity that we need at this stage
                 fst_layer = layer + 0
@@ -182,18 +191,22 @@ class NttRootGen():
                 root1, root1_tw = \
                     self.root_of_unity_for_block(snd_layer, 2*cur_block+0)
                 root2, root2_tw = \
-                    self.root_of_unity_for_block(thr_layer, 4*cur_block+0)
-                root3, root3_tw = \
-                    self.root_of_unity_for_block(thr_layer, 4*cur_block+1)
-                root4, root4_tw = \
                     self.root_of_unity_for_block(snd_layer, 2*cur_block+1)
+                root3, root3_tw = \
+                    self.root_of_unity_for_block(thr_layer, 4*cur_block+0)
+                root4, root4_tw = \
+                    self.root_of_unity_for_block(thr_layer, 4*cur_block+1)
                 root5, root5_tw = \
                     self.root_of_unity_for_block(thr_layer, 4*cur_block+2)
                 root6, root6_tw = \
                     self.root_of_unity_for_block(thr_layer, 4*cur_block+3)
 
-                yield ([root0, root1, root2, root3, root4, root5, root6],
-                       [root0_tw, root1_tw, root2_tw, root3_tw, root4_tw, root5_tw, root6_tw])
+                if layer in self.pad:
+                    yield ([root0, root1, root2, root3, root4, root5, root6, 0],
+                           [root0_tw, root1_tw, root2_tw, root3_tw, root4_tw, root5_tw, root6_tw, 0])
+                else:
+                    yield ([root0, root1, root2, root3, root4, root5, root6],
+                           [root0_tw, root1_tw, root2_tw, root3_tw, root4_tw, root5_tw, root6_tw])
             else:
                 raise Exception("Something went wrong")
 
@@ -218,15 +231,16 @@ class NttRootGen():
             root_chunk = [list(x) for x in root_chunk]
             root_twisted_chunk = [list(x) for x in root_twisted_chunk]
             roots = zip(root_chunk,root_twisted_chunk)
-            yield "// block"
-            yield from [(z,stride) for x in roots for y in x for z in y]
+            res = [(z,stride) for x in roots for y in x for z in y]
+            yield from res
 
     def get_roots_of_unity_core(self):
         iters = self.iters.copy()
         if self.inverse:
             iters.reverse()
         for cur_iter, merged in iters:
-            yield f"// layer {cur_iter}"
+            if self.print_label:
+                yield f"roots_l{''.join([str(i) for i in range(cur_iter,cur_iter+merged)])}:"
             yield from self.roots_of_unity_for_layer(cur_iter,merged)
 
     def get_roots_of_unity_real(self):
@@ -261,7 +275,6 @@ class NttRootGen():
                         if diff != 0:
                             yield "// Padding"
                             yield from [".word 0"] * diff
-                    yield "// Blocked layers start"
                 if self.block_strided_twiddles:
                     yield from [f".{twiddlesize} {twiddle}"] * (self.elements_per_vector // stride)
                     count += (self.elements_per_vector // stride)
@@ -308,7 +321,7 @@ def main():
     ntt_kyber_l345.export("../naive/ntt_kyber_12_345_67_twiddles.s")
     ntt_kyber_l345.export("../opt/ntt_kyber_12_345_67_twiddles.s")
 
-    ntt_kyber_l123 = NttRootGen(size=256,modulus=3329,root=17,layers=7,iters=[(0,3),(3,2),(5,2)])
+    ntt_kyber_l123 = NttRootGen(size=256,modulus=3329,root=17,layers=7,iters=[(0,3),(3,2),(5,2)], pad=[0,3], print_label=True, widen_single_twiddles_to_words=False)
     ntt_kyber_l123.export("../naive/ntt_kyber_123_45_67_twiddles.s")
     ntt_kyber_l123.export("../opt/ntt_kyber_123_45_67_twiddles.s")
 
