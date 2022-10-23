@@ -15,16 +15,14 @@ for solving the following tasks _simultaneously_:
 **HeLight55** is the primary instantiation of
 Slothy, using models fof the [Armv8.1-M](https://developer.arm.com/documentation/ddi0553/latest) +
 [Helium](https://www.arm.com/technologies/helium) architecture and aspects of the
-[Cortex-M55r1](https://www.arm.com/products/silicon-ip-cpu/cortex-m/cortex-m55) microarchitecture.
-
-Slothy + HeLight55 are discussed in detail in the paper [Towards perfect CRYSTALS for
-Helium](https://eprint.iacr.org/2022/1303).
+[Cortex-M55r1](https://www.arm.com/products/silicon-ip-cpu/cortex-m/cortex-m55) microarchitecture. Slothy + HeLight55
+are discussed in detail in the paper [Towards perfect CRYSTALS for Helium](https://eprint.iacr.org/2022/1303).
 
 The repository also contains an experimental instantiation **NeLight** for aspects of the AArch64 + Neon architecture.
 
-The goal of Slothy is to enable optimal code for critical workloads which are too complex for other methods
-such as autovectorization or intrinsics to provide high performance results, or for which every last % of performance
-counts.
+The goal of Slothy is to enable optimal code for workloads which are too complex for other methods
+such as autovectorization or intrinsics to yield high(est) performance results, and for which every last % of
+performance counts.
 
 ### How it works
 
