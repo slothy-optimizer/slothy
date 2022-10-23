@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a derivative of work originally developed and hosted as part of the [PQMX](https://gitlab.com/arm-research/security/pqmx) repository.
+This repository is derived from work originally developed and hosted as part of the [Arm PQMX](https://gitlab.com/arm-research/security/pqmx) repository.
 
 ### Overview
 
@@ -12,21 +12,19 @@ for solving the following tasks _simultaneously_:
 2. Register allocation, and
 3. Software pipelining (= periodic loop interleaving)
 
-It maintains the input code's data flow graph and choice of instructions.
-
 **HeLight55** is the primary instantiation of
 Slothy, using models fof the [Armv8.1-M](https://developer.arm.com/documentation/ddi0553/latest) +
 [Helium](https://www.arm.com/technologies/helium) architecture and aspects of the
 [Cortex-M55r1](https://www.arm.com/products/silicon-ip-cpu/cortex-m/cortex-m55) microarchitecture.
+
+Slothy + HeLight55 are discussed in detail in the paper [Towards perfect CRYSTALS for
+Helium](https://eprint.iacr.org/2022/1303).
 
 The repository also contains an experimental instantiation **NeLight** for aspects of the AArch64 + Neon architecture.
 
 The goal of Slothy is to enable optimal code for critical workloads which are too complex for other methods
 such as autovectorization or intrinsics to provide high performance results, or for which every last % of performance
 counts.
-
-Slothy + HeLight55 are the discussed in detail in the paper [Towards perfect CRYSTALS for
-Helium](https://eprint.iacr.org/2022/1303).
 
 ### How it works
 
