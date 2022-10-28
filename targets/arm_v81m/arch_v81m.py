@@ -942,6 +942,57 @@ class vshr(Instruction):
     def write(self):
         return f"vshr.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
 
+class vshrnbt(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vshrnbt.<dt>",
+                         arg_types_in=[RegisterType.MVE],
+                         arg_types_in_out=[RegisterType.MVE])
+
+    def parse(self, src):
+        vshrn_regexp_txt = "v(?P<round>r)?shrn(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vshrn_regexp_txt = Instruction.unfold_abbrevs(vshrn_regexp_txt)
+        vshrn_regexp = re.compile(vshrn_regexp_txt)
+        p = vshrn_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+        self.args_out = []
+        self.args_in_out     = [ p.group("vec") ]
+        self.args_in         = [ p.group("src") ]
+
+        self.datatype   = p.group("datatype")
+        self.shift      = p.group("shift")
+        self.bt         = p.group("bt")
+        self.round      = p.group("round") if p.group("round") else ''
+
+    def write(self):
+        return f"v{self.round}shrn{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.shift}"
+
+
+
+class vrev(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vrev.<dt>",
+                         arg_types_in=[RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
+    def parse(self, src):
+        vrev_regexp_txt = "vrev(?P<dt0>\w+)\.(?P<dt1>\w+)\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)"
+        vrev_regexp_txt = Instruction.unfold_abbrevs(vrev_regexp_txt)
+        vrev_regexp = re.compile(vrev_regexp_txt)
+        p = vrev_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+        self.args_in     = [ p.group("src") ]
+        self.args_out    = [ p.group("dst") ]
+        self.args_in_out = []
+
+        self.datatypes   = [p.group("dt0"), p.group("dt1")]
+
+
+    def write(self):
+        return f"vrev{self.datatypes[0]}.{self.datatypes[1]} {self.args_out[0]}, {self.args_in[0]}"
+
+
 class vshl(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vshl.<dt>",
