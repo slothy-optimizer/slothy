@@ -212,15 +212,15 @@ class Instruction:
         return False
 
     def is_load_store_instruction(self):
-        return self._is_instance_of([ vldr, vstr, vld4, vst4, ldrd, strd, qsave, qrestore, save, restore, saved, restored ])
+        return self._is_instance_of([ vldr, vstr, vld2, vld4, vst2, vst4, ldrd, strd, qsave, qrestore, save, restore, saved, restored ])
     def is_vector_load(self):
-        return self._is_instance_of([ vldr, vld4, qrestore ])
+        return self._is_instance_of([ vldr, vld2, vld4, qrestore ])
     def is_scalar_load(self):
         return self._is_instance_of([ ldrd, ldr, restore, restored ])
     def is_load(self):
         return self.is_vector_load() or self.is_scalar_load()
     def is_vector_store(self):
-        return self._is_instance_of([ vstr, vst4, qsave ])
+        return self._is_instance_of([ vstr, vst2, vst4, qsave ])
     def is_stack_store(self):
         return self._is_instance_of([ qsave, saved, save ])
     def is_stack_load(self):
@@ -942,6 +942,104 @@ class vshr(Instruction):
     def write(self):
         return f"vshr.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
 
+class vshrnbt(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vshrnbt.<dt>",
+                         arg_types_in=[RegisterType.MVE],
+                         arg_types_in_out=[RegisterType.MVE])
+
+    def parse(self, src):
+        vshrn_regexp_txt = "v(?P<round>r)?shrn(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vshrn_regexp_txt = Instruction.unfold_abbrevs(vshrn_regexp_txt)
+        vshrn_regexp = re.compile(vshrn_regexp_txt)
+        p = vshrn_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+        self.args_out = []
+        self.args_in_out     = [ p.group("vec") ]
+        self.args_in         = [ p.group("src") ]
+
+        self.datatype   = p.group("datatype")
+        self.shift      = p.group("shift")
+        self.bt         = p.group("bt")
+        self.round      = p.group("round") if p.group("round") else ''
+
+    def write(self):
+        return f"v{self.round}shrn{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.shift}"
+
+class vshllbt(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vshllbt.<dt>",
+                         arg_types_in=[RegisterType.MVE],
+                         arg_types_in_out=[RegisterType.MVE])
+
+    def parse(self, src):
+        vshll_regexp_txt = "vshll(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vshll_regexp_txt = Instruction.unfold_abbrevs(vshll_regexp_txt)
+        vshll_regexp = re.compile(vshll_regexp_txt)
+        p = vshll_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+        self.args_out = []
+        self.args_in_out     = [ p.group("vec") ]
+        self.args_in         = [ p.group("src") ]
+
+        self.datatype   = p.group("datatype")
+        self.shift      = p.group("shift")
+        self.bt         = p.group("bt")
+
+    def write(self):
+        return f"vshll{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.shift}"
+
+
+class vmovlbt(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vmovl.<dt>",
+                         arg_types_in=[RegisterType.MVE],
+                         arg_types_in_out=[RegisterType.MVE])
+
+    def parse(self, src):
+        vmovl_regexp_txt = "vmovl(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*"
+        vmovl_regexp_txt = Instruction.unfold_abbrevs(vmovl_regexp_txt)
+        vmovl_regexp = re.compile(vmovl_regexp_txt)
+        p = vmovl_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+        self.args_out = []
+        self.args_in_out     = [ p.group("vec") ]
+        self.args_in         = [ p.group("src") ]
+
+        self.datatype   = p.group("datatype")
+        self.bt         = p.group("bt")
+
+    def write(self):
+        return f"vmovl{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}"
+
+
+class vrev(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vrev.<dt>",
+                         arg_types_in=[RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
+    def parse(self, src):
+        vrev_regexp_txt = "vrev(?P<dt0>\w+)\.(?P<dt1>\w+)\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)"
+        vrev_regexp_txt = Instruction.unfold_abbrevs(vrev_regexp_txt)
+        vrev_regexp = re.compile(vrev_regexp_txt)
+        p = vrev_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+        self.args_in     = [ p.group("src") ]
+        self.args_out    = [ p.group("dst") ]
+        self.args_in_out = []
+
+        self.datatypes   = [p.group("dt0"), p.group("dt1")]
+
+
+    def write(self):
+        return f"vrev{self.datatypes[0]}.{self.datatypes[1]} {self.args_out[0]}, {self.args_in[0]}"
+
+
 class vshl(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vshl.<dt>",
@@ -964,6 +1062,29 @@ class vshl(Instruction):
 
     def write(self):
         return f"vshl.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
+
+class vshl_T3(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vshl.<dt>",
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
+    def parse(self, src):
+        vshl_regexp_txt = "vshl\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
+        vshl_regexp_txt = Instruction.unfold_abbrevs(vshl_regexp_txt)
+        vshl_regexp = re.compile(vshl_regexp_txt)
+        p = vshl_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+        self.args_in     = [ p.group("src0"), p.group("src1")]
+        self.args_out    = [ p.group("dst") ]
+        self.args_in_out = []
+
+        self.datatype = p.group("datatype")
+
+    def write(self):
+        return f"vshl.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+
 
 class vshlc(Instruction):
     def __init__(self):
@@ -1281,6 +1402,88 @@ class vldr_gather(Instruction):
 
         return f"vldr{self.width}.{self.datatype} {self.args_out[0]}, {addr}"
 
+class vld2(Instruction):
+    def __init__(self):
+        pass
+
+    def parse(self, src):
+
+        regexp = "\s*(?P<variant>vld2(?P<idx>[0-1])\.<dt>)\s+"\
+                "{\s*(?P<out0>\w+)\s*,"\
+                 "\s*(?P<out1>\w+)\s*}"\
+                 "\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
+        regexp = Instruction.unfold_abbrevs(regexp)
+
+        p = re.compile(regexp).match(src)
+        if p is None:
+            raise Instruction.ParsingException( "Didn't match regexp" )
+
+        arg_types_in = [ RegisterType.GPR ]
+        idx = int(p.group("idx"))
+
+        # NOTE: The output registers in all variants of VLD2 are input/output
+        #       because they're only partially overwritten. However, as a whole,
+        #       a block of VLD2{0-1} completely overwrites the output registers
+        #       and should therefore be allowed to perform register renaming.
+        #
+        #       We model this by treading the output registers as pure outputs
+        #       for VLD20, and as input/outputs for VLD21.
+        #
+        #       WARNING/TODO This only works for code using VLD2{0-1} in ascending order.
+        if idx == 0:
+            arg_types_out = [ RegisterType.MVE,
+                              RegisterType.MVE ]
+            arg_types_in_out = []
+
+        else:
+            arg_types_out = []
+            arg_types_in_out = [ RegisterType.MVE,
+                                 RegisterType.MVE ]
+
+        super().__init__(mnemonic="vld2",
+                         arg_types_in=arg_types_in,
+                         arg_types_out=arg_types_out,
+                         arg_types_in_out=arg_types_in_out)
+
+        self.idx = int(p.group("idx"))
+        self.variant = p.group("variant")
+        self.writeback = (p.group("writeback") != "")
+        self.addr = p.group("reg")
+        self.args_in = [ self.addr ]
+
+        self.pre_index  = None
+        self.post_index = None
+        self.increment  = None
+
+        if self.writeback:
+            self.post_index = "32"
+            self.increment = "32"
+
+        if self.idx == 0:
+            self.args_out_combinations = [ ( [ 0, 1], [ [ f"q{i}", f"q{i+1}" ] for i in range(0,7) ] ) ]
+            self.args_out_restrictions = [ [ f"q{i}" for i in range(0,7) ],
+                                           [ f"q{i}" for i in range(1,8) ]]
+            self.args_out    = [ p.group("out0"),
+                                 p.group("out1") ]
+            self.args_in_out = []
+        else:
+            self.args_in_out = [ p.group("out0"),
+                                 p.group("out1") ]
+            self.args_out = []
+
+    def write(self):
+        inc = ""
+        if self.writeback:
+            inc = "!"
+
+        addr = f"[{self.args_in[0]}]"
+
+        if self.idx == 0:
+            return f"{self.variant} {{{','.join(self.args_out)}}}, {addr}{inc}"
+        else:
+            return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
+
+
 class vld4(Instruction):
     def __init__(self):
         pass
@@ -1373,6 +1576,87 @@ class vld4(Instruction):
             return f"{self.variant} {{{','.join(self.args_out)}}}, {addr}{inc}"
         else:
             return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
+
+class vst2(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vst2",
+                arg_types_in=[RegisterType.GPR,
+                              RegisterType.MVE, RegisterType.MVE])
+
+    def parse(self, src):
+
+        regexp = "\s*(?P<variant>vst2(?P<idx>[0-1])\.<dt>)\s+"\
+                "{\s*(?P<out0>\w+)\s*,"\
+                 "\s*(?P<out1>\w+)\s*}"\
+                 "\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
+        regexp = Instruction.unfold_abbrevs(regexp)
+
+        p = re.compile(regexp).match(src)
+        if p is None:
+            raise Instruction.ParsingException( "Didn't match regexp" )
+        idx = int(p.group("idx"))
+
+        if idx == 1:
+            arg_types_in = [ RegisterType.GPR,
+                             RegisterType.MVE,
+                             RegisterType.MVE ]
+            arg_types_in_out = []
+            arg_types_out = []
+        else:
+            ### NOTE: We model VST20 as modifying the input vectors solely to enforce
+            ###       the ordering VST2{0,1} -- they of course don't actually modify the contents
+            arg_types_in = [ RegisterType.GPR ]
+            arg_types_out = []
+            arg_types_in_out = [ RegisterType.MVE,
+                                 RegisterType.MVE ]
+
+
+        super().__init__(mnemonic="vst2",
+                         arg_types_in=arg_types_in,
+                         arg_types_out=arg_types_out,
+                         arg_types_in_out=arg_types_in_out)
+
+        self.idx = idx
+        self.pre_index  = None
+        self.post_index = None
+        self.increment  = None
+
+        self.addr = p.group("reg")
+        if self.idx == 1:
+            self.args_in = [ self.addr,
+                             p.group("out0"),
+                             p.group("out1") ]
+            self.args_in_out = []
+            self.args_out = []
+            self.args_in_combinations = [
+                ( [1,2], [ [ f"q{i}", f"q{i+1}" ] for i in range(0,7) ] )
+            ]
+        else:
+            self.args_in = [ self.addr ]
+            self.args_in_out = [
+                             p.group("out0"),
+                             p.group("out1") ]
+            self.args_out = []
+
+        self.variant = p.group("variant")
+        self.writeback = (p.group("writeback") != "")
+
+        if self.writeback:
+            self.post_index = "32"
+            self.increment = "32"
+
+    def write(self):
+        inc = ""
+        if self.writeback:
+            inc = "!"
+
+        addr = f"[{self.args_in[0]}]"
+
+        if self.idx == 1:
+            return f"{self.variant} {{{','.join(self.args_in[1:])}}}, {addr}{inc}"
+        else:
+            return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
+
 
 class vst4(Instruction):
     def __init__(self):

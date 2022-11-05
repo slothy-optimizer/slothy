@@ -75,7 +75,8 @@ def _add_st_ld_hazard(slothy):
         if not instA.inst.is_vector_store() or not instB.inst.is_load():
             return False
         if slothy.config.constraints.st_ld_hazard_ignore_scattergather and \
-           ( isinstance(instA, vst4) or isinstance(instB, vld4) ):
+           ( isinstance(instA, vst2) or isinstance(instA, vld2) \
+             or isinstance(instA, vst4) or isinstance(instB, vld4) ):
             return False
         if slothy.config.constraints.st_ld_hazard_ignore_stack and \
            (instB.inst.is_stack_load() or instA.inst.is_stack_store()):
@@ -119,11 +120,16 @@ execution_units = {
     pkhbt       : ExecutionUnit.SCALAR,
     add_imm     : ExecutionUnit.SCALAR,
     sub_imm     : ExecutionUnit.SCALAR,
+    vshrnbt     : ExecutionUnit.VEC_INT,
     vrshr       : ExecutionUnit.VEC_INT,
     vrshl       : ExecutionUnit.VEC_INT,
     vshr        : ExecutionUnit.VEC_INT,
     vshl        : ExecutionUnit.VEC_INT,
+    vshl_T3     : ExecutionUnit.VEC_INT,
     vshlc       : ExecutionUnit.VEC_INT,
+    vshllbt     : ExecutionUnit.VEC_INT,
+    vmovlbt     : ExecutionUnit.VEC_INT,
+    vrev        : ExecutionUnit.VEC_INT,
     vdup        : ExecutionUnit.VEC_INT,
     vmov_imm    : [ ExecutionUnit.VEC_INT,
                     ExecutionUnit.VEC_MUL ],
@@ -161,8 +167,10 @@ execution_units = {
     qrestore    : ExecutionUnit.STACK,
     vldr        : ExecutionUnit.LOAD,
     vldr_gather : ExecutionUnit.LOAD,
+    vld2        : ExecutionUnit.LOAD,
     vld4        : ExecutionUnit.LOAD,
     vstr        : ExecutionUnit.STORE,
+    vst2        : ExecutionUnit.STORE,
     vst4        : ExecutionUnit.STORE,
     vcmul       : ExecutionUnit.VEC_FPU,
     vcmla       : ExecutionUnit.VEC_FPU,
@@ -189,10 +197,15 @@ inverse_throughput = {
       saved, save )    : 1,
     ( vrshr,
       vrshl,
+      vshrnbt,
       vdup,
       vshr,
       vshl,
+      vshl_T3,
       vshlc,
+      vshllbt,
+      vmovlbt,
+      vrev,
       vadd_sv,
       vadd_vv,
       vsub,
@@ -220,7 +233,9 @@ inverse_throughput = {
       qrestore,
       vldr,
       vldr_gather,
+      vld2,
       vld4,
+      vst2,
       vst4,
       vcmul,
       vcmla,
@@ -244,7 +259,9 @@ default_latencies = {
       sub_imm,
       vshr,
       vshl,
+      vshl_T3,
       vshlc,
+      vrev,
       vdup,
       vmov_imm,
       vmov_double_v2r,
@@ -263,10 +280,15 @@ default_latencies = {
       restore,
       vldr,
       vldr_gather,
+      vld2,
       vld4,
+      vst2,
       vst4 )           : 1,
     ( vrshr,
       vrshl,
+      vshrnbt,
+      vshllbt,
+      vmovlbt,
       vmulh,
       vmul_T1,
       vmul_T2,
@@ -340,10 +362,12 @@ def get_latency(src, out_idx, dst):
 
     # Inputs to VST4x seem to have higher latency
     # Use 3 cycles as an upper bound here.
-    if instclass_dst == vst4            and \
+    if (instclass_dst == vst4 or instclass_dst == vst2)     and \
        instclass_src in [ vshr,
                           vshl,
+                          vshl_T3,
                           vshlc,
+                          vrev,
                           vdup,
                           vmov_imm,
                           vadd_vv,
@@ -356,7 +380,10 @@ def get_latency(src, out_idx, dst):
                           vand,
                           vorr,
                           vrshr,
+                          vshrnbt,
                           vrshl,
+                          vshllbt,
+                          vmovlbt,
                           vmulh,
                           vmul_T1,
                           vmul_T2,
