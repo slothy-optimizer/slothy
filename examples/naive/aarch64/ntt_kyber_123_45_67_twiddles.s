@@ -2,6 +2,7 @@
 ///
 /// Copyright (c) 2022 Arm Limited
 /// Copyright (c) 2022 Hanno Becker
+/// Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 /// SPDX-License-Identifier: MIT
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,6 +24,7 @@
 /// SOFTWARE.
 ///
 
+.p2align 2
 roots_l012:
 .short -1600
 .short -15749

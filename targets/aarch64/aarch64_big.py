@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -48,7 +49,7 @@ from .aarch64_neon import *
 
 # As mentioned above, we're not actually modelling the backend here, but the frontend,
 # so it should rather be called dispatch rate.
-issue_rate = 8
+issue_rate = 6
 
 class ExecutionUnit(Enum):
     LOAD0=auto()
@@ -60,6 +61,10 @@ class ExecutionUnit(Enum):
     VALU1=auto()
     VALU2=auto()
     VALU3=auto()
+    ALUS0=auto()
+    ALUS1=auto()
+    ALUSM0=auto()
+    ALUSM1=auto()
     def __repr__(self):
         return self.name
 
@@ -74,17 +79,33 @@ class ExecutionUnit(Enum):
     def V01():
         return [ExecutionUnit.VALU0,
                 ExecutionUnit.VALU1]
+    def V13():
+        return [ExecutionUnit.VALU1,
+                ExecutionUnit.VALU3]
+    def L01():
+        return [ExecutionUnit.LOAD0,
+                ExecutionUnit.LOAD1]
     def L012():
         return [ExecutionUnit.LOAD0,
                 ExecutionUnit.LOAD1,
                 ExecutionUnit.LOAD2]
+    def I():
+        return [
+            ExecutionUnit.ALUS0,
+            ExecutionUnit.ALUS1,
+            ExecutionUnit.ALUSM0,
+            ExecutionUnit.ALUSM1,
+        ]
+    def S01():
+        return [ExecutionUnit.STORE0,
+                ExecutionUnit.STORE1]
 
-# Opaque function called by SLOTHY to add further microarchitecture-
+# Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
     # Try to shave off complexity by only allowing early _loads_
     # slothy.restrict_early_late_instructions(lambda i: _find_class(i) == vldr)
-    # _forbid_back_to_back_mul(slothy)
+    _forbid_back_to_back_mul(slothy)
     _restrict_mul_slots(slothy)
     return
 
@@ -112,7 +133,7 @@ def _forbid_back_to_back_mul(slothy):
     for mul0, mul1 in slothy.get_inst_pairs(is_mul_pair):
         slothy._Add( mul0.program_start_var != mul1.program_start_var + 1 )
 
-# Opaque function called by SLOTHY to add further microarchitecture-
+# Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
 def has_min_max_objective(slothy):
     return False
@@ -120,15 +141,45 @@ def get_min_max_objective(slothy):
     return
 
 execution_units = {
-    ( add, sub ) : ExecutionUnit.V0123(),
-    ( mul, mla, sqrdmulh ) : ExecutionUnit.V02(),
+    ( vadd, vsub, trn1, trn2 ) : ExecutionUnit.V0123(),
+    ( vmls, vmls_lane,
+      vmul, vmul_lane,
+      vqrdmulh, vqrdmulh_lane,
+      vmul, vmul_lane,
+      vmla, vmla_lane,
+      vqrdmulh, vqrdmulh_lane,
+      vqdmulh_lane ) : ExecutionUnit.V02(),
+    ( vsrshr ) : ExecutionUnit.V13(),
+    (vext) : ExecutionUnit.V01(),
+    (vins) : [[ExecutionUnit.ALUSM0], ExecutionUnit.V0123()],
     ( vldr ) : ExecutionUnit.L012(),
-    ( vstr ) : ExecutionUnit.V01(), # TODO: Also occupy STORE
+    ( vstr ) : [ExecutionUnit.V01(), ExecutionUnit.S01()],
+    (x_str) : [ExecutionUnit.L01(), ExecutionUnit.S01()],
+    (str_vi_wrapper, str_vo_wrapper, st4) : [ExecutionUnit.L01(), ExecutionUnit.V0123()],
+    (ld4) : [ExecutionUnit.L01(), ExecutionUnit.V0123()],
+    (ldr_vi_wrapper, ldr_vo_wrapper, x_ldr) : [ExecutionUnit.L012(), ExecutionUnit.I()],
+    (mov_imm, add, add_shifted, sub, subs) : ExecutionUnit.I(),
+    (restore, qrestore) : [ExecutionUnit.L01(), ExecutionUnit.V0123(), ExecutionUnit.I()]
 }
 
 inverse_throughput = {
-    ( add, sub, mul, mla, sqrdmulh, vstr ) : 1,
+    ( vstr, mov_imm,
+      trn1, trn2,
+      str_vi_wrapper, str_vo_wrapper, ldr_vi_wrapper, ldr_vo_wrapper,
+      vadd, vsub, st4, x_ldr, x_str) : 1,
+    (add, add_shifted, sub) : 1,
+    (vmul, vmul_lane,
+     vqrdmulh, vqrdmulh_lane,
+     vmla, vmla_lane,
+     vmls, vmls_lane,
+     vqdmulh_lane,
+     vsrshr) : 1,
+    (vext): 1,
+    (vins) : 1,
     vldr : 1,
+    (ld4) : 2,  # TODO: double check
+    (qrestore) : 2,
+    (restore) : 3
 }
 
 default_latencies = {
@@ -136,21 +187,40 @@ default_latencies = {
     # strict about them as we're optimizing for an OOO core. Still, we don't
     # want to completely disregard them, as otherwise we might risk overflowing
     # issue queues.
-    ( vldr) : 3,
-    ( add, sub ) : 2,
-    ( mul, mla, sqrdmulh ) : 2,
+    ( vldr, ldr_vi_wrapper, ldr_vo_wrapper ) : 6//2,
+    (x_ldr) : 4//2,
+    (x_str) : 1,
+    ( st4 ) : 5//2,
+    ( ld4 ) : 9//2,
+    ( vadd, vsub, vstr, str_vi_wrapper, str_vo_wrapper, trn1, trn2 ) : 2//2,
+    ( vmul, vmul_lane,
+      vmla, vmla_lane,
+      vmls, vmls_lane,
+      vqrdmulh, vqrdmulh_lane,
+      vqdmulh_lane, vsrshr ) : 4//2,
+    (add, add_shifted, sub, subs, mov_imm) : 1,
+    (vext) : 2//2,
+    (vins) : 5//2,
+    (qrestore) : 9//2,
+    (restore) : 13//2
 
     # True latencies
-    # ( vldr) : 6,
-    # ( add, sub ) : 2,
-    # ( mul, mla, sqrdmulh ) : 4,
+    # ( vldr, ldr_vi_wrapper, ldr_vo_wrapper ) : 6,
+    # ( st4 ) : 5,
+    # ( add, sub, vadd_wrapper, vsub_wrapper, vstr, str_vi_wrapper, str_vo_wrapper, trn1_d_wrapper, trn2_d_wrapper, trn1_s_wrapper, trn2_s_wrapper ) : 2,
+    # ( mul, mla, sqrdmulh, vmul_wrapper, vmul_lane_wrapper, vmla_wrapper, vqrdmulh_wrapper, vqrdmulh_lane_wrapper, vqdmulh_lane_wrapper, vsrshr ) : 4,
+    # (sub_wrapper, subs_wrapper, mov_imm_wrapper) : 1,
+    # (qrestore) : 9,
+    # (restore) : 13
 }
 
 def _find_class(src):
-    for inst_class in Instruction.__subclasses__():
+    cls_list  = [ c for c in Instruction.__subclasses__() if not c == AArch64Instruction ]
+    cls_list += AArch64Instruction.__subclasses__()
+    for inst_class in cls_list:
         if isinstance(src,inst_class):
             return inst_class
-    raise Exception("Couldn't find instruction class")
+    raise Exception(f"Couldn't find instruction class for {src} (type {type(src)})")
 
 def _lookup_multidict(d, k, default=None):
     for l,v in d.items():
@@ -171,7 +241,8 @@ def get_latency(src, out_idx, dst):
 
     # Fast mul->mla forwarding
     # TODO: Need to take the input index into account here
-    if instclass_src == mul and instclass_dst == mla:
+    if instclass_src in [vmul, vmul_lane] and \
+       instclass_dst in [vmla, vmla_lane]:
         return 1
 
     return default_latency

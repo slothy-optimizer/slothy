@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,12 +27,13 @@
 
 import targets.arm_v81m.arch_v81m as Arch_Armv81M
 import targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
+import targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 import targets.arm_v81m.helium_experimental as Target_Helium_Experimental
 
 import targets.aarch64.aarch64_neon as AArch64_Neon
 import targets.aarch64.cortex_a55 as Target_CortexA55
+import targets.aarch64.cortex_a72_frontend as Target_CortexA72_Frontend
 import targets.aarch64.aarch64_big as Target_AArch64_Big
-import targets.aarch64.aarch64_experimental as Target_AArch64_Experimental
 
 class Archery:
     """This is a small helper class for querying architectures"""
@@ -40,10 +42,12 @@ class Archery:
                "Arm_AArch64" : AArch64_Neon }
 
     _targets = { "Arm_Cortex_M55" : Target_CortexM55r1,
+                 "Arm_Cortex_M85" : Target_CortexM85r1,
                  "Arm_Helium_Experimental" : Target_Helium_Experimental,
                  "Arm_Cortex_A55" : Target_CortexA55,
+                 "Arm_Cortex_A72_frontend" : Target_CortexA72_Frontend,
                  "Arm_AArch64_Big" : Target_AArch64_Big,
-                 "Arm_AArch64_Experimental" : Target_AArch64_Experimental }
+                 "Arm_Cortex_X1" : Target_AArch64_Big }
 
     def list_archs():
         """Lists all available architectures"""

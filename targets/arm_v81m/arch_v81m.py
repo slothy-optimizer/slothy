@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,6 +34,7 @@
 
 import logging
 import re
+import math
 
 from sympy import simplify
 from enum import Enum
@@ -48,11 +50,12 @@ class RegisterType(Enum):
     def __repr__(self):
         return self.name
 
-    def list_registers(reg_type, only_extra=False, only_normal=False):
+    def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
 
         qstack_locations = [ f"QSTACK{i}" for i in range(8) ]
-        stack_locations  = [ f"STACK{i}"  for i in range(8) ]
+        stack_locations  = [ f"STACK{i}"  for i in range(8) ] + [ "ROOT0_STACK", "ROOT1_STACK", "ROOT4_STACK", "RPTR_STACK" ]
+
 
         gprs_normal  = [ f"r{i}" for i in range(13) ] + ['r14']
         vregs_normal = [ f"q{i}" for i in range(8)  ]
@@ -95,14 +98,18 @@ class Loop:
         self.lbl_end   = lbl_end
         pass
 
-    def start(self,indentation=0, fixup=0):
+    def start(self,indentation=0, fixup=0, unroll=1):
         indent = ' ' * indentation
+        if unroll > 1:
+            if not unroll in [1,2,4,8,16,32]:
+                raise Exception("unsupported unrolling")
+            yield f"{indent}lsr lr, lr, #{int(math.log2(unroll))}"
         if fixup != 0:
             yield f"{indent}sub lr, lr, #{fixup}"
         yield f".p2align 2"
         yield f"{self.lbl_start}:"
 
-    def end(self,indentation=0):
+    def end(self,unused,indentation=0):
         indent = ' ' * indentation
         lbl_start = self.lbl_start
         if lbl_start.isdigit():
@@ -148,7 +155,7 @@ class Loop:
                 continue
         if state < 2:
             raise Exception(f"Couldn't identify loop {lbl}")
-        return pre, body, post, lbl
+        return pre, body, post, lbl, None
 
 class Instruction:
 
@@ -190,6 +197,7 @@ class Instruction:
         self.args_in_out_restrictions = [ None for _ in range(self.num_in_out) ]
 
         self.args_out_combinations = None
+        self.args_in_out_combinations = None
         self.args_in_combinations = None
 
     def global_parsing_cb(self,a,b):
@@ -375,6 +383,22 @@ class vmul_T1(Instruction):
         super().__init__(mnemonic="vmul.<dt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                          arg_types_out=[RegisterType.MVE])
+
+class vmulf_T2(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vmul.<fdt>",
+                         arg_types_in=[RegisterType.MVE, RegisterType.GPR],
+                         arg_types_out=[RegisterType.MVE])
+def write(self):
+    return f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+
+class vmulf_T1(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vmul.<fdt>",
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+    def write(self):
+        return f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
 
 class vqrdmulh_T1(Instruction):
     def __init__(self):
@@ -1086,38 +1110,45 @@ class vshl_T3(Instruction):
         return f"vshl.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
 
 
-class vshlc(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="vshlc",
-                arg_types_in_out=[RegisterType.MVE, RegisterType.GPR])
-
-    def parse(self, src):
-        vshlc_regexp_txt = "vshlc\s+(?P<vec>\w+)\s*,\s*(?P<gpr>\w+)\s*,\s*(?P<shift>#.*)"
-        vshlc_regexp_txt = Instruction.unfold_abbrevs(vshlc_regexp_txt)
-        vshlc_regexp = re.compile(vshlc_regexp_txt)
-        p = vshlc_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in_out = [ p.group("vec"), p.group("gpr") ]
-        self.args_out    = []
-        self.args_in     = []
-
-        self.shift = p.group("shift")
-
-    def write(self):
-        return f"vshlc {self.args_in_out[0]}, {self.args_in_out[1]}, {self.shift}"
-
 class vfma(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vfma.<fdt>",
                 arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                 arg_types_in_out=[RegisterType.MVE])
 
+    def parse(self, src):
+        vfma_regexp_txt = "vfma\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
+        vfma_regexp_txt = Instruction.unfold_abbrevs(vfma_regexp_txt)
+        vfma_regexp = re.compile(vfma_regexp_txt)
+        p = vfma_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+
+        self.args_in     = [ p.group("src0"), p.group("src1") ]
+        self.args_in_out = [ p.group("dst") ]
+        self.args_out    = [  ]
+        self.datatype = p.group("datatype")
+
+    def write(self):
+        return f"vfma.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+
 class vmla(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vmla.<dt>",
                 arg_types_in=[RegisterType.MVE, RegisterType.GPR],
                 arg_types_in_out=[RegisterType.MVE])
+
+class vmlaldava(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vmlaldava.<dt>",
+                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                arg_types_in_out=[RegisterType.GPR, RegisterType.GPR])
+
+class vaddva(Instruction):
+    def __init__(self):
+        super().__init__(mnemonic="vaddva.<dt>",
+                arg_types_in=[RegisterType.MVE],
+                arg_types_in_out=[RegisterType.GPR])
 
 class vadd_vv(Instruction):
     def __init__(self):
@@ -1821,12 +1852,12 @@ class vcmul(Instruction):
 
 class vcadd(Instruction):
     def __init__(self):
-        super().__init__(mnemonic="vcadd.<fdt>",
+        super().__init__(mnemonic="vcadd.<dt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vcadd_regexp_txt = "vcadd\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcadd_regexp_txt = "vcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vcadd_regexp_txt = Instruction.unfold_abbrevs(vcadd_regexp_txt)
         vcadd_regexp = re.compile(vcadd_regexp_txt)
         p = vcadd_regexp.match(src)
@@ -1838,6 +1869,11 @@ class vcadd(Instruction):
 
         self.datatype = p.group("datatype")
         self.rotation = p.group("rotation")
+
+        if "32" in self.datatype:
+            # First index: output, Second index: Input
+            self.args_in_out_different = [(0,0),(0,1)] # Output must not be the same as any of the inputs
+
 
     def write(self):
         return f"vcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
@@ -1862,7 +1898,7 @@ class vhcadd(Instruction):
         self.datatype = p.group("datatype")
         self.rotation = p.group("rotation")
 
-        if self.datatype == "s32":
+        if "32" in self.datatype:
             # First index: output, Second index: Input
             self.args_in_out_different = [(0,0),(0,1)] # Output must not be the same as any of the inputs
 
@@ -1889,24 +1925,24 @@ class vhcsub(Instruction):
         self.datatype = p.group("datatype")
         self.rotation = p.group("rotation")
 
-        if self.datatype == "s32":
+        if "32" in self.datatype:
             # First index: output, Second index: Input
             self.args_in_out_different = [(0,0),(0,1)] # Output must not be the same as any of the inputs
 
     def write(self):
         return f"vhcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
 
-class vhcaddf(Instruction):
+class vcaddf(Instruction):
     def __init__(self):
-        super().__init__(mnemonic="vhcaddf.<fdt>",
+        super().__init__(mnemonic="vcaddf.<fdt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vhcadd_regexp_txt = "vhcadd\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
-        vhcadd_regexp_txt = Instruction.unfold_abbrevs(vhcadd_regexp_txt)
-        vhcadd_regexp = re.compile(vhcadd_regexp_txt)
-        p = vhcadd_regexp.match(src)
+        vcaddf_regexp_txt = "vcadd\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcaddf_regexp_txt = Instruction.unfold_abbrevs(vcaddf_regexp_txt)
+        vcaddf_regexp = re.compile(vcaddf_regexp_txt)
+        p = vcaddf_regexp.match(src)
         if p is None:
             raise Instruction.ParsingException("Does not match pattern")
         self.args_in     = [ p.group("src0"), p.group("src1") ]
@@ -1916,17 +1952,22 @@ class vhcaddf(Instruction):
         self.datatype = p.group("datatype")
         self.rotation = p.group("rotation")
 
-    def write(self):
-        return f"vhcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        if self.datatype == "f32":
+            # First index: output, Second index: Input
+            self.args_in_out_different = [(0,0),(0,1)] # Output must not be the same as any of the inputs
 
-class vhcsubf(Instruction):
+
+    def write(self):
+        return f"vcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+
+class vcsubf(Instruction):
     def __init__(self):
-        super().__init__(mnemonic="vhcsubf.<fdt>",
+        super().__init__(mnemonic="vcsubf.<fdt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vhcsub_regexp_txt = "vhcsub\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vhcsub_regexp_txt = "vcsub\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vhcsub_regexp_txt = Instruction.unfold_abbrevs(vhcsub_regexp_txt)
         vhcsub_regexp = re.compile(vhcsub_regexp_txt)
         p = vhcsub_regexp.match(src)
@@ -1939,8 +1980,12 @@ class vhcsubf(Instruction):
         self.datatype = p.group("datatype")
         self.rotation = p.group("rotation")
 
+        if self.datatype == "f32":
+            # First index: output, Second index: Input
+            self.args_in_out_different = [(0,0),(0,1)] # Output must not be the same as any of the inputs
+
     def write(self):
-        return f"vhcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        return f"vcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
 
 
 #############################################################

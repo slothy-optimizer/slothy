@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,8 +36,25 @@ class Config(NestedPrint, LockAttributes):
     SlothyBase, as well as stateful multi-pass optimizations using Slothy."""
 
     _default_split_heuristic = False
+    _default_split_heuristic_visualize_stalls = False
+    _default_split_heuristic_visualize_units = False
+    _default_split_heuristic_region = [0.0,1.0]
+    _default_split_heuristic_random = False
+    _default_split_heuristic_chunks = False
+    _default_split_heuristic_optimize_seam = 0
+    _default_split_heuristic_bottom_to_top = False
     _default_split_heuristic_factor = 2
+    _default_split_heuristic_abort_cycle_at = None
+    _default_split_heuristic_stepsize = None
     _default_split_heuristic_repeat = 1
+    _default_split_heuristic_preprocess_naive_interleaving = False
+
+    _default_unsafe_skip_address_fixup = False
+
+    _default_max_solutions = 16
+    _default_timeout = None
+    _default_ignore_objective = False
+    _default_objective_precision = 0
 
     @property
     def Arch(self):
@@ -156,7 +174,7 @@ class Config(NestedPrint, LockAttributes):
     def locked_registers(self):
         """List of architectural registers that should not be renamed when they are
            used as output registers. Reserved registers are always treated as locked."""
-        return self.reserved_regs.union(self._locked_registers)
+        return set(self.reserved_regs).union(self._locked_registers)
 
     @property
     def sw_pipelining(self):
@@ -171,6 +189,48 @@ class Config(NestedPrint, LockAttributes):
         e.g. whether latencies or functional units are modelled.
         See Config.Constraints for more information."""
         return self._constraints
+
+    @property
+    def hints(self):
+        """Subconfiguration for hints to be considered by SLOTHY.
+        See Config.Hints for more information."""
+        return self._hints
+
+    @property
+    def max_solutions(self):
+        return self._max_solutions
+
+    @property
+    def timeout(self):
+        return self._timeout
+
+    @property
+    def unsafe_skip_address_fixup(self):
+        return self._unsafe_skip_address_fixup
+
+    @property
+    def ignore_objective(self):
+        return self._ignore_objective
+
+    @property
+    def objective_precision(self):
+        return self._objective_precision
+
+    @property
+    def has_objective(self):
+        objectives = sum([self.constraints.minimize_depth_displacement != None,
+                          self.sw_pipelining.enabled and
+                          self.sw_pipelining.minimize_overlapping != None,
+                          self.constraints.maximize_register_lifetimes == True,
+                          self.constraints.move_stalls_to_top != None,
+                          self.constraints.move_stalls_to_bottom != None,
+                          self.constraints.minimize_register_usage != None,
+                          self.constraints.minimize_use_of_extra_registers != None,
+                          self.Target.has_min_max_objective(self)])
+        if objectives > 1:
+            raise Exception("Can only pick one optimization objective")
+
+        return objectives == 1
 
     @property
     def split_heuristic(self):
@@ -194,6 +254,76 @@ class Config(NestedPrint, LockAttributes):
             raise Exception("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_factor otherwise.")
         return self._split_heuristic_factor
+
+    @property
+    def split_heuristic_abort_cycle_at(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
+        return self._split_heuristic_abort_cycle_at
+
+    @property
+    def split_heuristic_stepsize(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_stepsize otherwise.")
+        return self._split_heuristic_stepsize
+
+    @property
+    def split_heuristic_random(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_random otherwise.")
+        return self._split_heuristic_random
+
+    @property
+    def split_heuristic_optimize_seam(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_optimize_seam otherwise.")
+        return self._split_heuristic_optimize_seam
+
+    @property
+    def split_heuristic_chunks(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_chunks otherwise.")
+        return self._split_heuristic_chunks
+
+    @property
+    def split_heuristic_bottom_to_top(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_bottom_to_top otherwise.")
+        return self._split_heuristic_bottom_to_top
+
+    @property
+    def split_heuristic_visualize_stalls(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_visualize_stalls otherwise.")
+        return self._split_heuristic_visualize_stalls
+
+    @property
+    def split_heuristic_visualize_units(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_visualize_units otherwise.")
+        return self._split_heuristic_visualize_units
+
+    @property
+    def split_heuristic_region(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_region otherwise.")
+        return self._split_heuristic_region
+
+    @property
+    def split_heuristic_preprocess_naive_interleaving(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise.")
+        return self._split_heuristic_preprocess_naive_interleaving
 
     @property
     def split_heuristic_repeat(self):
@@ -401,9 +531,10 @@ class Config(NestedPrint, LockAttributes):
         """Subconfiguration for performance constraints"""
 
         _default_stalls_allowed = 0
-        _default_stalls_maximum_attempt = 128
+        _default_stalls_maximum_attempt = 512
         _default_stalls_minimum_attempt = 0
-        _default_stalls_precision = 1
+        _default_stalls_precision = 0
+        _default_stalls_timeout_below_precision = None
         _default_stalls_first_attempt = 0
 
         _default_max_relative_displacement = 1.0
@@ -412,6 +543,7 @@ class Config(NestedPrint, LockAttributes):
         _default_model_functional_units = True
         _default_allow_reordering = True
         _default_allow_renaming = True
+        _default_restricted_renaming = None
 
         @property
         def stalls_allowed(self):
@@ -480,6 +612,10 @@ class Config(NestedPrint, LockAttributes):
             return self._stalls_precision
 
         @property
+        def stalls_timeout_below_precision(self):
+            return self._stalls_timeout_below_precision
+
+        @property
         def model_latencies(self):
             f"""Determines whether instruction latencies should be modelled.
 
@@ -529,6 +665,10 @@ class Config(NestedPrint, LockAttributes):
             return self._allow_renaming
 
         @property
+        def restricted_renaming(self):
+            return self._restricted_renaming
+
+        @property
         def max_relative_displacement(self):
             f"""The maximum relative displacement for instructions
 
@@ -550,11 +690,16 @@ class Config(NestedPrint, LockAttributes):
 
             # TODO: Move those to target specific configuration
             self.st_ld_hazard = True
-            self.st_ld_hazard_ignore_scattergather = True
+            self.st_ld_hazard_ignore_scattergather = False
             self.st_ld_hazard_ignore_stack = False
             self.minimize_st_ld_hazards = False
 
+            self.maximize_register_lifetimes = False
+
+            self.move_stalls_to_top = None
+            self.move_stalls_to_bottom = None
             self.minimize_register_usage = None
+            self.minimize_depth_displacement = None
             self.minimize_use_of_extra_registers = None
             self.allow_extra_registers = {}
 
@@ -564,12 +709,14 @@ class Config(NestedPrint, LockAttributes):
             self._model_functional_units = Config.Constraints._default_model_functional_units
             self._allow_reordering = Config.Constraints._default_allow_reordering
             self._allow_renaming = Config.Constraints._default_allow_renaming
+            self._restricted_renaming = Config.Constraints._default_restricted_renaming
 
             self._stalls_allowed = Config.Constraints._default_stalls_allowed
             self._stalls_maximum_attempt = Config.Constraints._default_stalls_maximum_attempt
             self._stalls_minimum_attempt = Config.Constraints._default_stalls_minimum_attempt
             self._stalls_first_attempt = Config.Constraints._default_stalls_first_attempt
             self._stalls_precision = Config.Constraints._default_stalls_precision
+            self._stalls_timeout_below_precision = Config.Constraints._default_stalls_timeout_below_precision
 
             self.lock()
 
@@ -588,6 +735,9 @@ class Config(NestedPrint, LockAttributes):
         @stalls_precision.setter
         def stalls_precision(self,val):
             self._stalls_precision = val
+        @stalls_timeout_below_precision.setter
+        def stalls_timeout_below_precision(self,val):
+            self._stalls_timeout_below_precision = val
         @max_relative_displacement.setter
         def max_relative_displacement(self,val):
             self._max_relative_displacement = val
@@ -603,12 +753,70 @@ class Config(NestedPrint, LockAttributes):
         @allow_renaming.setter
         def allow_renaming(self,val):
             self._allow_renaming = val
+        @restricted_renaming.setter
+        def restricted_renaming(self,val):
+            self._restricted_renaming = val
         @functional_only.setter
         def functional_only(self,val):
             if not val:
                 return
             self._model_latencies = False
             self._model_functional_units = False
+
+    class Hints(NestedPrint, LockAttributes):
+        """Subconfiguration for solver hints"""
+
+        _default_all_core = True
+        _default_order_hint_orig_order = False
+        _default_rename_hint_orig_rename = False
+        _default_ext_bsearch_remember_successes = False
+
+        @property
+        def all_core(self):
+            f"""When SW pipelining is used, hint that all instructions
+                should be 'core' instructions (not early/late).
+
+                Default: {Config.Hints._default_all_core}"""
+            return self._all_core
+
+        @property
+        def order_hint_orig_order(self):
+            f"""Hint at using the initial program order for the
+                program order variables.
+
+                Default: {Config.Hints._default_order_hint_orig_order}"""
+            return self._order_hint_orig_order
+
+        @property
+        def rename_hint_orig_rename(self):
+            f"""Hint at using the initial program order for the
+                program order variables.
+
+                Default: {Config.Hints._default_rename_hint_orig_rename}"""
+            return self._rename_hint_orig_rename
+
+        @property
+        def ext_bsearch_remember_successes(self):
+            return self._ext_bsearch_remember_successes
+
+        def __init__(self):
+            super().__init__()
+
+            self._all_core = Config.Hints._default_all_core
+            self._order_hint_orig_order = Config.Hints._default_order_hint_orig_order
+            self._rename_hint_orig_rename = Config.Hints._default_rename_hint_orig_rename
+            self._ext_bsearch_remember_successes = Config.Hints._default_ext_bsearch_remember_successes
+            self.lock()
+
+        @all_core.setter
+        def all_core(self,val):
+            self._all_core = val
+        @rename_hint_orig_rename.setter
+        def rename_hint_orig_rename(self,val):
+            self._rename_hint_orig_rename = val
+        @order_hint_orig_order.setter
+        def order_hint_orig_order(self,val):
+            self._order_hint_orig_order = val
 
     def __init__(self, Arch, Target):
         super().__init__()
@@ -618,6 +826,7 @@ class Config(NestedPrint, LockAttributes):
 
         self._sw_pipelining = Config.SoftwarePipelining()
         self._constraints = Config.Constraints()
+        self._hints = Config.Hints()
 
         # NOTE: - This saves us from having to do a binary search for the minimum
         #         number of stalls ourselves, but it seems to slow down the tool
@@ -629,7 +838,7 @@ class Config(NestedPrint, LockAttributes):
         self.variable_size = False
 
         self._register_aliases = {}
-        self._outputs = []
+        self._outputs = set()
 
         self._inputs_are_outputs = False
         self._rename_inputs  = { "arch" : "static", "symbolic" : "any" }
@@ -643,12 +852,31 @@ class Config(NestedPrint, LockAttributes):
         self.allow_useless_instructions = False
 
         self._split_heuristic = Config._default_split_heuristic
+        self._split_heuristic_region = Config._default_split_heuristic_region
         self._split_heuristic_factor = Config._default_split_heuristic_factor
+        self._split_heuristic_abort_cycle_at = Config._default_split_heuristic_abort_cycle_at
+        self._split_heuristic_stepsize = Config._default_split_heuristic_stepsize
+        self._split_heuristic_random = Config._default_split_heuristic_random
+        self._split_heuristic_optimize_seam = Config._default_split_heuristic_optimize_seam
+        self._split_heuristic_chunks = Config._default_split_heuristic_chunks
+        self._split_heuristic_bottom_to_top = Config._default_split_heuristic_bottom_to_top
         self._split_heuristic_repeat = Config._default_split_heuristic_repeat
+        self._split_heuristic_preprocess_naive_interleaving = \
+            Config._default_split_heuristic_preprocess_naive_interleaving
+        self._split_heuristic_optimize_seam = Config._default_split_heuristic_optimize_seam
+
+        self._unsafe_skip_address_fixup = Config._default_unsafe_skip_address_fixup
+
+        self._max_solutions = Config._default_max_solutions
+        self._timeout = Config._default_timeout
+        self._ignore_objective = Config._default_ignore_objective
+        self._objective_precision = Config._default_objective_precision
 
         # Visualization
         self.indentation = 8
         self.visualize_reordering = True
+        self._split_heuristic_visualize_stalls = False
+        self._split_heuristic_visualize_units = False
         self.placeholder_char = '.'
 
         self.typing_hints = {} # Dictionary of 'typing hints', assigning symbolic names to register types
@@ -699,12 +927,60 @@ class Config(NestedPrint, LockAttributes):
     @locked_registers.setter
     def locked_registers(self,val):
         self._locked_registers = val
+    @max_solutions.setter
+    def max_solutions(self, val):
+        self._max_solutions = val
+    @timeout.setter
+    def timeout(self, val):
+        self._timeout = val
+    @unsafe_skip_address_fixup.setter
+    def unsafe_skip_address_fixup(self, val):
+        self._unsafe_skip_address_fixup = val
+    @ignore_objective.setter
+    def ignore_objective(self, val):
+        self._ignore_objective = val
+    @objective_precision.setter
+    def objective_precision(self, val):
+        self._objective_precision = val
     @split_heuristic.setter
     def split_heuristic(self, val):
         self._split_heuristic = val
     @split_heuristic_factor.setter
     def split_heuristic_factor(self, val):
-        self._split_heuristic_factor = val
+        self._split_heuristic_factor = float(val)
+    @split_heuristic_abort_cycle_at.setter
+    def split_heuristic_abort_cycle_at(self, val):
+        self._split_heuristic_abort_cycle_at = val
+    @split_heuristic_stepsize.setter
+    def split_heuristic_stepsize(self, val):
+        self._split_heuristic_stepsize = float(val)
+    @split_heuristic_random.setter
+    def split_heuristic_random(self, val):
+        self._split_heuristic_random = val
+    @split_heuristic_chunks.setter
+    def split_heuristic_chunks(self, val):
+        self._split_heuristic_chunks = val
+    @split_heuristic_optimize_seam.setter
+    def split_heuristic_optimize_seam(self, val):
+        self._split_heuristic_optimize_seam = val
+    @split_heuristic_bottom_to_top.setter
+    def split_heuristic_bottom_to_top(self, val):
+        self._split_heuristic_bottom_to_top = val
+    @split_heuristic_visualize_stalls.setter
+    def split_heuristic_visualize_stalls(self, val):
+        self._split_heuristic_visualize_stalls = val
+    @split_heuristic_visualize_units.setter
+    def split_heuristic_visualize_units(self, val):
+        self._split_heuristic_visualize_units = val
+    @split_heuristic_region.setter
+    def split_heuristic_region(self, val):
+        self._split_heuristic_region = val
+    @split_heuristic_preprocess_naive_interleaving.setter
+    def split_heuristic_preprocess_naive_interleaving(self, val):
+        self._split_heuristic_preprocess_naive_interleaving = val
+    @split_heuristic_preprocess_naive_interleaving.setter
+    def split_heuristic_preprocess_naive_interleaving(self, val):
+        self._split_heuristic_preprocess_naive_interleaving = val
     @split_heuristic_repeat.setter
     def split_heuristic_repeat(self, val):
         self._split_heuristic_repeat = val

@@ -1,3 +1,16 @@
+        .syntax unified
+        .type   fixedpoint_radix4_fft, %function
+        .global fixedpoint_radix4_fft
+
+        .text
+        .align 4
+fixedpoint_radix4_fft:
+        push {r4-r12,lr}
+        vpush {d0-d15}
+
+        lsr lr, sz, #2
+        wls lr, lr, end
+
 fixedpoint_radix4_fft_loop_start:
         vldrw.s32     vA,   [inA]
         vldrw.s32     vC,   [inC]
@@ -25,3 +38,8 @@ fixedpoint_radix4_fft_loop_start:
         vqdmlsdh.s32  vT1,  vW,    vT0
         vstrw.s32     vT1,  [inD], #16
         le lr, fixedpoint_radix4_fft_loop_start
+
+end:
+        vpop {d0-d15}
+        pop {r4-r12,lr}
+        bx lr

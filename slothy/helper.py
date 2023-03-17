@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -57,135 +58,6 @@ class LockAttributes(object):
         elif self._locked and attr == "_locked":
             raise TypeError("Can't unlock an object")
         object.__setattr__(self,attr,val)
-
-class AsmMacro():
-
-    def __init__(self, name, args, body):
-        self.name = name
-        self.args = args
-        self.body = body
-
-    def __call__(self,args_dict):
-        output = []
-        for l in self.body:
-            for arg in self.args:
-                l = re.sub(f"\\\\{arg}(\W|$)",args_dict[arg] + "\\1",l)
-            l = re.sub(f"\\\\\(\)","",l)
-            output.append(l)
-        return output
-
-    def __repr__(self):
-        return self.name
-
-    def unfold_in(self, source, change_callback=None):
-
-        macro_regexp_txt = f"^\s*{self.name}\s+"
-        arg_regexps = []
-        for arg in self.args:
-            arg_regexps.append(f"\s*(?P<{arg}>\w+)\s*")
-        macro_regexp_txt += ','.join(arg_regexps)
-        macro_regexp = re.compile(macro_regexp_txt)
-
-        output = []
-
-        indentation_regexp_txt = "^(?P<whitespace>\s*)($|\S)"
-        indentation_regexp = re.compile(indentation_regexp_txt)
-
-        # Go through source line by line and check if there's a macro invocation
-        for l in source:
-            p = macro_regexp.match(l)
-            if p is None:
-                output.append(l)
-                continue
-            if change_callback:
-                change_callback()
-            # Try to keep indentation
-            indentation = indentation_regexp.match(l).group("whitespace")
-            repl = [ indentation + s.strip() for s in self(p.groupdict())]
-            output += repl
-
-        return output
-
-    def unfold_all(macros, source):
-
-        def list_of_instances(l,c):
-            return isinstance(l,list) and all(map(lambda m: isinstance(m,c), l))
-        def dict_of_instances(l,c):
-            return isinstance(l,dict) and list_of_instances(list(l.values()), c)
-        if isinstance(macros,str):
-            macros = macros.splitlines()
-        if list_of_instances(macros, str):
-            macros = AsmMacro.extract(macros)
-        if not dict_of_instances(macros, AsmMacro):
-            raise Exception(f"Invalid argument: {macros}")
-
-        change = True
-        while change:
-            change = False
-            def cb():
-                nonlocal change
-                change = True
-            for m in macros.values():
-                source = m.unfold_in(source, change_callback=cb)
-        return source
-
-    def extract(source):
-
-        macros = {}
-
-        state = 0 # 0: Not in a macro 1: In a macro
-        current_macro = None
-        current_args = None
-        current_body = None
-
-        macro_start_regexp_txt = "^\s*\.macro\s+(?P<name>\w+)(?:\b|(?P<args>.*))$"
-        macro_start_regexp = re.compile(macro_start_regexp_txt)
-
-        slothy_no_unfold_regexp_txt = ".*//\s*slothy:\s*no-unfold\s*$"
-        slothy_no_unfold_regexp = re.compile(slothy_no_unfold_regexp_txt)
-
-        macro_end_regexp_txt = "^\s*\.endm\s*$"
-        macro_end_regexp = re.compile(macro_end_regexp_txt)
-
-        for cur in source:
-
-            if state == 0:
-
-                p = macro_start_regexp.match(cur)
-                if p is None:
-                    continue
-
-                # Ignore macros with "// slothy:no-unfold" annotation
-                if slothy_no_unfold_regexp.match(cur) is not None:
-                    continue
-
-                current_args = [ a.strip() for a in p.group("args").split(',') ]
-                current_macro = p.group("name")
-                current_body = []
-
-                state = 1
-                continue
-
-            if state == 1:
-                p = macro_end_regexp.match(cur)
-                if p is None:
-                    current_body.append(cur)
-                    continue
-
-                macros[current_macro] = AsmMacro(current_macro, current_args, current_body)
-
-                current_macro = None
-                current_body = None
-                current_args = None
-
-                state = 0
-                continue
-
-        return macros
-
-    def extract_from_file(filename):
-        f = open(filename,"r")
-        return AsmMacro.extract(f.read().splitlines())
 
 class AsmHelper():
 
@@ -306,8 +178,7 @@ class AsmHelper():
 
 class AsmAllocation():
 
-    def __init__(self, Arch):
-        self.Arch = Arch
+    def __init__(self):
         self.allocations = {}
         self.regexp_req_txt   = f"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
         self.regexp_unreq_txt = f"\s*\.unreq\s+(?P<alias>\w+)"
@@ -352,15 +223,28 @@ class AsmAllocation():
         for s in src:
             self.parse_line(s)
 
-    def parse_allocs(arch, src):
-        allocs = AsmAllocation(arch)
+    def parse_allocs(src):
+        allocs = AsmAllocation()
         allocs.parse(src)
         return allocs.allocations
+
+    def unfold_all_aliases(aliases, src):
+        def _apply_single_alias_to_line(alias_from, alias_to, src):
+            return re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\1{alias_to}\\2", src)
+        def _apply_multiple_aliases_to_line(line):
+            for (alias_from, alias_to) in aliases.items():
+                line = _apply_single_alias_to_line(alias_from, alias_to, line)
+            return line
+        res = []
+        for l in src:
+            res.append(_apply_multiple_aliases_to_line(l))
+        return res
 
 class BinarySearchLimitException(Exception):
     pass
 
-def binary_search(func, threshold=64, minimum=-1, start=0, precision=1):
+def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
+                  timeout_below_precision=None):
     start = max(start,minimum)
     last_failure = minimum
     val = start
@@ -380,12 +264,163 @@ def binary_search(func, threshold=64, minimum=-1, start=0, precision=1):
         last_failure = val
         val = double_val(val)
     # Find _first_ version that works
-    while last_success - last_failure > precision:
+    while last_success - last_failure > 1:
+        timeout = None
+        if last_success - last_failure <= precision:
+            if timeout_below_precision is None:
+                break
+            timeout = timeout_below_precision
         val = last_failure + ( last_success - last_failure ) // 2
-        success, result = func(val)
+        success, result = func(val, timeout=timeout)
         if success:
             last_success = val
             last_success_core = result
         else:
             last_failure = val
-    return last_success_core
+    return last_success, last_success_core
+
+class AsmMacro():
+
+    def __init__(self, name, args, body):
+        self.name = name
+        self.args = args
+        self.body = body
+
+    def __call__(self,args_dict):
+        output = []
+        for l in self.body:
+            for arg in self.args:
+                l = re.sub(f"\\\\{arg}(\W|$)",args_dict[arg] + "\\1",l)
+            l = re.sub(f"\\\\\(\)","",l)
+            output.append(l)
+        return output
+
+    def __repr__(self):
+        return self.name
+
+    def unfold_in(self, source, change_callback=None):
+
+        macro_regexp_txt = f"^\s*{self.name}"
+        arg_regexps = []
+        if self.args == [""]:
+            while True:
+                continue
+
+        if len(self.args) > 0:
+            macro_regexp_txt = macro_regexp_txt + "\s+"
+
+        for arg in self.args:
+            arg_regexps.append(f"\s*(?P<{arg}>[^,]+)\s*")
+
+        macro_regexp_txt += ','.join(arg_regexps)
+        macro_regexp = re.compile(macro_regexp_txt)
+
+        output = []
+
+        indentation_regexp_txt = "^(?P<whitespace>\s*)($|\S)"
+        indentation_regexp = re.compile(indentation_regexp_txt)
+
+        # Go through source line by line and check if there's a macro invocation
+        for l in AsmHelper.reduce_source(source):
+
+            lp = AsmHelper.reduce_source_line(l)
+            if lp != None:
+                p = macro_regexp.match(lp)
+            else:
+                p = None
+
+            if p is None:
+                output.append(l)
+                continue
+            if change_callback:
+                change_callback()
+            # Try to keep indentation
+            indentation = indentation_regexp.match(l).group("whitespace")
+            repl = [ indentation + s.strip() for s in self(p.groupdict())]
+            output += repl
+
+        return output
+
+    def unfold_all_macros(macros, source):
+
+        def list_of_instances(l,c):
+            return isinstance(l,list) and all(map(lambda m: isinstance(m,c), l))
+        def dict_of_instances(l,c):
+            return isinstance(l,dict) and list_of_instances(list(l.values()), c)
+        if isinstance(macros,str):
+            macros = macros.splitlines()
+        if list_of_instances(macros, str):
+            macros = AsmMacro.extract(macros)
+        if not dict_of_instances(macros, AsmMacro):
+            raise Exception(f"Invalid argument: {macros}")
+
+        change = True
+        while change:
+            change = False
+            def cb():
+                nonlocal change
+                change = True
+            for m in macros.values():
+                source = m.unfold_in(source, change_callback=cb)
+        return source
+
+    def extract(source):
+
+        macros = {}
+
+        state = 0 # 0: Not in a macro 1: In a macro
+        current_macro = None
+        current_args = None
+        current_body = None
+
+        macro_start_regexp_txt = "^\s*\.macro\s+(?P<name>\w+)(?:\b|(?P<args>.*))$"
+        macro_start_regexp = re.compile(macro_start_regexp_txt)
+
+        slothy_no_unfold_regexp_txt = ".*//\s*slothy:\s*no-unfold\s*$"
+        slothy_no_unfold_regexp = re.compile(slothy_no_unfold_regexp_txt)
+
+        macro_end_regexp_txt = "^\s*\.endm\s*$"
+        macro_end_regexp = re.compile(macro_end_regexp_txt)
+
+        for cur in source:
+
+            if state == 0:
+
+                p = macro_start_regexp.match(cur)
+                if p is None:
+                    continue
+
+                # Ignore macros with "// slothy:no-unfold" annotation
+                if slothy_no_unfold_regexp.match(cur) is not None:
+                    continue
+
+                current_args = [ a.strip() for a in p.group("args").split(',') ]
+                current_macro = p.group("name")
+                current_body = []
+
+                if current_args == ['']:
+                    current_args = []
+
+                state = 1
+                continue
+
+            if state == 1:
+                p = macro_end_regexp.match(cur)
+                if p is None:
+                    current_body.append(cur)
+                    continue
+
+                macros[current_macro] = AsmMacro(current_macro, current_args, current_body)
+
+                current_macro = None
+                current_body = None
+                current_args = None
+
+                state = 0
+                continue
+
+        return macros
+
+    def extract_from_file(filename):
+        f = open(filename,"r")
+        return AsmMacro.extract(f.read().splitlines())

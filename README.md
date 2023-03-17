@@ -2,8 +2,6 @@
 
 ## Introduction
 
-This repository is derived from work originally developed and hosted as part of the [Arm PQMX](https://gitlab.com/arm-research/security/pqmx) repository.
-
 ### Overview
 
 **Slothy** - **S**uper (**L**azy) **O**ptimization of **T**ricky **H**andwritten assembl**Y** - is an *assembly-level superoptimizer*
@@ -12,13 +10,9 @@ for solving the following tasks _simultaneously_:
 2. Register allocation, and
 3. Software pipelining (= periodic loop interleaving)
 
-**HeLight55** is the primary instantiation of
-Slothy, using models fof the [Armv8.1-M](https://developer.arm.com/documentation/ddi0553/latest) +
-[Helium](https://www.arm.com/technologies/helium) architecture and aspects of the
-[Cortex-M55r1](https://www.arm.com/products/silicon-ip-cpu/cortex-m/cortex-m55) microarchitecture. Slothy + HeLight55
-are discussed in detail in the paper [Towards perfect CRYSTALS for Helium](https://eprint.iacr.org/2022/1303).
-
-The repository also contains an experimental instantiation **NeLight** for aspects of the AArch64 + Neon architecture.
+Slothy is generic in the underlying architecture and microarchitecture. This repository provides instantiations for the
+the Cortex-M55 and Cortex-M85 CPUs implementing Armv8.1-M + Helium, as well as the Cortex-A55 and Cortex-A72
+CPUs implementing Armv8-A + Neon. Slothy is discussed in detail in the paper [Fast and Clean: Auditable high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303). Implementions optimized by SLOTHY have been merged into [pqmx](https://github.com/slothy-optimizer/pqmx) (for Cortex-M) and [pqax](https://github.com/slothy-optimizer/pqax) (for Cortex-A).
 
 The goal of Slothy is to enable optimal code for workloads which are too complex for other methods
 such as autovectorization or intrinsics to yield high(est) performance results, and for which every last % of
@@ -32,22 +26,20 @@ periodic loop interleavings. Those variables and constraints are then passed to 
 case of success, the satisfying assignment returned from the solver converted back into a piece of code. As it stands,
 Slothy uses [Google OR-Tools](https://developers.google.com/optimization) as its constraint solver.
 
-HeLight55 is the result of instantiating Slothy with aspects of the Armv8.1-M + Helium architecture and the Cortex-M55
-microarchitecture.
+For more details, see [Fast and Clean: Auditable high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303) again.
 
 ### Performance
 
-In average, Slothy + HeLight55 + OR-Tools appear to superoptimize Helium assembly of ~50 instructions in a few seconds to
-minutes (there's a high variability depending on the difficulty of the optimization, not merely the number of
-instructions/constraints), making it practical for real-world kernels.
+As a rough rule of thumb, Slothy typically manages to optimize workloads of <50 instructions in seconds to minutes, workloads
+up to 150 instructions in minutes to hours, while for larger kernels some heuristics are necessary.
 
 ### IMPORTANT
 
-1. The software optimization information on Cortex-M55 (such as latencies and throughputs of instructions) captured
-   in HeLight55 may contain mistakes. They do _not_ constitute official software optimization guide!
-2. HeLight55 can only optimize code with respect to constraints it knows about, such as latencies and throughput. Those
+1. The software optimization information (such as latencies and throughputs of instructions) captured
+   in repository are experimental and do _not_ constitute official software optimization guides!
+2. Slothy can only optimize code with respect to constraints it knows about, such as latencies and throughput. Those
    being approximative as just mentioned, _and_ not a complete model of the microarchitecture, it is not guaranteed that
-   code which HeLight55 reports as satisfying all constraints is actually stall-free on Cortex-M55. You should always
+   code which Slothy reports as satisfying all constraints is actually stall-free. You should always
    double-check the actual performance by running the optimized code on real hardware!
 
 ## Setup

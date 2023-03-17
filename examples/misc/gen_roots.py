@@ -1,5 +1,6 @@
 # Copyright (c) 2021 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -207,6 +208,59 @@ class NttRootGen():
                 else:
                     yield ([root0, root1, root2, root3, root4, root5, root6],
                            [root0_tw, root1_tw, root2_tw, root3_tw, root4_tw, root5_tw, root6_tw])
+            elif merged == 4:
+                # Compute the roots of unity that we need at this stage
+                fst_layer = layer + 0
+                snd_layer = layer + 1
+                thr_layer = layer + 2
+                fth_layer = layer + 3
+                root0, root0_tw = \
+                    self.root_of_unity_for_block(fst_layer, cur_block)
+                root1, root1_tw = \
+                    self.root_of_unity_for_block(snd_layer, 2*cur_block+0)
+                root2, root2_tw = \
+                    self.root_of_unity_for_block(snd_layer, 2*cur_block+1)
+                root3, root3_tw = \
+                    self.root_of_unity_for_block(thr_layer, 4*cur_block+0)
+                root4, root4_tw = \
+                    self.root_of_unity_for_block(thr_layer, 4*cur_block+1)
+                root5, root5_tw = \
+                    self.root_of_unity_for_block(thr_layer, 4*cur_block+2)
+                root6, root6_tw = \
+                    self.root_of_unity_for_block(thr_layer, 4*cur_block+3)
+                root7, root7_tw = \
+                    self.root_of_unity_for_block(fth_layer, 8*cur_block+0)
+                root8, root8_tw = \
+                    self.root_of_unity_for_block(fth_layer, 8*cur_block+1)
+                root9, root9_tw = \
+                    self.root_of_unity_for_block(fth_layer, 8*cur_block+2)
+                root10, root10_tw = \
+                    self.root_of_unity_for_block(fth_layer, 8*cur_block+3)
+                root11, root11_tw = \
+                    self.root_of_unity_for_block(fth_layer, 8*cur_block+4)
+                root12, root12_tw = \
+                    self.root_of_unity_for_block(fth_layer, 8*cur_block+5)
+                root13, root13_tw = \
+                    self.root_of_unity_for_block(fth_layer, 8*cur_block+6)
+                root14, root14_tw = \
+                    self.root_of_unity_for_block(fth_layer, 8*cur_block+7)
+
+                if layer in self.pad:
+                    yield ([root0, root1, root2, root3, root4, root5, root6,
+                            root7, root8, root9, root10, root11, root12, root13,
+                            root14, 0],
+                           [root0_tw, root1_tw, root2_tw, root3_tw, root4_tw,
+                           root5_tw, root6_tw, root7_tw, root8_tw, root9_tw,
+                           root10_tw, root11_tw, root12_tw, root13_tw,
+                           root14_tw, 0])
+                else:
+                    yield ([root0, root1, root2, root3, root4, root5, root6,
+                            root7, root8, root9, root10, root11, root12, root13,
+                            root14],
+                           [root0_tw, root1_tw, root2_tw, root3_tw, root4_tw,
+                           root5_tw, root6_tw, root7_tw, root8_tw, root9_tw,
+                           root10_tw, root11_tw, root12_tw, root13_tw,
+                           root14_tw])
             else:
                 raise Exception("Something went wrong")
 
@@ -337,10 +391,19 @@ def main():
     ntt_dilithium.export("../naive/ntt_dilithium_12_34_56_78_twiddles.s")
     ntt_dilithium.export("../opt/ntt_dilithium_12_34_56_78_twiddles.s")
 
+    ntt_dilithium_l1234 = NttRootGen(size=256, bitsize=32, modulus=8380417, root=1753, layers=8, iters=[(0,4),(4,2),(6,2)], pad=[0], print_label=True)
+    ntt_dilithium_l1234.export("../naive/aarch64/ntt_dilithium_1234_5678_twiddles.s")
+    ntt_dilithium_l1234.export("../opt/aarch64/ntt_dilithium_1234_5678_twiddles.s")
+
     ntt_dilithium_l123 = NttRootGen(size=256,bitsize=32,modulus=8380417,root=1753,layers=8,
                                iters=[(0,3),(3,3),(6,2)])
     ntt_dilithium_l123.export("../naive/ntt_dilithium_123_456_78_twiddles.s")
     ntt_dilithium_l123.export("../opt/ntt_dilithium_123_456_78_twiddles.s")
+
+    ntt_dilithium_l123 = NttRootGen(size=256,bitsize=32,modulus=8380417,root=1753,layers=8, print_label=True, pad=[0,3],
+                               iters=[(0,3),(3,3),(6,2)])
+    ntt_dilithium_l123.export("../naive/aarch64/ntt_dilithium_123_456_78_twiddles.s")
+    ntt_dilithium_l123.export("../opt/aarch64/ntt_dilithium_123_456_78_twiddles.s")
 
     intt_dilithium = NttRootGen(size=256,inverse=True,bitsize=32,modulus=8380417,root=1753,layers=8)
     intt_dilithium.export("../naive/intt_dilithium_twiddles.s")

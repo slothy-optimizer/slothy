@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -53,7 +54,7 @@ class Slothy():
         self.source = None
 
     def load_source_raw(self, source):
-        self.source = source
+        self.source = source.replace("\\\n", "")
         self.results = []
 
     def load_source_from_file(self, filename):
@@ -112,10 +113,13 @@ class Slothy():
         logger = self.logger.getChild(logname) if logname != None else self.logger
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
-        body = AsmMacro.unfold_all(pre,body)
-        aliases = AsmAllocation.parse_allocs(self.Arch, pre)
+        aliases = AsmAllocation.parse_allocs(pre)
         c = self.config.copy()
         c.add_aliases(aliases)
+
+        body = AsmMacro.unfold_all_macros(pre, body)
+        body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        self.logger.info(f"Instructions in body: {len(list(filter(None, body)))}")
         early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
 
         def indented(code):
@@ -151,14 +155,16 @@ class Slothy():
 
         logger = self.logger.getChild(loop_lbl)
 
-        early, body, late, loop_start_lbl = \
+        early, body, late, loop_start_lbl, other_data = \
             self.Arch.Loop.extract(self.source, loop_lbl)
 
-        aliases = AsmAllocation.parse_allocs(self.Arch, early)
+        aliases = AsmAllocation.parse_allocs(early)
         c = self.config.copy()
         c.add_aliases(aliases)
 
-        body = AsmMacro.unfold_all(early, body)
+        body = AsmMacro.unfold_all_macros(early, body)
+        body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        self.logger.info(f"Instructions in body: {len(list(filter(None, body)))}")
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
 
@@ -170,15 +176,16 @@ class Slothy():
         optimized_code = []
         optimized_code += indented(preamble_code)
         optimized_code += list(loop.start(indentation=self.config.indentation,
-                                          fixup=num_exceptional))
+                                          fixup=num_exceptional,
+                                          unroll=self.config.sw_pipelining.unroll))
         optimized_code += indented(kernel_code)
-        optimized_code += list(loop.end(indentation=self.config.indentation))
+        optimized_code += list(loop.end(other_data, indentation=self.config.indentation))
         if end_of_loop_label != None:
             optimized_code += [ f"{end_of_loop_label}: // end of loop kernel" ]
         optimized_code += indented(postamble_code)
 
         self.last_result = SimpleNamespace()
-        dfgc = DFGConfig(self.config.copy())
+        dfgc = DFGConfig(c)
         dfgc.inputs_are_outputs = True
         self.last_result.kernel_input_output = \
             list(DFG(kernel_code, logger.getChild("dfg_kernel_deps"), dfgc).inputs)

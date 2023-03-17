@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,6 +38,7 @@
 
 import logging
 import re
+import inspect
 
 from enum import Enum
 from .arch_v81m import *
@@ -100,12 +102,12 @@ def _add_st_ld_hazard(slothy):
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
-def has_min_max_objective(slothy):
-    return all([ not slothy.config.constraints.st_ld_hazard,
-                 slothy.config.constraints.minimize_st_ld_hazards ])
+def has_min_max_objective(config):
+    return all([ not config.constraints.st_ld_hazard,
+                 config.constraints.minimize_st_ld_hazards ])
 
 def get_min_max_objective(slothy):
-    if not has_min_max_objective(slothy):
+    if not has_min_max_objective(slothy.config):
         return
     return (slothy._model.st_ld_hazard_vars, "minimize", "ST-LD hazard risks")
 
@@ -138,6 +140,7 @@ execution_units = {
     vadd_sv     : ExecutionUnit.VEC_INT,
     vadd_vv     : ExecutionUnit.VEC_INT,
     vsub        : ExecutionUnit.VEC_INT,
+    vaddva      : ExecutionUnit.VEC_INT,
     vhadd       : ExecutionUnit.VEC_INT,
     vhsub       : ExecutionUnit.VEC_INT,
     vhcadd      : ExecutionUnit.VEC_INT,
@@ -157,6 +160,10 @@ execution_units = {
     vqdmulh_vv  : ExecutionUnit.VEC_MUL,
     vqdmulh_sv  : ExecutionUnit.VEC_MUL,
     vmla        : ExecutionUnit.VEC_MUL,
+    vmlaldava   : ExecutionUnit.VEC_MUL,
+    vfma        : ExecutionUnit.VEC_FPU,
+    vmulf_T1    : ExecutionUnit.VEC_FPU,
+    vmulf_T2    : ExecutionUnit.VEC_FPU,
     ldrd        : ExecutionUnit.LOAD,
     strd        : ExecutionUnit.STORE,
     restored    : ExecutionUnit.STACK,
@@ -177,8 +184,8 @@ execution_units = {
     vcadd       : ExecutionUnit.VEC_FPU,
     vaddf       : ExecutionUnit.VEC_FPU,
     vsubf       : ExecutionUnit.VEC_FPU,
-    vhcaddf     : ExecutionUnit.VEC_FPU,
-    vhcsubf     : ExecutionUnit.VEC_FPU,
+    vcaddf      : ExecutionUnit.VEC_FPU,
+    vcsubf      : ExecutionUnit.VEC_FPU,
 }
 
 inverse_throughput = {
@@ -228,6 +235,8 @@ inverse_throughput = {
       vqdmladhx,
       vqdmlsdh,
       vmla,
+      vmlaldava,
+      vaddva,
       vstr,
       qsave,
       qrestore,
@@ -240,10 +249,14 @@ inverse_throughput = {
       vcmul,
       vcmla,
       vcadd,
+      vcaddf,
       vaddf,
       vsubf,
       vhcadd,
-      vhcsub )            : 2
+      vhcsub,
+      vmulf_T1,
+      vmulf_T2,
+      vfma)         : 2
 }
 
 default_latencies = {
@@ -272,6 +285,7 @@ default_latencies = {
       vhsub,
       vhcadd,
       vhcsub,
+      vaddva,
       vand,
       vorr,
       qsave,
@@ -280,10 +294,10 @@ default_latencies = {
       restore,
       vldr,
       vldr_gather,
-      vld2,
-      vld4,
       vst2,
       vst4 )           : 1,
+    ( vld2,
+      vld4 ) : 2,
     ( vrshr,
       vrshl,
       vshrnbt,
@@ -302,13 +316,19 @@ default_latencies = {
       vqdmladhx,
       vqdmlsdh,
       vmla,
+      vmlaldava,
       vcmul,
       vcmla,
       vcadd,
+      vcaddf,
       vaddf,
       vsubf,
       vhcadd,
-      vhcsub )         : 2,
+      vhcsub,
+      vmulf_T1,
+      vmulf_T2,
+      vfma)         : 2,
+   vmlaldava : 3
 }
 
 def _find_class(src):
@@ -317,12 +337,25 @@ def _find_class(src):
             return inst_class
     raise Exception("Couldn't find instruction class")
 
-def _lookup_multidict(d, k, default=None):
+def _lookup_multidict(d, inst, default=None):
+    instclass = _find_class(inst)
     for l,v in d.items():
-        if k == l:
-            return v
-        if isinstance(l,tuple) and k in l:
-            return v
+        # Multidict entries can be the following:
+        # - An instruction class. It matches any instruction of that class.
+        # - A callable. It matches any instruction returning `True` when passed
+        #   to the callable.
+        # - A tuple of instruction classes or callables. It matches any instruction
+        #   which matches at least one element in the tuple.
+        def match(x):
+            if inspect.isclass(x):
+                return isinstance(inst, x)
+            assert callable(x)
+            return x(inst)
+        if not isinstance(l, tuple):
+            l = [l]
+        for lp in l:
+            if match(lp):
+                return v
     if default == None:
         raise Exception(f"Couldn't find {k}")
     return default
@@ -332,7 +365,7 @@ def get_latency(src, out_idx, dst):
     instclass_dst = _find_class(dst)
 
     default_latency = _lookup_multidict(
-        default_latencies, instclass_src)
+        default_latencies, src)
 
     #
     # Check for latency exceptions
@@ -357,7 +390,10 @@ def get_latency(src, out_idx, dst):
                           vcadd,
                           vaddf,
                           vsubf,
-                          vhcaddf ]:
+                          vfma,
+                          vmulf_T1,
+                          vmulf_T2,
+                          vcaddf ]:
         return 1
 
     # Inputs to VST4x seem to have higher latency
@@ -397,6 +433,9 @@ def get_latency(src, out_idx, dst):
                           vqdmladhx,
                           vqdmlsdh,
                           vmla,
+                          vfma,
+                          vmulf_T1,
+                          vmulf_T2,
                           vcmul,
                           vcmla,
                           vcadd,
@@ -409,14 +448,12 @@ def get_latency(src, out_idx, dst):
     return default_latency
 
 def get_units(src):
-    instclass = _find_class(src)
-    units = execution_units[instclass]
+    units = _lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     else:
         return [units]
 
 def get_inverse_throughput(src):
-    instclass = _find_class(src)
     return _lookup_multidict(
-        inverse_throughput, instclass)
+        inverse_throughput, src)

@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -51,6 +52,7 @@ class VirtualOutputInstruction(VirtualInstruction):
         self.arg_types_in = [reg_ty]
 
         self.args_out_combinations = None
+        self.args_in_out_combinations = None
         self.args_in_combinations = None
         self.args_in_out_different = None
         self.args_in_inout_different = None
@@ -83,6 +85,7 @@ class VirtualInputInstruction(VirtualInstruction):
 
         self.args_out_combinations = None
         self.args_in_combinations = None
+        self.args_in_out_combinations = None
         self.args_in_out_different = None
         self.args_in_inout_different = None
 
@@ -237,14 +240,9 @@ class Config:
     def Arch(self):
         return self._Arch
     @property
-    def aliases(self):
-        if self._register_aliases is not None:
-            return self._register_aliases
-        return {}
-    @property
     def typing_hints(self):
         typing_hints = { name : ty for ty in self.Arch.RegisterType \
-                         for name in self.Arch.RegisterType.list_registers(ty) }
+               for name in self.Arch.RegisterType.list_registers(ty, with_variants=True) }
         return { **self._typing_hints, **typing_hints }
     @property
     def outputs(self):
@@ -256,9 +254,6 @@ class Config:
     def allow_useless_instructions(self):
         return self._allow_useless_instructions
 
-    @aliases.setter
-    def aliases(self,val):
-        self._register_aliases = val
     @typing_hints.setter
     def typing_hints(self,val):
         self._typing_hints = val
@@ -280,7 +275,6 @@ class Config:
                    kwargs: An optional list of modifications of the Slothy config
         """
         self._Arch = None
-        self._register_aliases = None
         self._typing_hints = None
         self._outputs = None
         self._inputs_are_outputs = None
@@ -294,7 +288,6 @@ class Config:
             return
         self._slothy_config = slothy_config
         self._Arch = slothy_config.Arch
-        self._register_aliases = self._slothy_config.register_aliases
         self._typing_hints = self._slothy_config.typing_hints
         self._outputs = self._slothy_config.outputs
         self._inputs_are_outputs = self._slothy_config.inputs_are_outputs
@@ -419,6 +412,11 @@ class DataFlowGraph:
                         yield (t.id, d.id, f"inout{in_out_idx}")
         return set(_iter_edges_with_label())
 
+    def depth(self):
+        if self.nodes == None or len(self.nodes) == 0:
+            return 1
+        return max([t.depth for t in self.nodes])
+
     def dump_instructions(self, txt, error=False):
         log_func = self.logger.debug if not error else self.logger.error
         log_func(txt)
@@ -429,7 +427,7 @@ class DataFlowGraph:
     def Arch(self):
         return self.config.Arch
 
-    def __init__(self, src, logger, config):
+    def __init__(self, src, logger, config, parsing_cb=True):
         """Compute a data flow graph from a source code snippet.
 
         Args:
@@ -453,19 +451,6 @@ class DataFlowGraph:
 
         self.src = self._parse_source(src)
 
-        def apply_aliases_to_list(lst):
-            return [ self.config.aliases.get(l,l) for l in lst ]
-        def apply_aliases_to_arguments(inst):
-            inst.args_out    = apply_aliases_to_list(inst.args_out)
-            inst.args_in     = apply_aliases_to_list(inst.args_in)
-            inst.args_in_out = apply_aliases_to_list(inst.args_in_out)
-
-        # Apply register aliases
-        self.dump_instructions(f"Instructions before applying aliases")
-        self.logger.debug(f"Applying register aliases: {self.config.aliases}")
-        [ apply_aliases_to_arguments(inst) for l in self.src for inst in l[0] ]
-        self.dump_instructions("Instructions after applying aliases")
-
         # Typically, we only build the computation flow graph once. However, sometimes we make
         # retrospective modifications to instructions afterwards, and then need to reparse.
         #
@@ -482,6 +467,9 @@ class DataFlowGraph:
 
             self._build_graph()
             delete_list = []
+
+            if not parsing_cb:
+                break
 
             changes = 0
             for t in self.nodes:
@@ -521,9 +509,7 @@ class DataFlowGraph:
             raise Exception("Useless instruction detected -- probably you missed an output declaration?")
 
     def _parse_source(self, src):
-        def parse_line(l):
-            return (self.Arch.Instruction.parser(l),l)
-        return list(map(parse_line, AsmHelper.reduce_source(src)))
+        return [ (self.Arch.Instruction.parser(l),l) for l in AsmHelper.reduce_source(src) ]
 
     def iter_dependencies(self):
         for consumer in self.nodes_all:
@@ -574,7 +560,8 @@ class DataFlowGraph:
         self._nodes_all = []
 
         # Process source and add one instruction a time to the data flow graph
-        [ self._add_node_from_candidates(c,s) for c,s in self.src ]
+        for c,s in self.src:
+            self._add_node_from_candidates(c,s)
 
         # Mark inputs as outputs if desired
         outputs = set(self.config.outputs.copy())
