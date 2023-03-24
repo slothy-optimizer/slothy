@@ -586,15 +586,6 @@ class SlothyBase(LockAttributes):
         self._extract_register_renamings()
         self._extract_input_output_renaming()
 
-        self._post_optimize_fixup()
-
-        # We implement post-only = pre-only, but need to rename [e,*] -> [*,l]
-        if self.config.sw_pipelining.enabled            and \
-           self.config.sw_pipelining.allow_post == True and \
-           self.config.sw_pipelining.allow_pre  == False:
-            for t in self._get_nodes():
-                t.pre, t.core, t.post = False, t.pre, t.core
-
         self._extract_code()
 
         if self.config.selfcheck:
@@ -895,7 +886,7 @@ class SlothyBase(LockAttributes):
                     self.logger.debug(f"Instructions {t0.orig_pos} ({t0.inst}) and {t1.orig_pos} ({t1.inst}) got reordered")
                     yield t0,t1
 
-    def _post_optimize_fixup(self):
+    def _post_optimize_fixup_compute(self, affected=None, affecting=None, ipairs=None):
         """Adjusts immediate offsets for reordered load/store instructions.
 
         We don't model load/store instructions with address increments as modifying the address register; doing so would
@@ -905,20 +896,23 @@ class SlothyBase(LockAttributes):
 
         See section "Address modifications in "Towards perfect CRYSTALS in Helium", https://eprint.iacr.org/2022/1303"""
 
-        for t in self._get_nodes():
-            t.inst_tmp = deepcopy(t.inst)
         if self.config.sw_pipelining.enabled    and \
-           self.config.sw_pipelining.allow_post and \
-           self.config.sw_pipelining.allow_pre:
-            self.logger.warning("============================================   WARNING   ============================================")
-            self.logger.warning("Post-optimization fixup of address offsets is only implemented if config.sw_pipelining.post is set!")
-            self.logger.warning("Skipping this -- you have to fix the address offsets manually")
-            self.logger.warning("=====================================================================================================")
-            return
+           self.config.sw_pipelining.allow_post:
+            self.logger.warning("=================================================   WARNING   =================================================")
+            self.logger.warning("    Post-optimization address offset fixup has not been properly tested for config.sw_pipelining.allow_post!")
+            self.logger.warning("===============================================================================================================")
+        if affected is None:
+            affected = lambda _: True
+        if affecting is None:
+            affecting = lambda _: True
+
+        if ipairs is None:
+            ipairs = self._get_reordered_instructions()
+
         def inst_changes_addr(inst):
             return inst.increment is not None
         # Search for instances of VLDR,VSTR that have been swapped
-        for t0,t1 in self._get_reordered_instructions():
+        for t0,t1 in ipairs:
             if not t0.inst_tmp.is_load_store_instruction():
                 continue
             if not t1.inst_tmp.is_load_store_instruction():
@@ -939,22 +933,36 @@ class SlothyBase(LockAttributes):
                 self.logger.warning( "Skipping this -- you have to fix the address offsets manually")
                 self.logger.warning("=====================================================================================================")
                 return
-            if not inst_changes_addr(t0.inst_tmp) and not inst_changes_addr(t1.inst_tmp):
-                continue
-            if inst_changes_addr(t0.inst_tmp):
+            if inst_changes_addr(t0.inst_tmp) and affecting(t0) and affected(t1):
                 # t1 gets reordered before t0, which changes the address
                 # Adjust t1's address accordingly
-                if t1.inst_tmp.pre_index:
-                    t1.inst_tmp.pre_index = f"(({t1.inst_tmp.pre_index}) + ({t0.inst_tmp.increment}))"
-                else:
-                    t1.inst_tmp.pre_index = f"{t0.inst_tmp.increment}"
-            else:
+                self.logger.error(f"{t0} got moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, to {t1.fixup + int(t0.inst_tmp.increment)}")
+                t1.fixup += int(t0.inst_tmp.increment)
+            elif inst_changes_addr(t1.inst_tmp) and affecting(t1) and affected(t0):
                 # t0 gets reordered after t1, which changes the address
                 # Adjust t0's address accordingly
-                if t0.inst_tmp.pre_index:
-                    t0.inst_tmp.pre_index = f"(({t0.inst_tmp.pre_index}) - ({t1.inst_tmp.increment}))"
-                else:
-                    t0.inst_tmp.pre_index = f"-({t1.inst_tmp.increment})"
+                self.logger.error(f"{t1} got moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, to {t0.fixup - int(t1.inst_tmp.increment)}")
+                t0.fixup -= int(t1.inst_tmp.increment)
+
+    def _post_optimize_fixup_apply(self):
+        def inst_changes_addr(inst):
+            return inst.increment is not None
+
+        for t in self._model._tree.nodes:
+            if not t.inst_tmp.is_load_store_instruction():
+                continue
+            if inst_changes_addr(t.inst_tmp):
+                continue
+            if t.inst_tmp.pre_index:
+                t.inst_tmp.pre_index = f"(({t.inst_tmp.pre_index}) + ({t.fixup}))"
+            else:
+                t.inst_tmp.pre_index = f"{t.fixup}"
+            if t.fixup != 0:
+                self.logger.error(f"Fixed up instruction {t.inst_tmp} by {t.fixup}, to {t.inst_tmp}")
+
+    def _post_optimize_fixup_reset(self):
+        for t in self._get_nodes():
+            t.fixup = 0
 
     def _extract_code(self):
 
@@ -1009,12 +1017,12 @@ class SlothyBase(LockAttributes):
             indentation = ' ' * self.config.indentation
             src = [ indentation + s for s in src ]
 
-        def get_code(filter_func=None, pre=False, post=False):
+        def get_code(filter_func=None, top=False):
 
             if len(self._model._tree.nodes) == 0:
                 return
 
-            fixlen = max(map(lambda t: len(str(t.inst_tmp)),self._model._tree.nodes)) + 8
+            fixlen = None
 
             def get_code_line(line_no, lines, nodes):
                 d = self.config.placeholder_char
@@ -1055,7 +1063,9 @@ class SlothyBase(LockAttributes):
                 lines = self._result._program_padded_size
                 nodes = len(self._model._tree.nodes)
 
-            if pre or post:
+            fixlen = max(map(lambda t: len(str(t.inst_tmp)),self._model._tree.nodes)) + 8
+
+            if top:
                 base = self._result._program_padded_size_half
 
             for i in range(base,base+lines):
@@ -1063,22 +1073,109 @@ class SlothyBase(LockAttributes):
 
         if self.config.sw_pipelining.enabled:
             # Preamble for first iteration
+            #
+            # Fixup: Consider reorderings in
+            #
+            #  PRE.0  |   PRE.1
+            #  CORE.0 |   CORE.1
+            #  POST.0 |   POST.1
+            #
+            # and take PRE.0, CORE.0 and PRE.1
+
+            for t in self._get_nodes():
+                t.inst_tmp = deepcopy(t.inst)
+
+            self._post_optimize_fixup_reset()
+            self._post_optimize_fixup_compute()
+            self._post_optimize_fixup_apply()
+
+            self._result._preamble = []
             if self._result._num_pre > 0:
-                self._result._preamble = list(get_code(filter_func=lambda t: t.pre,
-                                                                   pre=True))
-            # First iteration -- no late instructions yet
+                self._result._preamble += list(get_code(filter_func=lambda t: t.pre, top=True))
             if self._result._num_post > 0:
-                self._result._preamble  += list(get_code(lambda t: not t.post))
+                self._result._preamble += list(get_code(filter_func=lambda t: not t.post))
+
             # Last iteration -- no early instructions anymore
+            #
+            # Fixup: Consider reorderings in
+            #
+            #  PRE.0  |   PRE.1
+            #  CORE.0 |   CORE.1
+            #  POST.0 |   POST.1
+            #
+            # and take POST.0, CORE.1 and POST.1
+
+            self._result._postamble = []
             if self._result._num_pre > 0:
-                self._result._postamble += list(get_code(lambda t: not t.pre,
-                                                                     post=True))
-            # Postamble for last iteration
+                self._result._postamble += list(get_code(filter_func=lambda t: not t.pre, top=True))
             if self._result._num_post > 0:
-                self._result._postamble += list(get_code(lambda t: t.post, post=True))
+                self._result._postamble += list(get_code(filter_func=lambda t: t.post))
 
             # All other iterations
+            #
+            # Fixup: Consider reorderings in
+            #
+            #  PRE.0  |   PRE.1
+            #  CORE.0 |   CORE.1
+            #  POST.0 |   POST.1
+            #
+            # For CORE.1, only fixup wrt POST.0, and add the fixup to that of CORE.0
+
+            for t in self._get_nodes():
+                t.inst_tmp = deepcopy(t.inst)
+
+
+            self._post_optimize_fixup_reset()
+            self._post_optimize_fixup_compute(
+                affected=lambda t: not t.core)
+            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high):
+                if t0.pre:
+                    assert t1.pre
+                    t0.fixup = t1.fixup
+                elif t0.post:
+                    assert t1.post
+                    t1.fixup = t0.fixup
+            self._post_optimize_fixup_apply()
+            self._post_optimize_fixup_reset()
+            self._post_optimize_fixup_compute(
+                affected=lambda t: t in self._model._tree.nodes_low and t.core)
+            self._post_optimize_fixup_compute(
+                affected=lambda t: t in self._model._tree.nodes_high and t.core,
+                affecting=lambda t: t in self._model._tree.nodes_low and t.post)
+            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high):
+                if t0.core:
+                    assert t1.core
+                    if t0.fixup != 0 and t1.fixup != 0:
+                        print(f"DOUBLE FIXUP")
+                        print(f"INST: {t0}, fixup {t0.fixup}")
+                        print(f"INST: {t1}, fixup {t1.fixup}")
+                    s = t0.fixup + t1.fixup
+                    t0.fixup = s
+                    t1.fixup = s
+            self._post_optimize_fixup_apply()
+
+            # Unless sw_pipelining.pre_before_post is set, we could even have late
+            # instructions from iteration N come _after_ early instructions for iteration N+2,
+            # and in this case, the fixup computations so far wouldn't take that into account.
+            self._post_optimize_fixup_reset()
+            if not self.config.sw_pipelining.pre_before_post:
+                ipairs = [(t1,t0) for t0 in self._model._tree.nodes_low for t1 in self._model._tree.nodes_low if t0.pre and t1.post and t0.real_pos + len(self._model._tree.nodes) < t1.real_pos]
+                self._post_optimize_fixup_compute(ipairs = ipairs)
+            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high):
+                if t0.pre:
+                    assert t1.pre
+                    t1.fixup = t0.fixup
+                elif t0.post:
+                    assert t1.post
+                    t1.fixup = t0.fixup
+            self._post_optimize_fixup_apply()
+
+            # self._post_optimize_fixup_reset()
+            # self._post_optimize_fixup_compute()
+            # self._post_optimize_fixup_apply()
+
             self._result._kernel = list(get_code())
+
             self._result._code = self._result._kernel
             self._extract_kernel_input_output()
 
@@ -1094,6 +1191,14 @@ class SlothyBase(LockAttributes):
             add_indentation(self._result.postamble)
 
         else:
+
+            for t in self._get_nodes():
+                t.inst_tmp = deepcopy(t.inst)
+
+            self._post_optimize_fixup_reset()
+            self._post_optimize_fixup_compute()
+            self._post_optimize_fixup_apply()
+
             self._result._code = list(get_code())
 
             self.logger.result.debug("Optimized code")
@@ -1168,9 +1273,11 @@ class SlothyBase(LockAttributes):
                 constraints.append(consumer.post_var.Not())
             cb().OnlyEnforceIf([producer.pre_var, consumer.pre_var, bvar])
 
-    def _get_nodes_by_program_order(self, low=False, all=False, inputs=False, outputs=False):
+    def _get_nodes_by_program_order(self, low=False, high=False, all=False, inputs=False, outputs=False):
         if low:
             return self._model._tree.nodes_low
+        elif high:
+            return self._model._tree.nodes_high
         elif all:
             return self._model._tree.nodes_all
         elif inputs:
