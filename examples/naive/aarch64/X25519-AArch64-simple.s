@@ -1470,7 +1470,7 @@ mainloop:
     lsr    x3, x2, #32
     subs   W<x0>, W<x2>, #1
     asr    W<x1>, W<x0>, #5
-    add    x4, sp, STACK_SCALAR
+    add    x4, sp, #STACK_SCALAR
     ldr    W<x1>, [x4, W<x1>, sxtw#2]
     and    W<x4>, W<x0>, #0x1f
     lsr    W<x1>, W<x1>, W<x4>
