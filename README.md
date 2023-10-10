@@ -596,6 +596,6 @@ INFO:slothy-cli.slothy.selfcheck:OK!
 
 * Further examples
 
-Many further examples can be found in [examples.py](examples.py) which illustrate how to instruct HeLight from
+Many further examples can be found in [example.py](example.py) which illustrate how to instruct HeLight from
 within Python. The input sources to those examples can be found in [examples/naive](examples/naive), and the optimized
 versions are in [examples/opt](examples/opt).
