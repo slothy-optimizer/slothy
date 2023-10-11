@@ -110,9 +110,11 @@ class AsmHelper():
         regexp_align_txt = f"^\s*\.(?:p2)?align"
         regexp_req_txt   = f"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
         regexp_unreq_txt = f"\s*\.unreq\s+(?P<alias>\w+)"
+        regexp_label_txt = f"\s*(?P<label>\w+)\s*:\s*$"
         regexp_align = re.compile(regexp_align_txt)
         regexp_req   = re.compile(regexp_req_txt)
         regexp_unreq = re.compile(regexp_unreq_txt)
+        regexp_label = re.compile(regexp_label_txt)
 
         def strip_comment(s):
             s = s.split("//")[0]
@@ -124,12 +126,17 @@ class AsmHelper():
             # We only accept (and ignore) .req and .unreqs in code so far
             return sum([ regexp_req.match(s)   is not None,
                          regexp_unreq.match(s) is not None,
-                         regexp_align.match(s) is not None ]) > 0
+                         regexp_align.match(s) is not None]) > 0
+
+        def is_label(s):
+            return (regexp_label.match(s) is not None)
 
         line = strip_comment(line)
         if is_empty(line):
             return
         if is_asm_directive(line):
+            return
+        if is_label(line):
             return
         return line
 
