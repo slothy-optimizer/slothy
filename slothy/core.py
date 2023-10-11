@@ -2268,6 +2268,8 @@ class SlothyBase(LockAttributes):
             self._result._codesize = len(self._model._tree.nodes_low)
         else:
             self._result._codesize = len(self._model._tree.nodes)
+        self._set_timeout(self.config.retry_timeout)
+
         # - Objective
         self._add_objective()
 

@@ -53,6 +53,7 @@ class Config(NestedPrint, LockAttributes):
 
     _default_max_solutions = 16
     _default_timeout = None
+    _default_retry_timeout = None
     _default_ignore_objective = False
     _default_objective_precision = 0
 
@@ -203,6 +204,10 @@ class Config(NestedPrint, LockAttributes):
     @property
     def timeout(self):
         return self._timeout
+
+    @property
+    def retry_timeout(self):
+        return self._retry_timeout
 
     @property
     def unsafe_skip_address_fixup(self):
@@ -869,6 +874,7 @@ class Config(NestedPrint, LockAttributes):
 
         self._max_solutions = Config._default_max_solutions
         self._timeout = Config._default_timeout
+        self._retry_timeout = Config._default_retry_timeout
         self._ignore_objective = Config._default_ignore_objective
         self._objective_precision = Config._default_objective_precision
 
@@ -933,6 +939,9 @@ class Config(NestedPrint, LockAttributes):
     @timeout.setter
     def timeout(self, val):
         self._timeout = val
+    @retry_timeout.setter
+    def retry_timeout(self, val):
+        self._retry_timeout = val
     @unsafe_skip_address_fixup.setter
     def unsafe_skip_address_fixup(self, val):
         self._unsafe_skip_address_fixup = val
