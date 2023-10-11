@@ -1354,23 +1354,6 @@ class SlothyBase(LockAttributes):
             if self.config.hints.order_hint_orig_order:
                 self._AddHint(t.program_start_var, int(t.id))
 
-            if self.config.constraints.max_relative_displacement < 1.0:
-                # We also measure the displacement of an instruction relative to its
-                # original position (scaled to the padded program length).
-                # By default, no constraints are associated with this, but the amount
-                # of displacement is an interesting measure for how much reordering was
-                # still necessary, and may perhaps drive heuristics.
-                rel_pos = t.orig_pos / len(self._model._tree.nodes)
-                t.orig_pos_scaled = int( rel_pos * self._model.program_padded_size_const)
-                t.program_displacement = self._NewIntVar(0,self._model.program_horizon,
-                                                         f"{t.varname()}_program_displacement")
-
-            if self.config.constraints.minimize_depth_displacement is not None:
-                rel_depth = t.depth / maxdepth
-                t.ideal_pos_scaled = int( rel_depth * self._model.program_padded_size_const )
-                t.program_displacement_ideal = self._NewIntVar(0,self._model.program_horizon,
-                                      f"{t.varname()}_program_displacement")
-
         if self.config.constraints.functional_only:
             return
 
@@ -1893,18 +1876,6 @@ class SlothyBase(LockAttributes):
             for s in t.inout_lifetime_end + t.inout_lifetime_duration:
                 self._Add( s <= self._model.program_padded_size)
 
-            if self.config.constraints.max_relative_displacement < 1.0:
-                self._AddAbsEq( t.program_displacement,
-                                t.program_start_var - t.orig_pos_scaled )
-                if self.config.constraints.minimize_depth_displacement is not None:
-                    self._AddAbsEq( t.program_displacement_ideal,
-                                    t.program_start_var - t.ideal_pos_scaled )
-                max_disp = int(self.config.constraints.max_relative_displacement *
-                               self._model.program_padded_size_const)
-                c = self._Add( t.program_displacement < max_disp )
-                if self.config.sw_pipelining.enabled:
-                    c.OnlyEnforceIf(t.core_var)
-
             if self.config.constraints.functional_only:
                 continue
 
@@ -2137,19 +2108,14 @@ class SlothyBase(LockAttributes):
                 else:
                     minlist = corevars
                 name = "minimize iteration overlapping"
-            elif self.config.constraints.minimize_depth_displacement is not None:
-                name = "displacement from ideal according to relative depth"
-                minlist = [ t.program_displacement_ideal for t in self._get_nodes() ]
             elif self.config.constraints.maximize_register_lifetimes:
                 name = "maximize register lifetimes"
                 maxlist = [ v for t in self._get_nodes(all=True) for v in t.out_lifetime_duration ]
             elif self.config.constraints.move_stalls_to_bottom is not None:
                 minlist = [ t.program_start_var for t in self._get_nodes() ]
-#                maxlist = self._model.gaps
                 name = "move stalls to bottom"
             elif self.config.constraints.move_stalls_to_top is not None:
                 maxlist = [ t.program_start_var for t in self._get_nodes() ]
-#                minlist = self._model.gaps
                 name = "move stalls to top"
             elif self.config.constraints.minimize_register_usage is not None:
                 # Minimize the number of registers used

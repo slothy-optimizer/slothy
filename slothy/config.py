@@ -229,8 +229,7 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def has_objective(self):
-        objectives = sum([self.constraints.minimize_depth_displacement != None,
-                          self.sw_pipelining.enabled and
+        objectives = sum([self.sw_pipelining.enabled and
                           self.sw_pipelining.minimize_overlapping != None,
                           self.constraints.maximize_register_lifetimes == True,
                           self.constraints.move_stalls_to_top != None,
@@ -568,8 +567,6 @@ class Config(NestedPrint, LockAttributes):
         _default_stalls_timeout_below_precision = None
         _default_stalls_first_attempt = 0
 
-        _default_max_relative_displacement = 1.0
-
         _default_model_latencies = True
         _default_model_functional_units = True
         _default_allow_reordering = True
@@ -699,23 +696,6 @@ class Config(NestedPrint, LockAttributes):
         def restricted_renaming(self):
             return self._restricted_renaming
 
-        @property
-        def max_relative_displacement(self):
-            f"""The maximum relative displacement for instructions
-
-            This is calculated relative to the instruction's original position,
-            scaled according to the amount of gaps that are allowed in the code.
-
-            NOTE: If software pipelining is enabled, this variable is only effective
-                  for instructions that remain in their original iteration. In particular,
-                  it does not block very far moving early instructions. This is not really
-                  a deliberate choice but merely an implementation limitation for now.
-
-            A value of None means that any relative displacement is allowed.
-
-            Default: {Config.Constraints._default_max_relative_displacement}"""
-            return self._max_relative_displacement
-
         def __init__(self):
             super().__init__()
 
@@ -730,11 +710,8 @@ class Config(NestedPrint, LockAttributes):
             self.move_stalls_to_top = None
             self.move_stalls_to_bottom = None
             self.minimize_register_usage = None
-            self.minimize_depth_displacement = None
             self.minimize_use_of_extra_registers = None
             self.allow_extra_registers = {}
-
-            self._max_relative_displacement = Config.Constraints._default_max_relative_displacement
 
             self._model_latencies = Config.Constraints._default_model_latencies
             self._model_functional_units = Config.Constraints._default_model_functional_units
@@ -769,9 +746,6 @@ class Config(NestedPrint, LockAttributes):
         @stalls_timeout_below_precision.setter
         def stalls_timeout_below_precision(self,val):
             self._stalls_timeout_below_precision = val
-        @max_relative_displacement.setter
-        def max_relative_displacement(self,val):
-            self._max_relative_displacement = val
         @model_latencies.setter
         def model_latencies(self,val):
             self._model_latencies = val
