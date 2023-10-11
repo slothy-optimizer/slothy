@@ -886,6 +886,46 @@ class SlothyBase(LockAttributes):
                     self.logger.debug(f"Instructions {t0.orig_pos} ({t0.inst}) and {t1.orig_pos} ({t1.inst}) got reordered")
                     yield t0,t1
 
+    def _fixup_reordered_pair(t0, t1, logger, unsafe_skip_address_fixup=False, affecting=None, affected=None):
+        def inst_changes_addr(inst):
+            return inst.increment is not None
+
+        if not t0.inst_tmp.is_load_store_instruction():
+            return
+        if not t1.inst_tmp.is_load_store_instruction():
+            return
+        if not t0.inst_tmp.addr == t1.inst_tmp.addr:
+            return
+        if inst_changes_addr(t0.inst_tmp) and inst_changes_addr(t1.inst_tmp):
+            if not unsafe_skip_address_fixup:
+                logger.warning("============================================   ERRROR   =============================================")
+                logger.warning(f"Cannot handle reordering of two instructions ({t0} and {t1}) ")
+                logger.warning( "which both want to modify the same address")
+                logger.warning("=====================================================================================================")
+                raise Exception("Address fixup failure")
+
+            logger.warning("============================================   WARNING   ============================================")
+            logger.warning(f"Cannot handle reordering of two instructions ({t0} and {t1}) ")
+            logger.warning( "which both want to modify the same address")
+            logger.warning( "Skipping this -- you have to fix the address offsets manually")
+
+            logger.warning("=====================================================================================================")
+            return
+        if affected is None:
+            affected = lambda _: True
+        if affecting is None:
+            affecting = lambda _: True
+        if inst_changes_addr(t0.inst_tmp) and affecting(t0) and affected(t1):
+            # t1 gets reordered before t0, which changes the address
+            # Adjust t1's address accordingly
+            logger.error(f"{t0} got moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, to {t1.fixup + int(t0.inst_tmp.increment)}")
+            t1.fixup += int(t0.inst_tmp.increment)
+        elif inst_changes_addr(t1.inst_tmp) and affecting(t1) and affected(t0):
+            # t0 gets reordered after t1, which changes the address
+            # Adjust t0's address accordingly
+            logger.error(f"{t1} got moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, to {t0.fixup - int(t1.inst_tmp.increment)}")
+            t0.fixup -= int(t1.inst_tmp.increment)
+
     def _post_optimize_fixup_compute(self, affected=None, affecting=None, ipairs=None):
         """Adjusts immediate offsets for reordered load/store instructions.
 
@@ -909,60 +949,37 @@ class SlothyBase(LockAttributes):
         if ipairs is None:
             ipairs = self._get_reordered_instructions()
 
-        def inst_changes_addr(inst):
-            return inst.increment is not None
         # Search for instances of VLDR,VSTR that have been swapped
         for t0,t1 in ipairs:
-            if not t0.inst_tmp.is_load_store_instruction():
-                continue
-            if not t1.inst_tmp.is_load_store_instruction():
-                continue
-            if not t0.inst_tmp.addr == t1.inst_tmp.addr:
-                continue
-            if inst_changes_addr(t0.inst_tmp) and inst_changes_addr(t1.inst_tmp):
-                if not self.config.unsafe_skip_address_fixup:
-                    self.logger.warning("============================================   ERRROR   =============================================")
-                    self.logger.warning(f"Cannot handle reordering of two instructions ({t0} and {t1}) ")
-                    self.logger.warning( "which both want to modify the same address")
-                    self.logger.warning("=====================================================================================================")
-                    raise Exception("Address fixup failure")
+            SlothyBase._fixup_reordered_pair(t0,t1,self.logger,affecting=affecting,affected=affected)
 
-                self.logger.warning("============================================   WARNING   ============================================")
-                self.logger.warning(f"Cannot handle reordering of two instructions ({t0} and {t1}) ")
-                self.logger.warning( "which both want to modify the same address")
-                self.logger.warning( "Skipping this -- you have to fix the address offsets manually")
-                self.logger.warning("=====================================================================================================")
-                return
-            if inst_changes_addr(t0.inst_tmp) and affecting(t0) and affected(t1):
-                # t1 gets reordered before t0, which changes the address
-                # Adjust t1's address accordingly
-                self.logger.error(f"{t0} got moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, to {t1.fixup + int(t0.inst_tmp.increment)}")
-                t1.fixup += int(t0.inst_tmp.increment)
-            elif inst_changes_addr(t1.inst_tmp) and affecting(t1) and affected(t0):
-                # t0 gets reordered after t1, which changes the address
-                # Adjust t0's address accordingly
-                self.logger.error(f"{t1} got moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, to {t0.fixup - int(t1.inst_tmp.increment)}")
-                t0.fixup -= int(t1.inst_tmp.increment)
 
     def _post_optimize_fixup_apply(self):
+        SlothyBase._post_optimize_fixup_apply_core(self._model._tree.nodes, self.logger)
+
+    def _post_optimize_fixup_reset_core(nodes):
+        for t in nodes:
+            t.fixup = 0
+
+    def _post_optimize_fixup_reset(self):
+        SlothyBase._post_optimize_fixup_reset_core(self._get_nodes())
+
+    def _post_optimize_fixup_apply_core(nodes, logger):
         def inst_changes_addr(inst):
             return inst.increment is not None
 
-        for t in self._model._tree.nodes:
+        for t in nodes:
             if not t.inst_tmp.is_load_store_instruction():
                 continue
             if inst_changes_addr(t.inst_tmp):
+                continue
+            if t.fixup == 0:
                 continue
             if t.inst_tmp.pre_index:
                 t.inst_tmp.pre_index = f"(({t.inst_tmp.pre_index}) + ({t.fixup}))"
             else:
                 t.inst_tmp.pre_index = f"{t.fixup}"
-            if t.fixup != 0:
-                self.logger.error(f"Fixed up instruction {t.inst_tmp} by {t.fixup}, to {t.inst_tmp}")
-
-    def _post_optimize_fixup_reset(self):
-        for t in self._get_nodes():
-            t.fixup = 0
+            logger.error(f"Fixed up instruction {t.inst_tmp} by {t.fixup}, to {t.inst_tmp}")
 
     def _extract_code(self):
 
