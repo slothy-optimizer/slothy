@@ -61,6 +61,38 @@ class LockAttributes(object):
 
 class AsmHelper():
 
+    def find_indentation(source):
+
+        def get_indentation(l):
+            return len(l) - len(l.lstrip())
+
+        # Remove empty lines
+        source = list(filter(lambda t: t.strip() != "", source))
+        l = len(source)
+
+        if l == 0:
+            return None
+
+        indentations = list(map(get_indentation, source))
+
+        # Some labels may use a different indentation -- here, we just check if
+        # there's a dominant indentation
+        top_start = (3 * l) // 4
+        indentations.sort()
+        indentations = indentations[top_start:]
+
+        if indentations[0] == indentations[-1]:
+            return indentations[0]
+
+        return None
+
+    def apply_indentation(source, indentation):
+        if indentation == None:
+            return source
+        assert isinstance(indentation, int)
+        indent = ' ' * indentation
+        return [ indent + l.lstrip() for l in source ]
+
     def rename_function(source, old_funcname, new_funcname):
         # For now, just replace function names line by line
         def change_funcname(s):
