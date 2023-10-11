@@ -559,6 +559,36 @@ class DataFlowGraph:
         log_func = self.logger.error if error else self.logger.debug
         [log_func(d) for t in self.nodes_all for d in t.describe()]
 
+    def ssa(self):
+
+        # Go through non-virtual instruction nodes and assign unique names to
+        # output registers which are not global outputs.
+        out_cnt = 0
+        def get_fresh_reg():
+            nonlocal out_cnt
+            res = f"ssa_{out_cnt}"
+            out_cnt += 1
+            return res
+
+        for t in self.nodes:
+            for i in range(len(t.inst.args_out)):
+                # If the output is global, skip renaming
+                output_is_global = False
+                for d in t.dst_out[i]:
+                    if d.is_virtual():
+                        output_is_global = True
+                if output_is_global:
+                    continue
+                # Otherwise, assign a fresh variable
+                t.inst.args_out[i] = get_fresh_reg()
+
+        # Update input and in-out register names
+        for t in self.nodes_all:
+            for i in range(len(t.inst.args_in)):
+                t.inst.args_in[i] = t.src_in[i].reduce().name()
+            for i in range(len(t.inst.args_in_out)):
+                t.inst.args_in_out[i] = t.src_in_out[i].reduce().name()
+
     def _build_graph(self):
         self.reg_state = {}
         self._typing_dict = {}
