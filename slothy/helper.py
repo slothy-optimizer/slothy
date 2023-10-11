@@ -25,7 +25,7 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import re
+import re, subprocess
 
 class NestedPrint():
     def __str__(self):
@@ -463,3 +463,25 @@ class AsmMacro():
     def extract_from_file(filename):
         f = open(filename,"r")
         return AsmMacro.extract(f.read().splitlines())
+
+class CPreprocessor():
+
+    default_gcc_binary = "gcc"
+    magic_string = "SLOTHY_PREPROCESSED_REGION"
+
+    def unfold(header, body, gcc=None):
+        """Runs the concatenation of header and body through the preprocessor"""
+        if gcc == None:
+            gcc = CPreprocessor.default_gcc_binary
+
+        code = header + [CPreprocessor.magic_string] + body
+
+        r = subprocess.run([gcc, "-E", "-x", "assembler-with-cpp","-"],
+                           input='\n'.join(code), text=True, capture_output=True)
+
+        unfolded_code = r.stdout.split('\n')
+        magic_idx = unfolded_code.index(CPreprocessor.magic_string)
+        unfolded_code = unfolded_code[magic_idx+1:]
+
+        return unfolded_code
+
