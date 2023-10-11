@@ -489,27 +489,81 @@ class Heuristics():
 
         if conf.split_heuristic_preprocess_naive_interleaving:
             body = Heuristics._naive_reordering(body, log, conf)
+        chunk_len = int(l // split_factor)
+        def region_upper(i):
+            return min(l, i + math.ceil(chunk_len/2))
+        def region_lower(i):
+            return max(0, i - math.floor(chunk_len/2))
+        def region_len(i):
+            return (region_upper(i) - region_lower(i))
 
-        # conf.outputs = result.outputs
+        avg_dist = np.ones(chunk_len) / chunk_len
+        #smoothening_dist = avg_dist
 
-        def print_intarr(arr, l,vals=50):
-            m = max(10,max(arr))
+        smoothening_dist = np.random.triangular(0, chunk_len//2, chunk_len, size=10000)
+        smoothening_dist = np.histogram(smoothening_dist, density=True, bins=chunk_len)[0]
+
+        def restrict_arr(arr, samples, scale=1):
+            l = len(arr)
+            f = l / samples
+            return [ scale * arr[int(i * f)] for i in range(samples) ]
+
+        def average_arr(arr):
+            return np.convolve(arr, avg_dist, mode='same')
+
+        def smoothen_arr(arr):
+            return np.convolve(arr, smoothening_dist, mode='same')
+
+        def print_intarr(txt, txt_short, arr, vals=50):
+            if not isinstance(arr, np.ndarray):
+                arr = np.array(arr)
+
+            l = len(arr)
+            if vals == None:
+                vals = l
+
+            log.info(txt)
+
+            precision = 100
+
+            m = 1.1*max(arr)
+            arr = precision * (arr / m)
+
             start_idxs = [ (l * i)     // vals for i in range(vals) ]
             end_idxs   = [ (l * (i+1)) // vals for i in range(vals) ]
             avgs = []
             for (s,e) in zip(start_idxs, end_idxs):
-                avg = sum(arr[s:e]) // (e-s)
+                if s == e:
+                    continue
+                avg = math.ceil(sum(arr[s:e]) / (e-s))
                 avgs.append(avg)
-                log.info(f"[{s:3d}-{e:3d}]: {'*'*avg}{'.'*(m-avg)} ({avg})")
+                log.info(f"[{txt_short}|{s:3d}-{e:3d}]: {'*'*avg}{'.'*(precision-avg)} ({avg})")
+
+        def cumulative_arr(arr):
+            return [ sum(arr[:i]) for i in range(len(arr)) ]
+
+        def abs_arr(arr):
+            return [ abs(x) for x in arr ]
+
+        def get_stall_arr(stalls,l):
+            # Convert stalls into 01 valued function
+            return [ i in stalls for i in range(l) ]
+
+        def prepare_stalls(stalls, l):
+            stall_arr = np.array(get_stall_arr(stalls,l))
+            s_arr = smoothen_arr(stall_arr)
+            d1    = abs_arr(np.diff(s_arr))
+            d1s   = smoothen_arr(d1)
+            d2    = abs_arr(np.diff(d1s))
+            d2s   = smoothen_arr(d2)
+
+            return s_arr, d1s, d2s
 
         def print_stalls(stalls,l):
-            chunk_len = int(l // split_factor)
-            # Convert stalls into 01 valued function
-            stalls_arr = [ i in stalls for i in range(l) ]
-            for v in stalls_arr:
-                assert v in {0,1}
-            stalls_cumulative = [ sum(stalls_arr[max(0,i-math.floor(chunk_len/2)):i+math.ceil(chunk_len/2)]) for i in range(l) ]
-            print_intarr(stalls_cumulative,l)
+            s_arr, _, d2s = prepare_stalls(stalls, l)
+            print_intarr("Stalls", "stalls", s_arr)
+            # print_intarr("Stalls (1st findiff)", "d1", d1s)
+            # print_intarr("Stalls (2nd findiff)", "d2", d2s)
 
         def optimize_chunk(start_idx, end_idx, body, stalls,show_stalls=True):
             """Optimizes a sub-chunks of the given snippet, delimited by pairs
@@ -621,7 +675,7 @@ class Heuristics():
 
             cur_body = AsmHelper.reduce_source(cur_body)
 
-            if not conf.split_heuristic_random:
+            if not conf.split_heuristic_adaptive:
                 idx_lst = make_idx_list_consecutive(split_factor, increment)
                 if conf.split_heuristic_bottom_to_top == True:
                     idx_lst.reverse()
@@ -634,9 +688,26 @@ class Heuristics():
             else:
                 len_total = len(cur_body)
                 len_chunk = round(len_total / split_factor)
-                start_idx = random.randint(0, len_total - len_chunk - 1)
-                end_idx = start_idx + len_chunk
+
+                def pick_next_region(stalls, l):
+                    _, _, d2 = prepare_stalls(stalls, l)
+                    d2 = [ d2[i] for i in range(len(d2)) ]
+
+                    if last_base != None:
+                        # Force consecutive regions to be meaningfully different
+                        for i in range(last_base + len_chunk // 5, last_base + 4 * (len_chunk // 5)):
+                            d2[i] = 0
+
+                    s = len_chunk
+                    e = l - s
+                    base = d2[s:e].index(max(d2[s:e])) + len_chunk // 2
+
+                    return base, base + len_chunk
+
+                start_idx, end_idx = pick_next_region(stalls, l)
+                last_base = start_idx
                 idx_lst = [ (start_idx, end_idx) ]
+                log.info(f"Adaptive region ({i+1}/{conf.split_heuristic_repeat}): [{start_idx},{end_idx}]")
 
             cur_body, stalls = optimize_chunks_many(idx_lst, cur_body, stalls,
                                                     abort_stall_threshold=conf.split_heuristic_abort_cycle_at)
