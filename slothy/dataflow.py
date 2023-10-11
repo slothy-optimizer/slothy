@@ -505,6 +505,7 @@ class DataFlowGraph:
         t = next(useless_nodes, None)
         if t != None:
             self.logger.error(f"The output(s) of instruction {t.id}({t.inst}) are not used but also not declared as outputs.")
+            self.logger.error(f"Instruction details: {t}, {t.inst.inputs}")
             self.dump_instructions("Source code", error=True)
             raise Exception("Useless instruction detected -- probably you missed an output declaration?")
 
@@ -535,6 +536,10 @@ class DataFlowGraph:
                     exp_ty = self.reg_state[name].get_type()
                     self.logger.debug(f"   + type of {name} in state dictionary: {exp_ty}")
                     expectations.append((f"State dictionary: {exp_ty}", exp_ty))
+                else:
+                    self.logger.debug(f"    + {name} not in state dictionary")
+                    self.logger.debug(f"      Current dictionary:")
+                    self.logger.debug(self.reg_state)
                 # Check if we've been given a type hind
                 if name in self.config.typing_hints.keys():
                     exp_ty = self.config.typing_hints[name]
