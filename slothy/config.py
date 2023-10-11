@@ -886,7 +886,11 @@ class Config(NestedPrint, LockAttributes):
         self.visualize_reordering = True
         self._split_heuristic_visualize_stalls = False
         self._split_heuristic_visualize_units = False
+
         self.placeholder_char = '.'
+        self.early_char = 'e'
+        self.late_char = 'l'
+        self.core_char = '*'
 
         self.typing_hints = {} # Dictionary of 'typing hints', assigning symbolic names to register types
                                # in case the register type is ambiguous.

@@ -50,8 +50,13 @@ class Result(LockAttributes):
     def _gen_orig_code_visualized(self):
         if self.codesize == 0:
             return
-        fixlen = max(map(len, self.orig_code)) + 8
+
+        early_char = self.config.early_char
+        late_char  = self.config.late_char
+        core_char  = self.config.core_char
         d = self.config.placeholder_char
+
+        fixlen = max(map(len, self.orig_code)) + 8
 
         def arr_width(arr):
             mi = min(arr)
@@ -67,14 +72,13 @@ class Result(LockAttributes):
         yield "// original source code"
         for i in range(self.codesize):
             pos = self.reordering[i] - min_pos
-            c = '*'
+            c = core_char
             if self.config.sw_pipelining.enabled and self.is_pre(i):
-                c = 'e'
+                c = early_char
             elif self.config.sw_pipelining.enabled and self.is_post(i):
-                c = 'l'
-            else:
-                c = '*'
+                c = late_char
 
+            # String of the form "...{e,*,l}...", with e/l/* in position pos
             t_comment = d * pos + c + d * (width - pos)
 
             if not self.config.constraints.functional_only and \
@@ -115,32 +119,51 @@ class Result(LockAttributes):
         return self._pre_core_post_dict
 
     def is_pre(self, i):
+        """Indicates if the instruction in original program order position i (starting at 0)
+           was marked 'early' and thereby pulled into the previous iteration.
+
+           This only makes sense when software pipelining was enabled."""
         if not self.config.sw_pipelining.enabled:
             return False
         return self.pre_core_post_dict[i][0]
     def is_core(self, i):
+        """Indicates if the instruction in original program order position i (starting at 0)
+           was neither marked 'early' nor 'late', so stayed in its original iteration.
+
+           This only makes sense when software pipelining was enabled."""
         if not self.config.sw_pipelining.enabled:
             return True
         return self.pre_core_post_dict[i][1]
     def is_post(self, i):
+        """Indicates if the instruction in original program order position i (starting at 0)
+           was marked 'late' and thereby pulled into the next iteration.
+
+           This only makes sense when software pipelining was enabled."""
         if not self.config.sw_pipelining.enabled:
             return False
         return self.pre_core_post_dict[i][2]
 
     @cached_property
     def num_pre(self):
+        """In a software pipelining result, the number of 'early' instructions."""
         self._require_sw_pipelining()
         return sum(pre for (pre,_,_) in self.pre_core_post_dict.values())
     @cached_property
     def num_core(self):
+        """In a software pipelining result, the number of 'late' instructions."""
         self._require_sw_pipelining()
         return sum(core for (_,core,_) in self.pre_core_post_dict.values())
     @cached_property
     def num_post(self):
+        """In a software pipelining result, the number of 'core' instructions
+           (neither early nor late)."""
         self._require_sw_pipelining()
         return sum(post for (_,_,post) in self.pre_core_post_dict.values())
     @cached_property
     def num_prepost(self):
+        """In a software pipelining result, the number of early or late instructions.
+           This can be seen as a measure for the amount of interleaving across iterations
+           that has happened."""
         self._require_sw_pipelining()
         return sum(pre + post for (pre,_,post) in self.pre_core_post_dict.values())
 
@@ -160,11 +183,19 @@ class Result(LockAttributes):
 
     @property
     def reordering_with_bubbles(self):
-        """The reordering permutation linking original and optimized source code"""
+        """The reordering permutation linking original and optimized source code.
+           The output ordering includes 'bubbles' reflecting where SLOTHY thinks
+           that the target microarchitecture would stall."""
+
+        # TODO: Clarify how early and late instructions are treated in the case
+        # of software pipelining
         return self._reordering_with_bubbles
 
     @cached_property
     def cycle_position_with_bubbles(self):
+        """Maps the original program order position of an instruction to the cycle number
+           in which SLOTHY thinks (according to its microarchitecture model) the instruction
+           would execute."""
         return { k : v // self.config.Target.issue_rate for (k,v) in
                  self.reordering_with_bubbles.items() }
 
@@ -253,6 +284,10 @@ class Result(LockAttributes):
             return code
 
         fixlen = max(map(len, code), default=0) + 8
+
+        early_char = self.config.early_char
+        late_char  = self.config.late_char
+        core_char  = self.config.core_char
         d = self.config.placeholder_char
 
         def _gen_visualized_code():
@@ -263,11 +298,11 @@ class Result(LockAttributes):
                     yield f"{gapstr:{fixlen}s} // {d * self.codesize}"
                     continue
                 s = code[self.periodic_reordering[p]]
-                c = "*"
+                c = core_char
                 if self.is_pre(p):
-                    c = 'e'
+                    c = early_char
                 elif self.is_post(p):
-                    c = 'l'
+                    c = late_char
                 comment = d * p + c + d * (self.codesize - p - 1)
                 yield f"{s:{fixlen}s} // {comment}"
 
@@ -276,12 +311,17 @@ class Result(LockAttributes):
 
         return res
 
-    def selfcheck(self, log):
+    def selfcheck(self, log, iterations=3):
+        """Checks that the original and optimized source code have isomorphic DFGs.
+           More specifically, that the reordering permutation stored in Result object
+           yields an isomorphism between DFGs.
 
-        # Check that the computation flow graphs for input and output are indeed isomorphic
-        # via the instruction ordering found by the tool.
+           When software pipelining is used, this is a bounded check for a fixed number
+           of iterations."""
+
         if self.config.sw_pipelining.enabled:
-            iterations = 3
+            # Software pipelining mode is reduced to straightline by unrolling the loop
+            # a fixed number of times.
             old_source = '\n'.join(self.orig_code * iterations)
 
             assert iterations > self.num_exceptional_iterations
@@ -291,7 +331,7 @@ class Result(LockAttributes):
                                    self.postamble )
 
             reordering = self.get_reordering(iterations)
-            # For the first and last iteration, there will be gaps in the positioning -- remove those
+            # For the first and last iteration, there will be gaps in the positioning; remove those.
             reordering_sorted = list(reordering.items())
             reordering_sorted.sort(key=lambda x: x[1])
             reordering_sorted = [ x[0] for x in reordering_sorted ]
@@ -310,6 +350,10 @@ class Result(LockAttributes):
             reordering[f"input_{old}"] = f"input_{new}"
         for old, new in self.output_renamings.items():
             reordering[f"output_{old}"] = f"output_{new}"
+
+        # The DFG isomorphism check is, perhaps surprisingly, very simple:
+        # We take the set of labelled edges of source and destination graph, apply
+        # the node permutation, and assert equality of sets.
 
         def apply_reordering(x):
             src,dst,lbl=x
@@ -334,66 +378,74 @@ class Result(LockAttributes):
         edges_old_remapped = set(map(apply_reordering, edges_old))
         reordering_inv = { j : i for (i,j) in reordering.items() }
 
-        if edges_old_remapped != edges_new:
-            log.error("Isomophism between computation flow graphs: FAIL!")
+        # DFG isomorphism as set-equality between remapped edge sets
+        if edges_old_remapped == edges_new:
+            log.debug("Isomophism between computation flow graphs: OK!")
+            log.info("OK!")
+            return
 
-            log.error("Input/Output renaming")
-            log.error(reordering)
+        log.error("Isomophism between computation flow graphs: FAIL!")
 
-            SlothyBase._dump("old code", old_source, log, err=True)
-            SlothyBase._dump("new code", new_source, log, err=True)
+        log.error("Input/Output renaming")
+        log.error(reordering)
 
-            new_not_old = edges_new.difference(edges_old_remapped)
-            old_not_new = edges_old_remapped.difference(edges_new)
+        SlothyBase._dump("old code", old_source, log, err=True)
+        SlothyBase._dump("new code", new_source, log, err=True)
 
-            log.error("Old graph")
-            tree_old._describe(error=True)
-            log.error("New graph")
-            tree_new._describe(error=True)
+        new_not_old = edges_new.difference(edges_old_remapped)
+        old_not_new = edges_old_remapped.difference(edges_new)
 
-            for (src_idx,dst_idx,lbl) in new_not_old:
-                src = tree_new.nodes_by_id[src_idx]
-                dst = tree_new.nodes_by_id[dst_idx]
-                log.error(f"New ({src_idx}:{src})---{lbl}--->({dst_idx}:{dst}) not present in old graph")
+        log.error("Old graph")
+        tree_old._describe(error=True)
+        log.error("New graph")
+        tree_new._describe(error=True)
 
-                src_idx_old = reordering_inv[src_idx]
-                dst_idx_old = reordering_inv[dst_idx]
-                src_old = tree_old.nodes_by_id[src_idx_old]
-                dst_old = tree_old.nodes_by_id[dst_idx_old]
-                log.error(f"Instructions in old graph: {src_old}, {dst_old}")
-                deps = [(s,d,l) for (s, d, l) in edges_old if s==src_idx_old and d==dst_idx_old]
+        # In the remainder, we try to give some indication of where the purpoted
+        # isomorphism failed by listing edges present in one DFG but not the other.
+
+        for (src_idx,dst_idx,lbl) in new_not_old:
+            src = tree_new.nodes_by_id[src_idx]
+            dst = tree_new.nodes_by_id[dst_idx]
+            log.error(f"New ({src_idx}:{src})"
+                      f"---{lbl}--->({dst_idx}:{dst}) not present in old graph")
+
+            src_idx_old = reordering_inv[src_idx]
+            dst_idx_old = reordering_inv[dst_idx]
+            src_old = tree_old.nodes_by_id[src_idx_old]
+            dst_old = tree_old.nodes_by_id[dst_idx_old]
+            log.error(f"Instructions in old graph: {src_old}, {dst_old}")
+            deps = [(s,d,l) for (s, d, l) in edges_old if s==src_idx_old and d==dst_idx_old]
+            if len(deps) > 0:
+                for (s,d,l) in deps:
+                    log.error(f"Edge: {src_old} --{l}--> {dst_old}")
+            else:
+                log.error("No dependencies in old graph!")
+
+        for (src_idx,dst_idx,lbl) in old_not_new:
+            src_idx_old = reordering_inv[src_idx]
+            dst_idx_old = reordering_inv[dst_idx]
+            src_old = tree_old.nodes_by_id[src_idx_old]
+            dst_old = tree_old.nodes_by_id[dst_idx_old]
+            log.error(f"Old ({src_old})[id:{src_idx_old}]"
+                      f"---{lbl}--->{dst_old}[id:{dst_idx_old}] not present in new graph")
+
+            src = tree_new.nodes_by_id.get(src_idx, None)
+            dst = tree_new.nodes_by_id.get(dst_idx, None)
+
+            if src != None and dst != None:
+                log.error(f"Instructions in new graph: {src} --> {dst}")
+                deps = [(s,d,l) for (s,d,l) in edges_new if s==src_idx and d==dst_idx]
                 if len(deps) > 0:
-                    for (s,d,l) in deps:
-                        log.error(f"Edge: {src_old} --{l}--> {dst_old}")
+                    for (s, d, l) in deps:
+                        log.error(f"Edge: {src} --{l}--> {dst}")
                 else:
-                    log.error("No dependencies in old graph!")
+                    log.error("No dependencies in new graph!")
+            else:
+                log.error(f"Indices {src_idx} ({src}) and {dst_idx} ({dst})"
+                          "don't both exist in new DFG?")
 
-            for (src_idx,dst_idx,lbl) in old_not_new:
-                src_idx_old = reordering_inv[src_idx]
-                dst_idx_old = reordering_inv[dst_idx]
-                src_old = tree_old.nodes_by_id[src_idx_old]
-                dst_old = tree_old.nodes_by_id[dst_idx_old]
-                log.error(f"Old ({src_old})[id:{src_idx_old}]---{lbl}--->{dst_old}[id:{dst_idx_old}] not present in new graph")
-
-                src = tree_new.nodes_by_id.get(src_idx, None)
-                dst = tree_new.nodes_by_id.get(dst_idx, None)
-
-                if src != None and dst != None:
-                    log.error(f"Instructions in new graph: {src} --> {dst}")
-                    deps = [(s,d,l) for (s,d,l) in edges_new if s==src_idx and d==dst_idx]
-                    if len(deps) > 0:
-                        for (s, d, l) in deps:
-                            log.error(f"Edge: {src} --{l}--> {dst}")
-                    else:
-                        log.error("No dependencies in new graph!")
-                else:
-                    log.error(f"Indices {src_idx} ({src}) and {dst_idx} ({dst}) don't both exist in new DFG?")
-
-            log.error("Isomorphism between computation flow graphs: FAIL!")
-            raise Exception("Isomorphism between computation flow graphs: FAIL!")
-
-        log.debug("Isomophism between computation flow graphs: OK!")
-        log.info("OK!")
+        log.error("Isomorphism between computation flow graphs: FAIL!")
+        raise Exception("Isomorphism between computation flow graphs: FAIL!")
 
     @property
     def inputs(self):
@@ -440,8 +492,8 @@ class Result(LockAttributes):
     def kernel_input_output(self):
         """When using software pipelining, the dependencies between successive loop iterations.
 
-        This is useful if you want to further optimize the preamble (and perhaps some code preceding it),
-        because the kernel dependencies are the output of the preamble."""
+        This is useful if you want to further optimize the preamble (and perhaps some code
+        preceeding it), because the kernel dependencies are the output of the preamble."""
         self._require_sw_pipelining()
         return self._kernel_input_output
     @property
@@ -463,17 +515,16 @@ class Result(LockAttributes):
     @property
     def success(self):
         """Whether the optimization was successful"""
-        self._require_valid()
+        if not self._valid:
+            raise Exception("Querying not-yet-populated result object")
         return self._success
     def __bool__(self):
         return self.success
 
     def _require_sw_pipelining(self):
         if not self.config.sw_pipelining.enabled:
-            raise Exception("Asking for SW-pipelining attribute in result of SLOTHY run without SW pipelining")
-    def _require_valid(self):
-        if not self._valid:
-            raise Exception("Querying not-yet-populated result object")
+            raise Exception("Asking for SW-pipelining attribute in result of SLOTHY run"
+                            " without SW pipelining")
 
     def __init__(self, config):
         super().__init__()
@@ -510,7 +561,7 @@ class SlothyBase(LockAttributes):
     SlothyBase is agnostic of the target architecture and microarchitecture,
     which are specified at construction time."""
 
-    # In contrast to its more convenient descendant Slothy, SlothyBase is _stateless_:
+    # In contrast to its more convenient descendant Slothy, SlothyBase is largely _stateless_:
     # It optimizes one piece of source code a time via SlothyBase.optimize()
 
     @property
@@ -877,8 +928,9 @@ class SlothyBase(LockAttributes):
                 cur = self.ObjectiveValue()
                 bound = self.BestObjectiveBound()
                 time = self.WallTime()
-                self.__logger.info(f"[{time:.4f}s]: Found {self.__solution_count} solutions so far... " +
-                                   f"objective {cur}, bound {bound} ({self.__objective_desc})")
+                self.__logger.info(
+                    f"[{time:.4f}s]: Found {self.__solution_count} solutions so far... " +
+                    f"objective {cur}, bound {bound} ({self.__objective_desc})")
                 if self.__is_good_enough and self.__is_good_enough(cur, bound):
                     self.StopSearch()
             if self.__solution_count >= self.__max_solutions:
@@ -932,10 +984,13 @@ class SlothyBase(LockAttributes):
                 t.real_pos_cycle = t.real_pos_program // self.Target.issue_rate
 
         if self.config.sw_pipelining.enabled:
-            self._result._reordering_with_bubbles = { t.orig_pos : t.real_pos_program for t in nodes_low }
-            self._result._pre_core_post_dict = { t.orig_pos : (t.pre, t.core, t.post)  for t in nodes_low }
+            self._result._reordering_with_bubbles = { t.orig_pos : t.real_pos_program
+                                                      for t in nodes_low }
+            self._result._pre_core_post_dict = { t.orig_pos : (t.pre, t.core, t.post)
+                                                 for t in nodes_low }
         else:
-            self._result._reordering_with_bubbles = { t.orig_pos : t.real_pos_program for t in nodes }
+            self._result._reordering_with_bubbles = { t.orig_pos : t.real_pos_program
+                                                      for t in nodes }
 
         copies = 2 if self.config.sw_pipelining.enabled else 1
         reordering = self.result.get_reordering(copies)
@@ -1005,10 +1060,13 @@ class SlothyBase(LockAttributes):
                 if not filter_func(t0) or not filter_func(t1):
                     continue
                 if t0.orig_pos < t1.orig_pos and t0.real_pos > t1.real_pos:
-                    self.logger.debug(f"Instructions {t0.orig_pos} ({t0.inst}) and {t1.orig_pos} ({t1.inst}) got reordered")
+                    self.logger.debug(f"Instructions {t0.orig_pos} ({t0.inst})"
+                                      f"and {t1.orig_pos} ({t1.inst}) got reordered")
                     yield t0,t1
 
-    def _fixup_reordered_pair(t0, t1, logger, unsafe_skip_address_fixup=False, affecting=None, affected=None):
+    def _fixup_reordered_pair(t0, t1, logger, unsafe_skip_address_fixup=False, affecting=None,
+                              affected=None):
+
         def inst_changes_addr(inst):
             return inst.increment is not None
 
@@ -1020,18 +1078,17 @@ class SlothyBase(LockAttributes):
             return
         if inst_changes_addr(t0.inst_tmp) and inst_changes_addr(t1.inst_tmp):
             if not unsafe_skip_address_fixup:
-                logger.warning("============================================   ERRROR   =============================================")
-                logger.warning(f"Cannot handle reordering of two instructions ({t0} and {t1}) ")
-                logger.warning( "which both want to modify the same address")
-                logger.warning("=====================================================================================================")
+                logger.error( "=======================   ERROR   ===============================")
+                logger.error(f"    Cannot handle reordering of two instructions ({t0} and {t1}) ")
+                logger.error( "           which both want to modify the same address            ")
+                logger.error( "=================================================================")
                 raise Exception("Address fixup failure")
 
-            logger.warning("============================================   WARNING   ============================================")
-            logger.warning(f"Cannot handle reordering of two instructions ({t0} and {t1}) ")
-            logger.warning( "which both want to modify the same address")
-            logger.warning( "Skipping this -- you have to fix the address offsets manually")
-
-            logger.warning("=====================================================================================================")
+            logger.warning( "=========================   WARNING   ============================")
+            logger.warning(f"   Cannot handle reordering of two instructions ({t0} and {t1})   ")
+            logger.warning( "           which both want to modify the same address             ")
+            logger.warning( "   Skipping this -- you have to fix the address offsets manually  ")
+            logger.warning( "==================================================================")
             return
         if affected is None:
             affected = lambda _: True
@@ -1040,29 +1097,34 @@ class SlothyBase(LockAttributes):
         if inst_changes_addr(t0.inst_tmp) and affecting(t0) and affected(t1):
             # t1 gets reordered before t0, which changes the address
             # Adjust t1's address accordingly
-            logger.error(f"{t0} got moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, to {t1.fixup + int(t0.inst_tmp.increment)}")
+            logger.error(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, "
+                         "to {t1.fixup + int(t0.inst_tmp.increment)}")
             t1.fixup += int(t0.inst_tmp.increment)
         elif inst_changes_addr(t1.inst_tmp) and affecting(t1) and affected(t0):
             # t0 gets reordered after t1, which changes the address
             # Adjust t0's address accordingly
-            logger.error(f"{t1} got moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, to {t0.fixup - int(t1.inst_tmp.increment)}")
+            logger.error(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, "
+                         "to {t0.fixup - int(t1.inst_tmp.increment)}")
             t0.fixup -= int(t1.inst_tmp.increment)
 
     def _post_optimize_fixup_compute(self, affected=None, affecting=None, ipairs=None):
         """Adjusts immediate offsets for reordered load/store instructions.
 
-        We don't model load/store instructions with address increments as modifying the address register; doing so would
-        severely limit the ability to perform software pipelining, which often requires load instructions for one iteration
-        to be moved propr to store instructions in the previous iteration. Instead, we model them as keeping the address
+        We don't model load/store instructions with address increments as modifying the
+        address register; doing so would severely limit the ability to perform software pipelining,
+        which often requires load instructions for one iteration to be moved propr to store
+        instructions in the previous iteration. Instead, we model them as keeping the address
         register unmodified, thereby allowing free reordering, and adjust address offsets afterwards.
 
-        See section "Address modifications in "Towards perfect CRYSTALS in Helium", https://eprint.iacr.org/2022/1303"""
+        See section "Address modifications in "Fast and Clean: Auditable high-performance
+        assembly via constraint solving", https://eprint.iacr.org/2022/1303"""
 
         if self.config.sw_pipelining.enabled    and \
            self.config.sw_pipelining.allow_post:
-            self.logger.warning("=================================================   WARNING   =================================================")
-            self.logger.warning("    Post-optimization address offset fixup has not been properly tested for config.sw_pipelining.allow_post!")
-            self.logger.warning("===============================================================================================================")
+            self.logger.warning("=======================   WARNING   ==========================")
+            self.logger.warning("      Post-optimization address offset fixup has not been     ")
+            self.logger.warning("      properly tested for config.sw_pipelining.allow_post!    ")
+            self.logger.warning("==============================================================")
         if affected is None:
             affected = lambda _: True
         if affecting is None:
@@ -1194,7 +1256,8 @@ class SlothyBase(LockAttributes):
             self._post_optimize_fixup_reset()
             self._post_optimize_fixup_compute(
                 affected=lambda t: not t.core)
-            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high, strict=True):
+            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high,
+                               strict=True):
                 if t0.pre:
                     assert t1.pre
                     t0.fixup = t1.fixup
@@ -1208,7 +1271,8 @@ class SlothyBase(LockAttributes):
             self._post_optimize_fixup_compute(
                 affected=lambda t: t in self._model._tree.nodes_high and t.core,
                 affecting=lambda t: t in self._model._tree.nodes_low and t.post)
-            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high, strict=True):
+            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high,
+                               strict=True):
                 if t0.core:
                     assert t1.core
                     if t0.fixup != 0 and t1.fixup != 0:
@@ -1228,9 +1292,11 @@ class SlothyBase(LockAttributes):
                 ipairs = [(t1,t0)
                           for t0 in self._model._tree.nodes_low
                           for t1 in self._model._tree.nodes_low
-                          if t0.pre and t1.post and t0.real_pos + len(self._model._tree.nodes) < t1.real_pos]
+                          if t0.pre and t1.post and
+                          t0.real_pos + len(self._model._tree.nodes) < t1.real_pos]
                 self._post_optimize_fixup_compute(ipairs = ipairs)
-            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high,strict=True):
+            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high,
+                               strict=True):
                 if t0.pre:
                     assert t1.pre
                     t1.fixup = t0.fixup
@@ -1276,7 +1342,8 @@ class SlothyBase(LockAttributes):
     def _list_dependencies(self, include_virtual_instructions=True ):
         self.logger.debug("Iterating over node dependencies")
         yield from filter( lambda cp: include_virtual_instructions or \
-                                      (cp[0] in self._model._tree.nodes and cp[1].src in self._model._tree.nodes),
+                                      (cp[0] in self._model._tree.nodes and
+                                       cp[1].src in self._model._tree.nodes),
                            self._model._tree.iter_dependencies() )
 
     def _add_path_constraint( self, consumer, producer, cb, force=False ):
@@ -1339,7 +1406,8 @@ class SlothyBase(LockAttributes):
                 constraints.append(consumer.post_var.Not())
             cb().OnlyEnforceIf([producer.pre_var, consumer.pre_var, bvar])
 
-    def _get_nodes_by_program_order(self, low=False, high=False, all=False, inputs=False, outputs=False):
+    def _get_nodes_by_program_order(self, low=False, high=False, all=False,
+                                    inputs=False, outputs=False):
         if low:
             return self._model._tree.nodes_low
         elif high:
@@ -1454,17 +1522,22 @@ class SlothyBase(LockAttributes):
             return self._NewIntVar(-1,self._model.program_horizon, name)
 
         for t in self._get_nodes(all=True):
-            # When we optimize for longest register lifetimes, we allow the starting time of the register
-            # usage interval to be smaller than the program order position of the instruction.
+            # When we optimize for longest register lifetimes, we allow the starting time of the
+            # usage interval to be smaller than the program order position of the instruction.
             if self.config.constraints.maximize_register_lifetimes:
-                t.out_lifetime_start      = [ make_start_var(f"{t.varname()}_out_{i}_lifetime_start") for i in range(t.inst.num_out) ]
+                t.out_lifetime_start      = [ make_start_var(f"{t.varname()}_out_{i}_lifetime_start")
+                                              for i in range(t.inst.num_out) ]
             else:
                 t.out_lifetime_start      = [ t.program_start_var for i in range(t.inst.num_out) ]
-            t.out_lifetime_end        = [ make_var(f"{t.varname()}_out_{i}_lifetime_end") for i in range(t.inst.num_out) ]
-            t.out_lifetime_duration   = [ make_var(f"{t.varname()}_out_{i}_lifetime_dur") for i in range(t.inst.num_out) ]
+            t.out_lifetime_end        = [ make_var(f"{t.varname()}_out_{i}_lifetime_end")
+                                          for i in range(t.inst.num_out) ]
+            t.out_lifetime_duration   = [ make_var(f"{t.varname()}_out_{i}_lifetime_dur")
+                                          for i in range(t.inst.num_out) ]
             t.inout_lifetime_start    = [ t.program_start_var for i in range(t.inst.num_in_out) ]
-            t.inout_lifetime_end      = [ make_var(f"{t.varname()}_inout_{i}_lifetime_end") for i in range(t.inst.num_in_out) ]
-            t.inout_lifetime_duration = [ make_var(f"{t.varname()}_inout_{i}_lifetime_dur") for i in range(t.inst.num_in_out) ]
+            t.inout_lifetime_end      = [ make_var(f"{t.varname()}_inout_{i}_lifetime_end")
+                                          for i in range(t.inst.num_in_out) ]
+            t.inout_lifetime_duration = [ make_var(f"{t.varname()}_inout_{i}_lifetime_dur")
+                                          for i in range(t.inst.num_in_out) ]
 
     # ================================================================
     #                  VARIABLES (Register allocation)               #
@@ -1520,12 +1593,14 @@ class SlothyBase(LockAttributes):
                 self.logger.debug( f"Locked registers: {self.config.locked_registers}")
                 is_locked = arg_out in self.config.locked_registers
                 # Symbolic registers are always renamed
-                if self._reg_is_architectural(arg_out, arg_ty) and (t.is_locked or is_locked or not _allow_renaming(t)):
+                if self._reg_is_architectural(arg_out, arg_ty) and (t.is_locked or is_locked
+                                                                    or not _allow_renaming(t)):
                     self.logger.input.debug(f"Instruction {t.inst.write()} has its output locked")
                     if is_locked:
                         self.logger.input.debug(f"Reason: Register is locked")
                     if not _allow_renaming(t):
-                        self.logger.input.debug(f"Reason: Register renaming has been disabled for this instruction")
+                        self.logger.input.debug(f"Reason: Register renaming has been disabled "
+                                                "for this instruction")
                     if t.is_locked:
                         self.logger.input.debug(f"Reason: Instruction is locked")
                     candidates = [arg_out]
@@ -1544,7 +1619,8 @@ class SlothyBase(LockAttributes):
                     self.logger.error(f"Restrictions: {restrictions}")
                     raise Exception()
 
-                self.logger.input.debug(f"Registers available for renaming of [{t.inst}].{arg_out} ({t.orig_pos})")
+                self.logger.input.debug("Registers available for renaming of "
+                                        f"[{t.inst}].{arg_out} ({t.orig_pos})")
                 self.logger.input.debug(candidates_restricted)
 
                 var_dict = { out_reg : self._NewBoolVar(f"ALLOC({t.inst})({out_reg})")
@@ -1558,15 +1634,16 @@ class SlothyBase(LockAttributes):
         # Create intervals tracking the usage of registers
         for t in self._get_nodes(all=True):
             self.logger.debug(f"Create register usage intervals for {t}")
-            for arg_ty, arg_out, var_dict, start_var, dur_var, end_var in zip(t.inst.arg_types_out,
-                                                                   t.inst.args_out,
-                                                                   t.alloc_out_var,
-                                                                   t.out_lifetime_start,
-                                                                   t.out_lifetime_duration,
-                                                                   t.out_lifetime_end, strict=True):
+            for arg_ty, arg_out, var_dict, start_var, dur_var, end_var in \
+                zip(t.inst.arg_types_out,
+                    t.inst.args_out,
+                    t.alloc_out_var,
+                    t.out_lifetime_start,
+                    t.out_lifetime_duration,
+                    t.out_lifetime_end, strict=True):
                 for reg, var in var_dict.items():
-                    usage_interval = self._NewOptionalIntervalVar(start_var, dur_var, end_var,
-                                                                  var, f"USAGE({t.inst})({reg})<{var}>")
+                    usage_interval = self._NewOptionalIntervalVar(
+                        start_var, dur_var, end_var, var, f"USAGE({t.inst})({reg})<{var}>")
                     self._add_register_usage(reg, arg_ty, var, usage_interval)
 
         # Input and InOut arguments
@@ -1620,11 +1697,13 @@ class SlothyBase(LockAttributes):
                 if combinations == None:
                     return
                 for idx_lst, valid_combinations in combinations:
-                    self.logger.debug(f"{t.orig_pos} ({t.inst.mnemonic}): Adding variables for {name} "\
+                    self.logger.debug(f"{t.orig_pos} ({t.inst.mnemonic}): "
+                                      f"Adding variables for {name} "
                                       f"{idx_lst, valid_combinations}")
                     vars.append([])
                     for combination in valid_combinations:
-                        self.logger.debug(f"{t.orig_pos} ({t.inst.mnemonic}): Adding variable for combination "\
+                        self.logger.debug(f"{t.orig_pos} ({t.inst.mnemonic}): "
+                                          "Adding variable for combination "
                                           f"{combination}")
                         vars[-1].append(self._NewBoolVar(""))
 
@@ -1671,7 +1750,8 @@ class SlothyBase(LockAttributes):
 
     def _add_constraints_lifetime_bounds_single(self, t):
         def _add_lifetime_constraints(deps_list, start_list, end_list, dur_list):
-            for deps, start_var, end_var, dur_var in zip(deps_list, start_list, end_list, dur_list, strict=True):
+            for deps, start_var, end_var, dur_var in zip(
+                    deps_list, start_list, end_list, dur_list, strict=True):
                 # Make sure the output argument is considered 'used' for at least
                 # one instruction. Otherwise, instructions producing outputs that
                 # are never used would be able to overwrite life registers.
@@ -1683,10 +1763,13 @@ class SlothyBase(LockAttributes):
 
                 # For every instruction depending on the output, add a lifetime bound
                 for d in deps:
-                    self._add_path_constraint( d, t, lambda: self._Add( end_var >= d.program_start_var ), force=True )
+                    self._add_path_constraint( d, t, lambda: self._Add(
+                        end_var >= d.program_start_var ), force=True )
         # Add bounds for all output and inout arguments
-        _add_lifetime_constraints(t.dst_out, t.out_lifetime_start, t.out_lifetime_end, t.out_lifetime_duration)
-        _add_lifetime_constraints(t.dst_in_out, t.inout_lifetime_start, t.inout_lifetime_end, t.inout_lifetime_duration)
+        _add_lifetime_constraints(t.dst_out, t.out_lifetime_start,
+                                  t.out_lifetime_end, t.out_lifetime_duration)
+        _add_lifetime_constraints(t.dst_in_out, t.inout_lifetime_start,
+                                  t.inout_lifetime_end, t.inout_lifetime_duration)
 
     # ================================================================
     #                  CONSTRAINTS (Register allocation)             #
@@ -1801,9 +1884,11 @@ class SlothyBase(LockAttributes):
                 c = list(filter(lambda t: t.inst.orig_reg == t_in.inst.orig_reg,
                                 self._model._tree.nodes_output))
                 if len(c) == 0:
-                    raise Exception(f"Could not find matching output for input {t_in.inst.orig_reg}")
+                    raise Exception("Could not find matching output for input:" +
+                                    t_in.inst.orig_reg)
                 elif len(c) > 1:
-                    raise Exception(f"Found multiple matching output nodes for input {t_in.inst.orig_reg}: {c}")
+                    raise Exception("Found multiple matching output nodes for input: " +
+                                    f"{t_in.inst.orig_reg}: {c}")
                 return c[0]
             for t_in in self._model._tree.nodes_input:
                 t_out = find_out_node(t_in)
@@ -2089,7 +2174,9 @@ class SlothyBase(LockAttributes):
                 # TODO: This might still fail in the case where we write to a global output
                 #       which hasn't been assigned an architectural register name.
                 if not t1_vars.issubset(t0_vars):
-                    self.logger.input.error( f"Instruction siblings {t1.orig_pos}:{t1.inst} and {t0.orig_pos}:{t0.inst} have incompatible register renaming options:")
+                    self.logger.input.error( f"Instruction siblings {t1.orig_pos}:{t1.inst} " +
+                                             f"and {t0.orig_pos}:{t0.inst} have incompatible " +
+                                             f"register renaming options:")
                     self.logger.input.error(f"- {t1.orig_pos}:{t1.inst} has options {t1_vars}")
                     self.logger.input.error(f"- {t0.orig_pos}:{t0.inst} has options {t0_vars}")
                 assert t1_vars.issubset(t0_vars)
@@ -2179,6 +2266,8 @@ class SlothyBase(LockAttributes):
                     # can be mapped to a loop with pre-only via [*,l] -> [e,*].
                     # In this case, minimal overlapping for the post-only configuration
                     # converts to maximal overlapping for the pre-only configuration
+                    #
+                    # TODO: Check -- is this still accurate?
                     maxlist = corevars
                 else:
                     minlist = corevars
@@ -2294,6 +2383,9 @@ class SlothyBase(LockAttributes):
         assert self._model.cp_model.ExportToFile(self.config.log_dir + "/" + log_model)
 
     def _solve(self):
+
+        # Determines whether the best solution found so far is close enough to the optimum
+        # that we should stop.
         def is_good_enough( cur, bound ):
             if self.config.variable_size:
                 prec = self.config.constraints.stalls_precision
