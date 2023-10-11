@@ -186,6 +186,33 @@ class Slothy():
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
 
+    def ssa_region(self, start, end, outputs=None):
+        if outputs == None:
+            outputs = {}
+        logger = self.logger.getChild(f"{start}_{end}_infer_input")
+        pre, body, post = AsmHelper.extract(self.source, start, end)
+        c = self.config.copy()
+
+        if c.with_preprocessor:
+            self.logger.info("Apply C preprocessor...")
+            body = CPreprocessor.unfold(pre, body)
+            self.logger.debug("Code after preprocessor:")
+            Slothy._dump("preprocessed", body, self.logger, err=False)
+        body = AsmHelper.split_semicolons(body)
+
+        aliases = AsmAllocation.parse_allocs(pre)
+        c.add_aliases(aliases)
+        c.outputs = outputs
+
+        body = AsmMacro.unfold_all_macros(pre, body)
+        body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        dfgc = DFGConfig(c)
+        dfg = DFG(body, logger.getChild("dfg_find_deps"), dfgc)
+        dfg.ssa()
+
+        body_ssa = [ f"{start}:" ] + [ str(t.inst) for t in dfg.nodes ] + [ f"{end}:" ]
+        self.source = '\n'.join(pre + body_ssa + post)
+
     def optimize_loop(self, loop_lbl, end_of_loop_label=None):
         """Optimize the loop starting at a given label"""
 
