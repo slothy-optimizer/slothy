@@ -2262,16 +2262,17 @@ class SlothyBase(LockAttributes):
 
         return ok
 
-    def retry(self):
+    def retry(self, fix_stalls=None):
         self._result = Result(self.config)
-        if self.config.sw_pipelining.enabled:
-            self._result._codesize = len(self._model._tree.nodes_low)
-        else:
-            self._result._codesize = len(self._model._tree.nodes)
+
+        if fix_stalls != None:
+            assert self.config.variable_size
+            self._Add(self._model.stalls == fix_stalls)
+
         self._set_timeout(self.config.retry_timeout)
 
         # - Objective
-        self._add_objective()
+        self._add_objective(force_objective = (fix_stalls != None))
 
         # Do the actual work
         self.logger.info("Invoking external constraint solver...")

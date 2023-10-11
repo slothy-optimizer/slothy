@@ -167,12 +167,7 @@ class Heuristics():
         logger.info(f"Optimize again with minimal number of {min_stalls} stalls, with objective...")
         first_result = core.result
 
-        c = conf.copy()
-        c.variable_size = False
-        c.constraints.stalls_allowed = min_stalls
-        core = SlothyBase(c.Arch, c.Target, logger=logger, config=c)
-        success = core.optimize(source, retry=True, **kwargs)
-
+        success = core.retry(fix_stalls=min_stalls)
         if not success:
             logger.warning("Re-optimization with objective at minimum number of stalls failed -- should not happen? Will just pick previous result...")
             return first_result
