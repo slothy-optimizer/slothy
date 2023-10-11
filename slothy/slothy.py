@@ -227,10 +227,10 @@ class Slothy():
 
         body = AsmMacro.unfold_all_macros(early, body)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
-        self.logger.info(f"Instructions in body: {len(list(filter(None, body)))}")
+        self.logger.info(f"Instructions in loop body: {len(list(filter(None, body)))}")
+
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
-
         def indented(code):
             indent = ' ' * self.config.indentation
             return [ indent + s for s in code ]

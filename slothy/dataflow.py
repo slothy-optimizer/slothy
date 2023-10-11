@@ -68,7 +68,7 @@ class VirtualOutputInstruction(VirtualInstruction):
         return f"// output renaming: {self.orig_reg} -> {self.args_in_out[0]}"
 
     def __repr__(self):
-        return f"<output:{self.orig_reg}>"
+        return f"<output:{self.orig_reg}:{self.arg_types_in[0]}>"
 
 class VirtualInputInstruction(VirtualInstruction):
     def __init__(self, reg, reg_ty):
@@ -217,6 +217,8 @@ class InstructionOutput(RegisterSource):
         return self.src.inst.arg_types_out[self.idx]
     def name(self):
         return self.src.inst.args_out[self.idx]
+    def alloc(self):
+        return self.src.alloc_out_var[self.idx]
     def reduce(self):
         return self
 
@@ -231,6 +233,8 @@ class InstructionInOut(RegisterSource):
         return self.src.inst.arg_types_in_out[self.idx]
     def name(self):
         return self.src.inst.args_in_out[self.idx]
+    def alloc(self):
+        return self.src.alloc_in_out_var[self.idx]
     def reduce(self):
         return self.src.src_in_out[self.idx].reduce()
 

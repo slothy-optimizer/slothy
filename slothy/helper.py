@@ -488,3 +488,45 @@ class CPreprocessor():
 
         return unfolded_code
 
+class Permutation():
+
+    def is_permutation(perm, sz):
+        err = False
+        k = list(perm.keys())
+        k.sort()
+        v = list(perm.values())
+        v.sort()
+        if k != list(range(sz)):
+            err = True
+        if v != list(range(sz)):
+            err = True
+        if err:
+            print(f"Keys:   {k}")
+            print(f"Values: {v}")
+        return err == False
+
+    def permutation_id(sz):
+        return { i:i for i in range(sz) }
+
+    def permutation_comp(pB, pA):
+        lA = len(pA.values())
+        lB = len(pB.values())
+        assert lA == lB
+        return { i:pB[pA[i]] for i in range(lA) }
+
+    def permutation_pad(perm,pre,post):
+        s = len(perm.values())
+        r = {}
+        r = r | { pre + i : pre + j for (i,j) in perm.items() if isinstance(i, int) }
+        r = r | { i:i for i in range(pre) }
+        r = r | { i:i for i in map(lambda i: i + s + pre, range(post)) }
+        return r
+
+    def permutation_move_entry_forward(l, idx_from, idx_to):
+        assert idx_to <= idx_from
+        res = {}
+        res = res | { i:i for i in range(idx_to) }
+        res = res | { i:i+1 for i in range(idx_to,  idx_from) }
+        res = res | { idx_from : idx_to }
+        res = res | { i:i for i in range (idx_from + 1, l) }
+        return res
