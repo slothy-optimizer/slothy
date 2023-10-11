@@ -161,6 +161,31 @@ class Slothy():
 
         self.source = '\n'.join(pre + optimized_source + post)
 
+    def get_loop_input_output(self, loop_lbl):
+        logger = self.logger.getChild(loop_lbl)
+        _, body, _, _, _ = self.Arch.Loop.extract(self.source, loop_lbl)
+
+        c = self.config.copy()
+        dfgc = DFGConfig(c)
+        dfgc.inputs_are_outputs = True
+        return list(DFG(body, logger.getChild("dfg_kernel_deps"), dfgc).inputs)
+
+    def get_input_from_output(self, start, end, outputs=None):
+        if outputs == None:
+            outputs = {}
+        logger = self.logger.getChild(f"{start}_{end}_infer_input")
+        pre, body, _ = AsmHelper.extract(self.source, start, end)
+
+        aliases = AsmAllocation.parse_allocs(pre)
+        c = self.config.copy()
+        c.add_aliases(aliases)
+        c.outputs = outputs
+
+        body = AsmMacro.unfold_all_macros(pre, body)
+        body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        dfgc = DFGConfig(c)
+        return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
+
     def optimize_loop(self, loop_lbl, end_of_loop_label=None):
         """Optimize the loop starting at a given label"""
 
