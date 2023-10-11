@@ -48,6 +48,7 @@ class Config(NestedPrint, LockAttributes):
     _default_split_heuristic_stepsize = None
     _default_split_heuristic_repeat = 1
     _default_split_heuristic_preprocess_naive_interleaving = False
+    _default_split_heuristic_preprocess_naive_interleaving_by_latency = False
 
     _default_unsafe_skip_address_fixup = False
 
@@ -334,6 +335,13 @@ class Config(NestedPrint, LockAttributes):
             raise Exception("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise.")
         return self._split_heuristic_preprocess_naive_interleaving
+
+    @property
+    def split_heuristic_preprocess_naive_interleaving_by_latency(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
+        return self._split_heuristic_preprocess_naive_interleaving_by_latency
 
     @property
     def split_heuristic_repeat(self):
@@ -873,6 +881,8 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_repeat = Config._default_split_heuristic_repeat
         self._split_heuristic_preprocess_naive_interleaving = \
             Config._default_split_heuristic_preprocess_naive_interleaving
+        self._split_heuristic_preprocess_naive_interleaving_by_latency = \
+            Config._default_split_heuristic_preprocess_naive_interleaving_by_latency
         self._split_heuristic_optimize_seam = Config._default_split_heuristic_optimize_seam
 
         self._unsafe_skip_address_fixup = Config._default_unsafe_skip_address_fixup
@@ -999,6 +1009,12 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_preprocess_naive_interleaving.setter
     def split_heuristic_preprocess_naive_interleaving(self, val):
         self._split_heuristic_preprocess_naive_interleaving = val
+    @split_heuristic_preprocess_naive_interleaving_by_latency.setter
+    def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
+        self._split_heuristic_preprocess_naive_interleaving_by_latency = val
+    @split_heuristic_preprocess_naive_interleaving_by_latency.setter
+    def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
+        self._split_heuristic_preprocess_naive_interleaving_by_latency = val
     @split_heuristic_repeat.setter
     def split_heuristic_repeat(self, val):
         self._split_heuristic_repeat = val

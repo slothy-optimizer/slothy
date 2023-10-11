@@ -261,13 +261,36 @@ class Heuristics():
 
         return Heuristics._split( body, logger, conf, visualize_stalls)
 
-    def _naive_reordering(body, logger, conf):
-        logger.info("Perform naive interleaving by depth... ")
+    def _naive_reordering(body, logger, conf, use_latency_depth=True):
+
+        if use_latency_depth:
+            depth_str = "latency depth"
+        else:
+            depth_str = "depth"
+
+        logger.info(f"Perform naive interleaving by {depth_str}... ")
         old = body.copy()
         l = len(body)
         dfg = DFG(body, logger.getChild("dfg"), DFGConfig(conf.copy()), parsing_cb=True)
-        depths = [dfg.nodes_by_id[i].depth for i in range(l) ]
         insts = [dfg.nodes[i].inst for i in range(l)]
+        if not use_latency_depth:
+            depths = [dfg.nodes_by_id[i].depth for i in range(l) ]
+        else:
+            # Calculate latency-depth of instruction nodes
+            nodes_by_depth = dfg.nodes.copy()
+            nodes_by_depth.sort(key=(lambda t: t.depth))
+            for t in dfg.nodes_all:
+                t.latency_depth = 0
+            for t in nodes_by_depth:
+                srcs = t.src_in + t.src_in_out
+                def get_latency(tp):
+                    if tp.src.is_virtual():
+                        return 0
+                    return conf.Target.get_latency(tp.src.inst, tp.idx, t.inst)
+                t.latency_depth = max(map(lambda tp: tp.src.latency_depth +
+                                          get_latency(tp), srcs),
+                                      default=0)
+            depths = [dfg.nodes_by_id[i].latency_depth for i in range(l) ]
 
         last_unit = None
 
