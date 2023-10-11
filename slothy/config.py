@@ -51,6 +51,7 @@ class Config(NestedPrint, LockAttributes):
 
     _default_unsafe_skip_address_fixup = False
 
+    _default_with_preprocessor = False
     _default_max_solutions = 16
     _default_timeout = None
     _default_retry_timeout = None
@@ -200,6 +201,10 @@ class Config(NestedPrint, LockAttributes):
     @property
     def max_solutions(self):
         return self._max_solutions
+
+    @property
+    def with_preprocessor(self):
+        return self._with_preprocessor
 
     @property
     def timeout(self):
@@ -872,6 +877,7 @@ class Config(NestedPrint, LockAttributes):
 
         self._unsafe_skip_address_fixup = Config._default_unsafe_skip_address_fixup
 
+        self._with_preprocessor = Config._default_with_preprocessor
         self._max_solutions = Config._default_max_solutions
         self._timeout = Config._default_timeout
         self._retry_timeout = Config._default_retry_timeout
@@ -936,6 +942,9 @@ class Config(NestedPrint, LockAttributes):
     @max_solutions.setter
     def max_solutions(self, val):
         self._max_solutions = val
+    @with_preprocessor.setter
+    def with_preprocessor(self, val):
+        self._with_preprocessor = val
     @timeout.setter
     def timeout(self, val):
         self._timeout = val

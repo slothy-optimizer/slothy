@@ -106,6 +106,9 @@ class AsmHelper():
         if isinstance(source,str):
             source = source.splitlines()
 
+    def split_semicolons(body):
+        return [ l for s in body for l in s.split(';') ]
+
     def reduce_source_line(line):
         regexp_align_txt = f"^\s*\.(?:p2)?align"
         regexp_req_txt   = f"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"

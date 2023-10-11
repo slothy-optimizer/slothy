@@ -34,7 +34,7 @@ from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
 from slothy.core import SlothyBase, Config
 from slothy.heuristics import Heuristics
-from slothy.helper import AsmAllocation, AsmMacro, AsmHelper
+from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor
 
 class Slothy():
 
@@ -117,8 +117,19 @@ class Slothy():
         c = self.config.copy()
         c.add_aliases(aliases)
 
+        # Check if the body has a dominant indentation
+        indentation = AsmHelper.find_indentation(body)
+
+        if c.with_preprocessor:
+            self.logger.info("Apply C preprocessor...")
+            body = CPreprocessor.unfold(pre, body)
+            self.logger.debug("Code after preprocessor:")
+            Slothy._dump("preprocessed", body, self.logger, err=False)
+
+        body = AsmHelper.split_semicolons(body)
         body = AsmMacro.unfold_all_macros(pre, body)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        body = AsmHelper.apply_indentation(body, indentation)
         self.logger.info(f"Instructions in body: {len(list(filter(None, body)))}")
         early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
 
