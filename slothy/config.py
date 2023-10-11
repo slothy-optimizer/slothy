@@ -384,6 +384,7 @@ class Config(NestedPrint, LockAttributes):
         _default_min_overlapping = None
         _default_halving_heuristic = False
         _default_halving_heuristic_periodic = False
+        _default_halving_heuristic_split_only = False
         _default_max_pre = 1.0
 
         @property
@@ -476,6 +477,14 @@ class Config(NestedPrint, LockAttributes):
             return self._halving_heuristic_periodic
 
         @property
+        def halving_heuristic_split_only(self):
+            f"""Cut-down version of halving-heuristic which only splits the loop
+                `[A;B]` into `A; [B;A]; B` but does not perform optimizations.
+
+                Default: {Config.SoftwarePipelining._default_halving_heuristic_split_only}"""
+            return self._halving_heuristic_split_only
+
+        @property
         def max_pre(self):
             f"""The maximum relative position (between 0 and 1) of an instruction
                 that should be considered as a potential early instruction.
@@ -501,6 +510,7 @@ class Config(NestedPrint, LockAttributes):
             self._min_overlapping = Config.SoftwarePipelining._default_min_overlapping
             self._halving_heuristic = Config.SoftwarePipelining._default_halving_heuristic
             self._halving_heuristic_periodic = Config.SoftwarePipelining._default_halving_heuristic_periodic
+            self._halving_heuristic_split_only = Config.SoftwarePipelining._default_halving_heuristic_split_only
             self._max_pre = Config.SoftwarePipelining._default_max_pre
 
             self.lock()
@@ -541,6 +551,9 @@ class Config(NestedPrint, LockAttributes):
         @halving_heuristic_periodic.setter
         def halving_heuristic_periodic(self,val):
             self._halving_heuristic_periodic = val
+        @halving_heuristic_split_only.setter
+        def halving_heuristic_split_only(self,val):
+            self._halving_heuristic_split_only = val
         @max_pre.setter
         def max_pre(self,val):
             self._max_pre = val

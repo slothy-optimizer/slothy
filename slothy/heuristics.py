@@ -794,8 +794,13 @@ class Heuristics():
         c.sw_pipelining.enabled = False
         c.inputs_are_outputs = True
         c.outputs = c.outputs.union(kernel_deps)
-        kernel = Heuristics.linear(body,logger.getChild("slothy"),conf=c,
-                                   visualize_stalls=False)
+
+        if not conf.sw_pipelining.halving_heuristic_split_only:
+            kernel = Heuristics.linear(body,logger.getChild("slothy"),conf=c,
+                                       visualize_stalls=False)
+        else:
+            logger.info("Halving heuristic: Split-only -- no optimization")
+            kernel = body
 
         #
         # Second step:
@@ -846,10 +851,11 @@ class Heuristics():
                                               # Just make sure to consider loop boundary
             kernel = Heuristics.optimize_binsearch( kernel, logger.
                                                     getChild("periodic heuristic"), conf=c).code
-        else:
+        elif not conf.sw_pipelining.halving_heuristic_split_only:
             c = conf.copy()
             c.outputs = kernel_deps
             c.sw_pipelining.enabled=False
+
             kernel = Heuristics.linear( kernel, logger.getChild("heuristic"), conf=c)
 
         num_exceptional_iterations = 1
