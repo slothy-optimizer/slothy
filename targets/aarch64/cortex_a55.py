@@ -75,11 +75,16 @@ def add_further_constraints(slothy):
 def _add_slot_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
+
+    # Q-Form vector instructions are on slot 0 only
     slothy.restrict_slots_for_instructions_by_property(
-        Instruction.is_Qform_vector_instruction, [0])
-    slothy.restrict_slots_for_instructions_by_class([fcsel_dform,
-                                                     stack_vld2_lane],
-                                                    [0])
+        Instruction.is_Qform_vector_instruction,
+        [0])
+
+    # fcsel and vld2 on slot 0 only
+    slothy.restrict_slots_for_instructions_by_class(
+        [fcsel_dform, stack_vld2_lane],
+        [0])
 
 def _add_st_hazard(slothy):
     if slothy.config.constraints.functional_only:
@@ -174,11 +179,11 @@ execution_units = {
 
     # TODO: double check these new instructions:
     (stack_stp, stack_stp_wform, stack_str, x_str) : ExecutionUnit.SCALAR_STORE,
-    (stack_ldr, ldr_const, ldr_idx_wform, x_ldr) : ExecutionUnit.SCALAR_LOAD,
+    (stack_ldr, ldr_const, ldr_sxtw_wform, x_ldr) : ExecutionUnit.SCALAR_LOAD,
     (umull_wform, mul_wform, umaddl_wform ): ExecutionUnit.SCALAR_MUL(),
-    ( lsr, bic, bfi, add, add_shifted, add2,
-      andi, nop, vins, tst_wform, movk_imm, sub, mov,
-      subs_wform, asr_wform, andi_wform, lsr_wform, eor_wform) : ExecutionUnit.SCALAR(),
+    ( lsr, bic, bfi, add, add_shifted, add_sp_imm, add2, add_lsr,
+      and_imm, nop, vins, tst_wform, movk_imm, sub, mov,
+      subs_wform, asr_wform, and_imm_wform, lsr_wform, eor_wform) : ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
@@ -199,11 +204,11 @@ inverse_throughput = {
     (stack_vstp_dform, stack_vstr_dform) : 1,
     (stack_stp, stack_stp_wform, stack_str) : 1,
     (stack_ldr, ldr_const) : 1,
-    (ldr_idx_wform) : 3,
+    (ldr_sxtw_wform) : 3,
     (lsr, lsr_wform) : 1,
     (umull_wform, mul_wform, umaddl_wform) : 1,
-    (andi, andi_wform) : 1,
-    (add, add2, add_shifted) : 1,
+    (and_twoarg, and_imm, and_imm_wform, ) : 1,
+    (add, add2, add_lsr, add_shifted, add_sp_imm) : 1,
     (sub, subs_wform, asr_wform) : 1,
     (bfi) : 1,
     (vshl, vshl, vushr) : 1,
@@ -239,11 +244,11 @@ default_latencies = {
     (stack_vstp_dform, stack_vstr_dform) : 1,
     (stack_stp, stack_stp_wform, stack_str) : 1,
     (stack_ldr, ldr_const) : 3,
-    (ldr_idx_wform) : 5,
+    (ldr_sxtw_wform) : 5,
     (lsr, lsr_wform) : 1,
     (umull_wform, mul_wform, umaddl_wform) : 3,
-    (andi, andi_wform) : 1,
-    (add2, add_shifted) : 2,
+    (and_imm, and_imm_wform) : 1,
+    (add2, add_lsr, add_shifted, add_sp_imm) : 2,
     (add, sub, subs_wform, asr_wform) : 1,
     (bfi) : 2,
     (vshl, vushr) : 2,
@@ -259,9 +264,7 @@ default_latencies = {
 }
 
 def _find_class(src):
-    cls_list  = [ c for c in Instruction.__subclasses__() if not c == AArch64Instruction ]
-    cls_list += AArch64Instruction.__subclasses__()
-    for inst_class in cls_list:
+    for inst_class in iter_aarch64_instructions():
         if isinstance(src,inst_class):
             return inst_class
     raise Exception(f"Couldn't find instruction class for {src} (type {type(src)})")

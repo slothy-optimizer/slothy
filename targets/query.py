@@ -33,7 +33,7 @@ import targets.arm_v81m.helium_experimental as Target_Helium_Experimental
 import targets.aarch64.aarch64_neon as AArch64_Neon
 import targets.aarch64.cortex_a55 as Target_CortexA55
 import targets.aarch64.cortex_a72_frontend as Target_CortexA72_Frontend
-import targets.aarch64.aarch64_big as Target_AArch64_Big
+import targets.aarch64.neoverse_n1_experimental as Target_NeoverseN1_Experimental
 
 class Archery:
     """This is a small helper class for querying architectures"""
@@ -46,9 +46,8 @@ class Archery:
                  "Arm_Helium_Experimental" : Target_Helium_Experimental,
                  "Arm_Cortex_A55" : Target_CortexA55,
                  "Arm_Cortex_A72_frontend" : Target_CortexA72_Frontend,
-                 "Arm_AArch64_Big" : Target_AArch64_Big,
-                 "Arm_Cortex_X1" : Target_AArch64_Big }
-
+                 "Arm_Neoverse_N1_experimental" : Target_NeoverseN1_Experimental,
+                 }
     def list_archs():
         """Lists all available architectures"""
         return list(Archery._archs.keys())

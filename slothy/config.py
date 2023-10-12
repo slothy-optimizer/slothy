@@ -39,7 +39,7 @@ class Config(NestedPrint, LockAttributes):
     _default_split_heuristic_visualize_stalls = False
     _default_split_heuristic_visualize_units = False
     _default_split_heuristic_region = [0.0,1.0]
-    _default_split_heuristic_random = False
+    _default_split_heuristic_adaptive = False
     _default_split_heuristic_chunks = False
     _default_split_heuristic_optimize_seam = 0
     _default_split_heuristic_bottom_to_top = False
@@ -48,11 +48,14 @@ class Config(NestedPrint, LockAttributes):
     _default_split_heuristic_stepsize = None
     _default_split_heuristic_repeat = 1
     _default_split_heuristic_preprocess_naive_interleaving = False
+    _default_split_heuristic_preprocess_naive_interleaving_by_latency = False
 
     _default_unsafe_skip_address_fixup = False
 
+    _default_with_preprocessor = False
     _default_max_solutions = 16
     _default_timeout = None
+    _default_retry_timeout = None
     _default_ignore_objective = False
     _default_objective_precision = 0
 
@@ -201,8 +204,16 @@ class Config(NestedPrint, LockAttributes):
         return self._max_solutions
 
     @property
+    def with_preprocessor(self):
+        return self._with_preprocessor
+
+    @property
     def timeout(self):
         return self._timeout
+
+    @property
+    def retry_timeout(self):
+        return self._retry_timeout
 
     @property
     def unsafe_skip_address_fixup(self):
@@ -218,8 +229,7 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def has_objective(self):
-        objectives = sum([self.constraints.minimize_depth_displacement != None,
-                          self.sw_pipelining.enabled and
+        objectives = sum([self.sw_pipelining.enabled and
                           self.sw_pipelining.minimize_overlapping != None,
                           self.constraints.maximize_register_lifetimes == True,
                           self.constraints.move_stalls_to_top != None,
@@ -270,11 +280,11 @@ class Config(NestedPrint, LockAttributes):
         return self._split_heuristic_stepsize
 
     @property
-    def split_heuristic_random(self):
+    def split_heuristic_adaptive(self):
         if not self.split_heuristic:
             raise Exception("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_random otherwise.")
-        return self._split_heuristic_random
+                            "Shouldn't read config.split_heuristic_adaptive otherwise.")
+        return self._split_heuristic_adaptive
 
     @property
     def split_heuristic_optimize_seam(self):
@@ -326,6 +336,13 @@ class Config(NestedPrint, LockAttributes):
         return self._split_heuristic_preprocess_naive_interleaving
 
     @property
+    def split_heuristic_preprocess_naive_interleaving_by_latency(self):
+        if not self.split_heuristic:
+            raise Exception("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
+        return self._split_heuristic_preprocess_naive_interleaving_by_latency
+
+    @property
     def split_heuristic_repeat(self):
         """If split_heuristic is enabled, the number of times the splitting heuristic
         should be repeated.
@@ -366,6 +383,7 @@ class Config(NestedPrint, LockAttributes):
         _default_min_overlapping = None
         _default_halving_heuristic = False
         _default_halving_heuristic_periodic = False
+        _default_halving_heuristic_split_only = False
         _default_max_pre = 1.0
 
         @property
@@ -458,6 +476,14 @@ class Config(NestedPrint, LockAttributes):
             return self._halving_heuristic_periodic
 
         @property
+        def halving_heuristic_split_only(self):
+            f"""Cut-down version of halving-heuristic which only splits the loop
+                `[A;B]` into `A; [B;A]; B` but does not perform optimizations.
+
+                Default: {Config.SoftwarePipelining._default_halving_heuristic_split_only}"""
+            return self._halving_heuristic_split_only
+
+        @property
         def max_pre(self):
             f"""The maximum relative position (between 0 and 1) of an instruction
                 that should be considered as a potential early instruction.
@@ -483,6 +509,7 @@ class Config(NestedPrint, LockAttributes):
             self._min_overlapping = Config.SoftwarePipelining._default_min_overlapping
             self._halving_heuristic = Config.SoftwarePipelining._default_halving_heuristic
             self._halving_heuristic_periodic = Config.SoftwarePipelining._default_halving_heuristic_periodic
+            self._halving_heuristic_split_only = Config.SoftwarePipelining._default_halving_heuristic_split_only
             self._max_pre = Config.SoftwarePipelining._default_max_pre
 
             self.lock()
@@ -523,6 +550,9 @@ class Config(NestedPrint, LockAttributes):
         @halving_heuristic_periodic.setter
         def halving_heuristic_periodic(self,val):
             self._halving_heuristic_periodic = val
+        @halving_heuristic_split_only.setter
+        def halving_heuristic_split_only(self,val):
+            self._halving_heuristic_split_only = val
         @max_pre.setter
         def max_pre(self,val):
             self._max_pre = val
@@ -536,8 +566,6 @@ class Config(NestedPrint, LockAttributes):
         _default_stalls_precision = 0
         _default_stalls_timeout_below_precision = None
         _default_stalls_first_attempt = 0
-
-        _default_max_relative_displacement = 1.0
 
         _default_model_latencies = True
         _default_model_functional_units = True
@@ -668,23 +696,6 @@ class Config(NestedPrint, LockAttributes):
         def restricted_renaming(self):
             return self._restricted_renaming
 
-        @property
-        def max_relative_displacement(self):
-            f"""The maximum relative displacement for instructions
-
-            This is calculated relative to the instruction's original position,
-            scaled according to the amount of gaps that are allowed in the code.
-
-            NOTE: If software pipelining is enabled, this variable is only effective
-                  for instructions that remain in their original iteration. In particular,
-                  it does not block very far moving early instructions. This is not really
-                  a deliberate choice but merely an implementation limitation for now.
-
-            A value of None means that any relative displacement is allowed.
-
-            Default: {Config.Constraints._default_max_relative_displacement}"""
-            return self._max_relative_displacement
-
         def __init__(self):
             super().__init__()
 
@@ -699,11 +710,8 @@ class Config(NestedPrint, LockAttributes):
             self.move_stalls_to_top = None
             self.move_stalls_to_bottom = None
             self.minimize_register_usage = None
-            self.minimize_depth_displacement = None
             self.minimize_use_of_extra_registers = None
             self.allow_extra_registers = {}
-
-            self._max_relative_displacement = Config.Constraints._default_max_relative_displacement
 
             self._model_latencies = Config.Constraints._default_model_latencies
             self._model_functional_units = Config.Constraints._default_model_functional_units
@@ -738,9 +746,6 @@ class Config(NestedPrint, LockAttributes):
         @stalls_timeout_below_precision.setter
         def stalls_timeout_below_precision(self,val):
             self._stalls_timeout_below_precision = val
-        @max_relative_displacement.setter
-        def max_relative_displacement(self,val):
-            self._max_relative_displacement = val
         @model_latencies.setter
         def model_latencies(self,val):
             self._model_latencies = val
@@ -856,19 +861,23 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_factor = Config._default_split_heuristic_factor
         self._split_heuristic_abort_cycle_at = Config._default_split_heuristic_abort_cycle_at
         self._split_heuristic_stepsize = Config._default_split_heuristic_stepsize
-        self._split_heuristic_random = Config._default_split_heuristic_random
+        self._split_heuristic_adaptive = Config._default_split_heuristic_adaptive
         self._split_heuristic_optimize_seam = Config._default_split_heuristic_optimize_seam
         self._split_heuristic_chunks = Config._default_split_heuristic_chunks
         self._split_heuristic_bottom_to_top = Config._default_split_heuristic_bottom_to_top
         self._split_heuristic_repeat = Config._default_split_heuristic_repeat
         self._split_heuristic_preprocess_naive_interleaving = \
             Config._default_split_heuristic_preprocess_naive_interleaving
+        self._split_heuristic_preprocess_naive_interleaving_by_latency = \
+            Config._default_split_heuristic_preprocess_naive_interleaving_by_latency
         self._split_heuristic_optimize_seam = Config._default_split_heuristic_optimize_seam
 
         self._unsafe_skip_address_fixup = Config._default_unsafe_skip_address_fixup
 
+        self._with_preprocessor = Config._default_with_preprocessor
         self._max_solutions = Config._default_max_solutions
         self._timeout = Config._default_timeout
+        self._retry_timeout = Config._default_retry_timeout
         self._ignore_objective = Config._default_ignore_objective
         self._objective_precision = Config._default_objective_precision
 
@@ -877,7 +886,11 @@ class Config(NestedPrint, LockAttributes):
         self.visualize_reordering = True
         self._split_heuristic_visualize_stalls = False
         self._split_heuristic_visualize_units = False
+
         self.placeholder_char = '.'
+        self.early_char = 'e'
+        self.late_char = 'l'
+        self.core_char = '*'
 
         self.typing_hints = {} # Dictionary of 'typing hints', assigning symbolic names to register types
                                # in case the register type is ambiguous.
@@ -930,9 +943,15 @@ class Config(NestedPrint, LockAttributes):
     @max_solutions.setter
     def max_solutions(self, val):
         self._max_solutions = val
+    @with_preprocessor.setter
+    def with_preprocessor(self, val):
+        self._with_preprocessor = val
     @timeout.setter
     def timeout(self, val):
         self._timeout = val
+    @retry_timeout.setter
+    def retry_timeout(self, val):
+        self._retry_timeout = val
     @unsafe_skip_address_fixup.setter
     def unsafe_skip_address_fixup(self, val):
         self._unsafe_skip_address_fixup = val
@@ -954,9 +973,9 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_stepsize.setter
     def split_heuristic_stepsize(self, val):
         self._split_heuristic_stepsize = float(val)
-    @split_heuristic_random.setter
-    def split_heuristic_random(self, val):
-        self._split_heuristic_random = val
+    @split_heuristic_adaptive.setter
+    def split_heuristic_adaptive(self, val):
+        self._split_heuristic_adaptive = val
     @split_heuristic_chunks.setter
     def split_heuristic_chunks(self, val):
         self._split_heuristic_chunks = val
@@ -981,6 +1000,12 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_preprocess_naive_interleaving.setter
     def split_heuristic_preprocess_naive_interleaving(self, val):
         self._split_heuristic_preprocess_naive_interleaving = val
+    @split_heuristic_preprocess_naive_interleaving_by_latency.setter
+    def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
+        self._split_heuristic_preprocess_naive_interleaving_by_latency = val
+    @split_heuristic_preprocess_naive_interleaving_by_latency.setter
+    def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
+        self._split_heuristic_preprocess_naive_interleaving_by_latency = val
     @split_heuristic_repeat.setter
     def split_heuristic_repeat(self, val):
         self._split_heuristic_repeat = val

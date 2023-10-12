@@ -46,7 +46,7 @@ target_label_dict = {Target_CortexA55: "a55",
 
 
 class Example():
-    def __init__(self, infile, name=None, funcname=None, suffix="opt", 
+    def __init__(self, infile, name=None, funcname=None, suffix="opt",
                  rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
                  **kwargs):
         if name == None:
@@ -115,19 +115,6 @@ class Example3(Example):
     def core(self,helight):
         helight.config.sw_pipelining.enabled = True
         helight.optimize_loop("start")
-
-class SBCSample(Example):
-    def __init__(self):
-        super().__init__("sbc")
-    def core(self,helight):
-        helight.config.split_heuristic = True
-        helight.config.allow_useless_instructions = True
-        helight.config.split_heuristic_factor = 2
-        helight.config.typing_hints = { 'cst' :
-                Arch_Armv81M.RegisterType.GPR,
-                                        'out' :
-                Arch_Armv81M.RegisterType.GPR }
-        helight.optimize()
 
 class CRT(Example):
     def __init__(self):
@@ -980,40 +967,6 @@ class intt_dilithium_12_34_56_78(Example):
         helight.config.typing_hints = {}
         helight.optimize_loop("layer78_loop")
 
-class complex_radix4_fft(Example):
-    def __init__(self):
-        super().__init__("complex_radix4_fft")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.optimize()
-
-class fixedpoint_radix4_fft(Example):
-    def __init__(self, var, symbolic=False):
-        self.var = var
-        if symbolic:
-            sym = "_symbolic"
-        else:
-            sym = ""
-        super().__init__(f"fixedpoint_radix4_fft{sym}_{var}")
-    def core(self,helight):
-        helight.config.constraints.stalls_first_attempt = 8
-        helight.config.sw_pipelining.enabled = True
-        if self.var == "preonly":
-            helight.config.sw_pipelining.allow_pre  = True
-            helight.config.sw_pipelining.allow_post = False
-        elif self.var == "postonly":
-            helight.config.sw_pipelining.allow_post = True
-            helight.config.sw_pipelining.allow_pre  = False
-            helight.optimize_loop("fixedpoint_radix4_fft_loop_start")
-
-class q_fft_radix4(Example):
-    def __init__(self):
-        super().__init__("q_fft_radix4")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.optimize_loop("loop_start")
-
-
 class fft_fixedpoint_radix4(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
         name = "fixedpoint_radix4_fft"
@@ -1035,7 +988,6 @@ class fft_fixedpoint_radix4(Example):
         helight.config.sw_pipelining.optimize_preamble = False
         helight.config.sw_pipelining.optimize_postamble = False
         helight.optimize_loop("fixedpoint_radix4_fft_loop_start")
-
 
 class fft_floatingpoint_radix4(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -1059,18 +1011,6 @@ class fft_floatingpoint_radix4(Example):
         helight.config.sw_pipelining.optimize_postamble = False
         helight.optimize_loop("flt_radix4_fft_loop_start")
 
-class vmovs(Example):
-    def __init__(self, var): # int, mul, double
-        super().__init__(f"vmov_{var}")
-
-class vqdmlsdh_vqdmladhx(Example):
-    def __init__(self):
-        super().__init__(f"vqdmlsdh_vqdmladhx")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = { x : Arch_Armv81M.RegisterType.MVE for x in
-                                        [ "a", "b", "c", "d", "e", "f" ] }
-
 #############################################################################################
 
 def main():
@@ -1078,8 +1018,9 @@ def main():
                  Example1(),
                  Example2(),
                  Example3(),
-#                 SBCSample(),
+
                  CRT(),
+
                  ntt_n256_l6_s32("bar"),
                  ntt_n256_l6_s32("mont"),
                  ntt_n256_l8_s32("bar"),
@@ -1088,68 +1029,71 @@ def main():
                  intt_n256_l6_s32("mont"),
                  intt_n256_l8_s32("bar"),
                  intt_n256_l8_s32("mont"),
+
                  # Kyber NTT
-                 # m55
+                 # Cortex-M55
                  ntt_kyber_1_23_45_67(),
                  ntt_kyber_1_23_45_67(var="no_trans"),
                  ntt_kyber_1_23_45_67(var="no_trans_vld4"),
                  ntt_kyber_12_345_67(False),
                  ntt_kyber_12_345_67(True),
-                 # m85
+                 # Cortex-M85
                  ntt_kyber_1_23_45_67(target=Target_CortexM85r1),
                  ntt_kyber_1_23_45_67(var="no_trans", target=Target_CortexM85r1),
                  ntt_kyber_1_23_45_67(var="no_trans_vld4", target=Target_CortexM85r1),
                  ntt_kyber_12_345_67(False, target=Target_CortexM85r1),
                  ntt_kyber_12_345_67(True, target=Target_CortexM85r1),
                  ntt_kyber_l345_symbolic(),
-                 # a55
+                 # Cortex-A55
                  ntt_kyber_123_4567(),
                  ntt_kyber_123_4567(var="scalar_load"),
                  ntt_kyber_123_4567(var="scalar_store"),
                  ntt_kyber_123_4567(var="scalar_load_store"),
                  ntt_kyber_123_4567(var="manual_st4"),
                  ntt_kyber_1234_567(),
-                 # a72
+                 # Cortex-A72
                  ntt_kyber_123_4567(target=Target_CortexA72),
                  ntt_kyber_123_4567(var="scalar_load", target=Target_CortexA72),
                  ntt_kyber_123_4567(var="scalar_store", target=Target_CortexA72),
                  ntt_kyber_123_4567(var="scalar_load_store", target=Target_CortexA72),
                  ntt_kyber_123_4567(var="manual_st4", target=Target_CortexA72),
                  ntt_kyber_1234_567(target=Target_CortexA72),
+                 # Kyber InvNTT
+                 # Cortex-M55
                  intt_kyber_1_23_45_67(),
                  # Dilithium NTT
-                 # m55
+                 # Cortex-M55
                  ntt_dilithium_12_34_56_78(),
                  ntt_dilithium_12_34_56_78(var="no_trans_vld4"),
                  ntt_dilithium_123_456_78(False),
                  ntt_dilithium_123_456_78(True),
-                 # m85
+                 # Cortex-M85
                  ntt_dilithium_12_34_56_78(target=Target_CortexM85r1),
                  ntt_dilithium_12_34_56_78(var="no_trans_vld4", target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78(False, target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78(True, target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78_symbolic(),
-                 # a55
+                 # Cortex-A55
                  ntt_dilithium_123_45678(),
                  ntt_dilithium_123_45678(var="w_scalar"),
                  ntt_dilithium_123_45678(var="manual_st4"),
                  ntt_dilithium_1234_5678(),
                  ntt_dilithium_1234_5678(var="manual_st4"),
-                 # a72
+                 # Cortex-A72
                  ntt_dilithium_123_45678(target=Target_CortexA72),
                  ntt_dilithium_123_45678(var="w_scalar", target=Target_CortexA72),
                  ntt_dilithium_123_45678(var="manual_st4", target=Target_CortexA72),
                  ntt_dilithium_1234_5678(target=Target_CortexA72),
                  ntt_dilithium_1234_5678(var="manual_st4", target=Target_CortexA72),
+                 # Dilithium invNTT
+                 # Cortex-M55
                  intt_dilithium_12_34_56_78(),
-                 complex_radix4_fft(),
-                 fixedpoint_radix4_fft("preonly"),
-                 fixedpoint_radix4_fft("postonly"),
-                 q_fft_radix4(),
-                 vmovs("int"),
-                 vmovs("mul"),
-                 vmovs("double"),
-                 vqdmlsdh_vqdmladhx(),
+
+                 # Fast Fourier Transform (FFT)
+                 # Floating point
+                 fft_floatingpoint_radix4(),
+                 # Fixed point
+                 fft_fixedpoint_radix4(),
                 ]
 
     all_example_names = [ e.name for e in examples ]

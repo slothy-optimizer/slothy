@@ -25,7 +25,7 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import re
+import re, subprocess
 
 class NestedPrint():
     def __str__(self):
@@ -61,6 +61,38 @@ class LockAttributes(object):
 
 class AsmHelper():
 
+    def find_indentation(source):
+
+        def get_indentation(l):
+            return len(l) - len(l.lstrip())
+
+        # Remove empty lines
+        source = list(filter(lambda t: t.strip() != "", source))
+        l = len(source)
+
+        if l == 0:
+            return None
+
+        indentations = list(map(get_indentation, source))
+
+        # Some labels may use a different indentation -- here, we just check if
+        # there's a dominant indentation
+        top_start = (3 * l) // 4
+        indentations.sort()
+        indentations = indentations[top_start:]
+
+        if indentations[0] == indentations[-1]:
+            return indentations[0]
+
+        return None
+
+    def apply_indentation(source, indentation):
+        if indentation == None:
+            return source
+        assert isinstance(indentation, int)
+        indent = ' ' * indentation
+        return [ indent + l.lstrip() for l in source ]
+
     def rename_function(source, old_funcname, new_funcname):
         # For now, just replace function names line by line
         def change_funcname(s):
@@ -74,13 +106,18 @@ class AsmHelper():
         if isinstance(source,str):
             source = source.splitlines()
 
+    def split_semicolons(body):
+        return [ l for s in body for l in s.split(';') ]
+
     def reduce_source_line(line):
         regexp_align_txt = f"^\s*\.(?:p2)?align"
         regexp_req_txt   = f"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
         regexp_unreq_txt = f"\s*\.unreq\s+(?P<alias>\w+)"
+        regexp_label_txt = f"\s*(?P<label>\w+)\s*:\s*$"
         regexp_align = re.compile(regexp_align_txt)
         regexp_req   = re.compile(regexp_req_txt)
         regexp_unreq = re.compile(regexp_unreq_txt)
+        regexp_label = re.compile(regexp_label_txt)
 
         def strip_comment(s):
             s = s.split("//")[0]
@@ -92,12 +129,17 @@ class AsmHelper():
             # We only accept (and ignore) .req and .unreqs in code so far
             return sum([ regexp_req.match(s)   is not None,
                          regexp_unreq.match(s) is not None,
-                         regexp_align.match(s) is not None ]) > 0
+                         regexp_align.match(s) is not None]) > 0
+
+        def is_label(s):
+            return (regexp_label.match(s) is not None)
 
         line = strip_comment(line)
         if is_empty(line):
             return
         if is_asm_directive(line):
+            return
+        if is_label(line):
             return
         return line
 
@@ -424,3 +466,67 @@ class AsmMacro():
     def extract_from_file(filename):
         f = open(filename,"r")
         return AsmMacro.extract(f.read().splitlines())
+
+class CPreprocessor():
+
+    default_gcc_binary = "gcc"
+    magic_string = "SLOTHY_PREPROCESSED_REGION"
+
+    def unfold(header, body, gcc=None):
+        """Runs the concatenation of header and body through the preprocessor"""
+        if gcc == None:
+            gcc = CPreprocessor.default_gcc_binary
+
+        code = header + [CPreprocessor.magic_string] + body
+
+        r = subprocess.run([gcc, "-E", "-x", "assembler-with-cpp","-"],
+                           input='\n'.join(code), text=True, capture_output=True)
+
+        unfolded_code = r.stdout.split('\n')
+        magic_idx = unfolded_code.index(CPreprocessor.magic_string)
+        unfolded_code = unfolded_code[magic_idx+1:]
+
+        return unfolded_code
+
+class Permutation():
+
+    def is_permutation(perm, sz):
+        err = False
+        k = list(perm.keys())
+        k.sort()
+        v = list(perm.values())
+        v.sort()
+        if k != list(range(sz)):
+            err = True
+        if v != list(range(sz)):
+            err = True
+        if err:
+            print(f"Keys:   {k}")
+            print(f"Values: {v}")
+        return err == False
+
+    def permutation_id(sz):
+        return { i:i for i in range(sz) }
+
+    def permutation_comp(pB, pA):
+        lA = len(pA.values())
+        lB = len(pB.values())
+        assert lA == lB
+        return { i:pB[pA[i]] for i in range(lA) }
+
+    def permutation_pad(perm,pre,post):
+        s = len(perm.values())
+        r = {}
+        r = r | { pre + i : pre + j for (i,j) in perm.items() if isinstance(i, int) }
+        r = r | { i:i for i in range(pre) }
+        r = r | { i:i for i in map(lambda i: i + s + pre, range(post)) }
+        return r
+
+    def permutation_move_entry_forward(l, idx_from, idx_to):
+        assert idx_to <= idx_from
+        res = {}
+        res = res | { i:i for i in range(idx_to) }
+        res = res | { i:i+1 for i in range(idx_to,  idx_from) }
+        res = res | { idx_from : idx_to }
+        res = res | { i:i for i in range (idx_from + 1, l) }
+        return res

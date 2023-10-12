@@ -1,3 +1,7 @@
+# Toy example from
+# "Fast and Clean: Auditable high-performance assembly via constraint solving"
+# https://eprint.iacr.org/2022/1303.pdf
+
 ../slothy-cli Arm_v81M Arm_Cortex_M55 ../examples/naive/cmplx_mag_sqr/cmplx_mag_sqr_fx.s.tmpl                   \
   -l start -c constraints.functional_only -c constraints.allow_renaming=False -c constraints.allow_reordering=False \
   -o ../examples/naive/cmplx_mag_sqr/cmplx_mag_sqr_fx.s -c /visualize_reordering

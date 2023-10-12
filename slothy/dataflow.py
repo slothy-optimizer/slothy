@@ -68,7 +68,7 @@ class VirtualOutputInstruction(VirtualInstruction):
         return f"// output renaming: {self.orig_reg} -> {self.args_in_out[0]}"
 
     def __repr__(self):
-        return f"<output:{self.orig_reg}>"
+        return f"<output:{self.orig_reg}:{self.arg_types_in[0]}>"
 
 class VirtualInputInstruction(VirtualInstruction):
     def __init__(self, reg, reg_ty):
@@ -217,6 +217,8 @@ class InstructionOutput(RegisterSource):
         return self.src.inst.arg_types_out[self.idx]
     def name(self):
         return self.src.inst.args_out[self.idx]
+    def alloc(self):
+        return self.src.alloc_out_var[self.idx]
     def reduce(self):
         return self
 
@@ -231,6 +233,8 @@ class InstructionInOut(RegisterSource):
         return self.src.inst.arg_types_in_out[self.idx]
     def name(self):
         return self.src.inst.args_in_out[self.idx]
+    def alloc(self):
+        return self.src.alloc_in_out_var[self.idx]
     def reduce(self):
         return self.src.src_in_out[self.idx].reduce()
 
@@ -505,6 +509,7 @@ class DataFlowGraph:
         t = next(useless_nodes, None)
         if t != None:
             self.logger.error(f"The output(s) of instruction {t.id}({t.inst}) are not used but also not declared as outputs.")
+            self.logger.error(f"Instruction details: {t}, {t.inst.inputs}")
             self.dump_instructions("Source code", error=True)
             raise Exception("Useless instruction detected -- probably you missed an output declaration?")
 
@@ -535,6 +540,10 @@ class DataFlowGraph:
                     exp_ty = self.reg_state[name].get_type()
                     self.logger.debug(f"   + type of {name} in state dictionary: {exp_ty}")
                     expectations.append((f"State dictionary: {exp_ty}", exp_ty))
+                else:
+                    self.logger.debug(f"    + {name} not in state dictionary")
+                    self.logger.debug(f"      Current dictionary:")
+                    self.logger.debug(self.reg_state)
                 # Check if we've been given a type hind
                 if name in self.config.typing_hints.keys():
                     exp_ty = self.config.typing_hints[name]
@@ -553,6 +562,36 @@ class DataFlowGraph:
     def _describe(self, *, error=False):
         log_func = self.logger.error if error else self.logger.debug
         [log_func(d) for t in self.nodes_all for d in t.describe()]
+
+    def ssa(self):
+
+        # Go through non-virtual instruction nodes and assign unique names to
+        # output registers which are not global outputs.
+        out_cnt = 0
+        def get_fresh_reg():
+            nonlocal out_cnt
+            res = f"ssa_{out_cnt}"
+            out_cnt += 1
+            return res
+
+        for t in self.nodes:
+            for i in range(len(t.inst.args_out)):
+                # If the output is global, skip renaming
+                output_is_global = False
+                for d in t.dst_out[i]:
+                    if d.is_virtual():
+                        output_is_global = True
+                if output_is_global:
+                    continue
+                # Otherwise, assign a fresh variable
+                t.inst.args_out[i] = get_fresh_reg()
+
+        # Update input and in-out register names
+        for t in self.nodes_all:
+            for i in range(len(t.inst.args_in)):
+                t.inst.args_in[i] = t.src_in[i].reduce().name()
+            for i in range(len(t.inst.args_in_out)):
+                t.inst.args_in_out[i] = t.src_in_out[i].reduce().name()
 
     def _build_graph(self):
         self.reg_state = {}
