@@ -213,7 +213,7 @@ class Heuristics():
 
         # First step: Optimize loop kernel
 
-        logger.info("Optimize loop kernel...")
+        logger.debug("Optimize loop kernel...")
         c = conf.copy()
         c.inputs_are_outputs = True
         result = Heuristics.optimize_binsearch(body,logger.getChild("slothy"),c)

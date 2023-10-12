@@ -406,7 +406,7 @@ class Result(LockAttributes):
         for (src_idx,dst_idx,lbl) in new_not_old:
             src = tree_new.nodes_by_id[src_idx]
             dst = tree_new.nodes_by_id[dst_idx]
-            log.error(f"New ({src_idx}:{src})"
+            log.error(f"New ({src_idx}:{src})"\
                       f"---{lbl}--->({dst_idx}:{dst}) not present in old graph")
 
             src_idx_old = reordering_inv[src_idx]
@@ -426,7 +426,7 @@ class Result(LockAttributes):
             dst_idx_old = reordering_inv[dst_idx]
             src_old = tree_old.nodes_by_id[src_idx_old]
             dst_old = tree_old.nodes_by_id[dst_idx_old]
-            log.error(f"Old ({src_old})[id:{src_idx_old}]"
+            log.error(f"Old ({src_old})[id:{src_idx_old}]"\
                       f"---{lbl}--->{dst_old}[id:{dst_idx_old}] not present in new graph")
 
             src = tree_new.nodes_by_id.get(src_idx, None)
@@ -620,8 +620,6 @@ class SlothyBase(LockAttributes):
         self._usage_check()
 
         self.config.log(self.logger.getChild("config").debug)
-        if self.config.variable_size:
-            self.logger.warning("Consider disabling config.variable_size for better performance?")
 
         # Setup
         self._load_source(source, prefix_len=prefix_len, suffix_len=suffix_len)
@@ -703,7 +701,7 @@ class SlothyBase(LockAttributes):
         self._result = Result(self.config)
 
         # Do the actual work
-        self.logger.info("Invoking external constraint solver...")
+        self.logger.info(f"Invoking external constraint solver ({self._describe_solver()}) ...")
         self.result._success = self._solve()
         if not retry and self.result._success:
             self.logger.info(f"Booleans in result: {self._model.cp_solver.NumBooleans()}")
@@ -1097,13 +1095,13 @@ class SlothyBase(LockAttributes):
         if inst_changes_addr(t0.inst_tmp) and affecting(t0) and affected(t1):
             # t1 gets reordered before t0, which changes the address
             # Adjust t1's address accordingly
-            logger.error(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, "
+            logger.debug(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, "
                          "to {t1.fixup + int(t0.inst_tmp.increment)}")
             t1.fixup += int(t0.inst_tmp.increment)
         elif inst_changes_addr(t1.inst_tmp) and affecting(t1) and affected(t0):
             # t0 gets reordered after t1, which changes the address
             # Adjust t0's address accordingly
-            logger.error(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, "
+            logger.debug(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, "
                          "to {t0.fixup - int(t1.inst_tmp.increment)}")
             t0.fixup -= int(t1.inst_tmp.increment)
 
@@ -1163,7 +1161,7 @@ class SlothyBase(LockAttributes):
                 t.inst_tmp.pre_index = f"(({t.inst_tmp.pre_index}) + ({t.fixup}))"
             else:
                 t.inst_tmp.pre_index = f"{t.fixup}"
-            logger.error(f"Fixed up instruction {t.inst_tmp} by {t.fixup}, to {t.inst_tmp}")
+            logger.debug(f"Fixed up instruction {t.inst_tmp} by {t.fixup}, to {t.inst_tmp}")
 
     def _extract_code(self):
 
@@ -2303,10 +2301,10 @@ class SlothyBase(LockAttributes):
                 self._model.cp_model.Minimize(cp_model.LinearExpr.Sum(minlist))
             if len(maxlist) > 0:
                 self._model.cp_model.Maximize(cp_model.LinearExpr.Sum(maxlist))
-            self.logger.info(f"Set objective: {name}")
+            self.logger.info(f"Objective: {name}")
             self._model.objective_name = name
         else:
-            self.logger.info("No objective -- any satisfying solution is fine")
+            self.logger.info("Objective: None (any satisfying solution is fine)")
             self._model.objective_name = "no objective"
 
     #
@@ -2314,6 +2312,13 @@ class SlothyBase(LockAttributes):
     #
     # Introduced so one can easily log model building calls, or use a different solver.
     #
+
+    def _describe_solver(self):
+        workers = self._model.cp_solver.parameters.num_workers
+        if workers > 0:
+            return f"OR-Tools CP-SAT v{ortools.__version__}, {workers} threads"
+        else:
+            return f"OR-Tools CP-SAT v{ortools.__version__}"
 
     def _init_external_model_and_solver(self):
         self._model.cp_model  = cp_model.CpModel()
@@ -2326,15 +2331,12 @@ class SlothyBase(LockAttributes):
         if ortools.__version__ < "9.5.2040":
             self.logger.warning("Please consider upgrading OR-Tools to version >= 9.5.2040")
             self._model.cp_solver.parameters.symmetry_level = 1
-        else:
-            self.logger.info(f"OR-Tools version: {ortools.__version__}")
 
         if ortools.__version__ > "9.7":
             # From release notes:
             # recommended number of ls workers:
             # num_workers -> num_violation_ls (8, 1), (16, 2) (24, 3), (32, 4)
             self._model.cp_solver.parameters.num_violation_ls = 1
-        self.logger.info(f"Number of worker threads: {self._model.cp_solver.parameters.num_workers}")
 
     def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval,maxval, name)
