@@ -21,7 +21,7 @@ echo "* Layer 45678"
 
 time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend ../examples/opt/aarch64/ntt_dilithium_123_45678_opt0_a72.s    \
                 -l layer45678_start                                         \
-                -o ../examples/opt/aarch64/ntt_dilithium_123_45678_opt_a72.s       \../nelight55-cli 
+                -o ../examples/opt/aarch64/ntt_dilithium_123_45678_opt_a72.s       \
                 -r ntt_dilithium_123_45678_opt0_a72,ntt_dilithium_123_45678_opt_a72 \
                 -c inputs_are_outputs \
                 -c reserved_regs="[x3,x30,sp]"                                  \
