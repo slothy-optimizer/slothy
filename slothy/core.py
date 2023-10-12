@@ -1866,7 +1866,7 @@ class SlothyBase(LockAttributes):
                        self._list_dependencies(include_virtual_instructions=False))
 
             for consumer, producer in cross_iteration_dependencies:
-                self.logger.error(f"Cross iteration dependency: {producer} --> {consumer}")
+                self.logger.debug(f"Cross iteration dependency: {producer} --> {consumer}")
                 # Make sure that no early instruction overwrites the dependency
                 # in the preamble (where `producer` is omitted).
 
