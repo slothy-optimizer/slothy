@@ -97,13 +97,13 @@ does this.
 To check that your setup is complete, try the following from the base directory:
 
 ```
-> ./helight55-cli examples/naive/simple1.s
+> ./slothy-m55-cli examples/naive/simple1.s
 ```
 
 This should show something like the following:
 
 ```
-% ./helight55-cli examples/naive/simple1.s
+% ./slothy-m55-cli examples/naive/simple1.s
 + ./slothy-cli Arm_v81M Arm_Cortex_M55 examples/naive/simple1.s
 INFO:slothy-cli.slothy:Attempt optimization with max 0 stalls...
 INFO:slothy-cli.slothy.input:Statically assign global input r0 to register r0
@@ -146,7 +146,7 @@ The quickest way to experiment with `Slothy` is via its command line interface `
 % slothy-cli ARCH TARGET INPUT [options]
 ```
 
-For example, the above `helight55-cli examples/naive/simple1.s` is merely an abbreviation for `slothy-cli Arm_v81M
+For example, the above `slothy-m55-cli examples/naive/simple1.s` is merely an abbreviation for `slothy-cli Arm_v81M
 Arm_Cortex_M55 examples/naive/simple1.s`.
 
 The most important command line options are the following:
@@ -192,7 +192,7 @@ you can query those as `helight.last_result.kernel_input_output`.
 ## Further examples
 
 The [examples](examples/naive) directory contains numerous exemplary assembly snippets. To try them, either use
-`helight55-cli` or `python3 example.py --examples={YOUR_EXAMPLE}`. See `python3 examples.py --help` for the list of
+`slothy-m55-cli` or `python3 example.py --examples={YOUR_EXAMPLE}`. See `python3 examples.py --help` for the list of
 all available examples.
 
 For the rest of the section, we go through some of the examples to give the reader a feel for the power and usage of HeLight.
@@ -200,7 +200,7 @@ For the rest of the section, we go through some of the examples to give the read
 ### Optimization of a simple assembly snippet
 
 ```
-% ./helight55-cli examples/naive/simple0.s
+% ./slothy-m55-cli examples/naive/simple0.s
 + ./slothy-cli Arm_v81M Arm_Cortex_M55 examples/naive/simple0.s
 INFO:slothy-cli.slothy:Attempt optimization with max 0 stalls...
 INFO:slothy-cli.slothy:No objective -- any satisfying solution is fine
@@ -255,13 +255,13 @@ INFO:slothy-cli.slothy.selfcheck:OK!
 To write the output to a file, use
 
 ```
-> ./helight55-cli examples/naive/simple0.s --output examples/opt/simple0.s
+> ./slothy-m55-cli examples/naive/simple0.s --output examples/opt/simple0.s
 ```
 
 ### Optimization of a simple snippet, software pipelining ("loop mode")
 
 ```
-% ./helight55-cli examples/naive/simple0.s -c sw_pipelining.enabled=True
+% ./slothy-m55-cli examples/naive/simple0.s -c sw_pipelining.enabled=True
 + ./slothy-cli Arm_v81M Arm_Cortex_M55 examples/naive/simple0.s -c sw_pipelining.enabled=True
 INFO:slothy-cli:- Setting configuration option sw_pipelining.enabled to value True
 INFO:slothy-cli.slothy:Attempt optimization with max 0 stalls...
@@ -317,7 +317,7 @@ Here, `e` indicates that the instruction is an early instruction for the next it
 ### Very complex loop
 
 ```
-./helight55-cli examples/naive/crt.s -c typing_hints="{mod_p_tw:GPR,const_prshift:GPR,p_inv_mod_q_tw:GPR,p_inv_mod_q:GPR,const_shift9:GPR}"
+./slothy-m55-cli examples/naive/crt.s -c typing_hints="{mod_p_tw:GPR,const_prshift:GPR,p_inv_mod_q_tw:GPR,p_inv_mod_q:GPR,const_shift9:GPR}"
 ```
 
 The typing hints are necessary here for HeLight to disambiguate between
@@ -326,7 +326,7 @@ interpolation step in the Chinese Remainder Theorem (CRT). The loop is very hard
 multiplications and a large number of add/sub/logical operations in the end, and one cannot do better than 3 stalls as witnessed by the output:
 
 ```
-% ./helight55-cli examples/naive/crt.s -c sw_pipelining.enabled=True -c typing_hints="{mod_p_tw:GPR,const_prshift:GPR,p_inv_mod_q_tw:GPR,p_inv_mod_q:GPR,const_shift9:GPR}"
+% ./slothy-m55-cli examples/naive/crt.s -c sw_pipelining.enabled=True -c typing_hints="{mod_p_tw:GPR,const_prshift:GPR,p_inv_mod_q_tw:GPR,p_inv_mod_q:GPR,const_shift9:GPR}"
 + ./slothy-cli Arm_v81M Arm_Cortex_M55 examples/naive/crt.s -c sw_pipelining.enabled=True -c 'typing_hints={mod_p_tw:GPR,const_prshift:GPR,p_inv_mod_q_tw:GPR,p_inv_mod_q:GPR,const_shift9:GPR}'
 INFO:slothy-cli:- Setting configuration option sw_pipelining.enabled to value True
 INFO:slothy-cli:- Setting configuration option typing_hints to value {'mod_p_tw': GPR, 'const_prshift': GPR, 'p_inv_mod_q_tw': GPR, 'p_inv_mod_q': GPR, 'const_shift9': GPR}
@@ -471,7 +471,7 @@ However, allowing HeLight to double the loop body via `-c sw_pipelining.unroll=2
 which overlaps the add/sub/logical-heavy part of one iteration with the mul-heavy part of the next:
 
 ```
-% ./helight55-cli examples/naive/crt.s -c sw_pipelining.enabled=True -c typing_hints="{mod_p_tw:GPR,const_prshift:GPR,p_inv_mod_q_tw:GPR,p_inv_mod_q:GPR,const_shift9:GPR}" -c sw_pipelining.unroll=2
+% ./slothy-m55-cli examples/naive/crt.s -c sw_pipelining.enabled=True -c typing_hints="{mod_p_tw:GPR,const_prshift:GPR,p_inv_mod_q_tw:GPR,p_inv_mod_q:GPR,const_shift9:GPR}" -c sw_pipelining.unroll=2
 + ./slothy-cli Arm_v81M Arm_Cortex_M55 examples/naive/crt.s -c sw_pipelining.enabled=True -c 'typing_hints={mod_p_tw:GPR,const_prshift:GPR,p_inv_mod_q_tw:GPR,p_inv_mod_q:GPR,const_shift9:GPR}' -c sw_pipelining.unroll=2
 INFO:slothy-cli:- Setting configuration option sw_pipelining.enabled to value True
 INFO:slothy-cli:- Setting configuration option typing_hints to value {'mod_p_tw': GPR, 'const_prshift': GPR, 'p_inv_mod_q_tw': GPR, 'p_inv_mod_q': GPR, 'const_shift9': GPR}
