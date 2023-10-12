@@ -1,6 +1,13 @@
 #!/usr/bin/env sh
 cd "${0%/*}"/..
 
+# Dilithium NTT for Cortex-A55
+#
+# Supporting material for
+#
+# "Fast and Clean: Auditable high-performance assembly via constraint solving"
+# https://eprint.iacr.org/2022/1303.pdf
+
 echo ""
 echo "==============================================================================="
 echo "========= NTT DILITHIUM 123-45678 (vector, without reduction) ================="
@@ -9,7 +16,7 @@ echo ""
 
 echo "* Layer 123"
 
-time ./nelight55-cli examples/naive/aarch64/ntt_dilithium_123_45678.s   \
+time ./slothy-cli Arm_AArch64 Arm_Cortex_A55 examples/naive/aarch64/ntt_dilithium_123_45678.s   \
                 -l layer123_start\
                 -c sw_pipelining.enabled=true                           \
                 -o examples/opt/aarch64/ntt_dilithium_123_45678_opt0_a55.s  \
@@ -20,7 +27,7 @@ time ./nelight55-cli examples/naive/aarch64/ntt_dilithium_123_45678.s   \
 
 echo "* Layer 45678"
 
-time ./nelight55-cli examples/opt/aarch64/ntt_dilithium_123_45678_opt0_a55.s    \
+time ./slothy-cli Arm_AArch64 Arm_Cortex_A55 examples/opt/aarch64/ntt_dilithium_123_45678_opt0_a55.s    \
                 -l layer45678_start                                         \
                 -c sw_pipelining.enabled=true                               \
                 -o examples/opt/aarch64/ntt_dilithium_123_45678_opt_a55.s       \
@@ -37,7 +44,7 @@ echo ""
 
 echo "* Layer 123"
 
-time ./nelight55-cli examples/naive/aarch64/ntt_dilithium_123_45678_w_scalar.s   \
+time ./slothy-cli Arm_AArch64 Arm_Cortex_A55 examples/naive/aarch64/ntt_dilithium_123_45678_w_scalar.s   \
                 -l layer123_start\
                 -c sw_pipelining.enabled=true                           \
                 -o examples/opt/aarch64/ntt_dilithium_123_45678_w_scalar_opt0_a55.s  \
@@ -48,7 +55,7 @@ time ./nelight55-cli examples/naive/aarch64/ntt_dilithium_123_45678_w_scalar.s  
 
 echo "* Layer 45678"
 
-time ./nelight55-cli examples/opt/aarch64/ntt_dilithium_123_45678_w_scalar_opt0_a55.s    \
+time ./slothy-cli Arm_AArch64 Arm_Cortex_A55 examples/opt/aarch64/ntt_dilithium_123_45678_w_scalar_opt0_a55.s    \
                 -l layer45678_start                                         \
                 -c sw_pipelining.enabled=true                               \
                 -o examples/opt/aarch64/ntt_dilithium_123_45678_w_scalar_opt_a55.s       \
@@ -65,7 +72,7 @@ echo ""
 
 echo "* Layer 123"
 
-time ./nelight55-cli examples/naive/aarch64/ntt_dilithium_123_45678_manual_st4.s   \
+time ./slothy-cli Arm_AArch64 Arm_Cortex_A55 examples/naive/aarch64/ntt_dilithium_123_45678_manual_st4.s   \
                 -l layer123_start\
                 -c sw_pipelining.enabled=true                           \
                 -o examples/opt/aarch64/ntt_dilithium_123_45678_manual_st4_opt0_a55.s  \
@@ -77,7 +84,7 @@ time ./nelight55-cli examples/naive/aarch64/ntt_dilithium_123_45678_manual_st4.s
 
 echo "* Layer 45678"
 
-time ./nelight55-cli examples/opt/aarch64/ntt_dilithium_123_45678_manual_st4_opt0_a55.s    \
+time ./slothy-cli Arm_AArch64 Arm_Cortex_A55 examples/opt/aarch64/ntt_dilithium_123_45678_manual_st4_opt0_a55.s    \
                 -l layer45678_start                                         \
                 -o examples/opt/aarch64/ntt_dilithium_123_45678_manual_st4_opt_a55.s       \
                 -r ntt_dilithium_123_45678_manual_st4_opt0_a55,ntt_dilithium_123_45678_manual_st4_opt_a55 \

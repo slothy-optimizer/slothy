@@ -1,4 +1,12 @@
 #!/usr/bin/env sh
+
+# Dilithium NTT for Cortex-A72
+#
+# Supporting material for
+#
+# "Fast and Clean: Auditable high-performance assembly via constraint solving"
+# https://eprint.iacr.org/2022/1303.pdf
+
 echo ""
 echo "==============================================================================="
 echo "========= NTT DILITHIUM 123-45678 (vector, without reduction) ================="

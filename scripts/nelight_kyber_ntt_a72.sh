@@ -1,4 +1,12 @@
 #!/usr/bin/env sh
+
+# Kyber NTT for Cortex-A72
+#
+# Supporting material for
+#
+# "Fast and Clean: Auditable high-performance assembly via constraint solving"
+# https://eprint.iacr.org/2022/1303.pdf
+
 echo ""
 echo "=============================================================================="
 echo "========= NTT KYBER 123-4567 (all vector, with reduction)=== ================="
