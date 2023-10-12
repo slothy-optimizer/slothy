@@ -364,8 +364,7 @@ class Instruction:
 
     # scalar
     def is_scalar_load(self):
-        return self._is_instance_of([ Ldr_X, Ldp_X,
-                                      ldr_idx_wform ])
+        return self._is_instance_of([ Ldr_X, Ldp_X ])
     def is_scalar_store(self):
         return  self._is_instance_of([ Stp_X, Str_X ])
     def is_scalar_stack_store(self):
@@ -1165,6 +1164,12 @@ class x_ldp_with_inc_hint2(Ldp_X):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+class ldr_sxtw_wform(AArch64Instruction):
+    def __init__(self):
+        super().__init__("ldr <Wd>, [<Xa>, <Wb>, SXTW <imm>]",
+                         inputs=["Xa", "Wb"],
+                         outputs=["Wd"])
+
 ############################
 #                          #
 # Some scalar instructions #
@@ -1668,7 +1673,7 @@ class msub_xform(AArch64Multiply):
                          inputs=["Xacc", "Xa","Xb"],
                          outputs=["Xd"])
 
-class andi_wform(AArch64Instruction):
+class and_imm_wform(AArch64Instruction):
     def __init__(self):
         super().__init__("and <Wd>, <Wa>, <imm>",
                          inputs=["Wa"],
@@ -2091,12 +2096,6 @@ class trn2(AArch64Instruction):
 #
 # Wrappers around vector load and store instructions
 #
-class ldr_idx_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("ldr <Wd>, [<Xa>, <Wb>, <imm>]",
-                         inputs=["Xa", "Wb"],
-                         outputs=["Wd"])
-        self.addr = "sp"
 
 class ldr_vo_wrapper(Instruction):
     def __init__(self):

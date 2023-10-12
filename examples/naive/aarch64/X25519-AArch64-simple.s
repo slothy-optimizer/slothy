@@ -893,7 +893,7 @@ scalar_sqr_inner \
   bfi    \sC8, X<tmp_scalar_mul_9>, #32, #26
   add    X<tmp_scalar_mul_0>, X<tmp_scalar_mul_0>, X<tmp_scalar_mul_0b>, lsr #25
   add    X<tmp_scalar_mul_0>, X<tmp_scalar_mul_0>, X<tmp_scalar_mul_0b>, lsr #22
-  
+
   umaddl X<tmp_scalar_mul_0>, W<tmp_scalar_mul_tw_9>, W<\sB1>, X<tmp_scalar_mul_0>
   umaddl X<tmp_scalar_mul_0>, W<tmp_scalar_mul_tw_7>, W<\sB3>, X<tmp_scalar_mul_0>
   umaddl X<tmp_scalar_mul_0>, W<tmp_scalar_mul_tw_5>, W<\sB5>, X<tmp_scalar_mul_0>
@@ -959,7 +959,7 @@ scalar_mul_inner \
 
   xtmp_scalar_sub_0 .req x21
 
-  ldr    xtmp_scalar_sub_0, =0x07fffffe07fffffc
+  ldr    xtmp_scalar_sub_0, #=0x07fffffe07fffffc
   add    \sC1, \sA1, xtmp_scalar_sub_0
   add    \sC2, \sA2, xtmp_scalar_sub_0
   add    \sC3, \sA3, xtmp_scalar_sub_0
@@ -986,7 +986,7 @@ scalar_sub_inner \sC\()0, \sC\()2, \sC\()4, \sC\()6, \sC\()8, \
         sB0, sB1, sB2, sB3, sB4, sB5, sB6, sB7, sB8, sB9, \
         multconst
 
-  ldr    X<tmp_scalar_addm_0>, =\multconst
+  ldr    X<tmp_scalar_addm_0>, #=\multconst
   umaddl \sC9, W<\sB9>, W<tmp_scalar_addm_0>, \sA9
   umaddl \sC0, W<\sB0>, W<tmp_scalar_addm_0>, \sA0
   umaddl \sC1, W<\sB1>, W<tmp_scalar_addm_0>, \sA1
@@ -1424,7 +1424,7 @@ _x25519_scalarmult_alt_orig:
     dup    vconst19.2s, w30
     mov    x0, #(1<<26)-1
     dup    v30.2d, x0
-    ldr    x0, =0x07fffffe07fffffc
+    ldr    x0, #=0x07fffffe07fffffc
     // TODO: I do not quite understand what the two stps are doing
     // First seems to write bytes 0-15 (mask1+mask2); second seems to write bytes 16-31 (mask2+A)
     stack_stp STACK_MASK1, STACK_MASK2, x0, x0
@@ -1471,7 +1471,7 @@ mainloop:
     subs   W<x0>, W<x2>, #1
     asr    W<x1>, W<x0>, #5
     add    x4, sp, #STACK_SCALAR
-    ldr    W<x1>, [x4, W<x1>, sxtw#2]
+    ldr    W<x1>, [x4, W<x1>, SXTW #2]
     and    W<x4>, W<x0>, #0x1f
     lsr    W<x1>, W<x1>, W<x4>
     stack_stp_wform STACK_CTR, STACK_LASTBIT, x0, x1
