@@ -483,12 +483,15 @@ class AArch64Instruction(Instruction):
         else:
             src = re.sub(f"<dt>",  f"(?P<datatype>(?:2|4|8|16)(?:B|H|S|D|b|h|s|d))", src)
 
+        flaglist = ["eq","ne","cs","hs","cc","lo","mi","pl","vs","vc","hi","ls","ge","lt","gt","le"]
+        imm_pattern = "(\\\\w|\\\\s|-|\*|\+|\(|\)|=|,)+"
+
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
-        src = re.sub("<imm>", "#(?P<imm>(\\\\w|\\\\s|-|\*|\+|\(|\)|=|,)+)", src)
-        src = re.sub("<imm0>", "#(?P<imm0>(\\\\w|\\\\s|-|\*|\+|\(|\)|=|,)+)", src)
-        src = re.sub("<imm1>", "#(?P<imm1>(\\\\w|\\\\s|-|\*|\+|\(|\)|=|,)+)", src)
-        src = re.sub("<flag>", "(?P<flag>eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)", src)
+        src = re.sub("<imm>",  f"#(?P<imm>{imm_pattern})",  src)
+        src = re.sub("<imm0>", f"#(?P<imm0>{imm_pattern})", src)
+        src = re.sub("<imm1>", f"#(?P<imm1>{imm_pattern})", src)
+        src = re.sub("<flag>", f"(?P<flag>{'|'.join(flaglist)})", src)
         src = re.sub("<index>", "(?P<index>[0-9]+)", src)
         src = "\\s*" + src + "\\s*(//.*)?\Z"
 
@@ -503,7 +506,8 @@ class AArch64Instruction(Instruction):
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result == None:
-                raise Instruction.ParsingException(f"Does not match instruction pattern {src} [[[regex: {regexp_txt}]]]")
+                raise Instruction.ParsingException(f"Does not match instruction pattern {src}"\
+                                                   f"[regex: {regexp_txt}]")
             res = regexp.match(line).groupdict()
             items = list(res.items())
             for k, v in items:
@@ -531,7 +535,7 @@ class AArch64Instruction(Instruction):
             return RegisterType.Neon
         if ptrn[0].upper() in ["T"]:
             return RegisterType.Hint
-        raise Exception("Unknown pattern")
+        raise Exception(f"Unknown pattern: {ptrn}")
 
     def __init__(self, pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False,
                  dependsOnFlags=False, force_equal=None):
@@ -1215,6 +1219,11 @@ class add_imm(AArch64BasicArithmetic):
                          inputs=["Xa"],
                          outputs=["Xd"])
 
+class add_sp_imm(AArch64BasicArithmetic):
+    def __init__(self):
+        super().__init__("add <Xd>, sp, <imm>", # TODO Model dependency on sp
+                         outputs=["Xd"])
+
 class neg(AArch64BasicArithmetic):
     def __init__(self):
         super().__init__("neg <Xd>, <Xa>",
@@ -1360,6 +1369,12 @@ class AArch64ShiftedArithmetic(AArch64Instruction):
 class add_lsl(AArch64ShiftedArithmetic):
     def __init__(self):
         super().__init__("add <Xd>, <Xa>, <Xb>, lsl <imm>",
+                         inputs=["Xa","Xb"],
+                         outputs=["Xd"])
+
+class add_lsr(AArch64ShiftedArithmetic):
+    def __init__(self):
+        super().__init__("add <Xd>, <Xa>, <Xb>, lsr <imm>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
@@ -3055,14 +3070,14 @@ def stack_vld2_lane_parsing_cb():
         inst.num_out = 2
         inst.args_out = [ inst.args_in_out[0], inst.args_in_out[1] ]
         inst.arg_types_out = [ RegisterType.Neon, RegisterType.Neon ]
-        inst.args_out_restrictions = inst.args_in_out_restrictions
-        inst.args_out_combinations = inst.args_in_out_combinations
+        inst.args_out_restrictions = inst.args_in_out_restrictions[:2]
+        inst.args_out_combinations = inst.args_in_out_combinations[:2]
 
         inst.num_in_out = 1
         inst.args_in_out = [ inst.args_in_out[2] ]
         inst.arg_types_in_out = [ RegisterType.GPR ]
-        inst.args_in_out_restrictions = []
-        inst.args_in_out_combinations = []
+        inst.args_in_out_restrictions = [None]
+        inst.args_in_out_combinations = None
 
         inst.detected_stack_vld2_lane_pair = True
         return True
