@@ -191,12 +191,29 @@ class Loop:
         yield f"{indent}cbnz {reg0}, {lbl_start}"
 
     def extract(source, lbl):
+        """Locate a loop with start label `lbl` in `source`.
+
+        We currently only support the following loop forms:
+
+           ```
+           loop_lbl:
+               {code}
+               sub[s] <cnt>, <cnt>, #1
+               (cbnz|bnz|bne) <cnt>, loop_lbl
+           ```
+
+        """
+
         pre  = []
         body = []
         post = []
         loop_lbl_regexp_txt = f"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
-        loop_end_regexp_txt = (f"^\s*sub?\s+(?P<reg0>\w+),\s+(?P<reg1>\w+),\s+(?P<imm>#1)", f"^\s*(cbnz|bnz|bne)\s+\w*,*\s*{lbl}") # TODO: Allow other forms of looping
+
+        # TODO: Allow other forms of looping
+
+        loop_end_regexp_txt = (f"^\s*sub[s]?\s+(?P<reg0>\w+),\s*(?P<reg1>\w+),\s*(?P<imm>#1)",
+                               f"^\s*(cbnz|bnz|bne)\s+(?P<reg0>\w+),\s*{lbl}")
         loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
         lines = iter(source.splitlines())
         l = None
