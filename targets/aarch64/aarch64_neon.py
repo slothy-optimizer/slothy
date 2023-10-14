@@ -33,6 +33,7 @@
 ###
 
 import logging
+import inspect
 import re
 import math
 
@@ -3085,6 +3086,46 @@ def stack_vld2_lane_parsing_cb():
 
 stack_vld2_lane.global_parsing_cb  = stack_vld2_lane_parsing_cb()
 
+def iter_aarch64_instructions():
+    yield from all_subclass_leaves(Instruction)
+
+def find_class(src):
+    for inst_class in iter_aarch64_instructions():
+        if isinstance(src,inst_class):
+            return inst_class
+    raise Exception(f"Couldn't find instruction class for {src} (type {type(src)})")
+
+def is_dt_form_of(instr_class, dts=None):
+    if not isinstance(instr_class, list):
+        instr_class = [instr_class]
+    def _intersects(lsA,lsB):
+        return len([a for a in lsA if a in lsB]) > 0
+    def _check_instr_dt(src):
+        if find_class(src) in instr_class:
+            if dts is None or _intersects(src.datatype, dts):
+                return True
+        return False
+    return _check_instr_dt
+
+def is_dform_form_of(instr_class):
+    return is_dt_form_of(instr_class, ["1d","2s","4h","8b"])
+def is_qform_form_of(instr_class):
+    return is_dt_form_of(instr_class, ["2d","4s","8h","16b"])
+
+def check_instr_dt(src, instr_classes, dt=None):
+    if not isinstance(instr_classes, list):
+        instr_classes = list(instr_classes)
+    for instr_class in instr_classes:
+        if find_class(src) == instr_class:
+            if dt is None or len(set(dt + src.datatype)) > 0:
+                return True
+    return False
+
+def is_neon_instruction(inst):
+    args = inst.arg_types_in + inst.arg_types_out + inst.arg_types_in_out
+    return RegisterType.Neon in args
+
+
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
 def all_subclass_leaves(c):
@@ -3105,5 +3146,25 @@ def all_subclass_leaves(c):
 
     return all_subclass_leaves_core([], [c])
 
-def iter_aarch64_instructions():
-    yield from all_subclass_leaves(Instruction)
+def lookup_multidict(d, inst, default=None):
+    instclass = find_class(inst)
+    for l,v in d.items():
+        # Multidict entries can be the following:
+        # - An instruction class. It matches any instruction of that class.
+        # - A callable. It matches any instruction returning `True` when passed
+        #   to the callable.
+        # - A tuple of instruction classes or callables. It matches any instruction
+        #   which matches at least one element in the tuple.
+        def match(x):
+            if inspect.isclass(x):
+                return isinstance(inst, x)
+            assert callable(x)
+            return x(inst)
+        if not isinstance(l, tuple):
+            l = [l]
+        for lp in l:
+            if match(lp):
+                return v
+    if default == None:
+        raise Exception(f"Couldn't find {instclass} for {inst}")
+    return default

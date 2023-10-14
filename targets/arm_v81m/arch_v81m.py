@@ -33,6 +33,7 @@
 ###
 
 import logging
+import inspect
 import re
 import math
 
@@ -2073,3 +2074,32 @@ def sub_imm_parsing_cb(inst, node, delete_list):
     return True
 
 sub_imm.global_parsing_cb = sub_imm_parsing_cb
+
+def lookup_multidict(d, inst, default=None):
+    instclass = find_class(inst)
+    for l,v in d.items():
+        # Multidict entries can be the following:
+        # - An instruction class. It matches any instruction of that class.
+        # - A callable. It matches any instruction returning `True` when passed
+        #   to the callable.
+        # - A tuple of instruction classes or callables. It matches any instruction
+        #   which matches at least one element in the tuple.
+        def match(x):
+            if inspect.isclass(x):
+                return isinstance(inst, x)
+            assert callable(x)
+            return x(inst)
+        if not isinstance(l, tuple):
+            l = [l]
+        for lp in l:
+            if match(lp):
+                return v
+    if default == None:
+        raise Exception(f"Couldn't find {k}")
+    return default
+
+def find_class(src):
+    for inst_class in Instruction.__subclasses__():
+        if isinstance(src,inst_class):
+            return inst_class
+    raise Exception("Couldn't find instruction class")

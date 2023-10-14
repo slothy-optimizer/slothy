@@ -38,7 +38,6 @@
 
 import logging
 import re
-import inspect
 
 from enum import Enum
 from .arch_v81m import *
@@ -94,8 +93,8 @@ def add_further_constraints(slothy):
 
 
     for t0, t1 in slothy.get_inst_pairs():
-        c0 = _find_class(t0.inst)
-        c1 = _find_class(t1.inst)
+        c0 = find_class(t0.inst)
+        c1 = find_class(t1.inst)
         ## The intent is to have the 1st line capture VFMA-like instructions
         ## blocking the MAC pipe, while the second should capture instructions of different kind using this pipe, too.
         if execution_units[c0] == [[ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]] and \
@@ -337,40 +336,11 @@ default_latencies = {
         vcmla)    : 4,
 }
 
-def _find_class(src):
-    for inst_class in Instruction.__subclasses__():
-        if isinstance(src,inst_class):
-            return inst_class
-    raise Exception("Couldn't find instruction class")
-
-def _lookup_multidict(d, inst, default=None):
-    instclass = _find_class(inst)
-    for l,v in d.items():
-        # Multidict entries can be the following:
-        # - An instruction class. It matches any instruction of that class.
-        # - A callable. It matches any instruction returning `True` when passed
-        #   to the callable.
-        # - A tuple of instruction classes or callables. It matches any instruction
-        #   which matches at least one element in the tuple.
-        def match(x):
-            if inspect.isclass(x):
-                return isinstance(inst, x)
-            assert callable(x)
-            return x(inst)
-        if not isinstance(l, tuple):
-            l = [l]
-        for lp in l:
-            if match(lp):
-                return v
-    if default == None:
-        raise Exception(f"Couldn't find {inst}")
-    return default
-
 def get_latency(src, out_idx, dst):
-    instclass_src = _find_class(src)
-    instclass_dst = _find_class(dst)
+    instclass_src = find_class(src)
+    instclass_dst = find_class(dst)
 
-    default_latency = _lookup_multidict(
+    default_latency = lookup_multidict(
         default_latencies, src)
 
     #
@@ -407,7 +377,7 @@ def get_latency(src, out_idx, dst):
     if instclass_dst == vld2 and instclass_src == vld2 and \
        {src.idx, dst.idx} == {0,1}:
         return 2
-    
+
     if instclass_dst == vld4 and instclass_src == vld4 and \
        dst.idx != src.idx:
         return 2
@@ -464,12 +434,12 @@ def get_latency(src, out_idx, dst):
     return default_latency
 
 def get_units(src):
-    units = _lookup_multidict(execution_units, src)
+    units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     else:
         return [units]
 
 def get_inverse_throughput(src):
-    return _lookup_multidict(
+    return lookup_multidict(
         inverse_throughput, src)
