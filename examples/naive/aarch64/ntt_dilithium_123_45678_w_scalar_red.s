@@ -11,7 +11,7 @@
 // Eventually, NeLight should include a proper parser for AArch64,
 // but for initial investigations, the below is enough.
 
-.macro vins vec_out, gpr_in, lane                // slothy:no-unfold
+.macro vins vec_out, gpr_in, lane
         ins \vec_out\().d[\lane], \gpr_in
 .endm
 

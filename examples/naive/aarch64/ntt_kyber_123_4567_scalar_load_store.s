@@ -37,11 +37,11 @@
 
 xtmp0 .req x10
 xtmp1 .req x11
-.macro vins vec_out, gpr_in, lane                // slothy:no-unfold
+.macro vins vec_out, gpr_in, lane
         ins \vec_out\().d[\lane], \gpr_in
 .endm
 
-.macro vext gpr_out, vec_in, lane                // slothy:no-unfold
+.macro vext gpr_out, vec_in, lane
         umov \gpr_out\(), \vec_in\().d[\lane]
 .endm
 

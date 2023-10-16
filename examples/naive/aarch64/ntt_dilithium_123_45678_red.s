@@ -11,7 +11,7 @@
 // Eventually, NeLight should include a proper parser for AArch64,
 // but for initial investigations, the below is enough.
 
-.macro vins vec_out, gpr_in, lane                // slothy:no-unfold
+.macro vins vec_out, gpr_in, lane
         ins \vec_out\().d[\lane], \gpr_in
 .endm
 
@@ -101,32 +101,6 @@
         str_vo \a1, \addr, (-(\inc) + 16*1)
         str_vo \a2, \addr, (-(\inc) + 16*2)
         str_vo \a3, \addr, (-(\inc) + 16*3)
-.endm
-
-.macro vec_to_scalar_matrix out, in
-        vext \out\()_00, \in\()0, 0
-        vext \out\()_01, \in\()0, 1
-        vext \out\()_10, \in\()1, 0
-        vext \out\()_11, \in\()1, 1
-        vext \out\()_20, \in\()2, 0
-        vext \out\()_21, \in\()2, 1
-        vext \out\()_30, \in\()3, 0
-        vext \out\()_31, \in\()3, 1
-.endm
-
-.macro store_scalar_matrix_with_inc x, addr, inc
-        str \x\()t_00, [\addr], #( \inc)
-        str \x\()t_01, [\addr,  #(-\inc + 8*1)]
-        str \x\()t_10, [\addr,  #(-\inc + 8*2)]
-        str \x\()t_11, [\addr,  #(-\inc + 8*3)]
-        str \x\()t_20, [\addr,  #(-\inc + 8*4)]
-        str \x\()t_21, [\addr,  #(-\inc + 8*5)]
-        str \x\()t_30, [\addr,  #(-\inc + 8*6)]
-        str \x\()t_31, [\addr,  #(-\inc + 8*7)]
-.endm
-
-.macro vext gpr_out, vec_in, lane                // slothy:no-unfold
-        umov \gpr_out\(), \vec_in\().d[\lane]
 .endm
 
 .macro load_roots_123
