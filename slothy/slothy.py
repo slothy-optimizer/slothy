@@ -225,8 +225,19 @@ class Slothy():
         c = self.config.copy()
         c.add_aliases(aliases)
 
+        # Check if the body has a dominant indentation
+        indentation = AsmHelper.find_indentation(body)
+
+        if c.with_preprocessor:
+            self.logger.info("Apply C preprocessor...")
+            body = CPreprocessor.unfold(early, body)
+            self.logger.debug("Code after preprocessor:")
+            Slothy._dump("preprocessed", body, self.logger, err=False)
+
+        body = AsmHelper.split_semicolons(body)
         body = AsmMacro.unfold_all_macros(early, body)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        body = AsmHelper.apply_indentation(body, indentation)
 
         insts = len(list(filter(None, body)))
         self.logger.info(f"Optimizing loop {loop_lbl} ({insts} instructions) ...")
