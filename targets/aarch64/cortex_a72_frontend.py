@@ -48,7 +48,7 @@
 #
 # NOTE
 # We focus on a very small subset of AArch64, just enough to experiment with the
-# optimization of the Kyber NTT.
+# optimization of the Kyber and Dilithium NTT.
 #
 
 from enum import Enum, auto
@@ -131,7 +131,7 @@ execution_units = {
     ( Str_Q, Str_X )
     : ExecutionUnit.STORE(),
 
-    (add, add_shifted) : ExecutionUnit.SCALAR(),
+    (add, add_imm, add_lsl, add_lsr) : ExecutionUnit.SCALAR(),
 
     vsrshr : [ExecutionUnit.ASIMD1],
 
@@ -156,7 +156,7 @@ inverse_throughput = {
     vins : 1,
     vext : 1,
 
-    (add, add_shifted) : 1,
+    (add, add_imm, add_lsl, add_lsr) : 1,
 
     ( Ldr_Q,
       Str_Q,
@@ -190,7 +190,7 @@ default_latencies = {
     vins : 6, # approx
     vext : 4, # approx
 
-    (add, add_shifted) : 2,
+    (add, add_imm, add_lsl, add_lsr) : 2,
 
     vsrshr : 3, # approx
     St4 : 8,

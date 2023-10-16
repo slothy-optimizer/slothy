@@ -1775,54 +1775,6 @@ class and_imm_wform(AArch64Instruction):
                          inputs=["Wa"],
                          outputs=["Wd"])
 
-class sub_shifted(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="sub",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_out=[RegisterType.GPR])
-
-    def parse(self, src):
-        raise Instruction.ParsingException("Does not match pattern")
-
-        sub_imm_regexp_txt = "sub\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
-        sub_imm_regexp_txt = Instruction.unfold_abbrevs(sub_imm_regexp_txt)
-        sub_imm_regexp = re.compile(sub_imm_regexp_txt)
-        p = sub_imm_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in     = [ p.group("src") ]
-        self.args_out    = [ p.group("dst") ]
-        self.args_in_out = []
-
-        self.shift = p.group("shift")
-
-    def write(self):
-        return f"sub {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
-
-class add_shifted(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="add",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_out=[RegisterType.GPR])
-
-    def parse(self, src):
-        raise Instruction.ParsingException("Does not match pattern")
-
-        add_imm_regexp_txt = "add\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
-        add_imm_regexp_txt = Instruction.unfold_abbrevs(add_imm_regexp_txt)
-        add_imm_regexp = re.compile(add_imm_regexp_txt)
-        p = add_imm_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in     = [ p.group("src") ]
-        self.args_out    = [ p.group("dst") ]
-        self.args_in_out = []
-
-        self.shift = p.group("shift")
-
-    def write(self):
-        return f"add {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
-
 class Tst(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
         super().__init__(pattern, *args, **kwargs)
