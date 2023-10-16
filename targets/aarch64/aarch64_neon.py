@@ -477,22 +477,36 @@ class AArch64Instruction(Instruction):
                 f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
         src = re.sub("<([BHWXVQT])(\w+)>", pattern_transform, src)
 
-        if src.count("<dt") > 1:
-            for i in range(src.count("<dt")):
-                src = re.sub(f"<dt{i}>",  f"(?P<datatype{i}>(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d))", src)
-        else:
-            src = re.sub(f"<dt>",  f"(?P<datatype>(?:2|4|8|16)(?:B|H|S|D|b|h|s|d))", src)
+        # Replace <key> or <key0>, <key1>, ... with pattern
+        def replace_placeholders(src, mnemonic_key, regexp, group_name):
+            prefix = f"<{mnemonic_key}"
+            pattern = f"<{mnemonic_key}>"
+            pattern_i = lambda i: f"<{mnemonic_key}{i}>"
+
+            cnt = src.count(prefix)
+            if cnt > 1:
+                for i in range(cnt):
+                    src = re.sub(pattern_i(i),  f"(?P<{group_name}{i}>{regexp})", src)
+            else:
+                src = re.sub(pattern, f"(?P<{group_name}>{regexp})", src)
+
+            return src
 
         flaglist = ["eq","ne","cs","hs","cc","lo","mi","pl","vs","vc","hi","ls","ge","lt","gt","le"]
-        imm_pattern = "(\\\\w|\\\\s|-|\*|\+|\(|\)|=|,)+"
+
+        flag_pattern = '|'.join(flaglist)
+        dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
+        imm_pattern = "#(\\\\w|\\\\s|/| |-|\*|\+|\(|\)|=|,)+"
+        index_pattern = "[0-9]+"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
-        src = re.sub("<imm>",  f"#(?P<imm>{imm_pattern})",  src)
-        src = re.sub("<imm0>", f"#(?P<imm0>{imm_pattern})", src)
-        src = re.sub("<imm1>", f"#(?P<imm1>{imm_pattern})", src)
-        src = re.sub("<flag>", f"(?P<flag>{'|'.join(flaglist)})", src)
-        src = re.sub("<index>", "(?P<index>[0-9]+)", src)
+
+        src = replace_placeholders(src, "imm", imm_pattern, "imm")
+        src = replace_placeholders(src, "dt", dt_pattern, "datatype")
+        src = replace_placeholders(src, "index", index_pattern, "index")
+        src = replace_placeholders(src, "flag", flag_pattern, "flag")
+
         src = "\\s*" + src + "\\s*(//.*)?\Z"
 
         return src
@@ -500,9 +514,7 @@ class AArch64Instruction(Instruction):
     def _build_parser(src):
         regexp_txt = AArch64Instruction._unfold_pattern(src)
         regexp = re.compile(regexp_txt)
-        # print(f"Pattern: {src}")
-        # print(f"Regexp: {regexp_txt}")
-        # print(f"Compiled...")
+
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result == None:
@@ -631,27 +643,25 @@ class AArch64Instruction(Instruction):
             if res[r0] != res[r1]:
                 raise Instruction.ParsingException(f"Arguments {r0} and {r1} must be equal")
 
-        if 'datatype' in res:
-            self.datatype = res['datatype'].lower()
-        else:
-            if 'datatype0' in res:
-                self.datatype = [res['datatype0'].lower()]
-            if 'datatype1' in res:
-                self.datatype += [res['datatype1'].lower()]
-            if 'datatype2' in res:
-                self.datatype += [res['datatype2'].lower()]
+        def group_to_attribute(group_name, attr_name, f=None):
+            if f == None:
+                f = lambda x:x
+            attr_name_i = lambda i: f"{attr_name}{i}"
+            group_name_i = lambda i: f"{group_name}{i}"
+            if group_name in res.keys():
+                setattr(self, attr_name, f(res[group_name]))
+            else:
+                idxs = [ i for i in range(4) if group_name_i(i) in res.keys() ]
+                if len(idxs) > 0:
+                    assert idxs == list(range(len(idxs)))
+                    setattr(self, attr_name,
+                            list(map(lambda i: f(res[group_name_i(i)]), idxs)))
 
-        if 'index' in res:
-            self.index = int(res['index'])
+        group_to_attribute('datatype', 'datatype', lambda x: x.lower())
+        group_to_attribute('imm', 'immediate', lambda x:x[1:]) # Strip '#'
+        group_to_attribute('index', 'index', int)
+        group_to_attribute('flag', 'flag')
 
-        if 'imm' in res:
-            self.immediate = res['imm']
-        if 'imm0' in res:
-            self.immediate0 = res['imm0']
-        if 'imm1' in res:
-            self.immediate1 = res['imm1']
-        if 'flag' in res:
-            self.flag = res['flag']
         for s, ty in self.pattern_inputs:
             if ty == RegisterType.Flags:
                 self.args_in.append("flags")
@@ -662,6 +672,7 @@ class AArch64Instruction(Instruction):
                 self.args_out.append("flags")
             else:
                 self.args_out.append(AArch64Instruction._to_reg(ty, res[s]))
+
         for s, ty in self.pattern_in_outs:
             self.args_in_out.append(AArch64Instruction._to_reg(ty, res[s]))
 
@@ -682,24 +693,24 @@ class AArch64Instruction(Instruction):
             assert False
         for arg, (s, ty) in l:
             out = AArch64Instruction._instantiate_pattern(s, ty, arg, out)
-        if hasattr(self, "immediate"):
-            out = out.replace("<imm>", f"#{self.immediate}")
-        if hasattr(self, "immediate0"):
-            out = out.replace("<imm0>", f"#{self.immediate0}")
-        if hasattr(self, "immediate1"):
-            out = out.replace("<imm1>", f"#{self.immediate1}")
-        if hasattr(self, "flag"):
-            out = out.replace("<flag>", f"{self.flag}")
 
-        if hasattr(self, "datatype"):
-            if isinstance(self.datatype, list):
-                for i in range(len(self.datatype)):
-                    out = out.replace(f"<dt{i}>", self.datatype[i].upper())
-            else:
-                out = out.replace("<dt>", self.datatype.upper())
+        def replace_pattern(txt, attr_name, mnemonic_key, t=None):
+            if t == None:
+                t = lambda x:x
+            if not hasattr(self, attr_name):
+                return txt
+            a = getattr(self, attr_name)
+            if not isinstance(a, list):
+                txt = txt.replace(f"<{mnemonic_key}>", t(a))
+                return txt
+            for i in range(len(a)):
+                txt = txt.replace(f"<{mnemonic_key}{i}>", t(a[i]))
+            return txt
 
-        if hasattr(self,"index"):
-            out = out.replace("<index>", str(self.index))
+        out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
+        out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
+        out = replace_pattern(out, "flag", "flag")
+        out = replace_pattern(out, "index", "index", str)
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
