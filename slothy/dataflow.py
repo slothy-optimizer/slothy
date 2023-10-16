@@ -470,14 +470,13 @@ class DataFlowGraph:
             assert count < 10 # There shouldn't be many repeated modifications to the CFG
 
             self._build_graph()
-            delete_list = []
 
             if not parsing_cb:
                 break
 
             changed = []
             for t in self.nodes:
-                was_changed = t.inst.global_parsing_cb(t, delete_list)
+                was_changed = t.inst.global_parsing_cb(t)
                 if was_changed: # remember to build the dataflow graph again
                     changed.append(t)
 
@@ -486,10 +485,7 @@ class DataFlowGraph:
             if changes == 0:
                 break
 
-            new_src = list(zip([[t.inst] for t in self.nodes], [s[1] for s in self.src]))
-            for inst in delete_list:
-                new_src = list(filter(lambda x: x[0][0] != inst, new_src))
-            self.src = new_src
+            self.src = list(zip([[t.inst] for t in self.nodes], [s[1] for s in self.src]))
 
             # Otherwise, parse again
             logger.debug(f"{changes} instructions changed -- need to build dataflow graph again...")

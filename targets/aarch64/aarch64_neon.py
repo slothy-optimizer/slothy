@@ -299,7 +299,7 @@ class Instruction:
         self.args_in_restrictions     = [ None for _ in range(self.num_in)     ]
         self.args_in_out_restrictions = [ None for _ in range(self.num_in_out) ]
 
-    def global_parsing_cb(self,a,b):
+    def global_parsing_cb(self,a):
         return False
 
     def write(self):
@@ -2446,7 +2446,7 @@ class ld2_with_inc(Ld2):
 # target vector as output rather than input/output. This enables further
 # renaming opportunities.
 def vins_d_parsing_cb():
-    def core(inst, t, delete_list):
+    def core(inst, t):
         succ = None
         # Check if this is the first in a pair of vins+vins
         if len(t.dst_in_out[0]) == 1:
@@ -2466,7 +2466,7 @@ def vins_d_parsing_cb():
 vins_d.global_parsing_cb = vins_d_parsing_cb()
 
 def stack_vld2_lane_parsing_cb():
-    def core(inst,t, delete_list):
+    def core(inst,t):
         succ = None
 
         if inst.detected_stack_vld2_lane_pair:
