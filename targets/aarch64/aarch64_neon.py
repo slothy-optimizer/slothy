@@ -1888,7 +1888,7 @@ class vqrdmulh(AArch64Instruction):
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
-class mov_vtox(AArch64Instruction):
+class mov_vtox_d(AArch64Instruction):
     def __init__(self):
         super().__init__("mov <Xd>, <Va>.d[<index>]",
                          inputs=["Va"],
@@ -1950,55 +1950,50 @@ class fcsel_dform(Instruction):
     def write(self):
         return f"fcsel_dform {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, eq"
 
-class mov_d01(AArch64Instruction):
+class Vins(AArch64Instruction):
+    pass
+
+class vins_d(Vins):
     def __init__(self):
-        super().__init__("mov_d01 <Vd>, <Va>",
-                         inputs=["Va"],
-                         in_outs=["Vd"])
-class mov_b00(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mov_b00 <Vd>, <Va>",
-                         inputs=["Va"],
+        super().__init__("ins <Vd>.d[<index>], <Xa>",
+                         inputs=["Xa"],
                          in_outs=["Vd"])
 
-
-# class mov_vtox(Instruction):
-#     def __init__(self):
-#         super().__init__(mnemonic="mov",
-#                          arg_types_in=[RegisterType.Neon],
-#                          arg_types_out=[RegisterType.GPR])
-#     def parse(self, src):
-#         mov_regexp_txt = "mov\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*\.d\s*\[\s*(?P<immediate>\w*)\s*\]"
-#         mov_regexp = re.compile(mov_regexp_txt)
-#         p = mov_regexp.match(src)
-#         if p is None:
-#             raise Instruction.ParsingException("Does not match pattern")
-#         self.args_out    = [ p.group("dst") ]
-#         self.args_in     = [ p.group("src") ]
-#         self.args_in_out = []
-#         self.immediate = p.group("immediate")
-
-#     def write(self):
-#         return f"mov {self.args_out[0]}, {self.args_in[0]}.d[{self.immediate}]"
-
-class mov_xtov(Instruction):
+class vins_d_force_output(Vins):
     def __init__(self):
-        super().__init__(mnemonic="mov",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_in_out=[RegisterType.Neon])
-    def parse(self, src):
-        mov_regexp_txt = "mov\s+\s*(?P<dst>\w+)\s*\.d\s*\[\s*(?P<immediate>\w*)\s*\]\s*,\s*(?P<src>\w+)\s*"
-        mov_regexp = re.compile(mov_regexp_txt)
-        p = mov_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out    = []
-        self.args_in     = [ p.group("src") ]
-        self.args_in_out = [ p.group("dst") ]
-        self.immediate = p.group("immediate")
+        super().__init__("ins <Vd>.d[<index>], <Xa>",
+                         inputs=["Xa"],
+                         outputs=["Vd"])
+    def parse(self, src, force=False):
+        if force == False:
+            raise Instruction.ParsingException("Instruction ignored")
+        return super().parse(src)
 
-    def write(self):
-        return f"mov {self.args_in_out[0]}.d[{self.immediate}], {self.args_in[0]}"
+class Mov_xtov_d(AArch64Instruction):
+    pass
+
+class mov_xtov_d(Mov_xtov_d):
+    def __init__(self):
+        super().__init__("mov <Vd>.d[<index>], <Xa>",
+                         inputs=["Xa"],
+                         in_outs=["Vd"])
+
+class mov_xtov_d_xzr(Mov_xtov_d):
+    def __init__(self):
+        super().__init__("mov <Vd>.d[<index>], xzr",
+                         in_outs=["Vd"])
+
+class mov_b00(AArch64Instruction): # TODO: Generalize
+    def __init__(self):
+        super().__init__("mov <Vd>.b[0], <Va>.b[0]",
+                         inputs=["Va"],
+                         in_outs=["Vd"])
+
+class mov_d01(AArch64Instruction): # TODO: Generalize
+    def __init__(self):
+        super().__init__("mov <Vd>.d[0], <Va>.d[1]",
+                         inputs=["Va"],
+                         in_outs=["Vd"])
 
 class vmul(AArch64Instruction):
     def __init__(self):
@@ -2088,11 +2083,11 @@ class vshrn(AArch64Instruction):
                          inputs=["Va"],
                          outputs=["Vd"])
 
-class vext(AArch64Instruction):
+class umov_d(AArch64Instruction):
     def __init__(self):
-        super().__init__("ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+        super().__init__("umov <Xd>, <Va>.d[<index>]",
+                         inputs=["Va"],
+                         outputs=["Xd"])
 
 class vushr(AArch64Instruction):
     def __init__(self):
@@ -2450,43 +2445,25 @@ class ld2_with_inc(Ld2):
 # In a pair of vins writing both 64-bit lanes of a vector, mark the
 # target vector as output rather than input/output. This enables further
 # renaming opportunities.
-def vins_parsing_cb():
-    def core(inst,t, delete_list):
+def vins_d_parsing_cb():
+    def core(inst, t, delete_list):
         succ = None
-
-        if inst.detected_vins_pair:
-            return False
-
         # Check if this is the first in a pair of vins+vins
         if len(t.dst_in_out[0]) == 1:
             r = t.dst_in_out[0][0]
-            if isinstance(r.inst, vins):
+            if isinstance(r.inst, vins_d):
                 if r.inst.args_in_out == inst.args_in_out and \
-                   {r.inst.lane, inst.lane} == {'0','1'}:
+                   {r.inst.index, inst.index} == {0,1}:
                     succ = r
-
         if succ is None:
             return False
-
-        # If so, mark in/out as output only, and signal the need for re-building
-        # the dataflow graph
-
-        inst.num_out = 1
-        inst.args_out = [ inst.args_in_out[0] ]
-        inst.arg_types_out = [ RegisterType.Neon ]
-        inst.args_out_restrictions = inst.args_in_out_restrictions
-
-        inst.num_in_out = 0
-        inst.args_in_out = []
-        inst.arg_types_in_out = []
-        inst.args_in_out_restrictions = []
-
-        inst.detected_vins_pair = True
+        # Reparse as instruction-variant treating the input/output as an output
+        inst_txt = t.inst.write()
+        t.inst = vins_d_force_output()
+        t.inst.parse(inst_txt, force=True)
         return True
-
     return core
-
-vins.global_parsing_cb  = vins_parsing_cb()
+vins_d.global_parsing_cb = vins_d_parsing_cb()
 
 def stack_vld2_lane_parsing_cb():
     def core(inst,t, delete_list):

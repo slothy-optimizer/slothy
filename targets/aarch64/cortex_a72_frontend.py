@@ -122,8 +122,8 @@ execution_units = {
      trn1, trn2 )
     : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
-    vins : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
-    vext : ExecutionUnit.LOAD(),
+    Vins : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    umov_d : ExecutionUnit.LOAD(), # ???
 
     ( Ldr_Q, Ldr_X )
     : ExecutionUnit.LOAD(),
@@ -153,8 +153,8 @@ inverse_throughput = {
      trn1, trn2)
     : 1,
 
-    vins : 1,
-    vext : 1,
+    Vins : 1,
+    umov_d : 1,
 
     (add, add_imm, add_lsl, add_lsr) : 1,
 
@@ -187,8 +187,8 @@ default_latencies = {
       stack_vld1r, stack_vld2_lane )
       : 4, # approx
 
-    vins : 6, # approx
-    vext : 4, # approx
+    Vins : 6, # approx
+    umov_d : 4, # approx
 
     (add, add_imm, add_lsl, add_lsr) : 2,
 
