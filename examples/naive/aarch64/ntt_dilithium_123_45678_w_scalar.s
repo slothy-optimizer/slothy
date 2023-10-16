@@ -32,10 +32,10 @@ xtmp1 .req x11
 .endm
 
 .macro str_vo vec, base, offset
-        str qform_\vec, [\base, \offset]
+        str qform_\vec, [\base, #\offset]
 .endm
 .macro str_vi vec, base, inc
-        str qform_\vec, [\base], \inc
+        str qform_\vec, [\base], #\inc
 .endm
 .macro vqrdmulh d,a,b
         sqrdmulh \d\().4s, \a\().4s, \b\().4s

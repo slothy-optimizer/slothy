@@ -16,17 +16,17 @@
 .endm
 
 .macro ldr_vo vec, base, offset
-        ldr qform_\vec, [\base, \offset]
+        ldr qform_\vec, [\base, #\offset]
 .endm
 
 .macro ldr_vi vec, base, inc
-        ldr qform_\vec, [\base], \inc
+        ldr qform_\vec, [\base], #\inc
 .endm
 .macro str_vo vec, base, offset
-        str qform_\vec, [\base, \offset]
+        str qform_\vec, [\base, #\offset]
 .endm
 .macro str_vi vec, base, inc
-        str qform_\vec, [\base], \inc
+        str qform_\vec, [\base], #\inc
 .endm
 .macro vqrdmulh d,a,b
         sqrdmulh \d\().4s, \a\().4s, \b\().4s
