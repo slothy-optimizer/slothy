@@ -492,10 +492,11 @@ class DataFlowGraph:
             self.src = new_src
 
             # Otherwise, parse again
-            logger.info(f"{changes} instructions changed -- need to build dataflow graph again...")
+            logger.debug(f"{changes} instructions changed -- need to build dataflow graph again...")
+            logger.debug(f"The following instructions have changed:")
             if changes > 0:
                 for t in changed:
-                    logger.info(t)
+                    logger.debug(t)
 
         if not self.config.allow_useless_instructions:
             self._selfcheck_outputs()
