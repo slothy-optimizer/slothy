@@ -1803,12 +1803,6 @@ class cmp_xzr(Tst):
                          inputs=["Xa"],
                          modifiesFlags=True)
 
-class cbnz(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="cbnz",
-                arg_types_in=[RegisterType.GPR],
-                arg_types_in_out=[])
-
 # class mov_imm(Instruction):
 #     def __init__(self):
 #         super().__init__(mnemonic="mov",
