@@ -53,7 +53,7 @@ class Config(NestedPrint, LockAttributes):
     _default_unsafe_skip_address_fixup = False
 
     _default_with_preprocessor = False
-    _default_max_solutions = 16
+    _default_max_solutions = 64
     _default_timeout = None
     _default_retry_timeout = None
     _default_ignore_objective = False
