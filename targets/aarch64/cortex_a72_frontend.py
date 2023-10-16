@@ -46,7 +46,7 @@
 # This file thus tries to model basic aspects of the frontend of Cortex-A72
 # alongside instruction latencies, both taken from the Cortex-A72 Software Optimization Guide.
 #
-# NOTE/WARNING
+# NOTE
 # We focus on a very small subset of AArch64, just enough to experiment with the
 # optimization of the Kyber NTT.
 #
@@ -125,19 +125,19 @@ execution_units = {
     vins : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     vext : ExecutionUnit.LOAD(),
 
-    ( ldr_vo_wrapper, ldr_vi_wrapper, x_ldr )
+    ( Ldr_Q, Ldr_X )
     : ExecutionUnit.LOAD(),
 
-    ( str_vi_wrapper, str_vo_wrapper, x_str )
+    ( Str_Q, Str_X )
     : ExecutionUnit.STORE(),
 
     (add, add_shifted) : ExecutionUnit.SCALAR(),
 
     vsrshr : [ExecutionUnit.ASIMD1],
 
-    st4 : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    St4 : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
-    ld4 : [[ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
+    Ld4 : [[ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
            [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]]
 }
 
@@ -158,15 +158,15 @@ inverse_throughput = {
 
     (add, add_shifted) : 1,
 
-    ( ldr_vo_wrapper, ldr_vi_wrapper,
-      str_vi_wrapper, str_vo_wrapper,
-      stack_vld1r, stack_vld2_lane, x_ldr, x_str )
+    ( Ldr_Q,
+      Str_Q,
+      stack_vld1r, stack_vld2_lane, Ldr_X, Str_X )
       : 1,
 
     vsrshr : 1,
 
-    st4 : 8,
-    ld4 : 4
+    St4 : 8,
+    Ld4 : 4
 }
 
 ### REVISIT
@@ -182,9 +182,9 @@ default_latencies = {
      trn1, trn2 )
     : 3, # Approximation -- not necessary to get it exactly right, as mentioned above
 
-    ( ldr_vo_wrapper, ldr_vi_wrapper,
-      str_vi_wrapper, str_vo_wrapper,
-      stack_vld1r, stack_vld2_lane, x_ldr, x_str )
+    ( Ldr_Q, Ldr_X,
+      Str_Q, Str_X,
+      stack_vld1r, stack_vld2_lane )
       : 4, # approx
 
     vins : 6, # approx
@@ -193,8 +193,8 @@ default_latencies = {
     (add, add_shifted) : 2,
 
     vsrshr : 3, # approx
-    st4 : 8,
-    ld4 : 4
+    St4 : 8,
+    Ld4 : 4
 }
 
 def get_latency(src, out_idx, dst):

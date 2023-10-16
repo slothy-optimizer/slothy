@@ -75,8 +75,9 @@ def get_min_max_objective(slothy):
     return
 
 execution_units = {
-    (Ldp_X, Ldr_X, Str_X, Stp_X,
-     v_ldr, v_ldr_with_inc_hint, v_ldr_with_inc, v_ldr_with_inc_writeback)   : ExecutionUnit.LSU(),
+    (Ldp_X, Ldr_X,
+     Str_X, Stp_X,
+     Ldr_Q)                   : ExecutionUnit.LSU(),
     (vuzp1, vuzp2, vzip1,
      rev64, uaddlp)           : ExecutionUnit.V(),
     (vmov)                    : ExecutionUnit.V(),
@@ -103,8 +104,8 @@ execution_units = {
 
 inverse_throughput = {
     (Ldr_X, Str_X,
-     v_ldr, v_ldr_with_inc, v_ldr_with_inc_hint, v_ldr_with_inc_writeback)   : 1,
-    (Ldp_X, Stp_X) : 2,
+     Ldr_Q)                    : 1,
+    (Ldp_X, Stp_X)             : 2,
     (vuzp1, vuzp2, vzip1,
      uaddlp, rev64)            : 1,
     (vext)                     : 1,
@@ -133,8 +134,8 @@ inverse_throughput = {
 default_latencies = {
     (Ldp_X,
      Ldr_X,
-     v_ldr, v_ldr_with_inc, v_ldr_with_inc_hint, v_ldr_with_inc_writeback)   : 4,
-    (Stp_X, Str_X) : 2,
+     Ldr_Q)                   : 4,
+    (Stp_X, Str_X)            : 2,
     (vuzp1, vuzp2, vzip1,
      rev64, uaddlp)           : 2,
     (vext)                    : 2,

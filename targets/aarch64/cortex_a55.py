@@ -103,13 +103,13 @@ execution_units = {
         vqrdmulh, vqrdmulh_lane,
         vqdmulh_lane,
         vsrshr, vand, vbic,
-        ldr_vo_wrapper, ldr_vi_wrapper,
-        str_vi_wrapper, str_vo_wrapper,
+        Ldr_Q,
+        Str_Q,
         stack_vld1r, stack_vld2_lane,
         vmull, vmlal, vushr, vusra
     ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
-    st4 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
+    St4 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
             ExecutionUnit.SCALAR_STORE] + ExecutionUnit.SCALAR()],
 
     # non-q-form vector instructions
@@ -149,8 +149,8 @@ execution_units = {
     is_dform_form_of(vshl) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
 
     # TODO: double check these new instructions:
-    (stack_stp, stack_stp_wform, stack_str, x_str) : ExecutionUnit.SCALAR_STORE,
-    (stack_ldr, ldr_const, ldr_sxtw_wform, x_ldr) : ExecutionUnit.SCALAR_LOAD,
+    (stack_stp, stack_stp_wform, stack_str, Str_X) : ExecutionUnit.SCALAR_STORE,
+    (stack_ldr, ldr_const, ldr_sxtw_wform, Ldr_X) : ExecutionUnit.SCALAR_LOAD,
     (umull_wform, mul_wform, umaddl_wform ): ExecutionUnit.SCALAR_MUL(),
     ( lsr, bic, bfi, add, add_shifted, add_sp_imm, add2, add_lsr,
       and_imm, nop, vins, tst_wform, movk_imm, sub, mov,
@@ -164,11 +164,11 @@ inverse_throughput = {
       vmlal,
       vsrshr, vext ) : 1,
     (trn2, trn1) : 1,
-    ( vldr, ldr_vo_wrapper, ldr_vi_wrapper ) : 2,
-    ( vstr, str_vo_wrapper, str_vi_wrapper ) : 1,
+    ( Ldr_Q ) : 2,
+    ( Str_Q ) : 1,
     ( tst_wform ) : 1,
-    ( nop, vins, x_ldr, x_str ) : 1,
-    st4 : 5,
+    ( nop, Vins, Ldr_X, Str_X ) : 1,
+    St4 : 5,
     (fcsel_dform) : 1,
     (mov_vtox, mov_xtov) : 1,
     (movk_imm, mov) : 1,
@@ -203,11 +203,10 @@ default_latencies = {
     ( vmul, vmul_lane, vmls, vmls_lane,
       vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull,
       vmlal) : 4,
-    ( ldr_vo_wrapper, ldr_vi_wrapper,
-      str_vo_wrapper, str_vi_wrapper ) : 4,
-    st4 : 5,
-    ( x_str, x_ldr ) : 4,
     ( vins, vext ) : 2,
+    ( Ldr_Q, Str_Q ) : 4,
+    St4 : 5,
+    ( Str_X, Ldr_X ) : 4,
     ( tst_wform) : 1,
     (fcsel_dform) : 2,
     (mov_vtox, mov_xtov) : 2,
