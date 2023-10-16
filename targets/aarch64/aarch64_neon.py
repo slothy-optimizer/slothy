@@ -1803,25 +1803,6 @@ class cmp_xzr(Tst):
                          inputs=["Xa"],
                          modifiesFlags=True)
 
-# class mov_imm(Instruction):
-#     def __init__(self):
-#         super().__init__(mnemonic="mov",
-#                 arg_types_in=[],
-#                 arg_types_out=[RegisterType.GPR])
-#     def parse(self, src):
-#         mov_regexp_txt = "mov\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
-#         mov_regexp = re.compile(mov_regexp_txt)
-#         p = mov_regexp.match(src)
-#         if p is None:
-#             raise Instruction.ParsingException("Does not match pattern")
-#         self.args_out    = [ p.group("dst") ]
-#         self.args_in     = []
-#         self.args_in_out = []
-#         self.immediate = p.group("immediate")
-
-#     def write(self):
-#         return f"mov {self.args_out[0]}, #{self.immediate}"
-
 ######################################################
 #                                                    #
 # Some 'wrappers' around AArch64 Neon instructions   #
