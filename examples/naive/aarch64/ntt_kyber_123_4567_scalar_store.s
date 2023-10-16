@@ -138,7 +138,7 @@
         trn2 \data_out\()3\().4s, \data_in\()2\().4s, \data_in\()3\().4s
 .endm
 
-.macro vext gpr_out, vec_in, lane // slothy:no-unfold
+.macro vext gpr_out, vec_in, lane
         umov \gpr_out\(), \vec_in\().d[\lane]
 .endm
 

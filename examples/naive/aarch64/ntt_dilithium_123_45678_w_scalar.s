@@ -141,7 +141,7 @@ xtmp1 .req x11
         str \x\()t_31, [\addr,  #(-\inc + 8*7)]
 .endm
 
-.macro vext gpr_out, vec_in, lane                // slothy:no-unfold
+.macro vext gpr_out, vec_in, lane
         umov \gpr_out\(), \vec_in\().d[\lane]
 .endm
 

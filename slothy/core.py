@@ -30,6 +30,7 @@ from ortools.sat.python import cp_model
 from functools import cached_property, lru_cache
 from types import SimpleNamespace
 from copy import deepcopy
+from sympy import simplify
 
 from slothy.config import Config
 from slothy.helper import LockAttributes, NestedPrint, AsmHelper, Permutation
@@ -1097,13 +1098,13 @@ class SlothyBase(LockAttributes):
             # Adjust t1's address accordingly
             logger.debug(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, "
                          "to {t1.fixup + int(t0.inst_tmp.increment)}")
-            t1.fixup += int(t0.inst_tmp.increment)
+            t1.fixup += int(simplify(t0.inst_tmp.increment))
         elif inst_changes_addr(t1.inst_tmp) and affecting(t1) and affected(t0):
             # t0 gets reordered after t1, which changes the address
             # Adjust t0's address accordingly
             logger.debug(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, "
                          "to {t0.fixup - int(t1.inst_tmp.increment)}")
-            t0.fixup -= int(t1.inst_tmp.increment)
+            t0.fixup -= int(simplify(t1.inst_tmp.increment))
 
     def _post_optimize_fixup_compute(self, affected=None, affecting=None, ipairs=None):
         """Adjusts immediate offsets for reordered load/store instructions.
