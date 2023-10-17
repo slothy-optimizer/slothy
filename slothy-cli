@@ -60,16 +60,23 @@ def main(argv):
 
     args = parser.parse_args()
 
-    if args.debug:
-        logging.basicConfig(level = logging.DEBUG)
-    else:
-        logging.basicConfig(level = logging.INFO)
+    h_err = logging.StreamHandler(sys.stderr)
+    h_err.setLevel(logging.WARNING)
+
+    h_info = logging.StreamHandler(sys.stdout)
+    h_info.setLevel(logging.DEBUG)
+    h_info.addFilter(lambda r: r.levelno <= logging.INFO)
+
+    logging.basicConfig(
+        level = logging.DEBUG if args.debug else logging.INFO,
+        handlers = [h_err, h_info]
+    )
 
     logger = logging.getLogger("slothy-cli")
 
     Arch   = Archery.get_arch(args.arch)
     Target = Archery.get_target(args.target)
-    slothy = Slothy(Arch,Target,debug=args.debug, logger=logger)
+    slothy = Slothy(Arch,Target,logger=logger)
 
     def parse_config_value_as(val, ty):
         def parse_as_float(val):

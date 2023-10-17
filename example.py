@@ -25,7 +25,7 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import argparse, logging
+import argparse, logging, sys
 from io import StringIO
 
 from slothy.slothy import Slothy
@@ -73,25 +73,31 @@ class Example():
 
         self.extra_args = kwargs
     # By default, optimize the whole file
-    def core(self, helight):
-        helight.optimize()
+    def core(self, slothy):
+        slothy.optimize()
     def run(self, debug=False):
-        log_stream = StringIO()
-        handler = logging.StreamHandler(log_stream)
-        handler.setLevel(logging.INFO)
-        logger = logging.getLogger(self.name).getChild("helight55")
-        logger.addHandler(handler)
-        helight = Slothy(self.arch, self.target,
-                         debug=debug, logger=logger)
-        helight.load_source_from_file(self.infile_full)
-        self.core(helight, *self.extra_args)
+
+        h_err = logging.StreamHandler(sys.stderr)
+        h_err.setLevel(logging.WARNING)
+
+        h_info = logging.StreamHandler(sys.stdout)
+        h_info.setLevel(logging.DEBUG)
+        h_info.addFilter(lambda r: r.levelno <= logging.INFO)
+
+        logging.basicConfig(
+            level = logging.DEBUG if debug else logging.INFO,
+            handlers = [h_err, h_info]
+        )
+
+        logger = logging.getLogger(self.name)
+
+        slothy = Slothy(self.arch, self.target, logger=logger)
+        slothy.load_source_from_file(self.infile_full)
+        self.core(slothy, *self.extra_args)
 
         if self.rename:
-            helight.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
-        helight.write_source_to_file(self.outfile_full)
-
-        return self.outfile_full, log_stream.getvalue()
-
+            slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
 
 class Example0(Example):
     def __init__(self):
@@ -104,28 +110,28 @@ class Example1(Example):
 class Example2(Example):
     def __init__(self):
         super().__init__("simple0_loop")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints["const"] = Arch_Armv81M.RegisterType.GPR
-        helight.optimize_loop("start")
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints["const"] = Arch_Armv81M.RegisterType.GPR
+        slothy.optimize_loop("start")
 
 class Example3(Example):
     def __init__(self):
         super().__init__("simple1_loop")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.optimize_loop("start")
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("start")
 
 class CRT(Example):
     def __init__(self):
         super().__init__("crt")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.selfcheck = True
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.selfcheck = True
         # Double the loop body to create more interleaving opportunities
         # Basically a tradeoff of code-size vs performance
-        helight.config.sw_pipelining.unroll = 2
-        helight.config.typing_hints = {
+        slothy.config.sw_pipelining.unroll = 2
+        slothy.config.typing_hints = {
             "const_prshift"  : Arch_Armv81M.RegisterType.GPR,
             "const_shift9"   : Arch_Armv81M.RegisterType.GPR,
             "p_inv_mod_q"    : Arch_Armv81M.RegisterType.GPR,
@@ -133,26 +139,26 @@ class CRT(Example):
             "mod_p"          : Arch_Armv81M.RegisterType.GPR,
             "mod_p_tw"       : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize()
+        slothy.optimize()
 
 class ntt_n256_l6_s32(Example):
     def __init__(self,var):
         super().__init__(f"ntt_n256_l6_s32_{var}")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = { r : Arch_Armv81M.RegisterType.GPR for r in
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints = { r : Arch_Armv81M.RegisterType.GPR for r in
            [ "root0",         "root1",         "root2",
              "root0_twisted", "root1_twisted", "root2_twisted" ] }
-        helight.optimize_loop("layer12_loop")
-        helight.optimize_loop("layer34_loop")
-        helight.optimize_loop("layer56_loop")
+        slothy.optimize_loop("layer12_loop")
+        slothy.optimize_loop("layer34_loop")
+        slothy.optimize_loop("layer56_loop")
 
 class ntt_n256_l8_s32(Example):
     def __init__(self,var):
         super().__init__(f"ntt_n256_l8_s32_{var}")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = {
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -160,18 +166,18 @@ class ntt_n256_l8_s32(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer12_loop")
-        helight.optimize_loop("layer34_loop")
-        helight.optimize_loop("layer56_loop")
-        helight.config.typing_hints = {}
-        helight.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer12_loop")
+        slothy.optimize_loop("layer34_loop")
+        slothy.optimize_loop("layer56_loop")
+        slothy.config.typing_hints = {}
+        slothy.optimize_loop("layer78_loop")
 
 class intt_n256_l6_s32(Example):
     def __init__(self, var):
         super().__init__(f"intt_n256_l6_s32_{var}")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = {
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -179,16 +185,16 @@ class intt_n256_l6_s32(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer12_loop")
-        helight.optimize_loop("layer34_loop")
-        helight.optimize_loop("layer56_loop")
+        slothy.optimize_loop("layer12_loop")
+        slothy.optimize_loop("layer34_loop")
+        slothy.optimize_loop("layer56_loop")
 
 class intt_n256_l8_s32(Example):
     def __init__(self, var):
         super().__init__(f"intt_n256_l8_s32_{var}")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = {
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -196,11 +202,11 @@ class intt_n256_l8_s32(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer12_loop")
-        helight.optimize_loop("layer34_loop")
-        helight.optimize_loop("layer56_loop")
-        helight.config.typing_hints = {}
-        helight.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer12_loop")
+        slothy.optimize_loop("layer34_loop")
+        slothy.optimize_loop("layer56_loop")
+        slothy.config.typing_hints = {}
+        slothy.optimize_loop("layer78_loop")
 
 
 class ntt_kyber_1_23_45_67(Example):
@@ -213,9 +219,9 @@ class ntt_kyber_1_23_45_67(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -223,15 +229,15 @@ class ntt_kyber_1_23_45_67(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.config.inputs_are_outputs = True
-        helight.optimize_loop("layer1_loop")
-        helight.optimize_loop("layer23_loop")
-        helight.optimize_loop("layer45_loop")
-        helight.config.constraints.st_ld_hazard = False
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("layer1_loop")
+        slothy.optimize_loop("layer23_loop")
+        slothy.optimize_loop("layer45_loop")
+        slothy.config.constraints.st_ld_hazard = False
         if "no_trans" in self.var:
-            helight.config.constraints.st_ld_hazard = True
-        helight.config.typing_hints = {}
-        helight.optimize_loop("layer67_loop")
+            slothy.config.constraints.st_ld_hazard = True
+        slothy.config.typing_hints = {}
+        slothy.optimize_loop("layer67_loop")
 
 class ntt_kyber_1(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -241,13 +247,13 @@ class ntt_kyber_1(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
 
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -255,7 +261,7 @@ class ntt_kyber_1(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer1_loop")
+        slothy.optimize_loop("layer1_loop")
 
 class ntt_kyber_23(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -265,13 +271,13 @@ class ntt_kyber_23(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
 
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -279,7 +285,7 @@ class ntt_kyber_23(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer23_loop")
+        slothy.optimize_loop("layer23_loop")
 
 class ntt_kyber_45(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -289,13 +295,13 @@ class ntt_kyber_45(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
 
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -303,7 +309,7 @@ class ntt_kyber_45(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer45_loop")
+        slothy.optimize_loop("layer45_loop")
 
 class ntt_kyber_67(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -313,15 +319,15 @@ class ntt_kyber_67(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
 
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.config.constraints.st_ld_hazard = False
-        helight.config.typing_hints = {}
-        helight.optimize_loop("layer67_loop")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.constraints.st_ld_hazard = False
+        slothy.config.typing_hints = {}
+        slothy.optimize_loop("layer67_loop")
 
 class ntt_kyber_12_345_67(Example):
     def __init__(self, cross_loops_optim=False, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -341,42 +347,42 @@ class ntt_kyber_12_345_67(Example):
                          suffix=suffix, rename=True, arch=arch, target=target)
         self.cross_loops_optim = cross_loops_optim
 
-    def core(self,helight):
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.enabled = True
-        helight.optimize_loop("layer12_loop", end_of_loop_label="layer12_loop_end")
-        helight.config.constraints.stalls_first_attempt = 16
-        helight.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
+    def core(self,slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("layer12_loop", end_of_loop_label="layer12_loop_end")
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
                                                [ "STACK0" ] )
         if not self.cross_loops_optim:
             if "no_trans" not in self.var and "trans" in self.var:
-                helight.config.constraints.st_ld_hazard = False  # optional, if it takes too long
-            helight.config.sw_pipelining.enabled = False
-            helight.optimize_loop("layer345_loop")
+                slothy.config.constraints.st_ld_hazard = False  # optional, if it takes too long
+            slothy.config.sw_pipelining.enabled = False
+            slothy.optimize_loop("layer345_loop")
         else:
             if "no_trans" not in self.var and "trans" in self.var:
-                helight.config.constraints.st_ld_hazard = False  # optional, if it takes too long
-            helight.config.sw_pipelining.enabled = True
-            helight.config.sw_pipelining.halving_heuristic = True
-            helight.config.sw_pipelining.halving_heuristic_periodic = True
-            helight.optimize_loop("layer345_loop", end_of_loop_label="layer345_loop_end")
-            layer345_deps = helight.last_result.kernel_input_output.copy()
+                slothy.config.constraints.st_ld_hazard = False  # optional, if it takes too long
+            slothy.config.sw_pipelining.enabled = True
+            slothy.config.sw_pipelining.halving_heuristic = True
+            slothy.config.sw_pipelining.halving_heuristic_periodic = True
+            slothy.optimize_loop("layer345_loop", end_of_loop_label="layer345_loop_end")
+            layer345_deps = slothy.last_result.kernel_input_output.copy()
 
-        helight.config.sw_pipelining.enabled = True
-        helight.config.sw_pipelining.halving_heuristic = False
-        helight.config.sw_pipelining.halving_heuristic_periodic = True
-        helight.config.constraints.st_ld_hazard = False
-        helight.optimize_loop("layer67_loop")
-        layer67_deps = helight.last_result.kernel_input_output.copy()
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = False
+        slothy.config.sw_pipelining.halving_heuristic_periodic = True
+        slothy.config.constraints.st_ld_hazard = False
+        slothy.optimize_loop("layer67_loop")
+        layer67_deps = slothy.last_result.kernel_input_output.copy()
 
         if self.cross_loops_optim:
-            helight.config.inputs_are_outputs = False
-            helight.config.constraints.st_ld_hazard = True
-            helight.config.sw_pipelining.enabled = False
-            helight.config.outputs = layer345_deps + ["r14"]
-            helight.optimize(start="layer12_loop_end", end="layer345_loop")
-            helight.config.outputs = layer67_deps + ["r14"]
-            helight.optimize(start="layer345_loop_end", end="layer67_loop")
+            slothy.config.inputs_are_outputs = False
+            slothy.config.constraints.st_ld_hazard = True
+            slothy.config.sw_pipelining.enabled = False
+            slothy.config.outputs = layer345_deps + ["r14"]
+            slothy.optimize(start="layer12_loop_end", end="layer345_loop")
+            slothy.config.outputs = layer67_deps + ["r14"]
+            slothy.optimize(start="layer345_loop_end", end="layer67_loop")
 
 
 class ntt_kyber_12(Example):
@@ -386,13 +392,13 @@ class ntt_kyber_12(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, rename=True, arch=arch, target=target)
 
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.optimize_loop("layer12_loop", end_of_loop_label="layer12_loop_end")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.optimize_loop("layer12_loop", end_of_loop_label="layer12_loop_end")
 
 
 class ntt_kyber_345(Example):
@@ -402,25 +408,25 @@ class ntt_kyber_345(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, rename=True, arch=arch, target=target)
 
-    def core(self, helight):
-        helight.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
+    def core(self, slothy):
+        slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
                                               ["STACK0"])
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.optimize_loop("layer345_loop")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.optimize_loop("layer345_loop")
 
 
 class ntt_kyber_l345_symbolic(Example):
     def __init__(self):
         super().__init__("ntt_kyber_layer345_symbolic")
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.sw_pipelining.halving_heuristic = True
-        helight.config.sw_pipelining.halving_heuristic_periodic = True
-        helight.optimize_loop("layer345_loop")
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.sw_pipelining.halving_heuristic_periodic = True
+        slothy.optimize_loop("layer345_loop")
 
 
 class ntt_kyber_123_4567(Example):
@@ -435,15 +441,15 @@ class ntt_kyber_123_4567(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.variable_size = True
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
-        nelight.config.constraints.stalls_first_attempt = 64
-        nelight.optimize_loop("layer123_start")
-        nelight.optimize_loop("layer4567_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.variable_size = True
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.optimize_loop("layer123_start")
+        slothy.optimize_loop("layer4567_start")
 
 
 class ntt_kyber_123(Example):
@@ -458,14 +464,14 @@ class ntt_kyber_123(Example):
 
         super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.sw_pipelining.optimize_preamble = False
-        nelight.config.sw_pipelining.optimize_postamble = False
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
-        nelight.optimize_loop("layer123_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.optimize_loop("layer123_start")
 
 
 class ntt_kyber_4567(Example):
@@ -480,14 +486,14 @@ class ntt_kyber_4567(Example):
 
         super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.sw_pipelining.optimize_preamble = False
-        nelight.config.sw_pipelining.optimize_postamble = False
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
-        nelight.optimize_loop("layer4567_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.optimize_loop("layer4567_start")
 
 
 class ntt_kyber_1234_567(Example):
@@ -501,32 +507,32 @@ class ntt_kyber_1234_567(Example):
         name += f"_{target_label_dict[target]}"
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
-    def core(self,nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping=False
-        nelight.config.sw_pipelining.halving_heuristic = True
-        nelight.config.variable_size = True
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0,6)] + ["x30", "sp"]
-        nelight.config.split_heuristic = True
-        nelight.config.split_heuristic_factor = 2
-        nelight.config.split_heuristic_stepsize = 0.1
-        nelight.config.split_heuristic_repeat = 4
-        nelight.config.constraints.stalls_first_attempt = 40
-        nelight.config.max_solutions = 64
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping=False
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.variable_size = True
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0,6)] + ["x30", "sp"]
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 2
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.split_heuristic_repeat = 4
+        slothy.config.constraints.stalls_first_attempt = 40
+        slothy.config.max_solutions = 64
 
-        nelight.optimize_loop("layer1234_start")
+        slothy.optimize_loop("layer1234_start")
 
         # layer567 is small enough for SW pipelining without heuristics
-        nelight.config = Config(self.arch, self.target)
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.variable_size = True
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
-        nelight.config.constraints.stalls_first_attempt = 64
+        slothy.config = Config(self.arch, self.target)
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.variable_size = True
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.constraints.stalls_first_attempt = 64
 
-        nelight.optimize_loop("layer567_start")
+        slothy.optimize_loop("layer567_start")
 
 class ntt_kyber_1234(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
@@ -540,15 +546,15 @@ class ntt_kyber_1234(Example):
 
         super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.sw_pipelining.optimize_preamble = False
-        nelight.config.sw_pipelining.optimize_postamble = False
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
 
-        nelight.optimize_loop("layer1234_start")
+        slothy.optimize_loop("layer1234_start")
 
 
 class ntt_kyber_567(Example):
@@ -563,25 +569,25 @@ class ntt_kyber_567(Example):
 
         super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
+    def core(self, slothy):
         # layer567 is small enough for SW pipelining without heuristics
-        nelight.config = Config(self.arch, self.target)
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.sw_pipelining.optimize_preamble = False
-        nelight.config.sw_pipelining.optimize_postamble = False
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config = Config(self.arch, self.target)
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
 
-        nelight.optimize_loop("layer567_start")
+        slothy.optimize_loop("layer567_start")
 
 
 class intt_kyber_1_23_45_67(Example):
     def __init__(self):
         super().__init__("intt_kyber_1_23_45_67", rename=True)
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = {
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -589,11 +595,11 @@ class intt_kyber_1_23_45_67(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer1_loop")
-        helight.optimize_loop("layer23_loop")
-        helight.optimize_loop("layer45_loop")
-        helight.config.typing_hints = {}
-        helight.optimize_loop("layer67_loop")
+        slothy.optimize_loop("layer1_loop")
+        slothy.optimize_loop("layer23_loop")
+        slothy.optimize_loop("layer45_loop")
+        slothy.config.typing_hints = {}
+        slothy.optimize_loop("layer67_loop")
 
 class ntt_dilithium_12_34_56_78(Example):
     def __init__(self, var="", target=Target_CortexM55r1, arch=Arch_Armv81M):
@@ -605,10 +611,10 @@ class ntt_dilithium_12_34_56_78(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
-    def core(self, helight):
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -617,22 +623,22 @@ class ntt_dilithium_12_34_56_78(Example):
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
             "const1"        : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer12_loop")
-        helight.optimize_loop("layer34_loop")
-        helight.config.sw_pipelining.optimize_preamble  = True
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.optimize_loop("layer56_loop", end_of_loop_label="layer56_loop_end")
-        helight.config.sw_pipelining.optimize_preamble  = False
-        helight.config.sw_pipelining.optimize_postamble = True
-        helight.config.typing_hints = {}
-        helight.config.constraints.st_ld_hazard = False
-        helight.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer12_loop")
+        slothy.optimize_loop("layer34_loop")
+        slothy.config.sw_pipelining.optimize_preamble  = True
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.optimize_loop("layer56_loop", end_of_loop_label="layer56_loop_end")
+        slothy.config.sw_pipelining.optimize_preamble  = False
+        slothy.config.sw_pipelining.optimize_postamble = True
+        slothy.config.typing_hints = {}
+        slothy.config.constraints.st_ld_hazard = False
+        slothy.optimize_loop("layer78_loop")
         # Optimize seams between loops
         # Make sure we preserve the inputs to the loop body
-        helight.config.outputs = helight.last_result.kernel_input_output + ["r14"]
-        helight.config.constraints.st_ld_hazard = True
-        helight.config.sw_pipelining.enabled = False
-        helight.optimize(start="layer56_loop_end", end="layer78_loop")
+        slothy.config.outputs = slothy.last_result.kernel_input_output + ["r14"]
+        slothy.config.constraints.st_ld_hazard = True
+        slothy.config.sw_pipelining.enabled = False
+        slothy.optimize(start="layer56_loop_end", end="layer78_loop")
 
 class ntt_dilithium_12(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -640,10 +646,10 @@ class ntt_dilithium_12(Example):
         infile = "ntt_dilithium_12_34_56_78"
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -652,11 +658,11 @@ class ntt_dilithium_12(Example):
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
             "const1"        : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
 
-        helight.optimize_loop("layer12_loop")
+        slothy.optimize_loop("layer12_loop")
 
 class ntt_dilithium_34(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -664,10 +670,10 @@ class ntt_dilithium_34(Example):
         infile = "ntt_dilithium_12_34_56_78"
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -676,11 +682,11 @@ class ntt_dilithium_34(Example):
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
             "const1"        : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
 
-        helight.optimize_loop("layer34_loop")
+        slothy.optimize_loop("layer34_loop")
 
 class ntt_dilithium_56(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -688,10 +694,10 @@ class ntt_dilithium_56(Example):
         infile = "ntt_dilithium_12_34_56_78"
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -700,11 +706,11 @@ class ntt_dilithium_56(Example):
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
             "const1"        : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
 
-        helight.optimize_loop("layer56_loop")
+        slothy.optimize_loop("layer56_loop")
 
 class ntt_dilithium_78(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -712,15 +718,15 @@ class ntt_dilithium_78(Example):
         infile = "ntt_dilithium_12_34_56_78"
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.typing_hints = {}
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.typing_hints = {}
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
 
-        helight.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer78_loop")
 
 class ntt_dilithium_123_456_78(Example):
     def __init__(self, cross_loops_optim=False, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -739,9 +745,9 @@ class ntt_dilithium_123_456_78(Example):
                          suffix=suffix, arch=arch, target=target, rename=True)
         self.cross_loops_optim = cross_loops_optim
         self.var = var
-    def core(self, helight):
-        helight.config.inputs_are_outputs = True
-        helight.config.typing_hints = {
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.typing_hints = {
             "root2"         : Arch_Armv81M.RegisterType.GPR,
             "root3"         : Arch_Armv81M.RegisterType.GPR,
             "root5"         : Arch_Armv81M.RegisterType.GPR,
@@ -753,41 +759,41 @@ class ntt_dilithium_123_456_78(Example):
             "root5_tw"      : Arch_Armv81M.RegisterType.GPR,
             "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.config.constraints.stalls_minimum_attempt = 0
-        helight.config.constraints.stalls_first_attempt = 0
-        helight.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
+        slothy.config.constraints.stalls_minimum_attempt = 0
+        slothy.config.constraints.stalls_first_attempt = 0
+        slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
                                               [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
         if self.var != "" or ("speed" in self.name and self.target == Target_CortexM85r1):
-            helight.config.constraints.st_ld_hazard = False  # optional, if it takes too long
+            slothy.config.constraints.st_ld_hazard = False  # optional, if it takes too long
         if not self.cross_loops_optim:
-            helight.config.sw_pipelining.enabled=False
-            helight.optimize_loop("layer123_loop")
-            helight.optimize_loop("layer456_loop")
+            slothy.config.sw_pipelining.enabled=False
+            slothy.optimize_loop("layer123_loop")
+            slothy.optimize_loop("layer456_loop")
         else:
-            helight.config.sw_pipelining.enabled = True
-            helight.config.sw_pipelining.halving_heuristic = True
-            helight.config.sw_pipelining.halving_heuristic_periodic = True
-            helight.optimize_loop("layer123_loop", end_of_loop_label="layer123_loop_end")
-            helight.optimize_loop("layer456_loop", end_of_loop_label="layer456_loop_end")
+            slothy.config.sw_pipelining.enabled = True
+            slothy.config.sw_pipelining.halving_heuristic = True
+            slothy.config.sw_pipelining.halving_heuristic_periodic = True
+            slothy.optimize_loop("layer123_loop", end_of_loop_label="layer123_loop_end")
+            slothy.optimize_loop("layer456_loop", end_of_loop_label="layer456_loop_end")
 
-        helight.config.constraints.st_ld_hazard = False
-        helight.config.sw_pipelining.enabled = True
-        helight.config.sw_pipelining.halving_heuristic = False
-        helight.config.typing_hints = {}
-        helight.optimize_loop("layer78_loop")
+        slothy.config.constraints.st_ld_hazard = False
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = False
+        slothy.config.typing_hints = {}
+        slothy.optimize_loop("layer78_loop")
 
         if self.cross_loops_optim:
-            helight.config.sw_pipelining.enabled = False
-            helight.config.constraints.st_ld_hazard = True
-            helight.config.outputs = helight.last_result.kernel_input_output + ["r14"]
-            helight.optimize(start="layer456_loop_end", end="layer78_loop")
+            slothy.config.sw_pipelining.enabled = False
+            slothy.config.constraints.st_ld_hazard = True
+            slothy.config.outputs = slothy.last_result.kernel_input_output + ["r14"]
+            slothy.optimize(start="layer456_loop_end", end="layer78_loop")
 
 
 class ntt_dilithium_123_456_78_symbolic(Example):
     def __init__(self):
         super().__init__("ntt_dilithium_123_456_78_symbolic", rename=True)
-    def core(self,helight):
-        helight.config.typing_hints = {
+    def core(self,slothy):
+        slothy.config.typing_hints = {
             "root2"         : Arch_Armv81M.RegisterType.GPR,
             "root3"         : Arch_Armv81M.RegisterType.GPR,
             "root5"         : Arch_Armv81M.RegisterType.GPR,
@@ -799,12 +805,12 @@ class ntt_dilithium_123_456_78_symbolic(Example):
             "root5_tw"      : Arch_Armv81M.RegisterType.GPR,
             "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.config.sw_pipelining.enabled=True
-        helight.config.constraints.stalls_minimum_attempt = 0
-        helight.config.constraints.stalls_first_attempt = 0
-        helight.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
+        slothy.config.sw_pipelining.enabled=True
+        slothy.config.constraints.stalls_minimum_attempt = 0
+        slothy.config.constraints.stalls_first_attempt = 0
+        slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
                                                [ "ROOT0_STACK", "RPTR_STACK" ] )
-        helight.optimize_loop("layer456_loop")
+        slothy.optimize_loop("layer456_loop")
 
 class ntt_dilithium_123_45678(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
@@ -817,17 +823,17 @@ class ntt_dilithium_123_45678(Example):
         name += f"_{target_label_dict[target]}"
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
-    def core(self,nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.sw_pipelining.minimize_overlapping=False
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0,7)] + ["v8", "x30", "sp"]
-        nelight.config.inputs_are_outputs = True
-        nelight.config.constraints.stalls_first_attempt = 110
-        nelight.optimize_loop("layer123_start")
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping=False
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0,7)] + ["v8", "x30", "sp"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.stalls_first_attempt = 110
+        slothy.optimize_loop("layer123_start")
 
-        nelight.config.reserved_regs = ["x3", "x30", "sp"]
-        nelight.config.constraints.stalls_first_attempt = 40
-        nelight.optimize_loop("layer45678_start")
+        slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        slothy.config.constraints.stalls_first_attempt = 40
+        slothy.optimize_loop("layer45678_start")
 
 
 class ntt_dilithium_123(Example):
@@ -842,14 +848,14 @@ class ntt_dilithium_123(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.sw_pipelining.optimize_preamble = False
-        nelight.config.sw_pipelining.optimize_postamble = False
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
-        nelight.optimize_loop("layer123_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
+        slothy.optimize_loop("layer123_start")
 
 
 class ntt_dilithium_45678(Example):
@@ -864,14 +870,14 @@ class ntt_dilithium_45678(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.sw_pipelining.optimize_preamble = False
-        nelight.config.sw_pipelining.optimize_postamble = False
-        nelight.config.reserved_regs = ["x3", "x30", "sp"]
-        nelight.optimize_loop("layer45678_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        slothy.optimize_loop("layer45678_start")
 
 
 class ntt_dilithium_1234_5678(Example):
@@ -886,22 +892,22 @@ class ntt_dilithium_1234_5678(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
-        nelight.config.inputs_are_outputs = True
-        # nelight.config.sw_pipelining.halving_heuristic = True
-        # nelight.config.split_heuristic = True
-        # nelight.config.split_heuristic_factor = 2
-        # nelight.config.split_heuristic_repeat = 4
-        # nelight.config.split_heuristic_stepsize = 0.1
-        nelight.config.constraints.stalls_first_attempt = 40
-        nelight.optimize_loop("layer1234_start")
-        nelight.config.reserved_regs = ["x3", "x30", "sp"]
-        nelight.config.sw_pipelining.halving_heuristic = False
-        nelight.config.split_heuristic = False
-        nelight.optimize_loop("layer5678_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.inputs_are_outputs = True
+        # slothy.config.sw_pipelining.halving_heuristic = True
+        # slothy.config.split_heuristic = True
+        # slothy.config.split_heuristic_factor = 2
+        # slothy.config.split_heuristic_repeat = 4
+        # slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.constraints.stalls_first_attempt = 40
+        slothy.optimize_loop("layer1234_start")
+        slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        slothy.config.sw_pipelining.halving_heuristic = False
+        slothy.config.split_heuristic = False
+        slothy.optimize_loop("layer5678_start")
 
 
 class ntt_dilithium_1234(Example):
@@ -916,14 +922,14 @@ class ntt_dilithium_1234(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.sw_pipelining.optimize_preamble = False
-        nelight.config.sw_pipelining.optimize_postamble = False
-        nelight.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
-        nelight.optimize_loop("layer1234_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.optimize_loop("layer1234_start")
 
 
 class ntt_dilithium_5678(Example):
@@ -938,22 +944,22 @@ class ntt_dilithium_5678(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
-    def core(self, nelight):
-        nelight.config.sw_pipelining.enabled = True
-        nelight.config.inputs_are_outputs = True
-        nelight.config.sw_pipelining.minimize_overlapping = False
-        nelight.config.sw_pipelining.optimize_preamble = False
-        nelight.config.sw_pipelining.optimize_postamble = False
-        nelight.config.reserved_regs = ["x3", "x30", "sp"]
-        nelight.optimize_loop("layer5678_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        slothy.optimize_loop("layer5678_start")
 
 
 class intt_dilithium_12_34_56_78(Example):
     def __init__(self):
         super().__init__("intt_dilithium_12_34_56_78", rename=True)
-    def core(self,helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.typing_hints = {
+    def core(self,slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -961,11 +967,11 @@ class intt_dilithium_12_34_56_78(Example):
             "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
             "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
         }
-        helight.optimize_loop("layer12_loop")
-        helight.optimize_loop("layer34_loop")
-        helight.optimize_loop("layer56_loop")
-        helight.config.typing_hints = {}
-        helight.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer12_loop")
+        slothy.optimize_loop("layer34_loop")
+        slothy.optimize_loop("layer56_loop")
+        slothy.config.typing_hints = {}
+        slothy.optimize_loop("layer78_loop")
 
 class fft_fixedpoint_radix4(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -981,13 +987,13 @@ class fft_fixedpoint_radix4(Example):
 
         super().__init__(infile, name, outfile=outfile, rename=True, arch=arch, target=target)
 
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.optimize_loop("fixedpoint_radix4_fft_loop_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.optimize_loop("fixedpoint_radix4_fft_loop_start")
 
 class fft_floatingpoint_radix4(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -1003,13 +1009,13 @@ class fft_floatingpoint_radix4(Example):
 
         super().__init__(infile, name, outfile=outfile, rename=True, arch=arch, target=target)
 
-    def core(self, helight):
-        helight.config.sw_pipelining.enabled = True
-        # helight.config.inputs_are_outputs = True
-        helight.config.sw_pipelining.minimize_overlapping = False
-        helight.config.sw_pipelining.optimize_preamble = False
-        helight.config.sw_pipelining.optimize_postamble = False
-        helight.optimize_loop("flt_radix4_fft_loop_start")
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        # slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.optimize_loop("flt_radix4_fft_loop_start")
 
 #############################################################################################
 
@@ -1100,9 +1106,11 @@ def main():
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--examples", type=str, default="all",
-                        help=f"The list of examples to be run, comma-separated list from {all_example_names}. \
-                        Format: {{name}}_{{variant}}_{{target}}, e.g., ntt_kyber_123_4567_scalar_load_a55")
+    parser.add_argument(
+        "--examples", type=str, default="all",
+        help=f"The list of examples to be run, comma-separated list from {all_example_names}. "\
+        f"Format: {{name}}_{{variant}}_{{target}}, e.g., ntt_kyber_123_4567_scalar_load_a55"
+    )
     parser.add_argument("--debug", default=False, action="store_true")
     parser.add_argument("--iterations", type=int, default=1)
 
