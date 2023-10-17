@@ -33,6 +33,7 @@
 ###
 
 import logging
+import inspect
 import re
 import math
 
@@ -200,7 +201,7 @@ class Instruction:
         self.args_in_out_combinations = None
         self.args_in_combinations = None
 
-    def global_parsing_cb(self,a,b):
+    def global_parsing_cb(self,a):
         return False
 
     def write(self):
@@ -2006,7 +2007,7 @@ class vcsubf(Instruction):
 #
 # And change out to an output argument in this case (rather than input/output)
 def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
-    def core(inst,t, delete_list):
+    def core(inst,t):
         assert isinstance(inst, this_class)
         succ = None
 
@@ -2045,31 +2046,31 @@ def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
 vqdmlsdh.global_parsing_cb  = vqdmlsdh_vqdmladhx_parsing_cb(vqdmlsdh, vqdmladhx)
 vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 
-def sub_imm_parsing_cb(inst, node, delete_list):
-    # Software pipelining introduces loop count reductions `sub count, count, #1`.
-    # In the common case where the loop count is static and previously set via
-    # an immediate-move `mov count, #COUNT`, we should instead just decrement the
-    # constant COUNT.
-    #
-    # That's what this callback implements
+def lookup_multidict(d, inst, default=None):
+    instclass = find_class(inst)
+    for l,v in d.items():
+        # Multidict entries can be the following:
+        # - An instruction class. It matches any instruction of that class.
+        # - A callable. It matches any instruction returning `True` when passed
+        #   to the callable.
+        # - A tuple of instruction classes or callables. It matches any instruction
+        #   which matches at least one element in the tuple.
+        def match(x):
+            if inspect.isclass(x):
+                return isinstance(inst, x)
+            assert callable(x)
+            return x(inst)
+        if not isinstance(l, tuple):
+            l = [l]
+        for lp in l:
+            if match(lp):
+                return v
+    if default == None:
+        raise Exception(f"Couldn't find {k}")
+    return default
 
-    if not inst.args_in[0] == inst.args_out[0]:
-        # Require identical input and output registers
-        return False
-
-    t_src = node.src_in[0].src
-    src = t_src.inst
-    if not isinstance(src, mov_imm):
-        return False
-
-    # We should also check that there's only one consumer for the `mov count, #COUNT`.
-    if len(t_src.dst_out[0]) > 1:
-        return False
-    assert t_src.dst_out[0] == [node]
-
-    # Modify the immediate
-    t_src.inst.immediate = simplify(f"({t_src.inst.immediate})-({inst.shift})")
-    delete_list.append(inst)
-    return True
-
-sub_imm.global_parsing_cb = sub_imm_parsing_cb
+def find_class(src):
+    for inst_class in Instruction.__subclasses__():
+        if isinstance(src,inst_class):
+            return inst_class
+    raise Exception("Couldn't find instruction class")

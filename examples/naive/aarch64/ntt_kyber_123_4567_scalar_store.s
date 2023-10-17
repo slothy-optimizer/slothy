@@ -35,17 +35,17 @@
 // Eventually, NeLight should include a proper parser for AArch64,
 // but for initial investigations, the below is enough.
 
-.macro ldr_vo vec, base, offset                    // slothy:no-unfold
+.macro ldr_vo vec, base, offset
        ldr qform_\vec, [\base, #\offset]
 .endm
-.macro ldr_vi vec, base, inc                        // slothy:no-unfold
+.macro ldr_vi vec, base, inc
         ldr qform_\vec, [\base], #\inc
 .endm
 
-.macro str_vo vec, base, offset                     // slothy:no-unfold
+.macro str_vo vec, base, offset
         str qform_\vec, [\base, #\offset]
 .endm
-.macro str_vi vec, base, inc                        // slothy:no-unfold
+.macro str_vi vec, base, inc
         str qform_\vec, [\base], #\inc
 .endm
 
@@ -138,7 +138,7 @@
         trn2 \data_out\()3\().4s, \data_in\()2\().4s, \data_in\()3\().4s
 .endm
 
-.macro vext gpr_out, vec_in, lane // slothy:no-unfold
+.macro vext gpr_out, vec_in, lane
         umov \gpr_out\(), \vec_in\().d[\lane]
 .endm
 

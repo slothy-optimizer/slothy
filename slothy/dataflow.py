@@ -470,27 +470,29 @@ class DataFlowGraph:
             assert count < 10 # There shouldn't be many repeated modifications to the CFG
 
             self._build_graph()
-            delete_list = []
 
             if not parsing_cb:
                 break
 
-            changes = 0
+            changed = []
             for t in self.nodes:
-                changed = t.inst.global_parsing_cb(t, delete_list)
-                if changed: # remember to build the dataflow graph again
-                    changes += 1
+                was_changed = t.inst.global_parsing_cb(t)
+                if was_changed: # remember to build the dataflow graph again
+                    changed.append(t)
+
+            changes = len(changed)
             # If no instruction was modified, we're done
             if changes == 0:
                 break
 
-            for inst in delete_list:
-                new_src = list(filter(lambda x: inst not in x[0], self.src))
-                assert len(new_src) == len(self.src) - 1
-                self.src = new_src
+            self.src = list(zip([[t.inst] for t in self.nodes], [s[1] for s in self.src]))
 
             # Otherwise, parse again
-            logger.info(f"{changes} instructions changed -- need to build dataflow graph again...")
+            logger.debug(f"{changes} instructions changed -- need to build dataflow graph again...")
+            logger.debug(f"The following instructions have changed:")
+            if changes > 0:
+                for t in changed:
+                    logger.debug(t)
 
         if not self.config.allow_useless_instructions:
             self._selfcheck_outputs()

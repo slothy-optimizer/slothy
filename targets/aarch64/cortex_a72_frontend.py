@@ -46,14 +46,10 @@
 # This file thus tries to model basic aspects of the frontend of Cortex-A72
 # alongside instruction latencies, both taken from the Cortex-A72 Software Optimization Guide.
 #
-# NOTE/WARNING
+# NOTE
 # We focus on a very small subset of AArch64, just enough to experiment with the
-# optimization of the Kyber NTT.
+# optimization of the Kyber and Dilithium NTT.
 #
-
-import logging
-import re
-import inspect
 
 from enum import Enum, auto
 from .aarch64_neon import *
@@ -114,16 +110,6 @@ def has_min_max_objective(slothy):
 def get_min_max_objective(slothy):
     return
 
-
-def _gen_check_instr_dt(instr_class, dt):
-    def _check_instr_dt(src):
-        if _find_class(src) is instr_class:
-            if dt in src.datatype:
-                return True
-        return False
-    return _check_instr_dt
-
-
 execution_units = {
     (vmul, vmul_lane,
      vmla, vmla_lane,
@@ -136,22 +122,23 @@ execution_units = {
      trn1, trn2 )
     : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
-    vins : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
-    vext : ExecutionUnit.LOAD(),
+    Vins : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    umov_d : ExecutionUnit.LOAD(), # ???
 
-    ( ldr_vo_wrapper, ldr_vi_wrapper, x_ldr )
+    ( Ldr_Q, Ldr_X )
     : ExecutionUnit.LOAD(),
 
-    ( str_vi_wrapper, str_vo_wrapper, x_str )
+    ( Str_Q, Str_X )
     : ExecutionUnit.STORE(),
 
-    (add, add_shifted) : ExecutionUnit.SCALAR(),
+    (add, add_imm, add_lsl, add_lsr) : ExecutionUnit.SCALAR(),
 
     vsrshr : [ExecutionUnit.ASIMD1],
 
-    st4 : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    St4 : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
-    ld4 : [[ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1], [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]]
+    Ld4 : [[ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
+           [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]]
 }
 
 inverse_throughput = {
@@ -166,20 +153,20 @@ inverse_throughput = {
      trn1, trn2)
     : 1,
 
-    vins : 1,
-    vext : 1,
+    Vins : 1,
+    umov_d : 1,
 
-    (add, add_shifted) : 1,
+    (add, add_imm, add_lsl, add_lsr) : 1,
 
-    ( ldr_vo_wrapper, ldr_vi_wrapper,
-      str_vi_wrapper, str_vo_wrapper,
-      stack_vld1r, stack_vld2_lane, x_ldr, x_str )
+    ( Ldr_Q,
+      Str_Q,
+      stack_vld1r, stack_vld2_lane, Ldr_X, Str_X )
       : 1,
 
     vsrshr : 1,
 
-    st4 : 8,
-    ld4 : 4
+    St4 : 8,
+    Ld4 : 4
 }
 
 ### REVISIT
@@ -195,69 +182,26 @@ default_latencies = {
      trn1, trn2 )
     : 3, # Approximation -- not necessary to get it exactly right, as mentioned above
 
-    ( ldr_vo_wrapper, ldr_vi_wrapper,
-      str_vi_wrapper, str_vo_wrapper,
-      stack_vld1r, stack_vld2_lane, x_ldr, x_str )
+    ( Ldr_Q, Ldr_X,
+      Str_Q, Str_X,
+      stack_vld1r, stack_vld2_lane )
       : 4, # approx
 
-    vins : 6, # approx
-    vext : 4, # approx
+    Vins : 6, # approx
+    umov_d : 4, # approx
 
-    (add, add_shifted) : 2,
+    (add, add_imm, add_lsl, add_lsr) : 2,
 
     vsrshr : 3, # approx
-    st4 : 8,
-    ld4 : 4
+    St4 : 8,
+    Ld4 : 4
 }
 
-def _find_class(src):
-    cls_list  = [ c for c in Instruction.__subclasses__() if not c == AArch64Instruction ]
-    cls_list += AArch64Instruction.__subclasses__()
-    for inst_class in cls_list:
-        if isinstance(src,inst_class):
-            return inst_class
-    raise Exception(f"Couldn't find instruction class for {src} (type {type(src)})")
-
-def _lookup_multidict(d, inst, default=None):
-    instclass = _find_class(inst)
-    for l,v in d.items():
-        # Multidict entries can be the following:
-        # - An instruction class. It matches any instruction of that class.
-        # - A callable. It matches any instruction returning `True` when passed
-        #   to the callable.
-        # - A tuple of instruction classes or callables. It matches any instruction
-        #   which matches at least one element in the tuple.
-        def match(x):
-            if inspect.isclass(x):
-                return isinstance(inst, x)
-            assert callable(x)
-            return x(inst)
-        if not isinstance(l, tuple):
-            l = [l]
-        for lp in l:
-            if match(lp):
-                return v
-    if default == None:
-        raise Exception(f"Couldn't find instruction {inst} (class {instclass})")
-    return default
-
-
-def _check_instr_dt(src, instr_classes, dt=None):
-    if not isinstance(instr_classes, list):
-        instr_classes = list(instr_classes)
-    for instr_class in instr_classes:
-        if _find_class(src) == instr_class:
-            if dt is None or len(set(dt + src.datatype)) > 0:
-                return True
-    return False
-
-
 def get_latency(src, out_idx, dst):
-    instclass_src = _find_class(src)
-    instclass_dst = _find_class(dst)
+    instclass_src = find_class(src)
+    instclass_dst = find_class(dst)
 
-    latency = _lookup_multidict(
-        default_latencies, src)
+    latency = lookup_multidict(default_latencies, src)
 
     # Fast mul->mla forwarding
     if instclass_src in [vmul, vmul_lane] and \
@@ -273,12 +217,11 @@ def get_latency(src, out_idx, dst):
     return latency
 
 def get_units(src):
-    units = _lookup_multidict(execution_units, src)
+    units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     else:
         return [units]
 
 def get_inverse_throughput(src):
-    return _lookup_multidict(
-        inverse_throughput, src)
+    return lookup_multidict(inverse_throughput, src)

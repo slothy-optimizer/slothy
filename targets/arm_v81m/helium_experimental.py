@@ -270,13 +270,13 @@ default_latencies = {
       vfma)         : 2,
 }
 
-def _find_class(src):
+def find_class(src):
     for inst_class in Instruction.__subclasses__():
         if isinstance(src,inst_class):
             return inst_class
     raise Exception("Couldn't find instruction class")
 
-def _lookup_multidict(d, k, default=None):
+def lookup_multidict(d, k, default=None):
     for l,v in d.items():
         if k == l:
             return v
@@ -287,10 +287,10 @@ def _lookup_multidict(d, k, default=None):
     return default
 
 def get_latency(src, out_idx, dst):
-    instclass_src = _find_class(src)
-    instclass_dst = _find_class(dst)
+    instclass_src = find_class(src)
+    instclass_dst = find_class(dst)
 
-    default_latency = _lookup_multidict(
+    default_latency = lookup_multidict(
         default_latencies, instclass_src)
 
     #
@@ -374,7 +374,7 @@ def get_latency(src, out_idx, dst):
     return default_latency
 
 def get_units(src):
-    instclass = _find_class(src)
+    instclass = find_class(src)
     units = execution_units[instclass]
     if isinstance(units,list):
         return units
@@ -382,6 +382,6 @@ def get_units(src):
         return [units]
 
 def get_inverse_throughput(src):
-    instclass = _find_class(src)
-    return _lookup_multidict(
+    instclass = find_class(src)
+    return lookup_multidict(
         inverse_throughput, instclass)

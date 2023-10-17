@@ -33,6 +33,7 @@
 ###
 
 import logging
+import inspect
 import re
 import math
 
@@ -298,7 +299,7 @@ class Instruction:
         self.args_in_restrictions     = [ None for _ in range(self.num_in)     ]
         self.args_in_out_restrictions = [ None for _ in range(self.num_in_out) ]
 
-    def global_parsing_cb(self,a,b):
+    def global_parsing_cb(self,a):
         return False
 
     def write(self):
@@ -331,8 +332,7 @@ class Instruction:
                                       vqrdmulh, vqrdmulh_lane,
                                       vqdmulh_lane,
                                       vsrshr,
-                                      ldr_vo_wrapper, ldr_vi_wrapper,
-                                      str_vi_wrapper, str_vo_wrapper,
+                                      Str_Q, Ldr_Q,
                                       stack_vld1r])
         if self.datatype == "":
             return False
@@ -350,12 +350,9 @@ class Instruction:
     def is_vector_add_sub(self):
         return self._is_instance_of([ vadd, vsub ])
     def is_vector_load(self):
-        return self._is_instance_of([ vldr, ldr_vi_wrapper, ldr_vo_wrapper,
-                                      v_ldr, v_ldr_with_inc,
-                                      v_ldr_with_inc_hint, v_ldr_with_inc_writeback])
+        return self._is_instance_of([ Ldr_Q ]) # TODO: Ld4 missing?
     def is_vector_store(self):
-        return self._is_instance_of([ vstr, str_vi_wrapper, str_vo_wrapper, st4,
-         stack_vstp_dform, stack_vstr_dform])
+        return self._is_instance_of([ Str_Q, St4, stack_vstp_dform, stack_vstr_dform])
     def is_vector_stack_load(self):
         return self._is_instance_of([stack_vld1r, stack_vldr_bform, stack_vldr_dform,
         stack_vld2_lane])
@@ -476,22 +473,36 @@ class AArch64Instruction(Instruction):
                 f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
         src = re.sub("<([BHWXVQT])(\w+)>", pattern_transform, src)
 
-        if src.count("<dt") > 1:
-            for i in range(src.count("<dt")):
-                src = re.sub(f"<dt{i}>",  f"(?P<datatype{i}>(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d))", src)
-        else:
-            src = re.sub(f"<dt>",  f"(?P<datatype>(?:2|4|8|16)(?:B|H|S|D|b|h|s|d))", src)
+        # Replace <key> or <key0>, <key1>, ... with pattern
+        def replace_placeholders(src, mnemonic_key, regexp, group_name):
+            prefix = f"<{mnemonic_key}"
+            pattern = f"<{mnemonic_key}>"
+            pattern_i = lambda i: f"<{mnemonic_key}{i}>"
+
+            cnt = src.count(prefix)
+            if cnt > 1:
+                for i in range(cnt):
+                    src = re.sub(pattern_i(i),  f"(?P<{group_name}{i}>{regexp})", src)
+            else:
+                src = re.sub(pattern, f"(?P<{group_name}>{regexp})", src)
+
+            return src
 
         flaglist = ["eq","ne","cs","hs","cc","lo","mi","pl","vs","vc","hi","ls","ge","lt","gt","le"]
-        imm_pattern = "(\\\\w|\\\\s|-|\*|\+|\(|\)|=|,)+"
+
+        flag_pattern = '|'.join(flaglist)
+        dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
+        imm_pattern = "#(\\\\w|\\\\s|/| |-|\*|\+|\(|\)|=|,)+"
+        index_pattern = "[0-9]+"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
-        src = re.sub("<imm>",  f"#(?P<imm>{imm_pattern})",  src)
-        src = re.sub("<imm0>", f"#(?P<imm0>{imm_pattern})", src)
-        src = re.sub("<imm1>", f"#(?P<imm1>{imm_pattern})", src)
-        src = re.sub("<flag>", f"(?P<flag>{'|'.join(flaglist)})", src)
-        src = re.sub("<index>", "(?P<index>[0-9]+)", src)
+
+        src = replace_placeholders(src, "imm", imm_pattern, "imm")
+        src = replace_placeholders(src, "dt", dt_pattern, "datatype")
+        src = replace_placeholders(src, "index", index_pattern, "index")
+        src = replace_placeholders(src, "flag", flag_pattern, "flag")
+
         src = "\\s*" + src + "\\s*(//.*)?\Z"
 
         return src
@@ -499,9 +510,7 @@ class AArch64Instruction(Instruction):
     def _build_parser(src):
         regexp_txt = AArch64Instruction._unfold_pattern(src)
         regexp = re.compile(regexp_txt)
-        # print(f"Pattern: {src}")
-        # print(f"Regexp: {regexp_txt}")
-        # print(f"Compiled...")
+
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result == None:
@@ -630,27 +639,25 @@ class AArch64Instruction(Instruction):
             if res[r0] != res[r1]:
                 raise Instruction.ParsingException(f"Arguments {r0} and {r1} must be equal")
 
-        if 'datatype' in res:
-            self.datatype = res['datatype'].lower()
-        else:
-            if 'datatype0' in res:
-                self.datatype = [res['datatype0'].lower()]
-            if 'datatype1' in res:
-                self.datatype += [res['datatype1'].lower()]
-            if 'datatype2' in res:
-                self.datatype += [res['datatype2'].lower()]
+        def group_to_attribute(group_name, attr_name, f=None):
+            if f == None:
+                f = lambda x:x
+            attr_name_i = lambda i: f"{attr_name}{i}"
+            group_name_i = lambda i: f"{group_name}{i}"
+            if group_name in res.keys():
+                setattr(self, attr_name, f(res[group_name]))
+            else:
+                idxs = [ i for i in range(4) if group_name_i(i) in res.keys() ]
+                if len(idxs) > 0:
+                    assert idxs == list(range(len(idxs)))
+                    setattr(self, attr_name,
+                            list(map(lambda i: f(res[group_name_i(i)]), idxs)))
 
-        if 'index' in res:
-            self.index = int(res['index'])
+        group_to_attribute('datatype', 'datatype', lambda x: x.lower())
+        group_to_attribute('imm', 'immediate', lambda x:x[1:]) # Strip '#'
+        group_to_attribute('index', 'index', int)
+        group_to_attribute('flag', 'flag')
 
-        if 'imm' in res:
-            self.immediate = res['imm']
-        if 'imm0' in res:
-            self.immediate0 = res['imm0']
-        if 'imm1' in res:
-            self.immediate1 = res['imm1']
-        if 'flag' in res:
-            self.flag = res['flag']
         for s, ty in self.pattern_inputs:
             if ty == RegisterType.Flags:
                 self.args_in.append("flags")
@@ -661,6 +668,7 @@ class AArch64Instruction(Instruction):
                 self.args_out.append("flags")
             else:
                 self.args_out.append(AArch64Instruction._to_reg(ty, res[s]))
+
         for s, ty in self.pattern_in_outs:
             self.args_in_out.append(AArch64Instruction._to_reg(ty, res[s]))
 
@@ -681,24 +689,24 @@ class AArch64Instruction(Instruction):
             assert False
         for arg, (s, ty) in l:
             out = AArch64Instruction._instantiate_pattern(s, ty, arg, out)
-        if hasattr(self, "immediate"):
-            out = out.replace("<imm>", f"#{self.immediate}")
-        if hasattr(self, "immediate0"):
-            out = out.replace("<imm0>", f"#{self.immediate0}")
-        if hasattr(self, "immediate1"):
-            out = out.replace("<imm1>", f"#{self.immediate1}")
-        if hasattr(self, "flag"):
-            out = out.replace("<flag>", f"{self.flag}")
 
-        if hasattr(self, "datatype"):
-            if isinstance(self.datatype, list):
-                for i in range(len(self.datatype)):
-                    out = out.replace(f"<dt{i}>", self.datatype[i].upper())
-            else:
-                out = out.replace("<dt>", self.datatype.upper())
+        def replace_pattern(txt, attr_name, mnemonic_key, t=None):
+            if t == None:
+                t = lambda x:x
+            if not hasattr(self, attr_name):
+                return txt
+            a = getattr(self, attr_name)
+            if not isinstance(a, list):
+                txt = txt.replace(f"<{mnemonic_key}>", t(a))
+                return txt
+            for i in range(len(a)):
+                txt = txt.replace(f"<{mnemonic_key}{i}>", t(a[i]))
+            return txt
 
-        if hasattr(self,"index"):
-            out = out.replace("<index>", str(self.index))
+        out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
+        out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
+        out = replace_pattern(out, "flag", "flag")
+        out = replace_pattern(out, "index", "index", str)
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -850,19 +858,9 @@ class stack_vld2_lane(Instruction):
         else:
             return f"stack_vld2_lane {self.args_out[0]}, {self.args_out[1]}, {self.args_in_out[0]}, {self.args_in[0]}, {self.lane}, {self.immediate}"
 
-####################################################################################
-#                                                                                  #
-# WORK IN PROGRESS                                                                 #
-# The instructions below are meant to directly model AArch64 instructions, but     #
-# they don't really because various details are not modelled, such as q-form vs.   #
-# v-form, or width specifiers.                                                     #
-#                                                                                  #
-####################################################################################
-
-
-class nop(Instruction):
+class nop(AArch64Instruction):
     def __init__(self):
-        super().__init__(mnemonic="nop")
+        super().__init__("nop")
 
 class vadd(AArch64Instruction):
     def __init__(self):
@@ -882,13 +880,16 @@ class vsub(AArch64Instruction):
 #                          #
 ############################
 
-class v_ldr(AArch64Instruction):
+class Ldr_Q(AArch64Instruction):
+    pass
+
+class q_ldr(Ldr_Q):
     def __init__(self):
         super().__init__("ldr <Qa>, [<Xc>]",
                          inputs=["Xc"],
                          outputs=["Qa"])
 
-class v_ldr_with_inc_hint(AArch64Instruction):
+class q_ldr_with_inc_hint(Ldr_Q):
     def __init__(self):
         super().__init__("ldrh <Qa>, <Xc>, <imm>, <Th>",
                          inputs=["Xc", "Th"],
@@ -904,7 +905,7 @@ class v_ldr_with_inc_hint(AArch64Instruction):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class v_ldr_with_inc(AArch64Instruction):
+class q_ldr_with_inc(Ldr_Q):
     def __init__(self):
         super().__init__("ldr <Qa>, [<Xc>, <imm>]",
                          inputs=["Xc"],
@@ -919,7 +920,7 @@ class v_ldr_with_inc(AArch64Instruction):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class v_ldr_with_inc_writeback(AArch64Instruction):
+class q_ldr_with_inc_writeback(Ldr_Q):
     def __init__(self):
         super().__init__("ldr <Qa>, [<Xc>, <imm>]!",
                          inputs=["Xc"],
@@ -930,9 +931,80 @@ class v_ldr_with_inc_writeback(AArch64Instruction):
         self.pre_index = None
         self.addr = self.args_in[0]
 
+class q_ldr_with_postinc(Ldr_Q):
+    def __init__(self):
+        super().__init__("ldr <Qa>, [<Xc>], <imm>",
+                         inputs=["Xc"],
+                         outputs=["Qa"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = self.immediate
+        self.pre_index = None
+        self.addr = self.args_in[0]
+
+class Str_Q(AArch64Instruction):
+    pass
+
+class q_str(Str_Q):
+    def __init__(self):
+        super().__init__("str <Qa>, [<Xc>]",
+                         inputs=["Qa", "Xc"])
+    def parse(self,src):
+        super().parse(src)
+        self.addr = self.args_in[1]
+
+class q_str_with_inc_hint(Str_Q):
+    def __init__(self):
+        super().__init__("strh <Qa>, <Xc>, <imm>, <Th>",
+                         inputs=["Qa", "Xc"],
+                         outputs=["Th"])
+
+    def parse(self,src):
+        super().parse(src)
+        self.increment = None
+        self.pre_index = self.immediate
+        self.addr = self.args_in[1]
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class q_str_with_inc(Str_Q):
+    def __init__(self):
+        super().__init__("str <Qa>, [<Xc>, <imm>]",
+                         inputs=["Qa", "Xc"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = None
+        self.pre_index = self.immediate
+        self.addr = self.args_in[1]
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class q_str_with_inc_writeback(Str_Q):
+    def __init__(self):
+        super().__init__("str <Qa>, [<Xc>, <imm>]!",
+                         inputs=["Qa", "Xc"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = self.immediate
+        self.pre_index = None
+        self.addr = self.args_in[1]
+
+class q_str_with_postinc(Str_Q):
+    def __init__(self):
+        super().__init__("str <Qa>, [<Xc>], <imm>",
+                         inputs=["Qa", "Xc"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = self.immediate
+        self.pre_index = None
+        self.addr = self.args_in[1]
+
 class Ldr_X(AArch64Instruction):
-    def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+    pass
 
 class x_ldr(Ldr_X):
     def __init__(self):
@@ -951,6 +1023,32 @@ class x_ldr(Ldr_X):
         # into the LDP with increment.
         assert self.pre_index == None
         return super().write()
+
+class x_ldr_with_imm(Ldr_X):
+    def __init__(self):
+        super().__init__("ldr <Xa>, [<Xc>, <imm>]",
+                         inputs=["Xc"],
+                         outputs=["Xa"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = None
+        self.pre_index = self.immediate
+        self.addr = self.args_in[0]
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class x_ldr_with_postinc(Ldr_X):
+    def __init__(self):
+        super().__init__("ldr <Xa>, [<Xc>], <imm>",
+                         inputs=["Xc"],
+                         outputs=["Xa"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = self.immediate
+        self.pre_index = None
+        self.addr = self.args_in[0]
 
 class x_ldr_stack(Ldr_X):
     def __init__(self):
@@ -1085,7 +1183,6 @@ class x_ldp_with_inc_writeback(Ldp_X):
         super().parse(src)
         self.increment = self.immediate
         self.pre_index = None
-        # self.pre_index = self.immediate
         self.addr = self.args_in[0]
 
 class x_ldp_with_postinc_writeback(Ldp_X):
@@ -1097,7 +1194,6 @@ class x_ldp_with_postinc_writeback(Ldp_X):
         super().parse(src)
         self.increment = self.immediate
         self.pre_index = None
-        # self.pre_index = self.immediate
         self.addr = self.args_in[0]
 
     def write(self):
@@ -1679,54 +1775,6 @@ class and_imm_wform(AArch64Instruction):
                          inputs=["Wa"],
                          outputs=["Wd"])
 
-class sub_shifted(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="sub",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_out=[RegisterType.GPR])
-
-    def parse(self, src):
-        raise Instruction.ParsingException("Does not match pattern")
-
-        sub_imm_regexp_txt = "sub\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
-        sub_imm_regexp_txt = Instruction.unfold_abbrevs(sub_imm_regexp_txt)
-        sub_imm_regexp = re.compile(sub_imm_regexp_txt)
-        p = sub_imm_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in     = [ p.group("src") ]
-        self.args_out    = [ p.group("dst") ]
-        self.args_in_out = []
-
-        self.shift = p.group("shift")
-
-    def write(self):
-        return f"sub {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
-
-class add_shifted(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="add",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_out=[RegisterType.GPR])
-
-    def parse(self, src):
-        raise Instruction.ParsingException("Does not match pattern")
-
-        add_imm_regexp_txt = "add\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
-        add_imm_regexp_txt = Instruction.unfold_abbrevs(add_imm_regexp_txt)
-        add_imm_regexp = re.compile(add_imm_regexp_txt)
-        p = add_imm_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in     = [ p.group("src") ]
-        self.args_out    = [ p.group("dst") ]
-        self.args_in_out = []
-
-        self.shift = p.group("shift")
-
-    def write(self):
-        return f"add {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
-
 class Tst(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
         super().__init__(pattern, *args, **kwargs)
@@ -1754,31 +1802,6 @@ class cmp_xzr(Tst):
         super().__init__("cmp <Xa>, xzr",
                          inputs=["Xa"],
                          modifiesFlags=True)
-
-class cbnz(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="cbnz",
-                arg_types_in=[RegisterType.GPR],
-                arg_types_in_out=[])
-
-# class mov_imm(Instruction):
-#     def __init__(self):
-#         super().__init__(mnemonic="mov",
-#                 arg_types_in=[],
-#                 arg_types_out=[RegisterType.GPR])
-#     def parse(self, src):
-#         mov_regexp_txt = "mov\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
-#         mov_regexp = re.compile(mov_regexp_txt)
-#         p = mov_regexp.match(src)
-#         if p is None:
-#             raise Instruction.ParsingException("Does not match pattern")
-#         self.args_out    = [ p.group("dst") ]
-#         self.args_in     = []
-#         self.args_in_out = []
-#         self.immediate = p.group("immediate")
-
-#     def write(self):
-#         return f"mov {self.args_out[0]}, #{self.immediate}"
 
 ######################################################
 #                                                    #
@@ -1865,7 +1888,7 @@ class vqrdmulh(AArch64Instruction):
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
-class mov_vtox(AArch64Instruction):
+class mov_vtox_d(AArch64Instruction):
     def __init__(self):
         super().__init__("mov <Xd>, <Va>.d[<index>]",
                          inputs=["Va"],
@@ -1927,55 +1950,50 @@ class fcsel_dform(Instruction):
     def write(self):
         return f"fcsel_dform {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, eq"
 
-class mov_d01(AArch64Instruction):
+class Vins(AArch64Instruction):
+    pass
+
+class vins_d(Vins):
     def __init__(self):
-        super().__init__("mov_d01 <Vd>, <Va>",
-                         inputs=["Va"],
-                         in_outs=["Vd"])
-class mov_b00(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mov_b00 <Vd>, <Va>",
-                         inputs=["Va"],
+        super().__init__("ins <Vd>.d[<index>], <Xa>",
+                         inputs=["Xa"],
                          in_outs=["Vd"])
 
-
-# class mov_vtox(Instruction):
-#     def __init__(self):
-#         super().__init__(mnemonic="mov",
-#                          arg_types_in=[RegisterType.Neon],
-#                          arg_types_out=[RegisterType.GPR])
-#     def parse(self, src):
-#         mov_regexp_txt = "mov\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*\.d\s*\[\s*(?P<immediate>\w*)\s*\]"
-#         mov_regexp = re.compile(mov_regexp_txt)
-#         p = mov_regexp.match(src)
-#         if p is None:
-#             raise Instruction.ParsingException("Does not match pattern")
-#         self.args_out    = [ p.group("dst") ]
-#         self.args_in     = [ p.group("src") ]
-#         self.args_in_out = []
-#         self.immediate = p.group("immediate")
-
-#     def write(self):
-#         return f"mov {self.args_out[0]}, {self.args_in[0]}.d[{self.immediate}]"
-
-class mov_xtov(Instruction):
+class vins_d_force_output(Vins):
     def __init__(self):
-        super().__init__(mnemonic="mov",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_in_out=[RegisterType.Neon])
-    def parse(self, src):
-        mov_regexp_txt = "mov\s+\s*(?P<dst>\w+)\s*\.d\s*\[\s*(?P<immediate>\w*)\s*\]\s*,\s*(?P<src>\w+)\s*"
-        mov_regexp = re.compile(mov_regexp_txt)
-        p = mov_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out    = []
-        self.args_in     = [ p.group("src") ]
-        self.args_in_out = [ p.group("dst") ]
-        self.immediate = p.group("immediate")
+        super().__init__("ins <Vd>.d[<index>], <Xa>",
+                         inputs=["Xa"],
+                         outputs=["Vd"])
+    def parse(self, src, force=False):
+        if force == False:
+            raise Instruction.ParsingException("Instruction ignored")
+        return super().parse(src)
 
-    def write(self):
-        return f"mov {self.args_in_out[0]}.d[{self.immediate}], {self.args_in[0]}"
+class Mov_xtov_d(AArch64Instruction):
+    pass
+
+class mov_xtov_d(Mov_xtov_d):
+    def __init__(self):
+        super().__init__("mov <Vd>.d[<index>], <Xa>",
+                         inputs=["Xa"],
+                         in_outs=["Vd"])
+
+class mov_xtov_d_xzr(Mov_xtov_d):
+    def __init__(self):
+        super().__init__("mov <Vd>.d[<index>], xzr",
+                         in_outs=["Vd"])
+
+class mov_b00(AArch64Instruction): # TODO: Generalize
+    def __init__(self):
+        super().__init__("mov <Vd>.b[0], <Va>.b[0]",
+                         inputs=["Va"],
+                         in_outs=["Vd"])
+
+class mov_d01(AArch64Instruction): # TODO: Generalize
+    def __init__(self):
+        super().__init__("mov <Vd>.d[0], <Va>.d[1]",
+                         inputs=["Va"],
+                         in_outs=["Vd"])
 
 class vmul(AArch64Instruction):
     def __init__(self):
@@ -2065,21 +2083,17 @@ class vshrn(AArch64Instruction):
                          inputs=["Va"],
                          outputs=["Vd"])
 
-class vext(AArch64Instruction):
+class umov_d(AArch64Instruction):
     def __init__(self):
-        super().__init__("ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+        super().__init__("umov <Xd>, <Va>.d[<index>]",
+                         inputs=["Va"],
+                         outputs=["Xd"])
 
 class vushr(AArch64Instruction):
     def __init__(self):
         super().__init__("ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>",
                          inputs=["Va"],
                          outputs=["Vd"])
-
-#
-# Transposition wrappers
-#
 
 class trn1(AArch64Instruction):
     def __init__(self):
@@ -2093,288 +2107,6 @@ class trn2(AArch64Instruction):
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
-#
-# Wrappers around vector load and store instructions
-#
-
-class ldr_vo_wrapper(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="ldr_vo",
-                arg_types_in=[RegisterType.GPR],
-                arg_types_out=[RegisterType.Neon])
-
-    def _simplify(self):
-        if no_simplify:
-            return
-        if self.increment != None:
-            self.increment = simplify(self.increment)
-        if self.pre_index != None:
-            self.pre_index = simplify(self.pre_index)
-
-    def parse(self, src):
-        src = re.sub("//.*$","",src)
-
-        have_dt = ( "<dt>" in self.mnemonic ) or ( "<fdt>" in self.mnemonic )
-
-        # Replace <dt> by list of all possible datatypes
-        mnemonic = Instruction.unfold_abbrevs(self.mnemonic)
-
-        expected_args = self.num_in + self.num_out + self.num_in_out
-        regexp_txt  = f"^\s*{mnemonic}"
-        if expected_args > 0:
-            regexp_txt += "\s+"
-        regexp_txt += ','.join(["\s*(\w+)\s*" for _ in range(expected_args)])
-        regexp_txt += ",\s*(?P<immediate>[\(\)\+\-\*\/0-9 ]+)"
-        regexp = re.compile(regexp_txt)
-
-        p = regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException(f"Doesn't match basic instruction template {regexp_txt}")
-
-        operands = list(p.groups())
-
-        if have_dt:
-            operands = operands[1:]
-
-        self.args_in     = []
-        self.args_out    = []
-        self.args_in_out = []
-
-        self.pre_index = operands[-1]
-
-        self.datatype = ""
-        if have_dt:
-            self.datatype = p.group("datatype").lower()
-
-        idx_args_in = 0
-
-        if self.num_out > 0:
-            self.args_out = operands[:self.num_out]
-            idx_args_in = self.num_out
-        elif self.num_in_out > 0:
-            self.args_in_out = operands[:self.num_in_out]
-            idx_args_in = self.num_in_out
-
-        self.args_in = operands[idx_args_in:(self.num_in_out+self.num_out+self.num_in)]
-
-        self.addr = self.args_in[0]
-        self.increment = None
-
-        if not len(self.args_in) == self.num_in:
-            raise Exception(f"Something wrong parsing {src}: Expect {self.num_in} input, but got {len(self.args_in)} ({self.args_in})")
-
-    def write(self):
-        self._simplify()
-        return f"ldr_vo {self.args_out[0]}, {self.args_in[0]}, {self.pre_index}"
-
-class ldr_vi_wrapper(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="ldr_vi",
-                arg_types_in=[RegisterType.GPR],
-                arg_types_out=[RegisterType.Neon])
-
-    def _simplify(self):
-        if no_simplify:
-            return
-        if self.increment != None:
-            self.increment = simplify(self.increment)
-        if self.pre_index != None:
-            self.pre_index = simplify(self.pre_index)
-
-    def parse(self, src):
-        src = re.sub("//.*$","",src)
-
-        have_dt = ( "<dt>" in self.mnemonic ) or ( "<fdt>" in self.mnemonic )
-
-        # Replace <dt> by list of all possible datatypes
-        mnemonic = Instruction.unfold_abbrevs(self.mnemonic)
-
-        expected_args = self.num_in + self.num_out + self.num_in_out
-        regexp_txt  = f"^\s*{mnemonic}"
-        if expected_args > 0:
-            regexp_txt += "\s+"
-        regexp_txt += ','.join(["\s*(\w+)\s*" for _ in range(expected_args)])
-        regexp_txt += ",\s*(?P<immediate>[\(\)\+\-\*\/0-9 ]+)"
-        regexp = re.compile(regexp_txt)
-
-        p = regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException(f"Doesn't match basic instruction template {regexp_txt}")
-
-        operands = list(p.groups())
-
-        if have_dt:
-            operands = operands[1:]
-
-        self.args_in     = []
-        self.args_out    = []
-        self.args_in_out = []
-
-        self.pre_index = None
-        self.increment = operands[-1]
-
-        self.datatype = ""
-        if have_dt:
-            self.datatype = p.group("datatype").lower()
-
-        idx_args_in = 0
-
-        if self.num_out > 0:
-            self.args_out = operands[:self.num_out]
-            idx_args_in = self.num_out
-        elif self.num_in_out > 0:
-            self.args_in_out = operands[:self.num_in_out]
-            idx_args_in = self.num_in_out
-
-        self.args_in = operands[idx_args_in:(self.num_in_out+self.num_out+self.num_in)]
-
-        self.addr = self.args_in[0]
-
-        if not len(self.args_in) == self.num_in:
-            raise Exception(f"Something wrong parsing {src}: Expect {self.num_in} input, but got {len(self.args_in)} ({self.args_in})")
-
-    def write(self):
-        self._simplify()
-        return f"ldr_vi {self.args_out[0]}, {self.args_in[0]}, {self.increment}"
-
-class str_vo_wrapper(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="str_vo",
-                arg_types_in=[RegisterType.Neon, RegisterType.GPR],
-                arg_types_out=[])
-
-    def _simplify(self):
-        if no_simplify:
-            return
-        if self.increment != None:
-            self.increment = simplify(self.increment)
-        if self.pre_index != None:
-            self.pre_index = simplify(self.pre_index)
-
-    def parse(self, src):
-        src = re.sub("//.*$","",src)
-
-        have_dt = ( "<dt>" in self.mnemonic ) or ( "<fdt>" in self.mnemonic )
-
-        # Replace <dt> by list of all possible datatypes
-        mnemonic = Instruction.unfold_abbrevs(self.mnemonic)
-
-        expected_args = self.num_in + self.num_out + self.num_in_out
-        regexp_txt  = f"^\s*{mnemonic}"
-        if expected_args > 0:
-            regexp_txt += "\s+"
-        regexp_txt += ','.join(["\s*(\w+)\s*" for _ in range(expected_args)])
-        regexp_txt += ",\s*(?P<immediate>[\(\)\+\-\*\/0-9 ]+)"
-        regexp = re.compile(regexp_txt)
-
-        p = regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException(f"Doesn't match basic instruction template {regexp_txt}")
-
-        operands = list(p.groups())
-
-        if have_dt:
-            operands = operands[1:]
-
-        self.args_in     = []
-        self.args_out    = []
-        self.args_in_out = []
-
-        self.pre_index = operands[-1]
-        self.increment = None
-
-        self.datatype = ""
-        if have_dt:
-            self.datatype = p.group("datatype").lower()
-
-        idx_args_in = 0
-
-        if self.num_out > 0:
-            self.args_out = operands[:self.num_out]
-            idx_args_in = self.num_out
-        elif self.num_in_out > 0:
-            self.args_in_out = operands[:self.num_in_out]
-            idx_args_in = self.num_in_out
-
-        self.args_in = operands[idx_args_in:(self.num_in_out+self.num_out+self.num_in)]
-        self.addr = self.args_in[1]
-
-        if not len(self.args_in) == self.num_in:
-            raise Exception(f"Something wrong parsing {src}: Expect {self.num_in} input, but got {len(self.args_in)} ({self.args_in})")
-
-    def write(self):
-        self._simplify()
-        return f"str_vo {self.args_in[0]}, {self.args_in[1]}, {self.pre_index}"
-
-class str_vi_wrapper(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="str_vi",
-                arg_types_in=[RegisterType.Neon, RegisterType.GPR],
-                arg_types_out=[])
-
-    def _simplify(self):
-        if no_simplify:
-            return
-        if self.increment != None:
-            self.increment = simplify(self.increment)
-        if self.pre_index != None:
-            self.pre_index = simplify(self.pre_index)
-
-    def parse(self, src):
-        src = re.sub("//.*$","",src)
-
-        have_dt = ( "<dt>" in self.mnemonic ) or ( "<fdt>" in self.mnemonic )
-
-        # Replace <dt> by list of all possible datatypes
-        mnemonic = Instruction.unfold_abbrevs(self.mnemonic)
-
-        expected_args = self.num_in + self.num_out + self.num_in_out
-        regexp_txt  = f"^\s*{mnemonic}"
-        if expected_args > 0:
-            regexp_txt += "\s+"
-        regexp_txt += ','.join(["\s*(\w+)\s*" for _ in range(expected_args)])
-        regexp_txt += ",\s*(?P<immediate>[\(\)\+\-\*\/0-9 ]+)"
-        regexp = re.compile(regexp_txt)
-
-        p = regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException(f"Doesn't match basic instruction template {regexp_txt}")
-
-        operands = list(p.groups())
-
-        if have_dt:
-            operands = operands[1:]
-
-        self.args_in     = []
-        self.args_out    = []
-        self.args_in_out = []
-
-        self.pre_index = None
-        self.increment = operands[-1]
-
-        self.datatype = ""
-        if have_dt:
-            self.datatype = p.group("datatype").lower()
-
-        idx_args_in = 0
-
-        if self.num_out > 0:
-            self.args_out = operands[:self.num_out]
-            idx_args_in = self.num_out
-        elif self.num_in_out > 0:
-            self.args_in_out = operands[:self.num_in_out]
-            idx_args_in = self.num_in_out
-
-        self.args_in = operands[idx_args_in:(self.num_in_out+self.num_out+self.num_in)]
-        self.addr = self.args_in[1]
-
-        if not len(self.args_in) == self.num_in:
-            raise Exception(f"Something wrong parsing {src}: Expect {self.num_in} input, but got {len(self.args_in)} ({self.args_in})")
-
-    def write(self):
-        self._simplify()
-        return f"str_vi {self.args_in[0]}, {self.args_in[1]}, {self.increment}"
-
 class Str_X(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
         super().__init__(pattern, *args, **kwargs)
@@ -2387,7 +2119,7 @@ class x_str(Str_X):
         super().parse(src)
         self.increment = None
         self.pre_index = None
-        self.addr = self.args_in[0]
+        self.addr = self.args_in[1]
 
     def write(self):
         # For now, assert that no fixup has happened
@@ -2404,11 +2136,21 @@ class x_str_imm(Str_X):
         super().parse(src)
         self.increment = None
         self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+        self.addr = self.args_in[1]
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
+
+class x_str_postinc(Str_X):
+    def __init__(self):
+        super().__init__("str <Xa>, [<Xc>], <imm>",
+                         inputs=["Xa", "Xc"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = self.immediate
+        self.pre_index = None
+        self.addr = self.args_in[1]
 
 class x_str_sp_imm(Str_X):
     def __init__(self):
@@ -2520,7 +2262,6 @@ class x_stp_with_inc_writeback(Stp_X):
         super().parse(src)
         self.increment = self.immediate
         self.pre_index = None
-        # self.pre_index = self.immediate
         self.addr = self.args_in[0]
 
 class x_stp_with_inc_hint(Stp_X):
@@ -2581,472 +2322,151 @@ class x_stp_with_inc_hint2(Stp_X):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+class St4(AArch64Instruction):
+    pass
 
-# class x_str(Instruction):
-#     def __init__(self):
-#         super().__init__(mnemonic="str",
-#                 arg_types_in=[RegisterType.GPR, RegisterType.GPR])
-
-#     def _simplify(self):
-#         if no_simplify:
-#             return
-#         if self.increment != None:
-#             self.increment = simplify(self.increment)
-#         if self.post_index != None:
-#             self.post_index = simplify(self.post_index)
-#         if self.pre_index != None:
-#             self.pre_index = simplify(self.pre_index)
-
-#     def parse(self, src):
-#         src = re.sub("//.*$","",src)
-
-#         addr_regexp_txt = "\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-#         postinc_regexp_txt = "\s*(?:,\s*#(?P<postinc>.*))?"
-
-#         str_regexp_txt  = "\s*str\s+"
-#         str_regexp_txt += "(?P<dest>\w+),\s*"
-#         str_regexp_txt += addr_regexp_txt
-#         str_regexp_txt += postinc_regexp_txt
-#         str_regexp_txt = Instruction.unfold_abbrevs(str_regexp_txt)
-
-#         str_regexp = re.compile(str_regexp_txt)
-
-#         p = str_regexp.match(src)
-#         if p is None:
-#             raise Instruction.ParsingException("Doesn't match pattern")
-
-#         gpr  = p.group("dest")
-#         self.addr = p.group("addr")
-#         self.writeback = ( p.group("writeback") == "!" )
-
-#         self.pre_index = p.group("addroffset")
-#         self.post_index = p.group("postinc")
-
-#         if self.writeback:
-#             self.increment = self.pre_index
-#         elif self.post_index:
-#             self.increment = self.post_index
-#         else:
-#             self.increment = None
-
-#         self._simplify()
-
-#         # NOTE: We currently don't model post-increment loads/stores
-#         #       as changing the address register, allowing the tool to
-#         #       freely rearrange loads/stores from the same base register.
-#         #       We correct the indices afterwards.
-
-#         self.args_in     = [ gpr, self.addr ]
-#         self.args_out    = []
-#         self.args_in_out = []
-
-#     def write(self):
-
-#         self._simplify()
-
-#         inc = ""
-#         if self.writeback:
-#             inc = "!"
-
-#         warn = False
-
-#         if self.pre_index is not None:
-#             warn = True
-#             addr = f"[{self.args_in[1]}, #{self.pre_index}]"
-#         else:
-#             addr = f"[{self.args_in[1]}]"
-
-#         if self.post_index is not None:
-#             warn = True
-#             post = f", #{self.post_index}"
-#         else:
-#             post = ""
-
-#         return f"{self.mnemonic} {self.args_in[0]}, {addr}{inc} {post}"
-
-class vstr(Instruction):
+class st4_base(St4):
     def __init__(self):
-        super().__init__(mnemonic="str",
-                arg_types_in=[RegisterType.Neon, RegisterType.GPR])
-
-    def _simplify(self):
-        if no_simplify:
-            return
-        if self.increment != None:
-            self.increment = simplify(self.increment)
-        if self.post_index != None:
-            self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
-            self.pre_index = simplify(self.pre_index)
+        super().__init__("st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]",
+                         inputs=["Xc", "Va", "Vb", "Vc", "Vd"])
 
     def parse(self, src):
-        raise Instruction.ParsingException("Disabled for now")
-        src = re.sub("//.*$","",src)
-
-        addr_regexp_txt = "\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        postinc_regexp_txt = "\s*(?:,\s*#(?P<postinc>.*))?"
-
-        str_regexp_txt  = "\s*str\s+"
-        str_regexp_txt += "(?P<dest>\w+),\s*"
-        str_regexp_txt += addr_regexp_txt
-        str_regexp_txt += postinc_regexp_txt
-        str_regexp_txt = Instruction.unfold_abbrevs(str_regexp_txt)
-
-        str_regexp = re.compile(str_regexp_txt)
-
-        p = str_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Doesn't match pattern")
-
-        gpr  = p.group("dest")
-        self.addr = p.group("addr")
-        self.writeback = ( p.group("writeback") == "!" )
-
-        self.pre_index = p.group("addroffset")
-        self.post_index = p.group("postinc")
-
-        if self.writeback:
-            self.increment = self.pre_index
-        elif self.post_index:
-            self.increment = self.post_index
-        else:
-            self.increment = None
-
-        self._simplify()
-
-        # NOTE: We currently don't model post-increment loads/stores
-        #       as changing the address register, allowing the tool to
-        #       freely rearrange loads/stores from the same base register.
-        #       We correct the indices afterwards.
-
-        self.args_in     = [ gpr, self.addr ]
-        self.args_out    = []
-        self.args_in_out = []
-
-    def write(self):
-
-        self._simplify()
-
-        inc = ""
-        if self.writeback:
-            inc = "!"
-
-        warn = False
-
-        if self.pre_index is not None:
-            warn = True
-            addr = f"[{self.args_in[1]}, #{self.pre_index}]"
-        else:
-            addr = f"[{self.args_in[1]}]"
-
-        if self.post_index is not None:
-            warn = True
-            post = f", #{self.post_index}"
-        else:
-            post = ""
-
-        return f"{self.mnemonic} {self.args_in[0]}, {addr}{inc} {post}"
-
-class vldr(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="XXXldr",
-                ## TODO This is wrong?! The _output_ is a Neon register
-                arg_types_in=[RegisterType.Neon],
-                arg_types_out=[RegisterType.GPR])
-
-    def _simplify(self):
-        if no_simplify:
-            return
-        if self.increment != None:
-            self.increment = simplify(self.increment)
-        if self.post_index != None:
-            self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
-            self.pre_index = simplify(self.pre_index)
-
-    def parse(self, src):
-        src = re.sub("//.*$","",src)
-
-        addr_regexp_txt = "\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        postinc_regexp_txt = "\s*(?:,\s*#(?P<postinc>.*))?"
-
-        ldr_regexp_txt  = "\s*XXXldr\s+"
-        ldr_regexp_txt += "(?P<dest>\w+),\s*"
-        ldr_regexp_txt += addr_regexp_txt
-        ldr_regexp_txt += postinc_regexp_txt
-        ldr_regexp_txt = Instruction.unfold_abbrevs(ldr_regexp_txt)
-
-        ldr_regexp = re.compile(ldr_regexp_txt)
-
-        p = ldr_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Doesn't match pattern")
-
-        vec  = p.group("dest")
-        self.addr = p.group("addr")
-        self.writeback = ( p.group("writeback") == "!" )
-
-        self.pre_index = p.group("addroffset")
-        self.post_index = p.group("postinc")
-
-        if self.writeback:
-            self.increment = self.pre_index
-        elif self.post_index:
-            self.increment = self.post_index
-        else:
-            self.increment = None
-
-        self._simplify()
-
-        # NOTE: We currently don't model post-increment loads/stores
-        #       as changing the address register, allowing the tool to
-        #       freely rearrange loads/stores from the same base register.
-        #       We correct the indices afterwards.
-
-        self.args_in     = [ self.addr ]
-        self.args_out    = [ vec ]
-        self.args_in_out = []
-
-    def write(self):
-
-        self._simplify()
-
-        inc = ""
-        if self.writeback:
-            inc = "!"
-
-        warn = False
-        if self.pre_index is not None:
-            warn = True
-            addr = f"[{self.args_in[0]}, #{self.pre_index}]"
-        else:
-            addr = f"[{self.args_in[0]}]"
-
-        if self.post_index is not None:
-            warn = True
-            post = f", #{self.post_index}"
-        else:
-            post = ""
-
-        return f"ldr {self.args_out[0]}, {addr}{inc} {post}"
-
-class vins(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="vins",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_in_out=[RegisterType.Neon],
-                         arg_types_out=[])
-
-    def parse(self, src):
-        vins_regexp_txt = "vins\s+(?P<dst>\w+)\s*, (?P<src>\w+)\s*,\s*(?P<lane>\w*)"
-        vins_regexp_txt = Instruction.unfold_abbrevs(vins_regexp_txt)
-        vins_regexp = re.compile(vins_regexp_txt)
-        p = vins_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out    = []
-        self.args_in     = [ p.group("src") ]
-        self.args_in_out = [ p.group("dst") ]
-
-        self.lane = p.group("lane")
-        self.detected_vins_pair = False
-
-    def write(self):
-        if not self.detected_vins_pair:
-            return f"vins {self.args_in_out[0]}, {self.args_in[0]}, {self.lane}"
-        else:
-            return f"vins {self.args_out[0]}, {self.args_in[0]}, {self.lane}"
-
-# class vext(Instruction):
-#     def __init__(self):
-#         super().__init__(mnemonic="vext",
-#                          arg_types_in=[RegisterType.Neon],
-#                          arg_types_in_out=[RegisterType.GPR],
-#                          arg_types_out=[])
-
-#     def parse(self, src):
-#         vext_regexp_txt = "vext\s+(?P<dst>\w+)\s*, (?P<src>\w+)\s*,\s*(?P<lane>\w*)"
-#         vext_regexp_txt = Instruction.unfold_abbrevs(vext_regexp_txt)
-#         vext_regexp = re.compile(vext_regexp_txt)
-#         p = vext_regexp.match(src)
-#         if p is None:
-#             raise Instruction.ParsingException("Does not match pattern")
-#         self.args_out    = []
-#         self.args_in     = [ p.group("src") ]
-#         self.args_in_out = [ p.group("dst") ]
-
-#         self.lane = p.group("lane")
-
-#     def write(self):
-#         return f"vext {self.args_in_out[0]}, {self.args_in[0]}, {self.lane}"
-
-class st4(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="st4",
-                arg_types_in=[RegisterType.GPR, RegisterType.Neon, RegisterType.Neon,
-                RegisterType.Neon, RegisterType.Neon])
-    def parse(self, src):
-        regexp = "\s*(st4)\s+{"\
-            "\s*(?P<out0>\w+)\.<dt0>\s*,"\
-            "\s*(?P<out1>\w+)\s*\.<dt1>,"\
-            "\s*(?P<out2>\w+)\s*\.<dt2>,"\
-            "\s*(?P<out3>\w+)\s*\.<dt3>}"\
-            "\s*,\s*\[\s*(?P<reg>\w+)\s*\],\s*#(?P<increment>.*)"
-
-        regexp = Instruction.unfold_abbrevs(regexp)
-        p = re.compile(regexp).match(src)
-        if p is None:
-            raise Instruction.ParsingException( "Didn't match regexp" )
-        self.addr = p.group("reg")
-        self.args_in = [ self.addr,
-                             p.group("out0"),
-                             p.group("out1"),
-                             p.group("out2"),
-                             p.group("out3") ]
-        self.datatypes = [p.group("datatype0"),
-                             p.group("datatype1"),
-                             p.group("datatype2"),
-                             p.group("datatype3")]
-        self.args_in_out = []
-        self.args_out = []
-        self.increment = p.group("increment")
-        self.pre_index = None
-
-
+        super().parse(src)
+        self.addr = self.args_in[0]
         self.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
             ]
 
-
-    def write(self):
-        addr = f"[{self.args_in[0]}]"
-        return f"st4 {{{','.join([f'{a}.{b}' for a,b in zip(self.args_in[1:],self.datatypes)])}}}, {addr}, #{self.increment}"
-
-class ld4(Instruction):
+class st4_with_inc(St4):
     def __init__(self):
-        super().__init__(mnemonic="ld4",
-                arg_types_in_out=[RegisterType.GPR],
-                arg_types_out=[RegisterType.Neon, RegisterType.Neon,
-                RegisterType.Neon, RegisterType.Neon])
-    def parse(self, src):
-        regexp = "\s*(ld4)\s+{"\
-            "\s*(?P<out0>\w+)\.<dt0>\s*,"\
-            "\s*(?P<out1>\w+)\s*\.<dt1>,"\
-            "\s*(?P<out2>\w+)\s*\.<dt2>,"\
-            "\s*(?P<out3>\w+)\s*\.<dt3>}"\
-            "\s*,\s*\[\s*(?P<reg>\w+)\s*\]"
-        postinc_regexp_txt = "\s*(?:,\s*#(?P<increment>.*))?"
-        regexp += postinc_regexp_txt
-        regexp = Instruction.unfold_abbrevs(regexp)
-        p = re.compile(regexp).match(src)
-        if p is None:
-            raise Instruction.ParsingException( "Didn't match regexp" )
-        self.addr = p.group("reg")
-        self.args_in = []
-        self.args_out = [ p.group("out0"),
-                             p.group("out1"),
-                             p.group("out2"),
-                             p.group("out3") ]
-        self.datatypes = [p.group("datatype0"),
-                             p.group("datatype1"),
-                             p.group("datatype2"),
-                             p.group("datatype3")]
-        self.args_in_out = [ self.addr ]
-        self.increment = p.group("increment")
-        self.pre_index = None
+        super().__init__("st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>",
+                         inputs=["Xc", "Va", "Vb", "Vc", "Vd"])
 
+    def parse(self, src):
+        super().parse(src)
+        self.addr = self.args_in[0]
+        self.increment = self.immediate
+        self.pre_index = None
+        self.args_in_combinations = [
+                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+            ]
+
+class St2(AArch64Instruction):
+    pass
+
+class st2_base(St2):
+    def __init__(self):
+        super().__init__("st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]",
+                         inputs=["Xc", "Va", "Vb"])
+
+    def parse(self, src):
+        super().parse(src)
+        self.addr = self.args_in[0]
+        self.args_in_combinations = [
+                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+            ]
+
+class st2_with_inc(St2):
+    def __init__(self):
+        super().__init__("st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>",
+                         inputs=["Xc", "Va", "Vb"])
+
+    def parse(self, src):
+        super().parse(src)
+        self.addr = self.args_in[0]
+        self.increment = self.immediate
+        self.pre_index = None
+        self.args_in_combinations = [
+                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+            ]
+
+class Ld4(AArch64Instruction):
+    pass
+
+class ld4_base(Ld4):
+    def __init__(self):
+        super().__init__("ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]",
+                         inputs=["Xc"],
+                         outputs=["Va", "Vb", "Vc", "Vd"])
+
+    def parse(self, src):
+        super().parse(src)
+        self.addr = self.args_in[0]
         self.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
             ]
 
-
-    def write(self):
-        addr = f"[{self.args_in_out[0]}]"
-        increment = ""
-        if self.increment != None:
-            increment = f", #{self.increment}"
-        return f"ld4 {{{','.join([f'{a}.{b}' for a,b in zip(self.args_out,self.datatypes)])}}}, {addr}{increment}"
-
-class ld2(Instruction):
+class ld4_with_inc(Ld4):
     def __init__(self):
-        super().__init__(mnemonic="ld2",
-                arg_types_in=[RegisterType.GPR],
-                arg_types_out=[RegisterType.Neon, RegisterType.Neon])
+        super().__init__("ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>",
+                         inputs=["Xc"],
+                         outputs=["Va", "Vb", "Vc", "Vd"])
+
     def parse(self, src):
-        regexp = "\s*(ld2)\s+{"\
-            "\s*(?P<out0>\w+)\.<dt0>\s*,"\
-            "\s*(?P<out1>\w+)\s*\.<dt1>}"\
-            "\s*,\s*\[\s*(?P<reg>\w+)\s*\],\s*#(?P<increment>.*)"
-
-        regexp = Instruction.unfold_abbrevs(regexp)
-        p = re.compile(regexp).match(src)
-        if p is None:
-            raise Instruction.ParsingException( "Didn't match regexp" )
-        self.addr = p.group("reg")
-        self.args_in = [ self.addr ]
-        self.args_out = [ p.group("out0"),
-                             p.group("out1") ]
-        self.datatypes = [p.group("datatype0"),
-                             p.group("datatype1")]
-        self.args_in_out = []
-        self.increment = p.group("increment")
+        super().parse(src)
+        self.addr = self.args_in[0]
+        self.increment = self.immediate
         self.pre_index = None
-
         self.args_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
             ]
 
+class Ld2(AArch64Instruction):
+    pass
 
-    def write(self):
-        addr = f"[{self.args_in[0]}]"
-        increment = ""
-        if self.increment != None:
-            increment = f", #{self.increment}"
-        return f"ld2 {{{','.join([f'{a}.{b}' for a,b in zip(self.args_out,self.datatypes)])}}}, {addr}{increment}"
+class ld2_base(Ld2):
+    def __init__(self):
+        super().__init__("ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]",
+                         inputs=["Xc"],
+                         outputs=["Va", "Vb"])
+
+    def parse(self, src):
+        super().parse(src)
+        self.addr = self.args_in[0]
+        self.args_out_combinations = [
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+            ]
+
+class ld2_with_inc(Ld2):
+    def __init__(self):
+        super().__init__("ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>",
+                         inputs=["Xc"],
+                         outputs=["Va", "Vb"])
+
+    def parse(self, src):
+        super().parse(src)
+        self.addr = self.args_in[0]
+        self.increment = self.immediate
+        self.pre_index = None
+        self.args_out_combinations = [
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+            ]
 
 # In a pair of vins writing both 64-bit lanes of a vector, mark the
 # target vector as output rather than input/output. This enables further
 # renaming opportunities.
-def vins_parsing_cb():
-    def core(inst,t, delete_list):
+def vins_d_parsing_cb():
+    def core(inst, t):
         succ = None
-
-        if inst.detected_vins_pair:
-            return False
-
         # Check if this is the first in a pair of vins+vins
         if len(t.dst_in_out[0]) == 1:
             r = t.dst_in_out[0][0]
-            if isinstance(r.inst, vins):
+            if isinstance(r.inst, vins_d):
                 if r.inst.args_in_out == inst.args_in_out and \
-                   {r.inst.lane, inst.lane} == {'0','1'}:
+                   {r.inst.index, inst.index} == {0,1}:
                     succ = r
-
         if succ is None:
             return False
-
-        # If so, mark in/out as output only, and signal the need for re-building
-        # the dataflow graph
-
-        inst.num_out = 1
-        inst.args_out = [ inst.args_in_out[0] ]
-        inst.arg_types_out = [ RegisterType.Neon ]
-        inst.args_out_restrictions = inst.args_in_out_restrictions
-
-        inst.num_in_out = 0
-        inst.args_in_out = []
-        inst.arg_types_in_out = []
-        inst.args_in_out_restrictions = []
-
-        inst.detected_vins_pair = True
+        # Reparse as instruction-variant treating the input/output as an output
+        inst_txt = t.inst.write()
+        t.inst = vins_d_force_output()
+        t.inst.parse(inst_txt, force=True)
         return True
-
     return core
-
-vins.global_parsing_cb  = vins_parsing_cb()
+vins_d.global_parsing_cb = vins_d_parsing_cb()
 
 def stack_vld2_lane_parsing_cb():
-    def core(inst,t, delete_list):
+    def core(inst,t):
         succ = None
 
         if inst.detected_stack_vld2_lane_pair:
@@ -3085,6 +2505,46 @@ def stack_vld2_lane_parsing_cb():
 
 stack_vld2_lane.global_parsing_cb  = stack_vld2_lane_parsing_cb()
 
+def iter_aarch64_instructions():
+    yield from all_subclass_leaves(Instruction)
+
+def find_class(src):
+    for inst_class in iter_aarch64_instructions():
+        if isinstance(src,inst_class):
+            return inst_class
+    raise Exception(f"Couldn't find instruction class for {src} (type {type(src)})")
+
+def is_dt_form_of(instr_class, dts=None):
+    if not isinstance(instr_class, list):
+        instr_class = [instr_class]
+    def _intersects(lsA,lsB):
+        return len([a for a in lsA if a in lsB]) > 0
+    def _check_instr_dt(src):
+        if find_class(src) in instr_class:
+            if dts is None or _intersects(src.datatype, dts):
+                return True
+        return False
+    return _check_instr_dt
+
+def is_dform_form_of(instr_class):
+    return is_dt_form_of(instr_class, ["1d","2s","4h","8b"])
+def is_qform_form_of(instr_class):
+    return is_dt_form_of(instr_class, ["2d","4s","8h","16b"])
+
+def check_instr_dt(src, instr_classes, dt=None):
+    if not isinstance(instr_classes, list):
+        instr_classes = list(instr_classes)
+    for instr_class in instr_classes:
+        if find_class(src) == instr_class:
+            if dt is None or len(set(dt + src.datatype)) > 0:
+                return True
+    return False
+
+def is_neon_instruction(inst):
+    args = inst.arg_types_in + inst.arg_types_out + inst.arg_types_in_out
+    return RegisterType.Neon in args
+
+
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
 def all_subclass_leaves(c):
@@ -3105,5 +2565,25 @@ def all_subclass_leaves(c):
 
     return all_subclass_leaves_core([], [c])
 
-def iter_aarch64_instructions():
-    yield from all_subclass_leaves(Instruction)
+def lookup_multidict(d, inst, default=None):
+    instclass = find_class(inst)
+    for l,v in d.items():
+        # Multidict entries can be the following:
+        # - An instruction class. It matches any instruction of that class.
+        # - A callable. It matches any instruction returning `True` when passed
+        #   to the callable.
+        # - A tuple of instruction classes or callables. It matches any instruction
+        #   which matches at least one element in the tuple.
+        def match(x):
+            if inspect.isclass(x):
+                return isinstance(inst, x)
+            assert callable(x)
+            return x(inst)
+        if not isinstance(l, tuple):
+            l = [l]
+        for lp in l:
+            if match(lp):
+                return v
+    if default == None:
+        raise Exception(f"Couldn't find {instclass} for {inst}")
+    return default

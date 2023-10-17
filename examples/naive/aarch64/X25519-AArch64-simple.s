@@ -87,12 +87,12 @@
   zip2 \out\().2s, \in0\().2s, \in1\().2s
 .endm
 
-# TODO: also unwrap
-.macro mov_d01 out, in // slothy:no-unfold
+
+.macro mov_d01 out, in
   mov \out\().d[0], \in\().d[1]
 .endm
-# TODO: also unwrap
-.macro mov_b00 out, in // slothy:no-unfold
+
+.macro mov_b00 out, in
   mov \out\().b[0], \in\().b[0]
 .endm
 
