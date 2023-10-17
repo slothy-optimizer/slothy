@@ -46,9 +46,7 @@ class Slothy():
     Arch = property(_get_arch)
     Target = property(_get_target)
 
-    def __init__(self, Arch, Target, debug=False, logger=None):
-        lvl = logging.DEBUG if debug else logging.INFO
-        logging.basicConfig(level = lvl)
+    def __init__(self, Arch, Target, logger=None):
         self.config = Config(Arch, Target)
         self.logger = logger if logger != None else logging.getLogger("slothy")
         self.source = None

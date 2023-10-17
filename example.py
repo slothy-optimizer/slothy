@@ -25,7 +25,7 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import argparse, logging
+import argparse, logging, sys
 from io import StringIO
 
 from slothy.slothy import Slothy
@@ -73,25 +73,31 @@ class Example():
 
         self.extra_args = kwargs
     # By default, optimize the whole file
-    def core(self, helight):
-        helight.optimize()
+    def core(self, slothy):
+        slothy.optimize()
     def run(self, debug=False):
-        log_stream = StringIO()
-        handler = logging.StreamHandler(log_stream)
-        handler.setLevel(logging.INFO)
-        logger = logging.getLogger(self.name).getChild("helight55")
-        logger.addHandler(handler)
-        helight = Slothy(self.arch, self.target,
-                         debug=debug, logger=logger)
-        helight.load_source_from_file(self.infile_full)
-        self.core(helight, *self.extra_args)
+
+        h_err = logging.StreamHandler(sys.stderr)
+        h_err.setLevel(logging.WARNING)
+
+        h_info = logging.StreamHandler(sys.stdout)
+        h_info.setLevel(logging.DEBUG)
+        h_info.addFilter(lambda r: r.levelno <= logging.INFO)
+
+        logging.basicConfig(
+            level = logging.DEBUG if debug else logging.INFO,
+            handlers = [h_err, h_info]
+        )
+
+        logger = logging.getLogger(self.name)
+
+        slothy = Slothy(self.arch, self.target, logger=logger)
+        slothy.load_source_from_file(self.infile_full)
+        self.core(slothy, *self.extra_args)
 
         if self.rename:
-            helight.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
-        helight.write_source_to_file(self.outfile_full)
-
-        return self.outfile_full, log_stream.getvalue()
-
+            slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
 
 class Example0(Example):
     def __init__(self):
