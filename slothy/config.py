@@ -230,10 +230,10 @@ class Config(NestedPrint, LockAttributes):
     @property
     def has_objective(self):
         objectives = sum([self.sw_pipelining.enabled and
-                          self.sw_pipelining.minimize_overlapping != None,
+                          self.sw_pipelining.minimize_overlapping == True,
                           self.constraints.maximize_register_lifetimes == True,
-                          self.constraints.move_stalls_to_top != None,
-                          self.constraints.move_stalls_to_bottom != None,
+                          self.constraints.move_stalls_to_top == True,
+                          self.constraints.move_stalls_to_bottom == True,
                           self.constraints.minimize_register_usage != None,
                           self.constraints.minimize_use_of_extra_registers != None,
                           self.Target.has_min_max_objective(self)])
@@ -707,8 +707,8 @@ class Config(NestedPrint, LockAttributes):
 
             self.maximize_register_lifetimes = False
 
-            self.move_stalls_to_top = None
-            self.move_stalls_to_bottom = None
+            self.move_stalls_to_top = False
+            self.move_stalls_to_bottom = False
             self.minimize_register_usage = None
             self.minimize_use_of_extra_registers = None
             self.allow_extra_registers = {}
