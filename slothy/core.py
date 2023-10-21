@@ -2253,8 +2253,8 @@ class SlothyBase(LockAttributes):
             name = "minimize number of stalls"
             minlist = [self._model.stalls]
         elif self.config.has_objective and not self.config.ignore_objective:
-            if self.config.sw_pipelining.enabled and \
-               self.config.sw_pipelining.minimize_overlapping:
+            if self.config.sw_pipelining.enabled == True and \
+               self.config.sw_pipelining.minimize_overlapping == True:
                 # Minimize the amount of iteration interleaving
                 corevars = [ t.core_var.Not() for t in self._get_nodes(low=True) ]
 
@@ -2274,10 +2274,10 @@ class SlothyBase(LockAttributes):
             elif self.config.constraints.maximize_register_lifetimes:
                 name = "maximize register lifetimes"
                 maxlist = [ v for t in self._get_nodes(all=True) for v in t.out_lifetime_duration ]
-            elif self.config.constraints.move_stalls_to_bottom is not None:
+            elif self.config.constraints.move_stalls_to_bottom == True:
                 minlist = [ t.program_start_var for t in self._get_nodes() ]
                 name = "move stalls to bottom"
-            elif self.config.constraints.move_stalls_to_top is not None:
+            elif self.config.constraints.move_stalls_to_top == True:
                 maxlist = [ t.program_start_var for t in self._get_nodes() ]
                 name = "move stalls to top"
             elif self.config.constraints.minimize_register_usage is not None:
