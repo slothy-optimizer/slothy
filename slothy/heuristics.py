@@ -586,9 +586,6 @@ class Heuristics():
             cur_body = body[start_idx:end_idx]
             cur_post = body[end_idx:]
 
-            pre_pad = len(cur_pre)
-            post_pad = len(cur_post)
-
             if not conf.split_heuristic_optimize_seam:
                 prefix_len = 0
                 suffix_len = 0
@@ -600,6 +597,9 @@ class Heuristics():
                 cur_body = cur_prefix + cur_body + cur_suffix
                 cur_pre = cur_pre[:-prefix_len]
                 cur_post = cur_post[suffix_len:]
+
+            pre_pad = len(cur_pre)
+            post_pad = len(cur_post)
 
             Heuristics._dump(f"Optimizing chunk [{start_idx}-{prefix_len}:{end_idx}+{suffix_len}]", cur_body, log)
             if prefix_len > 0:
