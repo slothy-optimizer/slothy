@@ -2232,6 +2232,16 @@ class fmov_1(Fmov):
                          inputs=["Xa"],
                          in_outs=["Vd"])
 
+class fmov_1_force_output(Fmov):
+    def __init__(self):
+        super().__init__("fmov <Vd>.d[1], <Xa>",
+                         inputs=["Xa"],
+                         outputs=["Vd"])
+    def parse(self, src, force=False):
+        if force == False:
+            raise Instruction.ParsingException("Instruction ignored")
+        return super().parse(src)
+
 class vushr(AArch64Instruction):
     def __init__(self):
         super().__init__("ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>",
@@ -2683,10 +2693,29 @@ def fmov_0_parsing_cb():
         inst_txt = t.inst.write()
         t.inst = fmov_0_force_output()
         t.inst.parse(inst_txt, force=True)
-        print(f"========== FMOV parsing callback triggered for ({t},{r})")
         return True
     return core
 fmov_0.global_parsing_cb = fmov_0_parsing_cb()
+
+def fmov_1_parsing_cb():
+    def core(inst, t):
+        succ = None
+        r = None
+        # Check if this is the first in a pair of fmov's
+        if len(t.dst_in_out[0]) == 1:
+            r = t.dst_in_out[0][0]
+            if isinstance(r.inst, fmov_0):
+                if r.inst.args_in_out == inst.args_in_out:
+                    succ = r
+        if succ is None:
+            return False
+        # Reparse as instruction-variant treating the input/output as an output
+        inst_txt = t.inst.write()
+        t.inst = fmov_1_force_output()
+        t.inst.parse(inst_txt, force=True)
+        return True
+    return core
+fmov_1.global_parsing_cb = fmov_1_parsing_cb()
 
 def stack_vld2_lane_parsing_cb():
     def core(inst,t):
