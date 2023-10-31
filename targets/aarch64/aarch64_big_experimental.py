@@ -26,36 +26,47 @@
 #
 
 #
-# Experimental and highly incomplete model capturing an approximation of the
-# frontend limitations and latencies of the Neoverse N1 CPU
+# Experimental model for high-end A-profile cores with 4 SIMD units
 #
 
 from enum import Enum
 from .aarch64_neon import *
 
-issue_rate = 4
+issue_rate = 6
 
 class ExecutionUnit(Enum):
     SCALAR_I0=0,
     SCALAR_I1=1,
     SCALAR_I2=2,
-    SCALAR_M=2, # Overlaps with third I pipeline
-    LSU0=3,
-    LSU1=4,
-    VEC0=5,
-    VEC1=6,
+    SCALAR_I3=3,
+    SCALAR_M0=2, # Overlaps with third I pipeline
+    SCALAR_M1=3, # Overlaps with fourth I pipeline
+    LSU0=4,
+    LSU1=5,
+    VEC0=6,
+    VEC1=7,
+    VEC2=8,
+    VEC3=9,
     def __repr__(self):
         return self.name
     def I():
-        return [ExecutionUnit.SCALAR_I0, ExecutionUnit.SCALAR_I1, ExecutionUnit.SCALAR_I2]
+        return [ExecutionUnit.SCALAR_I0, ExecutionUnit.SCALAR_I1,
+                ExecutionUnit.SCALAR_I2, ExecutionUnit.SCALAR_I3]
     def M():
-        return [ExecutionUnit.SCALAR_M]
+        return [ExecutionUnit.SCALAR_M0, ExecutionUnit.SCALAR_M1]
     def V():
-        return [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
+        return [ExecutionUnit.VEC0, ExecutionUnit.VEC1,
+                ExecutionUnit.VEC2, ExecutionUnit.VEC3]
     def V0():
         return [ExecutionUnit.VEC0]
     def V1():
         return [ExecutionUnit.VEC1]
+    def V13():
+        return [ExecutionUnit.VEC1, ExecutionUnit.VEC3]
+    def V01():
+        return [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
+    def V02():
+        return [ExecutionUnit.VEC0, ExecutionUnit.VEC2]
     def LSU():
         return [ExecutionUnit.LSU0, ExecutionUnit.LSU1]
 
@@ -65,14 +76,14 @@ def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
     slothy.restrict_slots_for_instructions_by_property(
-        is_neon_instruction, [0,1])
-    slothy.restrict_slots_for_instructions_by_property(
-        lambda t: is_neon_instruction(t) == False, [1,2,3])
+        is_neon_instruction, [0,1,2,3])
 
 def has_min_max_objective(config):
     return False
 def get_min_max_objective(slothy):
     return
+
+### TODO: Copy-pasted from N1 model -- adjust
 
 execution_units = {
     (Ldp_X, Ldr_X,
@@ -88,7 +99,7 @@ execution_units = {
     (vshl, vshl_d, vshli, vshrn,
      mov_vtox_d)              : ExecutionUnit.V1(),
     vusra                     : ExecutionUnit.V1(),
-    AESInstruction            : ExecutionUnit.V0(),
+    AESInstruction            : ExecutionUnit.V(),
     (vmul, vmlal, vmull)      : ExecutionUnit.V0(),
     AArch64NeonLogical        : ExecutionUnit.V(),
     (AArch64BasicArithmetic,

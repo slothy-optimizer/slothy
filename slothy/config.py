@@ -50,6 +50,8 @@ class Config(NestedPrint, LockAttributes):
     _default_split_heuristic_preprocess_naive_interleaving = False
     _default_split_heuristic_preprocess_naive_interleaving_by_latency = False
 
+    _default_compiler_binary = "gcc"
+
     _default_unsafe_skip_address_fixup = False
 
     _default_with_preprocessor = False
@@ -206,6 +208,10 @@ class Config(NestedPrint, LockAttributes):
     @property
     def with_preprocessor(self):
         return self._with_preprocessor
+
+    @property
+    def compiler_binary(self):
+        return self._default_compiler_binary
 
     @property
     def timeout(self):
@@ -376,6 +382,7 @@ class Config(NestedPrint, LockAttributes):
         _default_pre_before_post = True
         _default_allow_pre = True
         _default_allow_post = False
+        _default_unknown_iteration_count = False
         _default_minimize_overlapping = True
         _default_optimize_preamble = True
         _default_optimize_postamble = True
@@ -418,6 +425,16 @@ class Config(NestedPrint, LockAttributes):
                 to iteration N+1. A typical example would be a late store.
                 Default: {Config.SoftwarePipelining._default_allow_post}"""
             return self._allow_post
+
+        @property
+        def unknown_iteration_count(self):
+            f"""Determines whether the number of iterations is statically known and larger than
+                the number of exceptional iterations hoisted out by SLOTHY (at most 2).
+
+                Set this to `True` if the loop can have any number of iterations.
+
+                Default: {Config.SoftwarePipelining._default_unknown_iteration_count}"""
+            return self._unknown_iteration_count
 
         @property
         def minimize_overlapping(self):
@@ -502,6 +519,7 @@ class Config(NestedPrint, LockAttributes):
             self._pre_before_post = Config.SoftwarePipelining._default_pre_before_post
             self._allow_pre  = Config.SoftwarePipelining._default_allow_pre
             self._allow_post = Config.SoftwarePipelining._default_allow_post
+            self._unknown_iteration_count = Config.SoftwarePipelining._default_unknown_iteration_count
             self._minimize_overlapping = Config.SoftwarePipelining._default_minimize_overlapping
             self._optimize_preamble = Config.SoftwarePipelining._default_optimize_preamble
             self._optimize_postamble = Config.SoftwarePipelining._default_optimize_postamble
@@ -529,6 +547,9 @@ class Config(NestedPrint, LockAttributes):
         @allow_post.setter
         def allow_post(self,val):
             self._allow_post = val
+        @unknown_iteration_count.setter
+        def unknown_iteration_count(self,val):
+            self._unknown_iteration_count = val
         @minimize_overlapping.setter
         def minimize_overlapping(self,val):
             self._minimize_overlapping = val
@@ -875,6 +896,7 @@ class Config(NestedPrint, LockAttributes):
         self._unsafe_skip_address_fixup = Config._default_unsafe_skip_address_fixup
 
         self._with_preprocessor = Config._default_with_preprocessor
+        self._compiler_binary = Config._default_compiler_binary
         self._max_solutions = Config._default_max_solutions
         self._timeout = Config._default_timeout
         self._retry_timeout = Config._default_retry_timeout
@@ -946,6 +968,9 @@ class Config(NestedPrint, LockAttributes):
     @with_preprocessor.setter
     def with_preprocessor(self, val):
         self._with_preprocessor = val
+    @compiler_binary.setter
+    def compiler_binary(self, val):
+        self._compiler_binary = val
     @timeout.setter
     def timeout(self, val):
         self._timeout = val

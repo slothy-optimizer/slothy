@@ -469,14 +469,10 @@ class AsmMacro():
 
 class CPreprocessor():
 
-    default_gcc_binary = "gcc"
     magic_string = "SLOTHY_PREPROCESSED_REGION"
 
-    def unfold(header, body, gcc=None):
+    def unfold(header, body, gcc):
         """Runs the concatenation of header and body through the preprocessor"""
-        if gcc == None:
-            gcc = CPreprocessor.default_gcc_binary
-
         code = header + [CPreprocessor.magic_string] + body
 
         r = subprocess.run([gcc, "-E", "-x", "assembler-with-cpp","-"],
