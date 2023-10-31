@@ -211,7 +211,7 @@ class Slothy():
         body_ssa = [ f"{start}:" ] + [ str(t.inst) for t in dfg.nodes ] + [ f"{end}:" ]
         self.source = '\n'.join(pre + body_ssa + post)
 
-    def optimize_loop(self, loop_lbl, end_of_loop_label=None):
+    def optimize_loop(self, loop_lbl, postamble_label=None):
         """Optimize the loop starting at a given label"""
 
         logger = self.logger.getChild(loop_lbl)
@@ -249,13 +249,23 @@ class Slothy():
         loop = self.Arch.Loop(lbl_start=loop_lbl)
         optimized_code = []
         optimized_code += indented(preamble_code)
-        optimized_code += list(loop.start(indentation=self.config.indentation,
-                                          fixup=num_exceptional,
-                                          unroll=self.config.sw_pipelining.unroll))
+
+        if self.config.sw_pipelining.unknown_iteration_count:
+            if postamble_label == None:
+                postamble_label = f"{loop_lbl}_postamble"
+            jump_if_empty = postamble_label
+        else:
+            jump_if_empty = None
+
+        optimized_code += list(loop.start(
+            indentation=self.config.indentation,
+            fixup=num_exceptional,
+            unroll=self.config.sw_pipelining.unroll,
+            jump_if_empty=jump_if_empty))
         optimized_code += indented(kernel_code)
         optimized_code += list(loop.end(other_data, indentation=self.config.indentation))
-        if end_of_loop_label != None:
-            optimized_code += [ f"{end_of_loop_label}: // end of loop kernel" ]
+        if postamble_label != None:
+            optimized_code += [ f"{postamble_label}: // end of loop kernel" ]
         optimized_code += indented(postamble_code)
 
         self.last_result = SimpleNamespace()

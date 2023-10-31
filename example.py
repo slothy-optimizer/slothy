@@ -350,7 +350,7 @@ class ntt_kyber_12_345_67(Example):
     def core(self,slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
-        slothy.optimize_loop("layer12_loop", end_of_loop_label="layer12_loop_end")
+        slothy.optimize_loop("layer12_loop", postamble_label="layer12_loop_end")
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
                                                [ "STACK0" ] )
@@ -365,7 +365,7 @@ class ntt_kyber_12_345_67(Example):
             slothy.config.sw_pipelining.enabled = True
             slothy.config.sw_pipelining.halving_heuristic = True
             slothy.config.sw_pipelining.halving_heuristic_periodic = True
-            slothy.optimize_loop("layer345_loop", end_of_loop_label="layer345_loop_end")
+            slothy.optimize_loop("layer345_loop", postamble_label="layer345_loop_end")
             layer345_deps = slothy.last_result.kernel_input_output.copy()
 
         slothy.config.sw_pipelining.enabled = True
@@ -398,7 +398,7 @@ class ntt_kyber_12(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.optimize_loop("layer12_loop", end_of_loop_label="layer12_loop_end")
+        slothy.optimize_loop("layer12_loop", postamble_label="layer12_loop_end")
 
 
 class ntt_kyber_345(Example):
@@ -627,7 +627,7 @@ class ntt_dilithium_12_34_56_78(Example):
         slothy.optimize_loop("layer34_loop")
         slothy.config.sw_pipelining.optimize_preamble  = True
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.optimize_loop("layer56_loop", end_of_loop_label="layer56_loop_end")
+        slothy.optimize_loop("layer56_loop", postamble_label="layer56_loop_end")
         slothy.config.sw_pipelining.optimize_preamble  = False
         slothy.config.sw_pipelining.optimize_postamble = True
         slothy.config.typing_hints = {}
@@ -773,8 +773,8 @@ class ntt_dilithium_123_456_78(Example):
             slothy.config.sw_pipelining.enabled = True
             slothy.config.sw_pipelining.halving_heuristic = True
             slothy.config.sw_pipelining.halving_heuristic_periodic = True
-            slothy.optimize_loop("layer123_loop", end_of_loop_label="layer123_loop_end")
-            slothy.optimize_loop("layer456_loop", end_of_loop_label="layer456_loop_end")
+            slothy.optimize_loop("layer123_loop", postamble_label="layer123_loop_end")
+            slothy.optimize_loop("layer456_loop", postamble_label="layer456_loop_end")
 
         slothy.config.constraints.st_ld_hazard = False
         slothy.config.sw_pipelining.enabled = True

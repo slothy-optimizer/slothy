@@ -376,6 +376,7 @@ class Config(NestedPrint, LockAttributes):
         _default_pre_before_post = True
         _default_allow_pre = True
         _default_allow_post = False
+        _default_unknown_iteration_count = False
         _default_minimize_overlapping = True
         _default_optimize_preamble = True
         _default_optimize_postamble = True
@@ -418,6 +419,16 @@ class Config(NestedPrint, LockAttributes):
                 to iteration N+1. A typical example would be a late store.
                 Default: {Config.SoftwarePipelining._default_allow_post}"""
             return self._allow_post
+
+        @property
+        def unknown_iteration_count(self):
+            f"""Determines whether the number of iterations is statically known and larger than
+                the number of exceptional iterations hoisted out by SLOTHY (at most 2).
+
+                Set this to `True` if the loop can have any number of iterations.
+
+                Default: {Config.SoftwarePipelining._default_unknown_iteration_count}"""
+            return self._unknown_iteration_count
 
         @property
         def minimize_overlapping(self):
@@ -502,6 +513,7 @@ class Config(NestedPrint, LockAttributes):
             self._pre_before_post = Config.SoftwarePipelining._default_pre_before_post
             self._allow_pre  = Config.SoftwarePipelining._default_allow_pre
             self._allow_post = Config.SoftwarePipelining._default_allow_post
+            self._unknown_iteration_count = Config.SoftwarePipelining._default_unknown_iteration_count
             self._minimize_overlapping = Config.SoftwarePipelining._default_minimize_overlapping
             self._optimize_preamble = Config.SoftwarePipelining._default_optimize_preamble
             self._optimize_postamble = Config.SoftwarePipelining._default_optimize_postamble
@@ -529,6 +541,9 @@ class Config(NestedPrint, LockAttributes):
         @allow_post.setter
         def allow_post(self,val):
             self._allow_post = val
+        @unknown_iteration_count.setter
+        def unknown_iteration_count(self,val):
+            self._unknown_iteration_count = val
         @minimize_overlapping.setter
         def minimize_overlapping(self,val):
             self._minimize_overlapping = val

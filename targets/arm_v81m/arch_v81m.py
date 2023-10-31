@@ -99,7 +99,7 @@ class Loop:
         self.lbl_end   = lbl_end
         pass
 
-    def start(self,indentation=0, fixup=0, unroll=1):
+    def start(self,indentation=0, fixup=0, unroll=1, jump_if_empty=None):
         indent = ' ' * indentation
         if unroll > 1:
             if not unroll in [1,2,4,8,16,32]:
