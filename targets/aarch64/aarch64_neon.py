@@ -170,7 +170,7 @@ class Loop:
         pass
 
     ### FIXME This is very adhoc
-    def start(self,indentation=0, fixup=0, unroll=1):
+    def start(self,indentation=0, fixup=0, unroll=1, jump_if_empty=None):
         indent = ' ' * indentation
         if unroll > 1:
             if not unroll in [1,2,4,8,16,32]:
@@ -178,7 +178,8 @@ class Loop:
             yield f"{indent}lsr count, count, #{int(math.log2(unroll))}"
         if fixup != 0:
             yield f"{indent}sub count, count, #{fixup}"
-        yield f".p2align 2"
+        if jump_if_empty != None:
+            yield f"cbz count, {jump_if_empty}"
         yield f"{self.lbl_start}:"
 
     def end(self,other, indentation=0):
@@ -471,7 +472,7 @@ class AArch64Instruction(Instruction):
                 f"([{g.group(1).lower()}{g.group(1)}]" +\
                 f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|" +\
                 f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
-        src = re.sub("<([BHWXVQT])(\w+)>", pattern_transform, src)
+        src = re.sub("<([BHWXVQTD])(\w+)>", pattern_transform, src)
 
         # Replace <key> or <key0>, <key1>, ... with pattern
         def replace_placeholders(src, mnemonic_key, regexp, group_name):
@@ -539,7 +540,7 @@ class AArch64Instruction(Instruction):
     def infer_register_type(ptrn):
         if ptrn[0].upper() in ["X","W"]:
             return RegisterType.GPR
-        if ptrn[0].upper() in ["V","Q"]:
+        if ptrn[0].upper() in ["V","Q","D"]:
             return RegisterType.Neon
         if ptrn[0].upper() in ["T"]:
             return RegisterType.Hint
@@ -883,11 +884,27 @@ class vsub(AArch64Instruction):
 class Ldr_Q(AArch64Instruction):
     pass
 
+class d_ldp_sp_imm(Ldr_Q):
+    def __init__(self):
+        super().__init__("ldp <Da>, <Db>, [sp, <imm>]",
+                         # TODO: model stack dependency
+                         outputs=["Da", "Db"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = None
+        self.pre_index = self.immediate
+        self.addr = "sp"
+
 class q_ldr(Ldr_Q):
     def __init__(self):
         super().__init__("ldr <Qa>, [<Xc>]",
                          inputs=["Xc"],
                          outputs=["Qa"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = None
+        self.pre_index = None
+        self.addr = self.args_in[0]
 
 class q_ldr_with_inc_hint(Ldr_Q):
     def __init__(self):
@@ -945,12 +962,25 @@ class q_ldr_with_postinc(Ldr_Q):
 class Str_Q(AArch64Instruction):
     pass
 
+class d_stp_sp_imm(Str_Q):
+    def __init__(self):
+        super().__init__("stp <Da>, <Db>, [sp, <imm>]",
+                         # TODO: model stack dependency
+                         inputs=["Da", "Db"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = None
+        self.pre_index = self.immediate
+        self.addr = "sp"
+
 class q_str(Str_Q):
     def __init__(self):
         super().__init__("str <Qa>, [<Xc>]",
                          inputs=["Qa", "Xc"])
     def parse(self,src):
         super().parse(src)
+        self.increment = None
+        self.pre_index = None
         self.addr = self.args_in[1]
 
 class q_str_with_inc_hint(Str_Q):
@@ -1197,7 +1227,6 @@ class x_ldp_with_postinc_writeback(Ldp_X):
         self.addr = self.args_in[0]
 
     def write(self):
-        self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldp_with_inc_hint(Ldp_X):
@@ -1457,6 +1486,12 @@ class add2(AArch64BasicArithmetic):
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
+class add_w_imm(AArch64BasicArithmetic):
+    def __init__(self):
+        super().__init__("add <Wd>, <Wa>, <imm>",
+                         inputs=["Wa"],
+                         outputs=["Wd"])
+
 class sub(AArch64BasicArithmetic):
     def __init__(self):
         super().__init__("sub <Xd>, <Xa>, <Xb>",
@@ -1515,6 +1550,13 @@ class lsr(AArch64Shift):
                          inputs=["Xa"],
                          outputs=["Xd"])
 
+# TODO: This likely has different perf characteristics!
+class lsr_variable(AArch64Shift):
+    def __init__(self):
+        super().__init__("lsr <Xd>, <Xa>, <Xc>",
+                         inputs=["Xa", "Xc"],
+                         outputs=["Xd"])
+
 class lsl(AArch64Shift):
     def __init__(self):
         super().__init__("lsl <Xd>, <Xa>, <imm>",
@@ -1531,6 +1573,12 @@ class AArch64Logical(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
         super().__init__(pattern, *args, **kwargs)
 
+class rev_w(AArch64Logical):
+    def __init__(self):
+        super().__init__("rev <Wd>, <Wa>",
+                         inputs=["Wa"],
+                         outputs=["Wd"])
+
 class eor(AArch64Logical):
     def __init__(self):
         super().__init__("eor <Xd>, <Xa>, <Xb>",
@@ -1542,6 +1590,12 @@ class orr(AArch64Logical):
         super().__init__("orr <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
+
+class orr_w(AArch64Logical):
+    def __init__(self):
+        super().__init__("orr <Wd>, <Wa>, <Wb>",
+                         inputs=["Wa","Wb"],
+                         outputs=["Wd"])
 
 class bfi(AArch64Logical):
     def __init__(self):
@@ -1596,6 +1650,15 @@ class extr(AArch64Logical): ### TODO! Review this...
     def __init__(self):
         super().__init__("extr <Xd>, <Xa>, <Xb>, <imm>",
                          inputs=["Xa", "Xb"],
+                         outputs=["Xd"])
+
+class AArch64LogicalShifted(AArch64Instruction):
+    pass
+
+class orr_shifted(AArch64LogicalShifted):
+    def __init__(self):
+        super().__init__("orr <Xd>, <Xa>, <Xb>, lsl <imm>",
+                         inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class AArch64ConditionalCompare(AArch64Instruction):
@@ -1701,6 +1764,12 @@ class mov_imm(AArch64Move):
                          inputs=[],
                          outputs=["Xd"])
 
+class mvn_xzr(AArch64Move):
+    def __init__(self):
+        super().__init__("mvn <Xd>, xzr",
+                         inputs=[],
+                         outputs=["Xd"])
+
 class mov_xform(AArch64Move):
     def __init__(self):
         super().__init__("mov <Xd>, <Xa>",
@@ -1800,6 +1869,12 @@ class tst_xform(Tst):
 class cmp_xzr(Tst):
     def __init__(self):
         super().__init__("cmp <Xa>, xzr",
+                         inputs=["Xa"],
+                         modifiesFlags=True)
+
+class cmp_imm(Tst):
+    def __init__(self):
+        super().__init__("cmp <Xa>, <imm>",
                          inputs=["Xa"],
                          modifiesFlags=True)
 
@@ -1995,6 +2070,34 @@ class mov_d01(AArch64Instruction): # TODO: Generalize
                          inputs=["Va"],
                          in_outs=["Vd"])
 
+class AArch64NeonLogical(AArch64Instruction):
+    pass
+
+class veor(AArch64NeonLogical):
+    def __init__(self):
+        super().__init__("eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+                         inputs=["Va", "Vb"],
+                         outputs=["Vd"])
+
+class vbif(AArch64NeonLogical):
+    def __init__(self):
+        super().__init__("bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+                         inputs=["Va", "Vb"],
+                         in_outs=["Vd"])
+
+# Not sure about the classification as logical... couldn't find it in SWOG
+class vmov_d(AArch64NeonLogical):
+    def __init__(self):
+        super().__init__("mov <Dd>, <Va>.d[1]",
+                         inputs=["Va"],
+                         outputs=["Dd"])
+
+class vext(AArch64NeonLogical):
+    def __init__(self):
+        super().__init__("ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>",
+                         inputs=["Va", "Vb"],
+                         outputs=["Vd"])
+
 class vmul(AArch64Instruction):
     def __init__(self):
         super().__init__("mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
@@ -2065,6 +2168,12 @@ class vshl(AArch64Instruction):
                          inputs=["Va"],
                          outputs=["Vd"])
 
+class vshl_d(AArch64Instruction):
+    def __init__(self):
+        super().__init__("shl <Dd>, <Da>, <imm>",
+                         inputs=["Da"],
+                         outputs=["Dd"])
+
 class vshli(AArch64Instruction):
     def __init__(self):
         super().__init__("sli <Vd>.<dt0>, <Va>.<dt1>, <imm>",
@@ -2083,11 +2192,45 @@ class vshrn(AArch64Instruction):
                          inputs=["Va"],
                          outputs=["Vd"])
 
-class umov_d(AArch64Instruction):
+class VecToGprMov(AArch64Instruction):
+    pass
+
+class umov_d(VecToGprMov):
     def __init__(self):
         super().__init__("umov <Xd>, <Va>.d[<index>]",
                          inputs=["Va"],
                          outputs=["Xd"])
+
+class mov_d(VecToGprMov):
+    def __init__(self):
+        super().__init__("mov <Xd>, <Va>.d[<index>]",
+                         inputs=["Va"],
+                         outputs=["Xd"])
+
+class Fmov(AArch64Instruction):
+    pass
+
+class fmov_0(Fmov):
+    def __init__(self):
+        super().__init__("fmov <Dd>, <Xa>",
+                         inputs=["Xa"],
+                         in_outs=["Dd"])
+
+class fmov_0_force_output(Fmov):
+    def __init__(self):
+        super().__init__("fmov <Dd>, <Xa>",
+                         inputs=["Xa"],
+                         outputs=["Dd"])
+    def parse(self, src, force=False):
+        if force == False:
+            raise Instruction.ParsingException("Instruction ignored")
+        return super().parse(src)
+
+class fmov_1(Fmov):
+    def __init__(self):
+        super().__init__("fmov <Vd>.d[1], <Xa>",
+                         inputs=["Xa"],
+                         in_outs=["Vd"])
 
 class vushr(AArch64Instruction):
     def __init__(self):
@@ -2104,6 +2247,48 @@ class trn1(AArch64Instruction):
 class trn2(AArch64Instruction):
     def __init__(self):
         super().__init__("trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+                         inputs=["Va", "Vb"],
+                         outputs=["Vd"])
+
+class trn2(AArch64Instruction):
+    def __init__(self):
+        super().__init__("trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+                         inputs=["Va", "Vb"],
+                         outputs=["Vd"])
+
+# Wrapper around AESE+AESMC, treated as one instructions in SLOTHY
+# so as to prevent pulling them apart and hindering instruction fusion.
+
+class AESInstruction(AArch64Instruction):
+    pass
+
+class aesr(AESInstruction):
+    def __init__(self):
+        super().__init__("aesr <Vd>.16b, <Va>.16b",
+                         inputs=["Va"],
+                         in_outs=["Vd"])
+
+class aese(AESInstruction):
+    def __init__(self):
+        super().__init__("aese <Vd>.16b, <Va>.16b",
+                         inputs=["Va"],
+                         in_outs=["Vd"])
+
+class aesmc(AESInstruction):
+    def __init__(self):
+        super().__init__("aesmc <Vd>.16b, <Va>.16b",
+                         inputs=["Va"],
+                         outputs=["Vd"])
+
+class pmull1_q(AESInstruction):
+    def __init__(self):
+        super().__init__("pmull <Vd>.1q, <Va>.1d, <Vb>.1d",
+                         inputs=["Va", "Vb"],
+                         outputs=["Vd"])
+
+class pmull2_q(AESInstruction):
+    def __init__(self):
+        super().__init__("pmull2 <Vd>.1q, <Va>.2d, <Vb>.2d",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
@@ -2132,6 +2317,20 @@ class x_str_imm(Str_X):
     def __init__(self):
         super().__init__("str <Xa>, [<Xc>, <imm>]",
                          inputs=["Xa", "Xc"])
+    def parse(self,src):
+        super().parse(src)
+        self.increment = None
+        self.pre_index = self.immediate
+        self.addr = self.args_in[1]
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class w_str_imm(Str_X):
+    def __init__(self):
+        super().__init__("str <Wa>, [<Xc>, <imm>]",
+                         inputs=["Wa", "Xc"])
     def parse(self,src):
         super().parse(src)
         self.increment = None
@@ -2464,6 +2663,30 @@ def vins_d_parsing_cb():
         return True
     return core
 vins_d.global_parsing_cb = vins_d_parsing_cb()
+
+# In a pair of fmov writing both 64-bit lanes of a vector, mark the
+# target vector as output rather than input/output. This enables further
+# renaming opportunities.
+def fmov_0_parsing_cb():
+    def core(inst, t):
+        succ = None
+        r = None
+        # Check if this is the first in a pair of fmov's
+        if len(t.dst_in_out[0]) == 1:
+            r = t.dst_in_out[0][0]
+            if isinstance(r.inst, fmov_1):
+                if r.inst.args_in_out == inst.args_in_out:
+                    succ = r
+        if succ is None:
+            return False
+        # Reparse as instruction-variant treating the input/output as an output
+        inst_txt = t.inst.write()
+        t.inst = fmov_0_force_output()
+        t.inst.parse(inst_txt, force=True)
+        print(f"========== FMOV parsing callback triggered for ({t},{r})")
+        return True
+    return core
+fmov_0.global_parsing_cb = fmov_0_parsing_cb()
 
 def stack_vld2_lane_parsing_cb():
     def core(inst,t):
