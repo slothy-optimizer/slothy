@@ -50,6 +50,8 @@ class Config(NestedPrint, LockAttributes):
     _default_split_heuristic_preprocess_naive_interleaving = False
     _default_split_heuristic_preprocess_naive_interleaving_by_latency = False
 
+    _default_compiler_binary = "gcc"
+
     _default_unsafe_skip_address_fixup = False
 
     _default_with_preprocessor = False
@@ -206,6 +208,10 @@ class Config(NestedPrint, LockAttributes):
     @property
     def with_preprocessor(self):
         return self._with_preprocessor
+
+    @property
+    def compiler_binary(self):
+        return self._default_compiler_binary
 
     @property
     def timeout(self):
@@ -890,6 +896,7 @@ class Config(NestedPrint, LockAttributes):
         self._unsafe_skip_address_fixup = Config._default_unsafe_skip_address_fixup
 
         self._with_preprocessor = Config._default_with_preprocessor
+        self._compiler_binary = Config._default_compiler_binary
         self._max_solutions = Config._default_max_solutions
         self._timeout = Config._default_timeout
         self._retry_timeout = Config._default_retry_timeout
@@ -961,6 +968,9 @@ class Config(NestedPrint, LockAttributes):
     @with_preprocessor.setter
     def with_preprocessor(self, val):
         self._with_preprocessor = val
+    @compiler_binary.setter
+    def compiler_binary(self, val):
+        self._compiler_binary = val
     @timeout.setter
     def timeout(self, val):
         self._timeout = val

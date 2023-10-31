@@ -120,7 +120,7 @@ class Slothy():
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(pre, body)
+            body = CPreprocessor.unfold(pre, body, c.compiler_binary)
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
@@ -193,7 +193,7 @@ class Slothy():
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(pre, body)
+            body = CPreprocessor.unfold(pre, body, c.compiler_binary)
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
         body = AsmHelper.split_semicolons(body)
@@ -228,7 +228,7 @@ class Slothy():
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(early, body)
+            body = CPreprocessor.unfold(early, body, c.compiler_binary)
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
