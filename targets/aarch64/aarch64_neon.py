@@ -1907,9 +1907,18 @@ class vxtn(AArch64Instruction):
                          inputs=["Va"],
                          outputs=["Vd"])
 
-class rev64(AArch64Instruction):
+class Vrev(AArch64Instruction):
+    pass
+
+class rev64(Vrev):
     def __init__(self):
         super().__init__("rev64 <Vd>.<dt0>, <Va>.<dt1>",
+                         inputs=["Va"],
+                         outputs=["Vd"])
+
+class rev32(Vrev):
+    def __init__(self):
+        super().__init__("rev32 <Vd>.<dt0>, <Va>.<dt1>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
