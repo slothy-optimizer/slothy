@@ -115,7 +115,7 @@ execution_units = {
     # non-q-form vector instructions
     ( umov_d, mov_d01, mov_b00,
       fcsel_dform,
-      mov_vtox_d, Mov_xtov_d,
+      VecToGprMov, Mov_xtov_d,
       stack_vstp_dform, stack_vstr_dform, stack_vldr_bform, stack_vldr_dform,
       stack_vld1r, stack_vld2_lane,
     ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],  # these instructions use VEC0 or VEC1
@@ -170,7 +170,7 @@ inverse_throughput = {
     ( nop, Vins, Ldr_X, Str_X ) : 1,
     St4 : 5,
     (fcsel_dform) : 1,
-    (mov_vtox_d, Mov_xtov_d) : 1,
+    (VecToGprMov, Mov_xtov_d) : 1,
     (movk_imm, mov) : 1,
     (stack_vstp_dform, stack_vstr_dform) : 1,
     (stack_stp, stack_stp_wform, stack_str) : 1,
@@ -209,7 +209,7 @@ default_latencies = {
     ( Vins, umov_d ) : 2,
     ( tst_wform) : 1,
     (fcsel_dform) : 2,
-    (mov_vtox_d, Mov_xtov_d) : 2,
+    (VecToGprMov, Mov_xtov_d) : 2,
     (movk_imm, mov) : 1,
     (stack_vstp_dform, stack_vstr_dform) : 1,
     (stack_stp, stack_stp_wform, stack_str) : 1,

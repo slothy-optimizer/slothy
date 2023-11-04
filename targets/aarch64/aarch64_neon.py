@@ -678,16 +678,16 @@ class AArch64Instruction(Instruction):
         l = list(zip(self.args_in, self.pattern_inputs))     + \
             list(zip(self.args_out, self.pattern_outputs))   + \
             list(zip(self.args_in_out, self.pattern_in_outs))
-        if len(l) == 0:
-            print("SOMETHING WRONG!")
-            print(self.pattern)
-            print(f"Inputs: {self.inputs}")
-            print(f"Inputs: {self.outputs}")
-            print(f"Inputs: {self.in_outs}")
-            print(f"pattern Inputs: {list(self.pattern_inputs)}")
-            print(f"pattern Inputs: {list(self.pattern_outputs)}")
-            print(f"pattern Inputs: {list(self.pattern_in_outs)}")
-            assert False
+        # if len(l) == 0:
+        #     print("SOMETHING WRONG!")
+        #     print(self.pattern)
+        #     print(f"Inputs: {self.inputs}")
+        #     print(f"Inputs: {self.outputs}")
+        #     print(f"Inputs: {self.in_outs}")
+        #     print(f"pattern Inputs: {list(self.pattern_inputs)}")
+        #     print(f"pattern Inputs: {list(self.pattern_outputs)}")
+        #     print(f"pattern Inputs: {list(self.pattern_in_outs)}")
+        #     assert False
         for arg, (s, ty) in l:
             out = AArch64Instruction._instantiate_pattern(s, ty, arg, out)
 
@@ -1971,12 +1971,6 @@ class vqrdmulh(AArch64Instruction):
         super().__init__("sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
-
-class mov_vtox_d(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mov <Xd>, <Va>.d[<index>]",
-                         inputs=["Va"],
-                         outputs=["Xd"])
 
 class vqrdmulh_lane(AArch64Instruction):
     def __init__(self):
