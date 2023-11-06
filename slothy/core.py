@@ -1729,9 +1729,9 @@ class SlothyBase(LockAttributes):
             # depending on whether it's executed already in the previous iteration
             # (e.g. an early load), in the original iteration, or the following
             # iteration (e.g. a late store).
-            t.pre_var  = self._NewBoolVar("")
-            t.core_var = self._NewBoolVar("")
-            t.post_var = self._NewBoolVar("")
+            t.pre_var  = self._NewBoolVar(f"{t.varname()}_pre")
+            t.core_var = self._NewBoolVar(f"{t.varname()}_core")
+            t.post_var = self._NewBoolVar(f"{t.varname()}_post")
 
     # ================================================================
     #                  CONSTRAINTS (Lifetime bounds)                 #
