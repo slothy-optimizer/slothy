@@ -1117,12 +1117,6 @@ class SlothyBase(LockAttributes):
         See section "Address modifications in "Fast and Clean: Auditable high-performance
         assembly via constraint solving", https://eprint.iacr.org/2022/1303"""
 
-        if self.config.sw_pipelining.enabled    and \
-           self.config.sw_pipelining.allow_post:
-            self.logger.warning("=======================   WARNING   ==========================")
-            self.logger.warning("      Post-optimization address offset fixup has not been     ")
-            self.logger.warning("      properly tested for config.sw_pipelining.allow_post!    ")
-            self.logger.warning("==============================================================")
         if affected is None:
             affected = lambda _: True
         if affecting is None:
@@ -1198,6 +1192,14 @@ class SlothyBase(LockAttributes):
                 yield from get_code_line(i, lines, nodes)
 
         if self.config.sw_pipelining.enabled:
+
+            if self.config.sw_pipelining.enabled    and \
+               self.config.sw_pipelining.allow_post:
+                self.logger.warning("=======================   WARNING   ==========================")
+                self.logger.warning("      Post-optimization address offset fixup has not been     ")
+                self.logger.warning("      properly tested for config.sw_pipelining.allow_post!    ")
+                self.logger.warning("==============================================================")
+
             # Preamble for first iteration
             #
             # Fixup: Consider reorderings in
