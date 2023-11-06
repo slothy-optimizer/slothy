@@ -1275,10 +1275,6 @@ class SlothyBase(LockAttributes):
                                strict=True):
                 if t0.core:
                     assert t1.core
-                    if t0.fixup != 0 and t1.fixup != 0:
-                        print(f"DOUBLE FIXUP")
-                        print(f"INST: {t0}, fixup {t0.fixup}")
-                        print(f"INST: {t1}, fixup {t1.fixup}")
                     s = t0.fixup + t1.fixup
                     t0.fixup = s
                     t1.fixup = s
