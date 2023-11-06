@@ -1934,8 +1934,7 @@ class SlothyBase(LockAttributes):
                 self._Add(t.post_var == False)
                 self._Add(t.pre_var  == False)
             elif not self.config.sw_pipelining.allow_pre:
-                # Post-only is the same as pre-only after renaming.
-                self._Add(t.post_var == False)
+                self._Add(t.pre_var == False)
             elif not self.config.sw_pipelining.allow_post:
                 self._Add(t.post_var == False)
 
@@ -2257,19 +2256,7 @@ class SlothyBase(LockAttributes):
                self.config.sw_pipelining.minimize_overlapping == True:
                 # Minimize the amount of iteration interleaving
                 corevars = [ t.core_var.Not() for t in self._get_nodes(low=True) ]
-
-                if self.config.sw_pipelining.allow_post == True and \
-                   self.config.sw_pipelining.allow_pre  == True:
-                    # Loops with only early/late instructions, but not both,
-                    # are essentially the same. Concretely, a loop with post-only
-                    # can be mapped to a loop with pre-only via [*,l] -> [e,*].
-                    # In this case, minimal overlapping for the post-only configuration
-                    # converts to maximal overlapping for the pre-only configuration
-                    #
-                    # TODO: Check -- is this still accurate?
-                    maxlist = corevars
-                else:
-                    minlist = corevars
+                minlist = corevars
                 name = "minimize iteration overlapping"
             elif self.config.constraints.maximize_register_lifetimes:
                 name = "maximize register lifetimes"
