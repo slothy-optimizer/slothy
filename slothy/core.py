@@ -446,7 +446,9 @@ class Result(LockAttributes):
                           "don't both exist in new DFG?")
 
         log.error("Isomorphism between computation flow graphs: FAIL!")
-        raise Exception("Isomorphism between computation flow graphs: FAIL!")
+
+        if self.config.selfcheck:
+            raise Exception("Isomorphism between computation flow graphs: FAIL!")
 
     @property
     def inputs(self):
@@ -949,10 +951,7 @@ class SlothyBase(LockAttributes):
 
         self._extract_code()
 
-        if self.config.selfcheck:
-            self._result.selfcheck(self.logger.getChild("selfcheck"))
-        else:
-            self.logger.warning("Skipping self check!")
+        self._result.selfcheck(self.logger.getChild("selfcheck"))
 
     def _extract_positions(self, Value):
 

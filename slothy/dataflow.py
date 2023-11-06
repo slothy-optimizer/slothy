@@ -494,8 +494,7 @@ class DataFlowGraph:
                 for t in changed:
                     logger.debug(t)
 
-        if not self.config.allow_useless_instructions:
-            self._selfcheck_outputs()
+        self._selfcheck_outputs()
 
     def _selfcheck_outputs(self):
         """Checks whether there are instructions whose output(s) are never used, but also
