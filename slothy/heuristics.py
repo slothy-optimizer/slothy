@@ -108,7 +108,7 @@ class Heuristics():
                 raise Exception("Optimization failed")
             return core.result
 
-        logger.info(f"Perform binary search for minimal number of stalls...")
+        logger.info(f"Perform external binary search for minimal number of stalls...")
 
         c = conf.copy()
         c.ignore_objective = True
@@ -135,7 +135,7 @@ class Heuristics():
         """Find minimum number of stalls without objective, then optimize
         the objective for a fixed number of stalls."""
 
-        logger.info(f"Perform binary search for minimal number of stalls...")
+        logger.info(f"Perform internal binary search for minimal number of stalls...")
 
         start_attempt = conf.constraints.stalls_first_attempt
         cur_attempt = start_attempt
