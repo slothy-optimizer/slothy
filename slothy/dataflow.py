@@ -509,10 +509,15 @@ class DataFlowGraph:
         useless_nodes = filter(outputs_unused, self.nodes)
         t = next(useless_nodes, None)
         if t != None:
-            self.logger.error(f"The output(s) of instruction {t.id}({t.inst}) are not used but also not declared as outputs.")
-            self.logger.error(f"Instruction details: {t}, {t.inst.inputs}")
-            self.dump_instructions("Source code", error=True)
-            raise Exception("Useless instruction detected -- probably you missed an output declaration?")
+            if not self.config.allow_useless_instructions:
+                self.logger.error(f"The output(s) of instruction {t.id}({t.inst}) are not used but also not declared as outputs.")
+                self.logger.error(f"Instruction details: {t}, {t.inst.inputs}")
+                self.dump_instructions("Source code", error=True)
+                raise Exception("Useless instruction detected -- probably you missed an output declaration?")
+            else:
+                self.logger.warning(f"The output(s) of instruction {t.id}({t.inst}) are not used but also not declared as outputs.")
+                self.logger.warning(f"Instruction details: {t}, {t.inst.inputs}")
+                self.dump_instructions("Source code", error=False)
 
     def _parse_source(self, src):
         return [ (self.Arch.Instruction.parser(l),l) for l in AsmHelper.reduce_source(src) ]
