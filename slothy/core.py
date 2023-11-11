@@ -739,9 +739,21 @@ class SlothyBase(LockAttributes):
         [ lock_instruction(t) for t in self._get_nodes()[:prefix_len]  if prefix_len > 0 ]
         [ lock_instruction(t) for t in self._get_nodes()[-suffix_len:] if suffix_len > 0 ]
 
+        self._mark_loop_siblings()
         self._set_avail_renaming_registers()
         self._restrict_input_output_renaming()
         self._backup_original_code()
+
+    def _mark_loop_siblings(self):
+        """When using SW pipelining, we internally use two loop iterations.
+        Add references between corresponding instructions in both iterations."""
+        if not self.config.sw_pipelining.enabled:
+            return
+
+        for (tlow, thigh) in zip(self._model._tree.nodes_low,
+                                 self._model._tree.nodes_high, strict=True):
+            tlow.sibling = thigh
+            thigh.sibling = tlow
 
     def _init_model_internals(self):
         self._model.intervals_for_unit = { k : [] for k in self.Target.ExecutionUnit }
