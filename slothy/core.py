@@ -1520,7 +1520,7 @@ class SlothyBase(LockAttributes):
         for t in self._get_nodes(all=True):
             # When we optimize for longest register lifetimes, we allow the starting time of the
             # usage interval to be smaller than the program order position of the instruction.
-            if self.config.constraints.maximize_register_lifetimes:
+            if self.config._flexible_lifetime_start:
                 t.out_lifetime_start      = [ make_start_var(f"{t.varname()}_out_{i}_lifetime_start")
                                               for i in range(t.inst.num_out) ]
             else:
@@ -1754,7 +1754,7 @@ class SlothyBase(LockAttributes):
                 self._Add( end_var > t.program_start_var )
 
                 # cf add_variables_dependencies()
-                if start_var != t.program_start_var:
+                if self.config._flexible_lifetime_start:
                     self._Add( start_var <= t.program_start_var )
 
                 # For every instruction depending on the output, add a lifetime bound

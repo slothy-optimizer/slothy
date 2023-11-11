@@ -348,6 +348,13 @@ class Config(NestedPrint, LockAttributes):
                             "Shouldn't read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
         return self._split_heuristic_preprocess_naive_interleaving_by_latency
 
+    # TODO: Consider setting this to True unconditionally
+    @property
+    def _flexible_lifetime_start(self):
+        return \
+            self.constraints.maximize_register_lifetimes or \
+            (self.sw_pipelining.enabled and self.sw_pipelining.allow_post)
+
     @property
     def split_heuristic_repeat(self):
         """If split_heuristic is enabled, the number of times the splitting heuristic
