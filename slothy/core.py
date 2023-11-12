@@ -1352,7 +1352,6 @@ class SlothyBase(LockAttributes):
             self._result._code += self._result.orig_code_visualized
 
     def _list_dependencies(self, include_virtual_instructions=True ):
-        self.logger.debug("Iterating over node dependencies")
         yield from filter( lambda cp: include_virtual_instructions or \
                                       (cp[0] in self._model._tree.nodes and
                                        cp[1].src in self._model._tree.nodes),
