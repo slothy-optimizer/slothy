@@ -686,6 +686,7 @@ class SlothyBase(LockAttributes):
         self._add_constraints_scheduling()
         self._add_constraints_lifetime_bounds()
         self._add_constraints_loop_optimization()
+        self._add_constraints_preamble_postamble()
         self._add_constraints_N_issue()
         self._add_constraints_dependency_order()
         self._add_constraints_latencies()
@@ -1357,7 +1358,7 @@ class SlothyBase(LockAttributes):
                                        cp[1].src in self._model._tree.nodes),
                            self._model._tree.iter_dependencies() )
 
-    def _add_path_constraint( self, consumer, producer, cb, force=False ):
+    def _add_path_constraint( self, consumer, producer, cb, force=False):
         """Add model constraint cb() relating to the pair of producer-consumer instructions
            Outside of loop mode, this ignores producer and consumer, and just adds cb().
            In loop mode, however, the condition has to be omitted in two cases:
@@ -1731,20 +1732,31 @@ class SlothyBase(LockAttributes):
     #                  CONSTRAINTS (Lifetime bounds)                 #
     # ================================================================
 
-    def _add_constraints_lifetime_bounds(self):
-        count = 0
-        for t in self._get_nodes(all=True):
-            # if count == 0:
-            #     continue
-            self.logger.debug(f"Adding lifetime constraints for {t.id}({t.inst})")
-            # Add lifetime constraints for outputs and inouts
-            self._add_constraints_lifetime_bounds_single(t)
-            count += 1
+    def _iter_dependencies_with_lifetime(self):
+
+        def _get_lifetime_start(src):
+            if isinstance(src, InstructionOutput):
+                return src.src.out_lifetime_start[src.idx]
+            elif isinstance(src, InstructionInOut):
+                return src.src.inout_lifetime_start[src.idx]
+            raise Exception("Unknown register source")
+
+        def _get_lifetime_end(src):
+            if isinstance(src, InstructionOutput):
+                return src.src.out_lifetime_end[src.idx]
+            elif isinstance(src, InstructionInOut):
+                return src.src.inout_lifetime_end[src.idx]
+            raise Exception("Unknown register source")
+
+        for (consumer, producer) in self._list_dependencies():
+            start_var = _get_lifetime_start(producer)
+            end_var = _get_lifetime_end(producer)
+            yield (consumer, producer.src, start_var, end_var, producer.alloc())
 
     def _add_constraints_lifetime_bounds_single(self, t):
-        def _add_lifetime_constraints(deps_list, start_list, end_list, dur_list):
-            for deps, start_var, end_var, dur_var in zip(
-                    deps_list, start_list, end_list, dur_list, strict=True):
+
+        def _add_basic_constraints(start_list, end_list):
+            for start_var, end_var in zip(start_list, end_list, strict=True):
                 # Make sure the output argument is considered 'used' for at least
                 # one instruction. Otherwise, instructions producing outputs that
                 # are never used would be able to overwrite life registers.
@@ -1754,15 +1766,18 @@ class SlothyBase(LockAttributes):
                 if self.config._flexible_lifetime_start:
                     self._Add( start_var <= t.program_start_var )
 
-                # For every instruction depending on the output, add a lifetime bound
-                for d in deps:
-                    self._add_path_constraint( d, t, lambda: self._Add(
-                        end_var >= d.program_start_var ), force=True )
-        # Add bounds for all output and inout arguments
-        _add_lifetime_constraints(t.dst_out, t.out_lifetime_start,
-                                  t.out_lifetime_end, t.out_lifetime_duration)
-        _add_lifetime_constraints(t.dst_in_out, t.inout_lifetime_start,
-                                  t.inout_lifetime_end, t.inout_lifetime_duration)
+        _add_basic_constraints(t.out_lifetime_start, t.out_lifetime_end)
+        _add_basic_constraints(t.inout_lifetime_start, t.inout_lifetime_end)
+
+    def _add_constraints_lifetime_bounds(self):
+
+        for t in self._get_nodes(all=True):
+            self._add_constraints_lifetime_bounds_single(t)
+
+        # For every instruction depending on the output, add a lifetime bound
+        for (consumer, producer, start_var, end_var, _) in self._iter_dependencies_with_lifetime():
+            self._add_path_constraint( consumer, producer, lambda: self._Add(
+                end_var >= consumer.program_start_var ), force=True)
 
     # ================================================================
     #                  CONSTRAINTS (Register allocation)             #
@@ -1848,30 +1863,6 @@ class SlothyBase(LockAttributes):
                                             t.alloc_in_out_var,
                                             t.alloc_in_var )
 
-        def is_cross_iteration_dependency(xy):
-            producer = xy[1]
-            consumer = xy[0]
-            return producer.src in self._model._tree.nodes_low and \
-                   consumer     in self._model._tree.nodes_high
-
-        if self.config.sw_pipelining.enabled:
-            # Find cross-iteration dependencies
-            cross_iteration_dependencies = \
-                filter(is_cross_iteration_dependency,
-                       self._list_dependencies(include_virtual_instructions=False))
-
-            for consumer, producer in cross_iteration_dependencies:
-                self.logger.debug(f"Cross iteration dependency: {producer} --> {consumer}")
-                # Make sure that no early instruction overwrites the dependency
-                # in the preamble (where `producer` is omitted).
-
-                # The renaming dictionary for the producer
-                producer_vars = producer.alloc()
-
-                for t in self._get_nodes(high=True):
-                    for dic in t.alloc_out_var:
-                        self._forbid_renaming_collision_single(producer_vars, dic, t.pre_var)
-
         if self.config.inputs_are_outputs:
             def find_out_node(t_in):
                 c = list(filter(lambda t: t.inst.orig_reg == t_in.inst.orig_reg,
@@ -1938,23 +1929,82 @@ class SlothyBase(LockAttributes):
                     t.program_start_var > s.program_start_var ).OnlyEnforceIf(t.pre_var, s.post_var )
 
         for consumer, producer in self._list_dependencies(include_virtual_instructions=False):
-            if self.config.sw_pipelining.enabled:
-                def _low(t):
-                    return t in self._model._tree.nodes_low
-                if _low(consumer) == _low(producer):
-                    self._AddImplication( producer.src.post_var, consumer.post_var )
-                    self._AddImplication( consumer.pre_var, producer.src.pre_var )
-                    self._AddImplication( producer.src.pre_var, consumer.post_var.Not() )
-                elif _low(producer):
-                    # An instruction with forward dependency to the next iteration
-                    # cannot be an early instruction, and an instruction depending
-                    # on an instruction from a previous iteration cannot be late.
-                    self._Add(producer.src.pre_var == False)
-                    self._Add(consumer.post_var == False)
-            else:
+            def _low(t):
+                return t in self._model._tree.nodes_low
+            if _low(consumer) and _low(producer.src):
                 self._AddImplication( producer.src.post_var, consumer.post_var )
                 self._AddImplication( consumer.pre_var, producer.src.pre_var )
                 self._AddImplication( producer.src.pre_var, consumer.post_var.Not() )
+            elif _low(producer.src):
+                # An instruction with forward dependency to the next iteration
+                # cannot be an early instruction, and an instruction depending
+                # on an instruction from a previous iteration cannot be late.
+                self._Add(producer.src.pre_var == False)
+                self._Add(consumer.post_var == False)
+
+    # ================================================================
+    #                 CONSTRAINTS (Software pipelining)              #
+    # ================================================================
+
+    def _add_constraints_preamble_postamble(self):
+        """Add constraints ensuring the functional correctness of the preamble
+        and postamble."""
+
+        if not self.config.sw_pipelining.enabled:
+            return
+
+        def _low(t):
+            return t in self._model._tree.nodes_low
+        def _high(t):
+            return t in self._model._tree.nodes_high
+        def is_cross_iteration_dependency(dep):
+            (consumer, producer, _, _, _) = dep
+            return _low(producer) and _high(consumer)
+
+        cross_iteration_dependencies = \
+            filter(is_cross_iteration_dependency, self._iter_dependencies_with_lifetime())
+
+        for (consumer, producer, start_var, end_var, alloc_vars) in cross_iteration_dependencies:
+            self.logger.debug(f"Cross iteration dependency: {producer} --> {consumer}")
+
+            # When early instructions are used, there are two sources of functional
+            # incorrectness in preamble and postamble:
+            #
+            # Preamble:
+            # Given a cross-iteration dependency A --> B, no early instruction C may
+            # overwrite the output of A, regardless of where it is placed. In the periodic
+            # part of the loop, that would be OK (if C comes before A), but in the preamble
+            # it isn't, since A is omitted there (or is, conceptually, only present as a
+            # virtual input instruction at the top of the preamble).
+
+            # Ensure no early instruction overwrites the dependency in the preamble
+            for t in self._get_nodes(high=True):
+                for dic in t.alloc_out_var:
+                    self._forbid_renaming_collision_single(alloc_vars, dic, t.pre_var)
+
+            # TODO: This is actually one case where this condition is too strong: If B
+            # is an early instruction, then it is OK for another early instruction C
+            # coming _after_ B (in the output scheduling) to overwrite the output of A.
+
+            # Postamble:
+            # Consider again a cross-iteration dependencies A --> B, and assume B is an
+            # early instruction. If it happens that B is the only consumer of the output
+            # of A, then non-early instructions coming after B could overwrite the output
+            # of A. Again, this is OK in the periodic part of the loop, but it's functionally
+            # incorrect in the postamble
+            # We prevent this case by always lower-bounding the lifetime of output(A)
+            # by the loop boundary: In that case, B can still be an early instruction,
+            # but the output register of A would remain unusable until the loop boundary.
+
+            if self.config.sw_pipelining.allow_pre:
+                self._add_path_constraint( consumer, producer, lambda: self._Add(
+                    end_var >= len(self._model._tree.nodes_low)))
+
+            # TODO: This is too strong as well... other _early_ instructions are allowed
+            # to overwrite the output of A. For deeply early instructions, this is a pretty
+            # serious over-constraint
+
+            # TODO: Add similar constraints if late instructions are enabled
 
     # ================================================================
     #                  CONSTRAINTS (Single issuing)                  #
