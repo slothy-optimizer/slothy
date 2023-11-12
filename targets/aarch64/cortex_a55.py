@@ -120,6 +120,9 @@ execution_units = {
       stack_vld1r, stack_vld2_lane,
     ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],  # these instructions use VEC0 or VEC1
 
+    is_qform_form_of(vmov) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vmov) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+
     is_qform_form_of(trn1) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn1) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
 
@@ -158,7 +161,7 @@ execution_units = {
 }
 
 inverse_throughput = {
-    ( vadd, vsub,
+    ( vadd, vsub, vmov,
       vmul, vmul_lane, vmls, vmls_lane,
       vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull,
       vmlal,
@@ -195,6 +198,8 @@ inverse_throughput = {
 }
 
 default_latencies = {
+    vmov: 2,
+
     is_qform_form_of([vadd, vsub]) : 3,
     is_dform_form_of([vadd, vsub]) : 2,
 

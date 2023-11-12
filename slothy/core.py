@@ -1371,23 +1371,35 @@ class SlothyBase(LockAttributes):
            - The consumer belongs to the late part of the second iteration,
              but the producer doesn't.
         """
-
-        ct = cb()
         if not self.config.sw_pipelining.enabled:
+            cb()
             return
 
         def _input(t):
             return t.is_virtual_input()
+        def _output(t):
+            return t.is_virtual_output()
         def _low(t):
             return t in self._model._tree.nodes_low
         def _high(t):
             return t in self._model._tree.nodes_high
 
+        if (_input(producer) and _low(consumer)):
+            return
+        if (_output(consumer) and _high(producer)):
+            return
+
+        # In all other cases, we add the constraint, but condition it suitably
+        ct = cb()
         constraints = []
+
+        if _low(consumer):
+            constraints.append(consumer.pre_var.Not())
         if _low(producer):
             constraints.append(producer.pre_var.Not())
-        elif _low(consumer) and _input(producer):
-            constraints.append(consumer.pre_var.Not())
+
+        if _high(producer):
+            constraints.append(producer.post_var.Not())
         if _high(consumer):
             constraints.append(consumer.post_var.Not())
         ct.OnlyEnforceIf(constraints)
