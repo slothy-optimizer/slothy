@@ -891,23 +891,26 @@ class SlothyBase(LockAttributes):
         for ty in self.Arch.RegisterType:
             self.logger.input.debug(f"- {ty} available: {self._model.avail_renaming_regs[ty]}")
 
-    def _add_register_usage(self, reg_name, reg_ty, var, interval):
+    def _add_register_usage(self, t, reg, reg_ty, var, start_var, dur_var, end_var):
+
+        interval = self._NewOptionalIntervalVar(
+            start_var, dur_var, end_var, var, f"Usage({t.inst})({reg})<{var}>")
 
         def dic_set_default(dic, key, default):
             if key not in dic.keys():
                 dic[key] = default
 
         # At this stage, we should only operate with _architectural_ register names
-        assert reg_name in self.Arch.RegisterType.list_registers(reg_ty)
+        assert reg in self.Arch.RegisterType.list_registers(reg_ty)
 
-        dic_set_default( self._model.register_usages, reg_name, [])
-        self._model.register_usages[reg_name].append(interval)
+        dic_set_default( self._model.register_usages, reg, [])
+        self._model.register_usages[reg].append(interval)
 
         if var == None:
             return
 
-        dic_set_default( self._model.register_usage_vars, reg_name, [])
-        self._model.register_usage_vars[reg_name].append(var)
+        dic_set_default( self._model.register_usage_vars, reg, [])
+        self._model.register_usage_vars[reg].append(var)
 
     def _backup_original_code(self):
         for t in self._get_nodes():
@@ -1535,13 +1538,16 @@ class SlothyBase(LockAttributes):
             if self.config._flexible_lifetime_start:
                 t.out_lifetime_start      = [ make_start_var(f"{t.varname()}_out_{i}_lifetime_start")
                                               for i in range(t.inst.num_out) ]
+                t.inout_lifetime_start    = [ make_start_var(f"{t.varname()}_inout_{i}_lifetime_start")
+                                              for i in range(t.inst.num_in_out) ]
             else:
                 t.out_lifetime_start      = [ t.program_start_var for i in range(t.inst.num_out) ]
+                t.inout_lifetime_start    = [ t.program_start_var for i in range(t.inst.num_in_out) ]
+
             t.out_lifetime_end        = [ make_var(f"{t.varname()}_out_{i}_lifetime_end")
                                           for i in range(t.inst.num_out) ]
             t.out_lifetime_duration   = [ make_var(f"{t.varname()}_out_{i}_lifetime_dur")
                                           for i in range(t.inst.num_out) ]
-            t.inout_lifetime_start    = [ t.program_start_var for i in range(t.inst.num_in_out) ]
             t.inout_lifetime_end      = [ make_var(f"{t.varname()}_inout_{i}_lifetime_end")
                                           for i in range(t.inst.num_in_out) ]
             t.inout_lifetime_duration = [ make_var(f"{t.varname()}_inout_{i}_lifetime_dur")
@@ -1639,48 +1645,10 @@ class SlothyBase(LockAttributes):
                     if arg_out in candidates_restricted:
                         self._AddHint(var_dict[arg_out], True)
 
-        # Create intervals tracking the usage of registers
-        for t in self._get_nodes(all=True):
-            self.logger.debug(f"Create register usage intervals for {t}")
-            for arg_ty, arg_out, var_dict, start_var, dur_var, end_var in \
-                zip(t.inst.arg_types_out,
-                    t.inst.args_out,
-                    t.alloc_out_var,
-                    t.out_lifetime_start,
-                    t.out_lifetime_duration,
-                    t.out_lifetime_end, strict=True):
-                for reg, var in var_dict.items():
-                    usage_interval = self._NewOptionalIntervalVar(
-                        start_var, dur_var, end_var, var, f"USAGE({t.inst})({reg})<{var}>")
-                    self._add_register_usage(reg, arg_ty, var, usage_interval)
-
-        # Input and InOut arguments
-        # This has to come _after_ the previous loop establishing register renaming variables.
+        # For convenience, also add references to the variables governing the
+        # register renaming for input and input/output arguments.
         for t in self._get_nodes(all=True):
 
-            # For outputs that are also inputs, we cannot perform register
-            # renaming, but are bound by the choice of register when the
-            # input was originally created.
-            #
-            # Trace back input to its origin and store a reference to the
-            # register renaming variables used therein.
-
-            t.alloc_in_out_var = []
-            for arg_ty, inout, dur_var, end_var in zip(t.inst.arg_types_in_out,
-                                                       t.src_in_out,
-                                                       t.inout_lifetime_duration,
-                                                       t.inout_lifetime_end, strict=True):
-                inout = inout.reduce()
-                t.alloc_in_out_var.append(inout.src.alloc_out_var[inout.idx])
-
-                for out_reg, usage_var in t.alloc_in_out_var[-1].items():
-                    ival = self._NewOptionalIntervalVar(t.program_start_var,
-                                                        dur_var, end_var,
-                                                        usage_var, "")
-                    self._add_register_usage(out_reg, arg_ty, usage_var, ival)
-
-            # For convenience, also add references to the variables governing the
-            # register renaming for input arguments.
             t.alloc_in_var = []
             for arg_in in t.src_in:
                 arg_in = arg_in.reduce()
@@ -1691,7 +1659,6 @@ class SlothyBase(LockAttributes):
                 arg_in_out = arg_in_out.reduce()
                 t.alloc_in_out_var.append(arg_in_out.src.alloc_out_var[arg_in_out.idx])
 
-        # Input/Output arguments
         # We may have constraints on allowed configurations of input/output arguments,
         # such as VST4{0-3} requiring consecutive input registers.
         # Here we add variables for those constraints
@@ -1724,6 +1691,24 @@ class SlothyBase(LockAttributes):
             add_arg_combination_vars( t.inst.args_out_combinations,
                                       t.alloc_out_combinations_vars,
                                       "output" )
+
+        ## Create intervals tracking the usage of registers
+
+        for t in self._get_nodes(all=True):
+            self.logger.debug(f"Create register usage intervals for {t}")
+
+            ivals = []
+            ivals += list(zip(t.inst.arg_types_out, t.alloc_out_var,
+                              t.out_lifetime_start, t.out_lifetime_duration,
+                              t.out_lifetime_end, strict=True))
+            ivals += list(zip(t.inst.arg_types_in_out, t.alloc_in_out_var,
+                              t.inout_lifetime_start, t.inout_lifetime_duration,
+                              t.inout_lifetime_end, strict=True))
+
+            for arg_ty, var_dict, start_var, dur_var, end_var in ivals:
+                for reg, var in var_dict.items():
+                    self._add_register_usage(t, reg, arg_ty, var,
+                                             start_var, dur_var, end_var)
 
     # ================================================================
     #                  VARIABLES (Loop rolling)                      #
