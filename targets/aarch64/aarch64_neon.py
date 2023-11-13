@@ -123,6 +123,12 @@ class RegisterType(Enum):
                  RegisterType.Hint      : hints,
                  RegisterType.Flags     : flags}[reg_type]
 
+    def find_type(r):
+        for t in RegisterType:
+            if r in RegisterType.list_registers(ty):
+                return ty
+        raise Exception(f"Unknown architectural register {r}")
+
     def from_string(string):
         string = string.lower()
         return { "qstack"   : RegisterType.StackNeon,
