@@ -386,7 +386,7 @@ class Config(NestedPrint, LockAttributes):
 
         _default_enabled = False
         _default_unroll = 1
-        _default_pre_before_post = True
+        _default_pre_before_post = False
         _default_allow_pre = True
         _default_allow_post = False
         _default_unknown_iteration_count = False
