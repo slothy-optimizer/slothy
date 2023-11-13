@@ -1898,6 +1898,9 @@ class SlothyBase(LockAttributes):
         if not self.config.sw_pipelining.enabled:
             return
 
+        def _low(t):
+            return t in self._get_nodes(low=True)
+
         if self.config.sw_pipelining.max_overlapping != None:
             prepostlist = [ t.core_var.Not() for t in self._get_nodes(low=True) ]
             self._Add( cp_model.LinearExpr.Sum(prepostlist) <=
@@ -1912,36 +1915,29 @@ class SlothyBase(LockAttributes):
 
             self._AddExactlyOne([t.pre_var, t.post_var, t.core_var])
 
-            # Not sure if those hints are any helpful
+            if not self.config.sw_pipelining.allow_pre:
+                self._Add(t.pre_var == False)
+            if not self.config.sw_pipelining.allow_post:
+                self._Add(t.post_var == False)
+
             if self.config.hints.all_core:
                 self._AddHint(t.core_var,True)
                 self._AddHint(t.pre_var, False)
                 self._AddHint(t.post_var,False)
 
             # Allow early instructions only in a certain range
-            num = len(self._model._tree.nodes_low)
-            pos = t.orig_pos if t.orig_pos < num else t.orig_pos - num
-            relpos = pos / num
-            if relpos < 1 and relpos > self.config.sw_pipelining.max_pre:
-                self._Add( t.pre_var == False )
-
-            if not self.config.sw_pipelining.allow_pre and \
-               not self.config.sw_pipelining.allow_post:
-                self._Add(t.post_var == False)
-                self._Add(t.pre_var  == False)
-            elif not self.config.sw_pipelining.allow_pre:
-                self._Add(t.pre_var == False)
-            elif not self.config.sw_pipelining.allow_post:
-                self._Add(t.post_var == False)
+            if self.config.sw_pipelining.max_pre < 1.0 and _low(t):
+                relpos = t.orig_pos / len(self._get_nodes(low=True))
+                if relpos < 1 and relpos > self.config.sw_pipelining.max_pre:
+                    self._Add( t.pre_var == False )
 
         if self.config.sw_pipelining.pre_before_post:
-            for t, s in [(t,s) for t in self._get_nodes(low=True) for s in self._model._tree.nodes_low ]:
-                self._Add(
-                    t.program_start_var > s.program_start_var ).OnlyEnforceIf(t.pre_var, s.post_var )
+            for t, s in [(t,s) for t in self._get_nodes(low=True) \
+                               for s in self._get_nodes(low=True) ]:
+                self._Add(t.program_start_var > s.program_start_var ).\
+                    OnlyEnforceIf(t.pre_var, s.post_var )
 
         for consumer, producer in self._list_dependencies(include_virtual_instructions=False):
-            def _low(t):
-                return t in self._model._tree.nodes_low
             if _low(consumer) and _low(producer.src):
                 self._AddImplication( producer.src.post_var, consumer.post_var )
                 self._AddImplication( consumer.pre_var, producer.src.pre_var )
