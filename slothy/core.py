@@ -2289,20 +2289,36 @@ class SlothyBase(LockAttributes):
             self._Add( t.slot_var == s ).OnlyEnforceIf(var)
 
     def restrict_slots_for_instructions(self, ts, slots):
+        """Restrict issue slots for a list of instructions"""
         for t in ts:
             self.restrict_slots_for_instruction(t,slots)
 
     def filter_instructions_by_property(self, filter_func):
+        """Returns all nodes for instructions passing the filter"""
         return [ t for t in self._get_nodes() if filter_func(t.inst) ]
 
     def filter_instructions_by_class(self, cls_lst):
-        return [ t for t in self._get_nodes() if type(t.inst) in cls_lst ]
+        """Returns all nodes for instructions belonging the
+        provided list of instruction classes."""
+        return self.filter_instructions_by_property(lambda i: type(i) in cls_lst)
 
     def restrict_slots_for_instructions_by_class(self, cls_lst, slots):
+        """Restrict issue slots for all instructions belonging to the
+        provided list of instruction classes.
+
+        Args:
+        - cls_lst: A list of instruction classes
+        - slots: A list of issue slots represented as integers."""
         self.restrict_slots_for_instructions(
             self.filter_instructions_by_class(cls_lst), slots )
 
     def restrict_slots_for_instructions_by_property(self, filter_func, slots):
+        """Restrict issue slots for all instructions passing the given
+        filter function.
+
+        Args:
+        - cls_lst: A predicate on instructions
+        - slots: A list of issue slots represented as integers."""
         self.restrict_slots_for_instructions(
             self.filter_instructions_by_property(filter_func), slots )
 
