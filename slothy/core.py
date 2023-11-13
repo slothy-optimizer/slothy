@@ -2240,12 +2240,35 @@ class SlothyBase(LockAttributes):
 
         This is only meaningful if software pipelining is enabled."""
         if not self.config.sw_pipelining.enabled:
-            return
+            raise Exception("restrict_early_late_instructions() only useful in SW pipelining mode")
 
         for t in self._get_nodes():
             if filter_func(t.inst):
                 continue
             self._Add(t.core_var == True)
+
+    def force_early(self, filter_func, early=True):
+        """Forces all instructions passing the filter_func to be `early`, that is,
+        neither early nor late instructions.
+
+        This is only meaningful if software pipelining is enabled."""
+        if not self.config.sw_pipelining.enabled:
+            raise Exception("force_early() only useful in SW pipelining mode")
+
+        invalid_pre  =     early and not self.config.sw_pipelining.allow_pre
+        invalid_post = not early and not self.config.sw_pipelining.allow_post
+        if invaild_pre or invalid_post:
+           raise Exception("Invalid SW pipelining configuration in force_early()")
+
+        for t in self._get_nodes():
+            if filter_func(t.inst):
+                continue
+            if early:
+                self.logger.debug(f"Forcing instruction {t} to be early")
+                self._Add(t.pre_var == True)
+            else:
+                self.logger.debug(f"Forcing instruction {t} to be late")
+                self._Add(t.post_var == True)
 
     def restrict_slots_for_instruction( self, t, slots ):
         """This forces the given instruction to be assigned precisely one of the slots
