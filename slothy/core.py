@@ -897,20 +897,16 @@ class SlothyBase(LockAttributes):
         interval = self._NewOptionalIntervalVar(
             start_var, dur_var, end_var, var, f"Usage({t.inst})({reg})<{var}>")
 
-        def dic_set_default(dic, key, default):
-            if key not in dic.keys():
-                dic[key] = default
-
         # At this stage, we should only operate with _architectural_ register names
         assert reg in self.Arch.RegisterType.list_registers(reg_ty)
 
-        dic_set_default( self._model.register_usages, reg, [])
+        self._model.register_usages.setdefault(reg, [])
         self._model.register_usages[reg].append(interval)
 
         if var == None:
             return
 
-        dic_set_default( self._model.register_usage_vars, reg, [])
+        self._model.register_usage_vars.setdefault(reg, [])
         self._model.register_usage_vars[reg].append(var)
 
     def _backup_original_code(self):
