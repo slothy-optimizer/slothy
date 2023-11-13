@@ -1351,8 +1351,8 @@ class SlothyBase(LockAttributes):
         if self.config.visualize_reordering:
             self._result._code += self._result.orig_code_visualized
 
-    def _list_dependencies(self, include_virtual_instructions=True ):
-        yield from filter( lambda cp: include_virtual_instructions or \
+    def _list_dependencies(self, with_virt=True ):
+        yield from filter( lambda cp: with_virt or \
                                       (cp[0] in self._model._tree.nodes and
                                        cp[1].src in self._model._tree.nodes),
                            self._model._tree.iter_dependencies() )
@@ -1937,7 +1937,7 @@ class SlothyBase(LockAttributes):
                 self._Add(t.program_start_var > s.program_start_var ).\
                     OnlyEnforceIf(t.pre_var, s.post_var )
 
-        for consumer, producer in self._list_dependencies(include_virtual_instructions=False):
+        for consumer, producer in self._list_dependencies(with_virt=False):
             if _low(consumer) and _low(producer.src):
                 self._AddImplication( producer.src.post_var, consumer.post_var )
                 self._AddImplication( consumer.pre_var, producer.src.pre_var )
@@ -2117,7 +2117,7 @@ class SlothyBase(LockAttributes):
     def _add_constraints_latencies(self):
         if not self.config.constraints.model_latencies:
             return
-        for t,i in self._list_dependencies(include_virtual_instructions=False):
+        for t,i in self._list_dependencies(with_virt=False):
             latency = self.Target.get_latency(i.src.inst, i.idx, t.inst)
             if type(latency) == int:
                 self.logger.debug(f"General latency constraint: [{t}] >= [{i.src}] + {latency}")
