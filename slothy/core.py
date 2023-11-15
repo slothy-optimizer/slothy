@@ -240,7 +240,7 @@ class Result(LockAttributes):
         return res
 
     @lru_cache(maxsize=2)
-    def get_reordering(self, copies):
+    def get_reordering(self, copies, no_gaps=False):
         tmp = self.get_periodic_reordering(copies)
         if not self.config.sw_pipelining.enabled:
             return tmp
@@ -251,7 +251,22 @@ class Result(LockAttributes):
             if post:
                 tmp[(copies - 1) * self.codesize + i] += copies * self.codesize
 
+        if no_gaps:
+            tmp_sorted = list(tmp.items())
+            tmp_sorted.sort(key=lambda x: x[1])
+            tmp_sorted = [ x[0] for x in tmp_sorted ]
+            tmp = { i : pos for (pos,i) in enumerate(tmp_sorted) }
+
         return tmp
+
+    def get_code(self, iterations):
+        assert iterations > self.num_exceptional_iterations
+        kernel_copies = iterations - self.num_exceptional_iterations
+        new_source = '\n'.join(self.preamble                 +
+                               ( self.code * kernel_copies ) +
+                               self.postamble )
+        old_source = '\n'.join(self.orig_code * iterations)
+        return old_source, new_source
 
     @cached_property
     def reordering(self):
@@ -321,23 +336,9 @@ class Result(LockAttributes):
            of iterations."""
 
         if self.config.sw_pipelining.enabled:
-            # Software pipelining mode is reduced to straightline by unrolling the loop
-            # a fixed number of times.
-            old_source = '\n'.join(self.orig_code * iterations)
-
-            assert iterations > self.num_exceptional_iterations
-            kernel_copies = iterations - self.num_exceptional_iterations
-            new_source = '\n'.join(self.preamble                 +
-                                   ( self.code * kernel_copies ) +
-                                   self.postamble )
-
-            reordering = self.get_reordering(iterations)
-            # For the first and last iteration, there will be gaps in the positioning; remove those.
-            reordering_sorted = list(reordering.items())
-            reordering_sorted.sort(key=lambda x: x[1])
-            reordering_sorted = [ x[0] for x in reordering_sorted ]
-            reordering = { i : pos for (pos,i) in enumerate(reordering_sorted) }
-
+            # Unroll the loop a fixed number of times
+            old_source, new_source = self.get_code(iterations)
+            reordering = self.get_reordering(iterations, no_gaps=True)
         else:
             old_source = '\n'.join(self.orig_code)
             new_source = '\n'.join(self.code)
