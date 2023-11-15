@@ -524,8 +524,10 @@ class DataFlowGraph:
 
     def iter_dependencies(self):
         for consumer in self.nodes_all:
-            for producer in consumer.src_in + consumer.src_in_out:
-                yield (consumer,producer)
+            for idx, producer in enumerate(consumer.src_in):
+                yield (consumer, producer, "in", idx)
+            for idx, producer in enumerate(consumer.src_in_out):
+                yield (consumer,producer, "inout", idx)
 
     def _typecheck_node(self, s):
         # We maintain a typing dictionary capturing what we think the type

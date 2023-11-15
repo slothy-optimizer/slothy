@@ -37,7 +37,7 @@ from slothy.helper import LockAttributes, NestedPrint, AsmHelper, Permutation
 
 from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
-from slothy.dataflow import InstructionOutput, InstructionInOut
+from slothy.dataflow import InstructionOutput, InstructionInOut, ComputationNode
 from slothy.dataflow import VirtualOutputInstruction, VirtualInputInstruction
 
 class Result(LockAttributes):
@@ -1122,25 +1122,16 @@ class SlothyBase(LockAttributes):
 
         We don't model load/store instructions with address increments as modifying the
         address register; doing so would severely limit the ability to perform software pipelining,
-        which often requires load instructions for one iteration to be moved propr to store
+        which often requires load instructions for one iteration to be moved prior to store
         instructions in the previous iteration. Instead, we model them as keeping the address
         register unmodified, thereby allowing free reordering, and adjust address offsets afterwards.
 
         See section "Address modifications in "Fast and Clean: Auditable high-performance
         assembly via constraint solving", https://eprint.iacr.org/2022/1303"""
-
-        if affected is None:
-            affected = lambda _: True
-        if affecting is None:
-            affecting = lambda _: True
-
         if ipairs is None:
             ipairs = self._get_reordered_instructions()
-
-        # Search for instances of VLDR,VSTR that have been swapped
         for t0,t1 in ipairs:
             SlothyBase._fixup_reordered_pair(t0,t1,self.logger,affecting=affecting,affected=affected)
-
 
     def _post_optimize_fixup_apply(self):
         SlothyBase._post_optimize_fixup_apply_core(self._model._tree.nodes, self.logger)
@@ -1347,12 +1338,6 @@ class SlothyBase(LockAttributes):
         if self.config.visualize_reordering:
             self._result._code += self._result.orig_code_visualized
 
-    def _list_dependencies(self, with_virt=True ):
-        yield from filter( lambda cp: with_virt or \
-                                      (cp[0] in self._model._tree.nodes and
-                                       cp[1].src in self._model._tree.nodes),
-                           self._model._tree.iter_dependencies() )
-
     def _add_path_constraint( self, consumer, producer, cb, force=False):
         """Add model constraint cb() relating to the pair of producer-consumer instructions
            Outside of loop mode, this ignores producer and consumer, and just adds cb().
@@ -1371,32 +1356,23 @@ class SlothyBase(LockAttributes):
             cb()
             return
 
-        def _input(t):
-            return t.is_virtual_input()
-        def _output(t):
-            return t.is_virtual_output()
-        def _low(t):
-            return t in self._model._tree.nodes_low
-        def _high(t):
-            return t in self._model._tree.nodes_high
-
-        if (_input(producer) and _low(consumer)):
+        if self._is_input(producer) and self._is_low(consumer):
             return
-        if (_output(consumer) and _high(producer)):
+        if self._is_output(consumer) and self._is_high(producer):
             return
 
         # In all other cases, we add the constraint, but condition it suitably
         ct = cb()
         constraints = []
 
-        if _low(consumer):
+        if self._is_low(consumer):
             constraints.append(consumer.pre_var.Not())
-        if _low(producer):
+        if self._is_low(producer):
             constraints.append(producer.pre_var.Not())
 
-        if _high(producer):
+        if self._is_high(producer):
             constraints.append(producer.post_var.Not())
-        if _high(consumer):
+        if self._is_high(consumer):
             constraints.append(consumer.post_var.Not())
         ct.OnlyEnforceIf(constraints)
 
@@ -1412,16 +1388,11 @@ class SlothyBase(LockAttributes):
                 cb().OnlyEnforceIf(bvar)
             return
 
-        def _low(t):
-            return t in self._model._tree.nodes_low
-        def _high(t):
-            return t in self._model._tree.nodes_high
-
         for (cb, bvar) in zip(cb_lst, bvars, strict=True):
             constraints = [bvar]
-            if _low(producer):
+            if self._is_low(producer):
                 constraints.append(producer.pre_var.Not())
-            if _high(consumer):
+            if self._is_high(consumer):
                 constraints.append(consumer.post_var.Not())
             cb().OnlyEnforceIf([producer.pre_var, consumer.pre_var, bvar])
 
@@ -1739,6 +1710,32 @@ class SlothyBase(LockAttributes):
     #                  CONSTRAINTS (Lifetime bounds)                 #
     # ================================================================
 
+    def _is_low(self, t):
+        assert isinstance(t, ComputationNode)
+        return t in self._model._tree.nodes_low
+
+    def _is_high(self, t):
+        assert isinstance(t, ComputationNode)
+        return t in self._model._tree.nodes_high
+
+    def _is_input(self, t):
+        assert isinstance(t, ComputationNode)
+        return t.is_virtual_input()
+
+    def _is_output(self, t):
+        assert isinstance(t, ComputationNode)
+        return t.is_virtual_output()
+
+    def _iter_dependencies(self, with_virt=True):
+        def f(t):
+            if with_virt:
+                return True
+            (consumer, producer, _, _) = t
+            return consumer in self._get_nodes() and \
+                   producer.src in self._get_nodes()
+
+        yield from filter(f, self._model._tree.iter_dependencies())
+
     def _iter_dependencies_with_lifetime(self):
 
         def _get_lifetime_start(src):
@@ -1755,10 +1752,18 @@ class SlothyBase(LockAttributes):
                 return src.src.inout_lifetime_end[src.idx]
             raise Exception("Unknown register source")
 
-        for (consumer, producer) in self._list_dependencies():
+        for (consumer, producer, ty, idx) in self._iter_dependencies():
             start_var = _get_lifetime_start(producer)
             end_var = _get_lifetime_end(producer)
-            yield (consumer, producer.src, start_var, end_var, producer.alloc())
+            yield (consumer, producer, ty, idx, start_var, end_var, producer.alloc())
+
+    def _iter_cross_iteration_dependencies(self):
+        def is_cross_iteration_dependency(dep):
+            (consumer, producer, _, _, _, _, _) = dep
+            return self._is_low(producer.src) and self._is_high(consumer)
+
+        yield from filter(is_cross_iteration_dependency,
+                          self._iter_dependencies_with_lifetime())
 
     def _add_constraints_lifetime_bounds_single(self, t):
 
@@ -1782,8 +1787,9 @@ class SlothyBase(LockAttributes):
             self._add_constraints_lifetime_bounds_single(t)
 
         # For every instruction depending on the output, add a lifetime bound
-        for (consumer, producer, start_var, end_var, _) in self._iter_dependencies_with_lifetime():
-            self._add_path_constraint( consumer, producer, lambda: self._Add(
+        for (consumer, producer, _, _, start_var, end_var, _) in \
+            self._iter_dependencies_with_lifetime():
+            self._add_path_constraint( consumer, producer.src, lambda: self._Add(
                 end_var >= consumer.program_start_var ), force=True)
 
     # ================================================================
@@ -1894,9 +1900,6 @@ class SlothyBase(LockAttributes):
         if not self.config.sw_pipelining.enabled:
             return
 
-        def _low(t):
-            return t in self._get_nodes(low=True)
-
         if self.config.sw_pipelining.max_overlapping != None:
             prepostlist = [ t.core_var.Not() for t in self._get_nodes(low=True) ]
             self._Add( cp_model.LinearExpr.Sum(prepostlist) <=
@@ -1922,7 +1925,7 @@ class SlothyBase(LockAttributes):
                 self._AddHint(t.post_var,False)
 
             # Allow early instructions only in a certain range
-            if self.config.sw_pipelining.max_pre < 1.0 and _low(t):
+            if self.config.sw_pipelining.max_pre < 1.0 and self._is_low(t):
                 relpos = t.orig_pos / len(self._get_nodes(low=True))
                 if relpos < 1 and relpos > self.config.sw_pipelining.max_pre:
                     self._Add( t.pre_var == False )
@@ -1933,12 +1936,12 @@ class SlothyBase(LockAttributes):
                 self._Add(t.program_start_var > s.program_start_var ).\
                     OnlyEnforceIf(t.pre_var, s.post_var )
 
-        for consumer, producer in self._list_dependencies(with_virt=False):
-            if _low(consumer) and _low(producer.src):
+        for consumer, producer, _, _ in self._iter_dependencies(with_virt=False):
+            if self._is_low(consumer) and self._is_low(producer.src):
                 self._AddImplication( producer.src.post_var, consumer.post_var )
                 self._AddImplication( consumer.pre_var, producer.src.pre_var )
                 self._AddImplication( producer.src.pre_var, consumer.post_var.Not() )
-            elif _low(producer.src):
+            elif self._is_low(producer.src):
                 # An instruction with forward dependency to the next iteration
                 # cannot be an early instruction, and an instruction depending
                 # on an instruction from a previous iteration cannot be late.
@@ -1956,18 +1959,10 @@ class SlothyBase(LockAttributes):
         if not self.config.sw_pipelining.enabled:
             return
 
-        def _low(t):
-            return t in self._model._tree.nodes_low
-        def _high(t):
-            return t in self._model._tree.nodes_high
-        def is_cross_iteration_dependency(dep):
-            (consumer, producer, _, _, _) = dep
-            return _low(producer) and _high(consumer)
+        cross_deps = self._iter_cross_iteration_dependencies()
+        for (consumer, producer, _, _, start_var, end_var, alloc_vars) in cross_deps:
+            producer = producer.src
 
-        cross_iteration_dependencies = \
-            filter(is_cross_iteration_dependency, self._iter_dependencies_with_lifetime())
-
-        for (consumer, producer, start_var, end_var, alloc_vars) in cross_iteration_dependencies:
             self.logger.debug(f"Cross iteration dependency: {producer} --> {consumer}")
 
             # When early instructions are used, there are two sources of functional
@@ -2098,11 +2093,11 @@ class SlothyBase(LockAttributes):
         # If we model latencies, this constraint is automatic
         if self.config.constraints.model_latencies:
             return
-        for t, i in self._list_dependencies():
+        for consumer, producer, _, _ in self._iter_dependencies():
             self.logger.debug(f"Program order constraint: [{t}] > [{i.src}]")
-            self._add_path_constraint( t, i.src,
-                 lambda: self._Add( t.program_start_var >
-                                    i.src.program_start_var ) )
+            self._add_path_constraint( consumer, producer.src,
+                 lambda: self._Add( consumer.program_start_var >
+                                    producer.program_start_var ) )
 
     # ================================================================
     #               CONSTRAINTS (Functional correctness)             #
@@ -2113,7 +2108,7 @@ class SlothyBase(LockAttributes):
     def _add_constraints_latencies(self):
         if not self.config.constraints.model_latencies:
             return
-        for t,i in self._list_dependencies(with_virt=False):
+        for t, i, _, _ in self._iter_dependencies(with_virt=False):
             latency = self.Target.get_latency(i.src.inst, i.idx, t.inst)
             if type(latency) == int:
                 self.logger.debug(f"General latency constraint: [{t}] >= [{i.src}] + {latency}")
