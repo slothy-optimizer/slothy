@@ -262,10 +262,10 @@ class Result(LockAttributes):
     def get_code(self, iterations):
         assert iterations > self.num_exceptional_iterations
         kernel_copies = iterations - self.num_exceptional_iterations
-        new_source = '\n'.join(self.preamble                 +
-                               ( self.code * kernel_copies ) +
-                               self.postamble )
-        old_source = '\n'.join(self.orig_code * iterations)
+        new_source = '\n'.join(self._preamble                 +
+                               ( self._code * kernel_copies ) +
+                               self._postamble )
+        old_source = '\n'.join(self._orig_code * iterations)
         return old_source, new_source
 
     @cached_property
@@ -290,7 +290,7 @@ class Result(LockAttributes):
         """The inverse reordering permutation linking optimized and original source code"""
         return { v : k for k,v in self.reordering.items() }
 
-    @cached_property
+    @property
     def code(self):
         """The optimized source code"""
         code = self._code
@@ -327,14 +327,7 @@ class Result(LockAttributes):
 
         return res
 
-    def selfcheck(self, log, iterations=3):
-        """Checks that the original and optimized source code have isomorphic DFGs.
-           More specifically, that the reordering permutation stored in Result object
-           yields an isomorphism between DFGs.
-
-           When software pipelining is used, this is a bounded check for a fixed number
-           of iterations."""
-
+    def _get_unrolled_loop(self, log, iterations):
         if self.config.sw_pipelining.enabled:
             # Unroll the loop a fixed number of times
             old_source, new_source = self.get_code(iterations)
@@ -345,7 +338,143 @@ class Result(LockAttributes):
             reordering = self.reordering.copy()
             iterations = 1
 
-        assert Permutation.is_permutation(reordering, iterations * self.codesize)
+        n = iterations * self.codesize
+        assert Permutation.is_permutation(reordering, n)
+
+        dfg_old_log = log.getChild("dfg_old")
+        dfg_new_log = log.getChild("dfg_new")
+        SlothyBase._dump(f"Old code ({iterations} copies)", old_source, dfg_old_log)
+        SlothyBase._dump(f"New code ({iterations} copies)", new_source, dfg_new_log)
+
+        tree_old = DFG(old_source, dfg_old_log,
+                       DFGConfig(self.config, outputs=self.orig_outputs))
+        tree_new = DFG(new_source, dfg_new_log,
+                       DFGConfig(self.config, outputs=self.outputs))
+
+        return n, old_source, new_source, tree_old, tree_new, reordering
+
+    def _fixup_reordered_pair(t0, t1, logger, unsafe_skip_address_fixup=False):
+
+        def inst_changes_addr(inst):
+            return inst.increment is not None
+
+        if not t0.inst.is_load_store_instruction():
+            return
+        if not t1.inst.is_load_store_instruction():
+            return
+        if not t0.inst.addr == t1.inst.addr:
+            return
+        if inst_changes_addr(t0.inst) and inst_changes_addr(t1.inst):
+            if not unsafe_skip_address_fixup:
+                logger.error( "=======================   ERROR   ===============================")
+                logger.error(f"    Cannot handle reordering of two instructions ({t0} and {t1}) ")
+                logger.error( "           which both want to modify the same address            ")
+                logger.error( "=================================================================")
+                raise Exception("Address fixup failure")
+
+            logger.warning( "=========================   WARNING   ============================")
+            logger.warning(f"   Cannot handle reordering of two instructions ({t0} and {t1})   ")
+            logger.warning( "           which both want to modify the same address             ")
+            logger.warning( "   Skipping this -- you have to fix the address offsets manually  ")
+            logger.warning( "==================================================================")
+            return
+        if inst_changes_addr(t0.inst):
+            # t1 gets reordered before t0, which changes the address
+            # Adjust t1's address accordingly
+            logger.info(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst.increment}, "
+                         f"to {t1.fixup + int(simplify(t0.inst.increment))}")
+            t1.fixup += int(simplify(t0.inst.increment))
+        elif inst_changes_addr(t1.inst):
+            # t0 gets reordered after t1, which changes the address
+            # Adjust t0's address accordingly
+            logger.info(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst.increment}, "
+                         f"to {t0.fixup - int(simplify(t1.inst.increment))}")
+            t0.fixup -= int(simplify(t1.inst.increment))
+
+    def _fixup_reset(tree, logger):
+        for t in tree.nodes:
+            t.fixup = 0
+
+    def _fixup_finish(tree, logger):
+        def inst_changes_addr(inst):
+            return inst.increment is not None
+
+        for t in tree.nodes:
+            if not t.inst.is_load_store_instruction():
+                continue
+            if inst_changes_addr(t.inst):
+                continue
+            if t.fixup == 0:
+                continue
+            if t.inst.pre_index:
+                t.inst.pre_index = f"(({t.inst.pre_index}) + ({t.fixup}))"
+            else:
+                t.inst.pre_index = f"{t.fixup}"
+            logger.debug(f"Fixed up instruction {t.inst} by {t.fixup}, to {t.inst}")
+
+    def offset_fixup_sw(self, log):
+
+        iterations = 5
+        n, _, _, tree_old, tree_new, reordering = self._get_unrolled_loop(log, iterations)
+
+        Result._fixup_reset(tree_new, log)
+        for i, j, ni, nj in Permutation.iter_swaps(reordering, n):
+            Result._fixup_reordered_pair(tree_new.nodes[ni], tree_new.nodes[nj], log)
+        Result._fixup_finish(tree_new, log)
+
+        preamble_len = len(self._preamble)
+        postamble_len = len(self._postamble)
+
+        assert n // iterations == self.codesize
+
+        preamble_new  = [ str(t.inst) for t in tree_new.nodes[:preamble_len] ]
+        postamble_new = [ str(t.inst) for t in tree_new.nodes[-postamble_len:] ]
+
+        code_new = []
+        for i in range(iterations - self.num_exceptional_iterations):
+            code_new.append([ str(t.inst) for t in
+                              tree_new.nodes[preamble_len + i*self.codesize:
+                                             preamble_len + (i+1)*self.codesize] ])
+
+        count = 0
+        for i, (kcur, knext) in enumerate(zip(code_new, code_new[1:])):
+            if kcur != knext:
+                count += 1
+        assert count == 0
+        code_new = code_new[0]
+
+        self._preamble = preamble_new
+        self._postamble = postamble_new
+        self._code = code_new
+
+    def offset_fixup_straightline(self, log):
+        n, _, _, tree_old, tree_new, reordering = self._get_unrolled_loop(log, 1)
+
+        Result._fixup_reset(tree_new, log)
+        for _, _, ni, nj in Permutation.iter_swaps(reordering, n):
+            Result._fixup_reordered_pair(tree_new.nodes[ni], tree_new.nodes[nj], log)
+        Result._fixup_finish(tree_new, log)
+
+        self._code = [ str(t.inst) for t in tree_new.nodes ]
+
+    def offset_fixup(self,log):
+        if self.config.sw_pipelining.enabled:
+            self.offset_fixup_sw(log)
+        else:
+            self.offset_fixup_straightline(log)
+
+    def selfcheck(self, log, iterations=3):
+        """Checks that the original and optimized source code have isomorphic DFGs.
+           More specifically, that the reordering permutation stored in Result object
+           yields an isomorphism between DFGs.
+
+           When software pipelining is used, this is a bounded check for a fixed number
+           of iterations."""
+
+        _, old_source, new_source, tree_old, tree_new, reordering = self._get_unrolled_loop(log, iterations)
+
+        edges_old = tree_old.edges()
+        edges_new = tree_new.edges()
 
         # Add renaming for inputs and outputs to permutation
         for old, new in self.input_renamings.items():
@@ -364,18 +493,6 @@ class Result(LockAttributes):
             if not dst in reordering:
                 raise Exception(f"Destination ID {dst} not in remapping {reordering.items()}")
             return (reordering[src], reordering[dst], lbl)
-
-        dfg_old_log = log.getChild("dfg_old")
-        dfg_new_log = log.getChild("dfg_new")
-        SlothyBase._dump(f"Old code ({iterations} copies)", old_source, dfg_old_log)
-        SlothyBase._dump(f"New code ({iterations} copies)", new_source, dfg_new_log)
-
-        tree_old = DFG(old_source, dfg_old_log,
-                       DFGConfig(self.config, outputs=self.orig_outputs))
-        tree_new = DFG(new_source, dfg_new_log,
-                       DFGConfig(self.config, outputs=self.outputs))
-        edges_old = tree_old.edges()
-        edges_new = tree_new.edges()
 
         edges_old_remapped = set(map(apply_reordering, edges_old))
         reordering_inv = { j : i for (i,j) in reordering.items() }
@@ -534,6 +651,10 @@ class Result(LockAttributes):
         super().__init__()
 
         self._config = config.copy()
+
+        self._preamble_p = []
+        self._postamble_p = []
+        self._code_p = []
 
         self._orig_code = None
         self._code = None
@@ -963,7 +1084,7 @@ class SlothyBase(LockAttributes):
         self._extract_input_output_renaming()
 
         self._extract_code()
-
+        self._result.offset_fixup(self.logger.getChild("fixup"))
         self._result.selfcheck(self.logger.getChild("selfcheck"))
 
     def _extract_positions(self, Value):
@@ -1059,108 +1180,6 @@ class SlothyBase(LockAttributes):
             DFG(self._result.code, dfg_log,
                 DFGConfig(self.config,inputs_are_outputs=True)).inputs)
 
-    def _get_reordered_instructions(self, filter_func=None):
-        """Finds pairs of instructions passing filter_func which have been swapped."""
-
-        if filter_func == None:
-            filter_func = lambda _: True
-
-        # Find instances where t0 came _after_ t1 initially, but now it comes before
-        for t0 in self._model._tree.nodes:
-            for t1 in self._model._tree.nodes:
-                if not filter_func(t0) or not filter_func(t1):
-                    continue
-                if t0.orig_pos < t1.orig_pos and t0.real_pos > t1.real_pos:
-                    self.logger.debug(f"Instructions {t0.orig_pos} ({t0.inst})"
-                                      f"and {t1.orig_pos} ({t1.inst}) got reordered")
-                    yield t0,t1
-
-    def _fixup_reordered_pair(t0, t1, logger, unsafe_skip_address_fixup=False, affecting=None,
-                              affected=None):
-
-        def inst_changes_addr(inst):
-            return inst.increment is not None
-
-        if not t0.inst_tmp.is_load_store_instruction():
-            return
-        if not t1.inst_tmp.is_load_store_instruction():
-            return
-        if not t0.inst_tmp.addr == t1.inst_tmp.addr:
-            return
-        if inst_changes_addr(t0.inst_tmp) and inst_changes_addr(t1.inst_tmp):
-            if not unsafe_skip_address_fixup:
-                logger.error( "=======================   ERROR   ===============================")
-                logger.error(f"    Cannot handle reordering of two instructions ({t0} and {t1}) ")
-                logger.error( "           which both want to modify the same address            ")
-                logger.error( "=================================================================")
-                raise Exception("Address fixup failure")
-
-            logger.warning( "=========================   WARNING   ============================")
-            logger.warning(f"   Cannot handle reordering of two instructions ({t0} and {t1})   ")
-            logger.warning( "           which both want to modify the same address             ")
-            logger.warning( "   Skipping this -- you have to fix the address offsets manually  ")
-            logger.warning( "==================================================================")
-            return
-        if affected is None:
-            affected = lambda _: True
-        if affecting is None:
-            affecting = lambda _: True
-        if inst_changes_addr(t0.inst_tmp) and affecting(t0) and affected(t1):
-            # t1 gets reordered before t0, which changes the address
-            # Adjust t1's address accordingly
-            logger.debug(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst_tmp.increment}, "
-                         "to {t1.fixup + int(t0.inst_tmp.increment)}")
-            t1.fixup += int(simplify(t0.inst_tmp.increment))
-        elif inst_changes_addr(t1.inst_tmp) and affecting(t1) and affected(t0):
-            # t0 gets reordered after t1, which changes the address
-            # Adjust t0's address accordingly
-            logger.debug(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst_tmp.increment}, "
-                         "to {t0.fixup - int(t1.inst_tmp.increment)}")
-            t0.fixup -= int(simplify(t1.inst_tmp.increment))
-
-    def _post_optimize_fixup_compute(self, affected=None, affecting=None, ipairs=None):
-        """Adjusts immediate offsets for reordered load/store instructions.
-
-        We don't model load/store instructions with address increments as modifying the
-        address register; doing so would severely limit the ability to perform software pipelining,
-        which often requires load instructions for one iteration to be moved prior to store
-        instructions in the previous iteration. Instead, we model them as keeping the address
-        register unmodified, thereby allowing free reordering, and adjust address offsets afterwards.
-
-        See section "Address modifications in "Fast and Clean: Auditable high-performance
-        assembly via constraint solving", https://eprint.iacr.org/2022/1303"""
-        if ipairs is None:
-            ipairs = self._get_reordered_instructions()
-        for t0,t1 in ipairs:
-            SlothyBase._fixup_reordered_pair(t0,t1,self.logger,affecting=affecting,affected=affected)
-
-    def _post_optimize_fixup_apply(self):
-        SlothyBase._post_optimize_fixup_apply_core(self._model._tree.nodes, self.logger)
-
-    def _post_optimize_fixup_reset_core(nodes):
-        for t in nodes:
-            t.fixup = 0
-
-    def _post_optimize_fixup_reset(self):
-        SlothyBase._post_optimize_fixup_reset_core(self._get_nodes())
-
-    def _post_optimize_fixup_apply_core(nodes, logger):
-        def inst_changes_addr(inst):
-            return inst.increment is not None
-
-        for t in nodes:
-            if not t.inst_tmp.is_load_store_instruction():
-                continue
-            if inst_changes_addr(t.inst_tmp):
-                continue
-            if t.fixup == 0:
-                continue
-            if t.inst_tmp.pre_index:
-                t.inst_tmp.pre_index = f"(({t.inst_tmp.pre_index}) + ({t.fixup}))"
-            else:
-                t.inst_tmp.pre_index = f"{t.fixup}"
-            logger.debug(f"Fixed up instruction {t.inst_tmp} by {t.fixup}, to {t.inst_tmp}")
-
     def _extract_code(self):
 
         def add_indentation(src):
@@ -1181,7 +1200,7 @@ class SlothyBase(LockAttributes):
                 t = self._model._tree.nodes[periodic_reordering_with_bubbles_inv[line_no]]
                 if filter_func and not filter_func(t):
                     return
-                yield str(t.inst_tmp)
+                yield str(t.inst)
 
             base  = 0
             lines = self._result.codesize_with_bubbles
@@ -1197,113 +1216,17 @@ class SlothyBase(LockAttributes):
 
         if self.config.sw_pipelining.enabled:
 
-            if self.config.sw_pipelining.enabled    and \
-               self.config.sw_pipelining.allow_post:
-                self.logger.warning("=======================   WARNING   ==========================")
-                self.logger.warning("      Post-optimization address offset fixup has not been     ")
-                self.logger.warning("      properly tested for config.sw_pipelining.allow_post!    ")
-                self.logger.warning("==============================================================")
-
-            # Preamble for first iteration
-            #
-            # Fixup: Consider reorderings in
-            #
-            #  PRE.0  |   PRE.1
-            #  CORE.0 |   CORE.1
-            #  POST.0 |   POST.1
-            #
-            # and take PRE.0, CORE.0 and PRE.1
-
-            for t in self._get_nodes():
-                t.inst_tmp = deepcopy(t.inst)
-
-            self._post_optimize_fixup_reset()
-            self._post_optimize_fixup_compute()
-            self._post_optimize_fixup_apply()
-
             self._result._preamble = []
             if self._result.num_pre > 0:
                 self._result._preamble += list(get_code(filter_func=lambda t: t.pre, top=True))
             if self._result.num_post > 0:
                 self._result._preamble += list(get_code(filter_func=lambda t: not t.post))
 
-            # Last iteration -- no early instructions anymore
-            #
-            # Fixup: Consider reorderings in
-            #
-            #  PRE.0  |   PRE.1
-            #  CORE.0 |   CORE.1
-            #  POST.0 |   POST.1
-            #
-            # and take POST.0, CORE.1 and POST.1
-
             self._result._postamble = []
             if self._result.num_pre > 0:
                 self._result._postamble += list(get_code(filter_func=lambda t: not t.pre, top=True))
             if self._result.num_post > 0:
                 self._result._postamble += list(get_code(filter_func=lambda t: t.post))
-
-            # All other iterations
-            #
-            # Fixup: Consider reorderings in
-            #
-            #  PRE.0  |   PRE.1
-            #  CORE.0 |   CORE.1
-            #  POST.0 |   POST.1
-            #
-            # For CORE.1, only fixup wrt POST.0, and add the fixup to that of CORE.0
-
-            for t in self._get_nodes():
-                t.inst_tmp = deepcopy(t.inst)
-
-
-            self._post_optimize_fixup_reset()
-            self._post_optimize_fixup_compute(
-                affected=lambda t: not t.core)
-            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high,
-                               strict=True):
-                if t0.pre:
-                    assert t1.pre
-                    t0.fixup = t1.fixup
-                elif t0.post:
-                    assert t1.post
-                    t1.fixup = t0.fixup
-            self._post_optimize_fixup_apply()
-            self._post_optimize_fixup_reset()
-            self._post_optimize_fixup_compute(
-                affected=lambda t: t in self._model._tree.nodes_low and t.core)
-            self._post_optimize_fixup_compute(
-                affected=lambda t: t in self._model._tree.nodes_high and t.core,
-                affecting=lambda t: t in self._model._tree.nodes_low and t.post)
-            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high,
-                               strict=True):
-                if t0.core:
-                    assert t1.core
-                    s = t0.fixup + t1.fixup
-                    t0.fixup = s
-                    t1.fixup = s
-            self._post_optimize_fixup_apply()
-
-            # Unless sw_pipelining.pre_before_post is set, we could even have late
-            # instructions from iteration N come _after_ early instructions for iteration N+2,
-            # and in this case, the fixup computations so far wouldn't take that into account.
-            self._post_optimize_fixup_reset()
-            if not self.config.sw_pipelining.pre_before_post:
-                ipairs = [(t1,t0)
-                          for t0 in self._model._tree.nodes_low
-                          for t1 in self._model._tree.nodes_low
-                          if t0.pre and t1.post and
-                          t0.real_pos + len(self._model._tree.nodes) < t1.real_pos]
-                self._post_optimize_fixup_compute(ipairs = ipairs)
-            for (t0,t1) in zip(self._model._tree.nodes_low, self._model._tree.nodes_high,
-                               strict=True):
-                if t0.pre:
-                    assert t1.pre
-                    t1.fixup = t0.fixup
-                elif t0.post:
-                    assert t1.post
-                    t1.fixup = t0.fixup
-            self._post_optimize_fixup_apply()
 
             self._result._code = list(get_code())
             self._extract_kernel_input_output()
@@ -1320,14 +1243,6 @@ class SlothyBase(LockAttributes):
             add_indentation(self._result.postamble)
 
         else:
-
-            for t in self._get_nodes():
-                t.inst_tmp = deepcopy(t.inst)
-
-            self._post_optimize_fixup_reset()
-            self._post_optimize_fixup_compute()
-            self._post_optimize_fixup_apply()
-
             self._result._code = list(get_code())
 
             self.logger.result.debug("Optimized code")

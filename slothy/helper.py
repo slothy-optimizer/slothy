@@ -526,3 +526,7 @@ class Permutation():
         res = res | { idx_from : idx_to }
         res = res | { i:i for i in range (idx_from + 1, l) }
         return res
+
+    def iter_swaps(p, n):
+        return ((i,j,p[i],p[j]) for i in range(n) for j in range(n) \
+            if i < j and p[j] < p[i])
