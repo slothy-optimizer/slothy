@@ -582,16 +582,19 @@ class DataFlowGraph:
             out_cnt += 1
             return res
 
+        # List all instructions producing global outputs
+        outputs = self.nodes_output
+        no_ssa = []
+        for out in outputs:
+            producer = out.src_in[0].reduce()
+            if producer.src.is_virtual_input:
+                continue
+            no_ssa.append((producer.src, producer.idx))
+
         for t in self.nodes:
             for i in range(len(t.inst.args_out)):
-                # If the output is global, skip renaming
-                output_is_global = False
-                for d in t.dst_out[i]:
-                    if d.is_virtual():
-                        output_is_global = True
-                if output_is_global:
+                if (t, i) in no_ssa:
                     continue
-                # Otherwise, assign a fresh variable
                 t.inst.args_out[i] = get_fresh_reg()
 
         # Update input and in-out register names
