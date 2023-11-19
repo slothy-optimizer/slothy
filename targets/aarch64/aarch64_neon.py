@@ -39,6 +39,7 @@ import math
 
 from sympy import simplify
 from enum import Enum
+from functools import cache
 
 no_simplify = False
 
@@ -56,6 +57,7 @@ class RegisterType(Enum):
     def __repr__(self):
         return self.name
 
+    @cache
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
 
@@ -283,9 +285,6 @@ class Instruction:
             arg_types_in_out = []
 
         arg_types_all = arg_types_in + arg_types_in_out + arg_types_out
-        def isinstancelist(l, c):
-            return all( map( lambda e: isinstance(e,c), l ) )
-        assert isinstancelist(arg_types_all, RegisterType)
 
         self.mnemonic = mnemonic
 
@@ -388,16 +387,17 @@ class Instruction:
     def is_load_store_instruction(self):
         return self.is_load() or self.is_store()
 
-    def parse(self, src):
-        """Assumes format 'mnemonic [in]out0, .., [in]outN, in0, .., inM"""
-        src = re.sub("//.*$","",src)
+    def make(cls, src, *, mnemonic, **kwargs):
+        if src.split(' ')[0] != mnemonic:
+            raise Instruction.ParsingException("Mnemonic does not match")
 
-        have_dt = ( "<dt>" in self.mnemonic ) or ( "<fdt>" in self.mnemonic )
+        obj = cls(mnemonic=mnemonic, **kwargs)
+        have_dt = ( "<dt>" in obj.mnemonic ) or ( "<fdt>" in obj.mnemonic )
 
         # Replace <dt> by list of all possible datatypes
-        mnemonic = Instruction.unfold_abbrevs(self.mnemonic)
+        mnemonic = Instruction.unfold_abbrevs(obj.mnemonic)
 
-        expected_args = self.num_in + self.num_out + self.num_in_out
+        expected_args = obj.num_in + obj.num_out + obj.num_in_out
         regexp_txt  = f"^\s*{mnemonic}"
         if expected_args > 0:
             regexp_txt += "\s+"
@@ -412,43 +412,48 @@ class Instruction:
         if have_dt:
             operands = operands[1:]
 
-        self.args_in     = []
-        self.args_out    = []
-        self.args_in_out = []
+        obj.args_in     = []
+        obj.args_out    = []
+        obj.args_in_out = []
 
-        self.datatype = ""
+        obj.datatype = ""
         if have_dt:
-            self.datatype = p.group("datatype").lower()
+            obj.datatype = p.group("datatype").lower()
 
         idx_args_in = 0
 
-        if self.num_out > 0:
-            self.args_out = operands[:self.num_out]
-            idx_args_in = self.num_out
-        elif self.num_in_out > 0:
-            self.args_in_out = operands[:self.num_in_out]
-            idx_args_in = self.num_in_out
+        if obj.num_out > 0:
+            obj.args_out = operands[:obj.num_out]
+            idx_args_in = obj.num_out
+        elif obj.num_in_out > 0:
+            obj.args_in_out = operands[:obj.num_in_out]
+            idx_args_in = obj.num_in_out
 
-        self.args_in = operands[idx_args_in:]
+        obj.args_in = operands[idx_args_in:]
 
-        if not len(self.args_in) == self.num_in:
-            raise Exception(f"Something wrong parsing {src}: Expect {self.num_in} input, but got {len(self.args_in)} ({self.args_in})")
+        if not len(obj.args_in) == obj.num_in:
+            raise Exception(f"Something wrong parsing {src}: Expect {obj.num_in} input, but got {len(obj.args_in)} ({obj.args_in})")
+
+        return obj
 
     def parser(src):
         insts = []
         exceptions = {}
         instnames = []
 
+        src = src.strip()
+
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds
-        for inst_class in all_subclass_leaves(Instruction):
-            inst = inst_class()
+        for inst_class in Instruction.all_subclass_leaves:
             try:
-                inst.parse(src)
-                instnames.append(inst_class.__name__)
-                insts.append(inst)
+                inst = inst_class.make(inst_class, src)
+                instnames = [inst_class.__name__]
+                insts = [inst]
+                break
             except Instruction.ParsingException as e:
                 exceptions[inst_class.__name__] = e
+
         if len(insts) == 0:
             logging.error(f"Failed to parse instruction {src}")
             logging.error("A list of attempted parsers and their exceptions follows.")
@@ -543,6 +548,7 @@ class AArch64Instruction(Instruction):
         AArch64Instruction.PARSERS[pattern] = parser
         return parser
 
+    @cache
     def infer_register_type(ptrn):
         if ptrn[0].upper() in ["X","W"]:
             return RegisterType.GPR
@@ -554,6 +560,9 @@ class AArch64Instruction(Instruction):
 
     def __init__(self, pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False,
                  dependsOnFlags=False, force_equal=None):
+
+        self.mnemonic = pattern.split(" ")[0]
+
         if force_equal == None:
             force_equal = []
         if not inputs:
@@ -566,10 +575,6 @@ class AArch64Instruction(Instruction):
         arg_types_out    = [AArch64Instruction.infer_register_type(r) for r in outputs]
         arg_types_in_out = [AArch64Instruction.infer_register_type(r) for r in in_outs]
 
-        assert len(arg_types_in) == len(inputs)
-        assert len(arg_types_out) == len(outputs)
-        assert len(arg_types_in_out) == len(in_outs)
-
         if modifiesFlags:
             arg_types_out += [RegisterType.Flags]
             outputs       += ["flags"]
@@ -579,9 +584,9 @@ class AArch64Instruction(Instruction):
             inputs += ["flags"]
 
         super().__init__(mnemonic=pattern,
-                         arg_types_in=arg_types_in,
-                         arg_types_out=arg_types_out,
-                         arg_types_in_out=arg_types_in_out)
+                     arg_types_in=arg_types_in,
+                     arg_types_out=arg_types_out,
+                     arg_types_in_out=arg_types_in_out)
 
         self.inputs = inputs
         self.outputs = outputs
@@ -590,13 +595,9 @@ class AArch64Instruction(Instruction):
         self._force_equal = force_equal
 
         self.pattern = pattern
-        self.pattern_inputs = list(zip(inputs, arg_types_in))
-        self.pattern_outputs = list(zip(outputs, arg_types_out))
-        self.pattern_in_outs = list(zip(in_outs, arg_types_in_out))
-
-        assert len(self.pattern_inputs) == len(inputs)
-        assert len(self.pattern_outputs) == len(outputs)
-        assert len(self.pattern_in_outs) == len(in_outs)
+        self.pattern_inputs = list(zip(inputs, arg_types_in, strict=True))
+        self.pattern_outputs = list(zip(outputs, arg_types_out, strict=True))
+        self.pattern_in_outs = list(zip(in_outs, arg_types_in_out, strict=True))
 
     def _to_reg(ty, s):
         if ty == RegisterType.GPR:
@@ -636,13 +637,18 @@ class AArch64Instruction(Instruction):
             raise Exception(f"Failed to replace <{s}> by {rep} in {out}!")
         return res
 
-    def parse(self, src):
-        res = AArch64Instruction.get_parser(self.pattern)(src)
-        self.args_in = []
-        self.args_in_out = []
-        self.args_out = []
+    def make(cls, src, pattern, **kwargs):
+        if src.split(' ')[0] != pattern.split(' ')[0]:
+            raise Instruction.ParsingException("Mnemonic does not match")
 
-        for (r0, r1) in self._force_equal:
+        res = AArch64Instruction.get_parser(pattern)(src)
+        obj = cls(pattern, **kwargs)
+
+        obj.args_in = []
+        obj.args_in_out = []
+        obj.args_out = []
+
+        for (r0, r1) in obj._force_equal:
             if res[r0] != res[r1]:
                 raise Instruction.ParsingException(f"Arguments {r0} and {r1} must be equal")
 
@@ -652,12 +658,12 @@ class AArch64Instruction(Instruction):
             attr_name_i = lambda i: f"{attr_name}{i}"
             group_name_i = lambda i: f"{group_name}{i}"
             if group_name in res.keys():
-                setattr(self, attr_name, f(res[group_name]))
+                setattr(obj, attr_name, f(res[group_name]))
             else:
                 idxs = [ i for i in range(4) if group_name_i(i) in res.keys() ]
                 if len(idxs) > 0:
                     assert idxs == list(range(len(idxs)))
-                    setattr(self, attr_name,
+                    setattr(obj, attr_name,
                             list(map(lambda i: f(res[group_name_i(i)]), idxs)))
 
         group_to_attribute('datatype', 'datatype', lambda x: x.lower())
@@ -665,35 +671,27 @@ class AArch64Instruction(Instruction):
         group_to_attribute('index', 'index', int)
         group_to_attribute('flag', 'flag')
 
-        for s, ty in self.pattern_inputs:
+        for s, ty in obj.pattern_inputs:
             if ty == RegisterType.Flags:
-                self.args_in.append("flags")
+                obj.args_in.append("flags")
             else:
-                self.args_in.append(AArch64Instruction._to_reg(ty, res[s]))
-        for s, ty in self.pattern_outputs:
+                obj.args_in.append(AArch64Instruction._to_reg(ty, res[s]))
+        for s, ty in obj.pattern_outputs:
             if ty == RegisterType.Flags:
-                self.args_out.append("flags")
+                obj.args_out.append("flags")
             else:
-                self.args_out.append(AArch64Instruction._to_reg(ty, res[s]))
+                obj.args_out.append(AArch64Instruction._to_reg(ty, res[s]))
 
-        for s, ty in self.pattern_in_outs:
-            self.args_in_out.append(AArch64Instruction._to_reg(ty, res[s]))
+        for s, ty in obj.pattern_in_outs:
+            obj.args_in_out.append(AArch64Instruction._to_reg(ty, res[s]))
+
+        return obj
 
     def write(self):
         out = self.pattern
         l = list(zip(self.args_in, self.pattern_inputs))     + \
             list(zip(self.args_out, self.pattern_outputs))   + \
             list(zip(self.args_in_out, self.pattern_in_outs))
-        # if len(l) == 0:
-        #     print("SOMETHING WRONG!")
-        #     print(self.pattern)
-        #     print(f"Inputs: {self.inputs}")
-        #     print(f"Inputs: {self.outputs}")
-        #     print(f"Inputs: {self.in_outs}")
-        #     print(f"pattern Inputs: {list(self.pattern_inputs)}")
-        #     print(f"pattern Inputs: {list(self.pattern_outputs)}")
-        #     print(f"pattern Inputs: {list(self.pattern_in_outs)}")
-        #     assert False
         for arg, (s, ty) in l:
             out = AArch64Instruction._instantiate_pattern(s, ty, arg, out)
 
@@ -726,138 +724,150 @@ class AArch64Instruction(Instruction):
 ####################################################################################
 
 class qsave(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="qsave",
-                         arg_types_in=[RegisterType.Neon],
-                         arg_types_out=[RegisterType.StackNeon])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="qsave",
+                               arg_types_in=[RegisterType.Neon],
+                               arg_types_out=[RegisterType.StackNeon])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class qrestore(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="qrestore",
-                         arg_types_in=[RegisterType.StackNeon],
-                         arg_types_out=[RegisterType.Neon])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="qrestore",
+                               arg_types_in=[RegisterType.StackNeon],
+                               arg_types_out=[RegisterType.Neon])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
+
 class save(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="save",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_out=[RegisterType.StackGPR])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="save",
+                               arg_types_in=[RegisterType.GPR],
+                               arg_types_out=[RegisterType.StackGPR])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
+
 class restore(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="restore",
-                         arg_types_in=[RegisterType.StackGPR],
-                         arg_types_out=[RegisterType.GPR])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="restore",
+                               arg_types_in=[RegisterType.StackGPR],
+                               arg_types_out=[RegisterType.GPR])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 # TODO: Need to unify these
 class stack_vstp_dform(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_vstp_dform",
-                         arg_types_in=[RegisterType.Neon, RegisterType.Neon],
-                         arg_types_out=[RegisterType.StackAny, RegisterType.StackAny])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_vstp_dform",
+                               arg_types_in=[RegisterType.Neon, RegisterType.Neon],
+                               arg_types_out=[RegisterType.StackAny, RegisterType.StackAny])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_vstr_dform(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_vstr_dform",
-                         arg_types_in=[RegisterType.Neon],
-                         arg_types_out=[RegisterType.StackAny])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_vstr_dform",
+                               arg_types_in=[RegisterType.Neon],
+                               arg_types_out=[RegisterType.StackAny])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_stp(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_stp",
-                         arg_types_in=[RegisterType.GPR, RegisterType.GPR],
-                         arg_types_out=[RegisterType.StackAny, RegisterType.StackAny])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_stp",
+                               arg_types_in=[RegisterType.GPR, RegisterType.GPR],
+                               arg_types_out=[RegisterType.StackAny, RegisterType.StackAny])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_stp_wform(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_stp_wform",
-                         arg_types_in=[RegisterType.GPR, RegisterType.GPR],
-                         arg_types_out=[RegisterType.StackAny, RegisterType.StackAny])
-        self.addr = "sp"
-        self.increment = None
-
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_stp_wform",
+                               arg_types_in=[RegisterType.GPR, RegisterType.GPR],
+                               arg_types_out=[RegisterType.StackAny, RegisterType.StackAny])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_str(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_str",
-                         arg_types_in=[RegisterType.GPR],
-                         arg_types_out=[RegisterType.StackAny])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_str",
+                               arg_types_in=[RegisterType.GPR],
+                               arg_types_out=[RegisterType.StackAny])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_ldr(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_ldr",
-                         arg_types_in=[RegisterType.StackAny],
-                         arg_types_out=[RegisterType.GPR])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_ldr",
+                               arg_types_in=[RegisterType.StackAny],
+                               arg_types_out=[RegisterType.GPR])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_vld1r(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_vld1r",
-                         arg_types_in=[RegisterType.StackAny],
-                         arg_types_out=[RegisterType.Neon])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_vld1r",
+                               arg_types_in=[RegisterType.StackAny],
+                               arg_types_out=[RegisterType.Neon])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_vldr_bform(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_vldr_bform",
-                         arg_types_in=[RegisterType.StackAny],
-                         arg_types_out=[RegisterType.Neon])
-        self.addr = "sp"
-        self.increment = None
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_vldr_bform",
+                               arg_types_in=[RegisterType.StackAny],
+                               arg_types_out=[RegisterType.Neon])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_vldr_dform(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_vldr_dform",
-                         arg_types_in=[RegisterType.StackAny],
-                         arg_types_out=[RegisterType.Neon])
-        self.addr = "sp"
-        self.increment = None
-
-
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_vldr_dform",
+                               arg_types_in=[RegisterType.StackAny],
+                               arg_types_out=[RegisterType.Neon])
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 class stack_vld2_lane(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="stack_vld2_lane",
-                         arg_types_in=[RegisterType.StackAny],
-                         arg_types_in_out=[RegisterType.Neon, RegisterType.Neon, RegisterType.GPR])
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="stack_vld2_lane",
+                               arg_types_in=[RegisterType.StackAny],
+                               arg_types_in_out=[RegisterType.Neon, RegisterType.Neon, RegisterType.GPR])
 
-    def parse(self, src):
         regexp_txt = "stack_vld2_lane\s+(?P<dst1>\w+)\s*,\s*(?P<dst2>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<src2>\w+)\s*,\s*(?P<lane>.*),\s*(?P<immediate>.*)"
         regexp_txt = Instruction.unfold_abbrevs(regexp_txt)
         regexp = re.compile(regexp_txt)
         p = regexp.match(src)
         if p is None:
             raise Instruction.ParsingException("Does not match pattern")
-        self.args_in     = [p.group("src2")]
-        self.args_in_out = [p.group("dst1"), p.group("dst2"), p.group("src1")]
-        self.args_out = []
+        obj.args_in     = [p.group("src2")]
+        obj.args_in_out = [p.group("dst1"), p.group("dst2"), p.group("src1")]
+        obj.args_out = []
 
-        self.lane = p.group("lane")
-        self.immediate = p.group("immediate")
+        obj.lane = p.group("lane")
+        obj.immediate = p.group("immediate")
 
-        self.args_in_out_combinations = [
+        obj.args_in_out_combinations = [
                 ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
 
-        self.addr = p.group("src1")
-        self.increment = self.immediate
-        self.detected_stack_vld2_lane_pair = False
+        obj.addr = p.group("src1")
+        obj.increment = obj.immediate
+        obj.detected_stack_vld2_lane_pair = False
+        return obj
 
     def write(self):
         if not self.detected_stack_vld2_lane_pair:
@@ -866,20 +876,20 @@ class stack_vld2_lane(Instruction):
             return f"stack_vld2_lane {self.args_out[0]}, {self.args_out[1]}, {self.args_in_out[0]}, {self.args_in[0]}, {self.lane}, {self.immediate}"
 
 class nop(AArch64Instruction):
-    def __init__(self):
-        super().__init__("nop")
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "nop")
 
 class vadd(AArch64Instruction):
-    def __init__(self):
-        super().__init__("add <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>",
-                         inputs=["Vb", "Vc"],
-                         outputs=["Va"])
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>",
+                                       inputs=["Vb", "Vc"],
+                                       outputs=["Va"])
 
 class vsub(AArch64Instruction):
-    def __init__(self):
-        super().__init__("sub <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>",
-                         inputs=["Vb", "Vc"],
-                         outputs=["Va"])
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sub <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>",
+                                       inputs=["Vb", "Vc"],
+                                       outputs=["Va"])
 
 ############################
 #                          #
@@ -891,167 +901,153 @@ class Ldr_Q(AArch64Instruction):
     pass
 
 class d_ldp_sp_imm(Ldr_Q):
-    def __init__(self):
-        super().__init__("ldp <Da>, <Db>, [sp, <imm>]",
-                         # TODO: model stack dependency
-                         outputs=["Da", "Db"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldp <Da>, <Db>, [sp, <imm>]",
+                                      # TODO: model stack dependency
+                                      outputs=["Da", "Db"])
+
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
 class q_ldr(Ldr_Q):
-    def __init__(self):
-        super().__init__("ldr <Qa>, [<Xc>]",
-                         inputs=["Xc"],
-                         outputs=["Qa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = None
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Qa>, [<Xc>]",
+                                      inputs=["Xc"],
+                                      outputs=["Qa"])
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 class q_ldr_with_inc_hint(Ldr_Q):
-    def __init__(self):
-        super().__init__("ldrh <Qa>, <Xc>, <imm>, <Th>",
-                         inputs=["Xc", "Th"],
-                         outputs=["Qa"])
-
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldrh <Qa>, <Xc>, <imm>, <Th>",
+                                      inputs=["Xc", "Th"],
+                                      outputs=["Qa"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class q_ldr_with_inc(Ldr_Q):
-    def __init__(self):
-        super().__init__("ldr <Qa>, [<Xc>, <imm>]",
-                         inputs=["Xc"],
-                         outputs=["Qa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Qa>, [<Xc>, <imm>]",
+                                      inputs=["Xc"],
+                                      outputs=["Qa"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class q_ldr_with_inc_writeback(Ldr_Q):
-    def __init__(self):
-        super().__init__("ldr <Qa>, [<Xc>, <imm>]!",
-                         inputs=["Xc"],
-                         outputs=["Qa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Qa>, [<Xc>, <imm>]!",
+                                      inputs=["Xc"],
+                                      outputs=["Qa"])
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 class q_ldr_with_postinc(Ldr_Q):
-    def __init__(self):
-        super().__init__("ldr <Qa>, [<Xc>], <imm>",
-                         inputs=["Xc"],
-                         outputs=["Qa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Qa>, [<Xc>], <imm>",
+                                      inputs=["Xc"],
+                                      outputs=["Qa"])
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 class Str_Q(AArch64Instruction):
     pass
 
 class d_stp_sp_imm(Str_Q):
-    def __init__(self):
-        super().__init__("stp <Da>, <Db>, [sp, <imm>]",
-                         # TODO: model stack dependency
-                         inputs=["Da", "Db"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stp <Da>, <Db>, [sp, <imm>]",
+                                      # TODO: model stack dependency
+                                      inputs=["Da", "Db"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
 class q_str(Str_Q):
-    def __init__(self):
-        super().__init__("str <Qa>, [<Xc>]",
-                         inputs=["Qa", "Xc"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = None
-        self.addr = self.args_in[1]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Qa>, [<Xc>]",
+                                      inputs=["Qa", "Xc"])
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
 
 class q_str_with_inc_hint(Str_Q):
-    def __init__(self):
-        super().__init__("strh <Qa>, <Xc>, <imm>, <Th>",
-                         inputs=["Qa", "Xc"],
-                         outputs=["Th"])
-
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[1]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "strh <Qa>, <Xc>, <imm>, <Th>",
+                                      inputs=["Qa", "Xc"],
+                                      outputs=["Th"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[1]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class q_str_with_inc(Str_Q):
-    def __init__(self):
-        super().__init__("str <Qa>, [<Xc>, <imm>]",
-                         inputs=["Qa", "Xc"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[1]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Qa>, [<Xc>, <imm>]",
+                                      inputs=["Qa", "Xc"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[1]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class q_str_with_inc_writeback(Str_Q):
-    def __init__(self):
-        super().__init__("str <Qa>, [<Xc>, <imm>]!",
-                         inputs=["Qa", "Xc"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[1]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Qa>, [<Xc>, <imm>]!",
+                                      inputs=["Qa", "Xc"])
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
 
 class q_str_with_postinc(Str_Q):
-    def __init__(self):
-        super().__init__("str <Qa>, [<Xc>], <imm>",
-                         inputs=["Qa", "Xc"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[1]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Qa>, [<Xc>], <imm>",
+                                      inputs=["Qa", "Xc"])
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
 
 class Ldr_X(AArch64Instruction):
     pass
 
 class x_ldr(Ldr_X):
-    def __init__(self):
-        super().__init__("ldr <Xa>, [<Xc>]",
-                         inputs=["Xc"],
-                         outputs=["Xa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = None
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Xa>, [<Xc>]",
+                                      inputs=["Xc"],
+                                      outputs=["Xa"])
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         # For now, assert that no fixup has happened
@@ -1061,40 +1057,37 @@ class x_ldr(Ldr_X):
         return super().write()
 
 class x_ldr_with_imm(Ldr_X):
-    def __init__(self):
-        super().__init__("ldr <Xa>, [<Xc>, <imm>]",
-                         inputs=["Xc"],
-                         outputs=["Xa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Xa>, [<Xc>, <imm>]",
+                                      inputs=["Xc"],
+                                      outputs=["Xa"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldr_with_postinc(Ldr_X):
-    def __init__(self):
-        super().__init__("ldr <Xa>, [<Xc>], <imm>",
-                         inputs=["Xc"],
-                         outputs=["Xa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Xa>, [<Xc>], <imm>",
+                                      inputs=["Xc"],
+                                      outputs=["Xa"])
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 class x_ldr_stack(Ldr_X):
-    def __init__(self):
-        super().__init__("ldr <Xa>, [sp]", # TODO: Model sp dependency
-                         outputs=["Xa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = None
-        self.addr = "sp"
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Xa>, [sp]", # TODO: Model sp dependency
+                                      outputs=["Xa"])
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         # For now, assert that no fixup has happened
@@ -1104,42 +1097,39 @@ class x_ldr_stack(Ldr_X):
         return super().write()
 
 class x_ldr_stack_imm(Ldr_X):
-    def __init__(self):
-        super().__init__("ldr <Xa>, [sp, <imm>]",
-                         outputs=["Xa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldr <Xa>, [sp, <imm>]",
+                                      outputs=["Xa"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldr_stack_imm_with_hint(Ldr_X):
-    def __init__(self):
-        super().__init__("ldrh <Xa>, sp, <imm>, <Th>", # TODO: Model sp dependency
-                         outputs=["Xa"], inputs=["Th"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldrh <Xa>, sp, <imm>, <Th>", # TODO: Model sp dependency
+                                      outputs=["Xa"], inputs=["Th"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldr_imm_with_hint(Ldr_X):
-    def __init__(self):
-        super().__init__("ldrh <Xa>, <Xb>, <imm>, <Th>",
-                         outputs=["Xa"], inputs=["Xb","Th"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldrh <Xa>, <Xb>, <imm>, <Th>",
+                                      outputs=["Xa"], inputs=["Xb","Th"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
@@ -1147,18 +1137,17 @@ class x_ldr_imm_with_hint(Ldr_X):
 
 class Ldp_X(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        obj = AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class x_ldp(Ldp_X):
-    def __init__(self):
-        super().__init__("ldp <Xa>, <Xb>, [<Xc>]",
-                         inputs=["Xc"],
-                         outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = None
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldp <Xa>, <Xb>, [<Xc>]",
+                                      inputs=["Xc"],
+                                      outputs=["Xa", "Xb"])
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         # For now, assert that no fixup has happened
@@ -1168,138 +1157,129 @@ class x_ldp(Ldp_X):
         return super().write()
 
 class x_ldp_with_imm_sp_xzr(Ldp_X):
-    def __init__(self):
-        super().__init__("ldp <Xa>, xzr, [sp, <imm>]",
-                         outputs=["Xa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldp <Xa>, xzr, [sp, <imm>]",
+                                      outputs=["Xa"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldp_with_imm_sp(Ldp_X):
-    def __init__(self):
-        super().__init__("ldp <Xa>, <Xb>, [sp, <imm>]",
-                         outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldp <Xa>, <Xb>, [sp, <imm>]",
+                                      outputs=["Xa", "Xb"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldp_with_inc(Ldp_X):
-    def __init__(self):
-        super().__init__("ldp <Xa>, <Xb>, [<Xc>, <imm>]",
-                         inputs=["Xc"],
-                         outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldp <Xa>, <Xb>, [<Xc>, <imm>]",
+                                      inputs=["Xc"],
+                                      outputs=["Xa", "Xb"])
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldp_with_inc_writeback(Ldp_X):
-    def __init__(self):
-        super().__init__("ldp <Xa>, <Xb>, [<Xc>, <imm>]!",
-                         inputs=["Xc"],
-                         outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldp <Xa>, <Xb>, [<Xc>, <imm>]!",
+                                      inputs=["Xc"],
+                                      outputs=["Xa", "Xb"])
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 class x_ldp_with_postinc_writeback(Ldp_X):
-    def __init__(self):
-        super().__init__("ldp <Xa>, <Xb>, [<Xc>], <imm>",
-                         inputs=["Xc"],
-                         outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[0]
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldp <Xa>, <Xb>, [<Xc>], <imm>",
+                                      inputs=["Xc"],
+                                      outputs=["Xa", "Xb"])
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         return super().write()
 
 class x_ldp_with_inc_hint(Ldp_X):
-    def __init__(self):
-        super().__init__("ldph <Xa>, <Xb>, <Xc>, <imm>, <Th>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldph <Xa>, <Xb>, <Xc>, <imm>, <Th>",
                          inputs=["Xc", "Th"],
                          outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldp_sp_with_inc_hint(Ldp_X):
-    def __init__(self):
-        super().__init__("ldph <Xa>, <Xb>, sp, <imm>, <Th>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldph <Xa>, <Xb>, sp, <imm>, <Th>",
                          inputs=["Th"],
                          outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldp_sp_with_inc_hint2(Ldp_X):
-    def __init__(self):
-        super().__init__("ldphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>",
                          inputs=["Th0", "Th1"],
                          outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_ldp_with_inc_hint2(Ldp_X):
-    def __init__(self):
-        super().__init__("ldphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ldphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>",
                          inputs=["Xc", "Th0", "Th1"],
                          outputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class ldr_sxtw_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("ldr <Wd>, [<Xa>, <Wb>, SXTW <imm>]",
-                         inputs=["Xa", "Wb"],
-                         outputs=["Wd"])
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ldr <Wd>, [<Xa>, <Wb>, SXTW <imm>]",
+                            inputs=["Xa", "Wb"],
+                            outputs=["Wd"])
 
 ############################
 #                          #
@@ -1308,353 +1288,353 @@ class ldr_sxtw_wform(AArch64Instruction):
 ############################
 
 class lsr_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("lsr <Wd>, <Wa>, <Wb>",
-                         inputs=["Wa", "Wb"],
-                         outputs=["Wd"])
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "lsr <Wd>, <Wa>, <Wb>",
+                           inputs=["Wa", "Wb"],
+                           outputs=["Wd"])
 
 class asr_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("asr <Wd>, <Wa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "asr <Wd>, <Wa>, <imm>",
                          inputs=["Wa"],
                          outputs=["Wd"])
 
 class eor_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("eor <Wd>, <Wa>, <Wb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "eor <Wd>, <Wa>, <Wb>",
                          inputs=["Wa", "Wb"],
                          outputs=["Wd"])
 
 class AArch64BasicArithmetic(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class subs_wform(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("subs <Wd>, <Wa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "subs <Wd>, <Wa>, <imm>",
                          inputs=["Wa"],
                          outputs=["Wd"],
                          modifiesFlags=True)
 
 class subs_imm(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("subs <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "subs <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"],
                          modifiesFlags=True)
 
 class sub_imm(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("sub <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sub <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class add_imm(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("add <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class add_sp_imm(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("add <Xd>, sp, <imm>", # TODO Model dependency on sp
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Xd>, sp, <imm>", # TODO Model dependency on sp
                          outputs=["Xd"])
 
 class neg(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("neg <Xd>, <Xa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "neg <Xd>, <Xa>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class adds(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adds <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adds <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"],
                          modifiesFlags=True)
 
 class adds_to_zero(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adds xzr, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adds xzr, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          modifiesFlags=True)
 
 class adds_imm_to_zero(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adds xzr, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adds xzr, <Xa>, <imm>",
                          inputs=["Xa"],
                          modifiesFlags=True)
 
 class subs_twoarg(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("subs <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "subs <Xd>, <Xa>, <Xb>",
                          inputs=["Xa", "Xb"],
                          outputs=["Xd"],
                          modifiesFlags=True)
 
 class adds_twoarg(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adds <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adds <Xd>, <Xa>, <Xb>",
                          inputs=["Xa", "Xb"],
                          outputs=["Xd"],
                          modifiesFlags=True)
 
 class adcs(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adcs <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adcs <Xd>, <Xa>, <Xb>",
                          inputs=["Xa", "Xb"],
                          outputs=["Xd"],
                          dependsOnFlags=True,
                          modifiesFlags=True)
 
 class sbcs(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("sbcs <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sbcs <Xd>, <Xa>, <Xb>",
                          inputs=["Xa", "Xb"],
                          outputs=["Xd"],
                          dependsOnFlags=True,
                          modifiesFlags=True)
 
 class sbcs_zero(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("sbcs <Xd>, <Xa>, xzr",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sbcs <Xd>, <Xa>, xzr",
                          inputs=["Xa"],
                          outputs=["Xd"],
                          dependsOnFlags=True,
                          modifiesFlags=True)
 
 class sbc(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("sbc <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sbc <Xd>, <Xa>, <Xb>",
                          inputs=["Xa", "Xb"],
                          outputs=["Xd"],
                          dependsOnFlags=True)
 
 class sbc_zero_r(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("sbc <Xd>, <Xa>, xzr",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sbc <Xd>, <Xa>, xzr",
                          inputs=["Xa"],
                          outputs=["Xd"],
                          dependsOnFlags=True)
 
 class adcs_zero_r(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adcs <Xd>, <Xa>, xzr",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adcs <Xd>, <Xa>, xzr",
                          inputs=["Xa"],
                          outputs=["Xd"],
                          dependsOnFlags=True,
                          modifiesFlags=True)
 
 class adcs_zero_l(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adcs <Xd>, xzr, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adcs <Xd>, xzr, <Xb>",
                          inputs=["Xb"],
                          outputs=["Xd"],
                          dependsOnFlags=True,
                          modifiesFlags=True)
 
 class adc(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adc <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adc <Xd>, <Xa>, <Xb>",
                          inputs=["Xa", "Xb"],
                          outputs=["Xd"],
                          dependsOnFlags=True)
 
 class adc_zero2(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adc <Xd>, xzr, xzr",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adc <Xd>, xzr, xzr",
                          outputs=["Xd"],
                          dependsOnFlags=True)
 
 class adc_zero_r(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adc <Xd>, <Xa>, xzr",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adc <Xd>, <Xa>, xzr",
                          inputs=["Xa"],
                          outputs=["Xd"],
                          dependsOnFlags=True)
 
 class adc_zero_l(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("adc <Xd>, xzr, <Xa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adc <Xd>, xzr, <Xa>",
                          inputs=["Xa"],
                          outputs=["Xd"],
                          dependsOnFlags=True)
 
 class add(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("add <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class add2(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("add <Xd>, <Xa>, <Xb>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Xd>, <Xa>, <Xb>, <imm>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class add_w_imm(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("add <Wd>, <Wa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Wd>, <Wa>, <imm>",
                          inputs=["Wa"],
                          outputs=["Wd"])
 
 class sub(AArch64BasicArithmetic):
-    def __init__(self):
-        super().__init__("sub <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sub <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class AArch64ShiftedArithmetic(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class add_lsl(AArch64ShiftedArithmetic):
-    def __init__(self):
-        super().__init__("add <Xd>, <Xa>, <Xb>, lsl <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Xd>, <Xa>, <Xb>, lsl <imm>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class add_lsr(AArch64ShiftedArithmetic):
-    def __init__(self):
-        super().__init__("add <Xd>, <Xa>, <Xb>, lsr <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Xd>, <Xa>, <Xb>, lsr <imm>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class adds_lsl(AArch64ShiftedArithmetic):
-    def __init__(self):
-        super().__init__("adds <Xd>, <Xa>, <Xb>, lsl <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adds <Xd>, <Xa>, <Xb>, lsl <imm>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"],
                          modifiesFlags=True)
 
 class adds_lsr(AArch64ShiftedArithmetic):
-    def __init__(self):
-        super().__init__("adds <Xd>, <Xa>, <Xb>, lsr <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "adds <Xd>, <Xa>, <Xb>, lsr <imm>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"],
                          modifiesFlags=True)
 
 class add_asr(AArch64ShiftedArithmetic):
-    def __init__(self):
-        super().__init__("add <Xd>, <Xa>, <Xb>, asr <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Xd>, <Xa>, <Xb>, asr <imm>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class add_imm_lsl(AArch64ShiftedArithmetic):
-    def __init__(self):
-        super().__init__("add <Xd>, <Xa>, <imm0>, lsl <imm1>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "add <Xd>, <Xa>, <imm0>, lsl <imm1>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class AArch64Shift(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class lsr(AArch64Shift):
-    def __init__(self):
-        super().__init__("lsr <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "lsr <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 # TODO: This likely has different perf characteristics!
 class lsr_variable(AArch64Shift):
-    def __init__(self):
-        super().__init__("lsr <Xd>, <Xa>, <Xc>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "lsr <Xd>, <Xa>, <Xc>",
                          inputs=["Xa", "Xc"],
                          outputs=["Xd"])
 
 class lsl(AArch64Shift):
-    def __init__(self):
-        super().__init__("lsl <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "lsl <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class asr(AArch64Shift):
-    def __init__(self):
-        super().__init__("asr <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "asr <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class AArch64Logical(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class rev_w(AArch64Logical):
-    def __init__(self):
-        super().__init__("rev <Wd>, <Wa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "rev <Wd>, <Wa>",
                          inputs=["Wa"],
                          outputs=["Wd"])
 
 class eor(AArch64Logical):
-    def __init__(self):
-        super().__init__("eor <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "eor <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class orr(AArch64Logical):
-    def __init__(self):
-        super().__init__("orr <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "orr <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class orr_w(AArch64Logical):
-    def __init__(self):
-        super().__init__("orr <Wd>, <Wa>, <Wb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "orr <Wd>, <Wa>, <Wb>",
                          inputs=["Wa","Wb"],
                          outputs=["Wd"])
 
 class bfi(AArch64Logical):
-    def __init__(self):
-        super().__init__("bfi <Xd>, <Xa>, <imm0>, <imm1>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "bfi <Xd>, <Xa>, <imm0>, <imm1>",
                          inputs=["Xa"],
                          in_outs=["Xd"])
 
 class and_imm(AArch64Logical):
-    def __init__(self):
-        super().__init__("and <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "and <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class ands_imm(AArch64Logical):
-    def __init__(self):
-        super().__init__("ands <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ands <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"],
                          modifiesFlags=True)
 
 class ands_xzr_imm(AArch64Logical):
-    def __init__(self):
-        super().__init__("ands xzr, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ands xzr, <Xa>, <imm>",
                          inputs=["Xa"],
                          modifiesFlags=True)
 
 class and_twoarg(AArch64Logical):
-    def __init__(self):
-        super().__init__("and <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "and <Xd>, <Xa>, <Xb>",
                          inputs=["Xa", "Xb"],
                          outputs=["Xd"])
 
 class bic(AArch64Logical):
-    def __init__(self):
-        super().__init__("bic <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "bic <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class orr_imm(AArch64Logical):
-    def __init__(self):
-        super().__init__("orr <Xd>, <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "orr <Xd>, <Xa>, <imm>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class sbfx(AArch64Logical):
-    def __init__(self):
-        super().__init__("sbfx <Xd>, <Xa>, <imm0>, <imm1>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sbfx <Xd>, <Xa>, <imm0>, <imm1>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class extr(AArch64Logical): ### TODO! Review this...
-    def __init__(self):
-        super().__init__("extr <Xd>, <Xa>, <Xb>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "extr <Xd>, <Xa>, <Xb>, <imm>",
                          inputs=["Xa", "Xb"],
                          outputs=["Xd"])
 
@@ -1662,225 +1642,224 @@ class AArch64LogicalShifted(AArch64Instruction):
     pass
 
 class orr_shifted(AArch64LogicalShifted):
-    def __init__(self):
-        super().__init__("orr <Xd>, <Xa>, <Xb>, lsl <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "orr <Xd>, <Xa>, <Xb>, lsl <imm>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class AArch64ConditionalCompare(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class ccmp_xzr(AArch64ConditionalCompare):
-    def __init__(self):
-        super().__init__("ccmp <Xa>, xzr, <imm>, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ccmp <Xa>, xzr, <imm>, <flag>",
                          inputs=["Xa"],
                          dependsOnFlags=True,
                          modifiesFlags=True)
 
 class ccmp(AArch64ConditionalCompare):
-    def __init__(self):
-        super().__init__("ccmp <Xa>, <Xb>, <imm>, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ccmp <Xa>, <Xb>, <imm>, <flag>",
                          inputs=["Xa", "Xb"],
                          dependsOnFlags=True,
                          modifiesFlags=True)
 
 class AArch64ConditionalSelect(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class cneg(AArch64ConditionalSelect):
-    def __init__(self):
-        super().__init__("cneg <Xd>, <Xe>, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "cneg <Xd>, <Xe>, <flag>",
                          outputs=["Xd"],
                          inputs=["Xe"],
                          dependsOnFlags=True)
 
 class csel_xzr_ne(AArch64ConditionalSelect):
-    def __init__(self):
-        super().__init__("csel <Xd>, <Xe>, xzr, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "csel <Xd>, <Xe>, xzr, <flag>",
                          outputs=["Xd"],
                          inputs=["Xe"],
                          dependsOnFlags=True)
 
 class csel_ne(AArch64ConditionalSelect):
-    def __init__(self):
-        super().__init__("csel <Xd>, <Xe>, <Xf>, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "csel <Xd>, <Xe>, <Xf>, <flag>",
                          outputs=["Xd"],
                          inputs=["Xe", "Xf"],
                          dependsOnFlags=True)
 
 class cinv(AArch64ConditionalSelect):
-    def __init__(self):
-        super().__init__("cinv <Xd>, <Xe>, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "cinv <Xd>, <Xe>, <flag>",
                          outputs=["Xd"],
                          inputs=["Xe"],
                          dependsOnFlags=True)
 
 class cinc(AArch64ConditionalSelect):
-    def __init__(self):
-        super().__init__("cinc <Xd>, <Xe>, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "cinc <Xd>, <Xe>, <flag>",
                          outputs=["Xd"],
                          inputs=["Xe"],
                          dependsOnFlags=True)
 
 class csetm(AArch64ConditionalSelect):
-    def __init__(self):
-        super().__init__("csetm <Xd>, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "csetm <Xd>, <flag>",
                          outputs=["Xd"],
                          dependsOnFlags=True)
 
 class cset(AArch64ConditionalSelect):
-    def __init__(self):
-        super().__init__("cset <Xd>, <flag>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "cset <Xd>, <flag>",
                          outputs=["Xd"],
                          dependsOnFlags=True)
 
 class cmn_imm(AArch64ConditionalSelect):
-    def __init__(self):
-        super().__init__("cmn <Xd>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "cmn <Xd>, <imm>",
                          inputs=["Xd"],
                          modifiesFlags=True)
 
 class ldr_const(AArch64Instruction):
-    def __init__(self):
-        super().__init__("ldr <Xd>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ldr <Xd>, <imm>",
                          inputs=[],
                          outputs=["Xd"])
 
 class movk_imm(AArch64Instruction):
-    def __init__(self):
-        super().__init__("movk <Xd>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "movk <Xd>, <imm>",
                          inputs=[],
                          in_outs=["Xd"])
 
 class mov(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mov <Wd>, <Wa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Wd>, <Wa>",
                          inputs=["Wa"],
                          outputs=["Wd"])
 
 class AArch64Move(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class mov_imm(AArch64Move):
-    def __init__(self):
-        super().__init__("mov <Xd>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Xd>, <imm>",
                          inputs=[],
                          outputs=["Xd"])
 
 class mvn_xzr(AArch64Move):
-    def __init__(self):
-        super().__init__("mvn <Xd>, xzr",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mvn <Xd>, xzr",
                          inputs=[],
                          outputs=["Xd"])
 
 class mov_xform(AArch64Move):
-    def __init__(self):
-        super().__init__("mov <Xd>, <Xa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Xd>, <Xa>",
                          inputs=["Xa"],
                          outputs=["Xd"])
 
 class umull_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("umull <Xd>, <Wa>, <Wb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "umull <Xd>, <Wa>, <Wb>",
                          inputs=["Wa","Wb"],
                          outputs=["Xd"])
 
 class umaddl_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("umaddl <Xn>, <Wa>, <Wb>, <Xacc>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "umaddl <Xn>, <Wa>, <Wb>, <Xacc>",
                          inputs=["Wa","Wb","Xacc"],
                          outputs=["Xn"])
 
 class mul_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mul <Wd>, <Wa>, <Wb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mul <Wd>, <Wa>, <Wb>",
                          inputs=["Wa","Wb"],
                          outputs=["Wd"])
 
 class AArch64HighMultiply(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class umulh_xform(AArch64HighMultiply):
-    def __init__(self):
-        super().__init__("umulh <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "umulh <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class smulh_xform(AArch64HighMultiply):
-    def __init__(self):
-        super().__init__("smulh <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "smulh <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class AArch64Multiply(AArch64Instruction):
-    def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+    pass
 
 class mul_xform(AArch64Multiply):
-    def __init__(self):
-        super().__init__("mul <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mul <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class madd_xform(AArch64Multiply):
-    def __init__(self):
-        super().__init__("madd <Xd>, <Xacc>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "madd <Xd>, <Xacc>, <Xa>, <Xb>",
                          inputs=["Xacc", "Xa","Xb"],
                          outputs=["Xd"])
 
 class mneg_xform(AArch64Multiply):
-    def __init__(self):
-        super().__init__("mneg <Xd>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mneg <Xd>, <Xa>, <Xb>",
                          inputs=["Xa","Xb"],
                          outputs=["Xd"])
 
 class msub_xform(AArch64Multiply):
-    def __init__(self):
-        super().__init__("msub <Xd>, <Xacc>, <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "msub <Xd>, <Xacc>, <Xa>, <Xb>",
                          inputs=["Xacc", "Xa","Xb"],
                          outputs=["Xd"])
 
 class and_imm_wform(AArch64Instruction):
-    def __init__(self):
-        super().__init__("and <Wd>, <Wa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "and <Wd>, <Wa>, <imm>",
                          inputs=["Wa"],
                          outputs=["Wd"])
 
 class Tst(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class tst_wform(Tst):
-    def __init__(self):
-        super().__init__("tst <Wa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "tst <Wa>, <imm>",
                          inputs=["Wa"],
                          modifiesFlags=True)
 
 class tst_imm_xform(Tst):
-    def __init__(self):
-        super().__init__("tst <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "tst <Xa>, <imm>",
                          inputs=["Xa"],
                          modifiesFlags=True)
 
 class tst_xform(Tst):
-    def __init__(self):
-        super().__init__("tst <Xa>, <Xb>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "tst <Xa>, <Xb>",
                          inputs=["Xa", "Xb"],
                          modifiesFlags=True)
 
 class cmp_xzr(Tst):
-    def __init__(self):
-        super().__init__("cmp <Xa>, xzr",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "cmp <Xa>, xzr",
                          inputs=["Xa"],
                          modifiesFlags=True)
 
 class cmp_imm(Tst):
-    def __init__(self):
-        super().__init__("cmp <Xa>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "cmp <Xa>, <imm>",
                          inputs=["Xa"],
                          modifiesFlags=True)
 
@@ -1897,19 +1876,19 @@ class cmp_imm(Tst):
 # We use the Helium/AArch32 Neon naming for those wrappers.
 
 class vmov(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mov <Vd>.<dt0>, <Va>.<dt1>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Vd>.<dt0>, <Va>.<dt1>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
 class vmovi(AArch64Instruction):
-    def __init__(self):
-        super().__init__("movi <Vd>.<dt>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "movi <Vd>.<dt>, <imm>",
                          outputs=["Vd"])
 
 class vxtn(AArch64Instruction):
-    def __init__(self):
-        super().__init__("xtn <Vd>.<dt0>, <Va>.<dt1>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "xtn <Vd>.<dt0>, <Va>.<dt1>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
@@ -1917,119 +1896,118 @@ class Vrev(AArch64Instruction):
     pass
 
 class rev64(Vrev):
-    def __init__(self):
-        super().__init__("rev64 <Vd>.<dt0>, <Va>.<dt1>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "rev64 <Vd>.<dt0>, <Va>.<dt1>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
 class rev32(Vrev):
-    def __init__(self):
-        super().__init__("rev32 <Vd>.<dt0>, <Va>.<dt1>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "rev32 <Vd>.<dt0>, <Va>.<dt1>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
 class uaddlp(AArch64Instruction):
-    def __init__(self):
-        super().__init__("uaddlp <Vd>.<dt0>, <Va>.<dt1>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "uaddlp <Vd>.<dt0>, <Va>.<dt1>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
 class vand(AArch64Instruction):
-    def __init__(self):
-        super().__init__("and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vbic(AArch64Instruction):
-    def __init__(self):
-        super().__init__("bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vzip1(AArch64Instruction):
-    def __init__(self):
-        super().__init__("zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 
 class vzip2(AArch64Instruction):
-    def __init__(self):
-        super().__init__("zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vuzp1(AArch64Instruction):
-    def __init__(self):
-        super().__init__("uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 
 class vuzp2(AArch64Instruction):
-    def __init__(self):
-        super().__init__("uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vqrdmulh(AArch64Instruction):
-    def __init__(self):
-        super().__init__("sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vqrdmulh_lane(AArch64Instruction):
-    def __init__(self):
-        super().__init__("sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
-
-    def parse(self,src):
-        super().parse(src)
-        if self.datatype[0] == "8h":
-            self.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
+        return obj
 
 class vqdmulh_lane(AArch64Instruction):
-    def __init__(self):
-        super().__init__("sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
-    def parse(self,src):
-        super().parse(src)
-        if self.datatype[0] == "8h":
-            self.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
+
+        return obj
 
 class vmul_lane(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
-    def parse(self,src):
-        super().parse(src)
-        if self.datatype[0] == "8h":
-            self.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
 
+        return obj
+
 class fcsel_dform(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="fcsel_dform",
+    def make(cls, src):
+        obj = Instruction.make(cls, src, mnemonic="fcsel_dform",
                          arg_types_in=[RegisterType.Neon, RegisterType.Neon, RegisterType.Flags],
                          arg_types_out=[RegisterType.Neon])
 
-    def parse(self, src):
         regexp_txt = "fcsel_dform\s+(?P<dst>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<src2>\w+)\s*,\s*eq"
         regexp_txt = Instruction.unfold_abbrevs(regexp_txt)
         regexp = re.compile(regexp_txt)
         p = regexp.match(src)
         if p is None:
             raise Instruction.ParsingException("Does not match pattern")
-        self.args_in     = [ p.group("src1"), p.group("src2"), "flags" ]
-        self.args_out    = [ p.group("dst") ]
-        self.args_in_out = []
+        obj.args_in     = [ p.group("src1"), p.group("src2"), "flags" ]
+        obj.args_out    = [ p.group("dst") ]
+        obj.args_in_out = []
+
+        return obj
 
     def write(self):
         return f"fcsel_dform {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, eq"
@@ -2038,44 +2016,43 @@ class Vins(AArch64Instruction):
     pass
 
 class vins_d(Vins):
-    def __init__(self):
-        super().__init__("ins <Vd>.d[<index>], <Xa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ins <Vd>.d[<index>], <Xa>",
                          inputs=["Xa"],
                          in_outs=["Vd"])
 
 class vins_d_force_output(Vins):
-    def __init__(self):
-        super().__init__("ins <Vd>.d[<index>], <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Vd"])
-    def parse(self, src, force=False):
+    def make(cls, src, force=False):
         if force == False:
             raise Instruction.ParsingException("Instruction ignored")
-        return super().parse(src)
+        obj = AArch64Instruction.make(cls, src, "ins <Vd>.d[<index>], <Xa>",
+                           inputs=["Xa"],
+                           outputs=["Vd"])
+        return obj
 
 class Mov_xtov_d(AArch64Instruction):
     pass
 
 class mov_xtov_d(Mov_xtov_d):
-    def __init__(self):
-        super().__init__("mov <Vd>.d[<index>], <Xa>",
-                         inputs=["Xa"],
-                         in_outs=["Vd"])
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Vd>.d[<index>], <Xa>",
+                           inputs=["Xa"],
+                           in_outs=["Vd"])
 
 class mov_xtov_d_xzr(Mov_xtov_d):
-    def __init__(self):
-        super().__init__("mov <Vd>.d[<index>], xzr",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Vd>.d[<index>], xzr",
                          in_outs=["Vd"])
 
 class mov_b00(AArch64Instruction): # TODO: Generalize
-    def __init__(self):
-        super().__init__("mov <Vd>.b[0], <Va>.b[0]",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Vd>.b[0], <Va>.b[0]",
                          inputs=["Va"],
                          in_outs=["Vd"])
 
 class mov_d01(AArch64Instruction): # TODO: Generalize
-    def __init__(self):
-        super().__init__("mov <Vd>.d[0], <Va>.d[1]",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Vd>.d[0], <Va>.d[1]",
                          inputs=["Va"],
                          in_outs=["Vd"])
 
@@ -2083,121 +2060,119 @@ class AArch64NeonLogical(AArch64Instruction):
     pass
 
 class veor(AArch64NeonLogical):
-    def __init__(self):
-        super().__init__("eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vbif(AArch64NeonLogical):
-    def __init__(self):
-        super().__init__("bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          in_outs=["Vd"])
 
 # Not sure about the classification as logical... couldn't find it in SWOG
 class vmov_d(AArch64NeonLogical):
-    def __init__(self):
-        super().__init__("mov <Dd>, <Va>.d[1]",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Dd>, <Va>.d[1]",
                          inputs=["Va"],
                          outputs=["Dd"])
 
 class vext(AArch64NeonLogical):
-    def __init__(self):
-        super().__init__("ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vmul(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vmla(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          in_outs=["Vd"])
 
 class vmla_lane(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
                          inputs=["Va", "Vb"],
                          in_outs=["Vd"])
-    def parse(self,src):
-        super().parse(src)
-        if self.datatype[0] == "8h":
-            self.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
+        return obj
 
 class vmls(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          in_outs=["Vd"])
 
 class vmls_lane(AArch64Instruction):
-    def __init__(self):
-        super().__init__("mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
                          inputs=["Va", "Vb"],
                          in_outs=["Vd"])
-    def parse(self,src):
-        super().parse(src)
-        if self.datatype[0] == "8h":
-            self.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
+        return obj
 
 class vdup(AArch64Instruction):
-    def __init__(self):
-        super().__init__("dup <Vd>.<dt>, <Xa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "dup <Vd>.<dt>, <Xa>",
                          inputs=["Xa"],
                          outputs=["Vd"])
 
 class vmull(AArch64Instruction):
-    def __init__(self):
-        super().__init__("umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class vmlal(AArch64Instruction):
-    def __init__(self):
-        super().__init__("umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          in_outs=["Vd"])
 
 class vsrshr(AArch64Instruction):
-    def __init__(self):
-        super().__init__("srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
 class vshl(AArch64Instruction):
-    def __init__(self):
-        super().__init__("shl <Vd>.<dt0>, <Va>.<dt1>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
 class vshl_d(AArch64Instruction):
-    def __init__(self):
-        super().__init__("shl <Dd>, <Da>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "shl <Dd>, <Da>, <imm>",
                          inputs=["Da"],
                          outputs=["Dd"])
 
 class vshli(AArch64Instruction):
-    def __init__(self):
-        super().__init__("sli <Vd>.<dt0>, <Va>.<dt1>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>",
                          inputs=["Va"],
                          in_outs=["Vd"])
 
 class vusra(AArch64Instruction):
-    def __init__(self):
-        super().__init__("usra <Vd>.<dt0>, <Va>.<dt1>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "usra <Vd>.<dt0>, <Va>.<dt1>, <imm>",
                          inputs=["Va"],
                          in_outs=["Vd"])
 
 class vshrn(AArch64Instruction):
-    def __init__(self):
-        super().__init__("shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
@@ -2205,14 +2180,14 @@ class VecToGprMov(AArch64Instruction):
     pass
 
 class umov_d(VecToGprMov):
-    def __init__(self):
-        super().__init__("umov <Xd>, <Va>.d[<index>]",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "umov <Xd>, <Va>.d[<index>]",
                          inputs=["Va"],
                          outputs=["Xd"])
 
 class mov_d(VecToGprMov):
-    def __init__(self):
-        super().__init__("mov <Xd>, <Va>.d[<index>]",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "mov <Xd>, <Va>.d[<index>]",
                          inputs=["Va"],
                          outputs=["Xd"])
 
@@ -2220,58 +2195,54 @@ class Fmov(AArch64Instruction):
     pass
 
 class fmov_0(Fmov):
-    def __init__(self):
-        super().__init__("fmov <Dd>, <Xa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "fmov <Dd>, <Xa>",
                          inputs=["Xa"],
                          in_outs=["Dd"])
 
 class fmov_0_force_output(Fmov):
-    def __init__(self):
-        super().__init__("fmov <Dd>, <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Dd"])
-    def parse(self, src, force=False):
+    def make(cls, src, force=False):
         if force == False:
             raise Instruction.ParsingException("Instruction ignored")
-        return super().parse(src)
+        return AArch64Instruction.make(cls, src, "fmov <Dd>, <Xa>",
+                         inputs=["Xa"],
+                         outputs=["Dd"])
 
 class fmov_1(Fmov):
-    def __init__(self):
-        super().__init__("fmov <Vd>.d[1], <Xa>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "fmov <Vd>.d[1], <Xa>",
                          inputs=["Xa"],
                          in_outs=["Vd"])
 
 class fmov_1_force_output(Fmov):
-    def __init__(self):
-        super().__init__("fmov <Vd>.d[1], <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Vd"])
-    def parse(self, src, force=False):
+    def make(cls, src, force=False):
         if force == False:
             raise Instruction.ParsingException("Instruction ignored")
-        return super().parse(src)
+        return AArch64Instruction.make(cls, src, "fmov <Vd>.d[1], <Xa>",
+                         inputs=["Xa"],
+                         outputs=["Vd"])
 
 class vushr(AArch64Instruction):
-    def __init__(self):
-        super().__init__("ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>",
                          inputs=["Va"],
                          outputs=["Vd"])
 
 class trn1(AArch64Instruction):
-    def __init__(self):
-        super().__init__("trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class trn2(AArch64Instruction):
-    def __init__(self):
-        super().__init__("trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class trn2(AArch64Instruction):
-    def __init__(self):
-        super().__init__("trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
@@ -2282,48 +2253,47 @@ class AESInstruction(AArch64Instruction):
     pass
 
 class aesr(AESInstruction):
-    def __init__(self):
-        super().__init__("aesr <Vd>.16b, <Va>.16b",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "aesr <Vd>.16b, <Va>.16b",
                          inputs=["Va"],
                          in_outs=["Vd"])
 
 class aese(AESInstruction):
-    def __init__(self):
-        super().__init__("aese <Vd>.16b, <Va>.16b",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "aese <Vd>.16b, <Va>.16b",
                          inputs=["Va"],
                          in_outs=["Vd"])
 
 class aesmc(AESInstruction):
-    def __init__(self):
-        super().__init__("aesmc <Vd>.16b, <Va>.16b",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "aesmc <Vd>.16b, <Va>.16b",
                          inputs=["Va"],
                          outputs=["Vd"])
 
 class pmull1_q(AESInstruction):
-    def __init__(self):
-        super().__init__("pmull <Vd>.1q, <Va>.1d, <Vb>.1d",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "pmull <Vd>.1q, <Va>.1d, <Vb>.1d",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class pmull2_q(AESInstruction):
-    def __init__(self):
-        super().__init__("pmull2 <Vd>.1q, <Va>.2d, <Vb>.2d",
+    def make(cls, src):
+        return AArch64Instruction.make(cls, src, "pmull2 <Vd>.1q, <Va>.2d, <Vb>.2d",
                          inputs=["Va", "Vb"],
                          outputs=["Vd"])
 
 class Str_X(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class x_str(Str_X):
-    def __init__(self):
-        super().__init__("str <Xa>, [<Xc>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Xa>, [<Xc>]",
                          inputs=["Xa", "Xc"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = None
-        self.addr = self.args_in[1]
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
 
     def write(self):
         # For now, assert that no fixup has happened
@@ -2333,80 +2303,74 @@ class x_str(Str_X):
         return super().write()
 
 class x_str_imm(Str_X):
-    def __init__(self):
-        super().__init__("str <Xa>, [<Xc>, <imm>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Xa>, [<Xc>, <imm>]",
                          inputs=["Xa", "Xc"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[1]
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[1]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class w_str_imm(Str_X):
-    def __init__(self):
-        super().__init__("str <Wa>, [<Xc>, <imm>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Wa>, [<Xc>, <imm>]",
                          inputs=["Wa", "Xc"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[1]
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[1]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_str_postinc(Str_X):
-    def __init__(self):
-        super().__init__("str <Xa>, [<Xc>], <imm>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Xa>, [<Xc>], <imm>",
                          inputs=["Xa", "Xc"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[1]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
 
 class x_str_sp_imm(Str_X):
-    def __init__(self):
-        super().__init__("str <Xa>, [sp, <imm>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "str <Xa>, [sp, <imm>]",
                          inputs=["Xa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_str_sp_imm_hint(Str_X):
-    def __init__(self):
-        super().__init__("strh <Xa>, sp, <imm>, <Th>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "strh <Xa>, sp, <imm>, <Th>",
                          inputs=["Xa"], outputs=["Th"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_str_imm_hint(Str_X):
-    def __init__(self):
-        super().__init__("strh <Xa>, <Xb>, <imm>, <Th>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "strh <Xa>, <Xb>, <imm>, <Th>",
                          inputs=["Xa", "Xb"], outputs=["Th"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[1]
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[1]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
@@ -2414,17 +2378,16 @@ class x_str_imm_hint(Str_X):
 
 class Stp_X(AArch64Instruction):
     def __init__(self, pattern, *args, **kwargs):
-        super().__init__(pattern, *args, **kwargs)
+        return AArch64Instruction.make(cls, src, pattern, *args, **kwargs)
 
 class x_stp(Stp_X):
-    def __init__(self):
-        super().__init__("stp <Xa>, <Xb>, [<Xc>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stp <Xa>, <Xb>, [<Xc>]",
                          inputs=["Xc", "Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = None
-        self.addr = self.args_in[0]
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return
 
     def write(self):
         # For now, assert that no fixup has happened
@@ -2434,107 +2397,104 @@ class x_stp(Stp_X):
         return super().write()
 
 class x_stp_with_imm_xzr_sp(Stp_X):
-    def __init__(self):
-        super().__init__("stp <Xa>, xzr, [sp, <imm>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stp <Xa>, xzr, [sp, <imm>]",
                          inputs=["Xa"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_stp_with_imm_sp(Stp_X):
-    def __init__(self):
-        super().__init__("stp <Xa>, <Xb>, [sp, <imm>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stp <Xa>, <Xb>, [sp, <imm>]",
                          inputs=["Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_stp_with_inc(Stp_X):
-    def __init__(self):
-        super().__init__("stp <Xa>, <Xb>, [<Xc>, <imm>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stp <Xa>, <Xb>, [<Xc>, <imm>]",
                          inputs=["Xc", "Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_stp_with_inc_writeback(Stp_X):
-    def __init__(self):
-        super().__init__("stp <Xa>, <Xb>, [<Xc>, <imm>]!",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stp <Xa>, <Xb>, [<Xc>, <imm>]!",
                          inputs=["Xc", "Xa", "Xb"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = self.immediate
-        self.pre_index = None
-        self.addr = self.args_in[0]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 class x_stp_with_inc_hint(Stp_X):
-    def __init__(self):
-        super().__init__("stph <Xa>, <Xb>, <Xc>, <imm>, <Th>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stph <Xa>, <Xb>, <Xc>, <imm>, <Th>",
                          inputs=["Xc", "Xa", "Xb"],
                          outputs=["Th"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[0]
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-
 class x_stp_sp_with_inc_hint(Stp_X):
-    def __init__(self):
-        super().__init__("stph <Xa>, <Xb>, sp, <imm>, <Th>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stph <Xa>, <Xb>, sp, <imm>, <Th>",
                          inputs=["Xa", "Xb"],
                          outputs=["Th"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_stp_sp_with_inc_hint2(Stp_X):
-    def __init__(self):
-        super().__init__("stphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>",
                          inputs=["Xa", "Xb"],
                          outputs=["Th0", "Th1"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = "sp"
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
 class x_stp_with_inc_hint2(Stp_X):
-    def __init__(self):
-        super().__init__("stphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "stphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>",
                          inputs=["Xa", "Xb", "Xc"],
                          outputs=["Th0", "Th1"])
-    def parse(self,src):
-        super().parse(src)
-        self.increment = None
-        self.pre_index = self.immediate
-        self.addr = self.args_in[2]
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[2]
+        return obj
 
     def write(self):
         self.immediate = simplify(self.pre_index)
@@ -2544,121 +2504,110 @@ class St4(AArch64Instruction):
     pass
 
 class st4_base(St4):
-    def __init__(self):
-        super().__init__("st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]",
                          inputs=["Xc", "Va", "Vb", "Vc", "Vd"])
 
-    def parse(self, src):
-        super().parse(src)
-        self.addr = self.args_in[0]
-        self.args_in_combinations = [
+        obj.addr = obj.args_in[0]
+        obj.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
             ]
+        return obj
 
 class st4_with_inc(St4):
-    def __init__(self):
-        super().__init__("st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>",
                          inputs=["Xc", "Va", "Vb", "Vc", "Vd"])
-
-    def parse(self, src):
-        super().parse(src)
-        self.addr = self.args_in[0]
-        self.increment = self.immediate
-        self.pre_index = None
-        self.args_in_combinations = [
+        obj.addr = obj.args_in[0]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
             ]
+        return obj
 
 class St2(AArch64Instruction):
     pass
 
 class st2_base(St2):
-    def __init__(self):
-        super().__init__("st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]",
                          inputs=["Xc", "Va", "Vb"])
-
-    def parse(self, src):
-        super().parse(src)
-        self.addr = self.args_in[0]
-        self.args_in_combinations = [
+        obj.addr = obj.args_in[0]
+        obj.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
+        return obj
 
 class st2_with_inc(St2):
-    def __init__(self):
-        super().__init__("st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>",
                          inputs=["Xc", "Va", "Vb"])
-
-    def parse(self, src):
-        super().parse(src)
-        self.addr = self.args_in[0]
-        self.increment = self.immediate
-        self.pre_index = None
-        self.args_in_combinations = [
+        obj.addr = obj.args_in[0]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
+        return obj
 
 class Ld4(AArch64Instruction):
     pass
 
 class ld4_base(Ld4):
-    def __init__(self):
-        super().__init__("ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]",
                          inputs=["Xc"],
                          outputs=["Va", "Vb", "Vc", "Vd"])
-
-    def parse(self, src):
-        super().parse(src)
-        self.addr = self.args_in[0]
-        self.args_out_combinations = [
+        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
             ]
+        return obj
 
 class ld4_with_inc(Ld4):
-    def __init__(self):
-        super().__init__("ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>",
                          inputs=["Xc"],
                          outputs=["Va", "Vb", "Vc", "Vd"])
 
-    def parse(self, src):
-        super().parse(src)
-        self.addr = self.args_in[0]
-        self.increment = self.immediate
-        self.pre_index = None
-        self.args_out_combinations = [
+        obj.addr = obj.args_in[0]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
             ]
+        return obj
 
 class Ld2(AArch64Instruction):
     pass
 
 class ld2_base(Ld2):
-    def __init__(self):
-        super().__init__("ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]",
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]",
                          inputs=["Xc"],
                          outputs=["Va", "Vb"])
 
-    def parse(self, src):
-        super().parse(src)
-        self.addr = self.args_in[0]
-        self.args_out_combinations = [
+        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
+        return obj
 
 class ld2_with_inc(Ld2):
-    def __init__(self):
-        super().__init__("ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>",
-                         inputs=["Xc"],
-                         outputs=["Va", "Vb"])
+    def make(cls, src):
+        obj = AArch64Instruction.make(cls, src, "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>",
+                           inputs=["Xc"],
+                           outputs=["Va", "Vb"])
 
-    def parse(self, src):
-        super().parse(src)
-        self.addr = self.args_in[0]
-        self.increment = self.immediate
-        self.pre_index = None
-        self.args_out_combinations = [
+        obj.addr = obj.args_in[0]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
+
+        return obj
 
 # In a pair of vins writing both 64-bit lanes of a vector, mark the
 # target vector as output rather than input/output. This enables further
@@ -2677,8 +2626,8 @@ def vins_d_parsing_cb():
             return False
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
-        t.inst = vins_d_force_output()
-        t.inst.parse(inst_txt, force=True)
+        t.inst = vins_d_force_output.make(
+            vins_d_force_output, inst_txt, force=True)
         return True
     return core
 vins_d.global_parsing_cb = vins_d_parsing_cb()
@@ -2700,8 +2649,8 @@ def fmov_0_parsing_cb():
             return False
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
-        t.inst = fmov_0_force_output()
-        t.inst.parse(inst_txt, force=True)
+        t.inst = fmov_0_force_output.make(
+            fmov_0_force_output, inst_txt, force=True)
         return True
     return core
 fmov_0.global_parsing_cb = fmov_0_parsing_cb()
@@ -2825,6 +2774,8 @@ def all_subclass_leaves(c):
         return all_subclass_leaves_core(leaf_lst, todo_lst)
 
     return all_subclass_leaves_core([], [c])
+
+Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 def lookup_multidict(d, inst, default=None):
     instclass = find_class(inst)
