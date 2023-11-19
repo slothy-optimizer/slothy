@@ -80,7 +80,20 @@ class Result(LockAttributes):
                 c = late_char
 
             # String of the form "...{e,*,l}...", with e/l/* in position pos
-            t_comment = d * pos + c + d * (width - pos)
+            t_comment = [d for _ in range(width+1)]
+            if min_pos < 0:
+                t_comment[-min_pos] = '|'
+            if width > max(-min_pos,0) + self.codesize:
+                t_comment[max(-min_pos,0) + self.codesize] = '|'
+            c_pos = pos
+            while c_pos >= 0:
+                t_comment[c_pos] = c
+                c_pos -= self.codesize
+            c_pos = pos
+            while c_pos < width:
+                t_comment[c_pos] = c
+                c_pos += self.codesize
+            t_comment = ''.join(t_comment)
 
             if not self.config.constraints.functional_only and \
                self.config.Target.issue_rate > 1:
