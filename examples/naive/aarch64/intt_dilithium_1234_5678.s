@@ -138,31 +138,31 @@
 .endm
 
 .macro load_roots_1234 r_ptr
-        ldr_vi root0, \r_ptr, #(8*16)
-        ldr_vo root1, \r_ptr, #(-8*16 + 1*16)
-        ldr_vo root2, \r_ptr, #(-8*16 + 2*16)
-        ldr_vo root3, \r_ptr, #(-8*16 + 3*16)
-        ldr_vo root4, \r_ptr, #(-8*16 + 4*16)
-        ldr_vo root5, \r_ptr, #(-8*16 + 5*16)
-        ldr_vo root6, \r_ptr, #(-8*16 + 6*16)
-        ldr_vo root7, \r_ptr, #(-8*16 + 7*16)
+        ldr_vi root0, \r_ptr, (8*16)
+        ldr_vo root1, \r_ptr, (-8*16 + 1*16)
+        ldr_vo root2, \r_ptr, (-8*16 + 2*16)
+        ldr_vo root3, \r_ptr, (-8*16 + 3*16)
+        ldr_vo root4, \r_ptr, (-8*16 + 4*16)
+        ldr_vo root5, \r_ptr, (-8*16 + 5*16)
+        ldr_vo root6, \r_ptr, (-8*16 + 6*16)
+        ldr_vo root7, \r_ptr, (-8*16 + 7*16)
 .endm
 
 .macro load_next_roots_56 root0, r_ptr0
-        ldr_vi \root0, \r_ptr0, #16
+        ldr_vi \root0, \r_ptr0, 16
 .endm
 
 .macro load_next_roots_6 root0, r_ptr0
-        ldr_vi \root0, \r_ptr0, #8
+        ldr_vi \root0, \r_ptr0, 8
 .endm
 
 .macro load_next_roots_78 root0, root0_tw, root1, root1_tw, root2, root2_tw, r_ptr1
-        ldr_vi \root0,    \r_ptr1, #(6*16)
-        ldr_vo \root0_tw, \r_ptr1, #(-6*16 + 1*16)
-        ldr_vo \root1,    \r_ptr1, #(-6*16 + 2*16)
-        ldr_vo \root1_tw, \r_ptr1, #(-6*16 + 3*16)
-        ldr_vo \root2,    \r_ptr1, #(-6*16 + 4*16)
-        ldr_vo \root2_tw, \r_ptr1, #(-6*16 + 5*16)
+        ldr_vi \root0,    \r_ptr1, (6*16)
+        ldr_vo \root0_tw, \r_ptr1, (-6*16 + 1*16)
+        ldr_vo \root1,    \r_ptr1, (-6*16 + 2*16)
+        ldr_vo \root1_tw, \r_ptr1, (-6*16 + 3*16)
+        ldr_vo \root2,    \r_ptr1, (-6*16 + 4*16)
+        ldr_vo \root2_tw, \r_ptr1, (-6*16 + 5*16)
 .endm
 
 .macro transpose4 data
@@ -334,10 +334,10 @@ _intt_dilithium_1234_5678:
 
         .p2align 2
 layer5678_start:
-        ldr_vo data0, inp, #(16*0)
-        ldr_vo data1, inp, #(16*1)
-        ldr_vo data2, inp, #(16*2)
-        ldr_vo data3, inp, #(16*3)
+        ldr_vo data0, inp, (16*0)
+        ldr_vo data1, inp, (16*1)
+        ldr_vo data2, inp, (16*2)
+        ldr_vo data3, inp, (16*3)
 
         load_next_roots_78 root0, root0_tw, root1, root1_tw, root2, root2_tw, r_ptr0
 
@@ -359,10 +359,10 @@ layer5678_start:
         montg_reduce data0
         montg_reduce data1
 
-        str_vi  data0, inp, #(16*4)
-        str_vo  data1, inp, #(-16*4 +  1*16)
-        str_vo  data2, inp, #(-16*4 +  2*16)
-        str_vo  data3, inp, #(-16*4 +  3*16)
+        str_vi  data0, inp, (16*4)
+        str_vo  data1, inp, (-16*4 +  1*16)
+        str_vo  data2, inp, (-16*4 +  2*16)
+        str_vo  data3, inp, (-16*4 +  3*16)
 // layer5678_end:
         subs count, count, #1
         cbnz count, layer5678_start
@@ -407,22 +407,22 @@ layer5678_start:
 
         .p2align 2
 layer1234_start:
-        ldr_vo data0, in, #0
-        ldr_vo data1, in, #(1*(512/8))
-        ldr_vo data2, in, #(2*(512/8))
-        ldr_vo data3, in, #(3*(512/8))
-        ldr_vo data4, in, #(4*(512/8))
-        ldr_vo data5, in, #(5*(512/8))
-        ldr_vo data6, in, #(6*(512/8))
-        ldr_vo data7, in, #(7*(512/8))
-        ldr_vo data8, in, #(8*(512/8))
-        ldr_vo data9, in, #(9*(512/8))
-        ldr_vo data10, in, #(10*(512/8))
-        ldr_vo data11, in, #(11*(512/8))
-        ldr_vo data12, in, #(12*(512/8))
-        ldr_vo data13, in, #(13*(512/8))
-        ldr_vo data14, in, #(14*(512/8))
-        ldr_vo data15, in, #(15*(512/8))
+        ldr_vo data0, in, 0
+        ldr_vo data1, in, (1*(512/8))
+        ldr_vo data2, in, (2*(512/8))
+        ldr_vo data3, in, (3*(512/8))
+        ldr_vo data4, in, (4*(512/8))
+        ldr_vo data5, in, (5*(512/8))
+        ldr_vo data6, in, (6*(512/8))
+        ldr_vo data7, in, (7*(512/8))
+        ldr_vo data8, in, (8*(512/8))
+        ldr_vo data9, in, (9*(512/8))
+        ldr_vo data10, in, (10*(512/8))
+        ldr_vo data11, in, (11*(512/8))
+        ldr_vo data12, in, (12*(512/8))
+        ldr_vo data13, in, (13*(512/8))
+        ldr_vo data14, in, (14*(512/8))
+        ldr_vo data15, in, (15*(512/8))
 
         // layer4
         gs_butterfly data0, data1, root3, 2, 3
@@ -473,14 +473,14 @@ layer1234_start:
         canonical_reduce data14, modulus_half, neg_modulus_half, t2, t3
         canonical_reduce data15, modulus_half, neg_modulus_half, t2, t3
 
-        str_vo data8, in,  #(8*(512/8))
-        str_vo data9, in,  #(9*(512/8))
-        str_vo data10, in, #(10*(512/8))
-        str_vo data11, in, #(11*(512/8))
-        str_vo data12, in, #(12*(512/8))
-        str_vo data13, in, #(13*(512/8))
-        str_vo data14, in, #(14*(512/8))
-        str_vo data15, in, #(15*(512/8))
+        str_vo data8, in,  (8*(512/8))
+        str_vo data9, in,  (9*(512/8))
+        str_vo data10, in, (10*(512/8))
+        str_vo data11, in, (11*(512/8))
+        str_vo data12, in, (12*(512/8))
+        str_vo data13, in, (13*(512/8))
+        str_vo data14, in, (14*(512/8))
+        str_vo data15, in, (15*(512/8))
 
         mul_ninv data8, data9, data10, data11, data12, data13, data14, data15, data0, data1, data2, data3, data4, data5, data6, data7
 
@@ -493,14 +493,14 @@ layer1234_start:
         canonical_reduce data14, modulus_half, neg_modulus_half, t2, t3
         canonical_reduce data15, modulus_half, neg_modulus_half, t2, t3
 
-        str_vi data8, in, #(16)
-        str_vo data9, in, #(-16 + 1*(512/8))
-        str_vo data10, in, #(-16 + 2*(512/8))
-        str_vo data11, in, #(-16 + 3*(512/8))
-        str_vo data12, in, #(-16 + 4*(512/8))
-        str_vo data13, in, #(-16 + 5*(512/8))
-        str_vo data14, in, #(-16 + 6*(512/8))
-        str_vo data15, in, #(-16 + 7*(512/8))
+        str_vi data8, in, (16)
+        str_vo data9, in, (-16 + 1*(512/8))
+        str_vo data10, in, (-16 + 2*(512/8))
+        str_vo data11, in, (-16 + 3*(512/8))
+        str_vo data12, in, (-16 + 4*(512/8))
+        str_vo data13, in, (-16 + 5*(512/8))
+        str_vo data14, in, (-16 + 6*(512/8))
+        str_vo data15, in, (-16 + 7*(512/8))
 
 // layer1234_end:
         subs count, count, #1
