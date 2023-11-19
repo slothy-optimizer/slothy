@@ -25,7 +25,7 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import re, subprocess
+import re, subprocess, logging
 
 class NestedPrint():
     def __str__(self):
@@ -530,3 +530,14 @@ class Permutation():
     def iter_swaps(p, n):
         return ((i,j,p[i],p[j]) for i in range(n) for j in range(n) \
             if i < j and p[j] < p[i])
+
+
+class DeferHandler(logging.Handler):
+    def __init__(self):
+        super().__init__()
+        self._records = []
+    def emit(self, record):
+        self._records.append(record)
+    def forward(self, logger):
+        [ logger.handle(r) for r in self._records ]
+        self._records = []

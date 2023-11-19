@@ -27,8 +27,12 @@
 
 import re
 from enum import Enum
+from functools import cached_property
 
 from .helper import AsmHelper
+
+class SlothyUselessInstructionException(Exception):
+    pass
 
 class RegisterSource:
     pass
@@ -159,14 +163,21 @@ class ComputationNode:
         self.dst_out    = [ [] for _ in range(inst.num_out)    ]
         self.dst_in_out = [ [] for _ in range(inst.num_in_out) ]
 
+    @cached_property
     def is_virtual_input(self):
         return isinstance(self.inst,VirtualInputInstruction)
+
+    @cached_property
     def is_virtual_output(self):
         return isinstance(self.inst,VirtualOutputInstruction)
+
+    @cached_property
     def is_virtual(self):
-        return self.is_virtual_input() or self.is_virtual_output()
+        return self.is_virtual_input or self.is_virtual_output
+
+    @cached_property
     def is_not_virtual(self):
-        return not self.is_virtual()
+        return not self.is_virtual
 
     def varname(self):
         return ''.join([ e for e in str(self.inst) if e.isalnum() ])
@@ -316,7 +327,7 @@ class DataFlowGraph:
         """The list of all ComputationNodes corresonding to instructions in
         the original source code. Compared to DataFlowGraph.nodes_all, this
         omits "virtual" computation nodes."""
-        return list(filter(ComputationNode.is_not_virtual, self.nodes_all))
+        return list(filter(lambda x: x.is_not_virtual, self.nodes_all))
 
     @property
     def num_nodes(self):
@@ -325,11 +336,11 @@ class DataFlowGraph:
     @property
     def nodes_input(self):
         """The list of all virtual input ComputationNodes"""
-        return [ t for t in self.nodes_all if t.is_virtual_input() ]
+        return [ t for t in self.nodes_all if t.is_virtual_input ]
     @property
     def nodes_output(self):
         """The list of all virtual output ComputationNodes"""
-        return [ t for t in self.nodes_all if t.is_virtual_output() ]
+        return [ t for t in self.nodes_all if t.is_virtual_output ]
     @property
     def inputs_typed(self):
         """The type-indexed dictionary of input registers"""
@@ -512,8 +523,9 @@ class DataFlowGraph:
             if not self.config.allow_useless_instructions:
                 self.logger.error(f"The output(s) of instruction {t.id}({t.inst}) are not used but also not declared as outputs.")
                 self.logger.error(f"Instruction details: {t}, {t.inst.inputs}")
+                self.logger.error(f"Outputs: {self.outputs}")
                 self.dump_instructions("Source code", error=True)
-                raise Exception("Useless instruction detected -- probably you missed an output declaration?")
+                raise SlothyUselessInstructionException("Useless instruction detected -- probably you missed an output declaration?")
             else:
                 self.logger.warning(f"The output(s) of instruction {t.id}({t.inst}) are not used but also not declared as outputs.")
                 self.logger.warning(f"Instruction details: {t}, {t.inst.inputs}")

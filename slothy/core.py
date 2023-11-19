@@ -27,18 +27,20 @@
 
 import logging, re, ortools, math
 from ortools.sat.python import cp_model
-from functools import cached_property, lru_cache
+from methodtools import lru_cache
+from functools import cached_property
 from types import SimpleNamespace
 from copy import deepcopy
 from sympy import simplify
 
 from slothy.config import Config
-from slothy.helper import LockAttributes, NestedPrint, AsmHelper, Permutation
+from slothy.helper import LockAttributes, NestedPrint, AsmHelper, Permutation, DeferHandler
 
 from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
 from slothy.dataflow import InstructionOutput, InstructionInOut, ComputationNode
 from slothy.dataflow import VirtualOutputInstruction, VirtualInputInstruction
+from slothy.dataflow import SlothyUselessInstructionException
 
 class Result(LockAttributes):
     """The results of a one-shot SLOTHY optimization run"""
@@ -106,7 +108,7 @@ class Result(LockAttributes):
 
         yield ""
 
-    @cached_property
+    @property
     def orig_code_visualized(self):
         """Optimization input: Source code, including visualization of reordering"""
         return list(self._gen_orig_code_visualized())
@@ -120,9 +122,10 @@ class Result(LockAttributes):
         """The list of output registers in the _original_ source code."""
         return list(self.output_renamings.keys())
 
-    @cached_property
+    @property
     def codesize(self):
         return len(self.orig_code)
+
     @property
     def codesize_with_bubbles(self):
         return self._codesize_with_bubbles
@@ -132,29 +135,48 @@ class Result(LockAttributes):
         self._require_sw_pipelining()
         return self._pre_core_post_dict
 
-    def is_pre(self, i):
+    def is_pre(self, i, original_program_order=True):
         """Indicates if the instruction in original program order position i (starting at 0)
            was marked 'early' and thereby pulled into the previous iteration.
+
+           If original_program_order is False, the index instead refers to the _new_ program
+           order position with in the kernel of the optimized loop.
 
            This only makes sense when software pipelining was enabled."""
         if not self.config.sw_pipelining.enabled:
             return False
+
+        if not original_program_order:
+            i = self.periodic_reordering_inv[i]
+
         return self.pre_core_post_dict[i][0]
-    def is_core(self, i):
+
+    def is_core(self, i, original_program_order=True):
         """Indicates if the instruction in original program order position i (starting at 0)
            was neither marked 'early' nor 'late', so stayed in its original iteration.
+
+           If original_program_order is False, the index instead refers to the _new_ program
+           order position with in the kernel of the optimized loop.
 
            This only makes sense when software pipelining was enabled."""
         if not self.config.sw_pipelining.enabled:
             return True
+
+        if not original_program_order:
+            i = self.periodic_reordering_inv[i]
+
         return self.pre_core_post_dict[i][1]
-    def is_post(self, i):
+    def is_post(self, i, original_program_order=True):
         """Indicates if the instruction in original program order position i (starting at 0)
            was marked 'late' and thereby pulled into the next iteration.
 
            This only makes sense when software pipelining was enabled."""
         if not self.config.sw_pipelining.enabled:
             return False
+
+        if not original_program_order:
+            i = self.periodic_reordering_inv[i]
+
         return self.pre_core_post_dict[i][2]
 
     @cached_property
@@ -218,13 +240,12 @@ class Result(LockAttributes):
         """The inverse reordering permutation linking optimized and original source code"""
         return { v : k for k,v in self.reordering_with_bubbles.items() }
 
-    @lru_cache(maxsize=2)
     def get_reordering_with_bubbles(self, copies):
-        return { orig_pos + k * self.codesize : k * self.codesize_with_bubbles + new_pos
+        res = { orig_pos + k * self.codesize : k * self.codesize_with_bubbles + new_pos
                  for (orig_pos,new_pos) in self.reordering_with_bubbles.items()
                  for k in range(copies) }
+        return res
 
-    @lru_cache(maxsize=2)
     def get_periodic_reordering_with_bubbles(self, copies):
         tmp = self.get_reordering_with_bubbles(copies)
         if not self.config.sw_pipelining.enabled:
@@ -235,15 +256,13 @@ class Result(LockAttributes):
                 tmp[i] += copies * self.codesize_with_bubbles
             if post:
                 tmp[(copies - 1) * self.codesize + i] -= copies * self.codesize_with_bubbles
-
         return tmp
 
-    @lru_cache(maxsize=2)
     def get_periodic_reordering_with_bubbles_inv(self, copies):
         tmp = self.get_periodic_reordering_with_bubbles(copies)
-        return { v:k for (k,v) in tmp.items() }
+        tmpr = { v:k for (k,v) in tmp.items() }
+        return tmpr
 
-    @lru_cache(maxsize=2)
     def get_periodic_reordering(self, copies):
         t = self.get_periodic_reordering_with_bubbles(copies)
         vals = list(t.values())
@@ -252,8 +271,14 @@ class Result(LockAttributes):
         assert (Permutation.is_permutation(res, copies * self.codesize))
         return res
 
-    @lru_cache(maxsize=2)
-    def get_reordering(self, copies, no_gaps=False):
+    def get_periodic_reordering_inv(self, copies):
+        tmp = self.get_periodic_reordering(copies)
+        tmpr = { v:k for (k,v) in tmp.items() }
+        assert Permutation.is_permutation(tmpr, copies * self.codesize)
+        return tmpr
+
+    def get_reordering(self, copies, no_gaps):
+
         tmp = self.get_periodic_reordering(copies)
         if not self.config.sw_pipelining.enabled:
             return tmp
@@ -272,7 +297,8 @@ class Result(LockAttributes):
 
         return tmp
 
-    def get_code(self, iterations):
+    def get_fully_unrolled_loop(self, iterations):
+        self._require_sw_pipelining()
         assert iterations > self.num_exceptional_iterations
         kernel_copies = iterations - self.num_exceptional_iterations
         new_source = '\n'.join(self._preamble                 +
@@ -281,10 +307,14 @@ class Result(LockAttributes):
         old_source = '\n'.join(self._orig_code * iterations)
         return old_source, new_source
 
+    def get_unrolled_kernel(self, iterations):
+        self._require_sw_pipelining()
+        return '\n'.join(self._code * iterations)
+
     @cached_property
     def reordering(self):
         """The reordering permutation linking original and optimized source code"""
-        return self.get_reordering(1)
+        return self.get_reordering(1, no_gaps=False)
 
     @cached_property
     def periodic_reordering_with_bubbles(self):
@@ -297,6 +327,12 @@ class Result(LockAttributes):
     @cached_property
     def periodic_reordering(self):
         return self.get_periodic_reordering(1)
+
+    @cached_property
+    def periodic_reordering_inv(self):
+        res = self.get_periodic_reordering_inv(1)
+        assert Permutation.is_permutation(res, self.codesize)
+        return res
 
     @cached_property
     def reordering_inv(self):
@@ -340,10 +376,11 @@ class Result(LockAttributes):
 
         return res
 
-    def _get_unrolled_loop(self, log, iterations):
+    def _get_full_code(self, log):
         if self.config.sw_pipelining.enabled:
             # Unroll the loop a fixed number of times
-            old_source, new_source = self.get_code(iterations)
+            iterations = 5
+            old_source, new_source = self.get_fully_unrolled_loop(iterations)
             reordering = self.get_reordering(iterations, no_gaps=True)
         else:
             old_source = '\n'.join(self.orig_code)
@@ -394,13 +431,13 @@ class Result(LockAttributes):
         if inst_changes_addr(t0.inst):
             # t1 gets reordered before t0, which changes the address
             # Adjust t1's address accordingly
-            logger.info(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst.increment}, "
+            logger.debug(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst.increment}, "
                          f"to {t1.fixup + int(simplify(t0.inst.increment))}")
             t1.fixup += int(simplify(t0.inst.increment))
         elif inst_changes_addr(t1.inst):
             # t0 gets reordered after t1, which changes the address
             # Adjust t0's address accordingly
-            logger.info(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst.increment}, "
+            logger.debug(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst.increment}, "
                          f"to {t0.fixup - int(simplify(t1.inst.increment))}")
             t0.fixup -= int(simplify(t1.inst.increment))
 
@@ -426,9 +463,8 @@ class Result(LockAttributes):
             logger.debug(f"Fixed up instruction {t.inst} by {t.fixup}, to {t.inst}")
 
     def offset_fixup_sw(self, log):
-
-        iterations = 5
-        n, _, _, tree_old, tree_new, reordering = self._get_unrolled_loop(log, iterations)
+        n, _, _, tree_old, tree_new, reordering = self._get_full_code(log)
+        iterations = n // self.codesize
 
         Result._fixup_reset(tree_new, log)
         for i, j, ni, nj in Permutation.iter_swaps(reordering, n):
@@ -449,11 +485,14 @@ class Result(LockAttributes):
                               tree_new.nodes[preamble_len + i*self.codesize:
                                              preamble_len + (i+1)*self.codesize] ])
 
+        # Flag if address fixup makes the kernel instable. In this case, we'd have to
+        # widen preamble and postamble, but this is not yet implemented.
         count = 0
         for i, (kcur, knext) in enumerate(zip(code_new, code_new[1:])):
             if kcur != knext:
                 count += 1
-        assert count == 0
+        if count != 0:
+            raise Exception("Instable loop kernel after post-optimization address fixup")
         code_new = code_new[0]
 
         self._preamble = preamble_new
@@ -461,7 +500,7 @@ class Result(LockAttributes):
         self._code = code_new
 
     def offset_fixup_straightline(self, log):
-        n, _, _, tree_old, tree_new, reordering = self._get_unrolled_loop(log, 1)
+        n, _, _, tree_old, tree_new, reordering = self._get_full_code(log)
 
         Result._fixup_reset(tree_new, log)
         for _, _, ni, nj in Permutation.iter_swaps(reordering, n):
@@ -476,16 +515,24 @@ class Result(LockAttributes):
         else:
             self.offset_fixup_straightline(log)
 
-    def selfcheck(self, log, iterations=3):
+    def selfcheck(self, log):
         """Checks that the original and optimized source code have isomorphic DFGs.
            More specifically, that the reordering permutation stored in Result object
            yields an isomorphism between DFGs.
 
            When software pipelining is used, this is a bounded check for a fixed number
            of iterations."""
+        try:
+            res = self._selfcheck_core(log)
+        except SlothyUselessInstructionException:
+            raise SlothySelfCheckException("Useless instruction detected during selfcheck: FAIL!")
+        if self.config.selfcheck and not res:
+            raise SlothySelfCheckException("Isomorphism between computation flow graphs: FAIL!")
+        return res
 
-        _, old_source, new_source, tree_old, tree_new, reordering = self._get_unrolled_loop(log, iterations)
-
+    def _selfcheck_core(self, log):
+        _, old_source, new_source, tree_old, tree_new, reordering = \
+            self._get_full_code(log)
         edges_old = tree_old.edges()
         edges_new = tree_new.edges()
 
@@ -514,7 +561,7 @@ class Result(LockAttributes):
         if edges_old_remapped == edges_new:
             log.debug("Isomophism between computation flow graphs: OK!")
             log.info("OK!")
-            return
+            return True
 
         log.error("Isomophism between computation flow graphs: FAIL!")
 
@@ -524,8 +571,8 @@ class Result(LockAttributes):
         SlothyBase._dump("old code", old_source, log, err=True)
         SlothyBase._dump("new code", new_source, log, err=True)
 
-        new_not_old = edges_new.difference(edges_old_remapped)
-        old_not_new = edges_old_remapped.difference(edges_new)
+        new_not_old = [e for e in edges_new if e not in edges_old_remapped]
+        old_not_new = [e for e in edges_old_remapped if e not in edges_new]
 
         log.error("Old graph")
         tree_old._describe(error=True)
@@ -577,9 +624,7 @@ class Result(LockAttributes):
                           "don't both exist in new DFG?")
 
         log.error("Isomorphism between computation flow graphs: FAIL!")
-
-        if self.config.selfcheck:
-            raise Exception("Isomorphism between computation flow graphs: FAIL!")
+        return False
 
     @property
     def inputs(self):
@@ -686,6 +731,9 @@ class Result(LockAttributes):
         self._codesize_with_bubbles = None
 
         self.lock()
+
+class SlothySelfCheckException(Exception):
+    pass
 
 class SlothyBase(LockAttributes):
     """Stateless core of SLOTHY --
@@ -821,7 +869,6 @@ class SlothyBase(LockAttributes):
         self._add_constraints_scheduling()
         self._add_constraints_lifetime_bounds()
         self._add_constraints_loop_optimization()
-        self._add_constraints_preamble_postamble()
         self._add_constraints_N_issue()
         self._add_constraints_dependency_order()
         self._add_constraints_latencies()
@@ -1086,6 +1133,112 @@ class SlothyBase(LockAttributes):
         def solution_count(self):
             return self.__solution_count
 
+    def fixup_preamble_postamble(self):
+
+        #if not self._has_cross_iteration_dependencies():
+        if not self.config.sw_pipelining.enabled:
+            return
+
+        log = self.logger.getChild("fixup_preamble_postamble")
+
+        iterations = self._result.num_exceptional_iterations
+        assert iterations == 1 or iterations == 2
+
+        n = self._result.codesize * iterations
+
+        kernel = self._result.get_unrolled_kernel(iterations=iterations)
+
+        perm = self._result.periodic_reordering_inv
+        assert Permutation.is_permutation(perm, self._result.codesize)
+
+        dfgc_orig = DFGConfig(self.config, outputs=self._result.orig_outputs)
+        dfgc_kernel = DFGConfig(self.config, outputs=self._result._kernel_input_output)
+
+        tree_orig = DFG(self._result.orig_code, log.getChild("orig"), dfgc_orig)
+
+        def is_in_preamble(t):
+            if t.orig_pos == None:
+                return False
+            if iterations == 1:
+                return self._result.is_pre(t.orig_pos, original_program_order=False)
+            elif iterations == 2:
+                if t.orig_pos < self._result.codesize:
+                    return self._result.is_pre(t.orig_pos, original_program_order=False)
+                else:
+                    return not self._result.is_post(t.orig_pos % self._result.codesize,
+                                                    original_program_order=False)
+
+        def is_in_postamble(t):
+            if t.orig_pos == None:
+                return False
+            if iterations == 1:
+                return not self._result.is_pre(t.orig_pos, original_program_order=False)
+            elif iterations == 2:
+                if t.orig_pos < self._result.codesize:
+                    return not self._result.is_pre(t.orig_pos, original_program_order=False)
+                else:
+                    return self._result.is_post(t.orig_pos % self._result.codesize,
+                                                original_program_order=False)
+
+        tree_kernel = DFG(kernel, log.getChild("ssa"), dfgc_kernel)
+        tree_kernel.ssa()
+
+        # Go through early instructions that depend on an instruction from
+        # the previous iteration. Remap those dependencies as input dependencies.
+        for (consumer, producer, ty, idx) in tree_kernel.iter_dependencies():
+            producer = producer.reduce()
+            if not (is_in_preamble(consumer) and not is_in_preamble(producer.src)):
+                continue
+            if producer.src.is_virtual:
+                continue
+            orig_pos = perm[producer.src.orig_pos % self._result.codesize]
+            assert isinstance(producer, InstructionOutput)
+            producer.src.inst.args_out[producer.idx] = \
+                tree_orig.nodes[orig_pos].inst.args_out[producer.idx]
+
+        # Update input and in-out register names
+        for t in tree_kernel.nodes_all:
+            for i in range(len(t.inst.args_in)):
+                t.inst.args_in[i] = t.src_in[i].name()
+            for i in range(len(t.inst.args_in_out)):
+                t.inst.args_in_out[i] = t.src_in_out[i].name()
+
+        new_preamble = [ str(t.inst) for t in tree_kernel.nodes if is_in_preamble(t) ]
+        self._result._preamble = new_preamble
+        SlothyBase._dump("New preamble", self._result._preamble, log)
+
+        dfgc_preamble = DFGConfig(self.config, outputs=self._result._kernel_input_output)
+        dfgc_preamble.inputs_are_outputs = False
+        DFG(self._result._preamble, log.getChild("new_preamble"), dfgc_preamble)
+
+        tree_kernel = DFG(kernel, log.getChild("ssa"), dfgc_kernel)
+        tree_kernel.ssa()
+
+        # Go through non-early instructions that feed into an instruction from
+        # the next iteration. Remap those dependencies as input dependencies.
+        for (consumer, producer, _, _) in tree_kernel.iter_dependencies():
+            producer = producer.reduce()
+            if not (is_in_postamble(producer.src) and not is_in_postamble(consumer)):
+                continue
+            orig_pos = perm[producer.src.orig_pos % self._result.codesize]
+            assert isinstance(producer, InstructionOutput)
+            producer.src.inst.args_out[producer.idx] = \
+                tree_orig.nodes[orig_pos].inst.args_out[producer.idx]
+
+        # Update input and in-out register names
+        for t in tree_kernel.nodes_all:
+            for i in range(len(t.inst.args_in)):
+                t.inst.args_in[i] = t.src_in[i].reduce().name()
+            for i in range(len(t.inst.args_in_out)):
+                t.inst.args_in_out[i] = t.src_in_out[i].reduce().name()
+
+        new_postamble = [ str(t.inst) for t in tree_kernel.nodes if is_in_postamble(t) ]
+        self._result._postamble = new_postamble
+        SlothyBase._dump("New postamble", self._result._postamble, log)
+
+        dfgc_postamble = DFGConfig(self.config, outputs=self._result.orig_outputs)
+        DFG(self._result._postamble, log.getChild("new_postamble"), dfgc_postamble)
+
     def _extract_result(self):
 
         self._result._orig_code = self._orig_code
@@ -1097,8 +1250,48 @@ class SlothyBase(LockAttributes):
         self._extract_input_output_renaming()
 
         self._extract_code()
+
+        # In the presence of cross iteration dependencies, the preamble and postamble
+        # may be functionally incorrect and need fixup.
+        # We therefore gather the log output of the initial selfcheck and only release
+        # it (a) on success, or (b) when even the selfcheck after fixup fails.
+
+        log = self.logger.getChild("selfcheck")
+        defer_handler = DeferHandler()
+        log.propagate = False
+        log.addHandler(defer_handler)
+
+        try:
+            retry = not self._result.selfcheck(log)
+            exception = None
+        except SlothySelfCheckException as e:
+            exception = e
+
+        log.propagate = True
+        log.removeHandler(defer_handler)
+
+        if exception and self._has_cross_iteration_dependencies():
+            retry = True
+        elif exception:
+            # We don't expect a failure if there are no cross-iteration dependencies
+            defer_handler.forward(log)
+            raise e
+
+        if not retry:
+            # On success, show the log output
+            defer_handler.forward(log)
+        else:
+            self.logger.info("Selfcheck failed! This sometimes happens in the presence of cross-iteration dependencies. Try fixup...")
+            self.fixup_preamble_postamble()
+
+            try:
+                self._result.selfcheck(self.logger.getChild("selfcheck_after_fixup"))
+            except SlothySelfCheckException as e:
+                self.logger.error("Here is the output of the original selfcheck before fixup")
+                defer_handler.forward(log)
+                raise e
+
         self._result.offset_fixup(self.logger.getChild("fixup"))
-        self._result.selfcheck(self.logger.getChild("selfcheck"))
 
     def _extract_positions(self, Value):
 
@@ -1138,7 +1331,7 @@ class SlothyBase(LockAttributes):
                                                       for t in nodes }
 
         copies = 2 if self.config.sw_pipelining.enabled else 1
-        reordering = self.result.get_reordering(copies)
+        reordering = self.result.get_reordering(copies, no_gaps=False)
         self.logger.debug(f"Reordering (without bubbles, {copies} copies)")
         self.logger.debug(reordering)
 
@@ -1312,7 +1505,7 @@ class SlothyBase(LockAttributes):
         bvars = [ self._NewBoolVar("") for _ in cb_lst ]
         self._AddExactlyOne(bvars)
 
-        if not self.config.sw_pipelining.enabled or producer.is_virtual() or consumer.is_virtual():
+        if not self.config.sw_pipelining.enabled or producer.is_virtual or consumer.is_virtual:
             for (cb, bvar) in zip(cb_lst, bvars, strict=True):
                 cb().OnlyEnforceIf(bvar)
             return
@@ -1482,7 +1675,7 @@ class SlothyBase(LockAttributes):
                 return False
             if self.config.constraints.restricted_renaming is None:
                 return True
-            if t.is_virtual():
+            if t.is_virtual:
                 return True
             threshold = self.config.constraints.restricted_renaming
             if t in renaming_allowed_list:
@@ -1649,11 +1842,11 @@ class SlothyBase(LockAttributes):
 
     def _is_input(self, t):
         assert isinstance(t, ComputationNode)
-        return t.is_virtual_input()
+        return t.is_virtual_input
 
     def _is_output(self, t):
         assert isinstance(t, ComputationNode)
-        return t.is_virtual_output()
+        return t.is_virtual_output
 
     def _iter_dependencies(self, with_virt=True):
         def f(t):
@@ -1693,6 +1886,11 @@ class SlothyBase(LockAttributes):
 
         yield from filter(is_cross_iteration_dependency,
                           self._iter_dependencies_with_lifetime())
+
+    def _has_cross_iteration_dependencies(self):
+        if not self.config.sw_pipelining.enabled:
+            return False
+        return next(self._iter_cross_iteration_dependencies(), None) != None
 
     def _add_constraints_lifetime_bounds_single(self, t):
 
@@ -1876,62 +2074,6 @@ class SlothyBase(LockAttributes):
                 # on an instruction from a previous iteration cannot be late.
                 self._Add(producer.src.pre_var == False)
                 self._Add(consumer.post_var == False)
-
-    # ================================================================
-    #                 CONSTRAINTS (Software pipelining)              #
-    # ================================================================
-
-    def _add_constraints_preamble_postamble(self):
-        """Add constraints ensuring the functional correctness of the preamble
-        and postamble."""
-
-        if not self.config.sw_pipelining.enabled:
-            return
-
-        cross_deps = self._iter_cross_iteration_dependencies()
-        for (consumer, producer, _, _, start_var, end_var, alloc_vars) in cross_deps:
-            producer = producer.src
-
-            self.logger.debug(f"Cross iteration dependency: {producer} --> {consumer}")
-
-            # When early instructions are used, there are two sources of functional
-            # incorrectness in preamble and postamble:
-            #
-            # Preamble:
-            # Given a cross-iteration dependency A --> B, no early instruction C may
-            # overwrite the output of A, regardless of where it is placed. In the periodic
-            # part of the loop, that would be OK (if C comes before A), but in the preamble
-            # it isn't, since A is omitted there (or is, conceptually, only present as a
-            # virtual input instruction at the top of the preamble).
-
-            # Ensure no early instruction overwrites the dependency in the preamble
-            for t in self._get_nodes(high=True):
-                for dic in t.alloc_out_var:
-                    self._forbid_renaming_collision_single(alloc_vars, dic, t.pre_var)
-
-            # TODO: This is actually one case where this condition is too strong: If B
-            # is an early instruction, then it is OK for another early instruction C
-            # coming _after_ B (in the output scheduling) to overwrite the output of A.
-
-            # Postamble:
-            # Consider again a cross-iteration dependencies A --> B, and assume B is an
-            # early instruction. If it happens that B is the only consumer of the output
-            # of A, then non-early instructions coming after B could overwrite the output
-            # of A. Again, this is OK in the periodic part of the loop, but it's functionally
-            # incorrect in the postamble
-            # We prevent this case by always lower-bounding the lifetime of output(A)
-            # by the loop boundary: In that case, B can still be an early instruction,
-            # but the output register of A would remain unusable until the loop boundary.
-
-            if self.config.sw_pipelining.allow_pre:
-                self._add_path_constraint( consumer, producer, lambda: self._Add(
-                    end_var >= len(self._model._tree.nodes_low)))
-
-            # TODO: This is too strong as well... other _early_ instructions are allowed
-            # to overwrite the output of A. For deeply early instructions, this is a pretty
-            # serious over-constraint
-
-            # TODO: Add similar constraints if late instructions are enabled
 
     # ================================================================
     #                  CONSTRAINTS (Single issuing)                  #
