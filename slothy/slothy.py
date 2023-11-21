@@ -26,13 +26,12 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import logging, copy, math
-
+import logging
 from types import SimpleNamespace
 
 from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
-from slothy.core import SlothyBase, Config
+from slothy.core import Config
 from slothy.heuristics import Heuristics
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor
 
@@ -40,16 +39,17 @@ class Slothy():
 
     # Quick convenience access to architecture and target from the config
     def _get_arch(self):
-        return self.config.Arch
+        return self.config.arch
     def _get_target(self):
-        return self.config.Target
-    Arch = property(_get_arch)
-    Target = property(_get_target)
+        return self.config.target
+    arch = property(_get_arch)
+    target = property(_get_target)
 
-    def __init__(self, Arch, Target, logger=None):
-        self.config = Config(Arch, Target)
+    def __init__(self, arch, target, logger=None):
+        self.config = Config(arch, target)
         self.logger = logger if logger != None else logging.getLogger("slothy")
         self.source = None
+        self.results = None
 
     def load_source_raw(self, source):
         self.source = source.replace("\\\n", "")
@@ -161,7 +161,7 @@ class Slothy():
 
     def get_loop_input_output(self, loop_lbl):
         logger = self.logger.getChild(loop_lbl)
-        _, body, _, _, _ = self.Arch.Loop.extract(self.source, loop_lbl)
+        _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl)
 
         c = self.config.copy()
         dfgc = DFGConfig(c)
@@ -217,7 +217,7 @@ class Slothy():
         logger = self.logger.getChild(loop_lbl)
 
         early, body, late, loop_start_lbl, other_data = \
-            self.Arch.Loop.extract(self.source, loop_lbl)
+            self.arch.Loop.extract(self.source, loop_lbl)
 
         aliases = AsmAllocation.parse_allocs(early)
         c = self.config.copy()
@@ -246,7 +246,7 @@ class Slothy():
             indent = ' ' * self.config.indentation
             return [ indent + s for s in code ]
 
-        loop = self.Arch.Loop(lbl_start=loop_lbl)
+        loop = self.arch.Loop(lbl_start=loop_lbl)
         optimized_code = []
         optimized_code += indented(preamble_code)
 
