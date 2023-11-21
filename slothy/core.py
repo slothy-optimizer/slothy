@@ -1160,7 +1160,7 @@ class SlothyBase(LockAttributes):
                 t.inst.pre_index = f"(({t.inst.pre_index}) + ({t.fixup}))"
             else:
                 t.inst.pre_index = f"{t.fixup}"
-            logger.info(f"Fixed up instruction {t.inst} by {t.fixup}, to {t.inst}")
+            logger.debug(f"Fixed up instruction {t.inst} by {t.fixup}, to {t.inst}")
 
     def _offset_fixup_sw(self, log):
         n, _, _, _, tree_new, reordering = self._result.get_full_code(log)
@@ -2391,7 +2391,7 @@ class SlothyBase(LockAttributes):
         for t in self._get_nodes():
             if filter_func(t.inst):
                 continue
-            self._Add(t.core_var == True)
+            self._Add(t.core_var == True) #pylint: disable=singleton-comparison
 
     def force_early(self, filter_func, early=True):
         """Forces all instructions passing the filter_func to be `early`, that is,
@@ -2411,10 +2411,10 @@ class SlothyBase(LockAttributes):
                 continue
             if early:
                 self.logger.debug("Forcing instruction %s to be early", t)
-                self._Add(t.pre_var == True)
+                self._Add(t.pre_var == True) #pylint: disable=singleton-comparison
             else:
                 self.logger.debug("Forcing instruction %s to be late", t)
-                self._Add(t.post_var == True)
+                self._Add(t.post_var == True) #pylint: disable=singleton-comparison
 
     def restrict_slots_for_instruction( self, t, slots ):
         """This forces the given instruction to be assigned precisely one of the slots

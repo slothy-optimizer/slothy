@@ -278,7 +278,6 @@ class Heuristics():
         old = body.copy()
         l = len(body)
         dfg = DFG(body, logger.getChild("dfg"), DFGConfig(conf.copy()), parsing_cb=True)
-
         insts = [dfg.nodes[i] for i in range(l)]
 
         if not use_latency_depth:
@@ -289,14 +288,14 @@ class Heuristics():
             nodes_by_depth.sort(key=(lambda t: t.depth))
             for t in dfg.nodes_all:
                 t.latency_depth = 0
+            def get_latency(tp,t):
+                if tp.src.is_virtual():
+                    return 0
+                return conf.target.get_latency(tp.src.inst, tp.idx, t.inst)
             for t in nodes_by_depth:
                 srcs = t.src_in + t.src_in_out
-                def get_latency(tp):
-                    if tp.src.is_virtual():
-                        return 0
-                    return conf.target.get_latency(tp.src.inst, tp.idx, t.inst)
-                t.latency_depth = max(map(lambda tp: tp.src.latency_depth +
-                                          get_latency(tp), srcs),
+                t.latency_depth = max(map(lambda tp, t=t: tp.src.latency_depth +
+                                          get_latency(tp, t), srcs),
                                       default=0)
             depths = [dfg.nodes_by_id[i].latency_depth for i in range(l) ]
 
@@ -408,7 +407,6 @@ class Heuristics():
 
                 return lst[:idx_to] + [entry] + lst[idx_to:]
 
-            # body = move_entry_forward(body, choice_idx, i)
             def inst_reorder_cb(t0,t1):
                 SlothyBase._fixup_reordered_pair(t0,t1,logger)
 
