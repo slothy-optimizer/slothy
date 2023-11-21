@@ -412,10 +412,7 @@ class Heuristics():
             def inst_reorder_cb(t0,t1):
                 SlothyBase._fixup_reordered_pair(t0,t1,logger)
 
-            for t in insts:
-                t.inst_tmp = t.inst
-                t.fixup = 0
-
+            SlothyBase._fixup_reset(insts)
             choice_idx = None
             while choice_idx is None:
                 try:
@@ -424,8 +421,7 @@ class Heuristics():
                 except:
                     candidate_idxs.remove(choice_idx)
                     choice_idx = None
-
-            SlothyBase._post_optimize_fixup_apply_core(insts, logger)
+            SlothyBase._fixup_finish(insts, logger)
 
             local_perm = Permutation.permutation_move_entry_forward(l, choice_idx, i)
             perm = Permutation.permutation_comp (local_perm, perm)
