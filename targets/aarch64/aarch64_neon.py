@@ -2411,7 +2411,7 @@ class fmov_0(Fmov):
 class fmov_0_force_output(Fmov):
     @classmethod
     def make(cls, src, force=False):
-        if force == False:
+        if force is False:
             raise Instruction.ParsingException("Instruction ignored")
         return AArch64Instruction.build(cls, src, "fmov <Dd>, <Xa>",
                          inputs=["Xa"],
@@ -2427,7 +2427,7 @@ class fmov_1(Fmov):
 class fmov_1_force_output(Fmov):
     @classmethod
     def make(cls, src, force=False):
-        if force == False:
+        if force is False:
             raise Instruction.ParsingException("Instruction ignored")
         return AArch64Instruction.build(cls, src, "fmov <Vd>.d[1], <Xa>",
                          inputs=["Xa"],
@@ -2862,8 +2862,7 @@ def vins_d_parsing_cb():
             return False
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
-        t.inst = vins_d_force_output.make(
-            vins_d_force_output, inst_txt, force=True)
+        t.inst = vins_d_force_output.make(inst_txt, force=True)
         return True
     return core
 vins_d.global_parsing_cb = vins_d_parsing_cb()
@@ -2885,8 +2884,7 @@ def fmov_0_parsing_cb():
             return False
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
-        t.inst = fmov_0_force_output.make(
-            fmov_0_force_output, inst_txt, force=True)
+        t.inst = fmov_0_force_output.make(inst_txt, force=True)
         return True
     return core
 fmov_0.global_parsing_cb = fmov_0_parsing_cb()
@@ -2905,8 +2903,7 @@ def fmov_1_parsing_cb():
             return False
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
-        t.inst = fmov_1_force_output()
-        t.inst.parse(inst_txt, force=True)
+        t.inst = fmov_1_force_output.make(inst_txt, force=True)
         return True
     return core
 fmov_1.global_parsing_cb = fmov_1_parsing_cb()
