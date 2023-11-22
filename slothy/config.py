@@ -30,6 +30,9 @@ import os
 
 from slothy.helper import LockAttributes, NestedPrint
 
+class InvalidConfig(Exception):
+    """Exception raised when an invalid SLOTHY configuration is detected"""
+
 class Config(NestedPrint, LockAttributes):
     """Configuration for Slothy.
 
@@ -206,34 +209,55 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def max_solutions(self):
+        """The maximum number of solution found by the underlying constraint
+        solver before it stops the search."""
         return self._max_solutions
 
     @property
     def with_preprocessor(self):
+        """Indicates whether the C preprocessor is run prior to optimization."""
         return self._with_preprocessor
 
     @property
     def compiler_binary(self):
+        """The compiler binary to be used.
+
+        This is only relevant of `with_preprocessor` is set."""
         return self._default_compiler_binary
 
     @property
     def timeout(self):
+        """The timeout in seconds after which the underlying constraint solver stops
+        its search. """
         return self._timeout
 
     @property
     def retry_timeout(self):
+        """The timeout in seconds after which the underlying constraint solver stops
+        its search, in case of secondary optimization passes for other objectives than
+        performance optimization (e.g., minimization of iteration overlapping)."""
         return self._retry_timeout
 
     @property
     def unsafe_skip_address_fixup(self):
+        """Warn but not fail if post-optimization address fixup failed.
+
+        (See 4.13, Address offset rewrites, in https://eprint.iacr.org/2022/1303.pdf)"""
         return self._unsafe_skip_address_fixup
 
     @property
     def ignore_objective(self):
+        """Indicates whether the secondary objective (such as minimization of iteration
+        overlapping) should be ignored."""
         return self._ignore_objective
 
     @property
     def objective_precision(self):
+        """The proximity to the estimated optimum solution at which the solver will
+        stop its search.
+
+        For example, a value of 0.05 means that the solver will stop when the current
+        solution is within 5% of the current estimate for the optimal solution."""
         return self._objective_precision
 
     @property
@@ -249,7 +273,7 @@ class Config(NestedPrint, LockAttributes):
                           self.constraints.minimize_use_of_extra_registers is not None,
                           self.target.has_min_max_objective(self)])
         if objectives > 1:
-            raise Exception("Can only pick one optimization objective")
+            raise InvalidConfig("Can only pick one optimization objective")
 
         return objectives == 1
 
@@ -272,84 +296,121 @@ class Config(NestedPrint, LockAttributes):
         The value of this option is irrelevant if split_heuristic is False.
         """
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_factor otherwise.")
         return self._split_heuristic_factor
 
     @property
     def split_heuristic_abort_cycle_at(self):
+        """During the split heuristic, a threshold for the number of stalls in the current
+        optimization window above which the current pass of the split heuristic should stop."""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
         return self._split_heuristic_abort_cycle_at
 
     @property
     def split_heuristic_stepsize(self):
+        """If split heuristic is used, the increment for the sliding window. By default,
+        this is twice the split factor. For example, a split factor of 5 means that the
+        window size is 0.2 of the overall code size, and the default step size of 0.1 means
+        that the sliding windows will be [0,0.2], [0.1,0.3], ..."""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_stepsize otherwise.")
         return self._split_heuristic_stepsize
 
     @property
     def split_heuristic_adaptive(self):
+        """If split heuristic is used, heuristically choose next optimization window
+        so that stalls in a region that is not yet well-optimized can be absorbed by
+        a neighbouring region with fewer stalls.
+
+        This is highly experimental. See the code for exactly how the adaptive
+        region is computed."""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_adaptive otherwise.")
         return self._split_heuristic_adaptive
 
     @property
     def split_heuristic_optimize_seam(self):
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_optimize_seam otherwise.")
         return self._split_heuristic_optimize_seam
 
     @property
     def split_heuristic_chunks(self):
+        """If split heuristic is used, explicitly lists the optimization windows to be used.
+        If unset, a sliding or adaptive optimization window will be used."""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_chunks otherwise.")
         return self._split_heuristic_chunks
 
     @property
     def split_heuristic_bottom_to_top(self):
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_bottom_to_top otherwise.")
         return self._split_heuristic_bottom_to_top
 
     @property
     def split_heuristic_visualize_stalls(self):
+        """Attempt to visualize the stalls after application of the split heuristic"""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_visualize_stalls otherwise.")
         return self._split_heuristic_visualize_stalls
 
     @property
     def split_heuristic_visualize_units(self):
+        """Attempt to visualize the functional units after application of the split heuristic"""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_visualize_units otherwise.")
         return self._split_heuristic_visualize_units
 
     @property
     def split_heuristic_region(self):
+        """Restrict the split heuristic to a sub-region of the code.
+
+        For example, if this is set to [0.25,0.75], only the middle half of the input will
+        be optimized through the split heuristic.
+
+        This option can be combined with other options such as the split factor. For example,
+        if the split region is set fo [0.25, 0.75] and the split factor is 5, then optimization
+        windows of size .1 will be considered within [0.25, 0.75].
+
+        Note that even if this option is used, the specification of inputs and outputs is still 
+        with respect to the entire code; SLOTHY will automatically derive the outputs of the
+        subregion configured here."""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_region otherwise.")
         return self._split_heuristic_region
 
     @property
     def split_heuristic_preprocess_naive_interleaving(self):
+        """Prior to applying the split heuristic, interleave instructions according according
+        to lowest depth, without applying register renaming.
+
+        This can be useful if the code to be optimized is comprised of independent computations
+        operating on different architectural state (e.g. scalar vs. SIMD); in this case, the
+        naive preprocessing will 'zip' the different computations prior to applying the core
+        optimization."""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise.")
         return self._split_heuristic_preprocess_naive_interleaving
 
     @property
     def split_heuristic_preprocess_naive_interleaving_by_latency(self):
+        """If split heuristic with naive preprocessing is used, this option causes the naive interleaving
+        to be by latency-depth rather than latency."""
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
         return self._split_heuristic_preprocess_naive_interleaving_by_latency
 
@@ -372,7 +433,7 @@ class Config(NestedPrint, LockAttributes):
         The value of this option is irrelevant if split_heuristic is False.
         """
         if not self.split_heuristic:
-            raise Exception("Did you forget to set config.split_heuristic=True? "\
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_repeat otherwise.")
         return self._split_heuristic_repeat
 
@@ -506,21 +567,36 @@ class Config(NestedPrint, LockAttributes):
         def __init__(self):
             super().__init__()
 
-            self._enabled = Config.SoftwarePipelining._default_enabled
-            self._unroll = Config.SoftwarePipelining._default_unroll
-            self._pre_before_post = Config.SoftwarePipelining._default_pre_before_post
-            self._allow_pre  = Config.SoftwarePipelining._default_allow_pre
-            self._allow_post = Config.SoftwarePipelining._default_allow_post
-            self._unknown_iteration_count = Config.SoftwarePipelining._default_unknown_iteration_count
-            self._minimize_overlapping = Config.SoftwarePipelining._default_minimize_overlapping
-            self._optimize_preamble = Config.SoftwarePipelining._default_optimize_preamble
-            self._optimize_postamble = Config.SoftwarePipelining._default_optimize_postamble
-            self._max_overlapping = Config.SoftwarePipelining._default_max_overlapping
-            self._min_overlapping = Config.SoftwarePipelining._default_min_overlapping
-            self._halving_heuristic = Config.SoftwarePipelining._default_halving_heuristic
-            self._halving_heuristic_periodic = Config.SoftwarePipelining._default_halving_heuristic_periodic
-            self._halving_heuristic_split_only = Config.SoftwarePipelining._default_halving_heuristic_split_only
-            self._max_pre = Config.SoftwarePipelining._default_max_pre
+            self._enabled = \
+                Config.SoftwarePipelining._default_enabled
+            self._unroll = \
+                Config.SoftwarePipelining._default_unroll
+            self._pre_before_post = \
+                Config.SoftwarePipelining._default_pre_before_post
+            self._allow_pre = \
+                Config.SoftwarePipelining._default_allow_pre
+            self._allow_post = \
+                Config.SoftwarePipelining._default_allow_post
+            self._unknown_iteration_count = \
+                Config.SoftwarePipelining._default_unknown_iteration_count
+            self._minimize_overlapping = \
+                Config.SoftwarePipelining._default_minimize_overlapping
+            self._optimize_preamble = \
+                Config.SoftwarePipelining._default_optimize_preamble
+            self._optimize_postamble = \
+                Config.SoftwarePipelining._default_optimize_postamble
+            self._max_overlapping = \
+                Config.SoftwarePipelining._default_max_overlapping
+            self._min_overlapping = \
+                Config.SoftwarePipelining._default_min_overlapping
+            self._halving_heuristic = \
+                Config.SoftwarePipelining._default_halving_heuristic
+            self._halving_heuristic_periodic = \
+                Config.SoftwarePipelining._default_halving_heuristic_periodic
+            self._halving_heuristic_split_only = \
+                Config.SoftwarePipelining._default_halving_heuristic_split_only
+            self._max_pre = \
+                Config.SoftwarePipelining._default_max_pre
 
             self.lock()
 
@@ -879,8 +955,7 @@ class Config(NestedPrint, LockAttributes):
         self.late_char = 'l'
         self.core_char = '*'
 
-        self.typing_hints = {} # Dictionary of 'typing hints', assigning symbolic names to register types
-                               # in case the register type is ambiguous.
+        self.typing_hints = {}
 
         self.solver_random_seed = 42
 

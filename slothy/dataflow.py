@@ -35,7 +35,58 @@ class SlothyUselessInstructionException(Exception):
     or refining the architecture model."""
 
 class RegisterSource:
-    pass
+    """Representation of the output of an instruction
+
+    This is used when iterating over dependencies in the data flow graph.
+    This class is abstract and implemented by InstructionOutput and
+    InstructionInOut below, represention outputs and input/outputs,
+    respectively.
+    """
+
+    def __init__(self,src,idx):
+        assert isinstance(src,ComputationNode)
+        self.src = src
+        self.idx = idx
+
+    def get_type(self):
+        """The register type of the dependency"""
+
+    def name(self):
+        """The name of the register used to carry the dependency."""
+
+    def alloc(self):
+        # TODO: This does not belong here
+        """The variable governing the choice of register renaming for this output."""
+
+    def reduce(self):
+        """In case of input/output arguments, the transitively computed RegisterSource
+        producing the register as a pure _output_."""
+
+class InstructionOutput(RegisterSource):
+    """Represents an output of a node in the data flow graph"""
+    def __repr__(self):
+        return f"({self.src}).out[{self.idx}]"
+    def get_type(self):
+        return self.src.inst.arg_types_out[self.idx]
+    def name(self):
+        return self.src.inst.args_out[self.idx]
+    def alloc(self):
+        return self.src.alloc_out_var[self.idx]
+    def reduce(self):
+        return self
+
+class InstructionInOut(RegisterSource):
+    """Represents an input/output of a node in the data flow graph"""
+    def __repr__(self):
+        return f"({self.src}).inout[{self.idx}]"
+    def get_type(self):
+        return self.src.inst.arg_types_in_out[self.idx]
+    def name(self):
+        return self.src.inst.args_in_out[self.idx]
+    def alloc(self):
+        return self.src.alloc_in_out_var[self.idx]
+    def reduce(self):
+        return self.src.src_in_out[self.idx].reduce()
 
 class VirtualInstruction:
     """A 'virtual' instruction node for inputs and outputs."""
@@ -43,19 +94,15 @@ class VirtualInstruction:
         self.orig_reg = reg
         self.orig_ty = ty
 
-class VirtualOutputInstruction(VirtualInstruction):
-    """A virtual instruction node for outputs."""
-    def __init__(self, reg, reg_ty):
-        super().__init__(reg, reg_ty)
         self.num_in_out = 0
         self.args_in_out = []
         self.arg_types_in_out = []
         self.num_out = 0
         self.args_out = []
         self.arg_types_out = []
-        self.num_in = 1
-        self.args_in = [reg]
-        self.arg_types_in = [reg_ty]
+        self.num_in = 0
+        self.args_in = []
+        self.arg_types_in = []
 
         self.args_out_combinations = None
         self.args_in_out_combinations = None
@@ -71,6 +118,17 @@ class VirtualOutputInstruction(VirtualInstruction):
         self.args_in_combinations = None
 
     def write(self):
+        """Provide a string description of the virtual instruction"""
+
+class VirtualOutputInstruction(VirtualInstruction):
+    """A virtual instruction node for outputs."""
+    def __init__(self, reg, reg_ty):
+        super().__init__(reg, reg_ty)
+        self.num_in = 1
+        self.args_in = [reg]
+        self.arg_types_in = [reg_ty]
+
+    def write(self):
         return f"// output renaming: {self.orig_reg} -> {self.args_in_out[0]}"
 
     def __repr__(self):
@@ -80,25 +138,9 @@ class VirtualInputInstruction(VirtualInstruction):
     """A virtual instruction node for inputs."""
     def __init__(self, reg, reg_ty):
         super().__init__(reg, reg_ty)
-        self.num_in = 0
-        self.args_in = []
-        self.arg_types_in = []
         self.num_out = 1
         self.args_out = [reg]
         self.arg_types_out = [reg_ty]
-        self.num_in_out = 0
-        self.args_in_out = []
-        self.arg_types_in_out = []
-
-        self.args_out_combinations = None
-        self.args_in_combinations = None
-        self.args_in_out_combinations = None
-        self.args_in_out_different = None
-        self.args_in_inout_different = None
-
-        self.args_out_restrictions    = [ None for _ in range(self.num_out)    ]
-        self.args_in_restrictions     = [ None for _ in range(self.num_in)     ]
-        self.args_in_out_restrictions = [ None for _ in range(self.num_in_out) ]
 
     def write(self):
         return f"// input renaming: {self.orig_reg} -> {self.args_out[0]}"
@@ -225,46 +267,12 @@ class ComputationNode:
         _append_deps("In/Out dependants", self.dst_in_out)
         return ret
 
-class InstructionOutput(RegisterSource):
-    def __init__(self,src,idx):
-        assert isinstance(src,ComputationNode)
-        self.src = src
-        self.idx = idx
-    def __repr__(self):
-        return f"({self.src}).out[{self.idx}]"
-    def get_type(self):
-        """The register type of the instruction output."""
-        return self.src.inst.arg_types_out[self.idx]
-    def name(self):
-        """The name of the register used for the instruction output."""
-        return self.src.inst.args_out[self.idx]
-    def alloc(self):
-        """The variable governing the choice of register renaming for this output."""
-        # TODO: This does not belong here
-        return self.src.alloc_out_var[self.idx]
-    def reduce(self):
-        return self
-
-class InstructionInOut(RegisterSource):
-    def __init__(self,src,idx):
-        assert isinstance(src,ComputationNode)
-        self.src = src
-        self.idx = idx
-    def __repr__(self):
-        return f"({self.src}).inout[{self.idx}]"
-    def get_type(self):
-        return self.src.inst.arg_types_in_out[self.idx]
-    def name(self):
-        return self.src.inst.args_in_out[self.idx]
-    def alloc(self):
-        return self.src.alloc_in_out_var[self.idx]
-    def reduce(self):
-        return self.src.src_in_out[self.idx].reduce()
-
 class Config:
+    """Configuration for parsing of data flow graphs"""
 
     @property
     def arch(self):
+        """The underlying architecture model"""
         return self._arch
     @property
     def typing_hints(self):
@@ -331,6 +339,9 @@ class Config:
         self._inputs_are_outputs = self._slothy_config.inputs_are_outputs
         self._allow_useless_instructions = self._slothy_config.allow_useless_instructions
 
+class DataFlowGraphException(Exception):
+    """An exception triggered during parsing a data flow graph"""
+
 class DataFlowGraph:
     """The data flow graph associated with a piece of assembly."""
 
@@ -357,7 +368,6 @@ class DataFlowGraph:
     def num_nodes(self):
         """The number of nodes in the data flow graph."""
         return len(self.nodes)
-
     @property
     def nodes_input(self):
         """The list of all virtual input ComputationNodes"""
@@ -423,18 +433,14 @@ class DataFlowGraph:
         assert num_nodes % 2 == 0
         return self.nodes[num_nodes//2:]
 
-    @property
-    def type_dict(self):
-        return { **self._typing_dict, **self.config.typing_hints }
-
     def _remember_type(self, reg, ty):
         if not reg in self._typing_dict:
             self._typing_dict[reg] = ty
             return
 
         if not self._typing_dict[reg] == ty:
-            self.logger.warning(f"You're using the same variable {reg} for registers of "
-            "different types -- this may confuse the tool...")
+            self.logger.warning("You're using the same variable %s for registers of "
+                "different types -- this may confuse the tool...", reg)
 
     def edges(self):
         """Return the set of labelled edges in the data flow graph.
@@ -460,16 +466,17 @@ class DataFlowGraph:
         represented by the graph."""
         if self.nodes is None or len(self.nodes) == 0:
             return 1
-        return max([t.depth for t in self.nodes])
+        return max(t.depth for t in self.nodes)
 
     def _dump_instructions(self, txt, error=False):
         log_func = self.logger.debug if not error else self.logger.error
         log_func(txt)
         for idx, l in enumerate(self.src):
-            log_func(f" * {idx}: {l[0]}")
+            log_func(" * %s: %s", idx, l[0])
 
     @property
     def arch(self):
+        """The underlying architecturel model"""
         return self.config.arch
 
     def __init__(self, src, logger, config, parsing_cb=True):
@@ -583,15 +590,15 @@ class DataFlowGraph:
         # only the only way to parse `vmul q0, q0, const` is via the scalar-vector
         # variant of vmul, while attempting to parse it as an instance of the
         # vector-vector variant would fail the type check.
-        self.logger.debug(f"Typecheck instruction {s}")
+        self.logger.debug("Typecheck instruction %s", s)
         def _check_list(types, names):
             for ty, name in zip(types,names):
-                self.logger.debug(f" - argument {name} of type {ty}")
+                self.logger.debug(" - argument %s of type %s", name, ty)
                 expectations = []
                 # Check if we know the type from the dictionary
-                if name in self.reg_state.keys():
+                if name in self.reg_state:
                     exp_ty = self.reg_state[name].get_type()
-                    self.logger.debug(f"   + type of {name} in state dictionary: {exp_ty}")
+                    self.logger.debug("   + type of %s in state dictionary: %s", name, exp_ty)
                     expectations.append((f"State dictionary: {exp_ty}", exp_ty))
                 else:
                     self.logger.debug("    + %s not in state dictionary", name)
@@ -606,7 +613,7 @@ class DataFlowGraph:
                 # instruction signature. Note that this also works in the case
                 # where we don't have any type expectation, as all([]) == True.
                 for fail in [ msg for (msg,exp) in expectations if exp != ty ]:
-                    self.logger.debug(f"Typecheck for {name} failed -- mismatch: {fail}")
+                    self.logger.debug("Typecheck for %s failed -- mismatch: %s", name, fail)
                     return False
             return True
         return _check_list(s.arg_types_in, s.args_in) and \
@@ -640,8 +647,8 @@ class DataFlowGraph:
             no_ssa.append((producer.src, producer.idx))
 
         for t in self.nodes:
-            for i in range(len(t.inst.args_out)):
-                if (t, i) in no_ssa:
+            for (i,_) in enumerate(t.inst.args_out):
+                if (t,i) in no_ssa:
                     continue
                 t.inst.args_out[i] = get_fresh_reg()
 
@@ -679,7 +686,7 @@ class DataFlowGraph:
         valid_candidates = list(filter(self._typecheck_node, candidates))
         num_valid_candidates = len(valid_candidates)
         if num_valid_candidates == 0:
-            raise Exception(f"None of the candidate parsings for {sourceline} type checks!"\
+            raise DataFlowGraphException(f"None of the candidate parsings for {sourceline} type checks!"\
                             f"\nCandidates\n{candidates}")
         # If we have more than one instruction passing the type check,
         # then we need more typing information from the user.
@@ -688,7 +695,7 @@ class DataFlowGraph:
         # information on the type of `const` -- it could be either a GPR or a vector.
         if num_valid_candidates > 1:
             cnames = list(map(lambda c: type(c).__name__,candidates))
-            raise Exception(f"Cannot unambiguously choose between {cnames} "\
+            raise DataFlowGraphException(f"Cannot unambiguously choose between {cnames} "\
                             f"in {candidates} -- need typing information")
         # Add the single valid candidate parsing to the CFG
         self._add_node(valid_candidates[0])
@@ -703,19 +710,19 @@ class DataFlowGraph:
         """
 
         if not isinstance(s, VirtualInstruction):
-            self.logger.debug(f"Adding instruction to CFG: {s}")
+            self.logger.debug("Adding instruction to CFG: %s", s)
         elif isinstance(s, VirtualInputInstruction):
-            self.logger.debug(f"Adding virtual instruction for input {s.orig_reg}")
+            self.logger.debug("Adding virtual instruction for input %s", s.orig_reg)
         elif isinstance(s, VirtualOutputInstruction):
-            self.logger.debug(f"Adding virtual instruction for output {s.orig_reg}")
+            self.logger.debug("Adding virtual instruction for output %s", s.orig_reg)
 
         def find_source_single(ty,name):
-            self.logger.debug(f"Finding source of register {name} of type {ty}")
+            self.logger.debug("Finding source of register %s of type %s", name, ty)
 
             # Check if the inputs have been produced by the data flow graph
-            if name not in self.reg_state.keys():
+            if name not in self.reg_state:
                 # If not, treat them as a global input
-                self.logger.debug(f"-> {name} is a global input")
+                self.logger.debug("-> %s is a global input", name)
                 # Create a virtual instruction producing the output add that first
                 # Since the virtual instruction does not have any inputs, there is
                 # no risk of infinite recursion here
@@ -733,7 +740,7 @@ class DataFlowGraph:
                 warnstr = f"Type mismatch: Output {name} of {type(origin.src.inst).__name__} has "\
                     f"type {origin.get_type()} but {type(s).__name__} expects it to have type {ty}"
                 self.logger.debug(warnstr)
-                raise Exception(warnstr)
+                raise DataFlowGraphException(warnstr)
 
             return self.reg_state[name]
 

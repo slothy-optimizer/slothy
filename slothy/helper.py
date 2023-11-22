@@ -25,9 +25,12 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import re, subprocess, logging
+import re
+import subprocess
+import logging
 
 class NestedPrint():
+    """Helper for recursive printing of structures"""
     def __str__(self):
         top = [ self.__class__.__name__ + ":" ]
         res = []
@@ -37,7 +40,9 @@ class NestedPrint():
         res = top + [ indent + r for r in res ]
         return '\n'.join(res)
     def log(self, fun):
-        [ fun(l) for l in str(self).splitlines() ]
+        """Pass self-description line-by-line to logging function"""
+        for l in str(self).splitlines():
+            fun(l)
 
 class LockAttributes(object):
     """Base class adding support for 'locking' the set of attributes, that is,
@@ -48,7 +53,9 @@ class LockAttributes(object):
        in the user configuration."""
     def __init__(self):
         self.__dict__["_locked"] = False
+        self._locked = False
     def lock(self):
+        """Lock set of attributes"""
         self._locked = True
     def __setattr__(self, attr, val):
         if self._locked and attr not in dir(self):
@@ -59,9 +66,15 @@ class LockAttributes(object):
             raise TypeError("Can't unlock an object")
         object.__setattr__(self,attr,val)
 
-class AsmHelper():
+class AsmHelperException(Exception):
+    """An exception encountered during an assembly helper"""
 
+class AsmHelper():
+    """Some helper functions for dealing with assembly"""
+
+    @staticmethod
     def find_indentation(source):
+        """Attempts to find the prevailing indentation in a piece of assembly"""
 
         def get_indentation(l):
             return len(l) - len(l.lstrip())
@@ -86,34 +99,39 @@ class AsmHelper():
 
         return None
 
+    @staticmethod
     def apply_indentation(source, indentation):
-        if indentation == None:
+        """Apply consistent indentation to assembly source"""
+        if indentation is None:
             return source
         assert isinstance(indentation, int)
         indent = ' ' * indentation
         return [ indent + l.lstrip() for l in source ]
 
+    @staticmethod
     def rename_function(source, old_funcname, new_funcname):
+        """Rename function in assembly snippet"""
+
         # For now, just replace function names line by line
         def change_funcname(s):
             s = re.sub( f"{old_funcname}:", f"{new_funcname}:", s)
-            s = re.sub( f"\.global(\s+){old_funcname}", f".global\\1{new_funcname}", s)
-            s = re.sub( f"\.type(\s+){old_funcname}", f".type\\1{new_funcname}", s)
+            s = re.sub( f"\\.global(\\s+){old_funcname}", f".global\\1{new_funcname}", s)
+            s = re.sub( f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
             return s
         return '\n'.join([ change_funcname(s) for s in source.splitlines() ])
 
-    def remove_noncode(source):
-        if isinstance(source,str):
-            source = source.splitlines()
-
+    @staticmethod
     def split_semicolons(body):
+        """Split assembly snippet across semicolons`"""
         return [ l for s in body for l in s.split(';') ]
 
+    @staticmethod
     def reduce_source_line(line):
-        regexp_align_txt = f"^\s*\.(?:p2)?align"
-        regexp_req_txt   = f"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
-        regexp_unreq_txt = f"\s*\.unreq\s+(?P<alias>\w+)"
-        regexp_label_txt = f"\s*(?P<label>\w+)\s*:\s*$"
+        """Simplify or ignore assembly source line"""
+        regexp_align_txt = r"^\s*\.(?:p2)?align"
+        regexp_req_txt   = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
+        regexp_unreq_txt = r"\s*\.unreq\s+(?P<alias>\w+)"
+        regexp_label_txt = r"\s*(?P<label>\w+)\s*:\s*$"
         regexp_align = re.compile(regexp_align_txt)
         regexp_req   = re.compile(regexp_req_txt)
         regexp_unreq = re.compile(regexp_unreq_txt)
@@ -121,7 +139,7 @@ class AsmHelper():
 
         def strip_comment(s):
             s = s.split("//")[0]
-            s = re.sub("/\*[^*]*\*/","",s)
+            s = re.sub("/\\*[^*]*\\*/","",s)
             return s.strip()
         def is_empty(s):
             return s == ""
@@ -143,7 +161,9 @@ class AsmHelper():
             return
         return line
 
+    @staticmethod
     def reduce_source(src, allow_nops=True):
+        """Simplify assembly snippet"""
         if isinstance(src,str):
             src = src.splitlines()
         def filter_nop(src):
@@ -156,32 +176,33 @@ class AsmHelper():
         src = list(src)
         return src
 
+    @staticmethod
     def extract(source, lbl_start=None, lbl_end=None):
         """Extract code between two labels from an assembly source"""
         pre, body, post = AsmHelper._extract_core(source, lbl_start, lbl_end)
         body = AsmHelper.reduce_source(body, allow_nops=False)
         return pre, body, post
 
+    @staticmethod
     def _extract_core(source, lbl_start=None, lbl_end=None):
-
         pre  = []
         body = []
         post = []
 
         lines = iter(source.splitlines())
         source = source.splitlines()
-        if lbl_start == None and lbl_end == None:
+        if lbl_start is None and lbl_end is None:
             body = source
             return pre, body, post
 
-        loop_lbl_regexp_txt = f"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        loop_lbl_regexp_txt = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
         l = None
         keep = False
         state = 0 # 0: haven't found initial label yet, 1: between labels, 2: after snd label
 
         # If no start label is provided, scan from the start to the end label
-        if lbl_start == None:
+        if lbl_start is None:
             state = 1
 
         idx=0
@@ -189,7 +210,7 @@ class AsmHelper():
             idx += 1
             if not keep:
                 l = next(lines, None)
-            if l == None:
+            if l is None:
                 break
             keep = False
             if state == 2:
@@ -207,43 +228,45 @@ class AsmHelper():
             continue
 
         if state < 2:
-            if lbl_start != None and lbl_end != None:
-                raise Exception(f"Failed to identify region {lbl_start}-{lbl_end}")
+            if lbl_start is not None and lbl_end is not None:
+                raise AsmHelperException(f"Failed to identify region {lbl_start}-{lbl_end}")
             if state == 0:
-                if lbl_start != none:
+                if lbl_start is not None:
                     lbl = lbl_start
                 else:
                     lbl = lbl_end
-                raise Exception(f"Couldn't find label {lbl}")
+                raise AsmHelperException(f"Couldn't find label {lbl}")
 
         return pre, body, post
 
 class AsmAllocation():
+    """Helper for tracking register aliases via .req and .unreq"""
 
     def __init__(self):
         self.allocations = {}
-        self.regexp_req_txt   = f"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
-        self.regexp_unreq_txt = f"\s*\.unreq\s+(?P<alias>\w+)"
+        self.regexp_req_txt   = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
+        self.regexp_unreq_txt = r"\s*\.unreq\s+(?P<alias>\w+)"
         self.regexp_req   = re.compile(self.regexp_req_txt)
         self.regexp_unreq = re.compile(self.regexp_unreq_txt)
 
     def _add_allocation(self, alias, reg):
-        if alias in self.allocations.keys():
-            raise Exception(f"Double definition of alias {alias}")
-        if reg in self.allocations.keys():
+        if alias in self.allocations:
+            raise AsmHelperException(f"Double definition of alias {alias}")
+        if reg in self.allocations:
             reg_name = self.allocations[reg]
         else:
             reg_name = reg
         self.allocations[alias] = reg_name
 
     def _remove_allocation(self, alias):
-        if not alias in self.allocations.keys():
-            raise Exception(f"Couldn't find alias {alias} -- .unreq without .req in your source?")
+        if not alias in self.allocations:
+            raise AsmHelperException(f"Couldn't find alias {alias} --"
+                                     " .unreq without .req in your source?")
         del self.allocations[alias]
-        return
 
     def parse_line(self, line):
-
+        """Check if an assembly line is a .req or .unreq directive, and update the
+        alias dictionary accordingly. Otherwise, do nothing."""
         # Check if it's an allocation
         p = self.regexp_req.match(line)
         if p is not None:
@@ -262,15 +285,20 @@ class AsmAllocation():
         # We ignore everything else
 
     def parse(self, src):
+        """Build register alias dictionary from assembly source"""
         for s in src:
             self.parse_line(s)
 
+    @staticmethod
     def parse_allocs(src):
+        """"Parse register aliases in assembly source into AsmAllocation object."""
         allocs = AsmAllocation()
         allocs.parse(src)
         return allocs.allocations
 
+    @staticmethod
     def unfold_all_aliases(aliases, src):
+        """Unfold aliases in assembly source"""
         def _apply_single_alias_to_line(alias_from, alias_to, src):
             return re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\1{alias_to}\\2", src)
         def _apply_multiple_aliases_to_line(line):
@@ -283,10 +311,11 @@ class AsmAllocation():
         return res
 
 class BinarySearchLimitException(Exception):
-    pass
+    """Binary search has exceeded its limit without finding a solution"""
 
 def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
                   timeout_below_precision=None):
+    """Conduct a binary search"""
     start = max(start,minimum)
     last_failure = minimum
     val = start
@@ -322,6 +351,7 @@ def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
     return last_success, last_success_core
 
 class AsmMacro():
+    """Helper class for parsing and applying assembly macros"""
 
     def __init__(self, name, args, body):
         self.name = name
@@ -332,8 +362,8 @@ class AsmMacro():
         output = []
         for l in self.body:
             for arg in self.args:
-                l = re.sub(f"\\\\{arg}(\W|$)",args_dict[arg] + "\\1",l)
-            l = re.sub(f"\\\\\(\)","",l)
+                l = re.sub(f"\\\\{arg}(\\W|$)",args_dict[arg] + "\\1",l)
+            l = re.sub("\\\\\\(\\)","",l)
             output.append(l)
         return output
 
@@ -341,32 +371,32 @@ class AsmMacro():
         return self.name
 
     def unfold_in(self, source, change_callback=None):
-
-        macro_regexp_txt = f"^\s*{self.name}"
+        """Unfold all applications of macro in assembly source"""
+        macro_regexp_txt = rf"^\s*{self.name}"
         arg_regexps = []
         if self.args == [""]:
             while True:
                 continue
 
         if len(self.args) > 0:
-            macro_regexp_txt = macro_regexp_txt + "\s+"
+            macro_regexp_txt = macro_regexp_txt + "\\s+"
 
         for arg in self.args:
-            arg_regexps.append(f"\s*(?P<{arg}>[^,]+)\s*")
+            arg_regexps.append(rf"\s*(?P<{arg}>[^,]+)\s*")
 
         macro_regexp_txt += ','.join(arg_regexps)
         macro_regexp = re.compile(macro_regexp_txt)
 
         output = []
 
-        indentation_regexp_txt = "^(?P<whitespace>\s*)($|\S)"
+        indentation_regexp_txt = r"^(?P<whitespace>\s*)($|\S)"
         indentation_regexp = re.compile(indentation_regexp_txt)
 
         # Go through source line by line and check if there's a macro invocation
         for l in AsmHelper.reduce_source(source):
 
             lp = AsmHelper.reduce_source_line(l)
-            if lp != None:
+            if lp is not None:
                 p = macro_regexp.match(lp)
             else:
                 p = None
@@ -383,7 +413,9 @@ class AsmMacro():
 
         return output
 
+    @staticmethod
     def unfold_all_macros(macros, source):
+        """Unfold list of macros in assembly source"""
 
         def list_of_instances(l,c):
             return isinstance(l,list) and all(map(lambda m: isinstance(m,c), l))
@@ -394,7 +426,7 @@ class AsmMacro():
         if list_of_instances(macros, str):
             macros = AsmMacro.extract(macros)
         if not dict_of_instances(macros, AsmMacro):
-            raise Exception(f"Invalid argument: {macros}")
+            raise AsmHelperException(f"Invalid argument: {macros}")
 
         change = True
         while change:
@@ -406,7 +438,9 @@ class AsmMacro():
                 source = m.unfold_in(source, change_callback=cb)
         return source
 
+    @staticmethod
     def extract(source):
+        """Parse all macro definitions in assembly source file"""
 
         macros = {}
 
@@ -415,13 +449,13 @@ class AsmMacro():
         current_args = None
         current_body = None
 
-        macro_start_regexp_txt = "^\s*\.macro\s+(?P<name>\w+)(?:\b|(?P<args>.*))$"
+        macro_start_regexp_txt = r"^\s*\.macro\s+(?P<name>\w+)(?P<args>.*)$"
         macro_start_regexp = re.compile(macro_start_regexp_txt)
 
-        slothy_no_unfold_regexp_txt = ".*//\s*slothy:\s*no-unfold\s*$"
+        slothy_no_unfold_regexp_txt = r".*//\s*slothy:\s*no-unfold\s*$"
         slothy_no_unfold_regexp = re.compile(slothy_no_unfold_regexp_txt)
 
-        macro_end_regexp_txt = "^\s*\.endm\s*$"
+        macro_end_regexp_txt = r"^\s*\.endm\s*$"
         macro_end_regexp = re.compile(macro_end_regexp_txt)
 
         for cur in source:
@@ -463,20 +497,24 @@ class AsmMacro():
 
         return macros
 
+    @staticmethod
     def extract_from_file(filename):
+        """Parse all macro definitions in assembly file"""
         f = open(filename,"r")
         return AsmMacro.extract(f.read().splitlines())
 
 class CPreprocessor():
+    """Helper class for the application of the C preprocessor"""
 
     magic_string = "SLOTHY_PREPROCESSED_REGION"
 
+    @staticmethod
     def unfold(header, body, gcc):
         """Runs the concatenation of header and body through the preprocessor"""
         code = header + [CPreprocessor.magic_string] + body
 
         r = subprocess.run([gcc, "-E", "-x", "assembler-with-cpp","-"],
-                           input='\n'.join(code), text=True, capture_output=True)
+                           input='\n'.join(code), text=True, capture_output=True, check=True)
 
         unfolded_code = r.stdout.split('\n')
         magic_idx = unfolded_code.index(CPreprocessor.magic_string)
@@ -485,8 +523,11 @@ class CPreprocessor():
         return unfolded_code
 
 class Permutation():
+    """Helper class for manipulating permutations"""
 
+    @staticmethod
     def is_permutation(perm, sz):
+        """Checks whether dictionary perm is a permutation of size sz."""
         err = False
         k = list(perm.keys())
         k.sort()
@@ -499,18 +540,26 @@ class Permutation():
         if err:
             print(f"Keys:   {k}")
             print(f"Values: {v}")
-        return err == False
+        return err is False
 
+    @staticmethod
     def permutation_id(sz):
+        """Return the identity permutation of size sz."""
         return { i:i for i in range(sz) }
 
-    def permutation_comp(pB, pA):
-        lA = len(pA.values())
-        lB = len(pB.values())
-        assert lA == lB
-        return { i:pB[pA[i]] for i in range(lA) }
+    @staticmethod
+    def permutation_comp(p_b, p_a):
+        """Compose two permutations.
+        
+        This computes 'p_b o p_a', that is, 'p_a first, then p_b'."""
+        l_a = len(p_a.values())
+        l_b = len(p_b.values())
+        assert l_a == l_b
+        return { i:p_b[p_a[i]] for i in range(l_a) }
 
+    @staticmethod
     def permutation_pad(perm,pre,post):
+        """Pad permutation with identity permutation at front and back"""
         s = len(perm.values())
         r = {}
         r = r | { pre + i : pre + j for (i,j) in perm.items() if isinstance(i, int) }
@@ -518,7 +567,9 @@ class Permutation():
         r = r | { i:i for i in map(lambda i: i + s + pre, range(post)) }
         return r
 
+    @staticmethod
     def permutation_move_entry_forward(l, idx_from, idx_to):
+        """Create transposition permutation"""
         assert idx_to <= idx_from
         res = {}
         res = res | { i:i for i in range(idx_to) }
@@ -527,17 +578,24 @@ class Permutation():
         res = res | { i:i for i in range (idx_from + 1, l) }
         return res
 
+    @staticmethod
     def iter_swaps(p, n):
+        """Iterate over all inputs that have their order reversed by
+        the permutation."""
         return ((i,j,p[i],p[j]) for i in range(n) for j in range(n) \
             if i < j and p[j] < p[i])
 
 
 class DeferHandler(logging.Handler):
+    """Handler collecting all records produced by a logger and relaying
+    them to the same or different logger later."""
     def __init__(self):
         super().__init__()
         self._records = []
     def emit(self, record):
         self._records.append(record)
     def forward(self, logger):
-        [ logger.handle(r) for r in self._records ]
+        """Send all captured records to the given logger"""
+        for r in self._records:
+            logger.handle(r)
         self._records = []
