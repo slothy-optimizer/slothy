@@ -22,7 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys, argparse, logging
+import sys
+import argparse
+import logging
+import time
+import os
 
 from slothy.slothy import Slothy
 from slothy.config import Config as SlothyConfig
@@ -57,19 +61,56 @@ def main(argv):
                         This is mutually exclusive with -l/--loop.""")
     parser.add_argument("-r", "--rename-function", default=None, type=str,
                         help="""Perform function renaming. Format: 'old_func_name,new_func_name'""")
+    parser.add_argument("--silent", default=False, action='store_true',
+                        help="""Silent mode: Only print warnings and errors""")
+    parser.add_argument("--log", default=False, action='store_true',
+                        help="""Write logging output to file""")
+    parser.add_argument("--logdir", default=".", type=str,
+                        help="""Directory to store log output to""")
+    parser.add_argument("--logfile", default=None, type=str,
+                        help="""File to write logging output to. Can be omitted, in which case a generic name with timestamp is used""")
 
     args = parser.parse_args()
+
+    handlers = []
 
     h_err = logging.StreamHandler(sys.stderr)
     h_err.setLevel(logging.WARNING)
 
-    h_info = logging.StreamHandler(sys.stdout)
-    h_info.setLevel(logging.DEBUG)
-    h_info.addFilter(lambda r: r.levelno <= logging.INFO)
+    if args.log is True and args.logfile is None:
+        # By default, use time stamp and input file
+        if args.output is not None:
+            file_base = os.path.basename(args.output).replace('.','_')
+        else:
+            file_base = os.path.basename(args.input).replace('.','_')
+        args.logfile = f"slothy_log_{int(time.time())}_{file_base}.log"
+        logfile = f"{args.logdir}/{args.logfile}"
+
+    if args.silent is False:
+        h_info = logging.StreamHandler(sys.stdout)
+        h_info.setLevel(logging.DEBUG)
+        h_info.addFilter(lambda r: r.levelno == logging.INFO)
+        handlers.append(h_info)
+
+    if args.debug:
+        h_verbose = logging.StreamHandler(sys.stdout)
+        h_verbose.setLevel(logging.DEBUG)
+        h_verbose.addFilter(lambda r: r.levelno < logging.INFO)
+        handlers.append(h_verbose)
+
+    if args.log:
+        h_log = logging.FileHandler(logfile)
+        h_log.setLevel(logging.DEBUG)
+        handlers.append(h_log)
+
+    if args.debug:
+        base_level = logging.DEBUG
+    else:
+        base_level = logging.INFO
 
     logging.basicConfig(
-        level = logging.DEBUG if args.debug else logging.INFO,
-        handlers = [h_err, h_info]
+        level = base_level,
+        handlers = handlers,
     )
 
     logger = logging.getLogger("slothy-cli")

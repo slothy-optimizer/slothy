@@ -7,36 +7,54 @@
 # "Fast and Clean: Auditable high-performance assembly via constraint solving"
 # https://eprint.iacr.org/2022/1303.pdf
 
-# Step 0: Resolve symbolic registers
-../slothy-cli Arm_AArch64 Arm_Cortex_A55                                      \
-   clean/neon/X25519-AArch64-simple.s                            \
-    -o opt/neon/X25519-AArch64-simple_nosymvars.s                \
+set -e
+
+SLOTHY_DIR=../../
+CLEAN_DIR=../clean
+OPT_DIR=../opt
+
+LOG_DIR=logs
+mkdir -p $LOG_DIR
+
+REDIRECT_OUTPUT="--log --logdir=${LOG_DIR}"
+if [ -n "$SILENT" ]; then
+    REDIRECT_OUTPUT="${REDIRECT_OUTPUT} --silent"
+fi
+
+echo "* X25519, Cortex-A55"
+
+echo "** Step 0: Resolve symbolic registers"
+${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                          \
+       ${CLEAN_DIR}/neon/X25519-AArch64-simple.s                             \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_nosymvars.s                     \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
     -c constraints.allow_reordering=False                                    \
-    -c constraints.functional_only=True
+    -c constraints.functional_only=True                                      \
+    $REDIRECT_OUTPUT
 
-
-# Step 1: Preprocessing
-../slothy-cli Arm_AArch64 Arm_Cortex_A55                                      \
-   opt/neon/X25519-AArch64-simple_nosymvars.s                    \
-    -o opt/neon/X25519-AArch64-simple_unfold_process0.s          \
+echo "** Step 1: Preprocessing"
+${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                          \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_nosymvars.s                     \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process0.s               \
     -r x25519_scalarmult_alt_orig,x25519_scalarmult_alt_unfold_process0      \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
     -c split_heuristic -c split_heuristic_repeat=0                           \
-    -c split_heuristic_preprocess_naive_interleaving
+    -c split_heuristic_preprocess_naive_interleaving                         \
+    $REDIRECT_OUTPUT
 
-
-# Steps 2-4: Stepwise optimization, __ignoring latencies__
+echo "** Steps 2-6: Stepwise optimization, ignoring latencies"
 # The goal here is to get a good amount of interleaving
 # The best order of subregions is still TBD, but presently we 'comb' all stalls
 # towards the middle of the code and repeat the process. The idea/hope is that
 # by doing this multiple times, the stalls will eventually be absorbed.
+
+echo "*** Step 2"
 i=0
-    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
+    ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                      \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -49,12 +67,14 @@ i=0
     -c objective_precision=0.1                                               \
     -c split_heuristic_stepsize=0.1                                          \
     -c split_heuristic_factor=6                                              \
-    -c constraints.model_latencies=False
+    -c constraints.model_latencies=False                                     \
+    $REDIRECT_OUTPUT
 
+echo "*** Step 3"
 i=1
-    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
+    ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                      \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -68,12 +88,14 @@ i=1
     -c constraints.move_stalls_to_bottom                                     \
     -c split_heuristic_stepsize=0.1                                          \
     -c split_heuristic_factor=4                                              \
-    -c constraints.model_latencies=False
+    -c constraints.model_latencies=False                                     \
+    $REDIRECT_OUTPUT
 
+echo "*** Step 4"
 i=2
-    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
+    ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                      \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -88,12 +110,14 @@ i=2
     -c split_heuristic_stepsize=0.08                                         \
     -c split_heuristic_factor=6                                              \
     -c split_heuristic_repeat=3                                              \
-    -c constraints.model_latencies=False
+    -c constraints.model_latencies=False                                     \
+    $REDIRECT_OUTPUT
 
+echo "*** Step 5"
 i=3
-    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
+    ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                      \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -109,12 +133,14 @@ i=3
     -c split_heuristic_factor=5                                              \
     -c split_heuristic_repeat=3                                              \
     -c split_heuristic_abort_cycle_at=8                                      \
-    -c constraints.model_latencies=False
+    -c constraints.model_latencies=False                                     \
+    $REDIRECT_OUTPUT
 
+echo "*** Step 6"
 i=4
-    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
+    ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                      \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -130,14 +156,17 @@ i=4
     -c split_heuristic_factor=5                                              \
     -c split_heuristic_repeat=3                                              \
     -c split_heuristic_abort_cycle_at=5                                      \
-    -c constraints.model_latencies=False
+    -c constraints.model_latencies=False                                     \
+    $REDIRECT_OUTPUT
 
 # Finally, also consider latencies
 
+echo "** Step 7-9: Consider latencies"
+echo "*** Step 7"
 i=5
-   ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
+   ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -151,13 +180,14 @@ i=5
     -c split_heuristic_stepsize=0.05                                         \
     -c split_heuristic_optimize_seam=10                                      \
     -c split_heuristic_factor=8                                              \
-    -c split_heuristic_repeat=10
+    -c split_heuristic_repeat=10                                             \
+    $REDIRECT_OUTPUT
 
-
+echo "*** Step 8"
 i=6
-  ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-  opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
-   -o opt/neon/X25519-AArch64-simple_opt.s                      \
+  ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
+      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+   -o ${OPT_DIR}/neon/X25519-AArch64-simple_opt.s                           \
    -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_opt        \
    -c inputs_are_outputs -c outputs="[x0]"                                  \
    -s mainloop -e end_label                                                 \
@@ -171,12 +201,14 @@ i=6
    -c split_heuristic_stepsize=0.05                                         \
    -c split_heuristic_optimize_seam=10                                      \
    -c split_heuristic_factor=8                                              \
-   -c split_heuristic_repeat=3
+   -c split_heuristic_repeat=3                                              \
+    $REDIRECT_OUTPUT
 
+echo "*** Step 8"
 i=6
-  ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-  opt/neon/X25519-AArch64-simple_unfold_preprocess${i}.s        \
-   -o opt/neon/X25519-AArch64-simple_unfold_preprocess$((${i}+1)).s   \
+  ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
+      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_preprocess${i}.s         \
+   -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_preprocess$((${i}+1)).s  \
    -r x25519_scalarmult_alt_unfold_preprocess${i},x25519_scalarmult_alt_unfold_preprocess$((${i}+1)) \
    -c inputs_are_outputs -c outputs="[x0]"                                  \
    -s mainloop -e end_label                                                 \
@@ -190,12 +222,14 @@ i=6
    -c split_heuristic_stepsize=0.05                                         \
    -c split_heuristic_optimize_seam=10                                      \
    -c split_heuristic_factor=8                                              \
-   -c split_heuristic_repeat=3
+   -c split_heuristic_repeat=3                                              \
+    $REDIRECT_OUTPUT
 
+echo "*** Step 9"
 i=7
-  ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-  opt/neon/X25519-AArch64-simple_unfold_preprocess${i}.s        \
-   -o opt/neon/X25519-AArch64-simple_opt.s                      \
+  ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
+      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_preprocess${i}.s         \
+   -o ${OPT_DIR}/neon/X25519-AArch64-simple_opt.s                           \
    -r x25519_scalarmult_alt_unfold_preprocess${i},x25519_scalarmult_opt     \
    -c inputs_are_outputs -c outputs="[x0]"                                  \
    -s mainloop -e end_label                                                 \
@@ -210,6 +244,7 @@ i=7
    -c split_heuristic_optimize_seam=10                                      \
    -c split_heuristic_factor=8                                              \
    -c split_heuristic_repeat=3                                              \
-   -c constraints.move_stalls_to_top
+   -c constraints.move_stalls_to_top                                        \
+    $REDIRECT_OUTPUT
 
 cd "${0%/*}"
