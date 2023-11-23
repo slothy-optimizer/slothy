@@ -14,8 +14,8 @@ echo "==========================================================================
 echo ""
 
 time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend                  \
-       ../examples/naive/aarch64/ntt_kyber_123_4567.s                   \
-         -o ../examples/opt/aarch64/ntt_kyber_123_4567_opt_a72.s        \
+       clean/neon/ntt_kyber_123_4567.s                   \
+         -o opt/neon/ntt_kyber_123_4567_opt_a72.s        \
          -r ntt_kyber_123_4567,ntt_kyber_123_4567_opt_a72               \
          -l layer123_start                                              \
          -l layer4567_start                                             \
@@ -32,8 +32,8 @@ echo "==========================================================================
 echo ""
 
 time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend                                  \
-       ../examples/naive/aarch64/ntt_kyber_123_4567_scalar_load.s                       \
-         -o ../examples/opt/aarch64/ntt_kyber_123_4567_scalar_load_opt_a72.s            \
+       clean/neon/ntt_kyber_123_4567_scalar_load.s                       \
+         -o opt/neon/ntt_kyber_123_4567_scalar_load_opt_a72.s            \
          -r ntt_kyber_123_4567_scalar_load,ntt_kyber_123_4567_scalar_load_opt_a72       \
          -l layer123_start                                                              \
          -l layer4567_start                                                             \
@@ -50,8 +50,8 @@ echo "==========================================================================
 echo ""
 
 time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend                                  \
-       ../examples/naive/aarch64/ntt_kyber_123_4567_scalar_store.s                      \
-         -o ../examples/opt/aarch64/ntt_kyber_123_4567_scalar_store_opt_a72.s           \
+       clean/neon/ntt_kyber_123_4567_scalar_store.s                      \
+         -o opt/neon/ntt_kyber_123_4567_scalar_store_opt_a72.s           \
          -r ntt_kyber_123_4567_scalar_store,ntt_kyber_123_4567_scalar_store_opt_a72     \
          -l layer123_start                                                              \
          -l layer4567_start                                                             \
@@ -68,8 +68,8 @@ echo "==========================================================================
 echo ""
 
 time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend                                          \
-       ../examples/naive/aarch64/ntt_kyber_123_4567_scalar_load_store.s                         \
-         -o ../examples/opt/aarch64/ntt_kyber_123_4567_scalar_load_store_opt_a72.s              \
+       clean/neon/ntt_kyber_123_4567_scalar_load_store.s                         \
+         -o opt/neon/ntt_kyber_123_4567_scalar_load_store_opt_a72.s              \
          -r ntt_kyber_123_4567_scalar_load_store,ntt_kyber_123_4567_scalar_load_store_opt_a72   \
          -l layer123_start                                                                      \
          -l layer4567_start                                                                     \
@@ -86,8 +86,8 @@ echo "=========================================================="
 echo ""
 
 time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend                          \
-       ../examples/naive/aarch64/ntt_kyber_123_4567_manual_st4.s                \
-         -o ../examples/opt/aarch64/ntt_kyber_123_4567_manual_st4_opt_a72.s     \
+       clean/neon/ntt_kyber_123_4567_manual_st4.s                \
+         -o opt/neon/ntt_kyber_123_4567_manual_st4_opt_a72.s     \
          -r ntt_kyber_123_4567_manual_st4,ntt_kyber_123_4567_manual_st4_opt_a72 \
          -l layer123_start                                                      \
          -l layer4567_start                                                     \
@@ -104,8 +104,8 @@ echo "==========================================================================
 echo ""
 
 time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend                  \
-       ../examples/naive/aarch64/ntt_kyber_1234_567.s                   \
-         -o ../examples/opt/aarch64/ntt_kyber_1234_567_opt_a72.s        \
+       clean/neon/ntt_kyber_1234_567.s                   \
+         -o opt/neon/ntt_kyber_1234_567_opt_a72.s        \
          -r ntt_kyber_1234_567,ntt_kyber_1234_567_opt_a72               \
          -l layer1234_start                                             \
          -c sw_pipelining.enabled=true                                  \
@@ -122,8 +122,8 @@ time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend                  \
          -c variable_size
 
 time ../slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend                  \
-       ../examples/opt/aarch64/ntt_kyber_1234_567_opt_a72.s             \
-         -o ../examples/opt/aarch64/ntt_kyber_1234_567_opt_a72.s        \
+       opt/neon/ntt_kyber_1234_567_opt_a72.s             \
+         -o opt/neon/ntt_kyber_1234_567_opt_a72.s        \
          -r ntt_kyber_1234_567_opt_a72,ntt_kyber_1234_567_opt_a72       \
          -l layer567_start                                              \
          -c sw_pipelining.enabled=true                                  \

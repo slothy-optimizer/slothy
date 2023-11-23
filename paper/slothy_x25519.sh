@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-cd "${0%/*}"/..
 
 # X25519 scalar multiplication on Cortex-A55
 #
@@ -9,9 +8,9 @@ cd "${0%/*}"/..
 # https://eprint.iacr.org/2022/1303.pdf
 
 # Step 0: Resolve symbolic registers
-./slothy-cli Arm_AArch64 Arm_Cortex_A55                                      \
-   examples/naive/aarch64/X25519-AArch64-simple.s                            \
-    -o examples/opt/aarch64/X25519-AArch64-simple_nosymvars.s                \
+../slothy-cli Arm_AArch64 Arm_Cortex_A55                                      \
+   clean/neon/X25519-AArch64-simple.s                            \
+    -o opt/neon/X25519-AArch64-simple_nosymvars.s                \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
     -c constraints.allow_reordering=False                                    \
@@ -19,9 +18,9 @@ cd "${0%/*}"/..
 
 
 # Step 1: Preprocessing
-./slothy-cli Arm_AArch64 Arm_Cortex_A55                                      \
-   examples/opt/aarch64/X25519-AArch64-simple_nosymvars.s                    \
-    -o examples/opt/aarch64/X25519-AArch64-simple_unfold_process0.s          \
+../slothy-cli Arm_AArch64 Arm_Cortex_A55                                      \
+   opt/neon/X25519-AArch64-simple_nosymvars.s                    \
+    -o opt/neon/X25519-AArch64-simple_unfold_process0.s          \
     -r x25519_scalarmult_alt_orig,x25519_scalarmult_alt_unfold_process0      \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -35,9 +34,9 @@ cd "${0%/*}"/..
 # towards the middle of the code and repeat the process. The idea/hope is that
 # by doing this multiple times, the stalls will eventually be absorbed.
 i=0
-    ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   examples/opt/aarch64/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o examples/opt/aarch64/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
+    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
+   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
+    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -53,9 +52,9 @@ i=0
     -c constraints.model_latencies=False
 
 i=1
-    ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   examples/opt/aarch64/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o examples/opt/aarch64/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
+    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
+   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
+    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -72,9 +71,9 @@ i=1
     -c constraints.model_latencies=False
 
 i=2
-    ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   examples/opt/aarch64/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o examples/opt/aarch64/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
+    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
+   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
+    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s\
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -92,9 +91,9 @@ i=2
     -c constraints.model_latencies=False
 
 i=3
-    ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   examples/opt/aarch64/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o examples/opt/aarch64/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
+    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
+   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
+    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -113,9 +112,9 @@ i=3
     -c constraints.model_latencies=False
 
 i=4
-    ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
-   examples/opt/aarch64/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o examples/opt/aarch64/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
+    ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                  \
+   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
+    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -136,9 +135,9 @@ i=4
 # Finally, also consider latencies
 
 i=5
-   ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-   examples/opt/aarch64/X25519-AArch64-simple_unfold_process${i}.s           \
-    -o examples/opt/aarch64/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
+   ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
+   opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
+    -o opt/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s   \
     -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
@@ -156,9 +155,9 @@ i=5
 
 
 i=6
-  ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-  examples/opt/aarch64/X25519-AArch64-simple_unfold_process${i}.s           \
-   -o examples/opt/aarch64/X25519-AArch64-simple_opt.s                      \
+  ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
+  opt/neon/X25519-AArch64-simple_unfold_process${i}.s           \
+   -o opt/neon/X25519-AArch64-simple_opt.s                      \
    -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_opt        \
    -c inputs_are_outputs -c outputs="[x0]"                                  \
    -s mainloop -e end_label                                                 \
@@ -175,9 +174,9 @@ i=6
    -c split_heuristic_repeat=3
 
 i=6
-  ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-  examples/opt/aarch64/X25519-AArch64-simple_unfold_preprocess${i}.s        \
-   -o examples/opt/aarch64/X25519-AArch64-simple_unfold_preprocess$((${i}+1)).s   \
+  ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
+  opt/neon/X25519-AArch64-simple_unfold_preprocess${i}.s        \
+   -o opt/neon/X25519-AArch64-simple_unfold_preprocess$((${i}+1)).s   \
    -r x25519_scalarmult_alt_unfold_preprocess${i},x25519_scalarmult_alt_unfold_preprocess$((${i}+1)) \
    -c inputs_are_outputs -c outputs="[x0]"                                  \
    -s mainloop -e end_label                                                 \
@@ -194,9 +193,9 @@ i=6
    -c split_heuristic_repeat=3
 
 i=7
-  ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-  examples/opt/aarch64/X25519-AArch64-simple_unfold_preprocess${i}.s        \
-   -o examples/opt/aarch64/X25519-AArch64-simple_opt.s                      \
+  ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
+  opt/neon/X25519-AArch64-simple_unfold_preprocess${i}.s        \
+   -o opt/neon/X25519-AArch64-simple_opt.s                      \
    -r x25519_scalarmult_alt_unfold_preprocess${i},x25519_scalarmult_opt     \
    -c inputs_are_outputs -c outputs="[x0]"                                  \
    -s mainloop -e end_label                                                 \

@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-cd "${0%/*}"/..
 
 # Dilithium NTT for Cortex-A55
 #
@@ -16,9 +15,9 @@ echo ""
 
 echo "* Layer 123"
 
-time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                             \
-       examples/naive/aarch64/ntt_dilithium_123_45678.s                  \
-         -o examples/opt/aarch64/ntt_dilithium_123_45678_opt0_a55.s      \
+time ../slothy-cli Arm_AArch64 Arm_Cortex_A55                             \
+       clean/neon/ntt_dilithium_123_45678.s                  \
+         -o opt/neon/ntt_dilithium_123_45678_opt0_a55.s      \
          -l layer123_start                                               \
          -r ntt_dilithium_123_45678,ntt_dilithium_123_45678_opt0_a55     \
          -c sw_pipelining.enabled=true                                   \
@@ -28,10 +27,10 @@ time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                             \
 
 echo "* Layer 45678"
 
-time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
-       examples/opt/aarch64/ntt_dilithium_123_45678_opt0_a55.s                 \
+time ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                   \
+       opt/neon/ntt_dilithium_123_45678_opt0_a55.s                 \
          -l layer45678_start                                                   \
-         -o examples/opt/aarch64/ntt_dilithium_123_45678_opt_a55.s             \
+         -o opt/neon/ntt_dilithium_123_45678_opt_a55.s             \
          -r ntt_dilithium_123_45678_opt0_a55,ntt_dilithium_123_45678_opt_a55   \
          -c sw_pipelining.enabled=true                                         \
          -c reserved_regs="[x3,x30,sp]"                                        \
@@ -46,10 +45,10 @@ echo ""
 
 echo "* Layer 123"
 
-time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                            \
-       examples/naive/aarch64/ntt_dilithium_123_45678_w_scalar.s                        \
+time ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                            \
+       clean/neon/ntt_dilithium_123_45678_w_scalar.s                        \
          -l layer123_start                                                              \
-         -o examples/opt/aarch64/ntt_dilithium_123_45678_w_scalar_opt0_a55.s            \
+         -o opt/neon/ntt_dilithium_123_45678_w_scalar_opt0_a55.s            \
          -r ntt_dilithium_123_45678_w_scalar,ntt_dilithium_123_45678_w_scalar_opt0_a55  \
          -c sw_pipelining.enabled=true                                                  \
          -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,v8,x30,sp]"                            \
@@ -58,11 +57,11 @@ time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                    
 
 echo "* Layer 45678"
 
-time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                                   \
-       examples/opt/aarch64/ntt_dilithium_123_45678_w_scalar_opt0_a55.s                        \
+time ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                                   \
+       opt/neon/ntt_dilithium_123_45678_w_scalar_opt0_a55.s                        \
          -l layer45678_start                                                                   \
          -c sw_pipelining.enabled=true                                                         \
-         -o examples/opt/aarch64/ntt_dilithium_123_45678_w_scalar_opt_a55.s                    \
+         -o opt/neon/ntt_dilithium_123_45678_w_scalar_opt_a55.s                    \
          -r ntt_dilithium_123_45678_w_scalar_opt0_a55,ntt_dilithium_123_45678_w_scalar_opt_a55 \
          -c reserved_regs="[x3,x30,sp]"                                                        \
          -c sw_pipelining.minimize_overlapping=False                                           \
@@ -76,10 +75,10 @@ echo ""
 
 echo "* Layer 123"
 
-time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                               \
-       examples/naive/aarch64/ntt_dilithium_123_45678_manual_st4.s                         \
+time ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                               \
+       clean/neon/ntt_dilithium_123_45678_manual_st4.s                         \
          -l layer123_start                                                                 \
-         -o examples/opt/aarch64/ntt_dilithium_123_45678_manual_st4_opt0_a55.s             \
+         -o opt/neon/ntt_dilithium_123_45678_manual_st4_opt0_a55.s             \
          -r ntt_dilithium_123_45678_manual_st4,ntt_dilithium_123_45678_manual_st4_opt0_a55 \
          -c sw_pipelining.enabled=true                                                     \
          -c inputs_are_outputs                                                             \
@@ -90,10 +89,10 @@ time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                    
 
 echo "* Layer 45678"
 
-time ./slothy-cli Arm_AArch64 Arm_Cortex_A55                                                       \
-       examples/opt/aarch64/ntt_dilithium_123_45678_manual_st4_opt0_a55.s                          \
+time ../slothy-cli Arm_AArch64 Arm_Cortex_A55                                                       \
+       opt/neon/ntt_dilithium_123_45678_manual_st4_opt0_a55.s                          \
          -l layer45678_start                                                                       \
-         -o examples/opt/aarch64/ntt_dilithium_123_45678_manual_st4_opt_a55.s                      \
+         -o opt/neon/ntt_dilithium_123_45678_manual_st4_opt_a55.s                      \
          -r ntt_dilithium_123_45678_manual_st4_opt0_a55,ntt_dilithium_123_45678_manual_st4_opt_a55 \
          -c inputs_are_outputs                                                                     \
          -c reserved_regs="[x3,x30,sp]"                                                            \
