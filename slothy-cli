@@ -76,6 +76,7 @@ def main(argv):
 
     h_err = logging.StreamHandler(sys.stderr)
     h_err.setLevel(logging.WARNING)
+    handlers.append(h_err)
 
     if args.log is True and args.logfile is None:
         # By default, use time stamp and input file
