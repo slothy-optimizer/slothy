@@ -2556,12 +2556,6 @@ class SlothyBase(LockAttributes):
             self.logger.warning("Please consider upgrading OR-Tools to version >= 9.5.2040")
             self._model.cp_solver.parameters.symmetry_level = 1
 
-        if ortools.__version__ > "9.7":
-            # From release notes:
-            # recommended number of ls workers:
-            # num_workers -> num_violation_ls (8, 1), (16, 2) (24, 3), (32, 4)
-            self._model.cp_solver.parameters.num_violation_ls = 1
-
     def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval,maxval, name)
         self._model.variables.append(r)
