@@ -43,7 +43,6 @@ class Config(NestedPrint, LockAttributes):
     _default_split_heuristic_visualize_stalls = False
     _default_split_heuristic_visualize_units = False
     _default_split_heuristic_region = [0.0,1.0]
-    _default_split_heuristic_adaptive = False
     _default_split_heuristic_chunks = False
     _default_split_heuristic_optimize_seam = 0
     _default_split_heuristic_bottom_to_top = False
@@ -319,19 +318,6 @@ class Config(NestedPrint, LockAttributes):
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_stepsize otherwise.")
         return self._split_heuristic_stepsize
-
-    @property
-    def split_heuristic_adaptive(self):
-        """If split heuristic is used, heuristically choose next optimization window
-        so that stalls in a region that is not yet well-optimized can be absorbed by
-        a neighbouring region with fewer stalls.
-
-        This is highly experimental. See the code for exactly how the adaptive
-        region is computed."""
-        if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_adaptive otherwise.")
-        return self._split_heuristic_adaptive
 
     @property
     def split_heuristic_optimize_seam(self):
@@ -923,7 +909,6 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_factor = Config._default_split_heuristic_factor
         self._split_heuristic_abort_cycle_at = Config._default_split_heuristic_abort_cycle_at
         self._split_heuristic_stepsize = Config._default_split_heuristic_stepsize
-        self._split_heuristic_adaptive = Config._default_split_heuristic_adaptive
         self._split_heuristic_optimize_seam = Config._default_split_heuristic_optimize_seam
         self._split_heuristic_chunks = Config._default_split_heuristic_chunks
         self._split_heuristic_bottom_to_top = Config._default_split_heuristic_bottom_to_top
@@ -1038,9 +1023,6 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_stepsize.setter
     def split_heuristic_stepsize(self, val):
         self._split_heuristic_stepsize = float(val)
-    @split_heuristic_adaptive.setter
-    def split_heuristic_adaptive(self, val):
-        self._split_heuristic_adaptive = val
     @split_heuristic_chunks.setter
     def split_heuristic_chunks(self, val):
         self._split_heuristic_chunks = val

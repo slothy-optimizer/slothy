@@ -267,7 +267,7 @@ class Heuristics():
         return Heuristics._split( body, logger, conf, visualize_stalls)
 
     @staticmethod
-    def _naive_reordering(body, logger, conf, use_latency_depth=True):
+    def _naive_reordering(body, logger, conf, use_latency_depth=False):
 
         if use_latency_depth:
             depth_str = "latency depth"
@@ -280,7 +280,7 @@ class Heuristics():
         dfg = DFG(body, logger.getChild("dfg"), DFGConfig(conf.copy()), parsing_cb=True)
         insts = [dfg.nodes[i] for i in range(l)]
 
-        if not use_latency_depth:
+        if use_latency_depth is False:
             depths = [dfg.nodes_by_id[i].depth for i in range(l) ]
         else:
             # Calculate latency-depth of instruction nodes
@@ -374,9 +374,9 @@ class Heuristics():
                     def units_different(a,b):
                         return a != b
 
-                    disjoint_unit_idxs = [ i for i in candidate_idxs 
+                    disjoint_unit_idxs = [ i for i in candidate_idxs
                         if units_disjoint(conf.target.get_units(insts[i].inst), last_unit) ]
-                    other_unit_idxs = [ i for i in candidate_idxs 
+                    other_unit_idxs = [ i for i in candidate_idxs
                         if units_different(conf.target.get_units(insts[i].inst), last_unit) ]
 
                     if len(disjoint_unit_idxs) > 0:
@@ -502,73 +502,28 @@ class Heuristics():
 
         # conf.outputs = result.outputs
 
-        chunk_len = int(l // split_factor)
-        avg_dist = np.ones(chunk_len) / chunk_len
-        #smoothening_dist = avg_dist
+        # Heuristics._dump("Source code without symbolic registers", body, log)
 
-        smoothening_dist = np.random.triangular(0, chunk_len//2, chunk_len, size=10000)
-        smoothening_dist = np.histogram(smoothening_dist, density=True, bins=chunk_len)[0]
+        # conf.outputs = result.outputs
 
-        def restrict_arr(arr, samples, scale=1): # pylint: disable=unused-variable
-            l = len(arr)
-            f = l / samples
-            return [ scale * arr[int(i * f)] for i in range(samples) ]
-
-        def cumulative_arr(arr): # pylint: disable=unused-variable
-            return [ sum(arr[:i]) for i in range(len(arr)) ]
-
-        def average_arr(arr): # pylint: disable=unused-variable
-            return np.convolve(arr, avg_dist, mode='same')
-
-        def abs_arr(arr):
-            return [ abs(x) for x in arr ]
-
-        def smoothen_arr(arr):
-            return np.convolve(arr, smoothening_dist, mode='same')
-
-        def print_intarr(txt, txt_short, arr, vals=50):
-            if not isinstance(arr, np.ndarray):
-                arr = np.array(arr)
-
-            l = len(arr)
-            if vals is None:
-                vals = l
-
-            log.info(txt)
-
-            precision = 100
-
-            m = 1.1*max(arr)
-            arr = precision * (arr / m)
-
+        def print_intarr(arr, l,vals=50):
+            m = max(10,max(arr))
             start_idxs = [ (l * i)     // vals for i in range(vals) ]
             end_idxs   = [ (l * (i+1)) // vals for i in range(vals) ]
             avgs = []
             for (s,e) in zip(start_idxs, end_idxs):
-                if s == e:
-                    continue
-                avg = math.ceil(sum(arr[s:e]) / (e-s))
+                avg = sum(arr[s:e]) // (e-s)
                 avgs.append(avg)
-                log.info(f"[{txt_short}|{s:3d}-{e:3d}]: {'*'*avg}{'.'*(precision-avg)} ({avg})")
-
-        def get_stall_arr(stalls,l):
-            # Convert stalls into 01 valued function
-            return [ i in stalls for i in range(l) ]
-
-        def prepare_stalls(stalls, l):
-            stall_arr = np.array(get_stall_arr(stalls,l))
-            s_arr = smoothen_arr(stall_arr)
-            d1    = abs_arr(np.diff(s_arr))
-            d1s   = smoothen_arr(d1)
-            d2    = abs_arr(np.diff(d1s))
-            d2s   = smoothen_arr(d2)
-            return s_arr, d1s, d2s
+                log.info(f"[{s:3d}-{e:3d}]: {'*'*avg}{'.'*(m-avg)} ({avg})")
 
         def print_stalls(stalls,l):
-            s_arr, d1s, d2s = prepare_stalls(stalls, l) # pylint: disable=unused-variable
-            print_intarr("Stalls", "stalls", s_arr)
-            # print_intarr("Stalls (1st findiff)", "d1", d1s)
-            # print_intarr("Stalls (2nd findiff)", "d2", d2s)
+            chunk_len = int(l // split_factor)
+            # Convert stalls into 01 valued function
+            stalls_arr = [ i in stalls for i in range(l) ]
+            for v in stalls_arr:
+                assert v in {0,1}
+            stalls_cumulative = [ sum(stalls_arr[max(0,i-math.floor(chunk_len/2)):i+math.ceil(chunk_len/2)]) for i in range(l) ]
+            print_intarr(stalls_cumulative,l)
 
         def optimize_chunk(start_idx, end_idx, body, stalls,show_stalls=True):
             """Optimizes a sub-chunks of the given snippet, delimited by pairs
@@ -698,11 +653,7 @@ class Heuristics():
 
             cur_body = AsmHelper.reduce_source(cur_body)
 
-            if not conf.split_heuristic_adaptive:
-                idx_lst = make_idx_list_consecutive(split_factor, increment)
-                if conf.split_heuristic_bottom_to_top is True:
-                    idx_lst.reverse()
-            elif conf.split_heuristic_chunks:
+            if conf.split_heuristic_chunks:
                 start_pos = [ x[0] for x in conf.split_heuristic_chunks ]
                 end_pos   = [ x[1] for x in conf.split_heuristic_chunks ]
                 idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
@@ -711,28 +662,9 @@ class Heuristics():
                     return x[0] != x[1]
                 idx_lst = list(filter(not_empty, idx_lst))
             else:
-                len_total = len(cur_body)
-                len_chunk = round(len_total / split_factor)
-
-                def pick_next_region(stalls, l, len_chunk=len_chunk, last_base=last_base):
-                    _, _, d2 = prepare_stalls(stalls, l)
-                    d2 = [ d2[i] for i in range(len(d2)) ]
-
-                    if last_base is not None:
-                        # Force consecutive regions to be meaningfully different
-                        for i in range(last_base + len_chunk // 5, last_base + 4 * (len_chunk // 5)):
-                            d2[i] = 0
-
-                    s = len_chunk
-                    e = l - s
-                    base = d2[s:e].index(max(d2[s:e])) + len_chunk // 2
-
-                    return base, base + len_chunk
-
-                start_idx, end_idx = pick_next_region(stalls, l)
-                last_base = start_idx
-                idx_lst = [ (start_idx, end_idx) ]
-                log.info(f"Adaptive region ({i+1}/{conf.split_heuristic_repeat}): [{start_idx},{end_idx}]")
+                idx_lst = make_idx_list_consecutive(split_factor, increment)
+                if conf.split_heuristic_bottom_to_top is True:
+                    idx_lst.reverse()
 
             cur_body, stalls, local_perm = optimize_chunks_many(idx_lst, cur_body, stalls,
                                                     abort_stall_threshold=conf.split_heuristic_abort_cycle_at)
