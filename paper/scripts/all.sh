@@ -42,4 +42,6 @@ time ./slothy_kyber_ntt_a72.sh
 echo "X25519, Cortex-A55..."
 time ./slothy_x25519.sh
 
+source slothy_ntt_helium.sh
+
 echo "All done!"
