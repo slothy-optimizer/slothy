@@ -2607,12 +2607,12 @@ class SlothyBase(LockAttributes):
         # Determines whether the best solution found so far is close enough to the optimum
         # that we should stop.
         def is_good_enough( cur, bound ):
-            if self.config.variable_size:
+            if self._model.objective_name == "minimize number of stalls":
                 prec = self.config.constraints.stalls_precision
                 if cur - bound <= self.config.constraints.stalls_precision:
                     self.logger.info("Closer than %d stalls to theoretical optimum... stop", prec)
                     return True
-            else:
+            elif self._model.objective_name != "no objective":
                 prec = self.config.objective_precision
                 if bound > 0 and abs(1 - (cur / bound)) < prec:
                     self.logger.info("Closer than %d%% to theoretical optimum... stop",
