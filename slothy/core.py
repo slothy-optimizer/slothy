@@ -67,7 +67,7 @@ class Result(LockAttributes):
 
         def arr_width(arr):
             mi = min(arr)
-            ma = max(arr)
+            ma = max(0,max(arr))
             return mi, ma-mi
 
         min_pos, width = arr_width(self.reordering.values())
