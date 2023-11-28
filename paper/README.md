@@ -95,14 +95,47 @@ the target.
 
 ## Armv8.1-M
 
-TODO
+PQMX provides unit tests for the Kyber and Dilithium NTTs. Unfortunately, there are no unit tests for the FFT example
+yet -- this was tested out of band.
+
+To build a unit test for use with QEMU, use
+
+```
+make build-m55-core-{ntt_kyber, ntt_dilithium}
+```
+
+The resuilting image is located in `envs/core`, and can be run on QEMU via
+
+```
+make run-m55-core-{ntt_kyber, ntt_dilithium}
+```
 
 # Benchmarking optimized code
 
 ## AArch64
 
-TODO
+To build the Kyber NTTs, Dilithium NTTs, and X25519 scalar multiplication on Cortex-A55 and Cortex-A72, use
+
+```
+CYCLES={PMU,PERF} make {build,run}-{cross,native_linux}-{ntt_dilithium,ntt_kyber,x25519}
+```
+
+Here, `CYCLES=PMU` means that cycle counts will be obtained by directly accessing the PMU cycle counter register. This
+access needs to be enabled by loading a suitable kernel module as described in
+[https://github.com/mupq/pqax#enable-access-to-performance-counters](https://github.com/mupq/pqax#enable-access-to-performance-counters). Otherwise,
+an `Illegal Instruction` abort will be encountered.
+
+Alterntively, `CYCLES=PERF` means that cycle counts will be obtained via the `perf` module.
 
 ## Armv8.1-M
 
-TODO
+The PQMX test environment supports building images ready for use with the MPS3 FPGA prototyping board
+and the AN547 and AN555 nodes for the Cortex-M55 and Cortex-M85, respectively.
+
+To build the respective images, use
+
+```
+make build-{m55-an547, m85-an555}-{ntt_kyber, ntt_dilithium}
+```
+
+TODO: It looks like those build commands need additional tooling beyond what's provided in the docker file?
