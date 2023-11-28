@@ -1,7 +1,5 @@
 # Submission artifact
 
-!!! TODO: Fix commits in docker container
-
 This directory contains the artifact submission for the paper [Fast and Clean: Auditable
 high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303.pdf).
 
@@ -26,7 +24,7 @@ OR-Tools](https://github.com/google/or-tools/) and cross-compilers for AArch64 a
 For convenience, this directory contains a Dockerfile [slothy.Dockerfile](./slothy.Dockerfile) establishing an
 Ubuntu-22.04-based Docker image with SLOTHY, pqax and pqmx setup and ready for use.
 
-#### Build steps
+#### Build image
 
 * Build the image:
 
@@ -47,6 +45,8 @@ should show a line like this:
 REPOSITORY      TAG       IMAGE ID       CREATED         SIZE
 slothy_image    latest    b009755ab33e   2 hours ago     3.5GB
 ```
+
+#### Create and run container
 
 * Create docker container from image
 

@@ -2,22 +2,23 @@ This directory contains supporting material for the paper [Fast and Clean: Audit
 high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303.pdf)
 that introduced SLOTHY. It enables interested readers to:
 
-1. `Optimize`: Reproduce the SLOTHY optimizations described in the paper.
-2. `Test`: Verify the functional correctness of the optimized code.
-3. `Benchmark`: If suitable development boards are available, evaluate the performance of the optimized code.
+1. _Optimize:_ Reproduce the SLOTHY optimizations described in the paper.
+2. _Test:_ Verify the functional correctness of the optimized code.
+3. _Benchmark:_ If suitable development boards are available, evaluate the performance of the optimized code.
 
-For `Optimize`, only the SLOTHY repository is needed. For `Test` and `Benchmark`, we recommend the use of the [pqmx](https://github.com/slothy-optimizer/pqmx) and [pqax](https://github.com/slothy-optimizer/pqax)
+For optimization, only the SLOTHY repository is needed. For testing and benchmarking, we recommend the use of the
+[pqmx](https://github.com/slothy-optimizer/pqmx) and [pqax](https://github.com/slothy-optimizer/pqax)
 repositories. See the respective README's for setup instructions, or use the Dockerfile provided in
 [Artifact](artifact).
 
 # Reproducing SLOTHY optimizations
 
 Here we describe how to reproduce the SLOTHY optimizations described in the paper:
-  - The Number Theoretic Transforms (NTT) underlying Kyber/ML-KEM and Dilithium/ML-DSA, optimized for Cortex-A55,
-    Cortex-A72, Cortex-M55 and Cortex-M85.
-  - An instance of the Fast Fourier Transform (FFT) in fixed-point and floating-point arithmetic,
-    optimized for Cortex-M55 and Cortex-M85.
-  - The X25519 scalar multiplication, optimized for Cortex-A55.
+- The Number Theoretic Transforms (NTT) underlying Kyber/ML-KEM and Dilithium/ML-DSA, optimized for Cortex-A55,
+  Cortex-A72, Cortex-M55 and Cortex-M85.
+- An instance of the Fast Fourier Transform (FFT) in fixed-point and floating-point arithmetic,
+  optimized for Cortex-M55 and Cortex-M85.
+- The X25519 scalar multiplication, optimized for Cortex-A55.
 
 ## Overview
 
@@ -95,19 +96,18 @@ the target.
 
 ## Armv8.1-M
 
-PQMX provides unit tests for the Kyber and Dilithium NTTs. Unfortunately, there are no unit tests for the FFT example
-yet -- this was tested out of band.
+PQMX provides unit tests for the Kyber and Dilithium NTTs, and for the floating point and fixed point partial FFT.
 
 To build a unit test for use with QEMU, use
 
 ```
-make build-m55-core-{ntt_kyber, ntt_dilithium}
+make build-{m55-an547}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
 ```
 
-The resuilting image is located in `envs/core`, and can be run on QEMU via
+The resuilting image is located in `envs/m55-an547`, and can be run on QEMU via
 
 ```
-make run-m55-core-{ntt_kyber, ntt_dilithium}
+make run-{m55-an547}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
 ```
 
 # Benchmarking optimized code
@@ -135,7 +135,7 @@ and the AN547 and AN555 nodes for the Cortex-M55 and Cortex-M85, respectively.
 To build the respective images, use
 
 ```
-make build-{m55-an547, m85-an555}-{ntt_kyber, ntt_dilithium}
+make build-{m55-an547, m85-an555}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
 ```
 
 TODO: It looks like those build commands need additional tooling beyond what's provided in the docker file?
