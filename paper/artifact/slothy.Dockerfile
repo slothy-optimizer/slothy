@@ -16,7 +16,7 @@ RUN git submodule init
 RUN git submodule update
 WORKDIR /home/ubuntu/slothy/submodules/or-tools
 RUN mkdir /home/ubuntu/slothy/submodules/or-tools/build
-RUN cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON
+RUN cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON -DBUILD_SAMPLES:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF
 WORKDIR /home/ubuntu/slothy/submodules/or-tools/build
 RUN make -j8
 WORKDIR /home/ubuntu/slothy
