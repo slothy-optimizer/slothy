@@ -44,9 +44,9 @@ roots:
 .align 4
 roots_addr: .word roots
 .syntax unified
-.type ntt_dilithium_12_34_56_78, %function
-.global ntt_dilithium_12_34_56_78
-ntt_dilithium_12_34_56_78:
+.type ntt_dilithium_12_34_56_78_no_trans_vld4_opt_m85, %function
+.global ntt_dilithium_12_34_56_78_no_trans_vld4_opt_m85
+ntt_dilithium_12_34_56_78_no_trans_vld4_opt_m85:
 
         push {r4-r11,lr}
         // Save MVE vector registers
