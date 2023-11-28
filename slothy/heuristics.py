@@ -540,10 +540,10 @@ class Heuristics():
             else:
                 prefix_len = min(len(cur_pre), conf.split_heuristic_optimize_seam)
                 suffix_len = min(len(cur_post), conf.split_heuristic_optimize_seam)
-                cur_prefix = cur_pre[-prefix_len:]
+                cur_prefix = cur_pre[-prefix_len:] if prefix_len > 0 else []
                 cur_suffix = cur_post[:suffix_len]
                 cur_body = cur_prefix + cur_body + cur_suffix
-                cur_pre = cur_pre[:-prefix_len]
+                cur_pre = cur_pre[:-prefix_len] if prefix_len > 0 else cur_pre
                 cur_post = cur_post[suffix_len:]
 
             pre_pad = len(cur_pre)

@@ -1177,7 +1177,8 @@ class SlothyBase(LockAttributes):
         assert n // iterations == self._result.codesize
 
         preamble_new  = [ str(t.inst) for t in tree_new.nodes[:preamble_len] ]
-        postamble_new = [ str(t.inst) for t in tree_new.nodes[-postamble_len:] ]
+        postamble_new = [ str(t.inst) for t in tree_new.nodes[-postamble_len:] ] \
+            if postamble_len > 0 else []
 
         code_new = []
         for i in range(iterations - self._result.num_exceptional_iterations):
