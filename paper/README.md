@@ -101,13 +101,13 @@ PQMX provides unit tests for the Kyber and Dilithium NTTs, and for the floating 
 To build a unit test for use with QEMU, use
 
 ```
-make build-{m55-an547}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
+make build-{m55-core}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
 ```
 
-The resuilting image is located in `envs/m55-an547`, and can be run on QEMU via
+The resuilting image is located in `envs/core`, and can be run on QEMU via
 
 ```
-make run-{m55-an547}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
+make run-{m55-core}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
 ```
 
 # Benchmarking optimized code
