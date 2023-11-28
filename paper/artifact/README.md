@@ -101,7 +101,7 @@ you should have a directory structured as follows:
 Note that to avoid having three copies of SLOTHY, you should not use `git submodule` in the pqmx and pqax repositories,
 but symlink the SLOTHY repository into the submodule location.
 
-For the SLOTHYrepository, the main dependency is Google OR-Tools; see the README in the SLOTHY repository for setup
+For the SLOTHY repository, the main dependency is Google OR-Tools; see the README in the SLOTHY repository for setup
 instructions (those are also followed in the Dockerfile).
 
 ## Using the artifact

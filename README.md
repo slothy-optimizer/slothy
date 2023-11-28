@@ -163,7 +163,7 @@ The most important command line options are the following:
 
 * An output file can be specified with `-o`.
 
-You may find SLOTHY complaining about ambiguity of register types if you use symbolic registers rather names sthan
+You may find SLOTHY complaining about ambiguity of register types if you use symbolic registers rather than
 architectural ones. In this case, you need to set `-c config.typing_hints={name1:regtype1,name2:regtype2,...}`. For
 example, if the symbolic register name `foo` should be a general purpose register, add `-c config.typing_hints={foo:GPR}`.
 

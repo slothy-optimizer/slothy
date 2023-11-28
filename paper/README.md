@@ -107,7 +107,7 @@ To build a unit test for use with QEMU, use
 make build-{m55-core}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
 ```
 
-The resuilting image is located in `envs/core`, and can be run on QEMU via
+The resulting image is located in `envs/core`, and can be run on QEMU via
 
 ```
 make run-{m55-core}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
@@ -128,7 +128,7 @@ access needs to be enabled by loading a suitable kernel module as described in
 [https://github.com/mupq/pqax#enable-access-to-performance-counters](https://github.com/mupq/pqax#enable-access-to-performance-counters). Otherwise,
 an `Illegal Instruction` abort will be encountered.
 
-Alterntively, `CYCLES=PERF` means that cycle counts will be obtained via the `perf` module.
+Alternatively, `CYCLES=PERF` means that cycle counts will be obtained via the `perf` module.
 
 ## Armv8.1-M
 
@@ -140,5 +140,3 @@ To build the respective images, use
 ```
 make build-{m55-an547, m85-an555}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
 ```
-
-TODO: It looks like those build commands need additional tooling beyond what's provided in the docker file?
