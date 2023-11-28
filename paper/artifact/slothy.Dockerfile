@@ -5,9 +5,9 @@ RUN apt install -y git sudo build-essential python3-pip cmake swig time gcc-arm-
 RUN useradd -ms /bin/bash -G sudo ubuntu
 USER ubuntu
 WORKDIR /home/ubuntu
-RUN git clone https://github.com/slothy-optimizer/pqax.git
-RUN git clone https://github.com/slothy-optimizer/pqmx.git
-RUN git clone https://github.com/slothy-optimizer/slothy.git
+RUN git clone -b ches2024_artifact https://github.com/slothy-optimizer/pqax.git
+RUN git clone -b ches2024_artifact https://github.com/slothy-optimizer/pqmx.git
+RUN git clone -b ches2024_artifact https://github.com/slothy-optimizer/slothy.git
 RUN python3 -m pip install mypy-protobuf
 ENV PATH="${PATH}:/home/ubuntu/.local/bin"
 ENV PYTHONPATH /home/ubuntu/
