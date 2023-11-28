@@ -21,6 +21,14 @@ echo "NOTE: This will take a long time (at least a few hours). If there are prob
 
 echo "If you want to follow progress of an individual command, do \"tail -f\" on the respective logfile in the \"logs\" directory.\n"
 
+if [ "$SILENT" = "Y" ]; then
+    echo "Logging disabled. Pass SILENT=N to see logging from individual optimizations.\n"
+fi
+if [ "$SILENT" = "N" ]; then
+    echo "Logging enabled. Pass SILENT=Y to suppress logging from individual optimizations.\n"
+fi
+
+
 echo "Squared magnitude toy example ..."
 time ./slothy_sqmag.sh
 

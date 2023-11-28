@@ -12,7 +12,7 @@ LOG_DIR=logs
 mkdir -p $LOG_DIR
 
 REDIRECT_OUTPUT="--log --logdir=${LOG_DIR}"
-if [ "$SILENT" == "Y" ]; then
+if [ "$SILENT" = "Y" ]; then
     REDIRECT_OUTPUT="${REDIRECT_OUTPUT} --silent"
 fi
 
@@ -27,7 +27,7 @@ ${SLOTHY_DIR}/slothy-cli Arm_v81M Arm_Cortex_M55                    \
     $REDIRECT_OUTPUT
 
 for uarch in M55 M85; do for i in 1 2 4; do
-  echo "* Squared magnitude, Cortex-${uarch}, unroll x${i})"
+  echo "* Squared magnitude, Cortex-${uarch}, unroll x${i}"
   ${SLOTHY_DIR}/slothy-cli Arm_v81M Arm_Cortex_$uarch                                   \
          ${CLEAN_DIR}/helium/cmplx_mag_sqr/cmplx_mag_sqr_fx.s                           \
       -o ${OPT_DIR}/helium/cmplx_mag_sqr/cmplx_mag_sqr_fx_opt_${uarch}_unroll${i}.s     \

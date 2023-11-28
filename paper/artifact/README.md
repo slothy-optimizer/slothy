@@ -1,20 +1,20 @@
 # Submission artifact
 
-This directory contains the artifact submission for the paper [Fast and Clean: Auditable
+This directory contains the artifact submission for the CHES 2024 paper [Fast and Clean: Auditable
 high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303.pdf).
 
 The artifact enables interested readers to:
 
-1. `Optimize`: Reproduce the SLOTHY optimizations described in the paper.
-2. `Test`: Verify the functional correctness of the optimized code.
-3. `Benchmark`: If suitable development boards are available, evaluate the performance of the optimized code.
+1. _Optimize:_ Reproduce the SLOTHY optimizations described in the paper.
+2. _Test:_ Validate the functional correctness of the optimized code through tests.
+3. _Benchmark:_ If suitable development boards are available, evaluate the performance of the optimized code.
 
 ## Setup
 
-`Optimize` requires the [SLOTHY](https://github.com/slothy-optimizer/slothy) repository. For `Test` and `Benchmark`,
+Optimization requires the [SLOTHY](https://github.com/slothy-optimizer/slothy) repository. For testing and benchmarking,
 we recommend and describe the use of the [pqmx](https://github.com/slothy-optimizer/pqmx) and
-[pqax](https://github.com/slothy-optimizer/pqax) test repositories for Cortex-M and Cortex-A. `Benchmark` requires the
-availability of suitable development boards.
+[pqax](https://github.com/slothy-optimizer/pqax) test repositories for Cortex-M and Cortex-A. Benchmarking further
+requires the availability of suitable devices or development boards.
 
 ### Docker
 
@@ -98,13 +98,14 @@ you should have a directory structured as follows:
 *         |-- or-tools
 ```
 
-Note that to avoid having three copies of slothy, you should not use `git submodule` in the pqmx and pqax repositories,
-but symlink the slothy repository into the submodule location.
+Note that to avoid having three copies of SLOTHY, you should not use `git submodule` in the pqmx and pqax repositories,
+but symlink the SLOTHY repository into the submodule location.
 
-For the slothy repository, the main dependency is Google OR-Tools; see the README in the slothy repository for setup
+For the SLOTHYrepository, the main dependency is Google OR-Tools; see the README in the SLOTHY repository for setup
 instructions (those are also followed in the Dockerfile).
 
-## `Optimize`, `Test`, `Benchmark`
+## Using the artifact
 
-Within either the docker container or your local copy of slothy, please see `slothy/paper/README.md` for a detailed
-description of how to reproduce, test and benchmark the results of the paper.
+Within either the docker container or your local copy of SLOTHY, please see `slothy/paper/README.md` for a detailed
+description of how to reproduce, test and benchmark the results of the paper. This file is also available online
+[here](https://github.com/slothy-optimizer/slothy/blob/ches2024_artifact/paper/README.md).

@@ -3,13 +3,13 @@ high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1
 that introduced SLOTHY. It enables interested readers to:
 
 1. _Optimize:_ Reproduce the SLOTHY optimizations described in the paper.
-2. _Test:_ Verify the functional correctness of the optimized code.
+2. _Test:_ Validate the functional correctness of the optimized code through tests.
 3. _Benchmark:_ If suitable development boards are available, evaluate the performance of the optimized code.
 
 For optimization, only the SLOTHY repository is needed. For testing and benchmarking, we recommend the use of the
 [pqmx](https://github.com/slothy-optimizer/pqmx) and [pqax](https://github.com/slothy-optimizer/pqax)
-repositories. See the respective README's for setup instructions, or use the Dockerfile provided in
-[Artifact](artifact).
+repositories. See the respective READMEs for setup instructions, or use the Dockerfile provided in
+[artifact](artifact) (see also [artifact/README.md](artifact/README.md)).
 
 # Reproducing SLOTHY optimizations
 
@@ -45,10 +45,12 @@ by `slothy_kyber_ntt_a55.sh` transforms
 
 ## Setup
 
-* Follow the [SLOTHY Readme](../README.md) to setup SLOTHY.
+* Follow the [SLOTHY Readme](../README.md) to setup SLOTHY. If you use the Docker container provided in
+  [artifact](artifact), this step is not necessary.
 
 * Make sure the OR-Tools venv is enabled by running `source init.sh` from the SLOTHY base directory (see
-  [README](../README.md)).
+  [README](../README.md)). _Note:_ This step is necessary even if you use the Docker container from
+  [artifact](artifact).
 
 ## Running the optimizations
 
@@ -59,7 +61,7 @@ by `slothy_kyber_ntt_a55.sh` transforms
 ```
 
 If you want to run all all optimizations, run `all.sh`. If you don't want to see any output from SLOTHY, prefix the
-command with `SILENT=1`.
+command with `SILENT=Y`.
 
 * Wait. Running all optimizations will take multiple hours.
 
@@ -82,7 +84,8 @@ make build-{cross,native_mac,native_linux}-{ntt_dilithium,ntt_kyber,x25519}
 ```
 
 Here, `cross` cross-compiles the test for a Linux-AArch64 target, `native_linux` assumes native compilation on a
-Linux-AArch64 host, and `native_mac` assumes native compilation on an Arm-based MacOS host. Upon success, the test
+Linux-AArch64 host, and `native_mac` assumes native compilation on an Arm-based MacOS host. If you work in a Docker
+container on an Arm-based MAC, use `native_linux` as the test environment. Upon success, the test
 binaries can be found in `envs/{cross, native_mac, native_linux}`.
 
 In case of a native AArch64 host, run can immediately run the tests via

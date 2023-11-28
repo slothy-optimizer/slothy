@@ -40,5 +40,7 @@ RUN make -j8
 WORKDIR /home/ubuntu/slothy
 RUN /home/ubuntu/slothy/submodules/or-tools/build/python/venv/bin/python3 -m pip install sympy
 # Setup symlinks from slothy repository to pqmx and pqax
-RUN ln -s /home/ubuntu/pqax/slothy /home/ubuntu/slothy
-RUN ln -s /home/ubuntu/pqmx/slothy /home/ubuntu/slothy
+RUN rm -rf /home/ubuntu/pqax/slothy
+RUN ln -s /home/ubuntu/slothy /home/ubuntu/pqax/slothy
+RUN rm -rf /home/ubuntu/pqmx/slothy
+RUN ln -s /home/ubuntu/slothy /home/ubuntu/pqmx/slothy
