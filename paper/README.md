@@ -24,22 +24,23 @@ Here we describe how to reproduce the SLOTHY optimizations described in the pape
 The optimizations described in the SLOTHY paper are driven by the following scripts:
 
 ```
-slothy_dilithium_ntt_a55.sh
-slothy_dilithium_ntt_a72.sh
-slothy_kyber_ntt_a55.sh
-slothy_kyber_ntt_a72.sh
-slothy_fft.sh
-slothy_x25519.sh
-slothy_sqmag.sh
+scripts/slothy_dilithium_ntt_a55.sh
+scripts/slothy_dilithium_ntt_a72.sh
+scripts/slothy_fft.sh
+scripts/slothy_kyber_ntt_a55.sh
+scripts/slothy_kyber_ntt_a72.sh
+scripts/slothy_ntt_helium.sh
+scripts/slothy_sqmag.sh
+scripts/slothy_x25519.sh
 ```
 
-Each script optimizes one or more 'base' version(s) of the corresponding workload from [examples/naive/](../examples/naive)
-(for Armv8.1-M code) and [examples/naive/aarch64](../examples/naive/aarch64) (for AArch64 code) and stores the optimized
-code in [examples/opt/](../examples/opt) and [examples/opt/aarch64/](../examples/opt/aarch64/), respectively. Optimized
+Each script optimizes one or more 'base' version(s) of the corresponding workload from [clean/helium/](./clean/helium/)
+(for Armv8.1-M code) and [clean/neon](clean/neon) (for AArch64 code) and stores the optimized
+code in [opt/helium](./opt/helium) and [opt/neon](./opt/neon), respectively. Optimized
 source files is suffixed with `_opt` and the target microarchitecture: For example, one of the optimizations conducted
 by `slothy_kyber_ntt_a55.sh` transforms
-[examples/naive/aarch64/ntt_kyber_123_4567.s](../examples/naive/aarch64/ntt_kyber_123_4567.s) to
-[examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s](../examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s).
+[clean/neon/ntt_dilithium_123_45678.s](./clean/neon/ntt_dilithium_123_45678.s) to
+[opt/neon/ntt_dilithium_123_45678_opt_a55.s](./opt/neon/ntt_dilithium_123_45678_opt_a55.s).
 
 ## Setup
 
