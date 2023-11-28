@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 SHELL ["/bin/bash", "-c"]
 RUN apt update
-RUN apt install -y git build-essential python3-pip cmake swig time gcc-arm-none-eabi gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+RUN apt install -y git sudo build-essential python3-pip cmake swig time gcc-arm-none-eabi gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
 RUN useradd -ms /bin/bash -G sudo ubuntu
 USER ubuntu
 WORKDIR /home/ubuntu
