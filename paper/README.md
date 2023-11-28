@@ -2,13 +2,13 @@ This directory contains supporting material for the paper [Fast and Clean: Audit
 high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303.pdf)
 that introduced SLOTHY. It enables interested readers to:
 
-1. Reproduce the SLOTHY optimizations described in the paper.
-2. Test the functional correctness of the optimized code.
-3. If suitable development boards are available, benchmark the performance of the optimized code.
+1. `Optimize`: Reproduce the SLOTHY optimizations described in the paper.
+2. `Test`: Verify the functional correctness of the optimized code.
+3. `Benchmark`: If suitable development boards are available, evaluate the performance of the optimized code.
 
-For Step 1., only SLOTHY is needed. For Steps 2. and 3., we recommend and describe the use of the
-[pqmx](https://github.com/slothy-optimizer/pqmx) and [pqax](https://github.com/slothy-optimizer/pqax)
-repositories.
+For `Optimize`, only the SLOTHY repository is needed. For `Test` and `Benchmark`, we recommend the use of the [pqmx](https://github.com/slothy-optimizer/pqmx) and [pqax](https://github.com/slothy-optimizer/pqax)
+repositories. See the respective README's for setup instructions, or use the Dockerfile provided in
+[Artifact](artifact).
 
 # Reproducing SLOTHY optimizations
 
@@ -57,17 +57,41 @@ by `slothy_kyber_ntt_a55.sh` transforms
 ./slothy_kyber_ntt_a55.sh
 ```
 
-* Wait. You should see a fair amount of output in stdout, and some scripts take >1h even on a powerful machine.
+If you want to run all all optimizations, run `all.sh`. If you don't want to see any output from SLOTHY, prefix the
+command with `SILENT=1`.
+
+* Wait. Running all optimizations will take multiple hours.
 
 * Upon success, find the optimized source files in [examples/opt/](../examples/opt). They should be structurally equal
   to the input files, with the base assembly sections replaced by the optimized kernels and the rescheduling permutation
   indicated through comments.
 
-# Testing optimized code
+# Testing optimized code using pqax and pqmx
 
 ## AArch64
 
-TODO
+PQAX provides unit tests for the Kyber NTTs, Dilithium NTTs, and X25519 scalar multiplication. Each unit test can be
+built and run in different test environments depending on the target platform, driven by `make`. We refer to the PQAX
+Readme for a detailed description of the repository structure.
+
+To build a test, run:
+
+```
+make build-{cross,native_mac,native_linux}-{ntt_dilithium,ntt_kyber,x25519}
+```
+
+Here, `cross` cross-compiles the test for a Linux-AArch64 target, `native_linux` assumes native compilation on a
+Linux-AArch64 host, and `native_mac` assumes native compilation on an Arm-based MacOS host. Upon success, the test
+binaries can be found in `envs/{cross, native_mac, native_linux}`.
+
+In case of a native AArch64 host, run can immediately run the tests via
+
+```
+make run-{native_mac,native_linux}-{ntt_dilithium,ntt_kyber,x25519}
+```
+
+In case of cross-compilation for a AArch64-Linux target, you have to manually copy the test binary from `envs/cross/` to
+the target.
 
 ## Armv8.1-M
 
