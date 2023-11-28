@@ -3,6 +3,7 @@ SHELL ["/bin/bash", "-c"]
 RUN apt update
 RUN apt install -y git sudo build-essential python3-pip cmake swig time gcc-arm-none-eabi gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
 RUN useradd -ms /bin/bash -G sudo ubuntu
+RUN passwd -d ubuntu
 USER ubuntu
 WORKDIR /home/ubuntu
 RUN git clone -b ches2024_artifact https://github.com/slothy-optimizer/pqax.git
