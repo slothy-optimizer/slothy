@@ -10,7 +10,7 @@
 set -e
 
 ARGS=""
-if [ -n "$SILENT" ]; then
+if [ "$SILENT" == "Y" ]; then
     ARGS="$ARGS --silent"
 fi
 

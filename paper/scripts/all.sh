@@ -9,7 +9,7 @@
 
 set -e
 
-export SILENT=1
+export SILENT="${SILENT:=Y}"
 
 echo "================================================"
 echo "  Re-optimizing all examples from SLOTHY paper  "
