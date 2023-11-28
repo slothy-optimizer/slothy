@@ -40,31 +40,31 @@ floatingpoint_radix4_fft_base:
 
 .p2align 2
 flt_radix4_fft_loop_start:
-        vldrw.32 q2, [r0] 
-        vldrw.32 q1, [r4] 
-        vadd.f32 q4, q2, q1
-        vldrw.32 q3, [r3] 
-        vsub.f32 q0, q2, q1
-        vldrw.32 q5, [r5] 
-        vadd.f32 q6, q3, q5
-        vsub.f32 q2, q3, q5
-        vadd.f32 q7, q4, q6
-        vstrw.u32 q7, [r0] , #16
-        vsub.f32 q6, q4, q6
-        vldrw.32 q1, [r6] , #16
-        vcmul.f32 q7, q1, q6, #0
-        vcmla.f32 q7, q1, q6, #270
-        vstrw.u32 q7, [r3] , #16
-        vcadd.f32 q5, q0, q2, #270
-        vldrw.32 q4, [r7] , #16
-        vcmul.f32 q6, q4, q5, #0
-        vcmla.f32 q6, q4, q5, #270
-        vstrw.u32 q6, [r4] , #16
-        vcadd.f32 q5, q0, q2, #90
-        vldrw.32 q3, [r8] , #16
-        vcmul.f32 q7, q3, q5, #0
-        vcmla.f32 q7, q3, q5, #270
-        vstrw.u32 q7, [r5] , #16
+        vldrw.32 q1, [r0] 
+        vldrw.32 q0, [r4] 
+        vadd.f32 q3, q1, q0
+        vldrw.32 q5, [r3] 
+        vsub.f32 q2, q1, q0
+        vldrw.32 q0, [r5] 
+        vadd.f32 q1, q5, q0
+        vsub.f32 q6, q5, q0
+        vadd.f32 q0, q3, q1
+        vstrw.u32 q0, [r0] , #16
+        vsub.f32 q1, q3, q1
+        vldrw.32 q0, [r6] , #16
+        vcmul.f32 q4, q0, q1, #0
+        vcmla.f32 q4, q0, q1, #270
+        vstrw.u32 q4, [r3] , #16
+        vcadd.f32 q1, q2, q6, #270
+        vldrw.32 q0, [r7] , #16
+        vcmul.f32 q4, q0, q1, #0
+        vcmla.f32 q4, q0, q1, #270
+        vstrw.u32 q4, [r4] , #16
+        vcadd.f32 q5, q2, q6, #90
+        vldrw.32 q1, [r8] , #16
+        vcmul.f32 q0, q1, q5, #0
+        vcmla.f32 q0, q1, q5, #270
+        vstrw.u32 q0, [r5] , #16
         le lr, flt_radix4_fft_loop_start
 
 end:

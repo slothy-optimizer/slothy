@@ -40,31 +40,31 @@ fixedpoint_radix4_fft_base:
 
 .p2align 2
 fixedpoint_radix4_fft_loop_start:
-        vldrw.s32 q2, [r0] 
-        vldrw.s32 q1, [r4] 
-        vldrw.s32 q6, [r3] 
-        vldrw.s32 q5, [r5] 
-        vhadd.s32 q4, q2, q1
-        vhsub.s32 q7, q2, q1
-        vhadd.s32 q1, q6, q5
-        vhsub.s32 q0, q6, q5
-        vhadd.s32 q6, q4, q1
-        vstrw.u32 q6, [r0] , #16
-        vhsub.s32 q6, q4, q1
+        vldrw.s32 q6, [r0] 
+        vldrw.s32 q3, [r4] 
+        vldrw.s32 q2, [r3] 
+        vldrw.s32 q7, [r5] 
+        vhadd.s32 q5, q6, q3
+        vhsub.s32 q1, q6, q3
+        vhadd.s32 q3, q2, q7
+        vhsub.s32 q7, q2, q7
+        vhadd.s32 q2, q5, q3
+        vstrw.u32 q2, [r0] , #16
+        vhsub.s32 q5, q5, q3
         vldrw.s32 q3, [r6] , #16
-        vqdmlsdh.s32 q5, q3, q6
-        vqdmladhx.s32 q5, q3, q6
-        vstrw.u32 q5, [r3] , #16
-        vhcadd.s32 q5, q7, q0, #270
-        vldrw.s32 q3, [r7] , #16
-        vqdmlsdh.s32 q6, q3, q5
-        vqdmladhx.s32 q6, q3, q5
-        vstrw.u32 q6, [r4] , #16
-        vhcadd.s32 q5, q7, q0, #90
+        vqdmlsdh.s32 q2, q3, q5
+        vqdmladhx.s32 q2, q3, q5
+        vstrw.u32 q2, [r3] , #16
+        vhcadd.s32 q3, q1, q7, #270
+        vldrw.s32 q5, [r7] , #16
+        vqdmlsdh.s32 q2, q5, q3
+        vqdmladhx.s32 q2, q5, q3
+        vstrw.u32 q2, [r4] , #16
+        vhcadd.s32 q3, q1, q7, #90
         vldrw.s32 q2, [r8] , #16
-        vqdmlsdh.s32 q1, q2, q5
-        vqdmladhx.s32 q1, q2, q5
-        vstrw.u32 q1, [r5] , #16
+        vqdmlsdh.s32 q7, q2, q3
+        vqdmladhx.s32 q7, q2, q3
+        vstrw.u32 q7, [r5] , #16
         le lr, fixedpoint_radix4_fft_loop_start
 
 end:
