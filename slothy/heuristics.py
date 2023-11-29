@@ -25,19 +25,19 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import logging, copy, math, random, numpy as np
-
-from types import SimpleNamespace
-from copy import deepcopy
+import math
+import random
+import numpy as np
 
 from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
-from slothy.core import SlothyBase, Config, Result
-from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, Permutation
+from slothy.core import SlothyBase, Result
+from slothy.helper import Permutation, AsmHelper
 from slothy.helper import binary_search, BinarySearchLimitException
 
 class Heuristics():
 
+    @staticmethod
     def optimize_binsearch_core(source, logger, conf, **kwargs):
         """Shim wrapper around Slothy performing a binary search for the
         minimization of stalls"""
@@ -58,7 +58,7 @@ class Heuristics():
 
             if timeout is not None:
                 c.timeout = timeout
-            core = SlothyBase(conf.Arch, conf.Target, logger=logger, config=c)
+            core = SlothyBase(conf.arch, conf.target, logger=logger, config=c)
 
             if last_successful is not None:
                 src = last_successful
@@ -85,30 +85,32 @@ class Heuristics():
             logger.error("Configuration")
             conf.log(logger.error)
 
-            err_file = self.config.log_dir + f"/{logger_name}_ERROR.s"
+            err_file = conf.log_dir + f"/{logger_name}_ERROR.s"
             f = open(err_file, "w")
             conf.log(lambda l: f.write("// " + l + "\n"))
             f.write('\n'.join(source))
             f.close()
-            self.logger.error(f"Stored this information in {err_file}")
+            logger.error(f"Stored this information in {err_file}")
 
+    @staticmethod
     def optimize_binsearch(source, logger, conf, **kwargs):
         if conf.variable_size:
             return Heuristics.optimize_binsearch_internal(source, logger, conf, **kwargs)
         else:
             return Heuristics.optimize_binsearch_external(source, logger, conf, **kwargs)
 
+    @staticmethod
     def optimize_binsearch_external(source, logger, conf, flexible=True, **kwargs):
         """Find minimum number of stalls without objective, then optimize
         the objective for a fixed number of stalls."""
 
         if not flexible:
-            core = SlothyBase(conf.Arch, conf.Target, logger=logger,config=conf)
+            core = SlothyBase(conf.arch, conf.target, logger=logger,config=conf)
             if not core.optimize(source):
                 raise Exception("Optimization failed")
             return core.result
 
-        logger.info(f"Perform binary search for minimal number of stalls...")
+        logger.info("Perform external binary search for minimal number of stalls...")
 
         c = conf.copy()
         c.ignore_objective = True
@@ -127,15 +129,16 @@ class Heuristics():
             logger.warning("Re-optimization with objective at minimum number of stalls failed -- should not happen? Will just pick previous result...")
             return first_result
 
-        # core = SlothyBase(conf.Arch, conf.Target, logger=logger, config=c)
+        # core = SlothyBase(conf.arch, conf.target, logger=logger, config=c)
         # success = core.optimize(source, **kwargs)
         return core.result
 
+    @staticmethod
     def optimize_binsearch_internal(source, logger, conf, **kwargs):
         """Find minimum number of stalls without objective, then optimize
         the objective for a fixed number of stalls."""
 
-        logger.info(f"Perform binary search for minimal number of stalls...")
+        logger.info("Perform internal binary search for minimal number of stalls...")
 
         start_attempt = conf.constraints.stalls_first_attempt
         cur_attempt = start_attempt
@@ -147,7 +150,7 @@ class Heuristics():
 
             logger.info(f"Attempt optimization with max {cur_attempt} stalls...")
 
-            core = SlothyBase(c.Arch, c.Target, logger=logger, config=c)
+            core = SlothyBase(c.arch, c.target, logger=logger, config=c)
             success = core.optimize(source, **kwargs)
 
             if success:
@@ -174,6 +177,7 @@ class Heuristics():
 
         return core.result
 
+    @staticmethod
     def periodic(body, logger, conf):
         """Heuristics for the optimization of large loops
 
@@ -244,6 +248,7 @@ class Heuristics():
 
         return preamble, kernel, postamble, num_exceptional_iterations
 
+    @staticmethod
     def linear(body, logger, conf, visualize_stalls=True):
         """Heuristic for the optimization of large linear chunks of code.
 
@@ -261,7 +266,8 @@ class Heuristics():
 
         return Heuristics._split( body, logger, conf, visualize_stalls)
 
-    def _naive_reordering(body, logger, conf, use_latency_depth=True):
+    @staticmethod
+    def _naive_reordering(body, logger, conf, use_latency_depth=False):
 
         if use_latency_depth:
             depth_str = "latency depth"
@@ -272,10 +278,9 @@ class Heuristics():
         old = body.copy()
         l = len(body)
         dfg = DFG(body, logger.getChild("dfg"), DFGConfig(conf.copy()), parsing_cb=True)
-
         insts = [dfg.nodes[i] for i in range(l)]
 
-        if not use_latency_depth:
+        if use_latency_depth is False:
             depths = [dfg.nodes_by_id[i].depth for i in range(l) ]
         else:
             # Calculate latency-depth of instruction nodes
@@ -283,21 +288,20 @@ class Heuristics():
             nodes_by_depth.sort(key=(lambda t: t.depth))
             for t in dfg.nodes_all:
                 t.latency_depth = 0
+            def get_latency(tp,t):
+                if tp.src.is_virtual():
+                    return 0
+                return conf.target.get_latency(tp.src.inst, tp.idx, t.inst)
             for t in nodes_by_depth:
                 srcs = t.src_in + t.src_in_out
-                def get_latency(tp):
-                    if tp.src.is_virtual():
-                        return 0
-                    return conf.Target.get_latency(tp.src.inst, tp.idx, t.inst)
-                t.latency_depth = max(map(lambda tp: tp.src.latency_depth +
-                                          get_latency(tp), srcs),
+                t.latency_depth = max(map(lambda tp, t=t: tp.src.latency_depth +
+                                          get_latency(tp, t), srcs),
                                       default=0)
             depths = [dfg.nodes_by_id[i].latency_depth for i in range(l) ]
 
         inputs = dfg.inputs.copy()
         outputs = conf.outputs.copy()
 
-        last_unit = None
         perm = Permutation.permutation_id(l)
 
         for i in range(l):
@@ -333,12 +337,12 @@ class Heuristics():
             candidate_idxs = list(filter(could_come_next, range(i,l)))
             logger.debug(f"Potential next candidates: {candidate_idxs}")
 
-            def pick_candidate(idxs):
+            def pick_candidate(candidate_idxs):
 
-                # print("CANDIDATES: " + '\n* '.join(list(map(lambda idx: str((body[idx], conf.Target.get_units(insts[idx]))), candidate_idxs))))
+                # print("CANDIDATES: " + '\n* '.join(list(map(lambda idx: str((body[idx], conf.target.get_units(insts[idx]))), candidate_idxs))))
                 # There a different strategies one can pursue here, some being:
                 # - Always pick the candidate instruction of the smallest depth
-                # - Peek into the uArch model and try to alternate between functional units
+                # - Peek into the uarch model and try to alternate between functional units
                 #   It's a bit disappointing if this is necessary, since SLOTHY should do this.
                 #   However, running it on really large snippets (1000 instructions) remains
                 #   infeasible, even if latencies and renaming are disabled.
@@ -347,10 +351,9 @@ class Heuristics():
                 # strategy = "alternate_functional_units"
 
                 if strategy == "minimal_depth":
-
-                     candidate_depths = list(map(lambda j: depths[j], candidate_idxs))
-                     logger.debug(f"Candidate {depth_str}: {candidate_depths}")
-                     choice_idx = candidate_idxs[candidate_depths.index(min(candidate_depths))]
+                    candidate_depths = list(map(lambda j: depths[j], candidate_idxs))
+                    logger.debug("Candidate %s: %s", depth_str, candidate_depths)
+                    choice_idx = candidate_idxs[candidate_depths.index(min(candidate_depths))]
 
                 elif strategy == "alternate_functional_units":
 
@@ -371,15 +374,17 @@ class Heuristics():
                     def units_different(a,b):
                         return a != b
 
-                    disjoint_unit_idxs = [ i for i in candidate_idxs if units_disjoint(conf.Target.get_units(insts[i].inst), last_unit) ]
-                    other_unit_idxs = [ i for i in candidate_idxs if units_different(conf.Target.get_units(insts[i].inst), last_unit) ]
+                    disjoint_unit_idxs = [ i for i in candidate_idxs
+                        if units_disjoint(conf.target.get_units(insts[i].inst), last_unit) ]
+                    other_unit_idxs = [ i for i in candidate_idxs
+                        if units_different(conf.target.get_units(insts[i].inst), last_unit) ]
 
                     if len(disjoint_unit_idxs) > 0:
                         choice_idx = random.choice(disjoint_unit_idxs)
-                        last_unit = conf.Target.get_units(insts[choice_idx].inst)
+                        last_unit = conf.target.get_units(insts[choice_idx].inst)
                     elif len(other_unit_idxs) > 0:
                         choice_idx = random.choice(other_unit_idxs)
-                        last_unit = conf.Target.get_units(insts[choice_idx].inst)
+                        last_unit = conf.target.get_units(insts[choice_idx].inst)
                     else:
                         candidate_depths = list(map(lambda j: depths[j], candidate_idxs))
                         logger.debug(f"Candidate {depth_str}s: {candidate_depths}")
@@ -396,32 +401,25 @@ class Heuristics():
                 entry = lst[idx_from]
                 del lst[idx_from]
 
-                if callback != None:
+                if callback is not None:
                     for before in lst[idx_to:idx_from]:
-                        res = callback(before, entry)
-                        if res == True:
-                            print("NAIVE REORDERING TRIGGERED CALLBACK!")
+                        callback(before, entry)
 
                 return lst[:idx_to] + [entry] + lst[idx_to:]
 
-            # body = move_entry_forward(body, choice_idx, i)
             def inst_reorder_cb(t0,t1):
                 SlothyBase._fixup_reordered_pair(t0,t1,logger)
 
-            for t in insts:
-                t.inst_tmp = t.inst
-                t.fixup = 0
-
+            SlothyBase._fixup_reset(insts)
             choice_idx = None
-            while choice_idx == None:
+            while choice_idx is None:
                 try:
                     choice_idx = pick_candidate(candidate_idxs)
                     insts = move_entry_forward(insts, choice_idx, i, inst_reorder_cb)
                 except:
                     candidate_idxs.remove(choice_idx)
                     choice_idx = None
-
-            SlothyBase._post_optimize_fixup_apply_core(insts, logger)
+            SlothyBase._fixup_finish(insts, logger)
 
             local_perm = Permutation.permutation_move_entry_forward(l, choice_idx, i)
             perm = Permutation.permutation_comp (local_perm, perm)
@@ -429,27 +427,29 @@ class Heuristics():
             body = [ str(j.inst) for j in insts]
             depths = move_entry_forward(depths, choice_idx, i)
             body[i] = f"    {body[i].strip():100s} // {depth_str} {depths[i]}"
-            Heuristics._dump(f"New code", body, logger)
+            Heuristics._dump("New code", body, logger)
 
         # Selfcheck
         res = Result(conf)
-        res._orig_code = old
-        res._code = body.copy()
-        res._codesize_with_bubbles = l
-        res._success = True
-        res._valid = True
-        res._reordering_with_bubbles = perm
-        res._input_renamings = { s:s for s in inputs }
-        res._output_renamings = { s:s for s in outputs }
+        res.orig_code = old
+        res.code = body.copy()
+        res.codesize_with_bubbles = l
+        res.success = True
+        res.reordering_with_bubbles = perm
+        res.input_renamings = { s:s for s in inputs }
+        res.output_renamings = { s:s for s in outputs }
+        res.valid = True
         res.selfcheck(logger.getChild("naive_interleaving_selfcheck"))
 
-        Heuristics._dump(f"Before naive interleaving", old, logger)
-        Heuristics._dump(f"After naive interleaving", body, logger)
+        Heuristics._dump("Before naive interleaving", old, logger)
+        Heuristics._dump("After naive interleaving", body, logger)
         return body, perm
 
+    @staticmethod
     def _idxs_from_fractions(fraction_lst, body):
         return [ round(f * len(body)) for f in fraction_lst ]
 
+    @staticmethod
     def _get_ssa_form(body, logger, conf):
         logger.info("Transform DFG into SSA...")
         dfg = DFG(body, logger.getChild("dfg_ssa"), DFGConfig(conf.copy()), parsing_cb=True)
@@ -457,6 +457,7 @@ class Heuristics():
         ssa = [ str(t.inst) for t in dfg.nodes ]
         return ssa
 
+    @staticmethod
     def _split_inner(body, logger, conf, visualize_stalls=True, ssa=False):
 
         l = len(body)
@@ -501,81 +502,28 @@ class Heuristics():
 
         # conf.outputs = result.outputs
 
-        chunk_len = int(l // split_factor)
-        def region_upper(i):
-            return min(l, i + math.ceil(chunk_len/2))
-        def region_lower(i):
-            return max(0, i - math.floor(chunk_len/2))
-        def region_len(i):
-            return (region_upper(i) - region_lower(i))
+        # Heuristics._dump("Source code without symbolic registers", body, log)
 
-        avg_dist = np.ones(chunk_len) / chunk_len
-        #smoothening_dist = avg_dist
+        # conf.outputs = result.outputs
 
-        smoothening_dist = np.random.triangular(0, chunk_len//2, chunk_len, size=10000)
-        smoothening_dist = np.histogram(smoothening_dist, density=True, bins=chunk_len)[0]
-
-        def restrict_arr(arr, samples, scale=1):
-            l = len(arr)
-            f = l / samples
-            return [ scale * arr[int(i * f)] for i in range(samples) ]
-
-        def average_arr(arr):
-            return np.convolve(arr, avg_dist, mode='same')
-
-        def smoothen_arr(arr):
-            return np.convolve(arr, smoothening_dist, mode='same')
-
-        def print_intarr(txt, txt_short, arr, vals=50):
-            if not isinstance(arr, np.ndarray):
-                arr = np.array(arr)
-
-            l = len(arr)
-            if vals == None:
-                vals = l
-
-            log.info(txt)
-
-            precision = 100
-
-            m = 1.1*max(arr)
-            arr = precision * (arr / m)
-
+        def print_intarr(arr, l,vals=50):
+            m = max(10,max(arr))
             start_idxs = [ (l * i)     // vals for i in range(vals) ]
             end_idxs   = [ (l * (i+1)) // vals for i in range(vals) ]
             avgs = []
             for (s,e) in zip(start_idxs, end_idxs):
-                if s == e:
-                    continue
-                avg = math.ceil(sum(arr[s:e]) / (e-s))
+                avg = sum(arr[s:e]) // (e-s)
                 avgs.append(avg)
-                log.info(f"[{txt_short}|{s:3d}-{e:3d}]: {'*'*avg}{'.'*(precision-avg)} ({avg})")
-
-        def cumulative_arr(arr):
-            return [ sum(arr[:i]) for i in range(len(arr)) ]
-
-        def abs_arr(arr):
-            return [ abs(x) for x in arr ]
-
-        def get_stall_arr(stalls,l):
-            # Convert stalls into 01 valued function
-            return [ i in stalls for i in range(l) ]
-
-        def prepare_stalls(stalls, l):
-            stall_arr = np.array(get_stall_arr(stalls,l))
-            s_arr = smoothen_arr(stall_arr)
-            d1    = abs_arr(np.diff(s_arr))
-            d1s   = smoothen_arr(d1)
-            d2    = abs_arr(np.diff(d1s))
-            d2s   = smoothen_arr(d2)
-
-            return s_arr, d1s, d2s
+                log.info(f"[{s:3d}-{e:3d}]: {'*'*avg}{'.'*(m-avg)} ({avg})")
 
         def print_stalls(stalls,l):
-            s_arr, _, d2s = prepare_stalls(stalls, l)
-            print_intarr("Stalls", "stalls", s_arr)
-            # print_intarr("Stalls (1st findiff)", "d1", d1s)
-            # print_intarr("Stalls (2nd findiff)", "d2", d2s)
+            chunk_len = int(l // split_factor)
+            # Convert stalls into 01 valued function
+            stalls_arr = [ i in stalls for i in range(l) ]
+            for v in stalls_arr:
+                assert v in {0,1}
+            stalls_cumulative = [ sum(stalls_arr[max(0,i-math.floor(chunk_len/2)):i+math.ceil(chunk_len/2)]) for i in range(l) ]
+            print_intarr(stalls_cumulative,l)
 
         def optimize_chunk(start_idx, end_idx, body, stalls,show_stalls=True):
             """Optimizes a sub-chunks of the given snippet, delimited by pairs
@@ -592,10 +540,10 @@ class Heuristics():
             else:
                 prefix_len = min(len(cur_pre), conf.split_heuristic_optimize_seam)
                 suffix_len = min(len(cur_post), conf.split_heuristic_optimize_seam)
-                cur_prefix = cur_pre[-prefix_len:]
+                cur_prefix = cur_pre[-prefix_len:] if prefix_len > 0 else []
                 cur_suffix = cur_post[:suffix_len]
                 cur_body = cur_prefix + cur_body + cur_suffix
-                cur_pre = cur_pre[:-prefix_len]
+                cur_pre = cur_pre[:-prefix_len] if prefix_len > 0 else cur_pre
                 cur_post = cur_post[suffix_len:]
 
             pre_pad = len(cur_pre)
@@ -603,9 +551,9 @@ class Heuristics():
 
             Heuristics._dump(f"Optimizing chunk [{start_idx}-{prefix_len}:{end_idx}+{suffix_len}]", cur_body, log)
             if prefix_len > 0:
-                Heuristics._dump(f"Using prefix", cur_prefix, log)
+                Heuristics._dump("Using prefix", cur_prefix, log)
             if suffix_len > 0:
-                Heuristics._dump(f"Using suffix", cur_suffix, log)
+                Heuristics._dump("Using suffix", cur_suffix, log)
 
             # Find dependencies of rest of body
 
@@ -620,27 +568,29 @@ class Heuristics():
             c.outputs = cur_outputs
 
             result = Heuristics.optimize_binsearch(cur_body,
-                                                   log.getChild(f"{start_idx}_{end_idx}"),
-                                                   c,
-                                                   prefix_len=prefix_len,
-                                                   suffix_len=suffix_len)
+                log.getChild(f"{start_idx}_{end_idx}"), c,
+                prefix_len=prefix_len, suffix_len=suffix_len)
             Heuristics._dump(f"New chunk [{start_idx}:{end_idx}]", result.code, log)
             new_body = cur_pre + AsmHelper.reduce_source(result.code) + cur_post
 
             perm = Permutation.permutation_pad(result.reordering, pre_pad, post_pad)
 
-            keep_stalls = { i for i in stalls if i < start_idx - prefix_len or i >= end_idx + suffix_len }
-            new_stalls = keep_stalls.union(map(lambda i: i + start_idx - prefix_len, result.stall_positions))
+            keep_stalls = { i for i in stalls if i < start_idx - prefix_len or
+                i >= end_idx + suffix_len }
+            new_stalls = keep_stalls.union(map(lambda i: i + start_idx - prefix_len,
+                                                    result.stall_positions))
 
             if show_stalls:
                 print_stalls(new_stalls,l)
 
             return new_body, new_stalls, len(result.stall_positions), perm
 
-        def optimize_chunks_many(start_end_idx_lst, body, stalls, abort_stall_threshold=None, **kwargs):
+        def optimize_chunks_many(start_end_idx_lst, body, stalls, abort_stall_threshold=None,
+            **kwargs):
             perm = Permutation.permutation_id(len(body))
             for start_idx, end_idx in start_end_idx_lst:
-                body, stalls, cur_stalls, local_perm = optimize_chunk(start_idx, end_idx, body, stalls, **kwargs)
+                body, stalls, cur_stalls, local_perm = optimize_chunk(start_idx, end_idx, body,
+                                                                      stalls, **kwargs)
                 perm = Permutation.permutation_comp(local_perm, perm)
                 if abort_stall_threshold is not None and cur_stalls > abort_stall_threshold:
                     break
@@ -662,7 +612,6 @@ class Heuristics():
                 end_pos.append(cur_end)
 
                 cur_start += increment
-
             def not_empty(x):
                 return x[0] != x[1]
             idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
@@ -704,39 +653,18 @@ class Heuristics():
 
             cur_body = AsmHelper.reduce_source(cur_body)
 
-            if not conf.split_heuristic_adaptive:
-                idx_lst = make_idx_list_consecutive(split_factor, increment)
-                if conf.split_heuristic_bottom_to_top == True:
-                    idx_lst.reverse()
-            elif conf.split_heuristic_chunks:
-                start_pos = [ fst(x) for x in conf.split_heuristic_chunks ]
-                end_pos   = [ snd(x) for x in conf.split_heuristic_chunks ]
+            if conf.split_heuristic_chunks:
+                start_pos = [ x[0] for x in conf.split_heuristic_chunks ]
+                end_pos   = [ x[1] for x in conf.split_heuristic_chunks ]
                 idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
                               Heuristics._idxs_from_fractions(end_pos, cur_body))
+                def not_empty(x):
+                    return x[0] != x[1]
                 idx_lst = list(filter(not_empty, idx_lst))
             else:
-                len_total = len(cur_body)
-                len_chunk = round(len_total / split_factor)
-
-                def pick_next_region(stalls, l):
-                    _, _, d2 = prepare_stalls(stalls, l)
-                    d2 = [ d2[i] for i in range(len(d2)) ]
-
-                    if last_base != None:
-                        # Force consecutive regions to be meaningfully different
-                        for i in range(last_base + len_chunk // 5, last_base + 4 * (len_chunk // 5)):
-                            d2[i] = 0
-
-                    s = len_chunk
-                    e = l - s
-                    base = d2[s:e].index(max(d2[s:e])) + len_chunk // 2
-
-                    return base, base + len_chunk
-
-                start_idx, end_idx = pick_next_region(stalls, l)
-                last_base = start_idx
-                idx_lst = [ (start_idx, end_idx) ]
-                log.info(f"Adaptive region ({i+1}/{conf.split_heuristic_repeat}): [{start_idx},{end_idx}]")
+                idx_lst = make_idx_list_consecutive(split_factor, increment)
+                if conf.split_heuristic_bottom_to_top is True:
+                    idx_lst.reverse()
 
             cur_body, stalls, local_perm = optimize_chunks_many(idx_lst, cur_body, stalls,
                                                     abort_stall_threshold=conf.split_heuristic_abort_cycle_at)
@@ -744,22 +672,22 @@ class Heuristics():
 
         # Check complete result
         res = Result(conf)
-        res._orig_code = orig_body
-        res._code = AsmHelper.reduce_source(cur_body).copy()
-        res._codesize_with_bubbles = res.codesize
-        res._success = True
-        res._valid = True
-        res._reordering_with_bubbles = perm
-        res._input_renamings = { s:s for s in inputs }
-        res._output_renamings = { s:s for s in outputs }
+        res.orig_code = orig_body
+        res.code = AsmHelper.reduce_source(cur_body).copy()
+        res.codesize_with_bubbles = res.codesize
+        res.success = True
+        res.reordering_with_bubbles = perm
+        res.input_renamings = { s:s for s in inputs }
+        res.output_renamings = { s:s for s in outputs }
+        res.valid = True
         res.selfcheck(log.getChild("full_selfcheck"))
         cur_body = res.code
 
-        maxlen = max([len(s.rstrip()) for s in cur_body])
+        maxlen = max(len(s.rstrip()) for s in cur_body)
         for i in stalls:
             if i > len(cur_body):
-                log.error(f"Something is wrong: Index {i}, body length {len(cur_body)}")
-                Heuristics._dump(f"Body:", cur_body, log, err=True)
+                log.error("Something is wrong: Index %d, body length %d", i, len(cur_body))
+                Heuristics._dump("Body:", cur_body, log, err=True)
             cur_body[i] = f"{cur_body[i].rstrip():{maxlen+8}s} // gap(s) to follow"
 
         # Visualize model violations
@@ -777,13 +705,14 @@ class Heuristics():
             dfg = DFG(cur_body, logger.getChild("visualize_functional_units"), DFGConfig(c))
             new_body = []
             for (l,t) in enumerate(dfg.nodes):
-                unit = conf.Target.get_units(t.inst)[0]
-                indentation = conf.Target.ExecutionUnit.get_indentation(unit)
+                unit = conf.target.get_units(t.inst)[0]
+                indentation = conf.target.ExecutionUnit.get_indentation(unit)
                 new_body[i] = f"{'':{indentation}s}" + l
             cur_body = new_body
 
         return cur_body
 
+    @staticmethod
     def _split(body, logger, conf, visualize_stalls=True):
         c = conf.copy()
 
@@ -809,6 +738,7 @@ class Heuristics():
         body = pre + cur + post
         return body
 
+    @staticmethod
     def _dump(name, s, logger, err=False, no_comments=False):
         def strip_comments(sl):
             return [ s.split("//")[0].strip() for s in sl ]
@@ -822,9 +752,10 @@ class Heuristics():
         for l in s:
             fun(f"> {l}")
 
+    @staticmethod
     def _periodic_halving(body, logger, conf):
 
-        assert conf != None
+        assert conf is not None
         assert conf.sw_pipelining.enabled
         assert conf.sw_pipelining.halving_heuristic
 

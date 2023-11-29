@@ -17,7 +17,7 @@ LOG_DIR=logs
 mkdir -p $LOG_DIR
 
 REDIRECT_OUTPUT="--log --logdir=${LOG_DIR}"
-if [ -n "$SILENT" ]; then
+if [ "$SILENT" = "Y" ]; then
     REDIRECT_OUTPUT="${REDIRECT_OUTPUT} --silent"
 fi
 
@@ -32,7 +32,8 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55         \
          -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,x30,sp]"        \
          -c inputs_are_outputs                                   \
          -c sw_pipelining.minimize_overlapping=False             \
-         -c constraints.stalls_first_attempt=64 -c variable_size
+         -c constraints.stalls_first_attempt=64 -c variable_size \
+         ${REDIRECT_OUTPUT}
 
 echo "* Kyber NTT, Cortex-A55, 123-4567 (vector loads via scalar, with reduction)"
 
@@ -47,7 +48,8 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c inputs_are_outputs                                                          \
          -c sw_pipelining.minimize_overlapping=False                                    \
          -c constraints.stalls_first_attempt=64                                         \
-         -c variable_size
+         -c variable_size                                                               \
+         ${REDIRECT_OUTPUT}
 
 echo "* Kyber NTT, Cortex-A55, 123-4567 (vector stores via scalar, with reduction)"
 
@@ -62,7 +64,8 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c sw_pipelining.minimize_overlapping=False                                    \
          -c inputs_are_outputs                                                          \
          -c constraints.stalls_first_attempt=64                                         \
-         -c variable_size
+         -c variable_size                                                               \
+         ${REDIRECT_OUTPUT}
 
 echo "* Kyber NTT, Cortex-A55, 123-4567 (vector loads+stores via scalar, with reduction)"
 
@@ -76,7 +79,8 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
        -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,x30,sp]"                                         \
        -c inputs_are_outputs                                                                    \
        -c sw_pipelining.minimize_overlapping=False                                              \
-       -c constraints.stalls_first_attempt=64 -c variable_size
+       -c constraints.stalls_first_attempt=64 -c variable_size                                  \
+         ${REDIRECT_OUTPUT}
 
 echo "* Kyber NTT, Cortex-A55, 123-4567 (manual ST4, with reduction)"
 
@@ -90,6 +94,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
        -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,x30,sp]"                         \
        -c inputs_are_outputs                                                    \
        -c sw_pipelining.minimize_overlapping=False                              \
-       -c constraints.stalls_first_attempt=64 -c variable_size
+       -c constraints.stalls_first_attempt=64 -c variable_size                  \
+         ${REDIRECT_OUTPUT}
 
 cd "${0%/*}"

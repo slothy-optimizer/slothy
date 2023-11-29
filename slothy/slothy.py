@@ -26,13 +26,12 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import logging, copy, math
-
+import logging
 from types import SimpleNamespace
 
 from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
-from slothy.core import SlothyBase, Config
+from slothy.core import Config
 from slothy.heuristics import Heuristics
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor
 
@@ -40,16 +39,20 @@ class Slothy():
 
     # Quick convenience access to architecture and target from the config
     def _get_arch(self):
-        return self.config.Arch
+        return self.config.arch
     def _get_target(self):
-        return self.config.Target
-    Arch = property(_get_arch)
-    Target = property(_get_target)
+        return self.config.target
+    arch = property(_get_arch)
+    target = property(_get_target)
 
-    def __init__(self, Arch, Target, logger=None):
-        self.config = Config(Arch, Target)
+    def __init__(self, arch, target, logger=None):
+        self.config = Config(arch, target)
         self.logger = logger if logger != None else logging.getLogger("slothy")
         self.source = None
+        self.results = None
+
+        self.last_result = None
+        self.success = None
 
     def load_source_raw(self, source):
         self.source = source.replace("\\\n", "")
@@ -73,6 +76,7 @@ class Slothy():
     def rename_function(self, old_funcname, new_funcname):
         self.source = AsmHelper.rename_function(self.source, old_funcname, new_funcname)
 
+    @staticmethod
     def _dump(name, s, logger, err=False):
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
@@ -103,12 +107,12 @@ class Slothy():
                   from tuple of (preamble, kernel, postamble, # exceptional iterations).
         """
 
-        if logname is None and start != None:
+        if logname is None and start is not None:
             logname = start
-        if logname is None and end != None:
+        if logname is None and end is not None:
             logname = end
 
-        logger = self.logger.getChild(logname) if logname != None else self.logger
+        logger = self.logger.getChild(logname) if logname is not None else self.logger
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
         aliases = AsmAllocation.parse_allocs(pre)
@@ -128,16 +132,16 @@ class Slothy():
         body = AsmMacro.unfold_all_macros(pre, body)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = AsmHelper.apply_indentation(body, indentation)
-        self.logger.info(f"Instructions in body: {len(list(filter(None, body)))}")
+        self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
         early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
 
         def indented(code):
             indent = ' ' * self.config.indentation
             return [ indent + s for s in code ]
 
-        if start != None:
+        if start is not None:
             core = [f"{start}:"] + core
-        if end != None:
+        if end is not None:
             core += [f"{end}:"]
 
         if not self.config.sw_pipelining.enabled:
@@ -161,7 +165,7 @@ class Slothy():
 
     def get_loop_input_output(self, loop_lbl):
         logger = self.logger.getChild(loop_lbl)
-        _, body, _, _, _ = self.Arch.Loop.extract(self.source, loop_lbl)
+        _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl)
 
         c = self.config.copy()
         dfgc = DFGConfig(c)
@@ -169,7 +173,7 @@ class Slothy():
         return list(DFG(body, logger.getChild("dfg_kernel_deps"), dfgc).inputs)
 
     def get_input_from_output(self, start, end, outputs=None):
-        if outputs == None:
+        if outputs is None:
             outputs = {}
         logger = self.logger.getChild(f"{start}_{end}_infer_input")
         pre, body, _ = AsmHelper.extract(self.source, start, end)
@@ -185,7 +189,7 @@ class Slothy():
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
 
     def ssa_region(self, start, end, outputs=None):
-        if outputs == None:
+        if outputs is None:
             outputs = {}
         logger = self.logger.getChild(f"{start}_{end}_infer_input")
         pre, body, post = AsmHelper.extract(self.source, start, end)
@@ -216,8 +220,8 @@ class Slothy():
 
         logger = self.logger.getChild(loop_lbl)
 
-        early, body, late, loop_start_lbl, other_data = \
-            self.Arch.Loop.extract(self.source, loop_lbl)
+        early, body, late, _, other_data = \
+            self.arch.Loop.extract(self.source, loop_lbl)
 
         aliases = AsmAllocation.parse_allocs(early)
         c = self.config.copy()
@@ -238,7 +242,7 @@ class Slothy():
         body = AsmHelper.apply_indentation(body, indentation)
 
         insts = len(list(filter(None, body)))
-        self.logger.info(f"Optimizing loop {loop_lbl} ({insts} instructions) ...")
+        self.logger.info("Optimizing loop %s (%d instructions) ...", loop_lbl, insts)
 
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
@@ -246,12 +250,12 @@ class Slothy():
             indent = ' ' * self.config.indentation
             return [ indent + s for s in code ]
 
-        loop = self.Arch.Loop(lbl_start=loop_lbl)
+        loop = self.arch.Loop(lbl_start=loop_lbl)
         optimized_code = []
         optimized_code += indented(preamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:
-            if postamble_label == None:
+            if postamble_label is None:
                 postamble_label = f"{loop_lbl}_postamble"
             jump_if_empty = postamble_label
         else:
@@ -264,7 +268,7 @@ class Slothy():
             jump_if_empty=jump_if_empty))
         optimized_code += indented(kernel_code)
         optimized_code += list(loop.end(other_data, indentation=self.config.indentation))
-        if postamble_label != None:
+        if postamble_label is not None:
             optimized_code += [ f"{postamble_label}: // end of loop kernel" ]
         optimized_code += indented(postamble_code)
 

@@ -17,7 +17,7 @@ LOG_DIR=logs
 mkdir -p $LOG_DIR
 
 REDIRECT_OUTPUT="--log --logdir=${LOG_DIR}"
-if [ -n "$SILENT" ]; then
+if [ "$SILENT" = "Y" ]; then
     REDIRECT_OUTPUT="${REDIRECT_OUTPUT} --silent"
 fi
 
@@ -186,30 +186,9 @@ i=5
 echo "*** Step 8"
 i=6
   ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
-      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
-   -o ${OPT_DIR}/neon/X25519-AArch64-simple_opt.s                           \
-   -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_opt        \
-   -c inputs_are_outputs -c outputs="[x0]"                                  \
-   -s mainloop -e end_label                                                 \
-   -c variable_size                                                         \
-   -c max_solutions=512                                                     \
-   -c timeout=300                                                           \
-   -c constraints.stalls_first_attempt=32                                   \
-   -c split_heuristic                                                       \
-   -c split_heuristic_region="[0,1]"                                        \
-   -c objective_precision=0.1                                               \
-   -c split_heuristic_stepsize=0.05                                         \
-   -c split_heuristic_optimize_seam=10                                      \
-   -c split_heuristic_factor=8                                              \
-   -c split_heuristic_repeat=3                                              \
-    $REDIRECT_OUTPUT
-
-echo "*** Step 8"
-i=6
-  ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
-      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_preprocess${i}.s         \
-   -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_preprocess$((${i}+1)).s  \
-   -r x25519_scalarmult_alt_unfold_preprocess${i},x25519_scalarmult_alt_unfold_preprocess$((${i}+1)) \
+      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s         \
+   -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s  \
+   -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
    -c inputs_are_outputs -c outputs="[x0]"                                  \
    -s mainloop -e end_label                                                 \
    -c variable_size                                                         \
@@ -228,9 +207,9 @@ i=6
 echo "*** Step 9"
 i=7
   ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
-      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_preprocess${i}.s         \
+      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s         \
    -o ${OPT_DIR}/neon/X25519-AArch64-simple_opt.s                           \
-   -r x25519_scalarmult_alt_unfold_preprocess${i},x25519_scalarmult_opt     \
+   -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_opt     \
    -c inputs_are_outputs -c outputs="[x0]"                                  \
    -s mainloop -e end_label                                                 \
    -c variable_size                                                         \

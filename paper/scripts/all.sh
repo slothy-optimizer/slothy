@@ -9,7 +9,7 @@
 
 set -e
 
-export SILENT=1
+export SILENT="${SILENT:=Y}"
 
 echo "================================================"
 echo "  Re-optimizing all examples from SLOTHY paper  "
@@ -20,6 +20,14 @@ echo "NOTE: This will take a long time (at least a few hours). If there are prob
      "respective scripts by hand.\n"
 
 echo "If you want to follow progress of an individual command, do \"tail -f\" on the respective logfile in the \"logs\" directory.\n"
+
+if [ "$SILENT" = "Y" ]; then
+    echo "Logging disabled. Pass SILENT=N to see logging from individual optimizations.\n"
+fi
+if [ "$SILENT" = "N" ]; then
+    echo "Logging enabled. Pass SILENT=Y to suppress logging from individual optimizations.\n"
+fi
+
 
 echo "Squared magnitude toy example ..."
 time ./slothy_sqmag.sh
@@ -41,5 +49,7 @@ time ./slothy_kyber_ntt_a72.sh
 
 echo "X25519, Cortex-A55..."
 time ./slothy_x25519.sh
+
+source slothy_ntt_helium.sh
 
 echo "All done!"
