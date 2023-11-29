@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 SHELL ["/bin/bash", "-c"]
 RUN apt update
 # Install necessary tooling
-RUN apt install -y git qemu-system-arm wget sudo build-essential python3-pip cmake swig time gcc-arm-none-eabi gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu unzip
+RUN apt install -y git qemu-user qemu-system-arm wget sudo build-essential python3-pip cmake swig time gcc-arm-none-eabi gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu unzip
 # Setup non-root user
 RUN useradd -ms /bin/bash -G sudo ubuntu
 RUN passwd -d ubuntu
