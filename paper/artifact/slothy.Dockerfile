@@ -44,3 +44,5 @@ RUN rm -rf /home/ubuntu/pqax/slothy
 RUN ln -s /home/ubuntu/slothy /home/ubuntu/pqax/slothy
 RUN rm -rf /home/ubuntu/pqmx/slothy
 RUN ln -s /home/ubuntu/slothy /home/ubuntu/pqmx/slothy
+WORKDIR /home/ubuntu
+RUN ln -s /home/ubuntu/slothy/paper/README.md /home/ubuntu/README.md
