@@ -174,7 +174,7 @@ class RegisterType(Enum):
 
 class Loop:
     """Helper functions for parsing and writing simple loops in AArch64
-    
+
     TODO: Generalize; current implementation too specific about shape of loop"""
 
     def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr"):
@@ -334,7 +334,7 @@ class Instruction:
     def global_parsing_cb(self, a):
         """Parsing callback triggered after DataFlowGraph parsing which allows modification
         of the instruction in the context of the overall computation.
-        
+
         This is primarily used to remodel input-outputs as outputs in jointly destructive
         instruction patterns (See Section 4.4, https://eprint.iacr.org/2022/1303.pdf)."""
         return False
@@ -677,13 +677,7 @@ class AArch64Instruction(Instruction):
         return res
 
     @staticmethod
-    def build(c, src, pattern, **kwargs):
-        if src.split(' ')[0] != pattern.split(' ')[0]:
-            raise Instruction.ParsingException("Mnemonic does not match")
-
-        res = AArch64Instruction.get_parser(pattern)(src)
-        obj = c(pattern, **kwargs)
-
+    def build_core(obj, res):
         obj.args_in = []
         obj.args_in_out = []
         obj.args_out = []
@@ -724,7 +718,33 @@ class AArch64Instruction(Instruction):
         for s, ty in obj.pattern_in_outs:
             obj.args_in_out.append(AArch64Instruction._to_reg(ty, res[s]))
 
+    @staticmethod
+    def build(c, src):
+        pattern = getattr(c, "pattern")
+        inputs = getattr(c, "inputs", [])
+        outputs = getattr(c, "outputs", [])
+        in_outs = getattr(c, "in_outs", [])
+        modifies_flags = getattr(c,"modifiesFlags", False)
+        depends_on_flags = getattr(c,"dependsOnFlags", False)
+
+        if src.split(' ')[0] != pattern.split(' ')[0]:
+            raise Instruction.ParsingException("Mnemonic does not match")
+
+        if isinstance(src, str):
+            res = AArch64Instruction.get_parser(pattern)(src)
+        else:
+            assert isinstance(src, dict)
+            res = src
+
+        obj = c(pattern, inputs=inputs, outputs=outputs, in_outs=in_outs,
+                modifiesFlags=modifies_flags, dependsOnFlags=depends_on_flags)
+
+        AArch64Instruction.build_core(obj, res)
         return obj
+
+    @classmethod
+    def make(cls, src):
+        return AArch64Instruction.build(cls, src)
 
     def write(self):
         out = self.pattern
@@ -938,23 +958,17 @@ class stack_vld2_lane(Instruction):
             return f"stack_vld2_lane {self.args_out[0]}, {self.args_out[1]}, {self.args_in_out[0]}, {self.args_in[0]}, {self.lane}, {self.immediate}"
 
 class nop(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "nop")
+    pattern = "nop"
 
 class vadd(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>",
-                                       inputs=["Vb", "Vc"],
-                                       outputs=["Va"])
+    pattern = "add <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>"
+    inputs = ["Vb", "Vc"]
+    outputs = ["Va"]
 
 class vsub(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sub <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>",
-                                       inputs=["Vb", "Vc"],
-                                       outputs=["Va"])
+    pattern = "sub <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>"
+    inputs = ["Vb", "Vc"]
+    outputs = ["Va"]
 
 ############################
 #                          #
@@ -966,34 +980,35 @@ class Ldr_Q(AArch64Instruction):
     pass
 
 class d_ldp_sp_imm(Ldr_Q):
+    pattern = "ldp <Da>, <Db>, [sp, <imm>]"
+    outputs = ["Da", "Db"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldp <Da>, <Db>, [sp, <imm>]",
-                                      # TODO: model stack dependency
-                                      outputs=["Da", "Db"])
-
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
         return obj
 
 class q_ldr(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Qa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Qa>, [<Xc>]",
-                                      inputs=["Xc"],
-                                      outputs=["Qa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = None
         obj.addr = obj.args_in[0]
         return obj
 
 class q_ldr_with_inc_hint(Ldr_Q):
+    pattern = "ldrh <Qa>, <Xc>, <imm>, <Th>"
+    inputs = ["Xc", "Th"]
+    outputs = ["Qa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldrh <Qa>, <Xc>, <imm>, <Th>",
-                                      inputs=["Xc", "Th"],
-                                      outputs=["Qa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -1004,11 +1019,12 @@ class q_ldr_with_inc_hint(Ldr_Q):
         return super().write()
 
 class q_ldr_with_inc(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Qa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Qa>, [<Xc>, <imm>]",
-                                      inputs=["Xc"],
-                                      outputs=["Qa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -1019,22 +1035,24 @@ class q_ldr_with_inc(Ldr_Q):
         return super().write()
 
 class q_ldr_with_inc_writeback(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xc>, <imm>]!"
+    inputs = ["Xc"]
+    outputs = ["Qa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Qa>, [<Xc>, <imm>]!",
-                                      inputs=["Xc"],
-                                      outputs=["Qa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[0]
         return obj
 
 class q_ldr_with_postinc(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xc>], <imm>"
+    inputs = ["Xc"]
+    outputs = ["Qa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Qa>, [<Xc>], <imm>",
-                                      inputs=["Xc"],
-                                      outputs=["Qa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[0]
@@ -1044,32 +1062,33 @@ class Str_Q(AArch64Instruction):
     pass
 
 class d_stp_sp_imm(Str_Q):
+    pattern = "stp <Da>, <Db>, [sp, <imm>]"
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stp <Da>, <Db>, [sp, <imm>]",
-                                      # TODO: model stack dependency
-                                      inputs=["Da", "Db"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
         return obj
 
 class q_str(Str_Q):
+    pattern = "str <Qa>, [<Xc>]"
+    inputs = ["Qa", "Xc"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Qa>, [<Xc>]",
-                                      inputs=["Qa", "Xc"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = None
         obj.addr = obj.args_in[1]
         return obj
 
 class q_str_with_inc_hint(Str_Q):
+    pattern = "strh <Qa>, <Xc>, <imm>, <Th>"
+    inputs = ["Qa", "Xc"]
+    outputs = ["Th"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "strh <Qa>, <Xc>, <imm>, <Th>",
-                                      inputs=["Qa", "Xc"],
-                                      outputs=["Th"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[1]
@@ -1080,10 +1099,11 @@ class q_str_with_inc_hint(Str_Q):
         return super().write()
 
 class q_str_with_inc(Str_Q):
+    pattern = "str <Qa>, [<Xc>, <imm>]"
+    inputs = ["Qa", "Xc"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Qa>, [<Xc>, <imm>]",
-                                      inputs=["Qa", "Xc"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[1]
@@ -1094,20 +1114,22 @@ class q_str_with_inc(Str_Q):
         return super().write()
 
 class q_str_with_inc_writeback(Str_Q):
+    pattern = "str <Qa>, [<Xc>, <imm>]!"
+    inputs = ["Qa", "Xc"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Qa>, [<Xc>, <imm>]!",
-                                      inputs=["Qa", "Xc"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[1]
         return obj
 
 class q_str_with_postinc(Str_Q):
+    pattern = "str <Qa>, [<Xc>], <imm>"
+    inputs = ["Qa", "Xc"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Qa>, [<Xc>], <imm>",
-                                      inputs=["Qa", "Xc"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[1]
@@ -1117,11 +1139,12 @@ class Ldr_X(AArch64Instruction):
     pass
 
 class x_ldr(Ldr_X):
+    pattern = "ldr <Xa>, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Xa>, [<Xc>]",
-                                      inputs=["Xc"],
-                                      outputs=["Xa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = None
         obj.addr = obj.args_in[0]
@@ -1135,11 +1158,12 @@ class x_ldr(Ldr_X):
         return super().write()
 
 class x_ldr_with_imm(Ldr_X):
+    pattern = "ldr <Xa>, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Xa>, [<Xc>, <imm>]",
-                                      inputs=["Xc"],
-                                      outputs=["Xa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -1150,21 +1174,23 @@ class x_ldr_with_imm(Ldr_X):
         return super().write()
 
 class x_ldr_with_postinc(Ldr_X):
+    pattern = "ldr <Xa>, [<Xc>], <imm>"
+    inputs = ["Xc"]
+    outputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Xa>, [<Xc>], <imm>",
-                                      inputs=["Xc"],
-                                      outputs=["Xa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[0]
         return obj
 
 class x_ldr_stack(Ldr_X):
+    pattern = "ldr <Xa>, [sp]"
+    outputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Xa>, [sp]", # TODO: Model sp dependency
-                                      outputs=["Xa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = None
         obj.addr = "sp"
@@ -1178,10 +1204,11 @@ class x_ldr_stack(Ldr_X):
         return super().write()
 
 class x_ldr_stack_imm(Ldr_X):
+    pattern = "ldr <Xa>, [sp, <imm>]"
+    outputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldr <Xa>, [sp, <imm>]",
-                                      outputs=["Xa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -1192,10 +1219,12 @@ class x_ldr_stack_imm(Ldr_X):
         return super().write()
 
 class x_ldr_stack_imm_with_hint(Ldr_X):
+    pattern = "ldrh <Xa>, sp, <imm>, <Th>"
+    inputs = ["Th"]
+    outputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldrh <Xa>, sp, <imm>, <Th>", # TODO: Model sp dependency
-                                      outputs=["Xa"], inputs=["Th"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -1206,10 +1235,12 @@ class x_ldr_stack_imm_with_hint(Ldr_X):
         return super().write()
 
 class x_ldr_imm_with_hint(Ldr_X):
+    pattern = "ldrh <Xa>, <Xb>, <imm>, <Th>"
+    inputs = ["Xb","Th"]
+    outputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldrh <Xa>, <Xb>, <imm>, <Th>",
-                                      outputs=["Xa"], inputs=["Xb","Th"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -1223,11 +1254,12 @@ class Ldp_X(AArch64Instruction):
     pass
 
 class x_ldp(Ldp_X):
+    pattern = "ldp <Xa>, <Xb>, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldp <Xa>, <Xb>, [<Xc>]",
-                                      inputs=["Xc"],
-                                      outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = None
         obj.addr = obj.args_in[0]
@@ -1241,10 +1273,11 @@ class x_ldp(Ldp_X):
         return super().write()
 
 class x_ldp_with_imm_sp_xzr(Ldp_X):
+    pattern = "ldp <Xa>, xzr, [sp, <imm>]"
+    outputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldp <Xa>, xzr, [sp, <imm>]",
-                                      outputs=["Xa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -1255,10 +1288,11 @@ class x_ldp_with_imm_sp_xzr(Ldp_X):
         return super().write()
 
 class x_ldp_with_imm_sp(Ldp_X):
+    pattern = "ldp <Xa>, <Xb>, [sp, <imm>]"
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldp <Xa>, <Xb>, [sp, <imm>]",
-                                      outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -1269,11 +1303,12 @@ class x_ldp_with_imm_sp(Ldp_X):
         return super().write()
 
 class x_ldp_with_inc(Ldp_X):
+    pattern = "ldp <Xa>, <Xb>, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldp <Xa>, <Xb>, [<Xc>, <imm>]",
-                                      inputs=["Xc"],
-                                      outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -1284,33 +1319,36 @@ class x_ldp_with_inc(Ldp_X):
         return super().write()
 
 class x_ldp_with_inc_writeback(Ldp_X):
+    pattern = "ldp <Xa>, <Xb>, [<Xc>, <imm>]!"
+    inputs = ["Xc"]
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldp <Xa>, <Xb>, [<Xc>, <imm>]!",
-                                      inputs=["Xc"],
-                                      outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[0]
         return obj
 
 class x_ldp_with_postinc_writeback(Ldp_X):
+    pattern = "ldp <Xa>, <Xb>, [<Xc>], <imm>"
+    inputs = ["Xc"]
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldp <Xa>, <Xb>, [<Xc>], <imm>",
-                                      inputs=["Xc"],
-                                      outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[0]
         return obj
 
 class x_ldp_with_inc_hint(Ldp_X):
+    pattern = "ldph <Xa>, <Xb>, <Xc>, <imm>, <Th>"
+    inputs = ["Xc", "Th"]
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldph <Xa>, <Xb>, <Xc>, <imm>, <Th>",
-                         inputs=["Xc", "Th"],
-                         outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -1321,11 +1359,12 @@ class x_ldp_with_inc_hint(Ldp_X):
         return super().write()
 
 class x_ldp_sp_with_inc_hint(Ldp_X):
+    pattern = "ldph <Xa>, <Xb>, sp, <imm>, <Th>"
+    inputs = ["Th"]
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldph <Xa>, <Xb>, sp, <imm>, <Th>",
-                         inputs=["Th"],
-                         outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -1336,11 +1375,12 @@ class x_ldp_sp_with_inc_hint(Ldp_X):
         return super().write()
 
 class x_ldp_sp_with_inc_hint2(Ldp_X):
+    pattern = "ldphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>"
+    inputs = ["Th0", "Th1"]
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>",
-                         inputs=["Th0", "Th1"],
-                         outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -1351,11 +1391,12 @@ class x_ldp_sp_with_inc_hint2(Ldp_X):
         return super().write()
 
 class x_ldp_with_inc_hint2(Ldp_X):
+    pattern = "ldphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>"
+    inputs = ["Xc", "Th0", "Th1"]
+    outputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ldphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>",
-                         inputs=["Xc", "Th0", "Th1"],
-                         outputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -1366,11 +1407,9 @@ class x_ldp_with_inc_hint2(Ldp_X):
         return super().write()
 
 class ldr_sxtw_wform(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ldr <Wd>, [<Xa>, <Wb>, SXTW <imm>]",
-                            inputs=["Xa", "Wb"],
-                            outputs=["Wd"])
+    pattern = "ldr <Wd>, [<Xa>, <Wb>, SXTW <imm>]"
+    inputs = ["Xa", "Wb"]
+    outputs = ["Wd"]
 
 ############################
 #                          #
@@ -1379,655 +1418,487 @@ class ldr_sxtw_wform(AArch64Instruction):
 ############################
 
 class lsr_wform(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "lsr <Wd>, <Wa>, <Wb>",
-                           inputs=["Wa", "Wb"],
-                           outputs=["Wd"])
+    pattern = "lsr <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
 
 class asr_wform(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "asr <Wd>, <Wa>, <imm>",
-                         inputs=["Wa"],
-                         outputs=["Wd"])
+    pattern = "asr <Wd>, <Wa>, <imm>"
+    inputs = ["Wa"]
+    outputs = ["Wd"]
 
 class eor_wform(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "eor <Wd>, <Wa>, <Wb>",
-                         inputs=["Wa", "Wb"],
-                         outputs=["Wd"])
+    pattern = "eor <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
 
 class AArch64BasicArithmetic(AArch64Instruction):
     pass
 
 class subs_wform(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "subs <Wd>, <Wa>, <imm>",
-                         inputs=["Wa"],
-                         outputs=["Wd"],
-                         modifiesFlags=True)
+    pattern = "subs <Wd>, <Wa>, <imm>"
+    inputs = ["Wa"]
+    outputs = ["Wd"]
+    modifiesFlags = True
 
 class subs_imm(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "subs <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"],
-                         modifiesFlags=True)
+    pattern = "subs <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    modifiesFlags=True
 
 class sub_imm(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sub <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "sub <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class add_imm(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "add <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class add_sp_imm(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Xd>, sp, <imm>", # TODO Model dependency on sp
-                         outputs=["Xd"])
+    pattern = "add <Xd>, sp, <imm>"
+    outputs = ["Xd"]
 
 class neg(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "neg <Xd>, <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "neg <Xd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class adds(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adds <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"],
-                         modifiesFlags=True)
+    pattern = "adds <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    modifiesFlags=True
 
 class adds_to_zero(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adds xzr, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         modifiesFlags=True)
+    pattern = "adds xzr, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    modifiesFlags=True
 
 class adds_imm_to_zero(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adds xzr, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         modifiesFlags=True)
+    pattern = "adds xzr, <Xa>, <imm>"
+    inputs = ["Xa"]
+    modifiesFlags=True
 
 class subs_twoarg(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "subs <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Xd"],
-                         modifiesFlags=True)
+    pattern = "subs <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+    modifiesFlags=True
 
 class adds_twoarg(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adds <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Xd"],
-                         modifiesFlags=True)
+    pattern = "adds <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+    modifiesFlags=True
 
 class adcs(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adcs <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True,
-                         modifiesFlags=True)
+    pattern = "adcs <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
 
 class sbcs(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sbcs <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True,
-                         modifiesFlags=True)
+    pattern = "sbcs <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
 
 class sbcs_zero(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sbcs <Xd>, <Xa>, xzr",
-                         inputs=["Xa"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True,
-                         modifiesFlags=True)
+    pattern = "sbcs <Xd>, <Xa>, xzr"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
 
 class sbc(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sbc <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True)
+    pattern = "sbc <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class sbc_zero_r(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sbc <Xd>, <Xa>, xzr",
-                         inputs=["Xa"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True)
+    pattern = "sbc <Xd>, <Xa>, xzr"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class adcs_zero_r(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adcs <Xd>, <Xa>, xzr",
-                         inputs=["Xa"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True,
-                         modifiesFlags=True)
+    pattern = "adcs <Xd>, <Xa>, xzr"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
 
 class adcs_zero_l(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adcs <Xd>, xzr, <Xb>",
-                         inputs=["Xb"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True,
-                         modifiesFlags=True)
+    pattern = "adcs <Xd>, xzr, <Xb>"
+    inputs = ["Xb"]
+    outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
 
 class adc(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adc <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True)
+    pattern = "adc <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class adc_zero2(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adc <Xd>, xzr, xzr",
-                         outputs=["Xd"],
-                         dependsOnFlags=True)
+    pattern = "adc <Xd>, xzr, xzr"
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class adc_zero_r(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adc <Xd>, <Xa>, xzr",
-                         inputs=["Xa"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True)
+    pattern = "adc <Xd>, <Xa>, xzr"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class adc_zero_l(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adc <Xd>, xzr, <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Xd"],
-                         dependsOnFlags=True)
+    pattern = "adc <Xd>, xzr, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class add(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "add <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class add2(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Xd>, <Xa>, <Xb>, <imm>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "add <Xd>, <Xa>, <Xb>, <imm>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class add_w_imm(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Wd>, <Wa>, <imm>",
-                         inputs=["Wa"],
-                         outputs=["Wd"])
+    pattern = "add <Wd>, <Wa>, <imm>"
+    inputs = ["Wa"]
+    outputs = ["Wd"]
 
 class sub(AArch64BasicArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sub <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "sub <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class AArch64ShiftedArithmetic(AArch64Instruction):
     pass
 
 class add_lsl(AArch64ShiftedArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Xd>, <Xa>, <Xb>, lsl <imm>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "add <Xd>, <Xa>, <Xb>, lsl <imm>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class add_lsr(AArch64ShiftedArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Xd>, <Xa>, <Xb>, lsr <imm>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "add <Xd>, <Xa>, <Xb>, lsr <imm>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class adds_lsl(AArch64ShiftedArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adds <Xd>, <Xa>, <Xb>, lsl <imm>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"],
-                         modifiesFlags=True)
+    pattern = "adds <Xd>, <Xa>, <Xb>, lsl <imm>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
+    modifiesFlags=True
 
 class adds_lsr(AArch64ShiftedArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "adds <Xd>, <Xa>, <Xb>, lsr <imm>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"],
-                         modifiesFlags=True)
+    pattern = "adds <Xd>, <Xa>, <Xb>, lsr <imm>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
+    modifiesFlags=True
 
 class add_asr(AArch64ShiftedArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Xd>, <Xa>, <Xb>, asr <imm>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "add <Xd>, <Xa>, <Xb>, asr <imm>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class add_imm_lsl(AArch64ShiftedArithmetic):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "add <Xd>, <Xa>, <imm0>, lsl <imm1>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "add <Xd>, <Xa>, <imm0>, lsl <imm1>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class AArch64Shift(AArch64Instruction):
     pass
 
 class lsr(AArch64Shift):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "lsr <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "lsr <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 # TODO: This likely has different perf characteristics!
 class lsr_variable(AArch64Shift):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "lsr <Xd>, <Xa>, <Xc>",
-                         inputs=["Xa", "Xc"],
-                         outputs=["Xd"])
+    pattern = "lsr <Xd>, <Xa>, <Xc>"
+    inputs = ["Xa", "Xc"]
+    outputs = ["Xd"]
 
 class lsl(AArch64Shift):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "lsl <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "lsl <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class asr(AArch64Shift):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "asr <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "asr <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class AArch64Logical(AArch64Instruction):
     pass
 
 class rev_w(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "rev <Wd>, <Wa>",
-                         inputs=["Wa"],
-                         outputs=["Wd"])
+    pattern = "rev <Wd>, <Wa>"
+    inputs = ["Wa"]
+    outputs = ["Wd"]
 
 class eor(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "eor <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "eor <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class orr(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "orr <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "orr <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class orr_w(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "orr <Wd>, <Wa>, <Wb>",
-                         inputs=["Wa","Wb"],
-                         outputs=["Wd"])
+    pattern = "orr <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa","Wb"]
+    outputs = ["Wd"]
 
 class bfi(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "bfi <Xd>, <Xa>, <imm0>, <imm1>",
-                         inputs=["Xa"],
-                         in_outs=["Xd"])
+    pattern = "bfi <Xd>, <Xa>, <imm0>, <imm1>"
+    inputs = ["Xa"]
+    in_outs=["Xd"]
 
 class and_imm(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "and <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "and <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class ands_imm(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ands <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"],
-                         modifiesFlags=True)
+    pattern = "ands <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    modifiesFlags=True
 
 class ands_xzr_imm(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ands xzr, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         modifiesFlags=True)
+    pattern = "ands xzr, <Xa>, <imm>"
+    inputs = ["Xa"]
+    modifiesFlags=True
 
 class and_twoarg(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "and <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Xd"])
+    pattern = "and <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
 
 class bic(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "bic <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "bic <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class orr_imm(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "orr <Xd>, <Xa>, <imm>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "orr <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class sbfx(AArch64Logical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sbfx <Xd>, <Xa>, <imm0>, <imm1>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "sbfx <Xd>, <Xa>, <imm0>, <imm1>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class extr(AArch64Logical): ### TODO! Review this...
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "extr <Xd>, <Xa>, <Xb>, <imm>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Xd"])
+    pattern = "extr <Xd>, <Xa>, <Xb>, <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
 
 class AArch64LogicalShifted(AArch64Instruction):
     pass
 
 class orr_shifted(AArch64LogicalShifted):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "orr <Xd>, <Xa>, <Xb>, lsl <imm>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "orr <Xd>, <Xa>, <Xb>, lsl <imm>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class AArch64ConditionalCompare(AArch64Instruction):
     pass
 
 class ccmp_xzr(AArch64ConditionalCompare):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ccmp <Xa>, xzr, <imm>, <flag>",
-                         inputs=["Xa"],
-                         dependsOnFlags=True,
-                         modifiesFlags=True)
+    pattern = "ccmp <Xa>, xzr, <imm>, <flag>"
+    inputs = ["Xa"]
+    modifiesFlags=True
+    dependsOnFlags=True
 
 class ccmp(AArch64ConditionalCompare):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ccmp <Xa>, <Xb>, <imm>, <flag>",
-                         inputs=["Xa", "Xb"],
-                         dependsOnFlags=True,
-                         modifiesFlags=True)
+    pattern = "ccmp <Xa>, <Xb>, <imm>, <flag>"
+    inputs = ["Xa", "Xb"]
+    modifiesFlags=True
+    dependsOnFlags=True
 
 class AArch64ConditionalSelect(AArch64Instruction):
     pass
 
 class cneg(AArch64ConditionalSelect):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "cneg <Xd>, <Xe>, <flag>",
-                         outputs=["Xd"],
-                         inputs=["Xe"],
-                         dependsOnFlags=True)
+    pattern = "cneg <Xd>, <Xe>, <flag>"
+    inputs = ["Xe"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class csel_xzr_ne(AArch64ConditionalSelect):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "csel <Xd>, <Xe>, xzr, <flag>",
-                         outputs=["Xd"],
-                         inputs=["Xe"],
-                         dependsOnFlags=True)
+    pattern = "csel <Xd>, <Xe>, xzr, <flag>"
+    inputs = ["Xe"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class csel_ne(AArch64ConditionalSelect):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "csel <Xd>, <Xe>, <Xf>, <flag>",
-                         outputs=["Xd"],
-                         inputs=["Xe", "Xf"],
-                         dependsOnFlags=True)
+    pattern = "csel <Xd>, <Xe>, <Xf>, <flag>"
+    inputs = ["Xe", "Xf"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class cinv(AArch64ConditionalSelect):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "cinv <Xd>, <Xe>, <flag>",
-                         outputs=["Xd"],
-                         inputs=["Xe"],
-                         dependsOnFlags=True)
+    pattern = "cinv <Xd>, <Xe>, <flag>"
+    inputs = ["Xe"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class cinc(AArch64ConditionalSelect):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "cinc <Xd>, <Xe>, <flag>",
-                         outputs=["Xd"],
-                         inputs=["Xe"],
-                         dependsOnFlags=True)
+    pattern = "cinc <Xd>, <Xe>, <flag>"
+    inputs = ["Xe"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class csetm(AArch64ConditionalSelect):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "csetm <Xd>, <flag>",
-                         outputs=["Xd"],
-                         dependsOnFlags=True)
+    pattern = "csetm <Xd>, <flag>"
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class cset(AArch64ConditionalSelect):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "cset <Xd>, <flag>",
-                         outputs=["Xd"],
-                         dependsOnFlags=True)
+    pattern = "cset <Xd>, <flag>"
+    outputs = ["Xd"]
+    dependsOnFlags=True
 
 class cmn_imm(AArch64ConditionalSelect):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "cmn <Xd>, <imm>",
-                         inputs=["Xd"],
-                         modifiesFlags=True)
+    pattern = "cmn <Xd>, <imm>"
+    inputs = ["Xd"]
+    modifiesFlags=True
 
 class ldr_const(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ldr <Xd>, <imm>",
-                         inputs=[],
-                         outputs=["Xd"])
+    pattern = "ldr <Xd>, <imm>"
+    inputs = []
+    outputs = ["Xd"]
 
 class movk_imm(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "movk <Xd>, <imm>",
-                         inputs=[],
-                         in_outs=["Xd"])
+    pattern = "movk <Xd>, <imm>"
+    inputs = []
+    in_outs=["Xd"]
 
 class mov(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Wd>, <Wa>",
-                         inputs=["Wa"],
-                         outputs=["Wd"])
+    pattern = "mov <Wd>, <Wa>"
+    inputs = ["Wa"]
+    outputs = ["Wd"]
 
 class AArch64Move(AArch64Instruction):
     pass
 
 class mov_imm(AArch64Move):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Xd>, <imm>",
-                         inputs=[],
-                         outputs=["Xd"])
+    pattern = "mov <Xd>, <imm>"
+    inputs = []
+    outputs = ["Xd"]
 
 class mvn_xzr(AArch64Move):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mvn <Xd>, xzr",
-                         inputs=[],
-                         outputs=["Xd"])
+    pattern = "mvn <Xd>, xzr"
+    inputs = []
+    outputs = ["Xd"]
 
 class mov_xform(AArch64Move):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Xd>, <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Xd"])
+    pattern = "mov <Xd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
 
 class umull_wform(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "umull <Xd>, <Wa>, <Wb>",
-                         inputs=["Wa","Wb"],
-                         outputs=["Xd"])
+    pattern = "umull <Xd>, <Wa>, <Wb>"
+    inputs = ["Wa","Wb"]
+    outputs = ["Xd"]
 
 class umaddl_wform(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "umaddl <Xn>, <Wa>, <Wb>, <Xacc>",
-                         inputs=["Wa","Wb","Xacc"],
-                         outputs=["Xn"])
+    pattern = "umaddl <Xn>, <Wa>, <Wb>, <Xacc>"
+    inputs = ["Wa","Wb","Xacc"]
+    outputs = ["Xn"]
 
 class mul_wform(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mul <Wd>, <Wa>, <Wb>",
-                         inputs=["Wa","Wb"],
-                         outputs=["Wd"])
+    pattern = "mul <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa","Wb"]
+    outputs = ["Wd"]
 
 class AArch64HighMultiply(AArch64Instruction):
     pass
 
 class umulh_xform(AArch64HighMultiply):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "umulh <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "umulh <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class smulh_xform(AArch64HighMultiply):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "smulh <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "smulh <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class AArch64Multiply(AArch64Instruction):
     pass
 
 class mul_xform(AArch64Multiply):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mul <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "mul <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class madd_xform(AArch64Multiply):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "madd <Xd>, <Xacc>, <Xa>, <Xb>",
-                         inputs=["Xacc", "Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "madd <Xd>, <Xacc>, <Xa>, <Xb>"
+    inputs = ["Xacc", "Xa","Xb"]
+    outputs = ["Xd"]
 
 class mneg_xform(AArch64Multiply):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mneg <Xd>, <Xa>, <Xb>",
-                         inputs=["Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "mneg <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
 
 class msub_xform(AArch64Multiply):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "msub <Xd>, <Xacc>, <Xa>, <Xb>",
-                         inputs=["Xacc", "Xa","Xb"],
-                         outputs=["Xd"])
+    pattern = "msub <Xd>, <Xacc>, <Xa>, <Xb>"
+    inputs = ["Xacc", "Xa","Xb"]
+    outputs = ["Xd"]
 
 class and_imm_wform(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "and <Wd>, <Wa>, <imm>",
-                         inputs=["Wa"],
-                         outputs=["Wd"])
+    pattern = "and <Wd>, <Wa>, <imm>"
+    inputs = ["Wa"]
+    outputs = ["Wd"]
 
 class Tst(AArch64Instruction):
     pass
 
 class tst_wform(Tst):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "tst <Wa>, <imm>",
-                         inputs=["Wa"],
-                         modifiesFlags=True)
+    pattern = "tst <Wa>, <imm>"
+    inputs = ["Wa"]
+    modifiesFlags=True
 
 class tst_imm_xform(Tst):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "tst <Xa>, <imm>",
-                         inputs=["Xa"],
-                         modifiesFlags=True)
+    pattern = "tst <Xa>, <imm>"
+    inputs = ["Xa"]
+    modifiesFlags=True
 
 class tst_xform(Tst):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "tst <Xa>, <Xb>",
-                         inputs=["Xa", "Xb"],
-                         modifiesFlags=True)
+    pattern = "tst <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    modifiesFlags=True
 
 class cmp_xzr(Tst):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "cmp <Xa>, xzr",
-                         inputs=["Xa"],
-                         modifiesFlags=True)
+    pattern = "cmp <Xa>, xzr"
+    inputs = ["Xa"]
+    modifiesFlags=True
 
 class cmp_imm(Tst):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "cmp <Xa>, <imm>",
-                         inputs=["Xa"],
-                         modifiesFlags=True)
+    pattern = "cmp <Xa>, <imm>"
+    inputs = ["Xa"]
+    modifiesFlags=True
 
 ######################################################
 #                                                    #
@@ -2042,116 +1913,91 @@ class cmp_imm(Tst):
 # We use the Helium/AArch32 Neon naming for those wrappers.
 
 class vmov(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Vd>.<dt0>, <Va>.<dt1>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "mov <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class vmovi(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "movi <Vd>.<dt>, <imm>",
-                         outputs=["Vd"])
+    pattern = "movi <Vd>.<dt>, <imm>"
+    outputs = ["Vd"]
 
 class vxtn(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "xtn <Vd>.<dt0>, <Va>.<dt1>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "xtn <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class Vrev(AArch64Instruction):
     pass
 
 class rev64(Vrev):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "rev64 <Vd>.<dt0>, <Va>.<dt1>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "rev64 <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class rev32(Vrev):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "rev32 <Vd>.<dt0>, <Va>.<dt1>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "rev32 <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class uaddlp(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "uaddlp <Vd>.<dt0>, <Va>.<dt1>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "uaddlp <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class vand(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vbic(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vzip1(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vzip2(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vuzp1(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vuzp2(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vqrdmulh(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vqrdmulh_lane(AArch64Instruction):
+    pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+        obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
         return obj
 
 class vqdmulh_lane(AArch64Instruction):
+    pattern = "sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
-
+        obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
@@ -2159,12 +2005,12 @@ class vqdmulh_lane(AArch64Instruction):
         return obj
 
 class vmul_lane(AArch64Instruction):
+    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
-
+        obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
@@ -2197,262 +2043,215 @@ class Vins(AArch64Instruction):
     pass
 
 class vins_d(Vins):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ins <Vd>.d[<index>], <Xa>",
-                         inputs=["Xa"],
-                         in_outs=["Vd"])
+    pattern = "ins <Vd>.d[<index>], <Xa>"
+    inputs = ["Xa"]
+    in_outs=["Vd"]
 
 class vins_d_force_output(Vins):
+    pattern = "ins <Vd>.d[<index>], <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
     @classmethod
     def make(cls, src, force=False):
-        if force == False:
+        if force is False:
             raise Instruction.ParsingException("Instruction ignored")
-        obj = AArch64Instruction.build(cls, src, "ins <Vd>.d[<index>], <Xa>",
-                           inputs=["Xa"],
-                           outputs=["Vd"])
-        return obj
+        return AArch64Instruction.build(cls, src)
 
 class Mov_xtov_d(AArch64Instruction):
     pass
 
 class mov_xtov_d(Mov_xtov_d):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Vd>.d[<index>], <Xa>",
-                           inputs=["Xa"],
-                           in_outs=["Vd"])
+    pattern = "mov <Vd>.d[<index>], <Xa>"
+    inputs = ["Xa"]
+    in_outs=["Vd"]
 
 class mov_xtov_d_xzr(Mov_xtov_d):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Vd>.d[<index>], xzr",
-                         in_outs=["Vd"])
+    pattern = "mov <Vd>.d[<index>], xzr"
+    in_outs=["Vd"]
 
 class mov_b00(AArch64Instruction): # TODO: Generalize
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Vd>.b[0], <Va>.b[0]",
-                         inputs=["Va"],
-                         in_outs=["Vd"])
+    pattern = "mov <Vd>.b[0], <Va>.b[0]"
+    inputs = ["Va"]
+    in_outs=["Vd"]
 
 class mov_d01(AArch64Instruction): # TODO: Generalize
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Vd>.d[0], <Va>.d[1]",
-                         inputs=["Va"],
-                         in_outs=["Vd"])
+    pattern = "mov <Vd>.d[0], <Va>.d[1]"
+    inputs = ["Va"]
+    in_outs=["Vd"]
 
 class AArch64NeonLogical(AArch64Instruction):
     pass
 
 class veor(AArch64NeonLogical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+class veor3(AArch64Instruction):
+    pattern = "eor3 <Vd>.16b, <Va>.16b, <Vb>.16b, <Vc>.16b"
+    inputs = ["Va", "Vb", "Vc"]
+    outputs = ["Vd"]
 
 class vbif(AArch64NeonLogical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         in_outs=["Vd"])
+    pattern = "bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs=["Vd"]
 
 # Not sure about the classification as logical... couldn't find it in SWOG
 class vmov_d(AArch64NeonLogical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Dd>, <Va>.d[1]",
-                         inputs=["Va"],
-                         outputs=["Dd"])
+    pattern = "mov <Dd>, <Va>.d[1]"
+    inputs = ["Va"]
+    outputs = ["Dd"]
 
 class vext(AArch64NeonLogical):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vmul(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vmla(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         in_outs=["Vd"])
+    pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs=["Vd"]
 
 class vmla_lane(AArch64Instruction):
+    pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs=["Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
-                         inputs=["Va", "Vb"],
-                         in_outs=["Vd"])
+        obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
         return obj
 
 class vmls(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         in_outs=["Vd"])
+    pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
 
 class vmls_lane(AArch64Instruction):
+    pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs=["Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]",
-                         inputs=["Va", "Vb"],
-                         in_outs=["Vd"])
+        obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
                                           [ f"v{i}" for i in range(0,16) ]]
         return obj
 
 class vdup(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "dup <Vd>.<dt>, <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Vd"])
+    pattern = "dup <Vd>.<dt>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
 
 class vmull(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class vmlal(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         in_outs=["Vd"])
+    pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs=["Vd"]
 
 class vsrshr(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class vshl(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class vshl_d(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "shl <Dd>, <Da>, <imm>",
-                         inputs=["Da"],
-                         outputs=["Dd"])
+    pattern = "shl <Dd>, <Da>, <imm>"
+    inputs = ["Da"]
+    outputs = ["Dd"]
 
 class vshli(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>",
-                         inputs=["Va"],
-                         in_outs=["Vd"])
+    pattern = "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    in_outs=["Vd"]
 
 class vusra(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "usra <Vd>.<dt0>, <Va>.<dt1>, <imm>",
-                         inputs=["Va"],
-                         in_outs=["Vd"])
+    pattern = "usra <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    in_outs=["Vd"]
 
 class vshrn(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class VecToGprMov(AArch64Instruction):
     pass
 
 class umov_d(VecToGprMov):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "umov <Xd>, <Va>.d[<index>]",
-                         inputs=["Va"],
-                         outputs=["Xd"])
+    pattern = "umov <Xd>, <Va>.d[<index>]"
+    inputs = ["Va"]
+    outputs = ["Xd"]
 
 class mov_d(VecToGprMov):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "mov <Xd>, <Va>.d[<index>]",
-                         inputs=["Va"],
-                         outputs=["Xd"])
+    pattern = "mov <Xd>, <Va>.d[<index>]"
+    inputs = ["Va"]
+    outputs = ["Xd"]
 
 class Fmov(AArch64Instruction):
     pass
 
 class fmov_0(Fmov):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "fmov <Dd>, <Xa>",
-                         inputs=["Xa"],
-                         in_outs=["Dd"])
+    pattern = "fmov <Dd>, <Xa>"
+    inputs = ["Xa"]
+    in_outs=["Dd"]
 
 class fmov_0_force_output(Fmov):
+    pattern = "fmov <Dd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Dd"]
     @classmethod
     def make(cls, src, force=False):
         if force is False:
             raise Instruction.ParsingException("Instruction ignored")
-        return AArch64Instruction.build(cls, src, "fmov <Dd>, <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Dd"])
+        return AArch64Instruction.build(cls, src)
 
 class fmov_1(Fmov):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "fmov <Vd>.d[1], <Xa>",
-                         inputs=["Xa"],
-                         in_outs=["Vd"])
+    pattern = "fmov <Vd>.d[1], <Xa>"
+    inputs = ["Xa"]
+    in_outs=["Vd"]
 
 class fmov_1_force_output(Fmov):
+    pattern = "fmov <Vd>.d[1], <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
     @classmethod
     def make(cls, src, force=False):
         if force is False:
             raise Instruction.ParsingException("Instruction ignored")
-        return AArch64Instruction.build(cls, src, "fmov <Vd>.d[1], <Xa>",
-                         inputs=["Xa"],
-                         outputs=["Vd"])
+        return AArch64Instruction.build(cls, src)
 
 class vushr(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class trn1(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class trn2(AArch64Instruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 # Wrapper around AESE+AESMC, treated as one instructions in SLOTHY
 # so as to prevent pulling them apart and hindering instruction fusion.
@@ -2461,48 +2260,39 @@ class AESInstruction(AArch64Instruction):
     pass
 
 class aesr(AESInstruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "aesr <Vd>.16b, <Va>.16b",
-                         inputs=["Va"],
-                         in_outs=["Vd"])
+    pattern = "aesr <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs=["Vd"]
 
 class aese(AESInstruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "aese <Vd>.16b, <Va>.16b",
-                         inputs=["Va"],
-                         in_outs=["Vd"])
+    pattern = "aese <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs=["Vd"]
 
 class aesmc(AESInstruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "aesmc <Vd>.16b, <Va>.16b",
-                         inputs=["Va"],
-                         outputs=["Vd"])
+    pattern = "aesmc <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 class pmull1_q(AESInstruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "pmull <Vd>.1q, <Va>.1d, <Vb>.1d",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "pmull <Vd>.1q, <Va>.1d, <Vb>.1d"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class pmull2_q(AESInstruction):
-    @classmethod
-    def make(cls, src):
-        return AArch64Instruction.build(cls, src, "pmull2 <Vd>.1q, <Va>.2d, <Vb>.2d",
-                         inputs=["Va", "Vb"],
-                         outputs=["Vd"])
+    pattern = "pmull2 <Vd>.1q, <Va>.2d, <Vb>.2d"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class Str_X(AArch64Instruction):
     pass
 
 class x_str(Str_X):
+    pattern = "str <Xa>, [<Xc>]"
+    inputs = ["Xa", "Xc"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Xa>, [<Xc>]",
-                         inputs=["Xa", "Xc"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = None
         obj.addr = obj.args_in[1]
@@ -2516,10 +2306,11 @@ class x_str(Str_X):
         return super().write()
 
 class x_str_imm(Str_X):
+    pattern = "str <Xa>, [<Xc>, <imm>]"
+    inputs = ["Xa", "Xc"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Xa>, [<Xc>, <imm>]",
-                         inputs=["Xa", "Xc"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[1]
@@ -2530,10 +2321,11 @@ class x_str_imm(Str_X):
         return super().write()
 
 class w_str_imm(Str_X):
+    pattern = "str <Wa>, [<Xc>, <imm>]"
+    inputs = ["Wa", "Xc"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Wa>, [<Xc>, <imm>]",
-                         inputs=["Wa", "Xc"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[1]
@@ -2544,20 +2336,23 @@ class w_str_imm(Str_X):
         return super().write()
 
 class x_str_postinc(Str_X):
+    pattern = "str <Xa>, [<Xc>], <imm>"
+    inputs = ["Xa", "Xc"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Xa>, [<Xc>], <imm>",
-                         inputs=["Xa", "Xc"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[1]
         return obj
 
 class x_str_sp_imm(Str_X):
+    pattern = "str <Xa>, [sp, <imm>]"
+    inputs = ["Xa"]
+    outputs = ["Th"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "str <Xa>, [sp, <imm>]",
-                         inputs=["Xa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -2568,10 +2363,12 @@ class x_str_sp_imm(Str_X):
         return super().write()
 
 class x_str_sp_imm_hint(Str_X):
+    pattern = "strh <Xa>, sp, <imm>, <Th>"
+    inputs = ["Xa"],
+    outputs = ["Th"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "strh <Xa>, sp, <imm>, <Th>",
-                         inputs=["Xa"], outputs=["Th"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -2582,10 +2379,12 @@ class x_str_sp_imm_hint(Str_X):
         return super().write()
 
 class x_str_imm_hint(Str_X):
+    pattern = "strh <Xa>, <Xb>, <imm>, <Th>"
+    inputs = ["Xa", "Xb"]
+
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "strh <Xa>, <Xb>, <imm>, <Th>",
-                         inputs=["Xa", "Xb"], outputs=["Th"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[1]
@@ -2599,10 +2398,11 @@ class Stp_X(AArch64Instruction):
     pass
 
 class x_stp(Stp_X):
+    pattern = "stp <Xa>, <Xb>, [<Xc>]"
+    inputs = ["Xc", "Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stp <Xa>, <Xb>, [<Xc>]",
-                         inputs=["Xc", "Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = None
         obj.addr = obj.args_in[0]
@@ -2616,10 +2416,11 @@ class x_stp(Stp_X):
         return super().write()
 
 class x_stp_with_imm_xzr_sp(Stp_X):
+    pattern = "stp <Xa>, xzr, [sp, <imm>]"
+    inputs = ["Xa"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stp <Xa>, xzr, [sp, <imm>]",
-                         inputs=["Xa"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -2630,10 +2431,11 @@ class x_stp_with_imm_xzr_sp(Stp_X):
         return super().write()
 
 class x_stp_with_imm_sp(Stp_X):
+    pattern = "stp <Xa>, <Xb>, [sp, <imm>]"
+    inputs = ["Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stp <Xa>, <Xb>, [sp, <imm>]",
-                         inputs=["Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -2644,10 +2446,11 @@ class x_stp_with_imm_sp(Stp_X):
         return super().write()
 
 class x_stp_with_inc(Stp_X):
+    pattern = "stp <Xa>, <Xb>, [<Xc>, <imm>]"
+    inputs = ["Xc", "Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stp <Xa>, <Xb>, [<Xc>, <imm>]",
-                         inputs=["Xc", "Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -2658,21 +2461,23 @@ class x_stp_with_inc(Stp_X):
         return super().write()
 
 class x_stp_with_inc_writeback(Stp_X):
+    pattern = "stp <Xa>, <Xb>, [<Xc>, <imm>]!"
+    inputs = ["Xc", "Xa", "Xb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stp <Xa>, <Xb>, [<Xc>, <imm>]!",
-                         inputs=["Xc", "Xa", "Xb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[0]
         return obj
 
 class x_stp_with_inc_hint(Stp_X):
+    pattern = "stph <Xa>, <Xb>, <Xc>, <imm>, <Th>"
+    inputs = ["Xc", "Xa", "Xb"]
+    outputs = ["Th"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stph <Xa>, <Xb>, <Xc>, <imm>, <Th>",
-                         inputs=["Xc", "Xa", "Xb"],
-                         outputs=["Th"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
@@ -2683,11 +2488,12 @@ class x_stp_with_inc_hint(Stp_X):
         return super().write()
 
 class x_stp_sp_with_inc_hint(Stp_X):
+    pattern = "stph <Xa>, <Xb>, sp, <imm>, <Th>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Th"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stph <Xa>, <Xb>, sp, <imm>, <Th>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Th"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -2698,11 +2504,12 @@ class x_stp_sp_with_inc_hint(Stp_X):
         return super().write()
 
 class x_stp_sp_with_inc_hint2(Stp_X):
+    pattern = "stphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Th0", "Th1"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>",
-                         inputs=["Xa", "Xb"],
-                         outputs=["Th0", "Th1"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = "sp"
@@ -2713,11 +2520,12 @@ class x_stp_sp_with_inc_hint2(Stp_X):
         return super().write()
 
 class x_stp_with_inc_hint2(Stp_X):
+    pattern = "stphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>"
+    inputs = ["Xa", "Xb", "Xc"]
+    outputs = ["Th0", "Th1"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "stphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>",
-                         inputs=["Xa", "Xb", "Xc"],
-                         outputs=["Th0", "Th1"])
+        obj = AArch64Instruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[2]
@@ -2731,12 +2539,11 @@ class St4(AArch64Instruction):
     pass
 
 class st4_base(St4):
+    pattern = "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]"
+    inputs = ["Xc", "Va", "Vb", "Vc", "Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, 
-            "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]",
-            inputs=["Xc", "Va", "Vb", "Vc", "Vd"])
-
+        obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
@@ -2744,10 +2551,11 @@ class st4_base(St4):
         return obj
 
 class st4_with_inc(St4):
+    pattern = "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>"
+    inputs = ["Xc", "Va", "Vb", "Vc", "Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>",
-                         inputs=["Xc", "Va", "Vb", "Vc", "Vd"])
+        obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.increment = obj.immediate
         obj.pre_index = None
@@ -2760,10 +2568,11 @@ class St2(AArch64Instruction):
     pass
 
 class st2_base(St2):
+    pattern = "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]"
+    inputs = ["Xc", "Va", "Vb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]",
-                         inputs=["Xc", "Va", "Vb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
@@ -2771,10 +2580,11 @@ class st2_base(St2):
         return obj
 
 class st2_with_inc(St2):
+    pattern = "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    inputs = ["Xc", "Va", "Vb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>",
-                         inputs=["Xc", "Va", "Vb"])
+        obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.increment = obj.immediate
         obj.pre_index = None
@@ -2787,11 +2597,12 @@ class Ld4(AArch64Instruction):
     pass
 
 class ld4_base(Ld4):
+    pattern = "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Va", "Vb", "Vc", "Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]",
-                         inputs=["Xc"],
-                         outputs=["Va", "Vb", "Vc", "Vd"])
+        obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
@@ -2799,12 +2610,12 @@ class ld4_base(Ld4):
         return obj
 
 class ld4_with_inc(Ld4):
+    pattern = "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>"
+    inputs = ["Xc"]
+    outputs = ["Va", "Vb", "Vc", "Vd"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>",
-                         inputs=["Xc"],
-                         outputs=["Va", "Vb", "Vc", "Vd"])
-
+        obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.increment = obj.immediate
         obj.pre_index = None
@@ -2817,12 +2628,12 @@ class Ld2(AArch64Instruction):
     pass
 
 class ld2_base(Ld2):
+    pattern = "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Va", "Vb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]",
-                         inputs=["Xc"],
-                         outputs=["Va", "Vb"])
-
+        obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
@@ -2830,12 +2641,12 @@ class ld2_base(Ld2):
         return obj
 
 class ld2_with_inc(Ld2):
+    pattern = "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    inputs = ["Xc"]
+    outputs = ["Va", "Vb"]
     @classmethod
     def make(cls, src):
-        obj = AArch64Instruction.build(cls, src, "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>",
-                           inputs=["Xc"],
-                           outputs=["Va", "Vb"])
-
+        obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.increment = obj.immediate
         obj.pre_index = None
