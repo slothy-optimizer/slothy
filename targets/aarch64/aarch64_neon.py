@@ -172,6 +172,28 @@ class RegisterType(Enum):
     def default_aliases():
         return {}
 
+class Branch:
+    """Helper for emitting branches"""
+
+    @staticmethod
+    def if_equal(val, lbl):
+        """Emit assembly for a branch-if-equal sequence"""
+        reg = "count"
+        yield f"cmp {reg}, #{val}"
+        yield f"b.eq {lbl}"
+
+    @staticmethod
+    def if_greater_equal(val, lbl):
+        """Emit assembly for a branch-if-greater-equal sequence"""
+        reg = "count"
+        yield f"cmp {reg}, #{val}"
+        yield f"b.ge {lbl}"
+
+    @staticmethod
+    def unconditional(lbl):
+        """Emit unconditional branch"""
+        yield f"b {lbl}"
+
 class Loop:
     """Helper functions for parsing and writing simple loops in AArch64
 

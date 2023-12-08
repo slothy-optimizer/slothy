@@ -277,10 +277,19 @@ class Slothy():
             Heuristics.periodic(body, logger, c)
         def indented(code):
             indent = ' ' * self.config.indentation
-            return [ indent + s for s in code ]
+            return [ indent + s.strip() for s in code ]
+
+        loop_lbl_end = f"{loop_lbl}_end"
+        def loop_lbl_iter(i):
+            return f"{loop_lbl}_iter_{i}"
+
+        optimized_code = []
+
+        if self.config.sw_pipelining.unknown_iteration_count:
+            for i in range(1, num_exceptional):
+                optimized_code += indented(self.arch.Branch.if_equal(i, loop_lbl_iter(i)))
 
         loop = self.arch.Loop(lbl_start=loop_lbl)
-        optimized_code = []
         optimized_code += indented(preamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:
@@ -300,6 +309,16 @@ class Slothy():
         if postamble_label is not None:
             optimized_code += [ f"{postamble_label}: // end of loop kernel" ]
         optimized_code += indented(postamble_code)
+
+        if self.config.sw_pipelining.unknown_iteration_count:
+            optimized_code += indented(self.arch.Branch.unconditional(loop_lbl_end))
+            for i in range(1, num_exceptional):
+                optimized_code += [f"{loop_lbl_iter(i)}:"]
+                optimized_code += i * indented(body)
+                optimized_code += [f"{loop_lbl_iter(i)}_end:"]
+                if i != num_exceptional - 1:
+                    optimized_code += indented(self.arch.Branch.unconditional(loop_lbl_end))
+            optimized_code += [f"{loop_lbl_end}:"]
 
         self.last_result = SimpleNamespace()
         dfgc = DFGConfig(c)
