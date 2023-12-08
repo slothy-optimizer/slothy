@@ -682,37 +682,8 @@ class Heuristics():
         res.input_renamings = { s:s for s in inputs }
         res.output_renamings = { s:s for s in outputs }
         res.valid = True
-        res.selfcheck(log.getChild("full_selfcheck"))
-        cur_body = res.code
-
-        maxlen = max(len(s.rstrip()) for s in cur_body)
-        for i in stalls:
-            if i > len(cur_body):
-                log.error("Something is wrong: Index %d, body length %d", i, len(cur_body))
-                Heuristics._dump("Body:", cur_body, log, err=True)
-            cur_body[i] = f"{cur_body[i].rstrip():{maxlen+8}s} // gap(s) to follow"
-
-        # Visualize model violations
-        if conf.split_heuristic_visualize_stalls:
-            cur_body = AsmHelper.reduce_source(cur_body)
-            c = conf.copy()
-            c.constraints.allow_reordering = False
-            c.constraints.allow_renaming = False
-            c.visualize_reordering = False
-            cur_body = Heuristics.optimize_binsearch( cur_body, log.getChild("visualize_stalls"), c).code
-            cur_body = ["// Start split region"] + cur_body + ["// End split region"]
-
-        # Visualize functional units
-        if conf.split_heuristic_visualize_units:
-            dfg = DFG(cur_body, logger.getChild("visualize_functional_units"), DFGConfig(c))
-            new_body = []
-            for (l,t) in enumerate(dfg.nodes):
-                unit = conf.target.get_units(t.inst)[0]
-                indentation = conf.target.ExecutionUnit.get_indentation(unit)
-                new_body[i] = f"{'':{indentation}s}" + l
-            cur_body = new_body
-
-        return cur_body
+        res.selfcheck(log.getChild("split_heuristic_full"))
+        return res
 
     @staticmethod
     def _split(body, logger, conf, visualize_stalls=True):
