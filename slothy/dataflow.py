@@ -325,6 +325,7 @@ class Config:
         self._outputs = None
         self._inputs_are_outputs = None
         self._allow_useless_instructions = None
+        self._locked_registers = None
         self._load_slothy_config(slothy_config)
         for k,v in kwargs.items():
             setattr(self,k,v)
@@ -334,6 +335,7 @@ class Config:
             return
         self._slothy_config = slothy_config
         self._arch = slothy_config.arch
+        self._locked_registers = slothy_config.locked_registers
         self._typing_hints = self._slothy_config.typing_hints
         self._outputs = self._slothy_config.outputs
         self._inputs_are_outputs = self._slothy_config.inputs_are_outputs
@@ -647,8 +649,8 @@ class DataFlowGraph:
             no_ssa.append((producer.src, producer.idx))
 
         for t in self.nodes:
-            for (i,_) in enumerate(t.inst.args_out):
-                if (t,i) in no_ssa:
+            for (i,c) in enumerate(t.inst.args_out):
+                if c in self.config._locked_registers or (t,i) in no_ssa:
                     continue
                 t.inst.args_out[i] = get_fresh_reg()
 
