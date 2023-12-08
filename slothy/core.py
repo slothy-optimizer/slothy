@@ -35,7 +35,7 @@ from ortools.sat.python import cp_model
 from functools import cached_property
 
 from slothy.config import Config
-from slothy.helper import LockAttributes, AsmHelper, Permutation, DeferHandler
+from slothy.helper import LockAttributes, AsmHelper, Permutation, DeferHandler, SourceLine
 
 from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
@@ -75,8 +75,8 @@ class Result(LockAttributes):
             min_pos_cycle, width_cycle = \
                 arr_width(self.cycle_position_with_bubbles.values())
 
-        yield ""
-        yield "// original source code"
+        yield SourceLine("")
+        yield SourceLine("// original source code")
         for i in range(self.codesize):
             pos = self.reordering[i] - min_pos
             c = core_char
@@ -108,9 +108,9 @@ class Result(LockAttributes):
             else:
                 t_comment_cycle = ""
 
-            yield f"// {self.orig_code[i]:{fixlen-3}s} // {t_comment} {t_comment_cycle}"
+            yield SourceLine(f"// {str(self.orig_code[i]):{fixlen-3}s} // {t_comment} {t_comment_cycle}")
 
-        yield ""
+        yield SourceLine("")
 
     @property
     def orig_code_visualized(self):
@@ -323,15 +323,15 @@ class Result(LockAttributes):
         self._require_sw_pipelining()
         assert iterations > self.num_exceptional_iterations
         kernel_copies = iterations - self.num_exceptional_iterations
-        new_source = '\n'.join(self._preamble                 +
-                               ( self._code * kernel_copies ) +
-                               self._postamble )
-        old_source = '\n'.join(self._orig_code * iterations)
+        new_source = (self._preamble                 +
+                      ( self._code * kernel_copies ) +
+                      self._postamble )
+        old_source = (self._orig_code * iterations)
         return old_source, new_source
 
     def get_unrolled_kernel(self, iterations):
         self._require_sw_pipelining()
-        return '\n'.join(self._code * iterations)
+        return self._code * iterations
 
     @cached_property
     def reordering(self):
@@ -365,6 +365,7 @@ class Result(LockAttributes):
     def code(self):
         """The optimized source code"""
         code = self._code
+        assert SourceLine.is_source(code)
         ri = self.periodic_reordering_with_bubbles_inv
         if not self.config.visualize_reordering:
             return code
@@ -381,7 +382,7 @@ class Result(LockAttributes):
                 p = ri.get(i, None)
                 if p is None:
                     gapstr = "// gap"
-                    yield f"{gapstr:{fixlen}s} // {d * self.codesize}"
+                    yield SourceLine(f"{gapstr:{fixlen}s} // {d * self.codesize}")  
                     continue
                 s = code[self.periodic_reordering[p]]
                 c = core_char
@@ -390,7 +391,7 @@ class Result(LockAttributes):
                 elif self.is_post(p):
                     c = late_char
                 comment = d * p + c + d * (self.codesize - p - 1)
-                yield f"{s:{fixlen}s} // {comment}"
+                yield SourceLine(f"{str(s):{fixlen}s} // {comment}")
 
         res = list(_gen_visualized_code())
         res += self.orig_code_visualized
@@ -398,6 +399,7 @@ class Result(LockAttributes):
         return res
     @code.setter
     def code(self, val):
+        assert SourceLine.is_source(val)
         self._code = val
 
     def get_full_code(self, log):
@@ -407,8 +409,8 @@ class Result(LockAttributes):
             old_source, new_source = self.get_fully_unrolled_loop(iterations)
             reordering = self.get_reordering(iterations, no_gaps=True)
         else:
-            old_source = '\n'.join(self.orig_code)
-            new_source = '\n'.join(self.code)
+            old_source = self.orig_code
+            new_source = self.code
             reordering = self.reordering.copy()
             iterations = 1
 
@@ -778,13 +780,18 @@ class Result(LockAttributes):
 
         assert n // iterations == self.codesize
 
-        preamble_new  = [ str(t.inst) for t in tree_new.nodes[:preamble_len] ]
-        postamble_new = [ str(t.inst) for t in tree_new.nodes[-postamble_len:] ] \
+        def node_to_source_line(t):
+            res = SourceLine(str(t.inst))
+            res.tags = t.inst.tags
+            return res
+
+        preamble_new  = list(map(node_to_source_line, tree_new.nodes[:preamble_len]))
+        postamble_new = [ node_to_source_line(t) for t in tree_new.nodes[-postamble_len:] ] \
             if postamble_len > 0 else []
 
         code_new = []
         for i in range(iterations - self.num_exceptional_iterations):
-            code_new.append([ str(t.inst) for t in
+            code_new.append([ node_to_source_line(t) for t in
                               tree_new.nodes[preamble_len + i*self.codesize:
                                              preamble_len + (i+1)*self.codesize] ])
 
@@ -792,7 +799,7 @@ class Result(LockAttributes):
         # widen preamble and postamble, but this is not yet implemented.
         count = 0
         for i, (kcur, knext) in enumerate(zip(code_new, code_new[1:])):
-            if kcur != knext:
+            if SourceLine.write_multiline(kcur) != SourceLine.write_multiline(knext):
                 count += 1
         if count != 0:
             raise Exception("Instable loop kernel after post-optimization address fixup")
@@ -810,7 +817,12 @@ class Result(LockAttributes):
             Result._fixup_reordered_pair(tree_new.nodes[ni], tree_new.nodes[nj], log)
         Result._fixup_finish(tree_new.nodes, log)
 
-        self.code = [ str(t.inst) for t in tree_new.nodes ]
+        def node_to_source_line(t):
+            res = SourceLine(str(t.inst))
+            res.tags = t.inst.tags
+            return res
+
+        self.code = [ node_to_source_line(t) for t in tree_new.nodes ]
 
     def offset_fixup(self, log):
         """Fixup address offsets after optimization"""
@@ -893,7 +905,12 @@ class Result(LockAttributes):
             for i, v in enumerate(t.src_in_out):
                 t.inst.args_in_out[i] = v.name()
 
-        new_preamble = [ str(t.inst) for t in tree_kernel.nodes if is_in_preamble(t) ]
+        def node_to_source_line(t):
+            res = SourceLine(str(t.inst))
+            res.tags = t.inst.tags
+            return res
+
+        new_preamble = [ node_to_source_line(t) for t in tree_kernel.nodes if is_in_preamble(t) ]
         self.preamble = new_preamble
         SlothyBase.dump("New preamble", self.preamble, log)
 
@@ -922,7 +939,7 @@ class Result(LockAttributes):
             for i, v in enumerate(t.src_in_out):
                 t.inst.args_in_out[i] = v.reduce().name()
 
-        new_postamble = [ str(t.inst) for t in tree_kernel.nodes if is_in_postamble(t) ]
+        new_postamble = [ node_to_source_line(t) for t in tree_kernel.nodes if is_in_postamble(t) ]
         self.postamble = new_postamble
         SlothyBase.dump("New postamble", self.postamble, log)
 
@@ -1125,6 +1142,7 @@ class SlothyBase(LockAttributes):
         return True
 
     def _load_source(self, source, prefix_len=0, suffix_len=0):
+        assert SourceLine.is_source(source)
 
         # TODO: This does not belong here
         if self.config.sw_pipelining.enabled and \
@@ -1135,11 +1153,10 @@ class SlothyBase(LockAttributes):
         SlothyBase.dump("Source code", source, self.logger.input)
 
         self._orig_code = source.copy()
-        source = '\n'.join(source)
 
         # Convert source code to computational flow graph
         if self.config.sw_pipelining.enabled:
-            source = source + '\n' + source
+            source = source + source
 
         self._model.tree = DFG(source, self.logger.getChild("dataflow"),
                                 DFGConfig(self.config))
@@ -1330,12 +1347,11 @@ class SlothyBase(LockAttributes):
 
     @staticmethod
     def dump(name, s, logger=None, err=False):
+        assert isinstance(s, list)
         if err:
             fun = logger.error
         else:
             fun = logger.debug
-        if isinstance(s,str):
-            s = s.splitlines()
         if len(s) == 0:
             return
         fun(f"Dump: {name}")
@@ -1609,7 +1625,7 @@ class SlothyBase(LockAttributes):
                 t = self._model.tree.nodes[periodic_reordering_with_bubbles_inv[line_no]]
                 if filter_func and not filter_func(t):
                     return
-                yield str(t.inst)
+                yield SourceLine(str(t.inst))
 
             base  = 0
             lines = self._result.codesize_with_bubbles
@@ -1625,37 +1641,41 @@ class SlothyBase(LockAttributes):
                 preamble += list(get_code(filter_func=lambda t: t.pre, top=True))
             if self._result.num_post > 0:
                 preamble += list(get_code(filter_func=lambda t: not t.post))
-            self._result.preamble = preamble
 
             postamble = []
             if self._result.num_pre > 0:
                 postamble += list(get_code(filter_func=lambda t: not t.pre, top=True))
             if self._result.num_post > 0:
                 postamble += list(get_code(filter_func=lambda t: t.post))
-            self._result.postamble = postamble
 
-            self._result.code = list(get_code())
-            self._extract_kernel_input_output()
+            kernel = list(get_code())
 
             log = self.logger.result.getChild("sw_pipelining")
             log.debug("Kernel dependencies: %s", self._result.kernel_input_output)
 
-            SlothyBase.dump("Preamble",  self._result.preamble, log)
-            SlothyBase.dump("Kernel",    self._result.kernel, log)
-            SlothyBase.dump("Postamble", self._result.postamble, log)
+            SlothyBase.dump("Preamble",  preamble, log)
+            SlothyBase.dump("Kernel",    kernel, log)
+            SlothyBase.dump("Postamble", postamble, log)
 
-            add_indentation(self._result.preamble)
-            add_indentation(self._result.kernel)
-            add_indentation(self._result.postamble)
+            preamble = SourceLine.apply_indentation(preamble, self.config.indentation)
+            postamble = SourceLine.apply_indentation(postamble, self.config.indentation)
+            kernel = SourceLine.apply_indentation(kernel, self.config.indentation)
+            
+            self._result.preamble = preamble
+            self._result.postamble = postamble
+            self._result.code = kernel
+
+            self._extract_kernel_input_output()
 
         else:
-            self._result.code = list(get_code())
+            code = list(get_code())
+            code = SourceLine.apply_indentation(code, self.config.indentation)
+
+            self._result.code = code
 
             self.logger.result.debug("Optimized code")
             for s in self._result.code:
-                self.logger.result.debug("> " + s.strip())
-
-            add_indentation(self._result.code)
+                self.logger.result.debug("> " + str(s).strip())
 
         if self.config.visualize_reordering:
             self._result._code += self._result.orig_code_visualized
@@ -2238,6 +2258,23 @@ class SlothyBase(LockAttributes):
 
             self._AddExactlyOne([t.pre_var, t.post_var, t.core_var])
 
+            # Check if source line was tagged pre/core/post
+            force_pre  = t.inst.tags.get("pre", None)
+            force_core = t.inst.tags.get("core", None)
+            force_post = t.inst.tags.get("post", None)
+            if force_pre is not None:
+                assert force_pre is True or force_pre is False
+                self._Add(t.pre_var == force_pre)
+                self.logger.debug("Force pre=%s instruction for %s", force_pre, t.inst)
+            if force_core is not None:
+                assert force_core is True or force_core is False
+                self._Add(t.core_var == force_core)
+                self.logger.debug("Force core=%s instruction for %s", force_core, t.inst)
+            if force_post is not None:
+                assert force_post is True or force_post is False
+                self._Add(t.post_var == force_post)
+                self.logger.debug("Force post=%s instruction for %s", force_post, t.inst)
+
             if not self.config.sw_pipelining.allow_pre:
                 self._Add(t.pre_var == False)
             if not self.config.sw_pipelining.allow_post:
@@ -2323,6 +2360,40 @@ class SlothyBase(LockAttributes):
                 self._add_path_constraint( t1, t0,
                    lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var) )
 
+        # Look for source annotations forcing orderings
+
+        if self.config.sw_pipelining.enabled is True:
+            nodes = self._get_nodes(low=True)
+        else:
+            nodes = self._get_nodes()
+
+        def find_node_by_source_id(src_id):
+            for t in nodes:
+                cur_id = t.inst.tags.get("id", None)
+                if cur_id == src_id:
+                    return t
+            raise SlothySourceException(f"Could not find node with source ID {src_id}")
+
+        for t1 in nodes:
+            force_after = t1.inst.tags.get("after", [])
+            if not isinstance(force_after, list):
+                force_after = [force_after]
+            for t0_id in force_after:
+                t0 = find_node_by_source_id(t0_id)
+                self.logger.find("Force {t0} < {t1} by source annotation")
+                self._add_path_constraint(t1, t0, 
+                    lambda t0=t0, t1=t1: t0.program_start_var < t1.program_start_var)
+
+        for t0 in nodes:
+            force_before = t0.inst.tags.get("before", [])
+            if not isinstance(force_before, list):
+                force_before = [force_before]
+            for t1_id in force_before:
+                t1 = find_node_by_source_id(t1_id)
+                self.logger.find("Force {t0} < {t1} by source annotation")
+                self._add_path_constraint(t1, t0, 
+                    lambda t0=t0, t1=t1: t0.program_start_var < t1.program_start_var)
+        
     # ================================================================
     #                  CONSTRAINTS (Single issuing)                  #
     # ================================================================

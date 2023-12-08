@@ -118,6 +118,8 @@ class Loop:
         yield f"{indent}le lr, {lbl_start}"
 
     def extract(source, lbl):
+        assert isinstance(source, list)
+
         pre  = []
         body = []
         post = []
@@ -125,7 +127,7 @@ class Loop:
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
         loop_end_regexp_txt = f"^\s*le\s+(lr|r14)\s*,\s*{lbl}"
         loop_end_regexp = re.compile(loop_end_regexp_txt)
-        lines = iter(source.splitlines())
+        lines = iter(source)
         l = None
         keep = False
         state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop

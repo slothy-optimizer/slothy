@@ -33,7 +33,7 @@ from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
 from slothy.core import Config
 from slothy.heuristics import Heuristics
-from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor
+from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor, SourceLine
 
 class Slothy():
 
@@ -48,14 +48,35 @@ class Slothy():
     def __init__(self, arch, target, logger=None):
         self.config = Config(arch, target)
         self.logger = logger if logger != None else logging.getLogger("slothy")
-        self.source = None
+
+        # The source, once loaded, is represented as a list of strings
+        self._source = None
         self.results = None
 
         self.last_result = None
         self.success = None
 
+    @property
+    def source(self):
+        return self._source
+
+    @source.setter
+    def source(self, val):
+        assert SourceLine.is_source(val)
+        self._source = val
+
+    def get_source_as_string(self):
+        """Retrieve current source code as multi-line string"""
+        return SourceLine.write_multiline(self.source)
+
+    def set_source_as_string(self, s):
+        """Provide input source code as multi-line string"""
+        assert isinstance(s, str)
+        self.source = SourceLine.read_multiline(s)
+
     def load_source_raw(self, source):
-        self.source = source.replace("\\\n", "")
+        """Load source code from multi-line string"""
+        self.set_source_as_string(source)
         self.results = []
 
     def load_source_from_file(self, filename):
@@ -67,21 +88,20 @@ class Slothy():
 
     def write_source_to_file(self, filename):
         f = open(filename,"w")
-        f.write(self.source)
+        f.write(self.get_source_as_string())
         f.close()
 
     def print_code(self):
-        print(self.source)
+        print(self.source.get_source_as_string())
 
     def rename_function(self, old_funcname, new_funcname):
         self.source = AsmHelper.rename_function(self.source, old_funcname, new_funcname)
 
     @staticmethod
     def _dump(name, s, logger, err=False):
+        assert isinstance(s, list)
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
-        if isinstance(s, str):
-          s = s.splitlines()
         for l in s:
             fun(f"> {l}")
 
@@ -128,40 +148,40 @@ class Slothy():
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
-        body = AsmHelper.split_semicolons(body)
+        body = SourceLine.split_semicolons(body)
         body = AsmMacro.unfold_all_macros(pre, body)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
-        body = AsmHelper.apply_indentation(body, indentation)
+        body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
         early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
 
         def indented(code):
-            indent = ' ' * self.config.indentation
-            return [ indent + s for s in code ]
+            return [ SourceLine(l).set_indentation(indentation) for l in code]
 
         if start is not None:
-            core = [f"{start}:"] + core
+            core = [SourceLine(f"{start}:")] + core
         if end is not None:
-            core += [f"{end}:"]
+            core += [SourceLine(f"{end}:")]
 
         if not self.config.sw_pipelining.enabled:
             assert early == []
             assert late == []
             assert num_exceptional == 0
-            optimized_source = indented(core)
-        elif loop_synthesis_cb != None:
-            optimized_source = indented(loop_synthesis_cb( pre, core, post, num_exceptional))
+            optimized_source = core
+        elif loop_synthesis_cb is not None:
+            optimized_source = loop_synthesis_cb( pre, core, post, num_exceptional)
         else:
             optimized_source = []
             optimized_source += indented([f"// Exceptional iterations: {num_exceptional}",
                                           "// Preamble"])
-            optimized_source += indented(early)
+            optimized_source += early
             optimized_source += indented(["// Kernel"])
-            optimized_source += indented(core)
+            optimized_source += core
             optimized_source += indented(["// Postamble"])
-            optimized_source += indented(late)
+            optimized_source += late
 
-        self.source = '\n'.join(pre + optimized_source + post)
+        self.source = pre + optimized_source + post
+        assert SourceLine.is_source(self.source)
 
     def get_loop_input_output(self, loop_lbl):
         logger = self.logger.getChild(loop_lbl)
@@ -196,7 +216,7 @@ class Slothy():
             body = CPreprocessor.unfold(pre, body, c.compiler_binary)
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
-        body = AsmHelper.split_semicolons(body)
+        body = SourceLine.split_semicolons(body)
 
         aliases = AsmAllocation.parse_allocs(pre)
         c.add_aliases(aliases)
@@ -207,11 +227,11 @@ class Slothy():
 
         dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
         dfg.ssa()
-        body = [ str(t.inst) for t in dfg.nodes ]
+        body = [ SourceLine(str(t.inst)) for t in dfg.nodes ]
 
         dfg = DFG(body, logger.getChild("fusion"), dfgc, parsing_cb=False)
         dfg.apply_fusion_cbs()
-        body = [ str(t.inst) for t in dfg.nodes ]
+        body = [ SourceLine(str(t.inst)) for t in dfg.nodes ]
 
         return body
 
@@ -219,8 +239,11 @@ class Slothy():
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
-        body_ssa = [ f"{start}:" ] + self._fusion_core(pre, body, logger) + [ f"{end}:" ]
-        self.source = '\n'.join(pre + body_ssa + post)
+        body_ssa = [ SourceLine(f"{start}:") ] +\
+             self._fusion_core(pre, body, logger) + \
+            [ SourceLine(f"{end}:") ]
+        self.source = pre + body_ssa + post
+        assert SourceLine.is_source(self.source)
 
     def fusion_loop(self, loop_lbl):
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
@@ -231,9 +254,12 @@ class Slothy():
         indentation = AsmHelper.find_indentation(body)
 
         loop = self.arch.Loop(lbl_start=loop_lbl)
-        body_ssa = list(loop.start()) + AsmHelper.apply_indentation(self._fusion_core(pre, body, logger), indentation) + list(loop.end(other_data))
+        body_ssa = SourceLine.read_multiline(loop.start()) + \
+            SourceLine.apply_indentation(self._fusion_core(pre, body, logger), indentation) + \
+            SourceLine.read_multiline(loop.end(other_data))
 
-        self.source = '\n'.join(pre + body_ssa + post)
+        self.source = pre + body_ssa + post
+        assert SourceLine.is_source(self.source)
 
         c = self.config.copy()
         self.config.constraints.functional_only = True
@@ -245,13 +271,22 @@ class Slothy():
         self.optimize_loop(loop_lbl)
         self.config = c
 
+        assert SourceLine.is_source(self.source)
+
     def optimize_loop(self, loop_lbl, postamble_label=None):
         """Optimize the loop starting at a given label"""
 
         logger = self.logger.getChild(loop_lbl)
+        if not SourceLine.is_source(self.source):
+            [ print(l) for l in self.source ]
+            assert False
 
         early, body, late, _, other_data = \
             self.arch.Loop.extract(self.source, loop_lbl)
+
+        assert SourceLine.is_source(early)
+        assert SourceLine.is_source(body)
+        assert SourceLine.is_source(late)
 
         aliases = AsmAllocation.parse_allocs(early)
         c = self.config.copy()
@@ -266,23 +301,29 @@ class Slothy():
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
-        body = AsmHelper.split_semicolons(body)
+        body = SourceLine.split_semicolons(body)
         body = AsmMacro.unfold_all_macros(early, body)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
-        body = AsmHelper.apply_indentation(body, indentation)
+        body = SourceLine.apply_indentation(body, indentation)
 
         insts = len(list(filter(None, body)))
         self.logger.info("Optimizing loop %s (%d instructions) ...", loop_lbl, insts)
 
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
+
+        assert SourceLine.is_source(preamble_code)
+        assert SourceLine.is_source(kernel_code)
+        assert SourceLine.is_source(postamble_code)
+
         def indented(code):
-            indent = ' ' * self.config.indentation
-            return [ indent + s.strip() for s in code ]
+            if not SourceLine.is_source(code):
+                code = SourceLine.read_multiline(code)
+            return SourceLine.apply_indentation(code, self.config.indentation)
 
         loop_lbl_end = f"{loop_lbl}_end"
         def loop_lbl_iter(i):
-            return f"{loop_lbl}_iter_{i}"
+            return SourceLine(f"{loop_lbl}_iter_{i}")
 
         optimized_code = []
 
@@ -300,26 +341,26 @@ class Slothy():
         else:
             jump_if_empty = None
 
-        optimized_code += list(loop.start(
+        optimized_code += SourceLine.read_multiline(loop.start(
             indentation=self.config.indentation,
             fixup=num_exceptional,
             unroll=self.config.sw_pipelining.unroll,
             jump_if_empty=jump_if_empty))
         optimized_code += indented(kernel_code)
-        optimized_code += list(loop.end(other_data, indentation=self.config.indentation))
+        optimized_code += SourceLine.read_multiline(loop.end(other_data, indentation=self.config.indentation))
         if postamble_label is not None:
-            optimized_code += [ f"{postamble_label}: // end of loop kernel" ]
+            optimized_code += [ SourceLine(f"{postamble_label}: // end of loop kernel") ]
         optimized_code += indented(postamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:
             optimized_code += indented(self.arch.Branch.unconditional(loop_lbl_end))
             for i in range(1, num_exceptional):
-                optimized_code += [f"{loop_lbl_iter(i)}:"]
+                optimized_code += [SourceLine(f"{loop_lbl_iter(i)}:")]
                 optimized_code += i * indented(body)
-                optimized_code += [f"{loop_lbl_iter(i)}_end:"]
+                optimized_code += [SourceLine(f"{loop_lbl_iter(i)}_end:")]
                 if i != num_exceptional - 1:
                     optimized_code += indented(self.arch.Branch.unconditional(loop_lbl_end))
-            optimized_code += [f"{loop_lbl_end}:"]
+            optimized_code += [SourceLine(f"{loop_lbl_end}:")]
 
         self.last_result = SimpleNamespace()
         dfgc = DFGConfig(c)
@@ -327,5 +368,9 @@ class Slothy():
         self.last_result.kernel_input_output = \
             list(DFG(kernel_code, logger.getChild("dfg_kernel_deps"), dfgc).inputs)
 
-        self.source = '\n'.join(early + optimized_code + late)
+        assert SourceLine.is_source(early)
+        assert SourceLine.is_source(optimized_code)
+        assert SourceLine.is_source(late)
+
+        self.source = early + optimized_code + late
         self.success = True

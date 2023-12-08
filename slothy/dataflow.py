@@ -26,7 +26,7 @@
 #
 
 from functools import cached_property
-from .helper import AsmHelper
+from .helper import AsmHelper, SourceLine
 
 class SlothyUselessInstructionException(Exception):
     """An instruction was found whose outputs are neither used by a subsequent instruction
@@ -599,8 +599,17 @@ class DataFlowGraph:
             self.logger.warning(f"Instruction details: {t}, {t.inst.inputs}")
             self._dump_instructions("Source code", error=False)
 
+    def _parse_line(self, l):
+        assert SourceLine.is_source_line(l)
+        insts = self.arch.Instruction.parser(l) 
+        # Remember options from source line
+        # TODO: Might not be the right place to remember options
+        for inst in insts: 
+            inst.tags = l.tags
+        return (insts, l)
+    
     def _parse_source(self, src):
-        return [ (self.arch.Instruction.parser(l),l) for l in AsmHelper.reduce_source(src) ]
+        return list(map(self._parse_line, AsmHelper.reduce_source(src)))
 
     def iter_dependencies(self):
         """Returns an iterator over all dependencies in the data flow graph.

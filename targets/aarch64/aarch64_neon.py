@@ -241,6 +241,7 @@ class Loop:
            ```
 
         """
+        assert isinstance(source, list)
 
         pre  = []
         body = []
@@ -253,27 +254,29 @@ class Loop:
         loop_end_regexp_txt = (r"^\s*sub[s]?\s+(?P<reg0>\w+),\s*(?P<reg1>\w+),\s*(?P<imm>#1)",
                                rf"^\s*(cbnz|bnz|bne)\s+(?P<reg0>\w+),\s*{lbl}")
         loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
-        lines = iter(source.splitlines())
+        lines = iter(source)
         l = None
         keep = False
         state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop
         while True:
             if not keep:
                 l = next(lines, None)
+                l_str = str(l)
             keep = False
             if l is None:
                 break
+            assert isinstance(l, str) == False
             if state == 0:
-                p = loop_lbl_regexp.match(l)
+                p = loop_lbl_regexp.match(l_str)
                 if p is not None and p.group("label") == lbl:
-                    l = p.group("remainder")
+                    l.set_text(p.group("remainder"))
                     keep = True
                     state = 1
                 else:
                     pre.append(l)
                 continue
             if state == 1:
-                p = loop_end_regexp[0].match(l)
+                p = loop_end_regexp[0].match(l_str)
                 if p is not None:
                     reg0 = p.group("reg0")
                     reg1 = p.group("reg1")
@@ -283,7 +286,7 @@ class Loop:
                 body.append(l)
                 continue
             if state == 2:
-                p = loop_end_regexp[1].match(l)
+                p = loop_end_regexp[1].match(l_str)
                 if p is not None:
                     state = 3
                     continue
@@ -496,14 +499,14 @@ class Instruction:
         return obj
 
     @staticmethod
-    def parser(src):
+    def parser(src_line):
         """Global factory method parsing an assembly line into an instance
         of a subclass of Instance"""
         insts = []
         exceptions = {}
         instnames = []
 
-        src = src.strip()
+        src = str(src_line).strip()
 
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds

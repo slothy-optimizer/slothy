@@ -32,7 +32,7 @@ import numpy as np
 from slothy.dataflow import DataFlowGraph as DFG
 from slothy.dataflow import Config as DFGConfig
 from slothy.core import SlothyBase, Result
-from slothy.helper import Permutation, AsmHelper
+from slothy.helper import Permutation, AsmHelper, SourceLine
 from slothy.helper import binary_search, BinarySearchLimitException
 
 class Heuristics():
@@ -190,7 +190,6 @@ class Heuristics():
         def unroll(source):
             if conf.sw_pipelining.enabled:
                 source = source * conf.sw_pipelining.unroll
-            source = '\n'.join(source)
             return source
 
         body = unroll(body)
@@ -224,6 +223,7 @@ class Heuristics():
 
         num_exceptional_iterations = result.num_exceptional_iterations
         kernel = result.code
+        assert SourceLine.is_source(kernel)
 
         # Second step: Separately optimize preamble and postamble
 
@@ -255,6 +255,7 @@ class Heuristics():
         """Heuristic for the optimization of large linear chunks of code.
 
         Must only be called if software pipelining is disabled."""
+        assert SourceLine.is_source(body)
         if conf.sw_pipelining.enabled:
             raise Exception("Linear heuristic should only be called with SW pipelining disabled")
 
@@ -425,9 +426,14 @@ class Heuristics():
             local_perm = Permutation.permutation_move_entry_forward(l, choice_idx, i)
             perm = Permutation.permutation_comp (local_perm, perm)
 
-            body = [ str(j.inst) for j in insts]
+            def node_to_source_line(t):
+                res = SourceLine(str(t.inst))
+                res._tags = t.inst.tags
+                return res
+
+            body = list(map(node_to_source_line, insts))
             depths = move_entry_forward(depths, choice_idx, i)
-            body[i] = f"    {body[i].strip():100s} // {depth_str} {depths[i]}"
+            body[i].set_text(f"    {str(body[i]).strip():100s} // {depth_str} {depths[i]}")
             Heuristics._dump("New code", body, logger)
 
         # Selfcheck
@@ -734,13 +740,14 @@ class Heuristics():
 
     @staticmethod
     def _dump(name, s, logger, err=False, no_comments=False):
+        assert SourceLine.is_source(s)
+        s = [ str(l) for l in s]
+
         def strip_comments(sl):
             return [ s.split("//")[0].strip() for s in sl ]
 
         fun = logger.debug if not err else logger.error
-        fun(f"Dump: {name}")
-        if isinstance(s, str):
-          s = s.splitlines()
+        fun(f"Dump: {name} (size {len(s)})")
         if no_comments:
             s = strip_comments(s)
         for l in s:
@@ -882,9 +889,43 @@ class Heuristics():
             res_halving_1 = Heuristics.linear(kernel, logger.getChild("heuristic"), conf=c)
             final_kernel = res_halving_1.code
 
-            # TODO: Synthesize a SW pipelining Result structure, and selfcheck it.
+            reordering2 = res_halving_1.reordering_with_bubbles
 
-            kernel = final_kernel
+            c2 = conf.copy()
+
+            def get_reordering2(i):
+                is_pre = res.pre_core_post_dict[i][0]
+                p = reordering2[res.periodic_reordering[i]]
+                if is_pre:
+                    p -= res_halving_1.codesize_with_bubbles
+                return p
+            reordering2 = { i : get_reordering2(i) for i in range(codesize) }
+
+            res2 = Result(c2)
+            res2.orig_code = body
+            res2.code = final_kernel
+            res2.kernel_input_output = new_kernel_deps
+            res2.codesize_with_bubbles = res_halving_1.codesize_with_bubbles
+            res2.reordering_with_bubbles = reordering2
+            res2.pre_core_post_dict = pre_core_post_dict1
+            res2.input_renamings = res.input_renamings
+            res2.output_renamings = res.output_renamings
+
+            new_preamble = [ final_kernel[i] for i in range(res2.codesize) if res2.is_pre(i, original_program_order=False) is True ]
+            new_postamble = [ final_kernel[i] for i in range(res2.codesize) if res2.is_pre(i, original_program_order=False) is False ]
+
+            res2.preamble = new_preamble
+            res2.postamble = new_postamble
+            res2.success = True
+            res2.valid = True
+
+            r2p = res2.periodic_reordering
+
+            # TODO: This does not yet work since there can be renaming at the boundary between
+            # preamble and postamble that we don't account for in the selfcheck.
+            # res2.selfcheck(logger.getChild("halving_heuristic_2"))
+
+            kernel = res2.code
 
         num_exceptional_iterations = 1
         return preamble, kernel, postamble, num_exceptional_iterations
