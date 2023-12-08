@@ -339,6 +339,13 @@ class Instruction:
         instruction patterns (See Section 4.4, https://eprint.iacr.org/2022/1303.pdf)."""
         return False
 
+    def global_fusion_cb(self, a, log=None):
+        """Fusion callback triggered after DataFlowGraph parsing which allows fusing
+        of the instruction in the context of the overall computation.
+
+        This can be used e.g. to detect eor-eor pairs and replace them by eor3."""
+        return False
+
     def write(self):
         """Write the instruction"""
         args = self.args_out + self.args_in_out + self.args_in
@@ -727,10 +734,9 @@ class AArch64Instruction(Instruction):
         modifies_flags = getattr(c,"modifiesFlags", False)
         depends_on_flags = getattr(c,"dependsOnFlags", False)
 
-        if src.split(' ')[0] != pattern.split(' ')[0]:
-            raise Instruction.ParsingException("Mnemonic does not match")
-
         if isinstance(src, str):
+            if src.split(' ')[0] != pattern.split(' ')[0]:
+                raise Instruction.ParsingException("Mnemonic does not match")
             res = AArch64Instruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
@@ -2088,7 +2094,7 @@ class veor(AArch64NeonLogical):
     outputs = ["Vd"]
 
 class veor3(AArch64Instruction):
-    pattern = "eor3 <Vd>.16b, <Va>.16b, <Vb>.16b, <Vc>.16b"
+    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
     inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
@@ -2764,6 +2770,57 @@ def stack_vld2_lane_parsing_cb():
     return core
 
 stack_vld2_lane.global_parsing_cb  = stack_vld2_lane_parsing_cb()
+
+def eor3_fusion_cb():
+    def core(inst,t,log=None):
+        succ = None
+
+        # Check if this is the first in a fusable pair of eor3
+        if len(t.dst_out[0]) == 1:
+            r = t.dst_out[0][0]
+            if isinstance(r.inst, veor) and r.src_in[0].src == t:
+                if r.inst.args_in[0] == t.inst.args_out[0]:
+                    succ = r
+
+        if succ is None:
+            return False
+
+        d = r.inst.args_out[0]
+        a = inst.args_in[0]
+        b = inst.args_in[1]
+        c = r.inst.args_in[1]
+
+        # Check if the a,b inputs are overwritten between the
+        # first and second eor.
+        if r.reg_state[a] != t.reg_state[a] and not \
+            (r.reg_state[a].src == t and t.reg_state[a].idx == 0):
+            if log is not None:
+                log(f"NOTE: Skipping potential EOR3 fusion for ({t}:{r}) because {a} is modified by {r.reg_state[a]} in the interim.")
+            return False
+        if r.reg_state[b] != t.reg_state[b] and not \
+            (r.reg_state[b].src == t and t.reg_state[b].idx == 0):
+            if log is not None:
+                log(f"NOTE: Skipping potential EOR3 fusion for ({t}:{r}) because {b} is modified by {r.reg_state[b]} in the interim.")
+            return False
+
+        new_inst = AArch64Instruction.build(veor3, { "Vd": d, "Va" : a, "Vb" : b, "Vc" : c,
+                                                     "datatype0":"16b",
+                                                     "datatype1":"16b",
+                                                     "datatype2":"16b",
+                                                     "datatype3":"16b" })
+
+        if log is not None:
+            log(f"EOR3 fusion: {t.inst}; {r.inst} ~> {new_inst}")
+
+        # If so, delete first note, and reparse second as eor3
+        t.delete = True
+        r.changed = True
+        r.inst = new_inst
+        return True
+
+    return core
+
+veor.global_fusion_cb  = eor3_fusion_cb()
 
 def iter_aarch64_instructions():
     yield from all_subclass_leaves(Instruction)

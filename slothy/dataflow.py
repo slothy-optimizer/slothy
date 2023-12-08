@@ -541,6 +541,13 @@ class DataFlowGraph:
             return t.inst.global_parsing_cb(t, log=logger.info)
         return self.apply_cbs(parsing_cb, logger)
 
+    def apply_fusion_cbs(self):
+        """Apply fusion callbacks to nodes in the graph"""
+        logger = self.logger.getChild("fusion_cbs")
+        def fusion_cb(t):
+            return t.inst.global_fusion_cb(t, log=logger.info)
+        return self.apply_cbs(fusion_cb, logger, one_a_time=True)
+
     def __init__(self, src, logger, config, parsing_cb=True):
         """Compute a data flow graph from a source code snippet.
 
@@ -790,6 +797,7 @@ class DataFlowGraph:
 
         step = ComputationNode(node_id=s_id, orig_pos=orig_pos, inst=s,
                                src_in=src_in, src_in_out=src_in_out)
+        step.reg_state = self.reg_state.copy()
 
         def change_reg_ref(reg, ref):
             self._remember_type(reg, ref.get_type())

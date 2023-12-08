@@ -188,11 +188,7 @@ class Slothy():
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
 
-    def ssa_region(self, start, end, outputs=None):
-        if outputs is None:
-            outputs = {}
-        logger = self.logger.getChild(f"{start}_{end}_infer_input")
-        pre, body, post = AsmHelper.extract(self.source, start, end)
+    def _fusion_core(self, pre, body, logger):
         c = self.config.copy()
 
         if c.with_preprocessor:
@@ -204,16 +200,49 @@ class Slothy():
 
         aliases = AsmAllocation.parse_allocs(pre)
         c.add_aliases(aliases)
-        c.outputs = outputs
 
         body = AsmMacro.unfold_all_macros(pre, body)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         dfgc = DFGConfig(c)
-        dfg = DFG(body, logger.getChild("dfg_find_deps"), dfgc)
-        dfg.ssa()
 
-        body_ssa = [ f"{start}:" ] + [ str(t.inst) for t in dfg.nodes ] + [ f"{end}:" ]
+        dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
+        dfg.ssa()
+        body = [ str(t.inst) for t in dfg.nodes ]
+
+        dfg = DFG(body, logger.getChild("fusion"), dfgc, parsing_cb=False)
+        dfg.apply_fusion_cbs()
+        body = [ str(t.inst) for t in dfg.nodes ]
+
+        return body
+
+    def fusion_region(self, start, end):
+        logger = self.logger.getChild(f"ssa_{start}_{end}")
+        pre, body, post = AsmHelper.extract(self.source, start, end)
+
+        body_ssa = [ f"{start}:" ] + self._fusion_core(pre, body, logger) + [ f"{end}:" ]
         self.source = '\n'.join(pre + body_ssa + post)
+
+    def fusion_loop(self, loop_lbl):
+        logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
+
+        pre , body, post, _, other_data = \
+            self.arch.Loop.extract(self.source, loop_lbl)
+
+        indentation = AsmHelper.find_indentation(body)
+
+        loop = self.arch.Loop(lbl_start=loop_lbl)
+        body_ssa = list(loop.start()) + AsmHelper.apply_indentation(self._fusion_core(pre, body, logger), indentation) + list(loop.end(other_data))
+
+        self.source = '\n'.join(pre + body_ssa + post)
+
+        c = self.config.copy()
+        self.config.constraints.functional_only = True
+        self.config.constraints.allow_reordering = False
+        self.config.sw_pipelining.enabled = False
+        self.config.inputs_are_outputs = True
+        self.config.sw_pipelining.unknown_iteration_count = False
+        self.optimize_loop(loop_lbl)
+        self.config = c
 
     def optimize_loop(self, loop_lbl, postamble_label=None):
         """Optimize the loop starting at a given label"""

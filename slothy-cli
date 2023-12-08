@@ -53,6 +53,8 @@ def main(argv):
                         help="""The starting label for the loop to optimize. This is mutually
                         exclusive with -s/--start and -e/--end, which allowv you to specify
                         the code to optimize via start/end separately.""")
+    parser.add_argument("--fusion", default=False, action='store_true')
+    parser.add_argument("--fusion-only", default=False, action='store_true')
     parser.add_argument("-s", "--start", default=None, type=str,
                         help="""The label or line at which the to code to optimize begins.
                         This is mutually exclusive with -l/--loop.""")
@@ -228,11 +230,17 @@ def main(argv):
     slothy.load_source_from_file(args.input)
 
     # Optimize
-    if len(args.loop) > 0:
-        for l in args.loop:
-            slothy.optimize_loop(l)
-    else:
-        slothy.optimize(start=args.start, end=args.end)
+    if args.fusion is True:
+        if len(args.loop) > 0:
+            for l in args.loop:
+                slothy.fusion_loop(l)
+    
+    if not (args.fusion is True and args.fusion_only is True):
+        if len(args.loop) > 0:
+            for l in args.loop:
+                slothy.optimize_loop(l)
+        else:
+            slothy.optimize(start=args.start, end=args.end)
 
     # Rename
     if args.rename_function:
