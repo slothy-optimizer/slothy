@@ -204,8 +204,8 @@ class Heuristics():
         # If we're not asked to do software pipelining, just forward to
         # the heurstics for linear optimization.
         if not conf.sw_pipelining.enabled:
-            core = Heuristics.linear( body, logger=logger, conf=conf)
-            return [], core, [], 0
+            res = Heuristics.linear( body, logger=logger, conf=conf)
+            return [], res.code, [], 0
 
         if conf.sw_pipelining.halving_heuristic:
             return Heuristics._periodic_halving( body, logger, conf)
@@ -236,7 +236,8 @@ class Heuristics():
             c = conf.copy()
             c.outputs = result.kernel_input_output
             c.sw_pipelining.enabled=False
-            preamble = Heuristics.linear(preamble,conf=c, logger=logger.getChild("preamble"))
+            res_preamble = Heuristics.linear(preamble,conf=c, logger=logger.getChild("preamble"))
+            preamble = res_preamble.code
 
         postamble = result.postamble
         if conf.sw_pipelining.optimize_postamble:
@@ -244,7 +245,8 @@ class Heuristics():
             Heuristics._dump("Preamble", postamble, logger)
             c = conf.copy()
             c.sw_pipelining.enabled=False
-            postamble = Heuristics.linear(postamble, conf=c, logger=logger.getChild("postamble"))
+            res_postamble = Heuristics.linear(postamble, conf=c, logger=logger.getChild("postamble"))
+            postamble = res_postamble.code
 
         return preamble, kernel, postamble, num_exceptional_iterations
 
@@ -261,8 +263,7 @@ class Heuristics():
         # So far, we only implement one heuristic: The splitting heuristic --
         # If that's disabled, just forward to the core optimization
         if not conf.split_heuristic:
-            result = Heuristics.optimize_binsearch(body,logger.getChild("slothy"), conf)
-            return result.code
+            return Heuristics.optimize_binsearch(body,logger.getChild("slothy"), conf)
 
         return Heuristics._split( body, logger, conf, visualize_stalls)
 
@@ -695,21 +696,41 @@ class Heuristics():
         if c.split_heuristic_region == [0.0, 1.0]:
             return Heuristics._split_inner(body, logger, c, visualize_stalls)
 
+        inputs = DFG(body, logger.getChild("dfg_generate_inputs"), DFGConfig(c)).inputs
+
         start_end_idxs = Heuristics._idxs_from_fractions(c.split_heuristic_region, body)
         start_idx = start_end_idxs[0]
         end_idx = start_end_idxs[1]
 
         pre = body[:start_idx]
-        cur = body[start_idx:end_idx]
+        partial_body = body[start_idx:end_idx]
         post = body[end_idx:]
 
         # Adjust the outputs
         c.outputs = DFG(post, logger.getChild("dfg_generate_outputs"), DFGConfig(c)).inputs
         c.inputs_are_outputs = False
 
-        cur = Heuristics._split_inner(cur, logger, c, visualize_stalls)
-        body = pre + cur + post
-        return body
+        res = Heuristics._split_inner(partial_body, logger, c, visualize_stalls)
+        new_partial_body = res.code
+
+        pre_pad = len(pre)
+        post_pad = len(post)
+        perm = Permutation.permutation_pad(res.reordering, pre_pad, post_pad)
+
+        new_body = AsmHelper.reduce_source(pre + new_partial_body + post)
+
+        res2 = Result(conf)
+        res2.orig_code = body.copy()
+        res2.code = new_body
+        res2.codesize_with_bubbles = pre_pad + post_pad + res.codesize_with_bubbles
+        res2.success = True
+        res2.reordering_with_bubbles = perm
+        res2.input_renamings = { s:s for s in inputs }
+        res2.output_renamings = { s:s for s in conf.outputs }
+        res2.valid = True
+        res2.selfcheck(logger.getChild("split"))
+
+        return res2
 
     @staticmethod
     def _dump(name, s, logger, err=False, no_comments=False):
@@ -732,6 +753,8 @@ class Heuristics():
         assert conf.sw_pipelining.enabled
         assert conf.sw_pipelining.halving_heuristic
 
+        body = AsmHelper.reduce_source(body)
+
         # Find kernel dependencies
         kernel_deps = DFG(body, logger.getChild("dfg_kernel_deps"),
                           DFGConfig(conf.copy())).inputs
@@ -743,11 +766,81 @@ class Heuristics():
         c.outputs = c.outputs.union(kernel_deps)
 
         if not conf.sw_pipelining.halving_heuristic_split_only:
-            kernel = Heuristics.linear(body,logger.getChild("slothy"),conf=c,
+            res_halving_0 = Heuristics.linear(body,logger.getChild("slothy"),conf=c,
                                        visualize_stalls=False)
+
+            # Split resulting kernel as [A;B] and synthesize result structure
+            # as if SW pipelining has been used and the result would have been
+            # [B;A], with preamble A and postamble B.
+            #
+            # Run the normal SW-pipelining selfcheck on this result.
+            #
+            # The overall goal here is to produce a result structure that's structurally
+            # the same as for normal SW pipelining, including checks and visualization.
+            #
+            # TODO: The 2nd optimization step below does not yet produce a Result structure.
+            reordering = res_halving_0.reordering
+            codesize = res_halving_0.codesize
+            def rotate_pos(p):
+                return p - (codesize // 2)
+            def is_pre(i):
+                return rotate_pos(reordering[i]) < 0
+
+            kernel = AsmHelper.reduce_source(res_halving_0.code)
+            preamble = kernel[:codesize//2]
+            postamble = kernel[codesize//2:]
+
+            # Swap halves around and consider new kernel [B;A]
+            kernel = postamble + preamble
+
+            dfgc = DFGConfig(c.copy())
+            dfgc.inputs_are_outputs = False
+            core_out = DFG(postamble, logger.getChild("dfg_kernel_deps"),dfgc).inputs
+
+            dfgc = DFGConfig(conf.copy())
+            dfgc.inputs_are_outputs = True
+            dfgc.outputs = core_out
+            new_kernel_deps = DFG(kernel, logger.getChild("dfg_kernel_deps"),dfgc).inputs
+
+            c2 = c.copy()
+            c2.sw_pipelining.enabled = True
+
+            reordering1 = { i : rotate_pos(reordering[i])
+                for i in range(codesize) }
+            pre_core_post_dict1 = { i : (is_pre(i), not is_pre(i), False)
+                for i in range(codesize) }
+
+            res = Result(c2)
+            res.orig_code = body
+            res.code = kernel
+            res.preamble = preamble
+            res.postamble = postamble
+            res.kernel_input_output = new_kernel_deps
+            res.codesize_with_bubbles = res_halving_0.codesize_with_bubbles
+            res.reordering_with_bubbles = reordering1
+            res.pre_core_post_dict = pre_core_post_dict1
+            res.input_renamings = { s:s for s in kernel_deps }
+            res.output_renamings = { s:s for s in c.outputs }
+            res.success = True
+            res.valid = True
+
+            # Check result as if it has been produced by SW pipelining run
+            res.selfcheck(logger.getChild("halving_heuristic_1"))
+
         else:
             logger.info("Halving heuristic: Split-only -- no optimization")
-            kernel = body
+            codesize = len(body)
+            preamble = body[:codesize//2]
+            postamble = body[codesize//2:]
+            kernel = postamble + preamble
+
+            dfgc = DFGConfig(c.copy())
+            dfgc.inputs_are_outputs = False
+            kernel_deps = DFG(postamble, logger.getChild("dfg_kernel_deps"),dfgc).inputs
+
+            dfgc = DFGConfig(conf.copy())
+            dfgc.inputs_are_outputs = True
+            kernel_deps = DFG(kernel, logger.getChild("dfg_kernel_deps"),dfgc).inputs
 
         #
         # Second step:
@@ -764,24 +857,6 @@ class Heuristics():
         # If the optimized loop body is [A;B], we now optimize [B;A], that is, the late half of one
         # iteration followed by the early half of the successive iteration. The hope is that this
         # enables good interleaving even without calling SLOTHY in SW pipelining mode.
-
-        kernel = AsmHelper.reduce_source(kernel)
-        kernel_len  = len(kernel)
-        kernel_lenh = kernel_len // 2
-        kernel_low  = kernel[:kernel_lenh]
-        kernel_high = kernel[kernel_lenh:]
-        kernel = kernel_high.copy() + kernel_low.copy()
-
-        preamble, postamble = kernel_low, kernel_high
-
-        dfgc = DFGConfig(conf.copy())
-        dfgc.outputs = kernel_deps
-        dfgc.inputs_are_outputs = False
-        kernel_deps = DFG(kernel_high, logger.getChild("dfg_kernel_deps"),dfgc).inputs
-
-        dfgc = DFGConfig(conf.copy())
-        dfgc.inputs_are_outputs = True
-        kernel_deps = DFG(kernel, logger.getChild("dfg_kernel_deps"),dfgc).inputs
 
         logger.info("Apply halving heuristic to optimize two halves of consecutive loop kernels...")
 
@@ -800,10 +875,16 @@ class Heuristics():
                                                     getChild("periodic heuristic"), conf=c).code
         elif not conf.sw_pipelining.halving_heuristic_split_only:
             c = conf.copy()
-            c.outputs = kernel_deps
-            c.sw_pipelining.enabled=False
+            c.outputs = new_kernel_deps
+            c.inputs_are_outputs = True
+            c.sw_pipelining.enabled = False
 
-            kernel = Heuristics.linear( kernel, logger.getChild("heuristic"), conf=c)
+            res_halving_1 = Heuristics.linear(kernel, logger.getChild("heuristic"), conf=c)
+            final_kernel = res_halving_1.code
+
+            # TODO: Synthesize a SW pipelining Result structure, and selfcheck it.
+
+            kernel = final_kernel
 
         num_exceptional_iterations = 1
         return preamble, kernel, postamble, num_exceptional_iterations
