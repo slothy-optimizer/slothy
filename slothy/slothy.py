@@ -239,6 +239,7 @@ class Slothy():
         self.config.constraints.functional_only = True
         self.config.constraints.allow_reordering = False
         self.config.sw_pipelining.enabled = False
+        self.config.split_heuristic = False
         self.config.inputs_are_outputs = True
         self.config.sw_pipelining.unknown_iteration_count = False
         self.optimize_loop(loop_lbl)
