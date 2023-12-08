@@ -331,7 +331,7 @@ class Instruction:
         self.pre_index = None
         self.immediate = None
 
-    def global_parsing_cb(self, a):
+    def global_parsing_cb(self, a, log=None):
         """Parsing callback triggered after DataFlowGraph parsing which allows modification
         of the instruction in the context of the overall computation.
 
@@ -2660,7 +2660,7 @@ class ld2_with_inc(Ld2):
 # target vector as output rather than input/output. This enables further
 # renaming opportunities.
 def vins_d_parsing_cb():
-    def core(inst, t):
+    def core(inst, t, log=None):
         succ = None
         # Check if this is the first in a pair of vins+vins
         if len(t.dst_in_out[0]) == 1:
@@ -2674,6 +2674,7 @@ def vins_d_parsing_cb():
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
         t.inst = vins_d_force_output.make(inst_txt, force=True)
+        t.changed = True
         return True
     return core
 vins_d.global_parsing_cb = vins_d_parsing_cb()
@@ -2682,7 +2683,7 @@ vins_d.global_parsing_cb = vins_d_parsing_cb()
 # target vector as output rather than input/output. This enables further
 # renaming opportunities.
 def fmov_0_parsing_cb():
-    def core(inst, t):
+    def core(inst, t, log=None):
         succ = None
         r = None
         # Check if this is the first in a pair of fmov's
@@ -2696,12 +2697,13 @@ def fmov_0_parsing_cb():
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
         t.inst = fmov_0_force_output.make(inst_txt, force=True)
+        t.changed = True
         return True
     return core
 fmov_0.global_parsing_cb = fmov_0_parsing_cb()
 
 def fmov_1_parsing_cb():
-    def core(inst, t):
+    def core(inst, t, log=None):
         succ = None
         r = None
         # Check if this is the first in a pair of fmov's
@@ -2715,12 +2717,14 @@ def fmov_1_parsing_cb():
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
         t.inst = fmov_1_force_output.make(inst_txt, force=True)
+
+        t.changed = True
         return True
     return core
 fmov_1.global_parsing_cb = fmov_1_parsing_cb()
 
 def stack_vld2_lane_parsing_cb():
-    def core(inst,t):
+    def core(inst,t, log=None):
         succ = None
 
         if inst.detected_stack_vld2_lane_pair:
@@ -2753,6 +2757,8 @@ def stack_vld2_lane_parsing_cb():
         inst.args_in_out_combinations = None
 
         inst.detected_stack_vld2_lane_pair = True
+
+        t.changed = True
         return True
 
     return core

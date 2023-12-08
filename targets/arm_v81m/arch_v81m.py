@@ -201,7 +201,7 @@ class Instruction:
         self.args_in_out_combinations = None
         self.args_in_combinations = None
 
-    def global_parsing_cb(self,a):
+    def global_parsing_cb(self,a, log=None):
         return False
 
     def write(self):
@@ -2007,7 +2007,7 @@ class vcsubf(Instruction):
 #
 # And change out to an output argument in this case (rather than input/output)
 def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
-    def core(inst,t):
+    def core(inst,t, log=None):
         assert isinstance(inst, this_class)
         succ = None
 

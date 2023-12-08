@@ -481,6 +481,66 @@ class DataFlowGraph:
         """The underlying architecturel model"""
         return self.config.arch
 
+    def apply_cbs(self, cb, logger, one_a_time=False):
+        """Apply callback to all nodes in the graph"""
+
+        count = 0
+        while True:
+            count += 1
+            assert count < 100 # There shouldn't be many repeated modifications to the CFG
+
+            some_change = False
+
+            for t in self.nodes:
+                t.delete = False
+                t.changed = False
+
+            for t in self.nodes:
+                if cb(t):
+                    some_change = True
+                    if one_a_time is True:
+                        break
+
+            if some_change is False:
+                break
+
+            z = zip(self.nodes, self.src)
+            z = filter(lambda x: x[0].delete is False, z)
+            z = map(lambda x: ([x[0].inst], x[0].inst.write()), z)
+
+            self.src = list(z)
+
+            # Otherwise, parse again
+            changed = [t for t in self.nodes if t.changed is True]
+            deleted = [t for t in self.nodes if t.delete is True]
+
+            logger.debug("Some instruction changed in callback -- need to build dataflow graph again...")
+
+            for t in deleted:
+                logger.debug("* %s was deleted", t)
+            for t in changed:
+                logger.debug("* %s was changed", t)
+
+            self._build_graph()
+
+    def apply_parsing_cbs(self):
+        """Apply parsing callbacks to all nodes in the graph.
+
+        Typically, we only build the computation flow graph once. However, sometimes we make
+        retrospective modifications to instructions afterwards, and then need to reparse.
+
+        An example for this are jointly destructive instruction patterns: A sequence of
+        instructions where each instruction individually overwrites only part of a register,
+        but jointly they overwrite the register as a whole. In this case, we can remove the
+        output register as an input dependency for the first instruction in the sequence,
+        thereby creating more reordering and renaming flexibility. In this case, we change
+        the instruction and then rebuild the computation flow graph.
+        """
+        logger = self.logger.getChild("parsing_cbs")
+        def parsing_cb(t):
+            return t.inst.global_parsing_cb(t, log=logger.info)
+        return self.apply_cbs(parsing_cb, logger)
+
     def __init__(self, src, logger, config, parsing_cb=True):
         """Compute a data flow graph from a source code snippet.
 
@@ -499,45 +559,10 @@ class DataFlowGraph:
         self.config = config
         self.src = self._parse_source(src)
 
-        # Typically, we only build the computation flow graph once. However, sometimes we make
-        # retrospective modifications to instructions afterwards, and then need to reparse.
-        #
-        # An example for this are jointly destructive instruction patterns: A sequence of
-        # instructions where each instruction individually overwrites only part of a register,
-        # but jointly they overwrite the register as a whole. In this case, we can remove the
-        # output register as an input dependency for the first instruction in the sequence,
-        # thereby creating more reordering and renaming flexibility. In this case, we change
-        # the instruction and then rebuild the computation flow graph.
-        count = 0
-        while True:
-            count += 1
-            assert count < 10 # There shouldn't be many repeated modifications to the CFG
+        self._build_graph()
 
-            self._build_graph()
-
-            if not parsing_cb:
-                break
-
-            changed = []
-            for t in self.nodes:
-                was_changed = t.inst.global_parsing_cb(t)
-                if was_changed: # remember to build the dataflow graph again
-                    changed.append(t)
-
-            changes = len(changed)
-            # If no instruction was modified, we're done
-            if changes == 0:
-                break
-
-            self.src = list(zip([[t.inst] for t in self.nodes], [s[1] for s in self.src]))
-
-            # Otherwise, parse again
-            logger.debug("%d instructions changed -- need to build dataflow graph again...",
-                         changes)
-            logger.debug("The following instructions have changed:")
-            if changes > 0:
-                for t in changed:
-                    logger.debug(t)
+        if parsing_cb is True:
+            self.apply_parsing_cbs()
 
         self._selfcheck_outputs()
 
