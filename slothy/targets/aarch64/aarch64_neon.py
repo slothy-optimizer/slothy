@@ -2383,6 +2383,21 @@ class aesr(AESInstruction): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Va"]
     in_outs=["Vd"]
 
+class aesr_x2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "aesr_x2 <Vd0>.16b, <Vd1>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs=["Vd0", "Vd1"]
+
+class aesr_x4(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "aesr_x4 <Vd0>.16b, <Vd1>.16b, <Vd2>.16b, <Vd3>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs=["Vd0", "Vd1", "Vd2", "Vd3"]
+
+class aese_x4(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "aese_x4 <Vd0>.16b, <Vd1>.16b, <Vd2>.16b, <Vd3>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs=["Vd0", "Vd1", "Vd2", "Vd3"]
+
 class aese(AESInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "aese <Vd>.16b, <Va>.16b"
     inputs = ["Va"]

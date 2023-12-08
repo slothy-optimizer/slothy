@@ -77,6 +77,9 @@ def add_further_constraints(slothy):
         return
     slothy.restrict_slots_for_instructions_by_property(
         is_neon_instruction, [0,1,2,3])
+    slothy.restrict_slots_for_instructions_by_class(
+        [aesr_x4, aesr_x4], [0]
+    )
 
 def has_min_max_objective(config):
     return False
@@ -101,6 +104,9 @@ execution_units = {
     vusra                     : ExecutionUnit.V1(),
     AESInstruction            : ExecutionUnit.V(),
     Transpose                 : ExecutionUnit.V(),
+    aesr_x2                   : ExecutionUnit.V(),
+    aesr_x4                   : [ExecutionUnit.V()], # Use all V-pipes
+    aese_x4                   : [ExecutionUnit.V()], # Use all V-pipes
     (vmul, vmlal, vmull)      : ExecutionUnit.V0(),
     AArch64NeonLogical        : ExecutionUnit.V(),
     (AArch64BasicArithmetic,
@@ -130,6 +136,8 @@ inverse_throughput = {
     (vand, vadd)               : 1,
     (vmov)                     : 1,
     AESInstruction             : 1,
+    aesr_x4                    : 1,
+    aese_x4                    : 1,
     AArch64NeonLogical         : 1,
     (vmovi)                    : 1,
     (vxtn)                     : 1,
@@ -164,6 +172,7 @@ default_latencies = {
     (vxtn)                    : 2,
     Transpose                 : 2,
     AESInstruction            : 2,
+    (aesr_x4, aese_x4)        : 2,
     AArch64NeonLogical        : 2,
     (vand, vadd)              : 2,
     (vmov)                    : 2, # ???
@@ -190,6 +199,7 @@ default_latencies = {
 def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
+
     latency = lookup_multidict(default_latencies, src)
     return latency
 
