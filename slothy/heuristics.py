@@ -512,6 +512,8 @@ class Heuristics():
             end_idxs   = [ (l * (i+1)) // vals for i in range(vals) ]
             avgs = []
             for (s,e) in zip(start_idxs, end_idxs):
+                if s == e:
+                    continue
                 avg = sum(arr[s:e]) // (e-s)
                 avgs.append(avg)
                 log.info(f"[{s:3d}-{e:3d}]: {'*'*avg}{'.'*(m-avg)} ({avg})")
