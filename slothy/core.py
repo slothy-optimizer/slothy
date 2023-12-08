@@ -441,6 +441,50 @@ class Result(LockAttributes):
         if self.config.selfcheck and not res:
             raise SlothySelfCheckException("Isomorphism between computation flow graphs: FAIL!")
         return res
+    
+    def selfcheck_with_fixup(self, log):
+        """Do selfcheck, and consider preamble/postamble fixup in case of SW pipelining
+
+        In the presence of cross iteration dependencies, the preamble and postamble
+        may be functionally incorrect and need fixup."""
+
+        # We gather the log output of the initial selfcheck and only release
+        # it (a) on success, or (b) when even the selfcheck after fixup fails.
+
+        defer_handler = DeferHandler()
+        log.propagate = False
+        log.addHandler(defer_handler)
+
+        try:
+            retry = not self.selfcheck(log)
+            exception = None
+        except SlothySelfCheckException as e:
+            exception = e
+
+        log.propagate = True
+        log.removeHandler(defer_handler)
+
+        if exception and self.config.sw_pipelining.enabled:
+            retry = True
+        elif exception:
+            # We don't expect a failure if there are no cross-iteration dependencies
+            defer_handler.forward(log)
+            raise e
+
+        if not retry:
+            # On success, show the log output
+            defer_handler.forward(log)
+        else:
+            log.info("Selfcheck failed! This sometimes happens in the presence of cross-iteration dependencies. Try fixup...")
+            self.fixup_preamble_postamble(log.getChild("fixup_preamble_postamble"))
+
+            try:
+                self.selfcheck(log.getChild("after_fixup"))
+            except SlothySelfCheckException as e:
+                log.error("Here is the output of the original selfcheck before fixup")
+                defer_handler.forward(log)
+                raise e
+
 
     def _selfcheck_core(self, log):
         _, old_source, new_source, tree_old, tree_new, reordering = \
@@ -658,6 +702,234 @@ class Result(LockAttributes):
             raise Exception("Asking for SW-pipelining attribute in result of SLOTHY run"
                             " without SW pipelining")
 
+    @staticmethod
+    def _fixup_reordered_pair(t0, t1, logger, unsafe_skip_address_fixup=False):
+
+        def inst_changes_addr(inst):
+            return inst.increment is not None
+
+        if not t0.inst.is_load_store_instruction():
+            return
+        if not t1.inst.is_load_store_instruction():
+            return
+        if not t0.inst.addr == t1.inst.addr:
+            return
+        if inst_changes_addr(t0.inst) and inst_changes_addr(t1.inst):
+            if not unsafe_skip_address_fixup:
+                logger.error( "=======================   ERROR   ===============================")
+                logger.error(f"    Cannot handle reordering of two instructions ({t0} and {t1}) ")
+                logger.error( "           which both want to modify the same address            ")
+                logger.error( "=================================================================")
+                raise Exception("Address fixup failure")
+
+            logger.warning( "=========================   WARNING   ============================")
+            logger.warning(f"   Cannot handle reordering of two instructions ({t0} and {t1})   ")
+            logger.warning( "           which both want to modify the same address             ")
+            logger.warning( "   Skipping this -- you have to fix the address offsets manually  ")
+            logger.warning( "==================================================================")
+            return
+        if inst_changes_addr(t0.inst):
+            # t1 gets reordered before t0, which changes the address
+            # Adjust t1's address accordingly
+            logger.debug(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst.increment}, "
+                         f"to {t1.fixup + int(simplify(t0.inst.increment))}")
+            t1.fixup += int(simplify(t0.inst.increment))
+        elif inst_changes_addr(t1.inst):
+            # t0 gets reordered after t1, which changes the address
+            # Adjust t0's address accordingly
+            logger.debug(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst.increment}, "
+                         f"to {t0.fixup - int(simplify(t1.inst.increment))}")
+            t0.fixup -= int(simplify(t1.inst.increment))
+
+    @staticmethod
+    def _fixup_reset(nodes):
+        for t in nodes:
+            t.fixup = 0
+
+    @staticmethod
+    def _fixup_finish(nodes, logger):
+        def inst_changes_addr(inst):
+            return inst.increment is not None
+
+        for t in nodes:
+            if not t.inst.is_load_store_instruction():
+                continue
+            if inst_changes_addr(t.inst):
+                continue
+            if t.fixup == 0:
+                continue
+            if t.inst.pre_index:
+                t.inst.pre_index = f"(({t.inst.pre_index}) + ({t.fixup}))"
+            else:
+                t.inst.pre_index = f"{t.fixup}"
+            logger.debug(f"Fixed up instruction {t.inst} by {t.fixup}, to {t.inst}")
+
+    def _offset_fixup_sw(self, log):
+        n, _, _, _, tree_new, reordering = self.get_full_code(log)
+        iterations = n // self.codesize
+
+        Result._fixup_reset(tree_new.nodes)
+        for _, _, ni, nj in Permutation.iter_swaps(reordering, n):
+            Result._fixup_reordered_pair(tree_new.nodes[ni], tree_new.nodes[nj], log)
+        Result._fixup_finish(tree_new.nodes, log)
+
+        preamble_len = len(self.preamble)
+        postamble_len = len(self.postamble)
+
+        assert n // iterations == self.codesize
+
+        preamble_new  = [ str(t.inst) for t in tree_new.nodes[:preamble_len] ]
+        postamble_new = [ str(t.inst) for t in tree_new.nodes[-postamble_len:] ] \
+            if postamble_len > 0 else []
+
+        code_new = []
+        for i in range(iterations - self.num_exceptional_iterations):
+            code_new.append([ str(t.inst) for t in
+                              tree_new.nodes[preamble_len + i*self.codesize:
+                                             preamble_len + (i+1)*self.codesize] ])
+
+        # Flag if address fixup makes the kernel instable. In this case, we'd have to
+        # widen preamble and postamble, but this is not yet implemented.
+        count = 0
+        for i, (kcur, knext) in enumerate(zip(code_new, code_new[1:])):
+            if kcur != knext:
+                count += 1
+        if count != 0:
+            raise Exception("Instable loop kernel after post-optimization address fixup")
+        code_new = code_new[0]
+
+        self.preamble = preamble_new
+        self.postamble = postamble_new
+        self.code = code_new
+
+    def _offset_fixup_straightline(self, log):
+        n, _, _, _, tree_new, reordering = self.get_full_code(log)
+
+        Result._fixup_reset(tree_new.nodes)
+        for _, _, ni, nj in Permutation.iter_swaps(reordering, n):
+            Result._fixup_reordered_pair(tree_new.nodes[ni], tree_new.nodes[nj], log)
+        Result._fixup_finish(tree_new.nodes, log)
+
+        self.code = [ str(t.inst) for t in tree_new.nodes ]
+
+    def offset_fixup(self, log):
+        """Fixup address offsets after optimization"""
+        if self.config.sw_pipelining.enabled:
+            self._offset_fixup_sw(log)
+        else:
+            self._offset_fixup_straightline(log)
+
+    def fixup_preamble_postamble(self, log):
+        """Potentially fix up the preamble and postamble
+
+        When software pipelining is used in the context of a loop with cross-iteration dependencies,
+        the core optimization step might lead to functionally incorrect preamble and postamble.
+        This function checks if this is the case and fixes preamble and postamble, if necessary.
+        """
+
+        #if not self._has_cross_iteration_dependencies():
+        if not self.config.sw_pipelining.enabled:
+            return
+
+        iterations = self.num_exceptional_iterations
+        assert iterations == 1 or iterations == 2
+
+        n = self.codesize * iterations
+
+        kernel = self.get_unrolled_kernel(iterations=iterations)
+
+        perm = self.periodic_reordering_inv
+        assert Permutation.is_permutation(perm, self.codesize)
+
+        dfgc_orig = DFGConfig(self.config, outputs=self.orig_outputs)
+        dfgc_kernel = DFGConfig(self.config, outputs=self.kernel_input_output)
+
+        tree_orig = DFG(self.orig_code, log.getChild("orig"), dfgc_orig)
+
+        def is_in_preamble(t):
+            if t.orig_pos is None:
+                return False
+            if iterations == 1:
+                return self.is_pre(t.orig_pos, original_program_order=False)
+            elif iterations == 2:
+                if t.orig_pos < self.codesize:
+                    return self.is_pre(t.orig_pos, original_program_order=False)
+                else:
+                    return not self.is_post(t.orig_pos % self.codesize,
+                                                    original_program_order=False)
+
+        def is_in_postamble(t):
+            if t.orig_pos is None:
+                return False
+            if iterations == 1:
+                return not self.is_pre(t.orig_pos, original_program_order=False)
+            elif iterations == 2:
+                if t.orig_pos < self.codesize:
+                    return not self.is_pre(t.orig_pos, original_program_order=False)
+                else:
+                    return self.is_post(t.orig_pos % self.codesize,
+                                                original_program_order=False)
+
+        tree_kernel = DFG(kernel, log.getChild("ssa"), dfgc_kernel)
+        tree_kernel.ssa()
+
+        # Go through early instructions that depend on an instruction from
+        # the previous iteration. Remap those dependencies as input dependencies.
+        for (consumer, producer, _, _) in tree_kernel.iter_dependencies():
+            producer = producer.reduce()
+            if not (is_in_preamble(consumer) and not is_in_preamble(producer.src)):
+                continue
+            if producer.src.is_virtual:
+                continue
+            orig_pos = perm[producer.src.orig_pos % self.codesize]
+            assert isinstance(producer, InstructionOutput)
+            producer.src.inst.args_out[producer.idx] = \
+                tree_orig.nodes[orig_pos].inst.args_out[producer.idx]
+
+        # Update input and in-out register names
+        for t in tree_kernel.nodes_all:
+            for i, v in enumerate(t.src_in):
+                t.inst.args_in[i] = v.name()
+            for i, v in enumerate(t.src_in_out):
+                t.inst.args_in_out[i] = v.name()
+
+        new_preamble = [ str(t.inst) for t in tree_kernel.nodes if is_in_preamble(t) ]
+        self.preamble = new_preamble
+        SlothyBase.dump("New preamble", self.preamble, log)
+
+        dfgc_preamble = DFGConfig(self.config, outputs=self.kernel_input_output)
+        dfgc_preamble.inputs_are_outputs = False
+        DFG(self.preamble, log.getChild("new_preamble"), dfgc_preamble)
+
+        tree_kernel = DFG(kernel, log.getChild("ssa"), dfgc_kernel)
+        tree_kernel.ssa()
+
+        # Go through non-early instructions that feed into an instruction from
+        # the next iteration. Remap those dependencies as input dependencies.
+        for (consumer, producer, _, _) in tree_kernel.iter_dependencies():
+            producer = producer.reduce()
+            if not (is_in_postamble(producer.src) and not is_in_postamble(consumer)):
+                continue
+            orig_pos = perm[producer.src.orig_pos % self.codesize]
+            assert isinstance(producer, InstructionOutput)
+            producer.src.inst.args_out[producer.idx] = \
+                tree_orig.nodes[orig_pos].inst.args_out[producer.idx]
+
+        # Update input and in-out register names
+        for t in tree_kernel.nodes_all:
+            for i, v in enumerate(t.src_in):
+                t.inst.args_in[i] = v.reduce().name()
+            for i, v in enumerate(t.src_in_out):
+                t.inst.args_in_out[i] = v.reduce().name()
+
+        new_postamble = [ str(t.inst) for t in tree_kernel.nodes if is_in_postamble(t) ]
+        self.postamble = new_postamble
+        SlothyBase.dump("New postamble", self.postamble, log)
+
+        dfgc_postamble = DFGConfig(self.config, outputs=self.orig_outputs)
+        DFG(self.postamble, log.getChild("new_postamble"), dfgc_postamble)
+
+
     def __init__(self, config):
         super().__init__()
 
@@ -854,6 +1126,7 @@ class SlothyBase(LockAttributes):
 
     def _load_source(self, source, prefix_len=0, suffix_len=0):
 
+        # TODO: This does not belong here
         if self.config.sw_pipelining.enabled and \
            ( prefix_len >0 or suffix_len > 0 ):
             raise Exception("Invalid arguments")
@@ -1100,124 +1373,6 @@ class SlothyBase(LockAttributes):
             """The number of solutions found so far"""
             return self.__solution_count
 
-    @staticmethod
-    def _fixup_reordered_pair(t0, t1, logger, unsafe_skip_address_fixup=False):
-
-        def inst_changes_addr(inst):
-            return inst.increment is not None
-
-        if not t0.inst.is_load_store_instruction():
-            return
-        if not t1.inst.is_load_store_instruction():
-            return
-        if not t0.inst.addr == t1.inst.addr:
-            return
-        if inst_changes_addr(t0.inst) and inst_changes_addr(t1.inst):
-            if not unsafe_skip_address_fixup:
-                logger.error( "=======================   ERROR   ===============================")
-                logger.error(f"    Cannot handle reordering of two instructions ({t0} and {t1}) ")
-                logger.error( "           which both want to modify the same address            ")
-                logger.error( "=================================================================")
-                raise Exception("Address fixup failure")
-
-            logger.warning( "=========================   WARNING   ============================")
-            logger.warning(f"   Cannot handle reordering of two instructions ({t0} and {t1})   ")
-            logger.warning( "           which both want to modify the same address             ")
-            logger.warning( "   Skipping this -- you have to fix the address offsets manually  ")
-            logger.warning( "==================================================================")
-            return
-        if inst_changes_addr(t0.inst):
-            # t1 gets reordered before t0, which changes the address
-            # Adjust t1's address accordingly
-            logger.debug(f"{t0} moved after {t1}, bumping {t1.fixup} by {t0.inst.increment}, "
-                         f"to {t1.fixup + int(simplify(t0.inst.increment))}")
-            t1.fixup += int(simplify(t0.inst.increment))
-        elif inst_changes_addr(t1.inst):
-            # t0 gets reordered after t1, which changes the address
-            # Adjust t0's address accordingly
-            logger.debug(f"{t1} moved before {t0}, lowering {t0.fixup} by {t1.inst.increment}, "
-                         f"to {t0.fixup - int(simplify(t1.inst.increment))}")
-            t0.fixup -= int(simplify(t1.inst.increment))
-
-    @staticmethod
-    def _fixup_reset(nodes):
-        for t in nodes:
-            t.fixup = 0
-
-    @staticmethod
-    def _fixup_finish(nodes, logger):
-        def inst_changes_addr(inst):
-            return inst.increment is not None
-
-        for t in nodes:
-            if not t.inst.is_load_store_instruction():
-                continue
-            if inst_changes_addr(t.inst):
-                continue
-            if t.fixup == 0:
-                continue
-            if t.inst.pre_index:
-                t.inst.pre_index = f"(({t.inst.pre_index}) + ({t.fixup}))"
-            else:
-                t.inst.pre_index = f"{t.fixup}"
-            logger.debug(f"Fixed up instruction {t.inst} by {t.fixup}, to {t.inst}")
-
-    def _offset_fixup_sw(self, log):
-        n, _, _, _, tree_new, reordering = self._result.get_full_code(log)
-        iterations = n // self._result.codesize
-
-        SlothyBase._fixup_reset(tree_new.nodes)
-        for _, _, ni, nj in Permutation.iter_swaps(reordering, n):
-            SlothyBase._fixup_reordered_pair(tree_new.nodes[ni], tree_new.nodes[nj], log)
-        SlothyBase._fixup_finish(tree_new.nodes, log)
-
-        preamble_len = len(self._result.preamble)
-        postamble_len = len(self._result.postamble)
-
-        assert n // iterations == self._result.codesize
-
-        preamble_new  = [ str(t.inst) for t in tree_new.nodes[:preamble_len] ]
-        postamble_new = [ str(t.inst) for t in tree_new.nodes[-postamble_len:] ] \
-            if postamble_len > 0 else []
-
-        code_new = []
-        for i in range(iterations - self._result.num_exceptional_iterations):
-            code_new.append([ str(t.inst) for t in
-                              tree_new.nodes[preamble_len + i*self._result.codesize:
-                                             preamble_len + (i+1)*self._result.codesize] ])
-
-        # Flag if address fixup makes the kernel instable. In this case, we'd have to
-        # widen preamble and postamble, but this is not yet implemented.
-        count = 0
-        for i, (kcur, knext) in enumerate(zip(code_new, code_new[1:])):
-            if kcur != knext:
-                count += 1
-        if count != 0:
-            raise Exception("Instable loop kernel after post-optimization address fixup")
-        code_new = code_new[0]
-
-        self._result.preamble = preamble_new
-        self._result.postamble = postamble_new
-        self._result.code = code_new
-
-    def _offset_fixup_straightline(self, log):
-        n, _, _, _, tree_new, reordering = self._result.get_full_code(log)
-
-        SlothyBase._fixup_reset(tree_new.nodes)
-        for _, _, ni, nj in Permutation.iter_swaps(reordering, n):
-            SlothyBase._fixup_reordered_pair(tree_new.nodes[ni], tree_new.nodes[nj], log)
-        SlothyBase._fixup_finish(tree_new.nodes, log)
-
-        self._result.code = [ str(t.inst) for t in tree_new.nodes ]
-
-    def offset_fixup(self):
-        """Fixup address offsets after optimization"""
-        log = self.logger.getChild("offset_fixup")
-        if self.config.sw_pipelining.enabled:
-            self._offset_fixup_sw(log)
-        else:
-            self._offset_fixup_straightline(log)
-
     def fixup_preamble_postamble(self):
         """Potentially fix up the preamble and postamble
 
@@ -1341,48 +1496,8 @@ class SlothyBase(LockAttributes):
         self._extract_input_output_renaming()
 
         self._extract_code()
-
-        # In the presence of cross iteration dependencies, the preamble and postamble
-        # may be functionally incorrect and need fixup.
-        # We therefore gather the log output of the initial selfcheck and only release
-        # it (a) on success, or (b) when even the selfcheck after fixup fails.
-
-        log = self.logger.getChild("selfcheck")
-        defer_handler = DeferHandler()
-        log.propagate = False
-        log.addHandler(defer_handler)
-
-        try:
-            retry = not self._result.selfcheck(log)
-            exception = None
-        except SlothySelfCheckException as e:
-            exception = e
-
-        log.propagate = True
-        log.removeHandler(defer_handler)
-
-        if exception and self._has_cross_iteration_dependencies():
-            retry = True
-        elif exception:
-            # We don't expect a failure if there are no cross-iteration dependencies
-            defer_handler.forward(log)
-            raise e
-
-        if not retry:
-            # On success, show the log output
-            defer_handler.forward(log)
-        else:
-            self.logger.info("Selfcheck failed! This sometimes happens in the presence of cross-iteration dependencies. Try fixup...")
-            self.fixup_preamble_postamble()
-
-            try:
-                self._result.selfcheck(self.logger.getChild("selfcheck_after_fixup"))
-            except SlothySelfCheckException as e:
-                self.logger.error("Here is the output of the original selfcheck before fixup")
-                defer_handler.forward(log)
-                raise e
-
-        self.offset_fixup()
+        self._result.selfcheck_with_fixup(self.logger.getChild("selfcheck"))
+        self._result.offset_fixup(self.logger.getChild("fixup"))
 
     def _extract_positions(self, get_value):
 
