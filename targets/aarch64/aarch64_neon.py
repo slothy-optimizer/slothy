@@ -2334,12 +2334,15 @@ class vushr(AArch64Instruction):
     inputs = ["Va"]
     outputs = ["Vd"]
 
-class trn1(AArch64Instruction):
+class Transpose(AArch64Instruction):
+    pass
+
+class trn1(Transpose):
     pattern = "trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class trn2(AArch64Instruction):
+class trn2(Transpose):
     pattern = "trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
