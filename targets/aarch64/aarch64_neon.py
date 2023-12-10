@@ -421,9 +421,9 @@ class Instruction:
     def is_vector_add_sub(self):
         return self._is_instance_of([ vadd, vsub ])
     def is_vector_load(self):
-        return self._is_instance_of([ Ldr_Q ]) # TODO: Ld4 missing?
+        return self._is_instance_of([ Ldr_Q, Ldp_Q ]) # TODO: Ld4 missing?
     def is_vector_store(self):
-        return self._is_instance_of([ Str_Q, St4, stack_vstp_dform, stack_vstr_dform])
+        return self._is_instance_of([ Str_Q, Stp_Q, St4, stack_vstp_dform, stack_vstr_dform])
     def is_vector_stack_load(self):
         return self._is_instance_of([stack_vld1r, stack_vldr_bform, stack_vldr_dform,
         stack_vld2_lane])
@@ -1010,6 +1010,9 @@ class vsub(AArch64Instruction):
 class Ldr_Q(AArch64Instruction):
     pass
 
+class Ldp_Q(AArch64Instruction):
+    pass
+
 class d_ldp_sp_imm(Ldr_Q):
     pattern = "ldp <Da>, <Db>, [sp, <imm>]"
     outputs = ["Da", "Db"]
@@ -1065,6 +1068,22 @@ class q_ldr_with_inc(Ldr_Q):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+class q_ldp_with_inc(Ldp_Q):
+    pattern = "ldp <Qa>, <Qb>, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Qa", "Qb"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 class q_ldr_with_inc_writeback(Ldr_Q):
     pattern = "ldr <Qa>, [<Xc>, <imm>]!"
     inputs = ["Xc"]
@@ -1089,7 +1108,22 @@ class q_ldr_with_postinc(Ldr_Q):
         obj.addr = obj.args_in[0]
         return obj
 
+class q_ldp_with_postinc(Ldp_Q):
+    pattern = "ldp <Qa>, <Qb>, [<Xc>], <imm>"
+    inputs = ["Xc"]
+    outputs = ["Qa", "Qb"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
 class Str_Q(AArch64Instruction):
+    pass
+
+class Stp_Q(AArch64Instruction):
     pass
 
 class d_stp_sp_imm(Str_Q):
@@ -1144,6 +1178,21 @@ class q_str_with_inc(Str_Q):
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+class q_stp_with_inc(Stp_Q):
+    pattern = "stp <Qa>, <Qb>, [<Xc>, <imm>]"
+    inputs = ["Qa", "Qb", "Xc"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[2]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 class q_str_with_inc_writeback(Str_Q):
     pattern = "str <Qa>, [<Xc>, <imm>]!"
     inputs = ["Qa", "Xc"]
@@ -1164,6 +1213,17 @@ class q_str_with_postinc(Str_Q):
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[1]
+        return obj
+
+class q_stp_with_postinc(Stp_Q):
+    pattern = "stp <Qa>, <Qb>, [<Xc>], <imm>"
+    inputs = ["Qa", "Qb", "Xc"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[2]
         return obj
 
 class Ldr_X(AArch64Instruction):
