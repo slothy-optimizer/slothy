@@ -523,7 +523,7 @@ class AsmMacro():
 
         macro_regexp_txt += ','.join(arg_regexps)
         macro_regexp = re.compile(macro_regexp_txt)
-
+        
         output = []
 
         indentation_regexp_txt = r"^(?P<whitespace>\s*)($|\S)"
@@ -592,9 +592,6 @@ class AsmMacro():
         macro_start_regexp_txt = r"^\s*\.macro\s+(?P<name>\w+)(?P<args>.*)$"
         macro_start_regexp = re.compile(macro_start_regexp_txt)
 
-        slothy_no_unfold_regexp_txt = r".*//\s*slothy:\s*no-unfold\s*$"
-        slothy_no_unfold_regexp = re.compile(slothy_no_unfold_regexp_txt)
-
         macro_end_regexp_txt = r"^\s*\.endm\s*$"
         macro_end_regexp = re.compile(macro_end_regexp_txt)
 
@@ -607,8 +604,7 @@ class AsmMacro():
                 if p is None:
                     continue
 
-                # Ignore macros with "// slothy:no-unfold" annotation
-                if slothy_no_unfold_regexp.match(cur_str) is not None:
+                if cur.tags.get("no-unfold", None) is not None:
                     continue
 
                 current_args = [ a.strip() for a in p.group("args").split(',') ]
