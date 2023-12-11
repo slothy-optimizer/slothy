@@ -46,47 +46,6 @@ class SourceLine:
         self._indentation = len(old) - len(new)
         self._raw = new
 
-    def _strip_comments(self):
-        self._comments = list(map(str.strip, self._comments))
-
-    def _trim_comments(self):
-        self._strip_comments()
-        self._comments = list(filter(lambda s: s != "", self._comments))
-
-    def add_comment(self, comment):
-        self._comments.append(comment)
-        return self
-
-    def add_comments(self, comments):
-        for c in comments:
-            self.add_comment(c)
-        return self
-
-    def __init__(self, s):
-        """Create source line from string"""
-        assert isinstance(s, str)
-
-        self._raw = s
-        self._tags = {}
-        self._indentation = 0
-        self._fixlength = None
-        self._comments = []
-
-        self._extract_indentation_from_text()
-        self._extract_comments_from_text()
-        self._extract_tags_from_comments()
-        
-        new = self.to_string(comments=True, indentation=True, tags=True)
-
-    def set_tag(self, tag, value=True):
-        """Set source line tag"""
-        self._tags[tag] = value
-        return self
-
-    def set_length(self, length):
-        self._fixlength = length
-        return self
-
     @staticmethod
     def _parse_tags_in_string(s, tags):
         def parse_value(v):
@@ -103,7 +62,7 @@ class SourceLine:
             value = parse_value(g.group("value"))
             tags[tag] = value
             return ""
-        
+
         def tag_callback(g):
             tag = g.group("tag")
             tags[tag] = True
@@ -114,17 +73,72 @@ class SourceLine:
         s = re.sub(tag_value_regexp_txt, tag_value_callback, s)
         s = re.sub(tag_regexp_txt, tag_callback, s)
         return s
-    
+
+    def _strip_comments(self):
+        self._comments = list(map(str.strip, self._comments))
+
+    def _trim_comments(self):
+        self._strip_comments()
+        self._comments = list(filter(lambda s: s != "", self._comments))
+
     def _extract_tags_from_comments(self):
         tags = {}
-        self._comments = list(map(lambda c: SourceLine._parse_tags_in_string(c, tags), self._comments))
+        self._comments = list(map(lambda c: SourceLine._parse_tags_in_string(c, tags),
+            self._comments))
         self._trim_comments()
         self.add_tags(tags)
+
+    def extract_metadata(self):
+        """Extract metadata (tags, comments, indentation) from raw text
+
+        The extracted components get retracted from the text."""
+        self._extract_indentation_from_text()
+        self._extract_comments_from_text()
+        self._extract_tags_from_comments()
+
+    def add_comment(self, comment):
+        """Add a comment to the metadata of a source line"""
+        self._comments.append(comment)
+        return self
+
+    def add_comments(self, comments):
+        """Add one or more comments to the metadata of a source line"""
+        for c in comments:
+            self.add_comment(c)
+        return self
+
+    def __init__(self, s, extract=False):
+        """Create source line from string"""
+        assert isinstance(s, str)
+
+        self._raw = s
+        self._tags = {}
+        self._indentation = 0
+        self._fixlength = None
+        self._comments = []
+
+        if extract is True:
+            self.extract_metadata()
+
+    def set_tag(self, tag, value=True):
+        """Set source line tag"""
+        self._tags[tag] = value
+        return self
+
+    def set_length(self, length):
+        """Set the padded length of the text component of the source line
+
+        When printing the source line with to_string(), the source text will be
+        whitespace padded to the specified length before adding comments and tags.
+        This allows to print multiple commented source lines with a uniform
+        indentation for the comments, improving readability."""
+        self._fixlength = length
+        return self
 
     @property
     def tags(self):
         """Return the list of tags for the source line
-        
+
         Tags are source annotations of the form @slothy:(tag[=value]?).
         """
         return self._tags
@@ -141,18 +155,22 @@ class SourceLine:
         self._comments = v
 
     def to_string(self, indentation=False, comments=False, tags=False):
+        """Convert source line to a string
+
+        This includes formatting the metadata in a way reversing the
+        parsing done in the _extract_xxx() routines."""
         if self._fixlength is None:
             core = self._raw
         else:
             core = f"{self._raw:{self._fixlength}s}"
-        
+
         indentation = ' ' * self._indentation \
             if indentation is True else ""
         comments = ''.join(map(lambda s: f"// {s}", self._comments)) \
             if comments is True else ""
         tags = ' '.join(map(lambda tv: f" // @slothy:{tv[0]}={tv[1]}", self._tags.items())) \
             if tags is True else ""
-        
+
         return f"{indentation}{core}{comments}{tags}"
 
     def __str__(self):
@@ -160,7 +178,7 @@ class SourceLine:
 
     def set_text(self, s):
         """Set the text of the source line
-        
+
         This only affects the instruction text of the source line, but leaves
         other components such as comments, indentation or tags unmodified."""
         self._raw = s
@@ -168,7 +186,7 @@ class SourceLine:
 
     def __len__(self):
         return len(self._raw)
-    
+
     def copy(self):
         """Create a copy of a source line"""
         return SourceLine(self._raw)                \
@@ -183,31 +201,41 @@ class SourceLine:
         if isinstance(s, str):
             s = s.splitlines()
         return [ SourceLine(l) for l in s ]
-    
+
     @staticmethod
     def copy_source(s):
         """Create a copy of a list of source lines"""
         assert SourceLine.is_source(s)
         return [ l.copy() for l in s ]
-    
-    @staticmethod   
+
+    @staticmethod
     def write_multiline(s, comments=True, indentation=True, tags=True):
         """Write source as multiline string"""
         return '\n'.join(map(lambda t: t.to_string(
             comments=comments, tags=tags, indentation=indentation), s))
-    
+
     def set_indentation(self, indentation):
+        """Set the indentation (in number of spaces) to be used in to_string()"""
         self._indentation = indentation
         return self
-    
+
     def add_tags(self, tags):
+        """Add one or more tags to the metadata of the source line
+
+        tags must be a tag:value dictionary."""
         self._tags = {**self._tags, **tags}
         return self
 
     def add_tag(self, tag, value):
+        """Add a single tag-value pair to the metadata of the source line
+
+        If a tag is already specified, it is overwritten."""
         return self.add_tags({ tag: value })
-    
+
     def inherit_tags(self, l):
+        """Inhertis the tags from another source line
+
+        In case of overlapping tags, source line l takes precedence."""
         assert SourceLine.is_source_line(l)
         self.add_tags(l.tags)
         return self
@@ -223,6 +251,9 @@ class SourceLine:
 
     @staticmethod
     def split_semicolons(s):
+        """"Split the text of a source line at semicolons
+
+        The resulting source lines inherit their metadata from the caller."""
         assert SourceLine.is_source(s)
         res = []
         for line in s:
@@ -231,7 +262,7 @@ class SourceLine:
                 t.set_text(l)
                 res.append(t)
         return res
-    
+
     @staticmethod
     def is_source(s):
         """Check if parameter is a list of SourceLine instances"""
@@ -241,12 +272,12 @@ class SourceLine:
             if isinstance(t, SourceLine) is False:
                 return False
         return True
-    
+
     @staticmethod
     def is_source_line(s):
         """Checks if the parameter is a SourceLine instance"""
         return isinstance(s, SourceLine)
-    
+
 class NestedPrint():
     """Helper for recursive printing of structures"""
     def __str__(self):
@@ -356,8 +387,7 @@ class AsmHelper():
                          regexp_align.match(s) is not None]) > 0
 
         def is_label(s):
-            return (regexp_label.match(s) is not None)
-
+            return regexp_label.match(s) is not None
         assert SourceLine.is_source_line(l)
 
         line = str(l)
@@ -604,7 +634,7 @@ class AsmMacro():
 
         macro_regexp_txt += ','.join(arg_regexps)
         macro_regexp = re.compile(macro_regexp_txt)
-        
+
         output = []
 
         indentation_regexp_txt = r"^(?P<whitespace>\s*)($|\S)"
