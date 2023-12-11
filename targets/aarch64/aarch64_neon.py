@@ -2897,6 +2897,12 @@ def eor3_fusion_cb():
                                                      "datatype2":"16b",
                                                      "datatype3":"16b" })
 
+        # TODO: Hoist this merging logic into a separate function
+        src = r.inst.source_line.copy()
+        src.add_tags(inst.source_line.tags)
+        src.add_comments(inst.source_line.comments)
+        new_inst.source_line = src
+
         if log is not None:
             log(f"EOR3 fusion: {t.inst}; {r.inst} ~> {new_inst}")
 

@@ -30,7 +30,7 @@ import random
 import numpy as np
 
 from slothy.dataflow import DataFlowGraph as DFG
-from slothy.dataflow import Config as DFGConfig
+from slothy.dataflow import Config as DFGConfig, ComputationNode
 from slothy.core import SlothyBase, Result
 from slothy.helper import Permutation, AsmHelper, SourceLine
 from slothy.helper import binary_search, BinarySearchLimitException
@@ -416,12 +416,7 @@ class Heuristics():
             local_perm = Permutation.permutation_move_entry_forward(l, choice_idx, i)
             perm = Permutation.permutation_comp (local_perm, perm)
 
-            def node_to_source_line(t):
-                res = SourceLine(str(t.inst))
-                res._tags = t.inst.tags
-                return res
-
-            body = list(map(node_to_source_line, insts))
+            body = list(map(ComputationNode.to_source_line, insts))
             depths = move_entry_forward(depths, choice_idx, i)
             body[i].set_text(f"    {str(body[i]).strip():100s} // {depth_str} {depths[i]}")
             Heuristics._dump("New code", body, logger)
@@ -454,7 +449,7 @@ class Heuristics():
         logger.info("Transform DFG into SSA...")
         dfg = DFG(body, logger.getChild("dfg_ssa"), DFGConfig(conf.copy()), parsing_cb=True)
         dfg.ssa()
-        ssa = [ str(t.inst) for t in dfg.nodes ]
+        ssa = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
         return ssa
 
     @staticmethod

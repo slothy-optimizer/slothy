@@ -76,7 +76,7 @@ class Result(LockAttributes):
                 arr_width(self.cycle_position_with_bubbles.values())
 
         yield SourceLine("")
-        yield SourceLine("// original source code")
+        yield SourceLine("").add_comment("original source code")
         for i in range(self.codesize):
             pos = self.reordering[i] - min_pos
             c = core_char
@@ -108,7 +108,9 @@ class Result(LockAttributes):
             else:
                 t_comment_cycle = ""
 
-            yield SourceLine(f"// {str(self.orig_code[i]):{fixlen-3}s} // {t_comment} {t_comment_cycle}")
+            yield SourceLine("")                                      \
+                .add_comment(f"{str(self.orig_code[i]):{fixlen-3}s}") \
+                .add_comment(f"{t_comment} {t_comment_cycle}")
 
         yield SourceLine("")
 
@@ -386,7 +388,9 @@ class Result(LockAttributes):
                 p = ri.get(i, None)
                 if p is None:
                     gapstr = "// gap"
-                    yield SourceLine(f"{gapstr:{fixlen}s} // {d * self.codesize}")  
+                    yield SourceLine("")                 \
+                        .set_text(f"{gapstr:{fixlen}s}") \
+                        .add_comment(d * self.codesize)
                     continue
                 s = code[self.periodic_reordering[p]]
                 c = core_char
@@ -395,7 +399,7 @@ class Result(LockAttributes):
                 elif self.is_post(p):
                     c = late_char
                 comment = d * p + c + d * (self.codesize - p - 1)
-                yield SourceLine(f"{str(s):{fixlen}s} // {comment}")
+                yield s.copy().set_length(fixlen).add_comment(comment)
 
         res = list(_gen_visualized_code())
         res += self.orig_code_visualized
@@ -784,18 +788,13 @@ class Result(LockAttributes):
 
         assert n // iterations == self.codesize
 
-        def node_to_source_line(t):
-            res = SourceLine(str(t.inst))
-            res.tags = t.inst.tags
-            return res
-
-        preamble_new  = list(map(node_to_source_line, tree_new.nodes[:preamble_len]))
-        postamble_new = [ node_to_source_line(t) for t in tree_new.nodes[-postamble_len:] ] \
+        preamble_new  = list(map(ComputationNode.to_source_line, tree_new.nodes[:preamble_len]))
+        postamble_new = [ ComputationNode.to_source_line(t) for t in tree_new.nodes[-postamble_len:] ] \
             if postamble_len > 0 else []
 
         code_new = []
         for i in range(iterations - self.num_exceptional_iterations):
-            code_new.append([ node_to_source_line(t) for t in
+            code_new.append([ ComputationNode.to_source_line(t) for t in
                               tree_new.nodes[preamble_len + i*self.codesize:
                                              preamble_len + (i+1)*self.codesize] ])
 
@@ -821,12 +820,7 @@ class Result(LockAttributes):
             Result._fixup_reordered_pair(tree_new.nodes[ni], tree_new.nodes[nj], log)
         Result._fixup_finish(tree_new.nodes, log)
 
-        def node_to_source_line(t):
-            res = SourceLine(str(t.inst))
-            res.tags = t.inst.tags
-            return res
-
-        self.code = [ node_to_source_line(t) for t in tree_new.nodes ]
+        self.code = [ ComputationNode.to_source_line(t) for t in tree_new.nodes ]
 
     def offset_fixup(self, log):
         """Fixup address offsets after optimization"""
@@ -909,12 +903,7 @@ class Result(LockAttributes):
             for i, v in enumerate(t.src_in_out):
                 t.inst.args_in_out[i] = v.name()
 
-        def node_to_source_line(t):
-            res = SourceLine(str(t.inst))
-            res.tags = t.inst.tags
-            return res
-
-        new_preamble = [ node_to_source_line(t) for t in tree_kernel.nodes if is_in_preamble(t) ]
+        new_preamble = [ ComputationNode.to_source_line(t) for t in tree_kernel.nodes if is_in_preamble(t) ]
         self.preamble = new_preamble
         SlothyBase.dump("New preamble", self.preamble, log)
 
@@ -943,7 +932,7 @@ class Result(LockAttributes):
             for i, v in enumerate(t.src_in_out):
                 t.inst.args_in_out[i] = v.reduce().name()
 
-        new_postamble = [ node_to_source_line(t) for t in tree_kernel.nodes if is_in_postamble(t) ]
+        new_postamble = [ ComputationNode.to_source_line(t) for t in tree_kernel.nodes if is_in_postamble(t) ]
         self.postamble = new_postamble
         SlothyBase.dump("New postamble", self.postamble, log)
 
@@ -1469,7 +1458,7 @@ class SlothyBase(LockAttributes):
             for i, v in enumerate(t.src_in_out):
                 t.inst.args_in_out[i] = v.name()
 
-        new_preamble = [ str(t.inst) for t in tree_kernel.nodes if is_in_preamble(t) ]
+        new_preamble = [ ComputationNode.to_source_line(t) for t in tree_kernel.nodes if is_in_preamble(t) ]
         self._result.preamble = new_preamble
         SlothyBase.dump("New preamble", self._result.preamble, log)
 
@@ -1498,7 +1487,7 @@ class SlothyBase(LockAttributes):
             for i, v in enumerate(t.src_in_out):
                 t.inst.args_in_out[i] = v.reduce().name()
 
-        new_postamble = [ str(t.inst) for t in tree_kernel.nodes if is_in_postamble(t) ]
+        new_postamble = [ ComputationNode.to_source_line(t) for t in tree_kernel.nodes if is_in_postamble(t) ]
         self._result.postamble = new_postamble
         SlothyBase.dump("New postamble", self._result.postamble, log)
 
@@ -1629,7 +1618,7 @@ class SlothyBase(LockAttributes):
                 t = self._model.tree.nodes[periodic_reordering_with_bubbles_inv[line_no]]
                 if filter_func and not filter_func(t):
                     return
-                yield SourceLine(str(t.inst))
+                yield ComputationNode.to_source_line(t)
 
             base  = 0
             lines = self._result.codesize_with_bubbles
@@ -2263,9 +2252,9 @@ class SlothyBase(LockAttributes):
             self._AddExactlyOne([t.pre_var, t.post_var, t.core_var])
 
             # Check if source line was tagged pre/core/post
-            force_pre  = t.inst.tags.get("pre", None)
-            force_core = t.inst.tags.get("core", None)
-            force_post = t.inst.tags.get("post", None)
+            force_pre  = t.inst.source_line.tags.get("pre", None)
+            force_core = t.inst.source_line.tags.get("core", None)
+            force_post = t.inst.source_line.tags.get("post", None)
             if force_pre is not None:
                 assert force_pre is True or force_pre is False
                 self._Add(t.pre_var == force_pre)
@@ -2373,17 +2362,17 @@ class SlothyBase(LockAttributes):
 
         def find_node_by_source_id(src_id):
             for t in nodes:
-                cur_id = t.inst.tags.get("id", None)
+                cur_id = t.inst.source_line.tags.get("id", None)
                 if cur_id == src_id:
                     return t
             raise Exception(f"Could not find node with source ID {src_id}")
 
         for i, t1 in enumerate(nodes):
-            force_after = t1.inst.tags.get("after", [])
+            force_after = t1.inst.source_line.tags.get("after", [])
             if not isinstance(force_after, list):
                 force_after = [force_after]
             t0s = list(map(find_node_by_source_id, force_after))
-            force_after_last = t1.inst.tags.get("after_last", False)
+            force_after_last = t1.inst.source_line.tags.get("after_last", False)
             if force_after_last is True:
                 if i == 0:
                     # Ignore after_last tag for first instruction
@@ -2395,7 +2384,7 @@ class SlothyBase(LockAttributes):
                     lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var))
 
         for t0 in nodes:
-            force_before = t0.inst.tags.get("before", [])
+            force_before = t0.inst.source_line.tags.get("before", [])
             if not isinstance(force_before, list):
                 force_before = [force_before]
             for t1_id in force_before:

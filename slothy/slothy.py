@@ -30,7 +30,7 @@ import logging
 from types import SimpleNamespace
 
 from slothy.dataflow import DataFlowGraph as DFG
-from slothy.dataflow import Config as DFGConfig
+from slothy.dataflow import Config as DFGConfig, ComputationNode
 from slothy.core import Config
 from slothy.heuristics import Heuristics
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor, SourceLine
@@ -67,7 +67,7 @@ class Slothy():
 
     def get_source_as_string(self):
         """Retrieve current source code as multi-line string"""
-        return SourceLine.write_multiline(self.source)
+        return SourceLine.write_multiline(self.source, comments=True, indentation=True, tags=True)
 
     def set_source_as_string(self, s):
         """Provide input source code as multi-line string"""
@@ -183,6 +183,8 @@ class Slothy():
         self.source = pre + optimized_source + post
         assert SourceLine.is_source(self.source)
 
+        assert SourceLine.is_source(self.source)
+
     def get_loop_input_output(self, loop_lbl):
         logger = self.logger.getChild(loop_lbl)
         _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl)
@@ -227,11 +229,11 @@ class Slothy():
 
         dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
         dfg.ssa()
-        body = [ SourceLine(str(t.inst)) for t in dfg.nodes ]
+        body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
 
         dfg = DFG(body, logger.getChild("fusion"), dfgc, parsing_cb=False)
         dfg.apply_fusion_cbs()
-        body = [ SourceLine(str(t.inst)) for t in dfg.nodes ]
+        body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
 
         return body
 
@@ -277,9 +279,7 @@ class Slothy():
         """Optimize the loop starting at a given label"""
 
         logger = self.logger.getChild(loop_lbl)
-        if not SourceLine.is_source(self.source):
-            [ print(l) for l in self.source ]
-            assert False
+        assert SourceLine.is_source(self.source)
 
         early, body, late, _, other_data = \
             self.arch.Loop.extract(self.source, loop_lbl)
@@ -349,7 +349,7 @@ class Slothy():
         optimized_code += indented(kernel_code)
         optimized_code += SourceLine.read_multiline(loop.end(other_data, indentation=self.config.indentation))
         if postamble_label is not None:
-            optimized_code += [ SourceLine(f"{postamble_label}: // end of loop kernel") ]
+            optimized_code += [ SourceLine(f"{postamble_label}:").add_comment("end of loop kernel") ]
         optimized_code += indented(postamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:

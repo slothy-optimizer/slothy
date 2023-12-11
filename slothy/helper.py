@@ -31,20 +31,64 @@ import logging
 
 class SourceLine:
     """Representation of a single line of source code"""
-    
+
+    def _extract_comments_from_text(self):
+        if not "//" in self._raw:
+            return
+        s = list(map(str.strip, self._raw.split("//")))
+        self._raw = s[0]
+        self._comments += s[1:]
+        self._trim_comments()
+
+    def _extract_indentation_from_text(self):
+        old = self._raw
+        new = old.lstrip()
+        self._indentation = len(old) - len(new)
+        self._raw = new
+
+    def _strip_comments(self):
+        self._comments = list(map(str.strip, self._comments))
+
+    def _trim_comments(self):
+        self._strip_comments()
+        self._comments = list(filter(lambda s: s != "", self._comments))
+
+    def add_comment(self, comment):
+        self._comments.append(comment)
+        return self
+
+    def add_comments(self, comments):
+        for c in comments:
+            self.add_comment(c)
+        return self
+
     def __init__(self, s):
         """Create source line from string"""
         assert isinstance(s, str)
+
         self._raw = s
         self._tags = {}
-        self._parse_tags()
+        self._indentation = 0
+        self._fixlength = None
+        self._comments = []
+
+        self._extract_indentation_from_text()
+        self._extract_comments_from_text()
+        self._extract_tags_from_comments()
+        
+        new = self.to_string(comments=True, indentation=True, tags=True)
 
     def set_tag(self, tag, value=True):
         """Set source line tag"""
         self._tags[tag] = value
+        return self
 
-    def _parse_tags(self):
+    def set_length(self, length):
+        self._fixlength = length
+        return self
 
+    @staticmethod
+    def _parse_tags_in_string(s, tags):
         def parse_value(v):
             if v.lower() == "true":
                 return True
@@ -57,20 +101,25 @@ class SourceLine:
         def tag_value_callback(g):
             tag = g.group("tag")
             value = parse_value(g.group("value"))
-            self.set_tag(tag, value)
-            return "@slothy:"
+            tags[tag] = value
+            return ""
         
         def tag_callback(g):
             tag = g.group("tag")
-            self.set_tag(tag)
-            return "@slothy:"
+            tags[tag] = True
+            return ""
 
-        tag_value_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=(?P<value>\w+),?"
-        tag_regexp_txt = r"@slothy:(?P<tag>(\w|-)+),?"
-        txt = self._raw
-        txt = re.sub(tag_value_regexp_txt, tag_value_callback, txt)
-        txt = re.sub(tag_regexp_txt, tag_callback, txt)
-        self.set_text(txt)
+        tag_value_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=(?P<value>\w+)"
+        tag_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)"
+        s = re.sub(tag_value_regexp_txt, tag_value_callback, s)
+        s = re.sub(tag_regexp_txt, tag_callback, s)
+        return s
+    
+    def _extract_tags_from_comments(self):
+        tags = {}
+        self._comments = list(map(lambda c: SourceLine._parse_tags_in_string(c, tags), self._comments))
+        self._trim_comments()
+        self.add_tags(tags)
 
     @property
     def tags(self):
@@ -83,8 +132,31 @@ class SourceLine:
     def tags(self, v):
         self._tags = v
 
+    @property
+    def comments(self):
+        """Return the list of comments for the source line"""
+        return self._comments
+    @comments.setter
+    def comments(self, v):
+        self._comments = v
+
+    def to_string(self, indentation=False, comments=False, tags=False):
+        if self._fixlength is None:
+            core = self._raw
+        else:
+            core = f"{self._raw:{self._fixlength}s}"
+        
+        indentation = ' ' * self._indentation \
+            if indentation is True else ""
+        comments = ''.join(map(lambda s: f"// {s}", self._comments)) \
+            if comments is True else ""
+        tags = ' '.join(map(lambda tv: f" // @slothy:{tv[0]}={tv[1]}", self._tags.items())) \
+            if tags is True else ""
+        
+        return f"{indentation}{core}{comments}{tags}"
+
     def __str__(self):
-        return self._raw
+        return self.to_string()
 
     def set_text(self, s):
         """Set the text of the source line
@@ -99,9 +171,11 @@ class SourceLine:
     
     def copy(self):
         """Create a copy of a source line"""
-        r = SourceLine(self._raw)
-        r.tags = self._tags.copy()
-        return r
+        return SourceLine(self._raw)                \
+                .add_tags(self._tags.copy())        \
+                .set_indentation(self._indentation) \
+                .add_comments(self._comments.copy())\
+                .set_length(self._fixlength)
 
     @staticmethod
     def read_multiline(s):
@@ -117,19 +191,26 @@ class SourceLine:
         return [ l.copy() for l in s ]
     
     @staticmethod   
-    def write_multiline(s):
+    def write_multiline(s, comments=True, indentation=True, tags=True):
         """Write source as multiline string"""
-        return '\n'.join(map(str, s))
+        return '\n'.join(map(lambda t: t.to_string(
+            comments=comments, tags=tags, indentation=indentation), s))
     
     def set_indentation(self, indentation):
-        self._raw = indentation * ' ' + self._raw.strip()
+        self._indentation = indentation
         return self
+    
+    def add_tags(self, tags):
+        self._tags = {**self._tags, **tags}
+        return self
+
+    def add_tag(self, tag, value):
+        return self.add_tags({ tag: value })
     
     def inherit_tags(self, l):
         assert SourceLine.is_source_line(l)
-        if len(l.tags.items()) == 0:
-            return
-        self._tags = {**self._tags, **l.tags}
+        self.add_tags(l.tags)
+        return self
 
     @staticmethod
     def apply_indentation(source, indentation):

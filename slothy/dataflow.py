@@ -209,6 +209,11 @@ class ComputationNode:
         self.dst_out    = [ [] for _ in range(inst.num_out)    ]
         self.dst_in_out = [ [] for _ in range(inst.num_in_out) ]
 
+    def to_source_line(self):
+        line = self.inst.source_line.copy()
+        inst_txt = str(self.inst)
+        return line.set_text(inst_txt)
+
     @cached_property
     def is_virtual_input(self):
         """Indicates whether the node is an input node."""
@@ -605,7 +610,7 @@ class DataFlowGraph:
         # Remember options from source line
         # TODO: Might not be the right place to remember options
         for inst in insts: 
-            inst.tags = l.tags
+            inst.source_line = l
         return (insts, l)
     
     def _parse_source(self, src):
