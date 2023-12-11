@@ -399,29 +399,19 @@ class Heuristics():
 
                 return choice_idx
 
-            def move_entry_forward(lst, idx_from, idx_to, callback=None):
+            def move_entry_forward(lst, idx_from, idx_to):
                 entry = lst[idx_from]
                 del lst[idx_from]
-
-                if callback is not None:
-                    for before in lst[idx_to:idx_from]:
-                        callback(before, entry)
-
                 return lst[:idx_to] + [entry] + lst[idx_to:]
 
-            def inst_reorder_cb(t0,t1):
-                SlothyBase._fixup_reordered_pair(t0,t1,logger)
-
-            SlothyBase._fixup_reset(insts)
             choice_idx = None
             while choice_idx is None:
                 try:
                     choice_idx = pick_candidate(candidate_idxs)
-                    insts = move_entry_forward(insts, choice_idx, i, inst_reorder_cb)
+                    insts = move_entry_forward(insts, choice_idx, i)
                 except:
                     candidate_idxs.remove(choice_idx)
                     choice_idx = None
-            SlothyBase._fixup_finish(insts, logger)
 
             local_perm = Permutation.permutation_move_entry_forward(l, choice_idx, i)
             perm = Permutation.permutation_comp (local_perm, perm)
@@ -447,6 +437,9 @@ class Heuristics():
         res.output_renamings = { s:s for s in outputs }
         res.valid = True
         res.selfcheck(logger.getChild("naive_interleaving_selfcheck"))
+
+        res.offset_fixup(logger.getChild("naive_interleaving_fixup"))
+        body = res.code_raw
 
         Heuristics._dump("Before naive interleaving", old, logger)
         Heuristics._dump("After naive interleaving", body, logger)

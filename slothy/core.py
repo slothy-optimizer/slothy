@@ -362,6 +362,10 @@ class Result(LockAttributes):
         return { v : k for k,v in self.reordering.items() }
 
     @property
+    def code_raw(self):
+        """Optimized code, without annotations"""
+        return self._code
+    @property
     def code(self):
         """The optimized source code"""
         code = self._code
