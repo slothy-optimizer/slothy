@@ -88,13 +88,14 @@ class SourceLine:
         self._trim_comments()
         self.add_tags(tags)
 
-    def extract_metadata(self):
+    def reduce(self):
         """Extract metadata (tags, comments, indentation) from raw text
 
         The extracted components get retracted from the text."""
         self._extract_indentation_from_text()
         self._extract_comments_from_text()
         self._extract_tags_from_comments()
+        return self
 
     def add_comment(self, comment):
         """Add a comment to the metadata of a source line"""
@@ -107,7 +108,7 @@ class SourceLine:
             self.add_comment(c)
         return self
 
-    def __init__(self, s, extract=False):
+    def __init__(self, s, reduce=True):
         """Create source line from string"""
         assert isinstance(s, str)
 
@@ -117,8 +118,8 @@ class SourceLine:
         self._fixlength = None
         self._comments = []
 
-        if extract is True:
-            self.extract_metadata()
+        if reduce is True:
+            self.reduce()
 
     def set_tag(self, tag, value=True):
         """Set source line tag"""
@@ -154,6 +155,15 @@ class SourceLine:
     def comments(self, v):
         self._comments = v
 
+    def has_text(self):
+        """Indicates if the source line constaints some text"""
+        return self._raw.strip() != ""
+    
+    @property
+    def text(self):
+        """Returns the (non-metadata) text in the source line"""
+        return self._raw
+
     def to_string(self, indentation=False, comments=False, tags=False):
         """Convert source line to a string
 
@@ -176,11 +186,18 @@ class SourceLine:
     def __str__(self):
         return self.to_string()
 
+    @staticmethod
+    def reduce_source(src):
+        assert SourceLine.is_source(src)
+        for l in src:
+            l.reduce()
+        return [ l for l in src if l.has_text() ]
+
     def set_text(self, s):
         """Set the text of the source line
 
         This only affects the instruction text of the source line, but leaves
-        other components such as comments, indentation or tags unmodified."""
+        metadata (such as comments, indentation or tags) unmodified."""
         self._raw = s
         return self
 
@@ -209,7 +226,7 @@ class SourceLine:
         return [ l.copy() for l in s ]
 
     @staticmethod
-    def write_multiline(s, comments=True, indentation=True, tags=True):
+    def write_multiline(s, comments=True, indentation=True, tags=False):
         """Write source as multiline string"""
         return '\n'.join(map(lambda t: t.to_string(
             comments=comments, tags=tags, indentation=indentation), s))
@@ -248,6 +265,14 @@ class SourceLine:
             return source
         assert isinstance(indentation, int)
         return [ l.copy().set_indentation(indentation) for l in source ]
+    
+    @staticmethod
+    def drop_tags(source):
+        """Drop all tags from a source"""
+        assert SourceLine.is_source(source)
+        for l in source:
+            l.tags = {}
+        return source
 
     @staticmethod
     def split_semicolons(s):
@@ -401,25 +426,10 @@ class AsmHelper():
         return l.copy().set_text(line)
 
     @staticmethod
-    def reduce_source(src, allow_nops=True):
-        """Simplify assembly snippet"""
-        assert SourceLine.is_source(src)
-
-        def filter_nop(src):
-            if allow_nops:
-                return True
-            return str(src) != "nop"
-        src = map(AsmHelper.reduce_source_line, src)
-        src = filter(lambda x: x is not None, src)
-        src = filter(filter_nop, src)
-        src = list(src)
-        return src
-
-    @staticmethod
     def extract(source, lbl_start=None, lbl_end=None):
         """Extract code between two labels from an assembly source"""
         pre, body, post = AsmHelper._extract_core(source, lbl_start, lbl_end)
-        body = AsmHelper.reduce_source(body, allow_nops=False)
+        body = SourceLine.reduce_source(body, allow_nops=False)
         return pre, body, post
 
     @staticmethod
@@ -641,12 +651,11 @@ class AsmMacro():
         indentation_regexp = re.compile(indentation_regexp_txt)
 
         # Go through source line by line and check if there's a macro invocation
-        for l in AsmHelper.reduce_source(source):
+        for l in SourceLine.reduce_source(source):
             assert SourceLine.is_source_line(l)
 
-            lp = AsmHelper.reduce_source_line(l)
-            if lp is not None:
-                p = macro_regexp.match(str(lp))
+            if l.has_text():
+                p = macro_regexp.match(l.text)
             else:
                 p = None
 
@@ -656,7 +665,7 @@ class AsmMacro():
             if change_callback:
                 change_callback()
             # Try to keep indentation
-            indentation = len(indentation_regexp.match(str(l)).group("whitespace"))
+            indentation = len(indentation_regexp.match(l.text).group("whitespace"))
             repl = self(p.groupdict())
             for l0 in repl:
                 l0.set_indentation(indentation)

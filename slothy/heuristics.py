@@ -479,27 +479,12 @@ class Heuristics():
                 c = conf.copy()
                 c.constraints.allow_reordering = False
                 c.constraints.functional_only = True
-                body = AsmHelper.reduce_source(body)
+                body = SourceLine.reduce_source(body)
                 result = Heuristics.optimize_binsearch(body, log.getChild("remove_symbolics"),conf=c)
                 body = result.code
-                body = AsmHelper.reduce_source(body)
+                body = SourceLine.reduce_source(body)
         else:
             perm = Permutation.permutation_id(l)
-
-        # log.debug("Remove symbolics...")
-        # c = conf.copy()
-        # c.constraints.allow_reordering = False
-        # c.constraints.functional_only = True
-        # body = AsmHelper.reduce_source(body)
-        # result = Heuristics.optimize_binsearch(body, log.getChild("remove_symbolics"),conf=c)
-        # body = result.code
-        # body = AsmHelper.reduce_source(body)
-
-        # conf.outputs = result.outputs
-
-        # Heuristics._dump("Source code without symbolic registers", body, log)
-
-        # conf.outputs = result.outputs
 
         def print_intarr(arr, l,vals=50):
             m = max(10,max(arr))
@@ -568,7 +553,7 @@ class Heuristics():
                 log.getChild(f"{start_idx}_{end_idx}"), c,
                 prefix_len=prefix_len, suffix_len=suffix_len)
             Heuristics._dump(f"New chunk [{start_idx}:{end_idx}]", result.code, log)
-            new_body = cur_pre + AsmHelper.reduce_source(result.code) + cur_post
+            new_body = cur_pre + SourceLine.reduce_source(result.code) + cur_post
 
             perm = Permutation.permutation_pad(result.reordering, pre_pad, post_pad)
 
@@ -636,9 +621,6 @@ class Heuristics():
         else:
             increment = conf.split_heuristic_stepsize
 
-        # orig_body = AsmHelper.reduce_source(cur_body).copy()
-        # perm = Permutation.permutation_id(len(orig_body))
-
         # Remember inputs and outputs
         dfgc = DFGConfig(conf.copy())
         outputs = conf.outputs.copy()
@@ -648,7 +630,7 @@ class Heuristics():
 
         for i in range(conf.split_heuristic_repeat):
 
-            cur_body = AsmHelper.reduce_source(cur_body)
+            cur_body = SourceLine.reduce_source(cur_body)
 
             if conf.split_heuristic_chunks:
                 start_pos = [ x[0] for x in conf.split_heuristic_chunks ]
@@ -670,7 +652,7 @@ class Heuristics():
         # Check complete result
         res = Result(conf)
         res.orig_code = orig_body
-        res.code = AsmHelper.reduce_source(cur_body).copy()
+        res.code = SourceLine.reduce_source(cur_body).copy()
         res.codesize_with_bubbles = res.codesize
         res.success = True
         res.reordering_with_bubbles = perm
@@ -685,7 +667,7 @@ class Heuristics():
         c = conf.copy()
 
         # Focus on the chosen subregion
-        body = AsmHelper.reduce_source(body)
+        body = SourceLine.reduce_source(body)
 
         if c.split_heuristic_region == [0.0, 1.0]:
             return Heuristics._split_inner(body, logger, c, visualize_stalls)
@@ -748,7 +730,7 @@ class Heuristics():
         assert conf.sw_pipelining.enabled
         assert conf.sw_pipelining.halving_heuristic
 
-        body = AsmHelper.reduce_source(body)
+        body = SourceLine.reduce_source(body)
 
         # Find kernel dependencies
         kernel_deps = DFG(body, logger.getChild("dfg_kernel_deps"),
@@ -781,7 +763,7 @@ class Heuristics():
             def is_pre(i):
                 return rotate_pos(reordering[i]) < 0
 
-            kernel = AsmHelper.reduce_source(res_halving_0.code)
+            kernel = SourceLine.reduce_source(res_halving_0.code)
             preamble = kernel[:codesize//2]
             postamble = kernel[codesize//2:]
 

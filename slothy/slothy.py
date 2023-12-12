@@ -65,9 +65,9 @@ class Slothy():
         assert SourceLine.is_source(val)
         self._source = val
 
-    def get_source_as_string(self):
+    def get_source_as_string(self, comments=True, indentation=True, tags=False):
         """Retrieve current source code as multi-line string"""
-        return SourceLine.write_multiline(self.source, comments=True, indentation=True, tags=True)
+        return SourceLine.write_multiline(self.source, comments=comments, indentation=indentation, tags=tags)
 
     def set_source_as_string(self, s):
         """Provide input source code as multi-line string"""

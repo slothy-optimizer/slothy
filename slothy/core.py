@@ -1142,7 +1142,7 @@ class SlothyBase(LockAttributes):
            ( prefix_len >0 or suffix_len > 0 ):
             raise Exception("Invalid arguments")
 
-        source = AsmHelper.reduce_source(source)
+        source = SourceLine.reduce_source(source)
         SlothyBase.dump("Source code", source, self.logger.input)
 
         self._orig_code = source.copy()

@@ -614,7 +614,7 @@ class DataFlowGraph:
         return (insts, l)
     
     def _parse_source(self, src):
-        return list(map(self._parse_line, AsmHelper.reduce_source(src)))
+        return list(map(self._parse_line, SourceLine.reduce_source(src)))
 
     def iter_dependencies(self):
         """Returns an iterator over all dependencies in the data flow graph.
