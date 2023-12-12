@@ -1653,6 +1653,11 @@ class SlothyBase(LockAttributes):
             preamble = SourceLine.apply_indentation(preamble, self.config.indentation)
             postamble = SourceLine.apply_indentation(postamble, self.config.indentation)
             kernel = SourceLine.apply_indentation(kernel, self.config.indentation)
+
+            if self.config.keep_tags is False:
+                SourceLine.drop_tags(preamble)
+                SourceLine.drop_tags(postamble)
+                SourceLine.drop_tags(kernel)
             
             self._result.preamble = preamble
             self._result.postamble = postamble
@@ -1663,6 +1668,9 @@ class SlothyBase(LockAttributes):
         else:
             code = list(get_code())
             code = SourceLine.apply_indentation(code, self.config.indentation)
+
+            if self.config.keep_tags is False:
+                SourceLine.drop_tags(code)
 
             self._result.code = code
 

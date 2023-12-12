@@ -264,6 +264,7 @@ class Slothy():
         assert SourceLine.is_source(self.source)
 
         c = self.config.copy()
+        self.config.keep_tags = True
         self.config.constraints.functional_only = True
         self.config.constraints.allow_reordering = False
         self.config.sw_pipelining.enabled = False
