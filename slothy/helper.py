@@ -108,6 +108,20 @@ class SourceLine:
             self.add_comment(c)
         return self
 
+    def set_comments(self, comments):
+        """Set comments for source line.
+
+        Overwrites existing comments."""
+        self._comments = comments
+        return self
+
+    def set_comment(self, comment):
+        """Set single comment for source line. 
+
+        Overwrites existing comments."""
+        self.set_comments([comment])
+        return self
+
     def __init__(self, s, reduce=True):
         """Create source line from string"""
         assert isinstance(s, str)
@@ -188,6 +202,7 @@ class SourceLine:
 
     @staticmethod
     def reduce_source(src):
+        """Extract metadata (e.g. indentation, tags, comments) from source lines"""
         assert SourceLine.is_source(src)
         for l in src:
             l.reduce()
@@ -213,11 +228,11 @@ class SourceLine:
                 .set_length(self._fixlength)
 
     @staticmethod
-    def read_multiline(s):
+    def read_multiline(s, reduce=True):
         """Parse multi-line string or array of strings into list of SourceLine instances"""
         if isinstance(s, str):
             s = s.splitlines()
-        return [ SourceLine(l) for l in s ]
+        return [ SourceLine(l, reduce=reduce) for l in s ]
 
     @staticmethod
     def copy_source(s):
@@ -429,7 +444,7 @@ class AsmHelper():
     def extract(source, lbl_start=None, lbl_end=None):
         """Extract code between two labels from an assembly source"""
         pre, body, post = AsmHelper._extract_core(source, lbl_start, lbl_end)
-        body = SourceLine.reduce_source(body, allow_nops=False)
+        body = SourceLine.reduce_source(body)
         return pre, body, post
 
     @staticmethod

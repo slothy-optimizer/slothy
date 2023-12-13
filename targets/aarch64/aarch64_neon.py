@@ -265,7 +265,7 @@ class Loop:
             keep = False
             if l is None:
                 break
-            assert isinstance(l, str) == False
+            assert isinstance(l, str) is False
             if state == 0:
                 p = loop_lbl_regexp.match(l_str)
                 if p is not None and p.group("label") == lbl:
@@ -506,7 +506,7 @@ class Instruction:
         exceptions = {}
         instnames = []
 
-        src = str(src_line).strip()
+        src = src_line.text.strip()
 
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds

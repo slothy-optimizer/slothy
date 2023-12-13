@@ -71,12 +71,9 @@ class Result(LockAttributes):
             return mi, ma-mi
 
         min_pos, width = arr_width(self.reordering.values())
-        if not self.config.constraints.functional_only:
-            min_pos_cycle, width_cycle = \
-                arr_width(self.cycle_position_with_bubbles.values())
-
+        
         yield SourceLine("")
-        yield SourceLine("").add_comment("original source code")
+        yield SourceLine("").set_comment("original source code")
         for i in range(self.codesize):
             pos = self.reordering[i] - min_pos
             c = core_char
@@ -101,16 +98,9 @@ class Result(LockAttributes):
                 c_pos += self.codesize
             t_comment = ''.join(t_comment)
 
-            if not self.config.constraints.functional_only and \
-               self.config.target.issue_rate > 1:
-                cycle_pos = self.cycle_position_with_bubbles[i]  - min_pos_cycle
-                t_comment_cycle = "|| " + (d * cycle_pos + c + d * (width_cycle - cycle_pos))
-            else:
-                t_comment_cycle = ""
-
             yield SourceLine("")                                      \
-                .add_comment(f"{str(self.orig_code[i]):{fixlen-3}s}") \
-                .add_comment(f"{t_comment} {t_comment_cycle}")
+                .set_comment(f"{str(self.orig_code[i]):{fixlen-3}s}") \
+                .add_comment(t_comment)
 
         yield SourceLine("")
 
@@ -387,9 +377,9 @@ class Result(LockAttributes):
             for i in range(self.codesize_with_bubbles):
                 p = ri.get(i, None)
                 if p is None:
-                    gapstr = "// gap"
-                    yield SourceLine("")                 \
-                        .set_text(f"{gapstr:{fixlen}s}") \
+                    gap_str = "gap"
+                    yield SourceLine("")    \
+                        .set_comment(f"{gap_str:{fixlen-3}s}") \
                         .add_comment(d * self.codesize)
                     continue
                 s = code[self.periodic_reordering[p]]
@@ -398,8 +388,8 @@ class Result(LockAttributes):
                     c = early_char
                 elif self.is_post(p):
                     c = late_char
-                comment = d * p + c + d * (self.codesize - p - 1)
-                yield s.copy().set_length(fixlen).add_comment(comment)
+                vis = d * p + c + d * (self.codesize - p - 1)
+                yield s.copy().set_length(fixlen).set_comment(vis)
 
         res = list(_gen_visualized_code())
         res += self.orig_code_visualized

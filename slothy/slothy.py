@@ -72,7 +72,8 @@ class Slothy():
     def set_source_as_string(self, s):
         """Provide input source code as multi-line string"""
         assert isinstance(s, str)
-        self.source = SourceLine.read_multiline(s)
+        reduce = not self.config.ignore_tags
+        self.source = SourceLine.read_multiline(s, reduce=reduce)
 
     def load_source_raw(self, source):
         """Load source code from multi-line string"""
@@ -92,7 +93,7 @@ class Slothy():
         f.close()
 
     def print_code(self):
-        print(self.source.get_source_as_string())
+        print(self.get_source_as_string())
 
     def rename_function(self, old_funcname, new_funcname):
         self.source = AsmHelper.rename_function(self.source, old_funcname, new_funcname)

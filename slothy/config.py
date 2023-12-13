@@ -56,6 +56,7 @@ class Config(NestedPrint, LockAttributes):
     _default_compiler_binary = "gcc"
 
     _default_keep_tags = False
+    _default_ignore_tags = False
 
     _default_unsafe_skip_address_fixup = False
     _default_do_address_fixup = True
@@ -109,6 +110,11 @@ class Config(NestedPrint, LockAttributes):
         post-optimization. However, for preprocessing runs that do not reorder code, it makes
         sense to keep them."""        
         return self._keep_tags
+
+    @property
+    def ignore_tags(self):
+        """Indicates whether tags in the input source should be ignored."""        
+        return self._ignore_tags
 
     @property
     def register_aliases(self):
@@ -948,6 +954,7 @@ class Config(NestedPrint, LockAttributes):
         self._objective_precision = Config._default_objective_precision
 
         self._keep_tags = Config._default_keep_tags
+        self._ignore_tags = Config._default_ignore_tags
 
         # Visualization
         self.indentation = 8
@@ -1025,6 +1032,9 @@ class Config(NestedPrint, LockAttributes):
     @keep_tags.setter
     def keep_tags(self, val):
         self._keep_tags = val
+    @ignore_tags.setter
+    def ignore_tags(self, val):
+        self._ignore_tags = val
     @unsafe_skip_address_fixup.setter
     def unsafe_skip_address_fixup(self, val):
         self._unsafe_skip_address_fixup = val
