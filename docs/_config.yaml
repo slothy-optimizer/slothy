@@ -1,5 +1,6 @@
 title: SLOTHY
 description: Assembly superoptimization via constraint solving
+logo: slothy_logo.png
 show_downloads: true
 google_analytics:
 theme: jekyll-theme-minimal
