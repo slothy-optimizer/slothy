@@ -127,6 +127,7 @@ class VirtualOutputInstruction(VirtualInstruction):
         self.num_in = 1
         self.args_in = [reg]
         self.arg_types_in = [reg_ty]
+        self.args_in_restrictions = [None]
 
     def write(self):
         return f"// output renaming: {self.orig_reg} -> {self.args_in_out[0]}"
@@ -141,6 +142,7 @@ class VirtualInputInstruction(VirtualInstruction):
         self.num_out = 1
         self.args_out = [reg]
         self.arg_types_out = [reg_ty]
+        self.args_out_restrictions = [None]
 
     def write(self):
         return f"// input renaming: {self.orig_reg} -> {self.args_out[0]}"
