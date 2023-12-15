@@ -31,7 +31,7 @@
 #
 
 from enum import Enum
-from .aarch64_neon import *
+from slothy.targets.aarch64.aarch64_neon import *
 
 issue_rate = 4
 

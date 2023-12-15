@@ -28,9 +28,7 @@ import logging
 import time
 import os
 
-from slothy.slothy import Slothy
-from slothy.config import Config as SlothyConfig
-from targets.query import Archery
+from slothy import Slothy, Archery
 
 def main(argv):
 

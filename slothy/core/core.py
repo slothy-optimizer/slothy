@@ -25,22 +25,23 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import logging, ortools, math
+import logging
+import ortools
+import math
 
 from types import SimpleNamespace
 from copy import deepcopy
-from sympy import simplify
-
-from ortools.sat.python import cp_model
 from functools import cached_property
+from sympy import simplify
+from ortools.sat.python import cp_model
 
-from slothy.config import Config
-from slothy.helper import LockAttributes, AsmHelper, Permutation, DeferHandler, SourceLine
+from slothy.core.config import Config
+from slothy.helper import LockAttributes, Permutation, DeferHandler, SourceLine
 
-from slothy.dataflow import DataFlowGraph as DFG
-from slothy.dataflow import Config as DFGConfig
-from slothy.dataflow import InstructionOutput, InstructionInOut, ComputationNode
-from slothy.dataflow import SlothyUselessInstructionException
+from slothy.core.dataflow import DataFlowGraph as DFG
+from slothy.core.dataflow import Config as DFGConfig
+from slothy.core.dataflow import InstructionOutput, InstructionInOut, ComputationNode
+from slothy.core.dataflow import SlothyUselessInstructionException
 
 class Result(LockAttributes):
     """The results of a one-shot SLOTHY optimization run"""

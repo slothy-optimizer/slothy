@@ -26,7 +26,7 @@
 #
 
 from functools import cached_property
-from .helper import AsmHelper, SourceLine
+from slothy.helper import SourceLine
 
 class SlothyUselessInstructionException(Exception):
     """An instruction was found whose outputs are neither used by a subsequent instruction

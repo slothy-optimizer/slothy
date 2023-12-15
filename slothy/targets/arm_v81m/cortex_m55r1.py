@@ -36,11 +36,8 @@
 ########################################################################################
 ########################################################################################
 
-import logging
-import re
-
 from enum import Enum
-from .arch_v81m import *
+from slothy.targets.arm_v81m.arch_v81m import *
 
 issue_rate = 1
 

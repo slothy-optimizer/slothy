@@ -25,19 +25,19 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import argparse, logging, sys
-from io import StringIO
+import argparse
+import logging
+import sys
 
-from slothy.slothy import Slothy
-from slothy.core import Config
+from slothy import Slothy, Config
 
-import targets.arm_v81m.arch_v81m as Arch_Armv81M
-import targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
-import targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
+import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
+import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
+import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
-import targets.aarch64.aarch64_neon as AArch64_Neon
-import targets.aarch64.cortex_a55 as Target_CortexA55
-import targets.aarch64.cortex_a72_frontend as Target_CortexA72
+import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
+import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
+import slothy.targets.aarch64.cortex_a72_frontend as Target_CortexA72
 
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",

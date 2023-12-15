@@ -1,4 +1,3 @@
-
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
@@ -29,10 +28,10 @@
 import logging
 from types import SimpleNamespace
 
-from slothy.dataflow import DataFlowGraph as DFG
-from slothy.dataflow import Config as DFGConfig, ComputationNode
-from slothy.core import Config
-from slothy.heuristics import Heuristics
+from slothy.core.dataflow import DataFlowGraph as DFG
+from slothy.core.dataflow import Config as DFGConfig, ComputationNode
+from slothy.core.core import Config
+from slothy.core.heuristics import Heuristics
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor, SourceLine
 
 class Slothy():

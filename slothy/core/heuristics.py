@@ -29,9 +29,9 @@ import math
 import random
 import numpy as np
 
-from slothy.dataflow import DataFlowGraph as DFG
-from slothy.dataflow import Config as DFGConfig, ComputationNode
-from slothy.core import SlothyBase, Result
+from slothy.core.dataflow import DataFlowGraph as DFG
+from slothy.core.dataflow import Config as DFGConfig, ComputationNode
+from slothy.core.core import SlothyBase, Result
 from slothy.helper import Permutation, AsmHelper, SourceLine
 from slothy.helper import binary_search, BinarySearchLimitException
 
