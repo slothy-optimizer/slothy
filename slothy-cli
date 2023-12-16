@@ -30,45 +30,50 @@ import os
 
 from slothy import Slothy, Archery
 
-def main(argv):
+class CmdLineException(Exception):
+    """Exception thrown when a problem is encountered with the command line parameters"""
+
+def _main():
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("arch", type=str,
-                        choices=Archery.list_archs(), help="The target architecture")
-    parser.add_argument("target", type=str,
-                        choices=Archery.list_targets(), help="The target microarchitecture")
+    parser.add_argument("arch", type=str, choices=Archery.list_archs(),
+        help="The target architecture")
+    parser.add_argument("target", type=str, choices=Archery.list_targets(),
+        help="The target microarchitecture")
     parser.add_argument("input", type=str,
-                        help="The name of the assembly source file.")
+        help="The name of the assembly source file.")
     parser.add_argument("-d", "--debug", default=False, action='store_true',
-                        help="Show debug output")
+        help="Show debug output")
     parser.add_argument("-o", "--output", type=str, default=None,
-                        help="The name of the file to write the generated assembly to. "
-                        "If unspecified, the assembly will be printed on the standard output.")
-    parser.add_argument("-c", "--config", default=[], action="append", nargs='*', metavar="OPTION=VALUE",
-                        help="""A (potentially empty) list of modifications to the default configuration of Slothy.""")
+        help="The name of the file to write the generated assembly to. "
+            "If unspecified, the assembly will be printed on the standard output.")
+    parser.add_argument("-c", "--config", default=[], action="append", nargs='*',
+        metavar="OPTION=VALUE", help="""A (potentially empty) list of modifications "\
+            "to the default configuration of Slothy.""")
     parser.add_argument("-l", "--loop", default=[], action='append', type=str,
-                        help="""The starting label for the loop to optimize. This is mutually
-                        exclusive with -s/--start and -e/--end, which allowv you to specify
-                        the code to optimize via start/end separately.""")
+        help="""The starting label for the loop to optimize. This is mutually
+                exclusive with -s/--start and -e/--end, which allowv you to specify
+                the code to optimize via start/end separately.""")
     parser.add_argument("--fusion", default=False, action='store_true')
     parser.add_argument("--fusion-only", default=False, action='store_true')
     parser.add_argument("-s", "--start", default=None, type=str,
-                        help="""The label or line at which the to code to optimize begins.
-                        This is mutually exclusive with -l/--loop.""")
+        help="""The label or line at which the to code to optimize begins.
+                This is mutually exclusive with -l/--loop.""")
     parser.add_argument("-e", "--end", default=None, type=str,
-                        help="""The label or line at which the to code to optimize ends
-                        This is mutually exclusive with -l/--loop.""")
+        help="""The label or line at which the to code to optimize ends
+                This is mutually exclusive with -l/--loop.""")
     parser.add_argument("-r", "--rename-function", default=None, type=str,
-                        help="""Perform function renaming. Format: 'old_func_name,new_func_name'""")
+        help="""Perform function renaming. Format: 'old_func_name,new_func_name'""")
     parser.add_argument("--silent", default=False, action='store_true',
-                        help="""Silent mode: Only print warnings and errors""")
+        help="""Silent mode: Only print warnings and errors""")
     parser.add_argument("--log", default=False, action='store_true',
-                        help="""Write logging output to file""")
+        help="""Write logging output to file""")
     parser.add_argument("--logdir", default=".", type=str,
-                        help="""Directory to store log output to""")
+        help="""Directory to store log output to""")
     parser.add_argument("--logfile", default=None, type=str,
-                        help="""File to write logging output to. Can be omitted, in which case a generic name with timestamp is used""")
+        help="""File to write logging output to. Can be omitted, "\
+                "in which case a generic name with timestamp is used""")
 
     args = parser.parse_args()
 
@@ -116,51 +121,51 @@ def main(argv):
 
     logger = logging.getLogger("slothy-cli")
 
-    Arch   = Archery.get_arch(args.arch)
-    Target = Archery.get_target(args.target)
-    slothy = Slothy(Arch,Target,logger=logger)
+    arch   = Archery.get_arch(args.arch)
+    target = Archery.get_target(args.target)
+    slothy = Slothy(arch,target,logger=logger)
 
     def parse_config_value_as(val, ty):
         def parse_as_float(val):
             try:
                 res = float(val)
                 return res
-            except:
+            except ValueError:
                 return None
         def check_ty(ty_real):
-            if ty == None or ty == type(None) or ty == ty_real:
+            if ty is None or ty == type(None) or ty == ty_real:
                 return
-            raise Exception(f"Configuration value {val} isn't correctly typed -- " \
+            raise CmdLineException(f"Configuration value {val} isn't correctly typed -- " \
                             f"expected {ty}, but got {ty_real}")
         if val == "":
-            raise Exception("Invalid configuration value")
-        logger.debug(f"Parsing configuration value {val} with expected type {ty}")
+            raise CmdLineException("Invalid configuration value")
+        logger.debug("Parsing configuration value %s with expected type %s", val, ty)
         if val.isdigit():
             check_ty(int)
-            logger.debug(f"Value {val} parsed as integer")
+            logger.debug("Value %s parsed as integer", val)
             return int(val)
         if val.lower() == "true":
             check_ty(bool)
-            logger.debug(f"Value {val} parsed as Boolean")
+            logger.debug("Value %s parsed as Boolean", val)
             return True
         if val.lower() == "false":
             check_ty(bool)
-            logger.debug(f"Value {val} parsed as Boolean")
+            logger.debug("Value %s parsed as Boolean", val)
             return False
         # Try to parse as RegisterType
-        ty = Arch.RegisterType.from_string(val)
-        if ty != None:
-            logger.debug(f"Value {val} parsed as RegisterType")
+        ty = arch.RegisterType.from_string(val)
+        if ty is not None:
+            logger.debug("Value %s parsed as RegisterType", val)
             return ty
         f = parse_as_float(val)
-        if f != None:
+        if f is not None:
             check_ty(float)
-            logger.debug(f"Value {val} parsed as float")
+            logger.debug("Value %s parsed as float", val)
             return f
         if val[0] == '[' and val[-1] == ']':
             check_ty(list)
             val = val[1:-1].split(',')
-            logger.debug(f"Parsing {val} is a list -- parse recursively")
+            logger.debug("Parsing %s is a list -- parse recursively", val)
             return [ parse_config_value_as(v,None) for v in val ]
         if val[0] == '{' and val[-1] == '}':
             check_ty(dict)
@@ -168,11 +173,11 @@ def main(argv):
             kvs = [ kv.split(':')  for kv in kvs ]
             for kv in kvs:
                 if not len(kv) == 2:
-                    raise Exception("Invalid dictionary entry")
-            logger.debug(f"Parsing {val} is a dictionary -- parse recursively")
+                    raise CmdLineException("Invalid dictionary entry")
+            logger.debug("Parsing %s is a dictionary -- parse recursively", val)
             return { parse_config_value_as(k, None) : parse_config_value_as(v, None)
                      for k,v in kvs }
-        logger.debug(f"Parsing {val} as string")
+        logger.debug("Parsing %s as string", val)
         return val
 
     # A plain '-c' without arguments should list all available configuration options
@@ -196,14 +201,14 @@ def main(argv):
             obj = getattr(obj,attrs.pop(0))
         attr = attrs.pop(0)
         val = parse_config_value_as(val, type(getattr(obj,attr)))
-        logger.info(f"- Setting configuration option {attr} to value {val}")
+        logger.info("Setting configuration option %s to value %s", attr, val)
         setattr(obj,attr,val)
 
-    def check_list_of_fixed_len_list(lst, fixlen):
+    def check_list_of_fixed_len_list(lst):
         invalid = next(filter(lambda o: len(o) != 1, lst), None)
-        if invalid != None:
-            raise Exception(f"Invalid configuration argument {invalid} in {lst}")
-    check_list_of_fixed_len_list(args.config,1)
+        if invalid is not None:
+            raise CmdLineException(f"Invalid configuration argument {invalid} in {lst}")
+    check_list_of_fixed_len_list(args.config)
     config_kv_pairs = [ c[0].split('=') for c in args.config ]
     for kv in config_kv_pairs:
         # We allow shorthands for boolean configurations
@@ -222,7 +227,7 @@ def main(argv):
         elif len(kv) == 2:
             setattr_recursive(slothy.config, kv[0], kv[1])
         else:
-            raise Exception(f"Invalid configuration {kv}")
+            raise CmdLineException(f"Invalid configuration {kv}")
 
     # Read input
     slothy.load_source_from_file(args.input)
@@ -232,7 +237,7 @@ def main(argv):
         if len(args.loop) > 0:
             for l in args.loop:
                 slothy.fusion_loop(l)
-    
+
     if not (args.fusion is True and args.fusion_only is True):
         if len(args.loop) > 0:
             for l in args.loop:
@@ -251,7 +256,7 @@ def main(argv):
     if args.output is not None:
         slothy.write_source_to_file(args.output)
     else:
-        slothy.print_code()
+        print(slothy.get_source_as_string())
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+    _main()

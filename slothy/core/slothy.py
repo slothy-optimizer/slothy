@@ -57,6 +57,9 @@ class Slothy():
 
     @property
     def source(self):
+        """Returns the current source code as an array of SourceLine objects
+
+        If you want the current source code as a multiline string, use get_source_as_string()."""
         return self._source
 
     @source.setter
@@ -66,7 +69,8 @@ class Slothy():
 
     def get_source_as_string(self, comments=True, indentation=True, tags=False):
         """Retrieve current source code as multi-line string"""
-        return SourceLine.write_multiline(self.source, comments=comments, indentation=indentation, tags=tags)
+        return SourceLine.write_multiline(self.source, comments=comments,
+            indentation=indentation, tags=tags)
 
     def set_source_as_string(self, s):
         """Provide input source code as multi-line string"""
@@ -80,6 +84,7 @@ class Slothy():
         self.results = []
 
     def load_source_from_file(self, filename):
+        """Load source code from file"""
         if self.source is not None:
             self.logger.warning("Overwriting previous source code")
         f = open(filename,"r")
@@ -87,14 +92,13 @@ class Slothy():
         f.close()
 
     def write_source_to_file(self, filename):
+        """Write current source code to file"""
         f = open(filename,"w")
         f.write(self.get_source_as_string())
         f.close()
 
-    def print_code(self):
-        print(self.get_source_as_string())
-
     def rename_function(self, old_funcname, new_funcname):
+        """Rename a function in the current source code"""
         self.source = AsmHelper.rename_function(self.source, old_funcname, new_funcname)
 
     @staticmethod
@@ -186,6 +190,7 @@ class Slothy():
         assert SourceLine.is_source(self.source)
 
     def get_loop_input_output(self, loop_lbl):
+        """Find all registers that a loop body depends on"""
         logger = self.logger.getChild(loop_lbl)
         _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl)
 
@@ -195,6 +200,7 @@ class Slothy():
         return list(DFG(body, logger.getChild("dfg_kernel_deps"), dfgc).inputs)
 
     def get_input_from_output(self, start, end, outputs=None):
+        """For the piece of straightline code, infer which input registers affect its output"""
         if outputs is None:
             outputs = {}
         logger = self.logger.getChild(f"{start}_{end}_infer_input")
@@ -238,6 +244,7 @@ class Slothy():
         return body
 
     def fusion_region(self, start, end):
+        """Run fusion callbacks on straightline code"""
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
@@ -248,6 +255,7 @@ class Slothy():
         assert SourceLine.is_source(self.source)
 
     def fusion_loop(self, loop_lbl):
+        """Run fusion callbacks on loop body"""
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
         pre , body, post, _, other_data = \
@@ -348,9 +356,11 @@ class Slothy():
             unroll=self.config.sw_pipelining.unroll,
             jump_if_empty=jump_if_empty))
         optimized_code += indented(kernel_code)
-        optimized_code += SourceLine.read_multiline(loop.end(other_data, indentation=self.config.indentation))
+        optimized_code += SourceLine.read_multiline(loop.end(other_data,
+            indentation=self.config.indentation))
         if postamble_label is not None:
-            optimized_code += [ SourceLine(f"{postamble_label}:").add_comment("end of loop kernel") ]
+            optimized_code += [ SourceLine(f"{postamble_label}:")
+                .add_comment("end of loop kernel") ]
         optimized_code += indented(postamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:

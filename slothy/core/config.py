@@ -108,7 +108,7 @@ class Config(NestedPrint, LockAttributes):
         
         Tags include pre/core/post or ordering annotations that usually become meaningless
         post-optimization. However, for preprocessing runs that do not reorder code, it makes
-        sense to keep them."""        
+        sense to keep them."""
         return self._keep_tags
 
     @property
@@ -128,6 +128,7 @@ class Config(NestedPrint, LockAttributes):
         return { **self._register_aliases, **self._arch.RegisterType.default_aliases() }
 
     def add_aliases(self, new_aliases):
+        """Add further register aliases to the configuration"""
         self._register_aliases = { **self._register_aliases, **new_aliases }
 
     @property
@@ -344,6 +345,9 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def split_heuristic_optimize_seam(self):
+        """If the split heuristic is used, the number of instructions above and beyond
+        the current sliding window that should be fixed but taken into account during
+        optimization."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_optimize_seam otherwise.")
@@ -360,6 +364,8 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def split_heuristic_bottom_to_top(self):
+        """If the split heuristic is used, move the sliding window from bottom to top
+        rather than from top to bottom."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_bottom_to_top otherwise.")
@@ -411,21 +417,22 @@ class Config(NestedPrint, LockAttributes):
         optimization."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise.")
+                "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise.")
         return self._split_heuristic_preprocess_naive_interleaving
 
     @property
     def split_heuristic_preprocess_naive_interleaving_by_latency(self):
-        """If split heuristic with naive preprocessing is used, this option causes the naive interleaving
-        to be by latency-depth rather than latency."""
+        """If split heuristic with naive preprocessing is used, this option causes
+        the naive interleaving to be by latency-depth rather than latency."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? Shouldn't"    \
+                "read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
         return self._split_heuristic_preprocess_naive_interleaving_by_latency
 
-    # TODO: Consider setting this to True unconditionally
     @property
     def flexible_lifetime_start(self):
+        """Internal property indicating whether the lifetime interval of a register
+        should be allowed to extend _before_ the instructions which uses it."""
         return \
             self.constraints.maximize_register_lifetimes or \
             (self.sw_pipelining.enabled and self.sw_pipelining.allow_post)
@@ -487,14 +494,14 @@ class Config(NestedPrint, LockAttributes):
 
         @property
         def pre_before_post(self):
-            """If both early and late instructions are allowed, force late instructions of iteration N
-                to come _before_ early instructions of iteration N+2."""
+            """If both early and late instructions are allowed, force late instructions
+                of iteration N to come _before_ early instructions of iteration N+2."""
             return self._pre_before_post
 
         @property
         def allow_pre(self):
-            """Allow 'early' instructions, that is, instructions that are pulled forward from iteration N+1
-                to iteration N. A typical example would be an early load."""
+            """Allow 'early' instructions, that is, instructions that are pulled forward
+                from iteration N+1 to iteration N. A typical example would be an early load."""
             return self._allow_pre
 
         @property
@@ -669,8 +676,7 @@ class Config(NestedPrint, LockAttributes):
         _default_model_functional_units = True
         _default_allow_reordering = True
         _default_allow_renaming = True
-        _default_restricted_renaming = None
-
+        
         @property
         def stalls_allowed(self):
             """The number of stalls allowed. Internally, this is the number of NOP
@@ -720,7 +726,7 @@ class Config(NestedPrint, LockAttributes):
         def stalls_precision(self):
             """The precision of the binary search for the minimum number of stalls
 
-                Slothy will stop searching if it can narrow down the minimum number
+                SLOTHY will stop searching if it can narrow down the minimum number
                 of stalls to an interval of the length provided by this variable.
                 In particular, a value of 1 means the true minimum if searched for."""
             if self.functional_only:
@@ -729,6 +735,9 @@ class Config(NestedPrint, LockAttributes):
 
         @property
         def stalls_timeout_below_precision(self):
+            """If this variable is set to a non-None value, SLOTHY does not abort
+            optimization once binary search is operating on an interval smaller than
+            the stall precision, but instead sets a different (typically smaller) timeout."""
             return self._stalls_timeout_below_precision
 
         @property
@@ -769,10 +778,6 @@ class Config(NestedPrint, LockAttributes):
             in order to find the number of model violations in a piece of code."""
             return self._allow_renaming
 
-        @property
-        def restricted_renaming(self):
-            return self._restricted_renaming
-
         def __init__(self):
             super().__init__()
 
@@ -794,8 +799,7 @@ class Config(NestedPrint, LockAttributes):
             self._model_functional_units = Config.Constraints._default_model_functional_units
             self._allow_reordering = Config.Constraints._default_allow_reordering
             self._allow_renaming = Config.Constraints._default_allow_renaming
-            self._restricted_renaming = Config.Constraints._default_restricted_renaming
-
+            
             self._stalls_allowed = Config.Constraints._default_stalls_allowed
             self._stalls_maximum_attempt = Config.Constraints._default_stalls_maximum_attempt
             self._stalls_minimum_attempt = Config.Constraints._default_stalls_minimum_attempt
@@ -835,9 +839,6 @@ class Config(NestedPrint, LockAttributes):
         @allow_renaming.setter
         def allow_renaming(self,val):
             self._allow_renaming = val
-        @restricted_renaming.setter
-        def restricted_renaming(self,val):
-            self._restricted_renaming = val
         @functional_only.setter
         def functional_only(self,val):
             if not val:
