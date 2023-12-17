@@ -280,7 +280,7 @@ def lookup_multidict(d, k, default=None):
             return v
         if isinstance(l,tuple) and k in l:
             return v
-    if default == None:
+    if default is None:
         raise Exception(f"Couldn't find {k}")
     return default
 

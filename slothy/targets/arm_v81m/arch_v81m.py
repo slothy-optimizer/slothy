@@ -468,11 +468,11 @@ class ldrd(Instruction):
                          arg_types_out=[RegisterType.GPR, RegisterType.GPR])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
@@ -538,11 +538,11 @@ class ldr(Instruction):
                          arg_types_out=[RegisterType.GPR])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
@@ -607,11 +607,11 @@ class strd(Instruction):
                          arg_types_in=[RegisterType.GPR, RegisterType.GPR, RegisterType.GPR])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
@@ -1213,11 +1213,11 @@ class vstr(Instruction):
                 arg_types_in=[RegisterType.MVE, RegisterType.GPR])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
@@ -1301,11 +1301,11 @@ class vldr(Instruction):
                 arg_types_out=[RegisterType.MVE])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
@@ -1388,11 +1388,11 @@ class vldr_gather(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
@@ -2078,7 +2078,7 @@ def lookup_multidict(d, inst, default=None):
         for lp in l:
             if match(lp):
                 return v
-    if default == None:
+    if default is None:
         raise Exception(f"Couldn't find {k}")
     return default
 

@@ -212,6 +212,12 @@ class ComputationNode:
         self.dst_in_out = [ [] for _ in range(inst.num_in_out) ]
 
     def to_source_line(self):
+        """Convert node in data flor graph to source line.
+
+        This keeps original tags and comments from the source line that
+        gave rise to the node, but updates the text with the stringification
+        of the instruction underlying the node.
+        """
         line = self.inst.source_line.copy()
         inst_txt = str(self.inst)
         return line.set_text(inst_txt)
@@ -285,9 +291,9 @@ class Config:
     def typing_hints(self):
         """A dictionary of 'typing hints' explicitly assigning to symbolic register names
          a register type.
-        
-        This can be necessary to disambiguate the type of symbolic registers. 
-        For example, the Helium vector extension has various instructions which 
+
+        This can be necessary to disambiguate the type of symbolic registers.
+        For example, the Helium vector extension has various instructions which
         accept either vector or GPR arguments."""
         typing_hints = { name : ty for ty in self.arch.RegisterType \
                for name in self.arch.RegisterType.list_registers(ty, with_variants=True) }
@@ -298,12 +304,12 @@ class Config:
         return self._outputs
     @property
     def inputs_are_outputs(self):
-        """Every input is automatically treated as an output. 
+        """Every input is automatically treated as an output.
         This is typically set for loop kernels."""
         return self._inputs_are_outputs
     @property
     def allow_useless_instructions(self):
-        """Indicates whether data flow creation should raise SlothyUselessInstructionException 
+        """Indicates whether data flow creation should raise SlothyUselessInstructionException
         when a useless instruction is detected."""
         return self._allow_useless_instructions
 
@@ -470,7 +476,7 @@ class DataFlowGraph:
 
     def depth(self):
         """The depth of the data flow graph.
-        
+
         Equivalently, the maximum length of a dependency chain in the assembly source
         represented by the graph."""
         if self.nodes is None or len(self.nodes) == 0:
@@ -608,22 +614,22 @@ class DataFlowGraph:
 
     def _parse_line(self, l):
         assert SourceLine.is_source_line(l)
-        insts = self.arch.Instruction.parser(l) 
+        insts = self.arch.Instruction.parser(l)
         # Remember options from source line
         # TODO: Might not be the right place to remember options
-        for inst in insts: 
+        for inst in insts:
             inst.source_line = l
         return (insts, l)
-    
+
     def _parse_source(self, src):
         return list(map(self._parse_line, SourceLine.reduce_source(src)))
 
     def iter_dependencies(self):
         """Returns an iterator over all dependencies in the data flow graph.
-        
+
         Each returned element has the form (consumer, producer, ty, idx), representing a dependency
-        from output producer to the idx-th input (if ty=="in") or input/output (if ty=="inout") of 
-        consumer. The producer field is an instance of RegisterSource and contains the output index 
+        from output producer to the idx-th input (if ty=="in") or input/output (if ty=="inout") of
+        consumer. The producer field is an instance of RegisterSource and contains the output index
         and source instruction as producer.idx and producer.src, respectively."""
         for consumer in self.nodes_all:
             for idx, producer in enumerate(consumer.src_in):

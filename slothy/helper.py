@@ -172,7 +172,7 @@ class SourceLine:
     def has_text(self):
         """Indicates if the source line constaints some text"""
         return self._raw.strip() != ""
-    
+
     @property
     def text(self):
         """Returns the (non-metadata) text in the source line"""
@@ -207,6 +207,20 @@ class SourceLine:
         for l in src:
             l.reduce()
         return [ l for l in src if l.has_text() ]
+
+    @staticmethod
+    def log(name, s, logger=None, err=False):
+        """Send source to logger"""
+        assert isinstance(s, list)
+        if err:
+            fun = logger.error
+        else:
+            fun = logger.debug
+        if len(s) == 0:
+            return
+        fun(f"Dump: {name}")
+        for l in s:
+            fun(f"> {l}")
 
     def set_text(self, s):
         """Set the text of the source line
@@ -280,7 +294,7 @@ class SourceLine:
             return source
         assert isinstance(indentation, int)
         return [ l.copy().set_indentation(indentation) for l in source ]
-    
+
     @staticmethod
     def drop_tags(source):
         """Drop all tags from a source"""
@@ -333,7 +347,7 @@ class NestedPrint():
         for l in str(self).splitlines():
             fun(l)
 
-class LockAttributes(object):
+class LockAttributes:
     """Base class adding support for 'locking' the set of attributes, that is,
        preventing the creation of any further attributes. Note that the modification
        of already existing attributes remains possible.
@@ -351,7 +365,7 @@ class LockAttributes(object):
             varlist = [v for v in dir(self) if not v.startswith("_") ]
             varlist = '\n'.join(map(lambda x: '* ' + x, varlist))
             raise TypeError(f"Unknown attribute {attr}. \nValid attributes are:\n{varlist}")
-        elif self._locked and attr == "_locked":
+        if self._locked and attr == "_locked":
             raise TypeError("Can't unlock an object")
         object.__setattr__(self,attr,val)
 
@@ -401,44 +415,6 @@ class AsmHelper():
             s = re.sub( f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
             return line.copy().set_text(s)
         return [ change_funcname(s) for s in source ]
-
-    @staticmethod
-    def reduce_source_line(l):
-        """Simplify or ignore assembly source line"""
-        regexp_align_txt = r"^\s*\.(?:p2)?align"
-        regexp_req_txt   = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
-        regexp_unreq_txt = r"\s*\.unreq\s+(?P<alias>\w+)"
-        regexp_label_txt = r"\s*(?P<label>\w+)\s*:\s*$"
-        regexp_align = re.compile(regexp_align_txt)
-        regexp_req   = re.compile(regexp_req_txt)
-        regexp_unreq = re.compile(regexp_unreq_txt)
-        regexp_label = re.compile(regexp_label_txt)
-
-        def strip_comment(s):
-            s = s.split("//")[0]
-            s = re.sub("/\\*[^*]*\\*/","",s)
-            return s.strip()
-        def is_empty(s):
-            return s == ""
-        def is_asm_directive(s):
-            # We only accept (and ignore) .req and .unreqs in code so far
-            return sum([ regexp_req.match(s)   is not None,
-                         regexp_unreq.match(s) is not None,
-                         regexp_align.match(s) is not None]) > 0
-
-        def is_label(s):
-            return regexp_label.match(s) is not None
-        assert SourceLine.is_source_line(l)
-
-        line = str(l)
-        line = strip_comment(line)
-        if is_empty(line):
-            return
-        if is_asm_directive(line):
-            return
-        if is_label(line):
-            return
-        return l.copy().set_text(line)
 
     @staticmethod
     def extract(source, lbl_start=None, lbl_end=None):
@@ -772,8 +748,9 @@ class AsmMacro():
     @staticmethod
     def extract_from_file(filename):
         """Parse all macro definitions in assembly file"""
-        f = open(filename,"r")
-        return AsmMacro.extract(f.read().splitlines())
+        with open(filename,"r",encoding="utf-8") as f:
+            res = AsmMacro.extract(f.read().splitlines())
+        return res
 
 class CPreprocessor():
     """Helper class for the application of the C preprocessor"""

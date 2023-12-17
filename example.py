@@ -49,7 +49,7 @@ class Example():
     def __init__(self, infile, name=None, funcname=None, suffix="opt",
                  rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
                  **kwargs):
-        if name == None:
+        if name is None:
             name = infile
 
         self.arch = arch
@@ -61,7 +61,7 @@ class Example():
             self.outfile = f"{infile}_{self.suffix}_{target_label_dict[self.target]}"
         else:
             self.outfile = f"{outfile}_{self.suffix}_{target_label_dict[self.target]}"
-        if funcname == None:
+        if funcname is None:
             self.funcname = self.infile
         subfolder = ""
         if self.arch == AArch64_Neon:
@@ -1127,7 +1127,7 @@ def main():
             if e.name == name:
                 ex = e
                 break
-        if ex == None:
+        if ex is None:
             raise Exception(f"Could not find example {name}")
         ex.run(debug=debug)
 

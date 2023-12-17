@@ -25,6 +25,26 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
+"""SLOTHY optimizer
+
+SLOTHY - Super Lazy Optimization of Tricky Handwritten assemblY - is a 
+fixed-instruction assembly superoptimizer based on constraint solving. 
+It takes handwritten assembly as input and simultaneously super-optimizes:
+
+- Instruction scheduling
+- Register allocation
+- Software pipelining
+
+SLOTHY enables a development workflow where developers write 'clean' assembly by hand, 
+emphasizing the logic of the computation, while SLOTHY automates microarchitecture-specific 
+micro-optimizations. Since SLOTHY does not change instructions, and scheduling/allocation 
+optimizations are tightly controlled through configurable and extensible constraints, the 
+developer keeps close control over the final assembly, while being freed from the most tedious 
+and readability- and verifiability-impeding micro-optimizations.
+
+This module provides the Slothy class, which is a stateful interface to both
+one-shot and heuristic optimiations using SLOTHY."""
+
 import logging
 from types import SimpleNamespace
 
@@ -34,7 +54,22 @@ from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor, SourceLine
 
-class Slothy():
+class Slothy:
+    """SLOTHY optimizer
+
+    This class provides a stateful interface to both one-shot and heuristic
+    optimizations using SLOTHY.
+    
+    The basic flow of operation is the following:
+    - Initialize an instance, providing models to the target architecture
+      and microarchitecture as arguments.
+    - Load source code from file or raw string.
+    - Repeat: Adjust configuration and conduct an optimization of a loop body or
+        straightline block of code, using optimize() or optimize_loop().
+    - Write source code to file or raw string.
+
+    The use of heuristics is controlled through the configuration.
+    """
 
     # Quick convenience access to architecture and target from the config
     def _get_arch(self):
@@ -46,7 +81,7 @@ class Slothy():
 
     def __init__(self, arch, target, logger=None):
         self.config = Config(arch, target)
-        self.logger = logger if logger != None else logging.getLogger("slothy")
+        self.logger = logger if logger is not None else logging.getLogger("slothy")
 
         # The source, once loaded, is represented as a list of strings
         self._source = None
@@ -87,15 +122,13 @@ class Slothy():
         """Load source code from file"""
         if self.source is not None:
             self.logger.warning("Overwriting previous source code")
-        f = open(filename,"r")
-        self.load_source_raw(f.read())
-        f.close()
+        with open(filename,"r", encoding="utf8") as f:
+            self.load_source_raw(f.read())
 
     def write_source_to_file(self, filename):
         """Write current source code to file"""
-        f = open(filename,"w")
-        f.write(self.get_source_as_string())
-        f.close()
+        with open(filename,"w", encoding="utf8") as f:
+            f.write(self.get_source_as_string())
 
     def rename_function(self, old_funcname, new_funcname):
         """Rename a function in the current source code"""
@@ -130,6 +163,7 @@ class Slothy():
              loop_synthesis_cb: Optional (None by default) callback synthesis final source code
                   from tuple of (preamble, kernel, postamble, # exceptional iterations).
         """
+        # pylint:disable=too-many-locals
 
         if logname is None and start is not None:
             logname = start
@@ -288,14 +322,9 @@ class Slothy():
         """Optimize the loop starting at a given label"""
 
         logger = self.logger.getChild(loop_lbl)
-        assert SourceLine.is_source(self.source)
 
         early, body, late, _, other_data = \
             self.arch.Loop.extract(self.source, loop_lbl)
-
-        assert SourceLine.is_source(early)
-        assert SourceLine.is_source(body)
-        assert SourceLine.is_source(late)
 
         aliases = AsmAllocation.parse_allocs(early)
         c = self.config.copy()
@@ -315,15 +344,11 @@ class Slothy():
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
 
-        insts = len(list(filter(None, body)))
-        self.logger.info("Optimizing loop %s (%d instructions) ...", loop_lbl, insts)
+        self.logger.info("Optimizing loop %s (%d instructions) ...",
+            loop_lbl, len(body))
 
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
-
-        assert SourceLine.is_source(preamble_code)
-        assert SourceLine.is_source(kernel_code)
-        assert SourceLine.is_source(postamble_code)
 
         def indented(code):
             if not SourceLine.is_source(code):
@@ -378,10 +403,6 @@ class Slothy():
         dfgc.inputs_are_outputs = True
         self.last_result.kernel_input_output = \
             list(DFG(kernel_code, logger.getChild("dfg_kernel_deps"), dfgc).inputs)
-
-        assert SourceLine.is_source(early)
-        assert SourceLine.is_source(optimized_code)
-        assert SourceLine.is_source(late)
 
         self.source = early + optimized_code + late
         self.success = True

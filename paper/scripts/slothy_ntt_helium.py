@@ -42,7 +42,7 @@ class Example():
     def __init__(self, infile, name=None, funcname=None, suffix="opt",
                  rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
                  **kwargs):
-        if name == None:
+        if name is None:
             name = infile
 
         self.arch = arch
@@ -54,7 +54,7 @@ class Example():
             self.outfile = f"{infile}_{self.suffix}_{target_label_dict[self.target]}"
         else:
             self.outfile = f"{outfile}_{self.suffix}_{target_label_dict[self.target]}"
-        if funcname == None:
+        if funcname is None:
             self.funcname = self.infile
         self.infile_full  = f"../clean/helium/ntt/{self.infile}.s"
         self.outfile_full = f"../opt/helium/ntt/{self.outfile}.s"

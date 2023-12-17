@@ -25,14 +25,21 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
+"""SLOTHY heuristics
+
+The one-shot SLOTHY approach tends to become computationally infeasible above
+200 assembly instructions. To optimize kernels beyond that threshold, this
+module provides heuristics to split the optimization problem into several
+smaller-sizes problems amenable to one-shot SLOTHY.
+"""
+
 import math
 import random
-import numpy as np
 
 from slothy.core.dataflow import DataFlowGraph as DFG
 from slothy.core.dataflow import Config as DFGConfig, ComputationNode
 from slothy.core.core import SlothyBase, Result
-from slothy.helper import Permutation, AsmHelper, SourceLine
+from slothy.helper import Permutation, SourceLine
 from slothy.helper import binary_search, BinarySearchLimitException
 
 class Heuristics():
@@ -45,7 +52,6 @@ class Heuristics():
 
     @staticmethod
     def _optimize_binsearch_core(source, logger, conf, **kwargs):
-        # TODO: Why return the SlothyBase object here?
 
         logger_name = logger.name.replace(".","_")
         last_successful = None
@@ -83,29 +89,29 @@ class Heuristics():
                 threshold=conf.constraints.stalls_maximum_attempt,
                 precision=conf.constraints.stalls_precision,
                 timeout_below_precision=conf.constraints.stalls_timeout_below_precision)
-        
+
         except BinarySearchLimitException:
             logger.error("Exceeded stall limit without finding a working solution")
             logger.error("Here's what you asked me to optimize:")
 
-            Heuristics._dump("Original source code", source, 
+            Heuristics._dump("Original source code", source,
                 logger=logger, err=True, no_comments=True)
             logger.error("Configuration:")
             conf.log(logger.error)
 
             err_file = conf.log_dir + f"/{logger_name}_ERROR.s"
-            f = open(err_file, "w")
-            conf.log(lambda l: f.write("// " + l + "\n"))
-            f.write('\n'.join(source))
-            f.close()
+            with open(err_file, "w", encoding="utf-8") as f:
+                conf.log(lambda l: f.write("// " + l + "\n"))
+                f.write('\n'.join(source))
+
             logger.error(f"Stored this information in {err_file}")
 
     @staticmethod
     def optimize_binsearch(source, logger, conf, **kwargs):
         """Optimize for minimum number of stalls, and potentially a secondary objective.
-        
+
         Args:
-            source: The source code to be optimized. Must be a list of 
+            source: The source code to be optimized. Must be a list of
                 SourceLine instances.
             logger: The logger to be used
             conf: The configuration to apply. This fixed for all one-shot SLOTHY
@@ -124,15 +130,15 @@ class Heuristics():
         """
         if conf.variable_size:
             return Heuristics.optimize_binsearch_internal(source, logger, conf, **kwargs)
-        else:
-            return Heuristics.optimize_binsearch_external(source, logger, conf, **kwargs)
+
+        return Heuristics.optimize_binsearch_external(source, logger, conf, **kwargs)
 
     @staticmethod
     def _log_reoptimization_failure(log):
         log.warning("Re-optimization with objective at minimum number of stalls failed. "\
             "By the non-deterministic nature of the optimization, this can happen. "     \
             "Will just pick previous result...")
-        
+
     @staticmethod
     def _log_input_output_warning(log):
         log.warning("You are using SW pipelining without setting inputs_are_outputs=True."\
@@ -141,17 +147,17 @@ class Heuristics():
                     "reserved registers. If this is intended, ignore this warning. "      \
                     "Otherwise, consider setting inputs_are_outputs=True to ensure that " \
                     "nothing that is used as an input to the loop is overwritten, "       \
-                    "not even in the last iteration.")        
+                    "not even in the last iteration.")
 
     @staticmethod
     def optimize_binsearch_external(source, logger, conf, flexible=True, **kwargs):
         """Externally optimize for minimum number of stalls, and potentially a secondary objective.
-          
+
         This function uses an external binary search to find the minimum number of stalls
         for which a one-shot SLOTHY optimization succeeds. If the provided configuration
         has a secondary objective, it then re-optimizes the result for that secondary
         objective, fixing the minimal number of stalls.
-        
+
         Args:
             source: The source code to be optimized. Must be a list of SourceLine instances.
             logger: The logger to be used.
@@ -159,7 +165,7 @@ class Heuristics():
                 runs invoked by this call, except for variation of stall count.
             flexible: Indicates whether the number of stalls should be minimized
                 through a binary search, or whether a single one-shot SLOTHY optimization
-                for a fixed number of stalls (encoded in the configuration) should be 
+                for a fixed number of stalls (encoded in the configuration) should be
                 conducted.
 
         Returns:
@@ -197,11 +203,11 @@ class Heuristics():
     @staticmethod
     def optimize_binsearch_internal(source, logger, conf, **kwargs):
         """Internally optimize for minimum number of stalls, and potentially a secondary objective.
-          
-        This finds the minimum number of stalls for which a one-shot SLOTHY optimization succeeds. 
-        If the provided configuration has a secondary objective, it then re-optimizes the result 
+
+        This finds the minimum number of stalls for which a one-shot SLOTHY optimization succeeds.
+        If the provided configuration has a secondary objective, it then re-optimizes the result
         for that secondary objective, fixing the minimal number of stalls.
-        
+
         Args:
             source: The source code to be optimized. Must be a list of SourceLine instances.
             logger: The logger to be used.
@@ -241,7 +247,7 @@ class Heuristics():
         if not conf.has_objective:
             return core.result
 
-        logger.info("Optimize again with minimal number of %d stalls, with objective...", 
+        logger.info("Optimize again with minimal number of %d stalls, with objective...",
             min_stalls)
         first_result = core.result
 
@@ -265,15 +271,15 @@ class Heuristics():
 
         If software pipelining is enabled and the halving heuristic is
         enabled, this function optimizes the loop body via straightline
-        optimization first, splits result as `[A;B]`, and optimizes 
+        optimization first, splits result as `[A;B]`, and optimizes
         `[B;A]` again via straightline optimizations. The optimized loop
         is then given by the preamble `A`, kernel `opt(B;A)`, and postamble
-        `B`. The straightline optimizations applied in this heuristics are 
-        done via Heuristics.linear() and thus themselves subject to the 
+        `B`. The straightline optimizations applied in this heuristics are
+        done via Heuristics.linear() and thus themselves subject to the
         splitting heuristic, if enabled.
- 
+
         Args:
-            body: The loop body to be optimized. This must be a list of 
+            body: The loop body to be optimized. This must be a list of
                 SourceLine instances.
             logger: The logger to be used.
             conf: The configuration to be applied.
@@ -342,20 +348,20 @@ class Heuristics():
             Heuristics._dump("Preamble", postamble, logger)
             c = conf.copy()
             c.sw_pipelining.enabled=False
-            res_postamble = Heuristics.linear(postamble, conf=c, 
+            res_postamble = Heuristics.linear(postamble, conf=c,
                 logger=logger.getChild("postamble"))
             postamble = res_postamble.code
 
         return preamble, kernel, postamble, num_exceptional_iterations
 
     @staticmethod
-    def linear(body, logger, conf, visualize_stalls=True):
+    def linear(body, logger, conf):
         """Entrypoint for straightline optimization.
 
         If the split heuristic is disabled, this forwards to a one-shot optimization.
-        
-        If the split heuristic is enabled (conf.split_heuristic == True), the assembly 
-        input is optimized by successively applying one-shot optimizations to a 
+
+        If the split heuristic is enabled (conf.split_heuristic == True), the assembly
+        input is optimized by successively applying one-shot optimizations to a
         'sliding window' of code.
 
         Args:
@@ -377,7 +383,7 @@ class Heuristics():
         if not conf.split_heuristic:
             return Heuristics.optimize_binsearch(body,logger.getChild("slothy"), conf)
 
-        return Heuristics._split(body, logger, conf, visualize_stalls)
+        return Heuristics._split(body, logger, conf)
 
     @staticmethod
     def _naive_reordering(body, logger, conf, use_latency_depth=False):
@@ -417,14 +423,15 @@ class Heuristics():
 
         perm = Permutation.permutation_id(l)
 
-        for i in range(l):
-            def get_inputs(inst):
-                return set(inst.args_in + inst.args_in_out)
-            def get_outputs(inst):
-                return set(inst.args_out + inst.args_in_out)
+        def get_inputs(inst):
+            return set(inst.args_in + inst.args_in_out)
+        def get_outputs(inst):
+            return set(inst.args_out + inst.args_in_out)
 
-            joint_prev_inputs = {}
-            joint_prev_outputs = {}
+        joint_prev_inputs = {}
+        joint_prev_outputs = {}
+
+        for i in range(l):
             cur_joint_prev_inputs = set()
             cur_joint_prev_outputs = set()
             for j in range(i,l):
@@ -452,16 +459,7 @@ class Heuristics():
 
             def pick_candidate(candidate_idxs):
 
-                # print("CANDIDATES: " + '\n* '.join(list(map(lambda idx: str((body[idx], conf.target.get_units(insts[idx]))), candidate_idxs))))
-                # There a different strategies one can pursue here, some being:
-                # - Always pick the candidate instruction of the smallest depth
-                # - Peek into the uarch model and try to alternate between functional units
-                #   It's a bit disappointing if this is necessary, since SLOTHY should do this.
-                #   However, running it on really large snippets (1000 instructions) remains
-                #   infeasible, even if latencies and renaming are disabled.
-
                 strategy = "minimal_depth"
-                # strategy = "alternate_functional_units"
 
                 if strategy == "minimal_depth":
                     candidate_depths = list(map(lambda j: depths[j], candidate_idxs))
@@ -502,7 +500,8 @@ class Heuristics():
                         candidate_depths = list(map(lambda j: depths[j], candidate_idxs))
                         logger.debug(f"Candidate {depth_str}s: {candidate_depths}")
                         min_depth = min(candidate_depths)
-                        refined_candidates = [ candidate_idxs[i] for i,d in enumerate(candidate_depths) if d == min_depth ]
+                        refined_candidates = [ candidate_idxs[i]
+                            for i,d in enumerate(candidate_depths) if d == min_depth ]
                         choice_idx = random.choice(refined_candidates)
 
                 else:
@@ -529,7 +528,7 @@ class Heuristics():
 
             body = list(map(ComputationNode.to_source_line, insts))
             depths = move_entry_forward(depths, choice_idx, i)
-            body[i].set_text(f"    {str(body[i]).strip():100s} // {depth_str} {depths[i]}")
+            body[i].set_length(100).set_comment(f"{depth_str} {depths[i]}")
             Heuristics._dump("New code", body, logger)
 
         # Selfcheck
@@ -564,7 +563,7 @@ class Heuristics():
         return ssa
 
     @staticmethod
-    def _split_inner(body, logger, conf, visualize_stalls=True, ssa=False):
+    def _split_inner(body, logger, conf, ssa=False):
 
         l = len(body)
         if l == 0:
@@ -591,14 +590,15 @@ class Heuristics():
                 c.constraints.allow_reordering = False
                 c.constraints.functional_only = True
                 body = SourceLine.reduce_source(body)
-                result = Heuristics.optimize_binsearch(body, log.getChild("remove_symbolics"),conf=c)
+                result = Heuristics.optimize_binsearch(body,
+                    log.getChild("remove_symbolics"),conf=c)
                 body = result.code
                 body = SourceLine.reduce_source(body)
         else:
             perm = Permutation.permutation_id(l)
 
         def print_intarr(arr, l,vals=50):
-            m = max(10,max(arr))
+            m = max(10, max(arr)) # pylint:disable=nested-min-max
             start_idxs = [ (l * i)     // vals for i in range(vals) ]
             end_idxs   = [ (l * (i+1)) // vals for i in range(vals) ]
             avgs = []
@@ -701,8 +701,7 @@ class Heuristics():
             end_pos = []
             while cur_end < 1.0:
                 cur_end = cur_start + chunk_len
-                if cur_end > 1.0:
-                    cur_end = 1.0
+                cur_end = min(cur_end, 1.0)
                 start_pos.append(cur_start)
                 end_pos.append(cur_end)
 
@@ -739,9 +738,7 @@ class Heuristics():
         outputs = conf.outputs.copy()
         inputs = DFG(orig_body, log.getChild("dfg_infer_inputs"),dfgc).inputs.copy()
 
-        last_base = None
-
-        for i in range(conf.split_heuristic_repeat):
+        for _ in range(conf.split_heuristic_repeat):
 
             cur_body = SourceLine.reduce_source(cur_body)
 
@@ -776,14 +773,14 @@ class Heuristics():
         return res
 
     @staticmethod
-    def _split(body, logger, conf, visualize_stalls=True):
+    def _split(body, logger, conf):
         c = conf.copy()
 
         # Focus on the chosen subregion
         body = SourceLine.reduce_source(body)
 
         if c.split_heuristic_region == [0.0, 1.0]:
-            return Heuristics._split_inner(body, logger, c, visualize_stalls)
+            return Heuristics._split_inner(body, logger, c)
 
         inputs = DFG(body, logger.getChild("dfg_generate_inputs"), DFGConfig(c)).inputs
 
@@ -799,7 +796,7 @@ class Heuristics():
         c.outputs = DFG(post, logger.getChild("dfg_generate_outputs"), DFGConfig(c)).inputs
         c.inputs_are_outputs = False
 
-        res = Heuristics._split_inner(partial_body, logger, c, visualize_stalls)
+        res = Heuristics._split_inner(partial_body, logger, c)
         new_partial_body = res.code
 
         pre_pad = len(pre)
@@ -856,8 +853,7 @@ class Heuristics():
         c.outputs = c.outputs.union(kernel_deps)
 
         if not conf.sw_pipelining.halving_heuristic_split_only:
-            res_halving_0 = Heuristics.linear(body,logger.getChild("slothy"),conf=c,
-                                       visualize_stalls=False)
+            res_halving_0 = Heuristics.linear(body,logger.getChild("slothy"),conf=c)
 
             # Split resulting kernel as [A;B] and synthesize result structure
             # as if SW pipelining has been used and the result would have been
@@ -994,17 +990,15 @@ class Heuristics():
             res2.input_renamings = res.input_renamings
             res2.output_renamings = res.output_renamings
 
-            new_preamble = [ final_kernel[i] for i in range(res2.codesize) 
+            new_preamble = [ final_kernel[i] for i in range(res2.codesize)
                 if res2.is_pre(i, original_program_order=False) is True ]
-            new_postamble = [ final_kernel[i] for i in range(res2.codesize) 
+            new_postamble = [ final_kernel[i] for i in range(res2.codesize)
                 if res2.is_pre(i, original_program_order=False) is False ]
 
             res2.preamble = new_preamble
             res2.postamble = new_postamble
             res2.success = True
             res2.valid = True
-
-            r2p = res2.periodic_reordering
 
             # TODO: This does not yet work since there can be renaming at the boundary between
             # preamble and postamble that we don't account for in the selfcheck.

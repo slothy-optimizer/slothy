@@ -25,15 +25,20 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-########################################################################################
+"""
+Experimental Cortex-A55 microarchitecture model for SLOTHY
+
+Most data in this model is derived from the Cortex-A55 software optimization guide.
+Some latency exceptions were manually identified through microbenchmarks.
+
+WARNING: The data in this module is approximate and may contain errors.
+"""
+
 ################################### NOTE ###############################################
-########################################################################################
 ###                                                                                  ###
 ### WARNING: The data in this module is approximate and may contain errors.          ###
 ###          They are _NOT_ an official software optimization guide for Cortex-A55.  ###
 ###                                                                                  ###
-########################################################################################
-########################################################################################
 ########################################################################################
 
 from enum import Enum
@@ -42,25 +47,24 @@ from slothy.targets.aarch64.aarch64_neon import *
 issue_rate = 2
 
 class ExecutionUnit(Enum):
-    SCALAR_ALU0=1,
-    SCALAR_ALU1=2,
-    SCALAR_MAC=3,
-    SCALAR_LOAD=4,
-    SCALAR_STORE=5,
-    VEC0=6,
-    VEC1=7,
+    """Enumeration of execution units in Cortex-A55 model"""
+    SCALAR_ALU0=1
+    SCALAR_ALU1=2
+    SCALAR_MAC=3
+    SCALAR_LOAD=4
+    SCALAR_STORE=5
+    VEC0=6
+    VEC1=7
     def __repr__(self):
         return self.name
-    def SCALAR():
+    @classmethod
+    def SCALAR(cls): # pylint: disable=invalid-name
+        """All scalar execution units"""
         return [ExecutionUnit.SCALAR_ALU0, ExecutionUnit.SCALAR_ALU1]
-    def SCALAR_MUL():
+    @classmethod
+    def SCALAR_MUL(cls): # pylint: disable=invalid-name
+        """All multiply-capable scalar execution units"""
         return [ExecutionUnit.SCALAR_MAC]
-
-    def indentation(unit):
-        if unit in ExecutionUnit.SCALAR():
-            return 100
-        else:
-            return 0
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
@@ -73,15 +77,14 @@ def add_further_constraints(slothy):
 def add_slot_constraints(slothy):
     # Q-Form vector instructions are on slot 0 only
     slothy.restrict_slots_for_instructions_by_property(
-        Instruction.is_Qform_vector_instruction, [0])
+        Instruction.is_q_form_vector_instruction, [0])
     # fcsel and vld2 on slot 0 only
     slothy.restrict_slots_for_instructions_by_class(
         [fcsel_dform, stack_vld2_lane], [0])
 
 def add_st_hazard(slothy):
-
-    def is_vec_st_st_pair(instA, instB):
-        return instA.inst.is_vector_store() and instB.inst.is_vector_store()
+    def is_vec_st_st_pair(inst_a, inst_b):
+        return inst_a.inst.is_vector_store() and inst_b.inst.is_vector_store()
 
     for t0, t1 in slothy.get_inst_pairs(is_vec_st_st_pair):
         if t0.is_locked and t1.is_locked:
@@ -91,8 +94,11 @@ def add_st_hazard(slothy):
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
 def has_min_max_objective(config):
+    """Adds Cortex-"""
+    _ = config
     return False
 def get_min_max_objective(slothy):
+    _ = slothy
     return
 
 execution_units = {
@@ -151,7 +157,6 @@ execution_units = {
     is_qform_form_of(vshl) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vshl) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
 
-    # TODO: double check these new instructions:
     (stack_stp, stack_stp_wform, stack_str, Str_X) : ExecutionUnit.SCALAR_STORE,
     (stack_ldr, ldr_const, ldr_sxtw_wform, Ldr_X) : ExecutionUnit.SCALAR_LOAD,
     (umull_wform, mul_wform, umaddl_wform ): ExecutionUnit.SCALAR_MUL(),
@@ -239,6 +244,8 @@ default_latencies = {
 }
 
 def get_latency(src, out_idx, dst):
+    _ = out_idx # out_idx unused
+
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
@@ -271,8 +278,7 @@ def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
-    else:
-        return [units]
+    return [units]
 
 def get_inverse_throughput(src):
     return lookup_multidict(
