@@ -15,6 +15,8 @@ instructions, and scheduling/allocation optimizations are tightly controlled thr
 constraints, the developer keeps close control over the final assembly, while being freed from the most tedious and
 readability- and verifiability-impeding micro-optimizations.
 
+See also [FAQ](faq.md)
+
 #### Architecture/Microarchitecture support
 
 `SLOTHY` is generic in the target architecture and microarchitecture. So far, it supports Cortex-M55 and Cortex-M85
