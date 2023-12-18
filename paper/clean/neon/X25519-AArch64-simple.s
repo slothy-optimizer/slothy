@@ -113,7 +113,7 @@
 .endm
 
 # TODO: also unwrap
-.macro fcsel_dform out, in0, in1, cond // slothy:no-unfold
+.macro fcsel_dform out, in0, in1, cond // @slothy:no-unfold
   fcsel dform_\out, dform_\in0, dform_\in1, \cond
 .endm
 
@@ -416,10 +416,10 @@ sZ48 .req x22
     stack_vstr_dform \offset\()_32, \vA\()8
 .endm
 
-.macro vector_load_lane vA, offset, lane
     // TODO: eliminate this explicit register assignment by converting stack_vld2_lane to AArch64Instruction
     xvector_load_lane_tmp .req x26
 
+.macro vector_load_lane vA, offset, lane
     add xvector_load_lane_tmp, sp, #\offset\()_0
     stack_vld2_lane \vA\()0, \vA\()1, xvector_load_lane_tmp, \offset\()_0,  \lane, 8
     stack_vld2_lane \vA\()2, \vA\()3, xvector_load_lane_tmp, \offset\()_8,  \lane, 8
@@ -591,8 +591,6 @@ sZ48 .req x22
     scalar_decompress_inner \sA\()0, \sA\()1, \sA\()2, \sA\()3, \sA\()4, \sA\()5, \sA\()6, \sA\()7, \sA\()8, \sA\()9
 .endm
 
-.macro vector_addsub_repack_inner vA0, vA1, vA2, vA3, vA4, vA5, vA6, vA7, vA8, vA9, \
-                    vC0, vC1, vC2, vC3, vC4, vC5, vC6, vC7, vC8, vC9
     // TODO: eliminate those. should be easy
     vR_l4h4l5h5 .req vADBC4
     vR_l6h6l7h7 .req vADBC5
@@ -620,6 +618,8 @@ sZ48 .req x22
     vrepack_inner_tmp .req v19
     vrepack_inner_tmp2 .req v0
 
+.macro vector_addsub_repack_inner vA0, vA1, vA2, vA3, vA4, vA5, vA6, vA7, vA8, vA9, \
+                    vC0, vC1, vC2, vC3, vC4, vC5, vC6, vC7, vC8, vC9
     vuzp1    vR_l4h4l5h5, \vC4, \vC5
     vuzp1    vR_l6h6l7h7, \vC6, \vC7
     stack_vld1r vrepack_inner_tmp, STACK_MASK1
@@ -949,6 +949,8 @@ scalar_mul_inner \
         \sB\()0,  \sB\()1,  \sB\()2,  \sB\()3,  \sB\()4,  \sB\()5,  \sB\()6,  \sB\()7,  \sB\()8,  \sB\()9
 .endm
 
+xtmp_scalar_sub_0 .req x21
+  
 // sC0 .. sC4   output C = A +  4p - B  (registers may be the same as A)
 // sA0 .. sA4   first operand A
 // sB0 .. sB4   second operand B
@@ -956,8 +958,6 @@ scalar_mul_inner \
         sC0, sC1, sC2, sC3, sC4, \
         sA0, sA1, sA2, sA3, sA4, \
         sB0, sB1, sB2, sB3, sB4
-
-  xtmp_scalar_sub_0 .req x21
 
   ldr    xtmp_scalar_sub_0, #=0x07fffffe07fffffc
   add    \sC1, \sA1, xtmp_scalar_sub_0
