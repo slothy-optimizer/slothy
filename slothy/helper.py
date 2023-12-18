@@ -116,7 +116,7 @@ class SourceLine:
         return self
 
     def set_comment(self, comment):
-        """Set single comment for source line. 
+        """Set single comment for source line.
 
         Overwrites existing comments."""
         self.set_comments([comment])
@@ -230,6 +230,26 @@ class SourceLine:
         self._raw = s
         return self
 
+    def add_text(self, s):
+        """Add text to a source line
+
+        This only affects the instruction text of the source line, but leaves
+        metadata (such as comments, indentation or tags) unmodified."""
+        self._raw += " " + s
+        return self
+
+    @property
+    def is_escaped(self):
+        """Indicates if line text ends with a backslash"""
+        return self.text.endswith("\\")
+
+    def remove_escaping(self):
+        """Remove escape character at end of line, if present"""
+        if not self.is_escaped:
+            return self
+        self._raw = self._raw[:-1]
+        return self
+
     def __len__(self):
         return len(self._raw)
 
@@ -246,7 +266,26 @@ class SourceLine:
         """Parse multi-line string or array of strings into list of SourceLine instances"""
         if isinstance(s, str):
             s = s.splitlines()
-        return [ SourceLine(l, reduce=reduce) for l in s ]
+        return SourceLine.merge_escaped_lines([ SourceLine(l, reduce=reduce) for l in s ])
+
+    @staticmethod
+    def merge_escaped_lines(s):
+        """Merge lines ending in a backslash with subsequent line(s)"""
+        assert SourceLine.is_source(s)
+        res = []
+        cur = None
+        for l in s:
+            if cur is not None:
+                cur.add_text(l.text)
+            else:
+                cur = l.copy()
+            if cur.is_escaped:
+                cur.remove_escaping()
+            else:
+                res.append(cur)
+                cur = None
+        assert cur is None
+        return res
 
     @staticmethod
     def copy_source(s):
@@ -449,6 +488,7 @@ class AsmHelper():
             idx += 1
             if not keep:
                 l = next(lines, None)
+                l_str = str(l)
             if l is None:
                 break
             keep = False
@@ -457,9 +497,9 @@ class AsmHelper():
                 continue
             expect_label = [ lbl_start, lbl_end ][state]
             cur_buf = [ pre, body ][state]
-            p = loop_lbl_regexp.match(l)
+            p = loop_lbl_regexp.match(l_str)
             if p is not None and p.group("label") == expect_label:
-                l = p.group("remainder")
+                l = l.copy().set_text(p.group("remainder"))
                 keep = True
                 state += 1
                 continue
@@ -799,7 +839,7 @@ class Permutation():
     @staticmethod
     def permutation_comp(p_b, p_a):
         """Compose two permutations.
-        
+
         This computes 'p_b o p_a', that is, 'p_a first, then p_b'."""
         l_a = len(p_a.values())
         l_b = len(p_b.values())
