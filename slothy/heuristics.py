@@ -291,7 +291,7 @@ class Heuristics():
             for t in dfg.nodes_all:
                 t.latency_depth = 0
             def get_latency(tp,t):
-                if tp.src.is_virtual():
+                if tp.src.is_virtual:
                     return 0
                 return conf.target.get_latency(tp.src.inst, tp.idx, t.inst)
             for t in nodes_by_depth:
