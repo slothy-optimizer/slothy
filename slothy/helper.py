@@ -294,7 +294,7 @@ class SourceLine:
         return [ l.copy() for l in s ]
 
     @staticmethod
-    def write_multiline(s, comments=True, indentation=True, tags=False):
+    def write_multiline(s, comments=True, indentation=True, tags=True):
         """Write source as multiline string"""
         return '\n'.join(map(lambda t: t.to_string(
             comments=comments, tags=tags, indentation=indentation), s))

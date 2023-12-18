@@ -102,7 +102,7 @@ class Slothy:
         assert SourceLine.is_source(val)
         self._source = val
 
-    def get_source_as_string(self, comments=True, indentation=True, tags=False):
+    def get_source_as_string(self, comments=True, indentation=True, tags=True):
         """Retrieve current source code as multi-line string"""
         return SourceLine.write_multiline(self.source, comments=comments,
             indentation=indentation, tags=tags)
@@ -219,8 +219,6 @@ class Slothy:
             optimized_source += late
 
         self.source = pre + optimized_source + post
-        assert SourceLine.is_source(self.source)
-
         assert SourceLine.is_source(self.source)
 
     def get_loop_input_output(self, loop_lbl):

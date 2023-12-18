@@ -944,7 +944,7 @@ class Config(NestedPrint, LockAttributes):
 
         self._compiler_binary = "gcc"
 
-        self.keep_tags = False
+        self.keep_tags = True
         self.ignore_tags = False
 
         self._do_address_fixup = True
