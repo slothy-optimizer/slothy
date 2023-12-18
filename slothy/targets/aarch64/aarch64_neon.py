@@ -277,7 +277,7 @@ class Loop:
             if state == 0:
                 p = loop_lbl_regexp.match(l_str)
                 if p is not None and p.group("label") == lbl:
-                    l.set_text(p.group("remainder"))
+                    l = l.copy().set_text(p.group("remainder"))
                     keep = True
                     state = 1
                 else:
@@ -780,9 +780,9 @@ class AArch64Instruction(Instruction):
     @staticmethod
     def build(c, src):
         pattern = getattr(c, "pattern")
-        inputs = getattr(c, "inputs", [])
-        outputs = getattr(c, "outputs", [])
-        in_outs = getattr(c, "in_outs", [])
+        inputs = getattr(c, "inputs", []).copy()
+        outputs = getattr(c, "outputs", []).copy()
+        in_outs = getattr(c, "in_outs", []).copy()
         modifies_flags = getattr(c,"modifiesFlags", False)
         depends_on_flags = getattr(c,"dependsOnFlags", False)
 
@@ -1567,7 +1567,7 @@ class subs_imm(AArch64BasicArithmetic): # pylint: disable=missing-docstring,inva
     pattern = "subs <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
-    modifiesFlags=True
+    modifiesFlags = True
 
 class sub_imm(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sub <Xd>, <Xa>, <imm>"
