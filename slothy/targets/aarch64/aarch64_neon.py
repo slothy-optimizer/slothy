@@ -2792,7 +2792,9 @@ def vins_d_parsing_cb():
             return False
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
+        old_src = t.inst.source_line.copy()
         t.inst = vins_d_force_output.make(inst_txt, force=True)
+        t.inst.source_line = old_src.set_text(inst_txt)
         t.changed = True
         return True
     return core
@@ -2816,7 +2818,9 @@ def fmov_0_parsing_cb():
             return False
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
+        old_src = t.inst.source_line
         t.inst = fmov_0_force_output.make(inst_txt, force=True)
+        t.inst.source_line = old_src.set_text(inst_txt)
         t.changed = True
         return True
     return core
@@ -2837,8 +2841,9 @@ def fmov_1_parsing_cb():
             return False
         # Reparse as instruction-variant treating the input/output as an output
         inst_txt = t.inst.write()
+        old_src = t.inst.source_line
         t.inst = fmov_1_force_output.make(inst_txt, force=True)
-
+        t.inst.source_line = old_src.set_text("inst_txt")
         t.changed = True
         return True
     return core
