@@ -2376,17 +2376,23 @@ class SlothyBase(LockAttributes):
                 cur_id = t.inst.tags.get("id", None)
                 if cur_id == src_id:
                     return t
-            raise SlothySourceException(f"Could not find node with source ID {src_id}")
+            raise Exception(f"Could not find node with source ID {src_id}")
 
-        for t1 in nodes:
+        for i, t1 in enumerate(nodes):
             force_after = t1.inst.tags.get("after", [])
             if not isinstance(force_after, list):
                 force_after = [force_after]
-            for t0_id in force_after:
-                t0 = find_node_by_source_id(t0_id)
-                self.logger.find("Force {t0} < {t1} by source annotation")
-                self._add_path_constraint(t1, t0, 
-                    lambda t0=t0, t1=t1: t0.program_start_var < t1.program_start_var)
+            t0s = list(map(find_node_by_source_id, force_after))
+            force_after_last = t1.inst.tags.get("after_last", False)
+            if force_after_last is True:
+                if i == 0:
+                    # Ignore after_last tag for first instruction
+                    continue 
+                t0s.append(nodes[i-1])
+            for t0 in t0s:
+                self.logger.info("Force %s < %s by source annotation", t0, t1)
+                self._add_path_constraint(t1, t0,
+                    lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var))
 
         for t0 in nodes:
             force_before = t0.inst.tags.get("before", [])
@@ -2394,10 +2400,10 @@ class SlothyBase(LockAttributes):
                 force_before = [force_before]
             for t1_id in force_before:
                 t1 = find_node_by_source_id(t1_id)
-                self.logger.find("Force {t0} < {t1} by source annotation")
-                self._add_path_constraint(t1, t0, 
-                    lambda t0=t0, t1=t1: t0.program_start_var < t1.program_start_var)
-        
+                self.logger.info("Force %s < %s by source annotation", t0, t1)
+                self._add_path_constraint(t1, t0,
+                    lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var))
+
     # ================================================================
     #                  CONSTRAINTS (Single issuing)                  #
     # ================================================================
