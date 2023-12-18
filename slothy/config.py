@@ -56,6 +56,7 @@ class Config(NestedPrint, LockAttributes):
     _default_compiler_binary = "gcc"
 
     _default_unsafe_skip_address_fixup = False
+    _default_do_address_fixup = True
 
     _default_with_preprocessor = False
     _default_max_solutions = 64
@@ -245,6 +246,11 @@ class Config(NestedPrint, LockAttributes):
         return self._unsafe_skip_address_fixup
 
     @property
+    def do_address_fixup(self):
+        """Indicates whether post-optimization address fixup will be conducted"""
+        return self._do_address_fixup
+
+    @property
     def ignore_objective(self):
         """Indicates whether the secondary objective (such as minimization of iteration
         overlapping) should be ignored."""
@@ -369,7 +375,7 @@ class Config(NestedPrint, LockAttributes):
         if the split region is set fo [0.25, 0.75] and the split factor is 5, then optimization
         windows of size .1 will be considered within [0.25, 0.75].
 
-        Note that even if this option is used, the specification of inputs and outputs is still 
+        Note that even if this option is used, the specification of inputs and outputs is still
         with respect to the entire code; SLOTHY will automatically derive the outputs of the
         subregion configured here."""
         if not self.split_heuristic:
@@ -920,6 +926,7 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_optimize_seam = Config._default_split_heuristic_optimize_seam
 
         self._unsafe_skip_address_fixup = Config._default_unsafe_skip_address_fixup
+        self._do_address_fixup = Config._default_do_address_fixup
 
         self._with_preprocessor = Config._default_with_preprocessor
         self._compiler_binary = Config._default_compiler_binary
@@ -1005,6 +1012,9 @@ class Config(NestedPrint, LockAttributes):
     @unsafe_skip_address_fixup.setter
     def unsafe_skip_address_fixup(self, val):
         self._unsafe_skip_address_fixup = val
+    @do_address_fixup.setter
+    def do_address_fixup(self, val):
+        self._do_address_fixup = val
     @ignore_objective.setter
     def ignore_objective(self, val):
         self._ignore_objective = val
