@@ -20,7 +20,7 @@ is beneficial (e.g. because other code-generation techniques do not find ideal i
 
 Most likely, they serve different purposes. SLOTHY aims to do one thing, and do it well: Code generation _after_ instruction selection.
 It is thus independent of and potentially combinable with superoptimizers operating at earlier stages of the code-generation process, 
-notably peephole optimizers such as [souper](https://github.com/google/souper) and [CryptOpt](https://github.com/ 0xADE1A1DE/CryptOpt).
+notably peephole optimizers such as [souper](https://github.com/google/souper) and [CryptOpt](https://github.com/0xADE1A1DE/CryptOpt).
 
 #### Does SLOTHY support x86?
 
@@ -44,4 +44,5 @@ and output.
 
 #### Why is my question not here?
 
-Ping us!
+Ping us! ([GitHub](https://github.com/slothy-optimizer/slothy/issues), or see [paper](https://eprint.iacr.org/2022/1303.pdf) for
+contact information).
