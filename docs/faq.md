@@ -4,6 +4,8 @@ layout: default
 
 ## Frequently asked questions
 
+[back](index.md)
+
 #### Is SLOTHY a peephole optimizer?
 
 No. SLOTHY is a _fixed-instruction_ super-optimizer: It keeps instructions and optimizes
@@ -18,7 +20,7 @@ is beneficial (e.g. because other code-generation techniques do not find ideal i
 
 #### Is SLOTHY better than {name your favourite superoptimizer}?
 
-Most likely, they serve different purposes. SLOTHY aims to do one thing, and do it well: Code generation _after_ instruction selection.
+Most likely, they serve different purposes. SLOTHY aims to do one thing well: Optimization _after_ instruction selection.
 It is thus independent of and potentially combinable with superoptimizers operating at earlier stages of the code-generation process, 
 notably peephole optimizers such as [souper](https://github.com/google/souper) and [CryptOpt](https://github.com/0xADE1A1DE/CryptOpt).
 
