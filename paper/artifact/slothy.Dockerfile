@@ -33,6 +33,8 @@ RUN unzip or-tools.zip
 RUN rm or-tools.zip
 RUN mv or-tools-9.7 or-tools
 WORKDIR /home/ubuntu/slothy/submodules/or-tools
+COPY 0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch .
+RUN git apply 0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch
 RUN mkdir /home/ubuntu/slothy/submodules/or-tools/build
 RUN cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON -DBUILD_SAMPLES:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF
 WORKDIR /home/ubuntu/slothy/submodules/or-tools/build
