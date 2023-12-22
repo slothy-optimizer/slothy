@@ -28,12 +28,11 @@
 import argparse, logging, sys, os, time
 from io import StringIO
 
-from slothy.slothy import Slothy
-from slothy.core import Config
+from slothy import Slothy, Config
 
-import targets.arm_v81m.arch_v81m as Arch_Armv81M
-import targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
-import targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
+import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
+import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
+import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
 target_label_dict = {Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85"}
