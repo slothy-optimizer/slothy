@@ -12,14 +12,14 @@ super-optimizes:
 `SLOTHY` enables a development workflow where developers write 'clean' assembly by hand, emphasizing the logic of the
 computation, while `SLOTHY` automates microarchitecture-specific micro-optimizations. Since `SLOTHY` does not change
 instructions, and scheduling/allocation optimizations are tightly controlled through configurable and extensible
-constraints, the developer keeps close control over the final assembly, while being freed from the most tedious and
-readability- and verifiability-impeding micro-optimizations.
+constraints, the developer keeps close control over the final assembly, while being freed from tedious
+micro-optimizations.
 
 See also [FAQ](faq.md)
 
 #### Architecture/Microarchitecture support
 
-`SLOTHY` is generic in the target architecture and microarchitecture. So far, it supports Cortex-M55 and Cortex-M85
+`SLOTHY` is generic in the target architecture and microarchitecture. It currently supports Cortex-M55 and Cortex-M85
 implementing Armv8.1-M + Helium, and Cortex-A55 and Cortex-A72 implementing
 Armv8-A + Neon. Moreover, there is an experimental model for Cortex-X/Neoverse-V cores.
 

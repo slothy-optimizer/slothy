@@ -9,8 +9,8 @@ layout: default
 #### Is SLOTHY a peephole optimizer?
 
 No. SLOTHY is a _fixed-instruction_ super-optimizer: It keeps instructions and optimizes
-register allocation, instruction scheduling, and software pipelining. It is the developer's responsibility 
-to map the workload at hand to the target architecture.
+register allocation, instruction scheduling, and software pipelining. It is the developer's or another tool's
+responsibility to map the workload at hand to the target architecture.
 
 <!-- #### When should I use SLOTHY?
 
@@ -21,8 +21,7 @@ is beneficial (e.g. because other code-generation techniques do not find ideal i
 #### Is SLOTHY better than {name your favourite superoptimizer}?
 
 Most likely, they serve different purposes. SLOTHY aims to do one thing well: Optimization _after_ instruction selection.
-It is thus independent of and potentially combinable with superoptimizers operating at earlier stages of the code-generation process, 
-notably peephole optimizers such as [souper](https://github.com/google/souper) and [CryptOpt](https://github.com/0xADE1A1DE/CryptOpt).
+It is thus independent of and potentially combinable with superoptimizers operating at earlier stages of the code-generation process, such as [souper](https://github.com/google/souper) and [CryptOpt](https://github.com/0xADE1A1DE/CryptOpt).
 
 #### Does SLOTHY support x86?
 
