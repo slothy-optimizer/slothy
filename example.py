@@ -44,8 +44,12 @@ target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85"}
 
+class ExampleException(Exception):
+    """Exception thrown when an example goes wrong"""
 
 class Example():
+    """Common boilerplate for SLOTHY examples"""
+
     def __init__(self, infile, name=None, funcname=None, suffix="opt",
                  rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
                  **kwargs):
@@ -1128,7 +1132,7 @@ def main():
                 ex = e
                 break
         if ex is None:
-            raise Exception(f"Could not find example {name}")
+            raise ExampleException(f"Could not find example {name}")
         ex.run(debug=debug)
 
     for e in todo:

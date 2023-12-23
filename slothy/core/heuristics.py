@@ -38,7 +38,7 @@ import random
 
 from slothy.core.dataflow import DataFlowGraph as DFG
 from slothy.core.dataflow import Config as DFGConfig, ComputationNode
-from slothy.core.core import SlothyBase, Result
+from slothy.core.core import SlothyBase, Result, SlothyException
 from slothy.helper import Permutation, SourceLine
 from slothy.helper import binary_search, BinarySearchLimitException
 
@@ -175,7 +175,7 @@ class Heuristics():
         if not flexible:
             core = SlothyBase(conf.arch, conf.target, logger=logger,config=conf)
             if not core.optimize(source):
-                raise Exception("Optimization failed")
+                raise SlothyException("Optimization failed")
             return core.result
 
         logger.info("Perform external binary search for minimal number of stalls...")
@@ -240,7 +240,7 @@ class Heuristics():
             cur_attempt = max(1,cur_attempt * 2)
             if cur_attempt > conf.constraints.stalls_maximum_attempt:
                 logger.error("Exceeded stall limit without finding a working solution")
-                raise Exception("No solution found")
+                raise SlothyException("No solution found")
 
         logger.info(f"Minimum number of stalls: {min_stalls}")
 
@@ -370,11 +370,12 @@ class Heuristics():
             conf: The configuration to be applied. Software pipelining must be disabled.
 
         Raises:
-            Raises an exception if software pipelining is enabled.
+            Raises a SlothyException if software pipelining is enabled.
         """
         assert SourceLine.is_source(body)
         if conf.sw_pipelining.enabled:
-            raise Exception("Linear heuristic should only be called with SW pipelining disabled")
+            raise SlothyException("Linear heuristic should only be called "
+                                  "with SW pipelining disabled")
 
         Heuristics._dump("Starting linear optimization...", body, logger)
 
@@ -466,8 +467,8 @@ class Heuristics():
                     logger.debug("Candidate %s: %s", depth_str, candidate_depths)
                     choice_idx = candidate_idxs[candidate_depths.index(min(candidate_depths))]
 
-                elif strategy == "alternate_functional_units":
-
+                else:
+                    assert strategy == "alternate_functional_units"
                     def flatten_units(units):
                         res = []
                         for u in units:
@@ -504,9 +505,6 @@ class Heuristics():
                             for i,d in enumerate(candidate_depths) if d == min_depth ]
                         choice_idx = random.choice(refined_candidates)
 
-                else:
-                    raise Exception("Unknown preprocessing strategy")
-
                 return choice_idx
 
             def move_entry_forward(lst, idx_from, idx_to):
@@ -516,12 +514,8 @@ class Heuristics():
 
             choice_idx = None
             while choice_idx is None:
-                try:
-                    choice_idx = pick_candidate(candidate_idxs)
-                    insts = move_entry_forward(insts, choice_idx, i)
-                except:
-                    candidate_idxs.remove(choice_idx)
-                    choice_idx = None
+                choice_idx = pick_candidate(candidate_idxs)
+                insts = move_entry_forward(insts, choice_idx, i)
 
             local_perm = Permutation.permutation_move_entry_forward(l, choice_idx, i)
             perm = Permutation.permutation_comp (local_perm, perm)
