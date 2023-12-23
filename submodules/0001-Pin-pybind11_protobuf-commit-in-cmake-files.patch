@@ -1,0 +1,24 @@
+From 3b6f6999c042322268eb3ba84e829097014b7428 Mon Sep 17 00:00:00 2001
+From: Hanno Becker <beckphan@amazon.co.uk>
+Date: Tue, 19 Dec 2023 21:24:57 +0000
+Subject: [PATCH] Pin pybind11_protobuf commit in cmake files
+
+---
+ cmake/dependencies/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/dependencies/CMakeLists.txt b/cmake/dependencies/CMakeLists.txt
+index c39a44fb89..27923ccedb 100644
+--- a/cmake/dependencies/CMakeLists.txt
++++ b/cmake/dependencies/CMakeLists.txt
+@@ -177,7 +177,7 @@ if(BUILD_PYTHON AND BUILD_pybind11_protobuf)
+   FetchContent_Declare(
+     pybind11_protobuf
+     GIT_REPOSITORY "https://github.com/pybind/pybind11_protobuf.git"
+-    GIT_TAG "main"
++    GIT_TAG "5baa2dc9d93e3b608cde86dfa4b8c63aeab4ac78"
+     PATCH_COMMAND git apply --ignore-whitespace "${CMAKE_CURRENT_LIST_DIR}/../../patches/pybind11_protobuf.patch"
+   )
+   FetchContent_MakeAvailable(pybind11_protobuf)
+--
+2.39.3 (Apple Git-145)
