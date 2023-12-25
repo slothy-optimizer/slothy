@@ -25,49 +25,45 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-#
-# Experimental model for high-end A-profile cores with 4 SIMD units
-#
+"""
+Experimental and highly incomplete model capturing an approximation of the
+frontend limitations and latencies of the Neoverse N1 CPU
+"""
 
 from enum import Enum
-from .aarch64_neon import *
+from slothy.targets.aarch64.aarch64_neon import *
 
-issue_rate = 6
+issue_rate = 4
 
 class ExecutionUnit(Enum):
-    SCALAR_I0=0,
-    SCALAR_I1=1,
-    SCALAR_I2=2,
-    SCALAR_I3=3,
-    SCALAR_M0=2, # Overlaps with third I pipeline
-    SCALAR_M1=3, # Overlaps with fourth I pipeline
-    LSU0=4,
-    LSU1=5,
-    VEC0=6,
-    VEC1=7,
-    VEC2=8,
-    VEC3=9,
+    """Enumeration of execution units in approximative Neoverse-N1 SLOTHY model"""
+    SCALAR_I0=0
+    SCALAR_I1=1
+    SCALAR_I2=2
+    SCALAR_M=2 # Overlaps with third I pipeline
+    LSU0=3
+    LSU1=4
+    VEC0=5
+    VEC1=6
     def __repr__(self):
         return self.name
-    def I():
-        return [ExecutionUnit.SCALAR_I0, ExecutionUnit.SCALAR_I1,
-                ExecutionUnit.SCALAR_I2, ExecutionUnit.SCALAR_I3]
-    def M():
-        return [ExecutionUnit.SCALAR_M0, ExecutionUnit.SCALAR_M1]
-    def V():
-        return [ExecutionUnit.VEC0, ExecutionUnit.VEC1,
-                ExecutionUnit.VEC2, ExecutionUnit.VEC3]
-    def V0():
-        return [ExecutionUnit.VEC0]
-    def V1():
-        return [ExecutionUnit.VEC1]
-    def V13():
-        return [ExecutionUnit.VEC1, ExecutionUnit.VEC3]
-    def V01():
+    @classmethod
+    def I(cls): # pylint: disable=missing-function-docstring,invalid-name
+        return [ExecutionUnit.SCALAR_I0, ExecutionUnit.SCALAR_I1, ExecutionUnit.SCALAR_I2]
+    @classmethod
+    def M(cls): # pylint: disable=missing-function-docstring,invalid-name
+        return [ExecutionUnit.SCALAR_M]
+    @classmethod
+    def V(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
-    def V02():
-        return [ExecutionUnit.VEC0, ExecutionUnit.VEC2]
-    def LSU():
+    @classmethod
+    def V0(cls): # pylint: disable=missing-function-docstring,invalid-name
+        return [ExecutionUnit.VEC0]
+    @classmethod
+    def V1(cls): # pylint: disable=missing-function-docstring,invalid-name
+        return [ExecutionUnit.VEC1]
+    @classmethod
+    def LSU(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.LSU0, ExecutionUnit.LSU1]
 
 # Opaque functions called by SLOTHY to add further microarchitecture-
@@ -76,14 +72,15 @@ def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
     slothy.restrict_slots_for_instructions_by_property(
-        is_neon_instruction, [0,1,2,3])
+        is_neon_instruction, [0,1])
+    slothy.restrict_slots_for_instructions_by_property(
+        lambda t: is_neon_instruction(t) is False, [1,2,3])
 
 def has_min_max_objective(config):
+    _ = config
     return False
 def get_min_max_objective(slothy):
-    return
-
-### TODO: Copy-pasted from N1 model -- adjust
+    _ = slothy
 
 execution_units = {
     (Ldp_X, Ldr_X,
@@ -98,7 +95,7 @@ execution_units = {
     (vxtn)                    : ExecutionUnit.V(),
     (vshl, vshl_d, vshli, vshrn) : ExecutionUnit.V1(),
     vusra                     : ExecutionUnit.V1(),
-    AESInstruction            : ExecutionUnit.V(),
+    AESInstruction            : ExecutionUnit.V0(),
     (vmul, vmlal, vmull)      : ExecutionUnit.V0(),
     AArch64NeonLogical        : ExecutionUnit.V(),
     (AArch64BasicArithmetic,
@@ -182,8 +179,10 @@ default_latencies = {
 }
 
 def get_latency(src, out_idx, dst):
-    instclass_src = find_class(src)
-    instclass_dst = find_class(dst)
+    _ = out_idx # out_idx unused
+
+    _ = find_class(src)
+    _ = find_class(dst)
     latency = lookup_multidict(default_latencies, src)
     return latency
 
@@ -191,8 +190,7 @@ def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
-    else:
-        return [units]
+    return [units]
 
 def get_inverse_throughput(src):
     return lookup_multidict(inverse_throughput, src)

@@ -51,12 +51,13 @@ class RegisterType(Enum):
     def __repr__(self):
         return self.name
 
+    @staticmethod
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
 
         qstack_locations = [ f"QSTACK{i}" for i in range(8) ]
-        stack_locations  = [ f"STACK{i}"  for i in range(8) ] + [ "ROOT0_STACK", "ROOT1_STACK", "ROOT4_STACK", "RPTR_STACK" ]
-
+        stack_locations  = [ f"STACK{i}"  for i in range(8) ] + \
+            [ "ROOT0_STACK", "ROOT1_STACK", "ROOT4_STACK", "RPTR_STACK" ]
 
         gprs_normal  = [ f"r{i}" for i in range(13) ] + ['r14']
         vregs_normal = [ f"q{i}" for i in range(8)  ]
@@ -118,34 +119,38 @@ class Loop:
         yield f"{indent}le lr, {lbl_start}"
 
     def extract(source, lbl):
+        assert isinstance(source, list)
+
         pre  = []
         body = []
         post = []
-        loop_lbl_regexp_txt = f"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        loop_lbl_regexp_txt = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
-        loop_end_regexp_txt = f"^\s*le\s+(lr|r14)\s*,\s*{lbl}"
+        loop_end_regexp_txt = rf"^\s*le\s+(lr|r14)\s*,\s*{lbl}"
         loop_end_regexp = re.compile(loop_end_regexp_txt)
-        lines = iter(source.splitlines())
+        lines = iter(source)
         l = None
         keep = False
         state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop
         while True:
             if not keep:
                 l = next(lines, None)
+                l_str = str(l)
             keep = False
-            if l == None:
+            if l is None:
                 break
+            assert isinstance(l, str) is False
             if state == 0:
-                p = loop_lbl_regexp.match(l)
+                p = loop_lbl_regexp.match(l_str)
                 if p is not None and p.group("label") == lbl:
-                    l = p.group("remainder")
+                    l.set_text(p.group("remainder"))
                     keep = True
                     state = 1
                 else:
                     pre.append(l)
                 continue
             if state == 1:
-                p = loop_end_regexp.match(l)
+                p = loop_end_regexp.match(l_str)
                 if p is not None:
                     state = 2
                     continue
@@ -201,7 +206,7 @@ class Instruction:
         self.args_in_out_combinations = None
         self.args_in_combinations = None
 
-    def global_parsing_cb(self,a):
+    def global_parsing_cb(self,a, log=None):
         return False
 
     def write(self):
@@ -245,15 +250,16 @@ class Instruction:
         mnemonic = Instruction.unfold_abbrevs(self.mnemonic)
 
         expected_args = self.num_in + self.num_out + self.num_in_out
-        regexp_txt  = f"^\s*{mnemonic}"
+        regexp_txt  = rf"^\s*{mnemonic}"
         if expected_args > 0:
-            regexp_txt += "\s+"
-        regexp_txt += ','.join(["\s*(\w+)\s*" for _ in range(expected_args)])
+            regexp_txt += r"\s+"
+        regexp_txt += ','.join([r"\s*(\w+)\s*" for _ in range(expected_args)])
         regexp = re.compile(regexp_txt)
 
         p = regexp.match(src)
         if p is None:
-            raise Instruction.ParsingException(f"Doesn't match basic instruction template {regexp_txt}")
+            raise Instruction.ParsingException(
+                f"Doesn't match basic instruction template {regexp_txt}")
 
         operands = list(p.groups())
         if have_dt:
@@ -279,12 +285,16 @@ class Instruction:
         self.args_in = operands[idx_args_in:]
 
         if not len(self.args_in) == self.num_in:
-            raise Exception(f"Something wrong parsing {src}: Expect {self.num_in} input, but got {len(self.args_in)} ({self.args_in})")
+            raise Exception(f"Something wrong parsing {src}: Expect {self.num_in} \
+                            input, but got {len(self.args_in)} ({self.args_in})")
 
-    def parser(src):
+    @staticmethod
+    def parser(src_line):
         insts = []
         exceptions = {}
         instnames = []
+
+        src = src_line.text.strip()
 
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds
@@ -297,14 +307,14 @@ class Instruction:
             except Instruction.ParsingException as e:
                 exceptions[inst_class.__name__] = e
         if len(insts) == 0:
-            logging.error(f"Failed to parse instruction {src}")
+            logging.error("Failed to parse instruction %s", src)
             logging.error("A list of attempted parsers and their exceptions follows.")
             for i,e in exceptions.items():
-                logging.error(f"* {i + ':':20s} {e}")
+                logging.error("* %s %s", f"{i + ':':20s}", e)
             raise Instruction.ParsingException(
                 f"Couldn't parse {src}\nYou may need to add support for a new instruction (variant)?")
 
-        logging.debug(f"Parsing result for '{src}': {instnames}")
+        logging.debug("Parsing result for %s: %s", src, instnames)
         return insts
 
     def __repr__(self):
@@ -458,20 +468,20 @@ class ldrd(Instruction):
                          arg_types_out=[RegisterType.GPR, RegisterType.GPR])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
 
-        addr_regexp_txt    = "\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        postinc_regexp_txt = "\s*(?:,\s*#(?P<postinc>.*))?"
+        addr_regexp_txt    = r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
+        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
 
-        ldrd_regexp_txt  = "\s*ldrd\s+"
-        ldrd_regexp_txt += "(?P<dest0>\w+),\s*(?P<dest1>\w+),\s*"
+        ldrd_regexp_txt  = r"\s*ldrd\s+"
+        ldrd_regexp_txt += r"(?P<dest0>\w+),\s*(?P<dest1>\w+),\s*"
         ldrd_regexp_txt += addr_regexp_txt
         ldrd_regexp_txt += postinc_regexp_txt
         ldrd_regexp_txt  = Instruction.unfold_abbrevs(ldrd_regexp_txt)
@@ -528,20 +538,20 @@ class ldr(Instruction):
                          arg_types_out=[RegisterType.GPR])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
 
-        addr_regexp_txt    = "\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        postinc_regexp_txt = "\s*(?:,\s*#(?P<postinc>.*))?"
+        addr_regexp_txt    = r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
+        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
 
-        ldr_regexp_txt  = "\s*ldr\s+"
-        ldr_regexp_txt += "(?P<dest>\w+),\s*"
+        ldr_regexp_txt  = r"\s*ldr\s+"
+        ldr_regexp_txt += r"(?P<dest>\w+),\s*"
         ldr_regexp_txt += addr_regexp_txt
         ldr_regexp_txt += postinc_regexp_txt
         ldr_regexp_txt  = Instruction.unfold_abbrevs(ldr_regexp_txt)
@@ -597,20 +607,20 @@ class strd(Instruction):
                          arg_types_in=[RegisterType.GPR, RegisterType.GPR, RegisterType.GPR])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
 
-        addr_regexp_txt    = "\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        postinc_regexp_txt = "\s*(?:,\s*#(?P<postinc>.*))?"
+        addr_regexp_txt    = r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
+        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
 
-        strd_regexp_txt  = "\s*strd\s+"
-        strd_regexp_txt += "(?P<dest0>\w+),\s*(?P<dest1>\w+),\s*"
+        strd_regexp_txt  = r"\s*strd\s+"
+        strd_regexp_txt += r"(?P<dest0>\w+),\s*(?P<dest1>\w+),\s*"
         strd_regexp_txt += addr_regexp_txt
         strd_regexp_txt += postinc_regexp_txt
         strd_regexp_txt  = Instruction.unfold_abbrevs(strd_regexp_txt)
@@ -667,7 +677,7 @@ class vrshr(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vrshr_regexp_txt = "vrshr\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vrshr_regexp_txt = r"vrshr\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
         vrshr_regexp_txt = Instruction.unfold_abbrevs(vrshr_regexp_txt)
         vrshr_regexp = re.compile(vrshr_regexp_txt)
         p = vrshr_regexp.match(src)
@@ -689,7 +699,7 @@ class vrshl(Instruction):
                          arg_types_in=[RegisterType.GPR])
 
     def parse(self, src):
-        vrshl_regexp_txt = "vrshl\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)"
+        vrshl_regexp_txt = r"vrshl\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)"
         vrshl_regexp_txt = Instruction.unfold_abbrevs(vrshl_regexp_txt)
         vrshl_regexp = re.compile(vrshl_regexp_txt)
         p = vrshl_regexp.match(src)
@@ -711,7 +721,7 @@ class vshlc(Instruction):
                 arg_types_in_out=[RegisterType.MVE, RegisterType.GPR])
 
     def parse(self, src):
-        vshlc_regexp_txt = "vshlc\s+(?P<vec>\w+)\s*,\s*(?P<gpr>\w+)\s*,\s*(?P<shift>#.*)"
+        vshlc_regexp_txt = r"vshlc\s+(?P<vec>\w+)\s*,\s*(?P<gpr>\w+)\s*,\s*(?P<shift>#.*)"
         vshlc_regexp_txt = Instruction.unfold_abbrevs(vshlc_regexp_txt)
         vshlc_regexp = re.compile(vshlc_regexp_txt)
         p = vshlc_regexp.match(src)
@@ -734,7 +744,7 @@ class vmov_imm(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vmov_regexp_txt = "vmov\.<dt>\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
+        vmov_regexp_txt = r"vmov\.<dt>\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
         vmov_regexp_txt = Instruction.unfold_abbrevs(vmov_regexp_txt)
         vmov_regexp = re.compile(vmov_regexp_txt)
         p = vmov_regexp.match(src)
@@ -757,7 +767,7 @@ class vmullbt(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vmullbt_regexp_txt = "vmull(?P<bt>\w+)\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+),\s*(?P<src1>\w*)"
+        vmullbt_regexp_txt = r"vmull(?P<bt>\w+)\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+),\s*(?P<src1>\w*)"
         vmullbt_regexp_txt = Instruction.unfold_abbrevs(vmullbt_regexp_txt)
         vmullbt_regexp = re.compile(vmullbt_regexp_txt)
         p = vmullbt_regexp.match(src)
@@ -783,7 +793,7 @@ class vdup(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vdup_regexp_txt = "vdup\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<gpr0>\w*)"
+        vdup_regexp_txt = r"vdup\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<gpr0>\w*)"
         vdup_regexp_txt = Instruction.unfold_abbrevs(vdup_regexp_txt)
         vdup_regexp = re.compile(vdup_regexp_txt)
         p = vdup_regexp.match(src)
@@ -806,7 +816,7 @@ class vmov_double_v2r(Instruction):
                          arg_types_out=[RegisterType.GPR, RegisterType.GPR])
 
     def parse(self, src):
-        vmov_regexp_txt = "vmov\s+(?P<gpr0>\w+)\s*,\s*(?P<gpr1>\w+)\s*,\s*(?P<vec0>\w+)\s*\[\s*(?P<idx0>[23])\s*\]\s*,\s*(?P<vec1>\w+)\s*\[\s*(?P<idx1>[01])\s*\]\s*"
+        vmov_regexp_txt = r"vmov\s+(?P<gpr0>\w+)\s*,\s*(?P<gpr1>\w+)\s*,\s*(?P<vec0>\w+)\s*\[\s*(?P<idx0>[23])\s*\]\s*,\s*(?P<vec1>\w+)\s*\[\s*(?P<idx1>[01])\s*\]\s*"
         vmov_regexp_txt = Instruction.unfold_abbrevs(vmov_regexp_txt)
         vmov_regexp = re.compile(vmov_regexp_txt)
         p = vmov_regexp.match(src)
@@ -838,7 +848,7 @@ class mov_imm(Instruction):
                          arg_types_out=[RegisterType.GPR])
 
     def parse(self, src):
-        mov_regexp_txt = "mov\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
+        mov_regexp_txt = r"mov\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
         mov_regexp = re.compile(mov_regexp_txt)
         p = mov_regexp.match(src)
         if p is None:
@@ -858,7 +868,7 @@ class mvn_imm(Instruction):
                          arg_types_out=[RegisterType.GPR])
 
     def parse(self, src):
-        mvn_regexp_txt = "mvn\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
+        mvn_regexp_txt = r"mvn\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
         mvn_regexp = re.compile(mvn_regexp_txt)
         p = mvn_regexp.match(src)
         if p is None:
@@ -878,7 +888,7 @@ class pkhbt(Instruction):
                          arg_types_out=[RegisterType.GPR])
 
     def parse(self, src):
-        pkhbt_regexp_txt = "pkhbt\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*lsl\s*#(?P<shift>.*)"
+        pkhbt_regexp_txt = r"pkhbt\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*lsl\s*#(?P<shift>.*)"
         pkhbt_regexp_txt = Instruction.unfold_abbrevs(pkhbt_regexp_txt)
         pkhbt_regexp = re.compile(pkhbt_regexp_txt)
         p = pkhbt_regexp.match(src)
@@ -907,7 +917,7 @@ class add_imm(Instruction):
                          arg_types_out=[RegisterType.GPR])
 
     def parse(self, src):
-        add_imm_regexp_txt = "add\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
+        add_imm_regexp_txt = r"add\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
         add_imm_regexp_txt = Instruction.unfold_abbrevs(add_imm_regexp_txt)
         add_imm_regexp = re.compile(add_imm_regexp_txt)
         p = add_imm_regexp.match(src)
@@ -929,7 +939,7 @@ class sub_imm(Instruction):
                          arg_types_out=[RegisterType.GPR])
 
     def parse(self, src):
-        sub_imm_regexp_txt = "sub\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
+        sub_imm_regexp_txt = r"sub\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
         sub_imm_regexp_txt = Instruction.unfold_abbrevs(sub_imm_regexp_txt)
         sub_imm_regexp = re.compile(sub_imm_regexp_txt)
         p = sub_imm_regexp.match(src)
@@ -951,7 +961,7 @@ class vshr(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vshr_regexp_txt = "vshr\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vshr_regexp_txt = r"vshr\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
         vshr_regexp_txt = Instruction.unfold_abbrevs(vshr_regexp_txt)
         vshr_regexp = re.compile(vshr_regexp_txt)
         p = vshr_regexp.match(src)
@@ -974,7 +984,7 @@ class vshrnbt(Instruction):
                          arg_types_in_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vshrn_regexp_txt = "v(?P<round>r)?shrn(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vshrn_regexp_txt = r"v(?P<round>r)?shrn(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
         vshrn_regexp_txt = Instruction.unfold_abbrevs(vshrn_regexp_txt)
         vshrn_regexp = re.compile(vshrn_regexp_txt)
         p = vshrn_regexp.match(src)
@@ -999,7 +1009,7 @@ class vshllbt(Instruction):
                          arg_types_in_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vshll_regexp_txt = "vshll(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vshll_regexp_txt = r"vshll(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
         vshll_regexp_txt = Instruction.unfold_abbrevs(vshll_regexp_txt)
         vshll_regexp = re.compile(vshll_regexp_txt)
         p = vshll_regexp.match(src)
@@ -1024,7 +1034,7 @@ class vmovlbt(Instruction):
                          arg_types_in_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vmovl_regexp_txt = "vmovl(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*"
+        vmovl_regexp_txt = r"vmovl(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*"
         vmovl_regexp_txt = Instruction.unfold_abbrevs(vmovl_regexp_txt)
         vmovl_regexp = re.compile(vmovl_regexp_txt)
         p = vmovl_regexp.match(src)
@@ -1048,7 +1058,7 @@ class vrev(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vrev_regexp_txt = "vrev(?P<dt0>\w+)\.(?P<dt1>\w+)\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)"
+        vrev_regexp_txt = r"vrev(?P<dt0>\w+)\.(?P<dt1>\w+)\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)"
         vrev_regexp_txt = Instruction.unfold_abbrevs(vrev_regexp_txt)
         vrev_regexp = re.compile(vrev_regexp_txt)
         p = vrev_regexp.match(src)
@@ -1095,7 +1105,7 @@ class vshl_T3(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vshl_regexp_txt = "vshl\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
+        vshl_regexp_txt = r"vshl\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
         vshl_regexp_txt = Instruction.unfold_abbrevs(vshl_regexp_txt)
         vshl_regexp = re.compile(vshl_regexp_txt)
         p = vshl_regexp.match(src)
@@ -1118,7 +1128,7 @@ class vfma(Instruction):
                 arg_types_in_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vfma_regexp_txt = "vfma\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
+        vfma_regexp_txt = r"vfma\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
         vfma_regexp_txt = Instruction.unfold_abbrevs(vfma_regexp_txt)
         vfma_regexp = re.compile(vfma_regexp_txt)
         p = vfma_regexp.match(src)
@@ -1203,21 +1213,21 @@ class vstr(Instruction):
                 arg_types_in=[RegisterType.MVE, RegisterType.GPR])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
         src = re.sub("//.*$","",src)
 
-        addr_regexp_txt = "\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        postinc_regexp_txt = "\s*(?:,\s*#(?P<postinc>.*))?"
+        addr_regexp_txt = r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
+        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
 
-        vldr_regexp_txt  = "\s*vstr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
-        vldr_regexp_txt += "(?P<dest>\w+),\s*"
+        vldr_regexp_txt  = r"\s*vstr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
+        vldr_regexp_txt += r"(?P<dest>\w+),\s*"
         vldr_regexp_txt += addr_regexp_txt
         vldr_regexp_txt += postinc_regexp_txt
         vldr_regexp_txt = Instruction.unfold_abbrevs(vldr_regexp_txt)
@@ -1291,21 +1301,21 @@ class vldr(Instruction):
                 arg_types_out=[RegisterType.MVE])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
         src = re.sub("//.*$","",src)
 
-        addr_regexp_txt = "\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        postinc_regexp_txt = "\s*(?:,\s*#(?P<postinc>.*))?"
+        addr_regexp_txt = r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
+        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
 
-        vldr_regexp_txt  = "\s*vldr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
-        vldr_regexp_txt += "(?P<dest>\w+),\s*"
+        vldr_regexp_txt  = r"\s*vldr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
+        vldr_regexp_txt += r"(?P<dest>\w+),\s*"
         vldr_regexp_txt += addr_regexp_txt
         vldr_regexp_txt += postinc_regexp_txt
         vldr_regexp_txt = Instruction.unfold_abbrevs(vldr_regexp_txt)
@@ -1378,23 +1388,23 @@ class vldr_gather(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def _simplify(self):
-        if self.increment != None:
+        if self.increment is not None:
             self.increment = simplify(self.increment)
-        if self.post_index != None:
+        if self.post_index is not None:
             self.post_index = simplify(self.post_index)
-        if self.pre_index != None:
+        if self.pre_index is not None:
             self.pre_index = simplify(self.pre_index)
 
     def parse(self, src):
         src = re.sub("//.*$","",src).strip()
 
-        dest   = "(?P<dest>\w+),\s*"
-        adrgpr = "(?P<addr>\w+)"
-        ofsvec = ",\s*(?P<addrvec>\w+)?"
-        uxtw   = "(?:,\s*(?:uxtw|UXTW)\s+#(?P<uxtw>\w+))?"
-        addr_regexp_txt = f"\[\s*{adrgpr}\s*{ofsvec}\s*{uxtw}\]"
+        dest   = r"(?P<dest>\w+),\s*"
+        adrgpr = r"(?P<addr>\w+)"
+        ofsvec = r",\s*(?P<addrvec>\w+)?"
+        uxtw   = r"(?:,\s*(?:uxtw|UXTW)\s+#(?P<uxtw>\w+))?"
+        addr_regexp_txt = rf"\[\s*{adrgpr}\s*{ofsvec}\s*{uxtw}\]"
 
-        vldr_regexp_txt  = "\s*vldr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
+        vldr_regexp_txt  = r"\s*vldr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
         vldr_regexp_txt += dest
         vldr_regexp_txt += addr_regexp_txt
         vldr_regexp_txt += "$"
@@ -1440,10 +1450,10 @@ class vld2(Instruction):
 
     def parse(self, src):
 
-        regexp = "\s*(?P<variant>vld2(?P<idx>[0-1])\.<dt>)\s+"\
-                "{\s*(?P<out0>\w+)\s*,"\
-                 "\s*(?P<out1>\w+)\s*}"\
-                 "\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
+        regexp = r"\s*(?P<variant>vld2(?P<idx>[0-1])\.<dt>)\s+"\
+                r"{\s*(?P<out0>\w+)\s*,"\
+                 r"\s*(?P<out1>\w+)\s*}"\
+                 r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
         regexp = Instruction.unfold_abbrevs(regexp)
 
         p = re.compile(regexp).match(src)
@@ -1522,12 +1532,12 @@ class vld4(Instruction):
 
     def parse(self, src):
 
-        regexp = "\s*(?P<variant>vld4(?P<idx>[0-3])\.<dt>)\s+"\
-                "{\s*(?P<out0>\w+)\s*,"\
-                 "\s*(?P<out1>\w+)\s*,"\
-                 "\s*(?P<out2>\w+)\s*,"\
-                 "\s*(?P<out3>\w+)\s*}"\
-                 "\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
+        regexp = r"\s*(?P<variant>vld4(?P<idx>[0-3])\.<dt>)\s+"\
+                r"{\s*(?P<out0>\w+)\s*,"\
+                 r"\s*(?P<out1>\w+)\s*,"\
+                 r"\s*(?P<out2>\w+)\s*,"\
+                 r"\s*(?P<out3>\w+)\s*}"\
+                 r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
         regexp = Instruction.unfold_abbrevs(regexp)
 
         p = re.compile(regexp).match(src)
@@ -1617,10 +1627,10 @@ class vst2(Instruction):
 
     def parse(self, src):
 
-        regexp = "\s*(?P<variant>vst2(?P<idx>[0-1])\.<dt>)\s+"\
-                "{\s*(?P<out0>\w+)\s*,"\
-                 "\s*(?P<out1>\w+)\s*}"\
-                 "\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
+        regexp = r"\s*(?P<variant>vst2(?P<idx>[0-1])\.<dt>)\s+"\
+                r"{\s*(?P<out0>\w+)\s*,"\
+                 r"\s*(?P<out1>\w+)\s*}"\
+                 r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
         regexp = Instruction.unfold_abbrevs(regexp)
 
         p = re.compile(regexp).match(src)
@@ -1698,12 +1708,12 @@ class vst4(Instruction):
 
     def parse(self, src):
 
-        regexp = "\s*(?P<variant>vst4(?P<idx>[0-3])\.<dt>)\s+"\
-                "{\s*(?P<out0>\w+)\s*,"\
-                 "\s*(?P<out1>\w+)\s*,"\
-                 "\s*(?P<out2>\w+)\s*,"\
-                 "\s*(?P<out3>\w+)\s*}"\
-                 "\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
+        regexp = r"\s*(?P<variant>vst4(?P<idx>[0-3])\.<dt>)\s+"\
+                 r"{\s*(?P<out0>\w+)\s*,"\
+                 r"\s*(?P<out1>\w+)\s*,"\
+                 r"\s*(?P<out2>\w+)\s*,"\
+                 r"\s*(?P<out3>\w+)\s*}"\
+                 r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
         regexp = Instruction.unfold_abbrevs(regexp)
 
         p = re.compile(regexp).match(src)
@@ -1805,7 +1815,7 @@ class vcmla(Instruction):
                          arg_types_in_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vcmla_regexp_txt = "vcmla\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcmla_regexp_txt = r"vcmla\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vcmla_regexp_txt = Instruction.unfold_abbrevs(vcmla_regexp_txt)
         vcmla_regexp = re.compile(vcmla_regexp_txt)
         p = vcmla_regexp.match(src)
@@ -1831,7 +1841,7 @@ class vcmul(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vcmul_regexp_txt = "vcmul\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcmul_regexp_txt = r"vcmul\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vcmul_regexp_txt = Instruction.unfold_abbrevs(vcmul_regexp_txt)
         vcmul_regexp = re.compile(vcmul_regexp_txt)
         p = vcmul_regexp.match(src)
@@ -1858,7 +1868,7 @@ class vcadd(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vcadd_regexp_txt = "vcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcadd_regexp_txt = r"vcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vcadd_regexp_txt = Instruction.unfold_abbrevs(vcadd_regexp_txt)
         vcadd_regexp = re.compile(vcadd_regexp_txt)
         p = vcadd_regexp.match(src)
@@ -1886,7 +1896,7 @@ class vhcadd(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vhcadd_regexp_txt = "vhcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vhcadd_regexp_txt = r"vhcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vhcadd_regexp_txt = Instruction.unfold_abbrevs(vhcadd_regexp_txt)
         vhcadd_regexp = re.compile(vhcadd_regexp_txt)
         p = vhcadd_regexp.match(src)
@@ -1913,7 +1923,7 @@ class vhcsub(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vhcsub_regexp_txt = "vhcsub\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vhcsub_regexp_txt = r"vhcsub\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vhcsub_regexp_txt = Instruction.unfold_abbrevs(vhcsub_regexp_txt)
         vhcsub_regexp = re.compile(vhcsub_regexp_txt)
         p = vhcsub_regexp.match(src)
@@ -1940,7 +1950,7 @@ class vcaddf(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vcaddf_regexp_txt = "vcadd\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcaddf_regexp_txt = r"vcadd\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vcaddf_regexp_txt = Instruction.unfold_abbrevs(vcaddf_regexp_txt)
         vcaddf_regexp = re.compile(vcaddf_regexp_txt)
         p = vcaddf_regexp.match(src)
@@ -1959,7 +1969,8 @@ class vcaddf(Instruction):
 
 
     def write(self):
-        return f"vcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        return f"vcadd.{self.datatype} {self.args_out[0]}, "\
+            f"{self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
 
 class vcsubf(Instruction):
     def __init__(self):
@@ -1968,7 +1979,8 @@ class vcsubf(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
     def parse(self, src):
-        vhcsub_regexp_txt = "vcsub\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vhcsub_regexp_txt = r"vcsub\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"\
+            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
         vhcsub_regexp_txt = Instruction.unfold_abbrevs(vhcsub_regexp_txt)
         vhcsub_regexp = re.compile(vhcsub_regexp_txt)
         p = vhcsub_regexp.match(src)
@@ -1983,7 +1995,8 @@ class vcsubf(Instruction):
 
         if self.datatype == "f32":
             # First index: output, Second index: Input
-            self.args_in_out_different = [(0,0),(0,1)] # Output must not be the same as any of the inputs
+            # Output must not be the same as any of the inputs
+            self.args_in_out_different = [(0,0),(0,1)] 
 
     def write(self):
         return f"vcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
@@ -2007,7 +2020,7 @@ class vcsubf(Instruction):
 #
 # And change out to an output argument in this case (rather than input/output)
 def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
-    def core(inst,t):
+    def core(inst,t, log=None):
         assert isinstance(inst, this_class)
         succ = None
 
@@ -2065,7 +2078,7 @@ def lookup_multidict(d, inst, default=None):
         for lp in l:
             if match(lp):
                 return v
-    if default == None:
+    if default is None:
         raise Exception(f"Couldn't find {k}")
     return default
 

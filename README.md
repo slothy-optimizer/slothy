@@ -1,3 +1,7 @@
+<p align="center">
+    <image src="./docs/slothy_logo.png" width=160>
+</p>
+
 **SLOTHY** - **S**uper (**L**azy) **O**ptimization of **T**ricky **H**andwritten assembl**Y** - is an assembly-level superoptimizer
 for:
 1. Instruction scheduling
@@ -6,7 +10,7 @@ for:
 
 SLOTHY is generic in the target architecture and microarchitecture. This repository provides instantiations for the
 the Cortex-M55 and Cortex-M85 CPUs implementing Armv8.1-M + Helium, and the Cortex-A55 and Cortex-A72
-CPUs implementing Armv8-A + Neon. There is an experimental model for Cortex-X/Neoverse-V cores. 
+CPUs implementing Armv8-A + Neon. There is an experimental model for Cortex-X/Neoverse-V cores.
 
 SLOTHY is discussed in [Fast and Clean: Auditable high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303).
 
@@ -16,10 +20,10 @@ SLOTHY enables a development workflow where developers write 'clean' assembly by
 
 ### How it works
 
-SLOTHY is essentially a constraint solver frontend: It converts the input source into a data flow graph and 
+SLOTHY is essentially a constraint solver frontend: It converts the input source into a data flow graph and
 builds a constraint model capturing valid instruction schedulings, register renamings, and periodic loop
-interleavings. The model is passed to an external constraint solver and, upon success, 
-a satisfying assignment converted back into the final code. Currently, SLOTHY uses 
+interleavings. The model is passed to an external constraint solver and, upon success,
+a satisfying assignment converted back into the final code. Currently, SLOTHY uses
 [Google OR-Tools](https://developers.google.com/optimization) as its constraint solver backend.
 
 ### Performance
@@ -51,9 +55,11 @@ and build from scratch, e.g. as follows (also available as [submodules/setup-ort
 for convenience):
 
 ```
+% apt install -y git build-essential python3-pip cmake swig
 % git submodule init
 % git submodule update
 % cd submodules/or-tools
+% git apply ../0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch
 % mkdir build
 % cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON
 % make -C build -j8

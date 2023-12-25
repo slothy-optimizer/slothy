@@ -25,16 +25,25 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import targets.arm_v81m.arch_v81m as Arch_Armv81M
-import targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
-import targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
-import targets.arm_v81m.helium_experimental as Target_Helium_Experimental
+"""
+Convenience module for querying available architecture
+and microarchitecture models for SLOTHY.
+"""
 
-import targets.aarch64.aarch64_neon as AArch64_Neon
-import targets.aarch64.cortex_a55 as Target_CortexA55
-import targets.aarch64.cortex_a72_frontend as Target_CortexA72_Frontend
-import targets.aarch64.neoverse_n1_experimental as Target_NeoverseN1_Experimental
-import targets.aarch64.aarch64_big_experimental as Target_Big_Experimental
+from slothy.targets.arm_v81m import arch_v81m as Arch_Armv81M
+from slothy.targets.arm_v81m import cortex_m55r1 as Target_CortexM55r1
+from slothy.targets.arm_v81m import cortex_m85r1 as Target_CortexM85r1
+from slothy.targets.arm_v81m import helium_experimental as Target_Helium_Experimental
+
+from slothy.targets.aarch64 import aarch64_neon as AArch64_Neon
+from slothy.targets.aarch64 import cortex_a55 as Target_CortexA55
+from slothy.targets.aarch64 import cortex_a72_frontend as Target_CortexA72_Frontend
+from slothy.targets.aarch64 import neoverse_n1_experimental as Target_NeoverseN1_Experimental
+from slothy.targets.aarch64 import aarch64_big_experimental as Target_Big_Experimental
+
+class UnknownTarget(Exception):
+    """Exception raised when an unknown architecture or microarchitecture
+    is requested."""
 
 class Archery:
     """This is a small helper class for querying architectures"""
@@ -50,26 +59,31 @@ class Archery:
                  "Arm_Neoverse_N1_experimental" : Target_NeoverseN1_Experimental,
                  "Arm_Big_experimental" : Target_Big_Experimental,
                  }
+
+    @staticmethod
     def list_archs():
         """Lists all available architectures"""
         return list(Archery._archs.keys())
 
+    @staticmethod
     def list_targets():
         """Lists all available targets"""
         return list(Archery._targets.keys())
 
+    @staticmethod
     def get_arch(name):
         """Query an architecture by name"""
         arch = Archery._archs.get(name,None)
-        if arch == None:
-            raise Exception(f"Could not find architecture {name}. "\
+        if arch is None:
+            raise UnknownTarget(f"Could not find architecture {name}. "\
                             f"Known architectures are {list(Archery._archs.keys())}")
         return arch
 
+    @staticmethod
     def get_target(name):
         """Query a target by name"""
         target = Archery._targets.get(name,None)
-        if target == None:
-            raise Exception(f"Could not find target {name}. "\
+        if target is None:
+            raise UnknownTarget(f"Could not find target {name}. "\
                             f"Known targets are {list(Archery._targets.keys())}")
         return target

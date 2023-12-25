@@ -29,11 +29,9 @@
 ### The baseline is just a copy of the Cortex-M55 model without ST-LD hazard
 ###
 
-import logging
-import re
-
 from enum import Enum
-from .arch_v81m import *
+
+from slothy.targets.arm_v81m.arch_v81m import *
 
 issue_rate = 1
 
@@ -282,7 +280,7 @@ def lookup_multidict(d, k, default=None):
             return v
         if isinstance(l,tuple) and k in l:
             return v
-    if default == None:
+    if default is None:
         raise Exception(f"Couldn't find {k}")
     return default
 

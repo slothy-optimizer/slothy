@@ -26,7 +26,7 @@
 #
 
 from functools import cached_property
-from .helper import AsmHelper
+from slothy.helper import SourceLine
 
 class SlothyUselessInstructionException(Exception):
     """An instruction was found whose outputs are neither used by a subsequent instruction
@@ -127,6 +127,7 @@ class VirtualOutputInstruction(VirtualInstruction):
         self.num_in = 1
         self.args_in = [reg]
         self.arg_types_in = [reg_ty]
+        self.args_in_restrictions = [None]
 
     def write(self):
         return f"// output renaming: {self.orig_reg} -> {self.args_in_out[0]}"
@@ -141,6 +142,7 @@ class VirtualInputInstruction(VirtualInstruction):
         self.num_out = 1
         self.args_out = [reg]
         self.arg_types_out = [reg_ty]
+        self.args_out_restrictions = [None]
 
     def write(self):
         return f"// input renaming: {self.orig_reg} -> {self.args_out[0]}"
@@ -208,6 +210,17 @@ class ComputationNode:
         # Track instructions relying on the outputs of the computation step
         self.dst_out    = [ [] for _ in range(inst.num_out)    ]
         self.dst_in_out = [ [] for _ in range(inst.num_in_out) ]
+
+    def to_source_line(self):
+        """Convert node in data flor graph to source line.
+
+        This keeps original tags and comments from the source line that
+        gave rise to the node, but updates the text with the stringification
+        of the instruction underlying the node.
+        """
+        line = self.inst.source_line.copy()
+        inst_txt = str(self.inst)
+        return line.set_text(inst_txt)
 
     @cached_property
     def is_virtual_input(self):
@@ -278,9 +291,9 @@ class Config:
     def typing_hints(self):
         """A dictionary of 'typing hints' explicitly assigning to symbolic register names
          a register type.
-        
-        This can be necessary to disambiguate the type of symbolic registers. 
-        For example, the Helium vector extension has various instructions which 
+
+        This can be necessary to disambiguate the type of symbolic registers.
+        For example, the Helium vector extension has various instructions which
         accept either vector or GPR arguments."""
         typing_hints = { name : ty for ty in self.arch.RegisterType \
                for name in self.arch.RegisterType.list_registers(ty, with_variants=True) }
@@ -291,12 +304,12 @@ class Config:
         return self._outputs
     @property
     def inputs_are_outputs(self):
-        """Every input is automatically treated as an output. 
+        """Every input is automatically treated as an output.
         This is typically set for loop kernels."""
         return self._inputs_are_outputs
     @property
     def allow_useless_instructions(self):
-        """Indicates whether data flow creation should raise SlothyUselessInstructionException 
+        """Indicates whether data flow creation should raise SlothyUselessInstructionException
         when a useless instruction is detected."""
         return self._allow_useless_instructions
 
@@ -325,6 +338,7 @@ class Config:
         self._outputs = None
         self._inputs_are_outputs = None
         self._allow_useless_instructions = None
+        self._locked_registers = None
         self._load_slothy_config(slothy_config)
         for k,v in kwargs.items():
             setattr(self,k,v)
@@ -334,6 +348,7 @@ class Config:
             return
         self._slothy_config = slothy_config
         self._arch = slothy_config.arch
+        self._locked_registers = slothy_config.locked_registers
         self._typing_hints = self._slothy_config.typing_hints
         self._outputs = self._slothy_config.outputs
         self._inputs_are_outputs = self._slothy_config.inputs_are_outputs
@@ -461,7 +476,7 @@ class DataFlowGraph:
 
     def depth(self):
         """The depth of the data flow graph.
-        
+
         Equivalently, the maximum length of a dependency chain in the assembly source
         represented by the graph."""
         if self.nodes is None or len(self.nodes) == 0:
@@ -478,6 +493,73 @@ class DataFlowGraph:
     def arch(self):
         """The underlying architecturel model"""
         return self.config.arch
+
+    def apply_cbs(self, cb, logger, one_a_time=False):
+        """Apply callback to all nodes in the graph"""
+
+        count = 0
+        while True:
+            count += 1
+            assert count < 100 # There shouldn't be many repeated modifications to the CFG
+
+            some_change = False
+
+            for t in self.nodes:
+                t.delete = False
+                t.changed = False
+
+            for t in self.nodes:
+                if cb(t):
+                    some_change = True
+                    if one_a_time is True:
+                        break
+
+            if some_change is False:
+                break
+
+            z = zip(self.nodes, self.src)
+            z = filter(lambda x: x[0].delete is False, z)
+            z = map(lambda x: ([x[0].inst], x[0].inst.write()), z)
+
+            self.src = list(z)
+
+            # Otherwise, parse again
+            changed = [t for t in self.nodes if t.changed is True]
+            deleted = [t for t in self.nodes if t.delete is True]
+
+            logger.debug("Some instruction changed in callback -- need to build dataflow graph again...")
+
+            for t in deleted:
+                logger.debug("* %s was deleted", t)
+            for t in changed:
+                logger.debug("* %s was changed", t)
+
+            self._build_graph()
+
+    def apply_parsing_cbs(self):
+        """Apply parsing callbacks to all nodes in the graph.
+
+        Typically, we only build the computation flow graph once. However, sometimes we make
+        retrospective modifications to instructions afterwards, and then need to reparse.
+
+        An example for this are jointly destructive instruction patterns: A sequence of
+        instructions where each instruction individually overwrites only part of a register,
+        but jointly they overwrite the register as a whole. In this case, we can remove the
+        output register as an input dependency for the first instruction in the sequence,
+        thereby creating more reordering and renaming flexibility. In this case, we change
+        the instruction and then rebuild the computation flow graph.
+        """
+        logger = self.logger.getChild("parsing_cbs")
+        def parsing_cb(t):
+            return t.inst.global_parsing_cb(t, log=logger.info)
+        return self.apply_cbs(parsing_cb, logger)
+
+    def apply_fusion_cbs(self):
+        """Apply fusion callbacks to nodes in the graph"""
+        logger = self.logger.getChild("fusion_cbs")
+        def fusion_cb(t):
+            return t.inst.global_fusion_cb(t, log=logger.info)
+        return self.apply_cbs(fusion_cb, logger, one_a_time=True)
 
     def __init__(self, src, logger, config, parsing_cb=True):
         """Compute a data flow graph from a source code snippet.
@@ -497,45 +579,10 @@ class DataFlowGraph:
         self.config = config
         self.src = self._parse_source(src)
 
-        # Typically, we only build the computation flow graph once. However, sometimes we make
-        # retrospective modifications to instructions afterwards, and then need to reparse.
-        #
-        # An example for this are jointly destructive instruction patterns: A sequence of
-        # instructions where each instruction individually overwrites only part of a register,
-        # but jointly they overwrite the register as a whole. In this case, we can remove the
-        # output register as an input dependency for the first instruction in the sequence,
-        # thereby creating more reordering and renaming flexibility. In this case, we change
-        # the instruction and then rebuild the computation flow graph.
-        count = 0
-        while True:
-            count += 1
-            assert count < 10 # There shouldn't be many repeated modifications to the CFG
+        self._build_graph()
 
-            self._build_graph()
-
-            if not parsing_cb:
-                break
-
-            changed = []
-            for t in self.nodes:
-                was_changed = t.inst.global_parsing_cb(t)
-                if was_changed: # remember to build the dataflow graph again
-                    changed.append(t)
-
-            changes = len(changed)
-            # If no instruction was modified, we're done
-            if changes == 0:
-                break
-
-            self.src = list(zip([[t.inst] for t in self.nodes], [s[1] for s in self.src]))
-
-            # Otherwise, parse again
-            logger.debug("%d instructions changed -- need to build dataflow graph again...",
-                         changes)
-            logger.debug("The following instructions have changed:")
-            if changes > 0:
-                for t in changed:
-                    logger.debug(t)
+        if parsing_cb is True:
+            self.apply_parsing_cbs()
 
         self._selfcheck_outputs()
 
@@ -565,15 +612,24 @@ class DataFlowGraph:
             self.logger.warning(f"Instruction details: {t}, {t.inst.inputs}")
             self._dump_instructions("Source code", error=False)
 
+    def _parse_line(self, l):
+        assert SourceLine.is_source_line(l)
+        insts = self.arch.Instruction.parser(l)
+        # Remember options from source line
+        # TODO: Might not be the right place to remember options
+        for inst in insts:
+            inst.source_line = l
+        return (insts, l)
+
     def _parse_source(self, src):
-        return [ (self.arch.Instruction.parser(l),l) for l in AsmHelper.reduce_source(src) ]
+        return list(map(self._parse_line, SourceLine.reduce_source(src)))
 
     def iter_dependencies(self):
         """Returns an iterator over all dependencies in the data flow graph.
-        
+
         Each returned element has the form (consumer, producer, ty, idx), representing a dependency
-        from output producer to the idx-th input (if ty=="in") or input/output (if ty=="inout") of 
-        consumer. The producer field is an instance of RegisterSource and contains the output index 
+        from output producer to the idx-th input (if ty=="in") or input/output (if ty=="inout") of
+        consumer. The producer field is an instance of RegisterSource and contains the output index
         and source instruction as producer.idx and producer.src, respectively."""
         for consumer in self.nodes_all:
             for idx, producer in enumerate(consumer.src_in):
@@ -647,8 +703,8 @@ class DataFlowGraph:
             no_ssa.append((producer.src, producer.idx))
 
         for t in self.nodes:
-            for (i,_) in enumerate(t.inst.args_out):
-                if (t,i) in no_ssa:
+            for (i,c) in enumerate(t.inst.args_out):
+                if c in self.config._locked_registers or (t,i) in no_ssa:
                     continue
                 t.inst.args_out[i] = get_fresh_reg()
 
@@ -763,6 +819,7 @@ class DataFlowGraph:
 
         step = ComputationNode(node_id=s_id, orig_pos=orig_pos, inst=s,
                                src_in=src_in, src_in_out=src_in_out)
+        step.reg_state = self.reg_state.copy()
 
         def change_reg_ref(reg, ref):
             self._remember_type(reg, ref.get_type())

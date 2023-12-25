@@ -28,12 +28,11 @@
 import argparse, logging, sys, os, time
 from io import StringIO
 
-from slothy.slothy import Slothy
-from slothy.core import Config
+from slothy import Slothy, Config
 
-import targets.arm_v81m.arch_v81m as Arch_Armv81M
-import targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
-import targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
+import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
+import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
+import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
 target_label_dict = {Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85"}
@@ -42,7 +41,7 @@ class Example():
     def __init__(self, infile, name=None, funcname=None, suffix="opt",
                  rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
                  **kwargs):
-        if name == None:
+        if name is None:
             name = infile
 
         self.arch = arch
@@ -54,7 +53,7 @@ class Example():
             self.outfile = f"{infile}_{self.suffix}_{target_label_dict[self.target]}"
         else:
             self.outfile = f"{outfile}_{self.suffix}_{target_label_dict[self.target]}"
-        if funcname == None:
+        if funcname is None:
             self.funcname = self.infile
         self.infile_full  = f"../clean/helium/ntt/{self.infile}.s"
         self.outfile_full = f"../opt/helium/ntt/{self.outfile}.s"

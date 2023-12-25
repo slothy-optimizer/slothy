@@ -25,31 +25,35 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import argparse, logging, sys
-from io import StringIO
+import argparse
+import logging
+import sys
 
-from slothy.slothy import Slothy
-from slothy.core import Config
+from slothy import Slothy, Config
 
-import targets.arm_v81m.arch_v81m as Arch_Armv81M
-import targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
-import targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
+import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
+import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
+import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
-import targets.aarch64.aarch64_neon as AArch64_Neon
-import targets.aarch64.cortex_a55 as Target_CortexA55
-import targets.aarch64.cortex_a72_frontend as Target_CortexA72
+import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
+import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
+import slothy.targets.aarch64.cortex_a72_frontend as Target_CortexA72
 
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85"}
 
+class ExampleException(Exception):
+    """Exception thrown when an example goes wrong"""
 
 class Example():
+    """Common boilerplate for SLOTHY examples"""
+
     def __init__(self, infile, name=None, funcname=None, suffix="opt",
                  rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
                  **kwargs):
-        if name == None:
+        if name is None:
             name = infile
 
         self.arch = arch
@@ -61,7 +65,7 @@ class Example():
             self.outfile = f"{infile}_{self.suffix}_{target_label_dict[self.target]}"
         else:
             self.outfile = f"{outfile}_{self.suffix}_{target_label_dict[self.target]}"
-        if funcname == None:
+        if funcname is None:
             self.funcname = self.infile
         subfolder = ""
         if self.arch == AArch64_Neon:
@@ -1127,8 +1131,8 @@ def main():
             if e.name == name:
                 ex = e
                 break
-        if ex == None:
-            raise Exception(f"Could not find example {name}")
+        if ex is None:
+            raise ExampleException(f"Could not find example {name}")
         ex.run(debug=debug)
 
     for e in todo:

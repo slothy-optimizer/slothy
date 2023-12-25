@@ -25,31 +25,30 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-#
-# Experimental and incomplete model capturing an approximation of the
-# frontend limitations and latencies of the Cortex-A72 CPU.
-#
-# It might be surprising at first that an in-order optimizer such as Slothy could be
-# used for an out of order core such as Cortex-A72.
-#
-# The key observation is that unless the frontend is much wider than the backend,
-# a high overall throughput requires a high throughput in the frontend. Since the
-# frontend is in-order and has documented dispatch constraints, we can model those
-# constraints in SLOTHY.
-#
-# The consideration of latencies is less important, yet not irrelevant in this view:
-# Instructions dispatched well before they are ready to execute will occupy the issue
-# queue (IQ) for a long time, and once the IQs are full, the frontend will stall.
-# It is therefore advisable to generally seek to obey latencies to reduce presssure
-# on issue queues.
-#
-# This file thus tries to model basic aspects of the frontend of Cortex-A72
-# alongside instruction latencies, both taken from the Cortex-A72 Software Optimization Guide.
-#
-# NOTE
-# We focus on a very small subset of AArch64, just enough to experiment with the
-# optimization of the Kyber and Dilithium NTT.
-#
+"""
+Experimental and incomplete model capturing an approximation of the
+frontend limitations and latencies of the Cortex-A72 CPU.
+
+It might be surprising at first that an in-order optimizer such as Slothy could be
+used for an out of order core such as Cortex-A72.
+
+The key observation is that unless the frontend is much wider than the backend,
+a high overall throughput requires a high throughput in the frontend. Since the
+frontend is in-order and has documented dispatch constraints, we can model those
+constraints in SLOTHY.
+
+The consideration of latencies is less important, yet not irrelevant in this view:
+Instructions dispatched well before they are ready to execute will occupy the issue
+queue (IQ) for a long time, and once the IQs are full, the frontend will stall.
+It is therefore advisable to generally seek to obey latencies to reduce presssure
+on issue queues.
+
+This file thus tries to model basic aspects of the frontend of Cortex-A72
+alongside instruction latencies, both taken from the Cortex-A72 Software Optimization Guide.
+
+Note: We focus on a very small subset of AArch64, just enough to experiment with the
+    optimization of the Kyber and Dilithium NTT.
+"""
 
 from enum import Enum, auto
 from .aarch64_neon import *
@@ -62,53 +61,50 @@ from .aarch64_neon import *
 issue_rate = 3
 
 class ExecutionUnit(Enum):
-    LOAD0=auto(),
-    LOAD1=auto(),
-    STORE0=auto(),
-    STORE1=auto(),
-    INT0=auto(),
-    INT1=auto(),
-    MINT0=auto(),
-    MINT1=auto(),
-    ASIMD0=auto(),
-    ASIMD1=auto(),
+    """Enumeration of execution units in approximative Cortex-A72 SLOTHY model"""
+    LOAD0=auto()
+    LOAD1=auto()
+    STORE0=auto()
+    STORE1=auto()
+    INT0=auto()
+    INT1=auto()
+    MINT0=auto()
+    MINT1=auto()
+    ASIMD0=auto()
+    ASIMD1=auto()
     def __repr__(self):
         return self.name
-    def ASIMD():
+    @classmethod
+    def ASIMD(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]
-    def LOAD():
+    @classmethod
+    def LOAD(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]
-    def STORE():
+    @classmethod
+    def STORE(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.STORE0, ExecutionUnit.STORE1]
-    def INT():
+    @classmethod
+    def INT(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.INT0, ExecutionUnit.INT1]
-    def MINT():
+    @classmethod
+    def MINT(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.MINT0, ExecutionUnit.MINT1]
-    def SCALAR():
+    @classmethod
+    def SCALAR(cls): # pylint: disable=missing-function-docstring,invalid-name
         return ExecutionUnit.INT() + ExecutionUnit.MINT()
-
-    def indentation(unit):
-        return 0
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
-    # _add_slot_constraints(slothy)
-    # _add_st_hazard(slothy)
-    return
-
-def _add_slot_constraints(slothy):
-    if slothy.config.constraints.functional_only:
-        return
-    slothy.restrict_slots_for_instructions_by_property(
-        Instruction.is_Qform_vector_instruction, [0,1])
+    _ = slothy
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
 def has_min_max_objective(slothy):
+    _ = slothy
     return False
 def get_min_max_objective(slothy):
-    return
+    _ = slothy
 
 execution_units = {
     (vmul, vmul_lane,
@@ -198,6 +194,8 @@ default_latencies = {
 }
 
 def get_latency(src, out_idx, dst):
+    _ = out_idx # out_idx unused
+
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
@@ -220,8 +218,7 @@ def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
-    else:
-        return [units]
+    return [units]
 
 def get_inverse_throughput(src):
     return lookup_multidict(inverse_throughput, src)
