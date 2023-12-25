@@ -55,9 +55,11 @@ and build from scratch, e.g. as follows (also available as [submodules/setup-ort
 for convenience):
 
 ```
+% apt install -y git build-essential python3-pip cmake swig
 % git submodule init
 % git submodule update
 % cd submodules/or-tools
+% git apply ../0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch
 % mkdir build
 % cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON
 % make -C build -j8
