@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
 
-# Install some dependencies
-apt install -y git build-essential python3-pip cmake swig
-
 git submodule init
 git submodule update
 

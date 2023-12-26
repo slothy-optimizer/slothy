@@ -48,14 +48,10 @@ can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.dockerf
 ### Manual
 
 SLOTHY relies on [Google OR-Tools](https://developers.google.com/optimization) as the underlying constraint
-solver. You need at least v9.3, and this repository by default uses v9.7.
-
-Unless you already have a working installation, you can clone Google OR-Tools as a submodule of this repository
-and build from scratch, e.g. as follows (also available as [submodules/setup-ortools.sh](submodules/setup-ortools.sh)
-for convenience):
+solver. You need at least v9.3, and this repository by default uses v9.7. Unless you already have a working
+installation, you can clone Google OR-Tools as a submodule of this repository and build from scratch, e.g. as follows:
 
 ```
-% apt install -y git build-essential python3-pip cmake swig
 % git submodule init
 % git submodule update
 % cd submodules/or-tools
@@ -65,7 +61,13 @@ for convenience):
 % make -C build -j8
 ```
 
-You also need to install `sympy`. To add it to the virtual Python environment provided by OR-Tools, do
+This is also available as [submodules/setup-ortools.sh](submodules/setup-ortools.sh)
+for convenience.
+
+**Dependencies:** You need `git`, `python3-pip`, `cmake`, `swig`, and build-tools (e.g. `build-essential`)
+to build OR-Tools from source.
+
+You also need `sympy`. To add it to the virtual Python environment provided by OR-Tools, do
 ```
 > source submodules/or-tools/build/python/venv/bin/activate
 > pip3 install sympy
