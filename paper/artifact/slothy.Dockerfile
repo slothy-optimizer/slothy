@@ -14,7 +14,7 @@ RUN wget https://github.com/slothy-optimizer/pqmx/archive/refs/heads/ches2024_ar
 RUN wget https://github.com/slothy-optimizer/pqax/archive/refs/heads/ches2024_artifact.zip -O pqax.zip
 RUN unzip slothy.zip
 RUN rm slothy.zip
-RUN mv slothy-ches2024_artifact slothy
+RUN mv slothy-main slothy
 RUN unzip pqax.zip
 RUN rm pqax.zip
 RUN mv pqax-ches2024_artifact pqax
