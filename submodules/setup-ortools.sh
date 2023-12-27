@@ -9,7 +9,7 @@ cd or-tools
 git apply ../0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch
 
 mkdir build
-cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON
+cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON -DBUILD_SAMPLES:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF
 cd build
 make -j8
 

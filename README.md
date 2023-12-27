@@ -57,7 +57,7 @@ installation, you can clone Google OR-Tools as a submodule of this repository an
 % cd submodules/or-tools
 % git apply ../0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch
 % mkdir build
-% cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON
+% cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON -DBUILD_SAMPLES:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF
 % make -C build -j8
 ```
 
