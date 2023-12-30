@@ -35,11 +35,7 @@ time ./slothy_sqmag.sh
 echo "FFT, Cortex-M55 and Cortex-M85..."
 time ./slothy_fft.sh
 
-echo "Dilithium NTT, Cortex-A55..."
-time ./slothy_dilithium_ntt_a55.sh
-
-echo "Dilithium NTT, Cortex-A72..."
-time ./slothy_dilithium_ntt_a72.sh
+./slothy_ntt_helium.sh
 
 echo "Kyber NTT, Cortex-A55..."
 time ./slothy_kyber_ntt_a55.sh
@@ -47,9 +43,13 @@ time ./slothy_kyber_ntt_a55.sh
 echo "Kyber NTT, Cortex-A72..."
 time ./slothy_kyber_ntt_a72.sh
 
+echo "Dilithium NTT, Cortex-A55..."
+time ./slothy_dilithium_ntt_a55.sh
+
+echo "Dilithium NTT, Cortex-A72..."
+time ./slothy_dilithium_ntt_a72.sh
+
 echo "X25519, Cortex-A55..."
 time ./slothy_x25519.sh
-
-source slothy_ntt_helium.sh
 
 echo "All done!"

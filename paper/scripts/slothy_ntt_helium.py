@@ -115,6 +115,8 @@ class ntt_kyber_1_23_45_67(Example):
         self.timeout = timeout
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.typing_hints = {
             "root0"         : Arch_Armv81M.RegisterType.GPR,
             "root1"         : Arch_Armv81M.RegisterType.GPR,
@@ -153,6 +155,7 @@ class ntt_kyber_12_345_67(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("layer12_loop", postamble_label="layer12_loop_end")
+        slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
                                                [ "STACK0" ] )
@@ -176,6 +179,8 @@ class ntt_dilithium_12_34_56_78(Example):
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
     def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
@@ -217,6 +222,8 @@ class ntt_dilithium_123_456_78(Example):
                          suffix=suffix, arch=arch, target=target, rename=True)
         self.var = var
     def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -230,8 +237,6 @@ class ntt_dilithium_123_456_78(Example):
             "root5_tw"      : Arch_Armv81M.RegisterType.GPR,
             "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
         }
-        slothy.config.constraints.stalls_minimum_attempt = 0
-        slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
                                               [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
         slothy.config.sw_pipelining.enabled=False

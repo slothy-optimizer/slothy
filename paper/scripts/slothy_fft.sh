@@ -29,7 +29,7 @@ ${SLOTHY_DIR}/slothy-cli Arm_v81M Arm_Cortex_M55                        \
     -o ${OPT_DIR}/helium/flt_r4_fft/base_ref.s                          \
     $REDIRECT_OUTPUT
 
-for uarch in M85 M55; do
+for uarch in M55 M85; do
     echo "* Floating point FFT, Cortex-${uarch}"
     ${SLOTHY_DIR}/slothy-cli Arm_v81M Arm_Cortex_$uarch                          \
       ${CLEAN_DIR}/helium/flt_r4_fft/base_symbolic.s                             \
