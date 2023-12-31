@@ -190,12 +190,20 @@ class SourceLine:
 
         indentation = ' ' * self._indentation \
             if indentation is True else ""
-        comments = ''.join(map(lambda s: f"// {s}", self._comments)) \
-            if comments is True else ""
+
+        double_comments = filter(lambda t: not t.startswith("/"), self._comments)
+        triple_comments = map(lambda s: (" " + s[1:].strip()).rstrip(),
+                              filter(lambda t: t.startswith("/"), self._comments))
+
+        comment_str = ""
+        if comments is True:
+            comment_str += ''.join(map(lambda s: f"// {s}", double_comments))
+            comment_str += ''.join(map(lambda s: f"///{s}", triple_comments))
+
         tags = ' '.join(map(lambda tv: f" // @slothy:{tv[0]}={tv[1]}", self._tags.items())) \
             if tags is True else ""
 
-        return f"{indentation}{core}{comments}{tags}"
+        return f"{indentation}{core}{comment_str}{tags}"
 
     def __str__(self):
         return self.to_string()
@@ -206,7 +214,7 @@ class SourceLine:
         assert SourceLine.is_source(src)
         for l in src:
             l.reduce()
-        return [ l for l in src if l.has_text() ]
+        return [ l for l in src if l.has_text() and not AsmHelper.is_alignment_directive(l) ]
 
     @staticmethod
     def log(name, s, logger=None, err=False):
@@ -414,6 +422,9 @@ class AsmHelperException(Exception):
 class AsmHelper():
     """Some helper functions for dealing with assembly"""
 
+    _REGEXP_ALIGN_TXT = r"^\s*\.(?:p2)?align"
+    _REGEXP_ALIGN = re.compile(_REGEXP_ALIGN_TXT)
+
     @staticmethod
     def find_indentation(source):
         """Attempts to find the prevailing indentation in a piece of assembly"""
@@ -454,6 +465,12 @@ class AsmHelper():
             s = re.sub( f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
             return line.copy().set_text(s)
         return [ change_funcname(s) for s in source ]
+
+    @staticmethod
+    def is_alignment_directive(line):
+        """Checks is source line is an alignment directive `.[p2]align _`"""
+        assert SourceLine.is_source_line(line)
+        return AsmHelper._REGEXP_ALIGN.match(line.text) is not None
 
     @staticmethod
     def extract(source, lbl_start=None, lbl_end=None):
@@ -521,12 +538,14 @@ class AsmHelper():
 class AsmAllocation():
     """Helper for tracking register aliases via .req and .unreq"""
 
+    _REGEXP_REQ_TXT = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
+    _REGEXP_UNREQ_TXT = r"\s*\.unreq\s+(?P<alias>\w+)"
+
+    _REGEXP_REQ   = re.compile(_REGEXP_REQ_TXT)
+    _REGEXP_UNREQ = re.compile(_REGEXP_UNREQ_TXT)
+
     def __init__(self):
         self.allocations = {}
-        self.regexp_req_txt   = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
-        self.regexp_unreq_txt = r"\s*\.unreq\s+(?P<alias>\w+)"
-        self.regexp_req   = re.compile(self.regexp_req_txt)
-        self.regexp_unreq = re.compile(self.regexp_unreq_txt)
 
     def _add_allocation(self, alias, reg):
         if alias in self.allocations:
@@ -543,23 +562,55 @@ class AsmAllocation():
                                      " .unreq without .req in your source?")
         del self.allocations[alias]
 
-    def parse_line(self, line):
-        """Check if an assembly line is a .req or .unreq directive, and update the
-        alias dictionary accordingly. Otherwise, do nothing."""
-        assert isinstance(line, SourceLine)
-        l_str = str(line)
-        # Check if it's an allocation
-        p = self.regexp_req.match(l_str)
+    @staticmethod
+    def check_allocation(line):
+        """Check if an assembly line is a .req directive. Return the pair
+        of alias and register, if so. Otherwise, return None."""
+        assert SourceLine.is_source_line(line)
+
+        p = AsmAllocation._REGEXP_REQ.match(line.text)
         if p is not None:
             alias = p.group("alias")
             reg = p.group("reg")
+            return alias, reg
+
+        return None
+
+    @staticmethod
+    def check_deallocation(line):
+        """Check if an assembly line is an .unreq directive. Return
+        the deallocated alias, if so. Otherwise, return None."""
+        assert SourceLine.is_source_line(line)
+
+        p = AsmAllocation._REGEXP_UNREQ.match(line.text)
+        if p is not None:
+            alias = p.group("alias")
+            return alias
+
+        return None
+
+    @staticmethod
+    def is_allocation(line):
+        return AsmAllocation.check_allocation(line) is not None
+
+    @staticmethod
+    def is_deallocation(line):
+        return AsmAllocation.check_deallocation(line) is not None
+
+    def parse_line(self, line):
+        """Check if an assembly line is a .req .unreq directive, and update the
+        alias dictionary accordingly. Otherwise, do nothing."""
+        assert SourceLine.is_source_line(line)
+
+        r = AsmAllocation.check_allocation(line)
+        if r is not None:
+            alias, reg = r
             self._add_allocation(alias,reg)
             return
 
-        # Regular expression for a definition removal
-        p = self.regexp_unreq.match(l_str)
-        if p is not None:
-            alias = p.group("alias")
+        r = AsmAllocation.check_deallocation(line)
+        if r is not None:
+            alias = r
             self._remove_allocation(alias)
             return
 

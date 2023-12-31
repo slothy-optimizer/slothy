@@ -72,6 +72,13 @@ ntt_dilithium_12_34_56_78:
         root2         .req r6
         root2_twisted .req r7
 
+        qroot0         .req q5
+        qroot0_twisted .req q6
+        qroot1         .req q5
+        qroot1_twisted .req q6
+        qroot2         .req q5
+        qroot2_twisted .req q6
+
         data0 .req q0
         data1 .req q1
         data2 .req q2
@@ -163,44 +170,31 @@ layer56_loop:
         // Layers 7,8
         sub in, in, #(4*256)
 
-        .unreq root0
-        .unreq root0_twisted
-        .unreq root1
-        .unreq root1_twisted
-        .unreq root2
-        .unreq root2_twisted
-        root0         .req q5
-        root0_twisted .req q6
-        root1         .req q5
-        root1_twisted .req q6
-        root2         .req q5
-        root2_twisted .req q6
-
         mov lr, #16
 layer78_loop:
         vldrw.u32 data0, [in]
         vldrw.u32 data1, [in, #16]
         vldrw.u32 data2, [in, #32]
         vldrw.u32 data3, [in, #48]
-        vldrw.u32 root0,         [root_ptr], #+96
-        vldrw.u32 root0_twisted, [root_ptr, #(+16-96)]
-        ct_butterfly data0, data2, root0, root0_twisted
-        ct_butterfly data1, data3, root0, root0_twisted
-        vldrw.u32 root1,         [root_ptr, #(32 - 96)]
-        vldrw.u32 root1_twisted, [root_ptr, #(48 - 96)]
-        ct_butterfly data0, data1, root1, root1_twisted
-        vldrw.u32 root2,         [root_ptr, #(64-96)]
-        vldrw.u32 root2_twisted, [root_ptr, #(80-96)]
-        ct_butterfly data2, data3, root2, root2_twisted
+
+        vldrw.u32 qroot0,         [root_ptr], #+96
+        vldrw.u32 qroot0_twisted, [root_ptr, #(+16-96)]
+        ct_butterfly data0, data2, qroot0, qroot0_twisted
+        ct_butterfly data1, data3, qroot0, qroot0_twisted
+
+        vldrw.u32 qroot1,         [root_ptr, #(32 - 96)]
+        vldrw.u32 qroot1_twisted, [root_ptr, #(48 - 96)]
+        ct_butterfly data0, data1, qroot1, qroot1_twisted
+
+        vldrw.u32 qroot2,         [root_ptr, #(64-96)]
+        vldrw.u32 qroot2_twisted, [root_ptr, #(80-96)]
+        ct_butterfly data2, data3, qroot2, qroot2_twisted
 
         vstrw.u32 data0, [in], #64
         vstrw.u32 data1, [in, #-48]
         vstrw.u32 data2, [in, #-32]
         vstrw.u32 data3, [in, #-16]
-        // vst40.u32 {data0, data1, data2, data3}, [in]
-        // vst41.u32 {data0, data1, data2, data3}, [in]
-        // vst42.u32 {data0, data1, data2, data3}, [in]
-        // vst43.u32 {data0, data1, data2, data3}, [in]!
+
         le lr, layer78_loop
 
         // Restore MVE vector registers
