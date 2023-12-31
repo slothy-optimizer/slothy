@@ -27,19 +27,19 @@
 
 """SLOTHY optimizer
 
-SLOTHY - Super Lazy Optimization of Tricky Handwritten assemblY - is a 
-fixed-instruction assembly superoptimizer based on constraint solving. 
+SLOTHY - Super Lazy Optimization of Tricky Handwritten assemblY - is a
+fixed-instruction assembly superoptimizer based on constraint solving.
 It takes handwritten assembly as input and simultaneously super-optimizes:
 
 - Instruction scheduling
 - Register allocation
 - Software pipelining
 
-SLOTHY enables a development workflow where developers write 'clean' assembly by hand, 
-emphasizing the logic of the computation, while SLOTHY automates microarchitecture-specific 
-micro-optimizations. Since SLOTHY does not change instructions, and scheduling/allocation 
-optimizations are tightly controlled through configurable and extensible constraints, the 
-developer keeps close control over the final assembly, while being freed from the most tedious 
+SLOTHY enables a development workflow where developers write 'clean' assembly by hand,
+emphasizing the logic of the computation, while SLOTHY automates microarchitecture-specific
+micro-optimizations. Since SLOTHY does not change instructions, and scheduling/allocation
+optimizations are tightly controlled through configurable and extensible constraints, the
+developer keeps close control over the final assembly, while being freed from the most tedious
 and readability- and verifiability-impeding micro-optimizations.
 
 This module provides the Slothy class, which is a stateful interface to both
@@ -59,7 +59,7 @@ class Slothy:
 
     This class provides a stateful interface to both one-shot and heuristic
     optimizations using SLOTHY.
-    
+
     The basic flow of operation is the following:
     - Initialize an instance, providing models to the target architecture
       and microarchitecture as arguments.

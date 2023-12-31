@@ -130,9 +130,9 @@ class Result(LockAttributes):
     @property
     def codesize_with_bubbles(self):
         """Performance-measure for the optimized source code.
-        
+
         This is the number of issue slots used by the optimized code.
-        Equivalently, after division by the target's issue width, it is 
+        Equivalently, after division by the target's issue width, it is
         SLOTHY's expectation of the performance of the code in cycles.
 
         It is also the codomain of the xxx_with_bubbles dictionaries.
@@ -150,8 +150,8 @@ class Result(LockAttributes):
         This dictionary consists of items (i, (pre, core, post)), where
         i is the original program order position of an instruction, and
         pre, core, post indicate whether that instruction is an early,
-        core or late instruction in the optimized source code. 
-        
+        core or late instruction in the optimized source code.
+
         An early instruction is one which is pulled into the previous iteration.
         A late instruction is one which is deferred until the next iteration.
         A core instruction is one which is left in its original iteration.
@@ -622,7 +622,7 @@ class Result(LockAttributes):
     @property
     def stalls(self):
         """The number of stalls in the optimization result.
-        
+
         More precisely: The number of cycles c such that optimization succeeded with
         up to c * issue_width unused issue slots."""
         return self._stalls
