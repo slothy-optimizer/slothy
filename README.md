@@ -1,4 +1,4 @@
-# SLOTHY: Assembly superoptimization via constraint solving
+## SLOTHY: Assembly optimization via constraint solving
 
 <p align="center">
     <image src="./docs/slothy_logo.png" width=160>
@@ -102,7 +102,7 @@ and you're ready to use OR-Tools and SLOTHY.
 
 #### Trouble-shooting
 
-In case of issues, check the [slothy.dockerfile](paper/artifact/slothy.dockerfile) for a complete list
+In case of issues, check the [slothy.Dockerfile](paper/artifact/slothy.Dockerfile) for a complete list
 of dependencies and setup instructions based on Ubuntu 22.10.
 
 ### Quick check
