@@ -1,6 +1,10 @@
+# SLOTHY: Assembly superoptimization via constraint solving
+
 <p align="center">
     <image src="./docs/slothy_logo.png" width=160>
 </p>
+
+## About SLOTHY
 
 **SLOTHY** - **S**uper (**L**azy) **O**ptimization of **T**ricky **H**andwritten assembl**Y** - is an assembly-level superoptimizer
 for:
@@ -37,19 +41,32 @@ SLOTHY has been used to provide the fastest known implementations of various cry
 For example, the [SLOTHY paper](https://eprint.iacr.org/2022/1303) discusses the NTTs underlying ML-KEM and ML-DSA for Cortex-{A55, A72, M55, M85}, the FFT for Cortex-{M55,M85}, and the X25519 scalar multiplication for Cortex-A55. You find the clean and
 optimized source code for those examples in [`paper/`](paper).
 
-## Setup
+## Installation
+
+### Requirements
+
+SLOTHY has been successfully used on
+
+- Ubuntu-21.10 and up (64-bit),
+- macOS Monterey 12.6 and up.
+
+There appear to be issues using SLOTHY on Raspbian, but generally SLOTHY is expected to work in most Linux environments.
+Please file an [Issue](https://github.com/slothy-optimizer/slothy/issues) if you have trouble building or using SLOTHY.
+
+SLOTHY requires Python >= 3.10. See [requirements.txt](requirements.txt) for package requirements, and install via `pip
+install -r requirements.txt`.
 
 ### Docker
 
-A dockerfile for an Ubuntu-22.10 based Docker image with all dependencies of SLOTHY setup
-can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.dockerfile). See
+A dockerfile for an Ubuntu-22.10 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
+environments setup can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.Dockerfile). See
 [paper/artifact/README.md](paper/artifact/README.md) for instructions.
 
-### Manual
+### Manual OR-Tools build
 
-SLOTHY relies on [Google OR-Tools](https://developers.google.com/optimization) as the underlying constraint
-solver. You need at least v9.3, and this repository by default uses v9.7. Unless you already have a working
-installation, you can clone Google OR-Tools as a submodule of this repository and build from scratch, e.g. as follows:
+SLOTHY's primary dependency is [Google OR-Tools](https://developers.google.com/optimization) as the underlying constraint
+solver. Alternative to installing it from the Python package index, you can clone it as a submodule of this
+repository and build from scratch, as follows:
 
 ```
 % git submodule init
@@ -61,15 +78,16 @@ installation, you can clone Google OR-Tools as a submodule of this repository an
 % make -C build -j8
 ```
 
-This is also available as [submodules/setup-ortools.sh](submodules/setup-ortools.sh)
-for convenience.
+This is also available as [submodules/setup-ortools.sh](submodules/setup-ortools.sh) for convenience.
+
+Upon success, a Python virtual environment is created which you can enter via `source init.sh`.
 
 **Dependencies:** You need `git`, `python3-pip`, `cmake`, `swig`, and build-tools (e.g. `build-essential`)
 to build OR-Tools from source.
 
-You also need `sympy`. To add it to the virtual Python environment provided by OR-Tools, do
+You also need `sympy>=1.12`. To add it to the virtual Python environment provided by OR-Tools, do
 ```
-> source submodules/or-tools/build/python/venv/bin/activate
+> source init.sh
 > pip3 install sympy
 > deactivate
 ```

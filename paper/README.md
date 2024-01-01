@@ -154,9 +154,9 @@ by `slothy_kyber_ntt_a55.sh` transforms
 * Follow the [SLOTHY Readme](../README.md) to setup SLOTHY. If you use the Docker container provided in
   [artifact](artifact), this step is not necessary.
 
-* Make sure the OR-Tools venv is enabled by running `source init.sh` from the SLOTHY base directory (see
-  [README](../README.md)). __Note: This step is necessary even if you use the Docker container from
-  [artifact](artifact).__
+* If you use a local build of OR-Tools, make sure that the OR-Tools virtual environment is enabled by
+  running `source init.sh` from the SLOTHY base directory (see [README](../README.md)). This step is also
+  necessary in the Docker container from [artifact](artifact), which uses a local OR-Tools build.
 
 ## Running the optimizations
 
