@@ -226,7 +226,7 @@ Here are some options:
 * Configuration of SLOTHY: You can set various configuration options via `-c option=value`. For example, to enable
   software pipelining, use `-c sw_pipelining.enabled=True`, or just `-c sw_pipelining.enabled` (generally, `-c option`
   is a shortcut for `-c option=True`, while `-c /option` is a shortcut for `-c option=False`). The hierarchy of
-  configuration options is the same as for `Slothy.Config` in [slothy/config.py](slothy/config.py).
+  configuration options is the same as for `Slothy.Core.Config` in [slothy/core/config.py](slothy/core/config.py).
 
 * Defining the part of the source code to operate on: Rather than asking SLOTHY to optimize an entire file, one will
   usually want to direct it to the optimization of some selected parts of assembly -- for example, the core loop. This
