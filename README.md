@@ -56,54 +56,21 @@ Please file an [Issue](https://github.com/slothy-optimizer/slothy/issues) if you
 SLOTHY requires Python >= 3.10. See [requirements.txt](requirements.txt) for package requirements, and install via `pip
 install -r requirements.txt`.
 
+**Note:** `requirements.txt` pins versions for reproducibility. If you already have newer versions of some dependencies
+installed and don't want them downgraded, consider using a virtual environment:
+
+```
+python3 -m venv venv
+./venv/bin/python3 -m pip install -r requirements.txt
+```
+
+Then, enter the virtual environment via `source venv/bin/activate` prior to running SLOTHY.
+
 ### Docker
 
 A dockerfile for an Ubuntu-22.10 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
 environments setup can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.Dockerfile). See
 [paper/artifact/README.md](paper/artifact/README.md) for instructions.
-
-### Manual OR-Tools build
-
-SLOTHY's primary dependency is [Google OR-Tools](https://developers.google.com/optimization) as the underlying constraint
-solver. Alternative to installing it from the Python package index, you can clone it as a submodule of this
-repository and build from scratch, as follows:
-
-```
-% git submodule init
-% git submodule update
-% cd submodules/or-tools
-% git apply ../0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch
-% mkdir build
-% cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON -DBUILD_SAMPLES:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF
-% make -C build -j8
-```
-
-This is also available as [submodules/setup-ortools.sh](submodules/setup-ortools.sh) for convenience.
-
-Upon success, a Python virtual environment is created which you can enter via `source init.sh`.
-
-**Dependencies:** You need `git`, `python3-pip`, `cmake`, `swig`, and build-tools (e.g. `build-essential`)
-to build OR-Tools from source.
-
-You also need `sympy>=1.12`. To add it to the virtual Python environment provided by OR-Tools, do
-```
-> source init.sh
-> pip3 install sympy
-> deactivate
-```
-
-Once set up, start the virtual environment with
-
-```
-> source init.sh
-```
-
-and you're ready to use OR-Tools and SLOTHY.
-
-#### Trouble-shooting
-
-In case of issues, check the [slothy.Dockerfile](paper/artifact/slothy.Dockerfile) for a complete list
-of dependencies and setup instructions based on Ubuntu 22.10.
 
 ### Quick check
 

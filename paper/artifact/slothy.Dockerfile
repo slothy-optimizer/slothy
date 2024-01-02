@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 SHELL ["/bin/bash", "-c"]
 RUN apt update
 # Install necessary tooling
-RUN apt install -y git qemu-user qemu-system-arm wget sudo build-essential python3-pip cmake swig time gcc-arm-none-eabi gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu unzip
+RUN apt-get install -y qemu-user qemu-system-arm wget sudo build-essential python3-pip time gcc-arm-none-eabi gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu unzip
 # Setup non-root user
 RUN useradd -ms /bin/bash -G sudo ubuntu
 RUN passwd -d ubuntu
@@ -21,26 +21,9 @@ RUN mv pqax-ches2024_artifact pqax
 RUN unzip pqmx.zip
 RUN rm pqmx.zip
 RUN mv pqmx-ches2024_artifact pqmx
-# Python prerequisite for OR-Tools
-RUN python3 -m pip install mypy-protobuf
-ENV PATH="${PATH}:/home/ubuntu/.local/bin"
-ENV PYTHONPATH /home/ubuntu/
 # Build OR-Tools
-WORKDIR /home/ubuntu/slothy/submodules
-RUN rm -rf ./or-tools
-RUN wget https://github.com/google/or-tools/archive/refs/tags/v9.7.zip -O or-tools.zip
-RUN unzip or-tools.zip
-RUN rm or-tools.zip
-RUN mv or-tools-9.7 or-tools
-WORKDIR /home/ubuntu/slothy/submodules/or-tools
-COPY 0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch .
-RUN git apply 0001-Pin-pybind11_protobuf-commit-in-cmake-files.patch
-RUN mkdir /home/ubuntu/slothy/submodules/or-tools/build
-RUN cmake -S. -Bbuild -DBUILD_PYTHON:BOOL=ON -DBUILD_SAMPLES:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF
-WORKDIR /home/ubuntu/slothy/submodules/or-tools/build
-RUN make -j8
 WORKDIR /home/ubuntu/slothy
-RUN /home/ubuntu/slothy/submodules/or-tools/build/python/venv/bin/python3 -m pip install sympy
+RUN python3 -m pip install -r requirements.txt
 # Setup symlinks from slothy repository to pqmx and pqax
 RUN rm -rf /home/ubuntu/pqax/slothy
 RUN ln -s /home/ubuntu/slothy /home/ubuntu/pqax/slothy

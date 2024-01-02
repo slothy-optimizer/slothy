@@ -94,8 +94,6 @@ you should have a directory structured as follows:
 *     |-- submodules
 *         |-- slothy # symlink to slothy repository
 * |-- slothy
-*     |-- submodules
-*         |-- or-tools
 ```
 
 Note that to avoid having three copies of SLOTHY, you should not use `git submodule` in the pqmx and pqax repositories,

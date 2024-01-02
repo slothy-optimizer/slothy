@@ -151,12 +151,8 @@ by `slothy_kyber_ntt_a55.sh` transforms
 
 ## Setup
 
-* Follow the [SLOTHY Readme](../README.md) to setup SLOTHY. If you use the Docker container provided in
-  [artifact](artifact), this step is not necessary.
-
-* If you use a local build of OR-Tools, make sure that the OR-Tools virtual environment is enabled by
-  running `source init.sh` from the SLOTHY base directory (see [README](../README.md)). This step is also
-  necessary in the Docker container from [artifact](artifact), which uses a local OR-Tools build.
+Follow the [SLOTHY Readme](../README.md) to setup SLOTHY. If you use the Docker container provided in
+[artifact](artifact), this step is not necessary.
 
 ## Running the optimizations
 
@@ -180,9 +176,6 @@ SILENT={Y,N} ./all.sh
   indicated through comments.
 
 ### Trouble-shooting
-
-* Forgetting `init.sh`: You must run `init.sh` from the `slothy` directory before running any SLOTHY
-  optimizations. Otherwise, slothy and or-tools will not be found, and optimization scripts will fail immediately.
 
 * Timing and quality of results: The underlying CP-SAT constraint solver is non-deterministic, which means that the
   optimization timings may vary. The performance of the optimized code may also vary, esp. for the Cortex-A72
