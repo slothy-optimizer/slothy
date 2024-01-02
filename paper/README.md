@@ -34,7 +34,7 @@ The third argument from `{ntt_dilithium, ntt_kyber, x25519}` denotes the workloa
 second argument from `{cross, native_mac, native_linux}` denotes the test environment:
 
 * The `cross` test environment cross-compiles a user space binary for a Linux-AArch64 target that can be
-  either run emulated, or copied onto a remove device and tested there.
+  either run emulated, or copied onto a remote device and tested there.
 * `native_linux` assumes native compilation on a Linux-AArch64 host.
 * `native_mac` assumes native compilation on an Arm-based MacOS host.
 
@@ -162,7 +162,7 @@ Follow the [SLOTHY Readme](../README.md) to setup SLOTHY. If you use the Docker 
 ./slothy_kyber_ntt_a55.sh
 ```
 
-If you want to run all all optimizations, run `all.sh`, passing `SILENT={N,Y}` to indicate whether you want to see log
+If you want to run all optimizations, run `all.sh`, passing `SILENT={N,Y}` to indicate whether you want to see log
 output from SLOTHY.
 
 ```
@@ -200,7 +200,7 @@ In case of other issues, please let us know and we will investigate.
 ## AArch64
 
 To enable benchmarking in the test binaries for the Kyber NTTs, Dilithium NTTs, and X25519 scalar multiplication on
-Cortex-A55 and Cortex-A72, use the folloing:
+Cortex-A55 and Cortex-A72, use the following:
 
 ```
 CYCLES={PMU,PERF} make {build,run}-{cross,native_linux}-{ntt_dilithium,ntt_kyber,x25519}
@@ -230,4 +230,4 @@ To build the respective images, use
 make build-{m55-an547, m85-an555}-{ntt_kyber, ntt_dilithium, fx_fft, flt_fft}
 ```
 
-Those image then need to be flashed onto the MPS3 for test.
+Those images then need to be flashed onto the MPS3 for test.

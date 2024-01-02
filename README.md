@@ -68,7 +68,7 @@ Then, enter the virtual environment via `source venv/bin/activate` prior to runn
 
 ### Docker
 
-A dockerfile for an Ubuntu-22.10 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
+A dockerfile for an Ubuntu-22.04 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
 environments setup can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.Dockerfile). See
 [paper/artifact/README.md](paper/artifact/README.md) for instructions.
 
