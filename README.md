@@ -245,13 +245,13 @@ examples in [example.py](example.py). The basic flow is as follows:
 1. Setup a `slothy` instance, passing the architecture and target microarchitecture modules as arguments.
    You can specify architecture modules directly, e.g. `slothy_m55 = Slothy(targets.arm_v81m.arch_v81m,
    targets.arm_v81m.cortex_m55r1)`, or query them from `targets.query` as done in [slothy-cli](slothy-cli).
-2. Load the source code to optimize via `load_source_from_file()`
-3. Modify the default configuration as desired
+2. Load the source code to optimize via `load_source_from_file()`.
+3. Modify the default configuration as desired.
 4. Call `slothy.optimize(first=START_LABEL, end=END_LABEL)` to optimize and replace the part of the current source code
    between the given labels. Alternatively, call `slothy.optimize_loop(loop_lbl=LABEL)` to do the same for a loop
    starting at label `LABEL` (the end will be detected automatically).
 5. If you have multiple sections to be optimized, repeat 3 and 4 above.
-6. Print and/or save the final source code via `slothy.print_code()` or `slothy.write_source_to_file()`.
+6. Save the final source code via `slothy.write_source_to_file()`.
 
 If you want to optimize the intermediate code between two loops which have been optimized via software pipelining,
 you'll need to know the dependencies carried across the optimized iterations. After a call to `slothy.optimize_loop()`,
