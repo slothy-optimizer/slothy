@@ -1,0 +1,43 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  SLOTHY: Assembly superoptimization via constraint solving
+message: >-
+  If you use this software, please cite both the article
+  from preferred-citation and the software itself
+type: software
+authors:
+  - given-names: Hanno
+    family-names: Becker
+identifiers:
+  - type: url
+    value: 'https://eprint.iacr.org/2022/1303.pdf'
+    description: IACR ePrint
+repository-code: 'https://github.com/slothy-optimizer/slothy'
+url: 'https://slothy-optimizer.github.io/slothy'
+keywords:
+  - superoptimization
+  - constraint solving
+  - assembly
+  - cryptography
+license: MIT
+preferred-citation:
+  title: "Fast and Clean: Auditable high-performance assembly via constraint solving"
+  type: conference-paper
+  authors:
+  - given-names: Amin
+    family-names: Abdulrahman
+  - given-names: Hanno
+    family-names: Becker
+  - given-names: Matthias
+    family-names: Kannwischer
+  - given-names: Fabien
+    family-names: Klein
+  journal: "IACR Transactions on Cryptographic Hardware and Embedded Systems (TCHES)"
+  year: 2024
+  conference: CHES
+  volume: 1
+  publisher:
+   name: "International Association for Cryptologic Research (IACR)"
