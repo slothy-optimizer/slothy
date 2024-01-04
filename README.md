@@ -50,9 +50,6 @@ SLOTHY has been successfully used on
 - Ubuntu-21.10 and up (64-bit),
 - macOS Monterey 12.6 and up.
 
-There appear to be issues using SLOTHY on Raspbian, but generally SLOTHY is expected to work in most Linux environments.
-Please file an [Issue](https://github.com/slothy-optimizer/slothy/issues) if you have trouble building or using SLOTHY.
-
 SLOTHY requires Python >= 3.10. See [requirements.txt](requirements.txt) for package requirements, and install via `pip
 install -r requirements.txt`.
 
