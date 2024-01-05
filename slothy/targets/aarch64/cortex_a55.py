@@ -45,6 +45,7 @@ from enum import Enum
 from slothy.targets.aarch64.aarch64_neon import *
 
 issue_rate = 2
+llvm_mca_target = "cortex-a55"
 
 class ExecutionUnit(Enum):
     """Enumeration of execution units in Cortex-A55 model"""

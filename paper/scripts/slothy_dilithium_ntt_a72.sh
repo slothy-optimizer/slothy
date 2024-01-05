@@ -35,7 +35,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend        \
           -c sw_pipelining.minimize_overlapping=False                    \
           -c constraints.stalls_first_attempt=110                        \
           -c variable_size                                               \
-          $REDIRECT_OUTPUT
+          $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "** Layer 45678"
 
@@ -51,7 +51,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c split_heuristic                                             \
          -c split_heuristic_factor=2                                    \
          -c constraints.stalls_first_attempt=40                         \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Dilithium NTT, Cortex-A72, 123-45678 (manual st4, without reduction)"
 echo "** Layer 123"
@@ -67,7 +67,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c sw_pipelining.minimize_overlapping=False                    \
          -c constraints.stalls_first_attempt=110                        \
          -c variable_size                                               \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "** Layer 45678"
 
@@ -83,7 +83,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c split_heuristic                                             \
          -c split_heuristic_factor=2                                    \
          -c constraints.stalls_first_attempt=40                         \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Dilithium NTT, Cortex-A72, 1234-5678 (vector, without reduction)"
 echo "** Layer 1234"
@@ -104,7 +104,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c split_heuristic_stepsize=0.1                                \
          -c constraints.stalls_first_attempt=40                         \
          -c variable_size                                               \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "** Layer 5678"
 
@@ -118,4 +118,4 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c sw_pipelining.enabled=true                                  \
          -c constraints.stalls_first_attempt=40                         \
          -c variable_size                                               \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT

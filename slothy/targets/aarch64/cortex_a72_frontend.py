@@ -59,6 +59,7 @@ from .aarch64_neon import *
 # modelling the frontend, not the backend, but `issue_width` is
 # what SLOTHY expects.
 issue_rate = 3
+llvm_mca_target = "cortex-a72"
 
 class ExecutionUnit(Enum):
     """Enumeration of execution units in approximative Cortex-A72 SLOTHY model"""

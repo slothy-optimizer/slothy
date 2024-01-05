@@ -46,6 +46,8 @@ from functools import cache
 
 from sympy import simplify
 
+llvm_mca_arch = "aarch64"
+
 class RegisterType(Enum):
     GPR = 1
     NEON = 2

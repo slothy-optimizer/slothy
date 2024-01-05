@@ -96,6 +96,7 @@ class Example():
         logger = logging.getLogger(self.name)
         slothy = Slothy(self.arch, self.target, logger=logger)
         slothy.load_source_from_file(self.infile_full)
+        slothy.config.with_llvm_mca = True
         self.core(slothy, *self.extra_args)
 
         if self.rename:

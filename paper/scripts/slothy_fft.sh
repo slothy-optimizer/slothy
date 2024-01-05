@@ -27,7 +27,7 @@ ${SLOTHY_DIR}/slothy-cli Arm_v81M Arm_Cortex_M55                        \
     -c constraints.functional_only=True                                 \
     -c visualize_reordering=False                                       \
     -o ${OPT_DIR}/helium/flt_r4_fft/base_ref.s                          \
-    $REDIRECT_OUTPUT
+    $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 for uarch in M55 M85; do
     echo "* Floating point FFT, Cortex-${uarch}"
@@ -40,7 +40,7 @@ for uarch in M55 M85; do
         -c timeout=300                                                           \
         -r floatingpoint_radix4_fft_symbolic,floatingpoint_radix4_fft_opt_$uarch \
         -o ${OPT_DIR}/helium/flt_r4_fft/floatingpoint_radix4_fft_opt_$uarch.s    \
-        $REDIRECT_OUTPUT;
+        $SLOTHY_FLAGS $REDIRECT_OUTPUT;
 done
 
 # Fixed point FFT
@@ -53,7 +53,7 @@ ${SLOTHY_DIR}/slothy-cli Arm_v81M Arm_Cortex_M55                                
              -l fixedpoint_radix4_fft_loop_start                                 \
              -c visualize_reordering=False                                       \
              -o ${OPT_DIR}/helium/fx_r4_fft/base_concrete.s                      \
-             $REDIRECT_OUTPUT
+             $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 for uarch in M55 M85; do
     echo "* Fixed point FFT, Cortex-${uarch}"
@@ -67,5 +67,5 @@ for uarch in M55 M85; do
         -r fixedpoint_radix4_fft_symbolic,fixedpoint_radix4_fft_opt_$uarch \
         -c sw_pipelining.minimize_overlapping                              \
         -o ${OPT_DIR}/helium/fx_r4_fft/fixedpoint_radix4_fft_opt_$uarch.s  \
-        $REDIRECT_OUTPUT;
+        $SLOTHY_FLAGS $REDIRECT_OUTPUT;
 done

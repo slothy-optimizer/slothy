@@ -40,6 +40,8 @@ import math
 from sympy import simplify
 from enum import Enum
 
+llvm_mca_arch = "arm"
+
 class RegisterType(Enum):
     GPR = 1,
     MVE = 2,

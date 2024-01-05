@@ -24,7 +24,7 @@ ${SLOTHY_DIR}/slothy-cli Arm_v81M Arm_Cortex_M55                    \
     -c constraints.allow_reordering=False                           \
     -o ${CLEAN_DIR}/helium/cmplx_mag_sqr/cmplx_mag_sqr_fx.s         \
     -c /visualize_reordering                                        \
-    $REDIRECT_OUTPUT
+    $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 for uarch in M55 M85; do for i in 1 2 4; do
   echo "* Squared magnitude, Cortex-${uarch}, unroll x${i}"
@@ -37,7 +37,8 @@ for uarch in M55 M85; do for i in 1 2 4; do
       -c sw_pipelining.enabled=True                                                     \
       -c sw_pipelining.unroll=$i                                                        \
       -c constraints.stalls_first_attempt=1                                             \
+      -c with_llvm_mca                                                                  \
       -c timeout=$((10*$i))                                                             \
       -c /sw_pipelining.minimize_overlapping                                            \
-      -c variable_size $REDIRECT_OUTPUT ;
+      -c variable_size $SLOTHY_FLAGS $REDIRECT_OUTPUT ;
   done; done

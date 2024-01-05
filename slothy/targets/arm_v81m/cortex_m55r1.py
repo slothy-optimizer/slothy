@@ -40,6 +40,7 @@ from enum import Enum
 from slothy.targets.arm_v81m.arch_v81m import *
 
 issue_rate = 1
+llvm_mca_target = "cortex-m55"
 
 class ExecutionUnit(Enum):
     SCALAR=0,

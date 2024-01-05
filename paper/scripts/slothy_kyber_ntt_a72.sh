@@ -34,7 +34,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c inputs_are_outputs                                          \
          -c sw_pipelining.minimize_overlapping=False                    \
          -c constraints.stalls_first_attempt=64 -c variable_size        \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A72, 123-4567 (vector loads via scalar, with reduction)"
 
@@ -49,7 +49,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend               
          -c inputs_are_outputs                                                          \
          -c sw_pipelining.minimize_overlapping=False                                    \
          -c constraints.stalls_first_attempt=64 -c variable_size                        \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A72, 123-4567 (vector stores via scalar, with reduction)"
 
@@ -64,7 +64,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend               
          -c sw_pipelining.minimize_overlapping=False                                    \
          -c inputs_are_outputs                                                          \
          -c constraints.stalls_first_attempt=64 -c variable_size                        \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A72, 123-4567 (vector loads+stores via scalar, with reduction)"
 
@@ -79,7 +79,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend               
          -c inputs_are_outputs                                                                  \
          -c sw_pipelining.minimize_overlapping=False                                            \
          -c constraints.stalls_first_attempt=64 -c variable_size                                \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A72, 123-4567 (manual ST4, with reduction)"
 
@@ -94,7 +94,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend               
          -c inputs_are_outputs                                                  \
          -c sw_pipelining.minimize_overlapping=False                            \
          -c constraints.stalls_first_attempt=64 -c variable_size                \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A72, 1234-567 (all vector, with reduction)"
 
@@ -116,7 +116,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c inputs_are_outputs                                          \
          -c sw_pipelining.minimize_overlapping=False                    \
          -c variable_size                                               \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "** Layer 567"
 time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
@@ -131,4 +131,4 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c inputs_are_outputs                                          \
          -c sw_pipelining.minimize_overlapping=False                    \
          -c variable_size                                               \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT

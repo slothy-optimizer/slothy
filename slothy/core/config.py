@@ -297,11 +297,50 @@ class Config(NestedPrint, LockAttributes):
         return self._with_preprocessor
 
     @property
+    def with_llvm_mca(self):
+        """Indicates whether LLVM MCA should be run prior and after optimization
+        to obtain approximate performance data based on LLVM's scheduling models.
+
+        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
+        need to be set.
+        """
+        return self._with_llvm_mca_before and self._with_llvm_mca_after
+
+    @property
+    def with_llvm_mca_before(self):
+        """Indicates whether LLVM MCA should be run prior to optimization
+        to obtain approximate performance data based on LLVM's scheduling models.
+
+        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
+        need to be set.
+        """
+        return self._with_llvm_mca_before
+
+    @property
+    def with_llvm_mca_after(self):
+        """Indicates whether LLVM MCA should be run after optimization
+        to obtain approximate performance data based on LLVM's scheduling models.
+
+        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
+        need to be set.
+        """
+        return self._with_llvm_mca_after
+
+    @property
     def compiler_binary(self):
         """The compiler binary to be used.
 
-        This is only relevant of `with_preprocessor` is set."""
+        This is only relevant if `with_preprocessor` or `with_llvm_mca_before`
+        or `with_llvm_mca_after` are set."""
         return self._compiler_binary
+
+    @property
+    def llvm_mca_binary(self):
+        """The llvm-mca binary to be used for estimated performance annotations
+
+        This is only relevant if `with_llvm_mca_before` or `with_llvm_mca_after`
+        is set."""
+        return self._llvm_mca_binary
 
     @property
     def timeout(self):
@@ -982,6 +1021,7 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_preprocess_naive_interleaving_by_latency = False
 
         self._compiler_binary = "gcc"
+        self._llvm_mca_binary = "llvm-mca"
 
         self.keep_tags = True
         self.inherit_macro_comments = False
@@ -990,6 +1030,8 @@ class Config(NestedPrint, LockAttributes):
         self._do_address_fixup = True
 
         self._with_preprocessor = False
+        self._with_llvm_mca_before = False
+        self._with_llvm_mca_after = False
         self._max_solutions = 64
         self._timeout = None
         self._retry_timeout = None
@@ -1067,9 +1109,22 @@ class Config(NestedPrint, LockAttributes):
     @with_preprocessor.setter
     def with_preprocessor(self, val):
         self._with_preprocessor = val
+    @with_llvm_mca.setter
+    def with_llvm_mca(self, val):
+        self._with_llvm_mca_before = val
+        self._with_llvm_mca_after = val
+    @with_llvm_mca_after.setter
+    def with_llvm_mca_after(self, val):
+        self._with_llvm_mca_after = val
+    @with_llvm_mca_before.setter
+    def with_llvm_mca_before(self, val):
+        self._with_llvm_mca_before = val
     @compiler_binary.setter
     def compiler_binary(self, val):
         self._compiler_binary = val
+    @llvm_mca_binary.setter
+    def llvm_mca_binary(self, val):
+        self._llvm_mca_binary = val
     @timeout.setter
     def timeout(self, val):
         self._timeout = val
