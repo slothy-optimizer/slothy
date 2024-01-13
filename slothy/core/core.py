@@ -1658,9 +1658,6 @@ class SlothyBase(LockAttributes):
             for s in self._result.code:
                 self.logger.result.debug("> " + str(s).strip())
 
-        if self.config.visualize_reordering:
-            self._result._code += self._result.orig_code_visualized
-
     def _add_path_constraint( self, consumer, producer, cb):
         """Add model constraint cb() relating to the pair of producer-consumer instructions
            Outside of loop mode, this ignores producer and consumer, and just adds cb().
