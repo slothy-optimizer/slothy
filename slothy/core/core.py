@@ -412,7 +412,7 @@ class Result(LockAttributes):
                 if p is None:
                     gap_str = "gap"
                     yield SourceLine("")    \
-                        .set_comment(f"{gap_str:{fixlen-3}s}") \
+                        .set_comment(f"{gap_str:{fixlen-4}s}") \
                         .add_comment(d * self.codesize)
                     continue
                 s = code[self.periodic_reordering[p]]
