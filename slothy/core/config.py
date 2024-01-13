@@ -166,6 +166,12 @@ class Config(NestedPrint, LockAttributes):
         return self._keep_tags
 
     @property
+    def inherit_macro_comments(self):
+        """Indicates whether comments at macro invocations should be inherited to instructions
+        in the macro body."""
+        return self._inherit_macro_comments
+
+    @property
     def ignore_tags(self):
         """Indicates whether tags in the input source should be ignored."""        
         return self._ignore_tags
@@ -945,6 +951,7 @@ class Config(NestedPrint, LockAttributes):
         self._compiler_binary = "gcc"
 
         self.keep_tags = True
+        self.inherit_macro_comments = False
         self.ignore_tags = False
 
         self._do_address_fixup = True
@@ -1039,6 +1046,9 @@ class Config(NestedPrint, LockAttributes):
     @keep_tags.setter
     def keep_tags(self, val):
         self._keep_tags = val
+    @inherit_macro_comments.setter
+    def inherit_macro_comments(self, val):
+        self._inherit_macro_comments = val
     @ignore_tags.setter
     def ignore_tags(self, val):
         self._ignore_tags = val
