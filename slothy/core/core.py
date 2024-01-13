@@ -393,10 +393,13 @@ class Result(LockAttributes):
         code = self._code
         assert SourceLine.is_source(code)
         ri = self.periodic_reordering_with_bubbles_inv
-        if not self.config.visualize_reordering:
-            return code
 
         fixlen = max(map(len, code), default=0) + 8
+        for l in code:
+            l.set_length(fixlen)
+
+        if not self.config.visualize_reordering:
+            return code
 
         early_char = self.config.early_char
         late_char  = self.config.late_char

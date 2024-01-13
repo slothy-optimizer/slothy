@@ -333,6 +333,12 @@ class SourceLine:
         self.add_tags(l.tags)
         return self
 
+    def inherit_comments(self, l):
+        """Inhertis the comments from another source line"""
+        assert SourceLine.is_source_line(l)
+        self.add_comments(l.comments)
+        return self
+
     @staticmethod
     def apply_indentation(source, indentation):
         """Apply consistent indentation to assembly source"""
@@ -708,7 +714,7 @@ class AsmMacro():
     def __repr__(self):
         return self.name
 
-    def unfold_in(self, source, change_callback=None):
+    def unfold_in(self, source, change_callback=None, inherit_comments=False):
         """Unfold all applications of macro in assembly source"""
         assert SourceLine.is_source(source)
 
@@ -752,12 +758,14 @@ class AsmMacro():
             for l0 in repl:
                 l0.set_indentation(indentation)
                 l0.inherit_tags(l)
+                if inherit_comments is True:
+                    l0.inherit_comments(l)
             output += repl
 
         return output
 
     @staticmethod
-    def unfold_all_macros(macros, source):
+    def unfold_all_macros(macros, source, **kwargs):
         """Unfold list of macros in assembly source"""
         assert isinstance(macros, list)
         assert SourceLine.is_source(source)
@@ -777,7 +785,7 @@ class AsmMacro():
                 nonlocal change
                 change = True
             for m in macros.values():
-                source = m.unfold_in(source, change_callback=cb)
+                source = m.unfold_in(source, change_callback=cb, **kwargs)
         return source
 
     @staticmethod
