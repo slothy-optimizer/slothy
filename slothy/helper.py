@@ -195,15 +195,18 @@ class SourceLine:
         triple_comments = map(lambda s: (" " + s[1:].strip()).rstrip(),
                               filter(lambda t: t.startswith("/"), self._comments))
 
-        comment_str = ""
+        additional = []
+
         if comments is True:
-            comment_str += ''.join(map(lambda s: f"// {s}", double_comments))
-            comment_str += ''.join(map(lambda s: f"///{s}", triple_comments))
+            additional += list(map(lambda s: f"// {s}", double_comments))
+            additional += list(map(lambda s: f"///{s}", triple_comments))
 
-        tags = ' '.join(map(lambda tv: f" // @slothy:{tv[0]}={tv[1]}", self._tags.items())) \
-            if tags is True else ""
+        if tags is True:
+            additional += list(map(lambda tv: f"// @slothy:{tv[0]}={tv[1]}", self._tags.items()))
 
-        return f"{indentation}{core}{comment_str}{tags}"
+        add_str = ' '.join(additional)
+
+        return f"{indentation}{core}{add_str}".rstrip()
 
     def __str__(self):
         return self.to_string()
