@@ -187,7 +187,7 @@ class Slothy:
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
         body = SourceLine.split_semicolons(body)
-        body = AsmMacro.unfold_all_macros(pre, body)
+        body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
@@ -243,7 +243,7 @@ class Slothy:
         c.add_aliases(aliases)
         c.outputs = outputs
 
-        body = AsmMacro.unfold_all_macros(pre, body)
+        body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
@@ -261,7 +261,7 @@ class Slothy:
         aliases = AsmAllocation.parse_allocs(pre)
         c.add_aliases(aliases)
 
-        body = AsmMacro.unfold_all_macros(pre, body)
+        body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         dfgc = DFGConfig(c)
 
@@ -338,7 +338,7 @@ class Slothy:
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
         body = SourceLine.split_semicolons(body)
-        body = AsmMacro.unfold_all_macros(early, body)
+        body = AsmMacro.unfold_all_macros(early, body, inherit_comments=c.inherit_macro_comments)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
 
