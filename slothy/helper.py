@@ -239,7 +239,9 @@ class SourceLine:
         assert SourceLine.is_source(src)
         for l in src:
             l.reduce()
-        return [ l for l in src if l.has_text() and not AsmHelper.is_alignment_directive(l) ]
+        return [ l for l in src if l.has_text() and
+                 not AsmHelper.is_alignment_directive(l) and
+                 not AsmHelper.is_allocation_directive(l) ]
 
     @staticmethod
     def log(name, s, logger=None, err=False):
@@ -509,6 +511,13 @@ class AsmHelper():
         """Checks is source line is an alignment directive `.[p2]align _`"""
         assert SourceLine.is_source_line(line)
         return AsmHelper._REGEXP_ALIGN.match(line.text) is not None
+
+    @staticmethod
+    def is_allocation_directive(line):
+        """Checks is source line is an allocation directive. """
+        assert SourceLine.is_source_line(line)
+        return (AsmAllocation.is_allocation(line) or
+                AsmAllocation.is_deallocation(line))
 
     @staticmethod
     def extract(source, lbl_start=None, lbl_end=None):
