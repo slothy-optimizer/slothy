@@ -33,11 +33,19 @@ class SourceLine:
     """Representation of a single line of source code"""
 
     def _extract_comments_from_text(self):
-        if not "//" in self._raw:
+        # Match // and /* ... */ style comments with optionally preceeding code
+        match = re.search(
+            r"(?P<code>.*?)\s*(//|/\*)\s*(?P<comment>.*?)\s*(?:\*/|$)",
+            self._raw)
+
+        # Check if there are any comments
+        if not match:
             return
-        s = list(map(str.strip, self._raw.split("//")))
-        self._raw = s[0]
-        self._comments += s[1:]
+
+        comment = match.group("comment")
+
+        self._raw = match.group("code")
+        self._comments.append(comment)
         self._trim_comments()
 
     def _extract_indentation_from_text(self):
