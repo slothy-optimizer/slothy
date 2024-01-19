@@ -214,7 +214,7 @@ class intt_n256_l8_s32(Example):
 
 
 class ntt_kyber_1_23_45_67(Example):
-    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
+    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1, timeout=None):
         name = "ntt_kyber_1_23_45_67"
         infile = name
         if var != "":
@@ -223,6 +223,7 @@ class ntt_kyber_1_23_45_67(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
+        self.timeout = timeout
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
@@ -238,6 +239,8 @@ class ntt_kyber_1_23_45_67(Example):
         slothy.optimize_loop("layer23_loop")
         slothy.optimize_loop("layer45_loop")
         slothy.config.constraints.st_ld_hazard = False
+        if self.timeout is not None:
+            slothy.config.timeout = self.timeout
         if "no_trans" in self.var:
             slothy.config.constraints.st_ld_hazard = True
         slothy.config.typing_hints = {}
@@ -750,6 +753,8 @@ class ntt_dilithium_123_456_78(Example):
         self.cross_loops_optim = cross_loops_optim
         self.var = var
     def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root2"         : Arch_Armv81M.RegisterType.GPR,
@@ -763,8 +768,6 @@ class ntt_dilithium_123_456_78(Example):
             "root5_tw"      : Arch_Armv81M.RegisterType.GPR,
             "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
         }
-        slothy.config.constraints.stalls_minimum_attempt = 0
-        slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
                                               [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
         if self.var != "" or ("speed" in self.name and self.target == Target_CortexM85r1):
@@ -1044,16 +1047,15 @@ def main():
                  # Cortex-M55
                  ntt_kyber_1_23_45_67(),
                  ntt_kyber_1_23_45_67(var="no_trans"),
-                 ntt_kyber_1_23_45_67(var="no_trans_vld4"),
+                 ntt_kyber_1_23_45_67(var="no_trans_vld4", timeout=600),
                  ntt_kyber_12_345_67(False),
                  ntt_kyber_12_345_67(True),
                  # Cortex-M85
                  ntt_kyber_1_23_45_67(target=Target_CortexM85r1),
                  ntt_kyber_1_23_45_67(var="no_trans", target=Target_CortexM85r1),
-                 ntt_kyber_1_23_45_67(var="no_trans_vld4", target=Target_CortexM85r1),
+                 ntt_kyber_1_23_45_67(var="no_trans_vld4", target=Target_CortexM85r1, timeout=600),
                  ntt_kyber_12_345_67(False, target=Target_CortexM85r1),
                  ntt_kyber_12_345_67(True, target=Target_CortexM85r1),
-                 ntt_kyber_l345_symbolic(),
                  # Cortex-A55
                  ntt_kyber_123_4567(),
                  ntt_kyber_123_4567(var="scalar_load"),
@@ -1082,7 +1084,6 @@ def main():
                  ntt_dilithium_12_34_56_78(var="no_trans_vld4", target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78(False, target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78(True, target=Target_CortexM85r1),
-                 ntt_dilithium_123_456_78_symbolic(),
                  # Cortex-A55
                  ntt_dilithium_123_45678(),
                  ntt_dilithium_123_45678(var="w_scalar"),
@@ -1104,7 +1105,7 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
-                ]
+                 ]
 
     all_example_names = [ e.name for e in examples ]
 
