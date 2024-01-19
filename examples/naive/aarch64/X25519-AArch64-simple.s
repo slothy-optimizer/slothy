@@ -113,7 +113,7 @@
 .endm
 
 # TODO: also unwrap
-.macro fcsel_dform out, in0, in1, cond // slothy:no-unfold
+.macro fcsel_dform out, in0, in1, cond // @slothy:no-unfold
   fcsel dform_\out, dform_\in0, dform_\in1, \cond
 .endm
 
