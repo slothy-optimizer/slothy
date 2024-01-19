@@ -44,27 +44,27 @@ roots:
         vadd.u32       \a,    \a, tmp
 .endm
 
-.macro qsave loc, a       // slothy:no-unfold
+.macro qsave loc, a       // @slothy:no-unfold
         vstrw.32 \a, [sp, #\loc\()]
 .endm
-.macro qrestore a, loc    // slothy:no-unfold
+.macro qrestore a, loc    // @slothy:no-unfold
         vldrw.32 \a, [sp, #\loc\()]
 .endm
-.macro restored a, b, loc // slothy:no-unfold
+.macro restored a, b, loc // @slothy:no-unfold
         ldrd \a, \b, [sp, #\loc\()]
 .endm
-.macro saved loc, a, b    // slothy:no-unfold
+.macro saved loc, a, b    // @slothy:no-unfold
         strd \a, \b, [sp, #\loc\()]
 .endm
-.macro restore a, loc     // slothy:no-unfold
+.macro restore a, loc     // @slothy:no-unfold
         ldr \a, [sp, #\loc\()]
 .endm
-.macro save loc, a        // slothy:no-unfold
+.macro save loc, a        // @slothy:no-unfold
         str \a, [sp, #\loc\()]
 .endm
 
 // Aligns stack =0 mod 16
-.macro align_stack_do // slothy:no-unfold
+.macro align_stack_do // @slothy:no-unfold
         mov r11, sp
         and r12, r11, #0xC   // 8 of ==8 mod 16, 0 otherwise
         sub sp, sp, r12      // Align stack to 16 byte
@@ -73,7 +73,7 @@ roots:
 .endm
 
 // Reverts initial stack correction
-.macro align_stack_undo // slothy:no-unfold
+.macro align_stack_undo // @slothy:no-unfold
         ldr r12, [sp]
         add sp, sp, #16
         add sp, sp, r12

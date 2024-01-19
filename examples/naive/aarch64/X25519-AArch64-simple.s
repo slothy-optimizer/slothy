@@ -27,6 +27,11 @@
  */
 
 #include <hal_env.h>
+#include "instruction_wrappers.i"
+
+.macro fcsel_dform out, in0, in1, cond // @slothy:no-unfold
+  fcsel dform_\out, dform_\in0, dform_\in1, \cond
+.endm
 
 #define STACK_MASK1     0
 #define STACK_MASK2     8
