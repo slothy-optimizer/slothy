@@ -426,16 +426,6 @@ class ntt_kyber_345(Example):
         slothy.optimize_loop("layer345_loop")
 
 
-class ntt_kyber_l345_symbolic(Example):
-    def __init__(self):
-        super().__init__("ntt_kyber_layer345_symbolic")
-    def core(self,slothy):
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.sw_pipelining.halving_heuristic_periodic = True
-        slothy.optimize_loop("layer345_loop")
-
-
 class ntt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "ntt_kyber_123_4567"
@@ -795,29 +785,6 @@ class ntt_dilithium_123_456_78(Example):
             slothy.config.outputs = slothy.last_result.kernel_input_output + ["r14"]
             slothy.optimize(start="layer456_loop_end", end="layer78_loop")
 
-
-class ntt_dilithium_123_456_78_symbolic(Example):
-    def __init__(self):
-        super().__init__("ntt_dilithium_123_456_78_symbolic", rename=True)
-    def core(self,slothy):
-        slothy.config.typing_hints = {
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root3"         : Arch_Armv81M.RegisterType.GPR,
-            "root5"         : Arch_Armv81M.RegisterType.GPR,
-            "root6"         : Arch_Armv81M.RegisterType.GPR,
-            "rtmp"          : Arch_Armv81M.RegisterType.GPR,
-            "rtmp_tw"       : Arch_Armv81M.RegisterType.GPR,
-            "root2_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root3_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root5_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
-        }
-        slothy.config.sw_pipelining.enabled=True
-        slothy.config.constraints.stalls_minimum_attempt = 0
-        slothy.config.constraints.stalls_first_attempt = 0
-        slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
-                                               [ "ROOT0_STACK", "RPTR_STACK" ] )
-        slothy.optimize_loop("layer456_loop")
 
 class ntt_dilithium_123_45678(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
