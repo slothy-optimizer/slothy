@@ -33,19 +33,32 @@ class SourceLine:
     """Representation of a single line of source code"""
 
     def _extract_comments_from_text(self):
-        # Match // and /* ... */ style comments with optionally preceeding code
-        match = re.search(
-            r"(?P<code>.*?)\s*(//|/\*)\s*(?P<comment>.*?)\s*(?:\*/|$)",
-            self._raw)
+        # Regex pattern for single-line comments (// and /* */)
+        comment_pattern = r'//.*?(?=(//|/\*|$))|/\*.*?\*/'
 
-        # Check if there are any comments
-        if not match:
+        # Find comment start
+        comment_start = min([s for s in
+                             (self._raw.find('//'), self._raw.find('/*'))
+                             if s != -1], default=len(self._raw))
+        # No comment start means either empty comment or none at all
+        if comment_start == len(self._raw):
             return
 
-        comment = match.group("comment")
+        # Extract code
+        code = self._raw[:comment_start].strip()
 
-        self._raw = match.group("code")
-        self._comments.append(comment)
+        # Extract comments
+        comments = []
+        for comment in re.finditer(comment_pattern, self._raw):
+            comment_text = comment.group()
+            # Remove comment indicators
+            if comment_text.startswith('//'):
+                comments.append(comment_text[2:].strip())
+            elif comment_text.startswith('/*'):
+                comments.append(comment_text[2:-2].strip())
+
+        self._raw = code
+        self._comments += comments
         self._trim_comments()
 
     def _extract_indentation_from_text(self):
