@@ -152,7 +152,7 @@ class RegisterType(Enum):
     @staticmethod
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["flags", "sp",
+        return set(["flags", "sp", "x18",
             "STACK_MASK1",
             "STACK_MASK2",
             "STACK_A_0",
