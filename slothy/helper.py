@@ -500,7 +500,6 @@ class AsmHelper():
     def extract(source, lbl_start=None, lbl_end=None):
         """Extract code between two labels from an assembly source"""
         pre, body, post = AsmHelper._extract_core(source, lbl_start, lbl_end)
-        body = SourceLine.reduce_source(body)
         return pre, body, post
 
     @staticmethod
@@ -756,7 +755,7 @@ class AsmMacro():
         indentation_regexp = re.compile(indentation_regexp_txt)
 
         # Go through source line by line and check if there's a macro invocation
-        for l in SourceLine.reduce_source(source):
+        for l in source:
             assert SourceLine.is_source_line(l)
 
             if l.has_text():
