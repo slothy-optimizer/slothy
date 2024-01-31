@@ -174,6 +174,11 @@ class SourceLine:
         return self._raw.strip() != ""
 
     @property
+    def indentation(self):
+        """Returns the current level of indentation for the source line"""
+        return self._indentation
+
+    @property
     def text(self):
         """Returns the (non-metadata) text in the source line"""
         return self._raw
