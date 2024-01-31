@@ -43,7 +43,7 @@ class SourceLine:
     def _extract_indentation_from_text(self):
         old = self._raw
         new = old.lstrip()
-        self._indentation = len(old) - len(new)
+        self._indentation += len(old) - len(new)
         self._raw = new
 
     @staticmethod
