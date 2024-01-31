@@ -862,10 +862,18 @@ class CPreprocessor():
     @staticmethod
     def unfold(header, body, gcc):
         """Runs the concatenation of header and body through the preprocessor"""
-        code = header + [CPreprocessor.magic_string] + body
 
-        r = subprocess.run([gcc, "-E", "-x", "assembler-with-cpp","-"],
-                           input='\n'.join(code), text=True, capture_output=True, check=True)
+        assert SourceLine.is_source(body)
+        assert SourceLine.is_source(header)
+
+        body_txt = SourceLine.write_multiline(body)
+        header_txt = SourceLine.write_multiline(header)
+
+        code_txt = '\n'.join([header_txt, CPreprocessor.magic_string, body_txt])
+
+        # Pass -CC to keep comments
+        r = subprocess.run([gcc, "-E", "-CC", "-x", "assembler-with-cpp","-"],
+                           input=code_txt, text=True, capture_output=True, check=True)
 
         unfolded_code = r.stdout.split('\n')
         magic_idx = unfolded_code.index(CPreprocessor.magic_string)
