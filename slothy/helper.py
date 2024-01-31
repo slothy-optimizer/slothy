@@ -770,10 +770,9 @@ class AsmMacro():
             if change_callback:
                 change_callback()
             # Try to keep indentation
-            indentation = len(indentation_regexp.match(l.text).group("whitespace"))
             repl = self(p.groupdict())
             for l0 in repl:
-                l0.set_indentation(indentation)
+                l0.set_indentation(l.indentation)
                 l0.inherit_tags(l)
                 if inherit_comments is True:
                     l0.inherit_comments(l)
