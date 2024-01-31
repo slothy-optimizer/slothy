@@ -56,6 +56,13 @@ def _main():
                 the code to optimize via start/end separately.""")
     parser.add_argument("--fusion", default=False, action='store_true')
     parser.add_argument("--fusion-only", default=False, action='store_true')
+    parser.add_argument("--unfold", default=False, action='store_true',
+                        help="""Unfold macros and/or register aliases, but don't optimize.
+                                See also --unfold-macros and --unfold-aliases.""")
+    parser.add_argument("--unfold-macros", type=bool, default=True,
+                        help="""If --unfold is set, unfold assembly macros.""")
+    parser.add_argument("--unfold-aliases", type=bool, default=False,
+                        help="""If --unfold is set, unfold register aliases.""")
     parser.add_argument("-s", "--start", default=None, type=str,
         help="""The label or line at which the to code to optimize begins.
                 This is mutually exclusive with -l/--loop.""")
@@ -233,13 +240,24 @@ def _main():
     # Read input
     slothy.load_source_from_file(args.input)
 
-    # Optimize
-    if args.fusion is True:
+    done = False
+
+    # Unfold only?
+    if args.unfold is True:
+        slothy.unfold(start=args.start, end=args.end,
+                      macros=args.unfold_macros, aliases=args.unfold_aliases)
+        done = True
+
+    # Fusion
+    if done is False and args.fusion is True:
         if len(args.loop) > 0:
             for l in args.loop:
                 slothy.fusion_loop(l)
+        if args.fusion_only:
+            done = True
 
-    if not (args.fusion is True and args.fusion_only is True):
+    # Optimize
+    if done is False:
         if len(args.loop) > 0:
             for l in args.loop:
                 slothy.optimize_loop(l)

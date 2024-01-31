@@ -146,6 +146,41 @@ class Slothy:
     # Stateful wrappers around heuristics
     #
 
+    def unfold(self, start=None, end=None, macros=True, aliases=False):
+        """Unfold macros and/or register aliases in specified region"""
+
+        logger = self.logger
+
+        pre, body, post = AsmHelper.extract(self.source, start, end)
+
+        aliases = AsmAllocation.parse_allocs(pre)
+        c = self.config.copy()
+        c.add_aliases(aliases)
+
+        if c.with_preprocessor:
+            self.logger.info("Apply C preprocessor...")
+            body = CPreprocessor.unfold(pre, body, c.compiler_binary)
+            self.logger.debug("Code after preprocessor:")
+            Slothy._dump("preprocessed", body, self.logger, err=False)
+
+        body = SourceLine.split_semicolons(body)
+
+        # Unfold macros
+        if macros is True:
+            body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
+
+        # Unfold register aliases
+        if aliases is True:
+            body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+
+        # Add labels again
+        if start is not None:
+            body = [SourceLine(f"{start}:")] + body
+        if end is not None:
+            body = body + [SourceLine(f"{end}:")]
+
+        self.source = pre + body + post
+
     def optimize(self, start=None, end=None, loop_synthesis_cb=None, logname=None):
         """Optimize all or part of the currently loaded source code
 
