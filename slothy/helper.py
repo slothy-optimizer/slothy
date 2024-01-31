@@ -207,7 +207,12 @@ class SourceLine:
             additional += list(map(lambda s: f"///{s}", triple_comments))
 
         if tags is True:
-            additional += list(map(lambda tv: f"// @slothy:{tv[0]}={tv[1]}", self._tags.items()))
+            def print_tag_value(tv):
+                t, v = tv
+                if v is True:
+                    return f"// @slothy:{t}"
+                return f"// @slothy:{t}={v}"
+            additional += list(map(print_tag_value, self._tags.items()))
 
         add_str = ' '.join(additional)
 
