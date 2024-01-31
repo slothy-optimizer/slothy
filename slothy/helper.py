@@ -720,7 +720,7 @@ class AsmMacro():
         for line in self.body:
             l = line.text
             for arg in self.args:
-                l = re.sub(f"\\\\{arg}(\\W|$)",args_dict[arg] + "\\1",l)
+                l = re.sub(f"\\\\{arg}(\\W|$)",args_dict[arg].strip() + "\\1",l)
             l = re.sub("\\\\\\(\\)","",l)
             t = line.copy()
             t.set_text(l)
