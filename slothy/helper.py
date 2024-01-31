@@ -300,6 +300,8 @@ class SourceLine:
         for l in s:
             if cur is not None:
                 cur.add_text(l.text)
+                cur.add_tags(l.tags)
+                cur.add_comments(l.comments)
             else:
                 cur = l.copy()
             if cur.is_escaped:
