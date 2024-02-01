@@ -552,6 +552,30 @@ class Instruction:
             except Instruction.ParsingException as e:
                 exceptions[inst_class.__name__] = e
 
+        # Check if the source line is tagged as reading/writing from memory
+        def add_memory_write(inst, tag):
+            inst.num_out += 1
+            inst.args_out_restrictions.append(None)
+            inst.args_out.append(tag)
+            inst.arg_types_out.append(RegisterType.HINT)
+
+        def add_memory_read(inst, tag):
+            inst.num_in += 1
+            inst.args_in_restrictions.append(None)
+            inst.args_in.append(tag)
+            inst.arg_types_in.append(RegisterType.HINT)
+
+        write_tag = src_line.tags.get("writes", None)
+        read_tag = src_line.tags.get("reads", None)
+
+        if write_tag is not None:
+            for i in insts:
+                add_memory_write(i, write_tag)
+
+        if read_tag is not None:
+            for i in insts:
+                add_memory_read(i, read_tag)
+
         if len(insts) == 0:
             logging.error("Failed to parse instruction %s", src)
             logging.error("A list of attempted parsers and their exceptions follows.")
