@@ -371,6 +371,44 @@ class Instruction:
         self.pre_index = None
         self.immediate = None
 
+    def extract_read_writes(self):
+        """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
+
+        src_line = self.source_line
+
+        def hint_register_name(tag):
+            return f"hint_{tag}"
+
+        # Check if the source line is tagged as reading/writing from memory
+        def add_memory_write(tag):
+            self.num_out += 1
+            self.args_out_restrictions.append(None)
+            self.args_out.append(hint_register_name(tag))
+            self.arg_types_out.append(RegisterType.HINT)
+
+        def add_memory_read(tag):
+            self.num_in += 1
+            self.args_in_restrictions.append(None)
+            self.args_in.append(hint_register_name(tag))
+            self.arg_types_in.append(RegisterType.HINT)
+
+        write_tags = src_line.tags.get("writes", [])
+        read_tags = src_line.tags.get("reads", [])
+
+        if not isinstance(write_tags, list):
+            write_tags = [write_tags]
+
+        if not isinstance(read_tags, list):
+            read_tags = [read_tags]
+
+        for w in write_tags:
+            add_memory_write(w)
+
+        for r in read_tags:
+            add_memory_read(r)
+
+        return self
+
     def global_parsing_cb(self, a, log=None):
         """Parsing callback triggered after DataFlowGraph parsing which allows modification
         of the instruction in the context of the overall computation.
@@ -552,29 +590,9 @@ class Instruction:
             except Instruction.ParsingException as e:
                 exceptions[inst_class.__name__] = e
 
-        # Check if the source line is tagged as reading/writing from memory
-        def add_memory_write(inst, tag):
-            inst.num_out += 1
-            inst.args_out_restrictions.append(None)
-            inst.args_out.append(tag)
-            inst.arg_types_out.append(RegisterType.HINT)
-
-        def add_memory_read(inst, tag):
-            inst.num_in += 1
-            inst.args_in_restrictions.append(None)
-            inst.args_in.append(tag)
-            inst.arg_types_in.append(RegisterType.HINT)
-
-        write_tag = src_line.tags.get("writes", None)
-        read_tag = src_line.tags.get("reads", None)
-
-        if write_tag is not None:
-            for i in insts:
-                add_memory_write(i, write_tag)
-
-        if read_tag is not None:
-            for i in insts:
-                add_memory_read(i, read_tag)
+        for i in insts:
+            i.source_line = src_line
+            i.extract_read_writes()
 
         if len(insts) == 0:
             logging.error("Failed to parse instruction %s", src)
