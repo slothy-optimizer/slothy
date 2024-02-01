@@ -716,12 +716,23 @@ class AsmMacro():
         self.body = body
 
     def __call__(self,args_dict):
+
+        def prepare_arg(a):
+            a = a.strip()
+            a = a.replace("\\","\\\\")
+            if a.startswith("\\") and not "\\\\()" in a:
+                a = a + "\\\\()"
+            return a
+
         output = []
         for line in self.body:
             l = line.text
             for arg in self.args:
-                l = re.sub(f"\\\\{arg}(\\W|$)",args_dict[arg].strip() + "\\1",l)
-            l = re.sub("\\\\\\(\\)","",l)
+                txt = f"\\\\{arg}(\\W|$)",args_dict[arg].strip() + "\\1"
+                v = prepare_arg(args_dict[arg])
+                l = re.sub(f"\\\\{arg}\\\\\(\)", v, l)
+                l = re.sub(f"\\\\{arg}(\\W|$)",v + "\\1", l)
+            l = l.replace("\\()\\()", "\\()")
             t = line.copy()
             t.set_text(l)
             output.append(t)
