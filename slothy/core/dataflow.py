@@ -517,9 +517,8 @@ class DataFlowGraph:
             if some_change is False:
                 break
 
-            z = zip(self.nodes, self.src)
-            z = filter(lambda x: x[0].delete is False, z)
-            z = map(lambda x: ([x[0].inst], x[0].inst.write()), z)
+            z = filter(lambda x: x.delete is False, self.nodes)
+            z = map(lambda x: ([x.inst], x.inst.source_line), z)
 
             self.src = list(z)
 
