@@ -171,6 +171,7 @@ def _main():
         if val[0] == '[' and val[-1] == ']':
             check_ty(list)
             val = val[1:-1].split(',')
+            val = list(map(str.strip, val))
             logger.debug("Parsing %s is a list -- parse recursively", val)
             return [ parse_config_value_as(v,None) for v in val ]
         if val[0] == '{' and val[-1] == '}':
