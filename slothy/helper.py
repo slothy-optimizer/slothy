@@ -263,6 +263,10 @@ class SourceLine:
         self._raw = s
         return self
 
+    def transform_text(self, f):
+        """Apply transformation f to text of source line."""
+        self._raw=f(self._raw)
+
     def add_text(self, s):
         """Add text to a source line
 
@@ -727,24 +731,33 @@ class AsmMacro():
 
     def __call__(self,args_dict):
 
-        def prepare_arg(a):
+        def prepare_value(a):
             a = a.strip()
             a = a.replace("\\","\\\\")
             if a.startswith("\\") and not "\\\\()" in a:
                 a = a + "\\\\()"
             return a
 
+        def apply_arg(l, arg, val):
+            l = re.sub(f"\\\\{arg}\\\\\(\)", val, l)
+            l = re.sub(f"\\\\{arg}(\\W|$)",val + "\\1", l)
+            l = l.replace("\\()\\()", "\\()")
+            return l
+
+        def apply_args(l):
+            for arg in self.args:
+                val = prepare_value(args_dict[arg])
+                if not isinstance(l, list):
+                    l = apply_arg(l, arg, val)
+                else:
+                    l = list(map(lambda x: apply_arg(x, arg, val), l))
+            return l
+
         output = []
         for line in self.body:
-            l = line.text
-            for arg in self.args:
-                txt = f"\\\\{arg}(\\W|$)",args_dict[arg].strip() + "\\1"
-                v = prepare_arg(args_dict[arg])
-                l = re.sub(f"\\\\{arg}\\\\\(\)", v, l)
-                l = re.sub(f"\\\\{arg}(\\W|$)",v + "\\1", l)
-            l = l.replace("\\()\\()", "\\()")
             t = line.copy()
-            t.set_text(l)
+            t.transform_text(apply_args)
+            t.tags = { k:apply_args(v) for (k,v) in t.tags.items() }
             output.append(t)
         return output
 
