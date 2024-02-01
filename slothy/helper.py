@@ -63,14 +63,22 @@ class SourceLine:
             tags[tag] = value
             return ""
 
+        def tag_list_callback(g):
+            tag = g.group("tag")
+            values = list(map(parse_value, g.group("value").split(',')))
+            tags[tag] = values
+            return ""
+
         def tag_callback(g):
             tag = g.group("tag")
             tags[tag] = True
             return ""
 
         tag_value_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=(?P<value>\w+)"
+        tag_list_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=\[(?P<value>.+)\]"
         tag_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)"
         s = re.sub(tag_value_regexp_txt, tag_value_callback, s)
+        s = re.sub(tag_list_regexp_txt, tag_list_callback, s)
         s = re.sub(tag_regexp_txt, tag_callback, s)
         return s
 
@@ -211,6 +219,8 @@ class SourceLine:
                 t, v = tv
                 if v is True:
                     return f"// @slothy:{t}"
+                if isinstance(v, list):
+                    return f"// @slothy:{t}=[{','.join(v)}]"
                 return f"// @slothy:{t}={v}"
             additional += list(map(print_tag_value, self._tags.items()))
 
