@@ -138,6 +138,13 @@ class RegisterType(Enum):
         raise UnknownRegister(f"Unknown architectural register {r}")
 
     @staticmethod
+    def is_renamed(ty):
+        """Indicate if register type should be subject to renaming"""
+        if ty == RegisterType.HINT:
+            return False
+        return True
+
+    @staticmethod
     def from_string(string):
         """Find registe type from string"""
         string = string.lower()

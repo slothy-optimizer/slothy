@@ -52,6 +52,11 @@ class RegisterType(Enum):
         return self.name
 
     @staticmethod
+    def is_renamed(ty):
+        """Indicate if register type should be subject to renaming"""
+        return True
+
+    @staticmethod
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
 
