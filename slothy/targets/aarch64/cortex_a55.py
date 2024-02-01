@@ -80,7 +80,7 @@ def add_slot_constraints(slothy):
         Instruction.is_q_form_vector_instruction, [0])
     # fcsel and vld2 on slot 0 only
     slothy.restrict_slots_for_instructions_by_class(
-        [fcsel_dform, q_ld2_lane_post_inc], [0])
+        [fcsel_dform, Q_Ld2_Lane_Post_Inc], [0])
 
 def add_st_hazard(slothy):
     def is_vec_st_st_pair(inst_a, inst_b):
@@ -111,7 +111,7 @@ execution_units = {
         vsrshr, vand, vbic,
         Ldr_Q,
         Str_Q,
-        q_ldr1_stack, q_ld2_lane_post_inc,
+        q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
         vmull, vmlal, vushr, vusra
     ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
@@ -123,7 +123,7 @@ execution_units = {
       fcsel_dform,
       VecToGprMov, Mov_xtov_d,
       d_stp_stack_with_inc, d_str_stack_with_inc, b_ldr_stack_with_inc, d_ldr_stack_with_inc,
-      q_ldr1_stack, q_ld2_lane_post_inc,
+      q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
     ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],  # these instructions use VEC0 or VEC1
 
     is_qform_form_of(vmov) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
@@ -194,7 +194,7 @@ inverse_throughput = {
     (vusra) : 1,
     (vand, vbic) : 1,
     (vuzp1, vuzp2) : 1,
-    (q_ldr1_stack, q_ld2_lane_post_inc) : 1,
+    (q_ldr1_stack, Q_Ld2_Lane_Post_Inc) : 1,
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc) : 1,
     (mov_d01, mov_b00) : 1,
     (vzip1, vzip2) : 1,
@@ -235,7 +235,7 @@ default_latencies = {
     (vusra) : 3,
     (vand, vbic) : 1,
     (vuzp1, vuzp2) : 2,
-    (q_ldr1_stack, q_ld2_lane_post_inc) : 3,
+    (q_ldr1_stack, Q_Ld2_Lane_Post_Inc) : 3,
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc) : 3,
     (mov_d01, mov_b00) : 2,
     (vzip1, vzip2) : 2,
