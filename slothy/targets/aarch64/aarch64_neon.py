@@ -682,7 +682,7 @@ class AArch64Instruction(Instruction):
     def _infer_register_type(ptrn):
         if ptrn[0].upper() in ["X","W"]:
             return RegisterType.GPR
-        if ptrn[0].upper() in ["V","Q","D"]:
+        if ptrn[0].upper() in ["V","Q","D","B"]:
             return RegisterType.NEON
         if ptrn[0].upper() in ["T"]:
             return RegisterType.HINT
