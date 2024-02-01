@@ -132,10 +132,15 @@ class RegisterType(Enum):
     @staticmethod
     def find_type(r):
         """Find type of architectural register"""
+
+        if r.startswith("hint_"):
+            return RegisterType.HINT
+
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
                 return ty
-        raise UnknownRegister(f"Unknown architectural register {r}")
+
+        return None
 
     @staticmethod
     def is_renamed(ty):
@@ -435,11 +440,10 @@ class Instruction:
     def unfold_abbrevs(mnemonic):
         if mnemonic.count("<dt") > 1:
             for i in range(mnemonic.count("<dt")):
-                mnemonic = re.sub(f"<dt{i}>", f"(?P<datatype{i}>(?:2|4|8|16)(?:B|H|S|D))",
+                mnemonic = re.sub(f"<dt{i}>", f"(?P<datatype{i}>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))",
                                   mnemonic)
         else:
-            mnemonic = re.sub("<dt>",  "(?P<datatype>(?:|i|u|s)(?:8|16|32|64))", mnemonic)
-            mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f)(?:8|16|32))", mnemonic)
+            mnemonic = re.sub("<dt>",  f"(?P<datatype>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))", mnemonic)
         return mnemonic
 
     def _is_instance_of(self, inst_list):
@@ -463,13 +467,20 @@ class Instruction:
                                       Str_Q, Ldr_Q,
                                       q_ldr1_stack])
         dt = getattr(self, "datatype")
+
+        if self._is_instance_of([Q_Ld2_Lane_Post_Inc]):
+            return False
+
+        if isinstance(dt, list):
+            dt = dt[0]
+
         if dt == "":
             return False
-        if dt[0].lower() in ["2d", "4s", "8h", "16b"]:
+        if dt.lower() in ["2d", "4s", "8h", "16b"]:
             return True
-        if dt[0].lower() in ["1d", "2s", "4h", "8b"]:
+        if dt.lower() in ["1d", "2s", "4h", "8b"]:
             return False
-        raise FatalParsingException(f"unknown datatype {dt}")
+        raise FatalParsingException(f"unknown datatype '{dt}' in {self}")
 
     def is_vector_mul(self):
         """Indicates if an instruction is a Neon vector multiplication"""

@@ -84,6 +84,14 @@ class RegisterType(Enum):
                  RegisterType.StackMVE : qstack_locations,
                  RegisterType.MVE      : vregs }[reg_type]
 
+    @staticmethod
+    def find_type(r):
+        """Find type of architectural register"""
+        for ty in RegisterType:
+            if r in RegisterType.list_registers(ty):
+                return ty
+        return None
+
     def from_string(string):
         string = string.lower()
         return { "qstack" : RegisterType.StackMVE,
@@ -2001,7 +2009,7 @@ class vcsubf(Instruction):
         if self.datatype == "f32":
             # First index: output, Second index: Input
             # Output must not be the same as any of the inputs
-            self.args_in_out_different = [(0,0),(0,1)] 
+            self.args_in_out_different = [(0,0),(0,1)]
 
     def write(self):
         return f"vcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
