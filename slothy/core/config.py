@@ -794,6 +794,24 @@ class Config(NestedPrint, LockAttributes):
             in order to find the number of model violations in a piece of code."""
             return self._allow_renaming
 
+        @property
+        def max_displacement(self):
+            """The maximum relative displacement of an instruction.
+
+            Examples:
+            - If set to 1, instructions can be reordered freely.
+            - If set to 0, no reordering will happen.
+            - If set to 0.5, an instruction will not move by more than N/2
+              places between original and re-scheduled source code.
+
+            This is an experimental feature for the purpose of speeding
+            up otherwise intractable optimization tasks.
+
+            LIMITATION: This only takes effect in straightline optimization
+              (no software pipelining).
+            """
+            return self._max_displacement
+
         def __init__(self):
             super().__init__()
 
@@ -802,6 +820,8 @@ class Config(NestedPrint, LockAttributes):
             self.st_ld_hazard_ignore_scattergather = False
             self.st_ld_hazard_ignore_stack = False
             self.minimize_st_ld_hazards = False
+
+            self._max_displacement = 1.0
 
             self.maximize_register_lifetimes = False
 
@@ -825,6 +845,9 @@ class Config(NestedPrint, LockAttributes):
 
             self.lock()
 
+        @max_displacement.setter
+        def max_displacement(self,val):
+            self._max_displacement = val
         @stalls_allowed.setter
         def stalls_allowed(self,val):
             self._stalls_allowed = val

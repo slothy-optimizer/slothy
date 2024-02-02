@@ -1769,6 +1769,18 @@ class SlothyBase(LockAttributes):
             if self.config.hints.order_hint_orig_order:
                 self._AddHint(t.program_start_var, int(t.id))
 
+            if self.config.sw_pipelining.enabled is False and \
+               self.config.constraints.max_displacement < 1.0:
+                # We also measure the displacement of an instruction relative to its
+                # original position (scaled to the padded program length).
+                # By default, no constraints are associated with this, but the amount
+                # of displacement is an interesting measure for how much reordering was
+                # still necessary, and may perhaps drive heuristics.
+                rel_pos = t.orig_pos / len(self._model.tree.nodes)
+                t.orig_pos_scaled = int( rel_pos * self._model.program_padded_size_const)
+                t.program_displacement = self._NewIntVar(0,self._model.program_horizon,
+                                                         f"{t.varname()}_program_displacement")
+
         if self.config.constraints.functional_only:
             return
 
@@ -2403,6 +2415,13 @@ class SlothyBase(LockAttributes):
                 self._Add( s <= self._model.program_padded_size)
             for s in t.inout_lifetime_end + t.inout_lifetime_duration:
                 self._Add( s <= self._model.program_padded_size)
+
+            if self.config.constraints.max_displacement < 1.0:
+                self._AddAbsEq( t.program_displacement,
+                                t.program_start_var - t.orig_pos_scaled )
+                max_disp = int(self.config.constraints.max_displacement *
+                               self._model.program_padded_size_const)
+                c = self._Add( t.program_displacement < max_disp )
 
             if self.config.constraints.functional_only:
                 continue
