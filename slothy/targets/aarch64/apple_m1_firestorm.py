@@ -84,13 +84,7 @@ class ExecutionUnit(Enum):
 # Opaque functions called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
-    if slothy.config.constraints.functional_only:
-        return
-    slothy.restrict_slots_for_instructions_by_property(
-        is_neon_instruction, [0,1,2,3])
-    slothy.restrict_slots_for_instructions_by_class(
-        [aesr_x4, aesr_x4], [0]
-    )
+    _ = slothy
 
 def has_min_max_objective(config):
     return False
