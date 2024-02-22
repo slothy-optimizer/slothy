@@ -600,17 +600,18 @@ class DataFlowGraph:
         t = next(useless_nodes, None)
         if t is not None:
             if not self.config.allow_useless_instructions:
-                self.logger.error(f"The output(s) of instruction {t.id}({t.inst}) are not used "
-                                  "but also not declared as outputs.")
-                self.logger.error(f"Instruction details: {t}, {t.inst.inputs}")
-                self.logger.error(f"Outputs: {self.outputs}")
                 self._dump_instructions("Source code", error=True)
-                raise SlothyUselessInstructionException("Useless instruction detected -- probably "
-                                                        "you missed an output declaration?")
-            self.logger.warning(f"The output(s) of instruction {t.id}({t.inst}) are not"
-                                " used but also not declared as outputs.")
-            self.logger.warning(f"Instruction details: {t}, {t.inst.inputs}")
-            self._dump_instructions("Source code", error=False)
+                self.logger.error(f"The result registers {t.inst.args_out + t.inst.args_in_out} "
+                                  f"of instruction {t.id}:[{t.inst}] are neither used "
+                                  "nor declared as global outputs.")
+                self.logger.error("This is often a configuration error. Did you miss an output declaration?")
+                self.logger.error("Currently configured outputs: %s", list(self.outputs))
+                raise SlothyUselessInstructionException("Useless instruction detected")
+
+            self.logger.warning(f"The result registers {t.inst.args_out + t.inst.args_in_out} "
+                              f"of instruction {t.id}:[{t.inst}] are neither used "
+                              "nor declared as global outputs.")
+            self.logger.warning("Ignoring this as requested by `config.allow_useless_instructions`!")
 
     def _parse_line(self, l):
         assert SourceLine.is_source_line(l)
