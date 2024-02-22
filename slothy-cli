@@ -49,14 +49,20 @@ def _main():
         help="The name of the file to write the generated assembly to. "
             "If unspecified, the assembly will be printed on the standard output.")
     parser.add_argument("-c", "--config", default=[], action="append", nargs='*',
-        metavar="OPTION=VALUE", help="""A (potentially empty) list of modifications "\
-            "to the default configuration of Slothy.""")
+        metavar="OPTION=VALUE", help="Set SLOTHY configuration value (can be used multiple times)")
     parser.add_argument("-l", "--loop", default=[], action='append', type=str,
         help="""The starting label for the loop to optimize. This is mutually
                 exclusive with -s/--start and -e/--end, which allowv you to specify
                 the code to optimize via start/end separately.""")
     parser.add_argument("--fusion", default=False, action='store_true')
     parser.add_argument("--fusion-only", default=False, action='store_true')
+    parser.add_argument("--unfold", default=False, action='store_true',
+                        help="""Unfold macros and/or register aliases, but don't optimize.
+                                See also --unfold-macros and --unfold-aliases.""")
+    parser.add_argument("--unfold-macros", type=bool, default=True,
+                        help="""If --unfold is set, unfold assembly macros.""")
+    parser.add_argument("--unfold-aliases", type=bool, default=False,
+                        help="""If --unfold is set, unfold register aliases.""")
     parser.add_argument("-s", "--start", default=None, type=str,
         help="""The label or line at which the to code to optimize begins.
                 This is mutually exclusive with -l/--loop.""")
@@ -165,6 +171,7 @@ def _main():
         if val[0] == '[' and val[-1] == ']':
             check_ty(list)
             val = val[1:-1].split(',')
+            val = list(map(str.strip, val))
             logger.debug("Parsing %s is a list -- parse recursively", val)
             return [ parse_config_value_as(v,None) for v in val ]
         if val[0] == '{' and val[-1] == '}':
@@ -234,13 +241,24 @@ def _main():
     # Read input
     slothy.load_source_from_file(args.input)
 
-    # Optimize
-    if args.fusion is True:
+    done = False
+
+    # Unfold only?
+    if args.unfold is True:
+        slothy.unfold(start=args.start, end=args.end,
+                      macros=args.unfold_macros, aliases=args.unfold_aliases)
+        done = True
+
+    # Fusion
+    if done is False and args.fusion is True:
         if len(args.loop) > 0:
             for l in args.loop:
                 slothy.fusion_loop(l)
+        if args.fusion_only:
+            done = True
 
-    if not (args.fusion is True and args.fusion_only is True):
+    # Optimize
+    if done is False:
         if len(args.loop) > 0:
             for l in args.loop:
                 slothy.optimize_loop(l)

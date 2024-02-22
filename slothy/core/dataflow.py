@@ -487,7 +487,7 @@ class DataFlowGraph:
         log_func = self.logger.debug if not error else self.logger.error
         log_func(txt)
         for idx, l in enumerate(self.src):
-            log_func(" * %s: %s", idx, l[0])
+            log_func(" * %s: %s", idx, l[0][0].source_line.to_string())
 
     @property
     def arch(self):
@@ -517,9 +517,8 @@ class DataFlowGraph:
             if some_change is False:
                 break
 
-            z = zip(self.nodes, self.src)
-            z = filter(lambda x: x[0].delete is False, z)
-            z = map(lambda x: ([x[0].inst], x[0].inst.write()), z)
+            z = filter(lambda x: x.delete is False, self.nodes)
+            z = map(lambda x: ([x.inst], x.inst.source_line), z)
 
             self.src = list(z)
 
@@ -659,13 +658,17 @@ class DataFlowGraph:
                     expectations.append((f"State dictionary: {exp_ty}", exp_ty))
                 else:
                     self.logger.debug("    + %s not in state dictionary", name)
-                    self.logger.debug("      Current dictionary:")
-                    self.logger.debug(self.reg_state)
-                # Check if we've been given a type hind
+                # Check if we've been given a type hint
                 if name in self.config.typing_hints.keys():
                     exp_ty = self.config.typing_hints[name]
                     self.logger.debug(f"   + type of {name} according to typing hints: {exp_ty}")
                     expectations.append((f"Typing hint: {exp_ty}", exp_ty))
+
+                exp_ty = self.arch.RegisterType.find_type(name)
+                if exp_ty is not None:
+                    self.logger.debug(f"   + type of {name} according to model: {exp_ty}")
+                    expectations.append((f"Model: {exp_ty}", exp_ty))
+
                 # Check if all our expectations match the type recorded in the
                 # instruction signature. Note that this also works in the case
                 # where we don't have any type expectation, as all([]) == True.

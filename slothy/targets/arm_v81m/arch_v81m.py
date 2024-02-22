@@ -52,6 +52,11 @@ class RegisterType(Enum):
         return self.name
 
     @staticmethod
+    def is_renamed(ty):
+        """Indicate if register type should be subject to renaming"""
+        return True
+
+    @staticmethod
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
 
@@ -78,6 +83,14 @@ class RegisterType(Enum):
                  RegisterType.StackGPR : stack_locations,
                  RegisterType.StackMVE : qstack_locations,
                  RegisterType.MVE      : vregs }[reg_type]
+
+    @staticmethod
+    def find_type(r):
+        """Find type of architectural register"""
+        for ty in RegisterType:
+            if r in RegisterType.list_registers(ty):
+                return ty
+        return None
 
     def from_string(string):
         string = string.lower()
@@ -135,10 +148,10 @@ class Loop:
         while True:
             if not keep:
                 l = next(lines, None)
-                l_str = str(l)
             keep = False
             if l is None:
                 break
+            l_str = l.text
             assert isinstance(l, str) is False
             if state == 0:
                 p = loop_lbl_regexp.match(l_str)
@@ -1996,7 +2009,7 @@ class vcsubf(Instruction):
         if self.datatype == "f32":
             # First index: output, Second index: Input
             # Output must not be the same as any of the inputs
-            self.args_in_out_different = [(0,0),(0,1)] 
+            self.args_in_out_different = [(0,0),(0,1)]
 
     def write(self):
         return f"vcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
