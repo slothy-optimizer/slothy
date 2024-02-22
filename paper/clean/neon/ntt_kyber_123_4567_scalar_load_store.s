@@ -137,22 +137,22 @@ xtmp1 .req x11
 .endm
 
 .macro transpose4 data
-        trn1 t0.4s, \data\()0\().4s, \data\()1\().4s
-        trn2 t1.4s, \data\()0\().4s, \data\()1\().4s
-        trn1 t2.4s, \data\()2\().4s, \data\()3\().4s
-        trn2 t3.4s, \data\()2\().4s, \data\()3\().4s
+        trn1 t0.4s, \data\()0.4s, \data\()1.4s
+        trn2 t1.4s, \data\()0.4s, \data\()1.4s
+        trn1 t2.4s, \data\()2.4s, \data\()3.4s
+        trn2 t3.4s, \data\()2.4s, \data\()3.4s
 
-        trn2 \data\()2\().2d, t0.2d, t2.2d
-        trn2 \data\()3\().2d, t1.2d, t3.2d
-        trn1 \data\()0\().2d, t0.2d, t2.2d
-        trn1 \data\()1\().2d, t1.2d, t3.2d
+        trn2 \data\()2.2d, t0.2d, t2.2d
+        trn2 \data\()3.2d, t1.2d, t3.2d
+        trn1 \data\()0.2d, t0.2d, t2.2d
+        trn1 \data\()1.2d, t1.2d, t3.2d
 .endm
 
 .macro transpose_single data_out, data_in
-        trn1 \data_out\()0\().4s, \data_in\()0\().4s, \data_in\()1\().4s
-        trn2 \data_out\()1\().4s, \data_in\()0\().4s, \data_in\()1\().4s
-        trn1 \data_out\()2\().4s, \data_in\()2\().4s, \data_in\()3\().4s
-        trn2 \data_out\()3\().4s, \data_in\()2\().4s, \data_in\()3\().4s
+        trn1 \data_out\()0.4s, \data_in\()0.4s, \data_in\()1.4s
+        trn2 \data_out\()1.4s, \data_in\()0.4s, \data_in\()1.4s
+        trn1 \data_out\()2.4s, \data_in\()2.4s, \data_in\()3.4s
+        trn2 \data_out\()3.4s, \data_in\()2.4s, \data_in\()3.4s
 .endm
 
 .macro vec_to_scalar_matrix out, in
