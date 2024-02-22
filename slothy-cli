@@ -177,8 +177,10 @@ def _main():
             logger.debug("Parsing %s is a dictionary -- parse recursively", val)
             return { parse_config_value_as(k, None) : parse_config_value_as(v, None)
                      for k,v in kvs }
-        logger.debug("Parsing %s as string", val)
-        return val
+        if val.isidentifier():
+            logger.debug("Parsing %s as string", val)
+            return val
+        raise CmdLineException(f"Could not parse configuration value '{val}'")
 
     # A plain '-c' without arguments should list all available configuration options
     if [] in args.config:
