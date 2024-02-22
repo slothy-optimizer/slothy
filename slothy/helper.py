@@ -183,7 +183,7 @@ class SourceLine:
         """Returns the (non-metadata) text in the source line"""
         return self._raw
 
-    def to_string(self, indentation=False, comments=False, tags=False):
+    def to_string(self, indentation=True, comments=True, tags=True):
         """Convert source line to a string
 
         This includes formatting the metadata in a way reversing the
@@ -214,7 +214,9 @@ class SourceLine:
         return f"{indentation}{core}{add_str}".rstrip()
 
     def __str__(self):
-        return self.to_string()
+        raise AsmHelperException("Forbid str(SourceLine) for now -- call SourceLine.to_string() "
+                                 "explicitly and indicate if indentation, comments and tags "
+                                 "should be printed as well.")
 
     @staticmethod
     def reduce_source(src):
@@ -236,7 +238,7 @@ class SourceLine:
             return
         fun(f"Dump: {name}")
         for l in s:
-            fun(f"> {l}")
+            fun(f"> {l.to_string()}")
 
     def set_text(self, s):
         """Set the text of the source line
@@ -372,7 +374,7 @@ class SourceLine:
         assert SourceLine.is_source(s)
         res = []
         for line in s:
-            for l in str(line).split(';'):
+            for l in line.text.split(';'):
                 t = line.copy()
                 t.set_text(l)
                 res.append(t)
@@ -446,7 +448,8 @@ class AsmHelper():
         def get_indentation(l):
             return len(l) - len(l.lstrip())
 
-        source = map(str, source)
+        source = map(SourceLine.to_string, source)
+
         # Remove empty lines
         source = list(filter(lambda t: t.strip() != "", source))
         l = len(source)
@@ -473,7 +476,7 @@ class AsmHelper():
 
         # For now, just replace function names line by line
         def change_funcname(line):
-            s = str(line)
+            s = line.text
             s = re.sub( f"{old_funcname}:", f"{new_funcname}:", s)
             s = re.sub( f"\\.global(\\s+){old_funcname}", f".global\\1{new_funcname}", s)
             s = re.sub( f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
@@ -519,9 +522,9 @@ class AsmHelper():
             idx += 1
             if not keep:
                 l = next(lines, None)
-                l_str = str(l)
             if l is None:
                 break
+            l_str = l.text
             keep = False
             if state == 2:
                 post.append(l)
@@ -653,9 +656,8 @@ class AsmAllocation():
             return line
         res = []
         for line in src:
-            l = str(line)
             t = line.copy()
-            t.set_text(_apply_multiple_aliases_to_line(l))
+            t.set_text(_apply_multiple_aliases_to_line(line.text))
             res.append(t)
         return res
 
@@ -710,7 +712,7 @@ class AsmMacro():
     def __call__(self,args_dict):
         output = []
         for line in self.body:
-            l = str(line)
+            l = line.text
             for arg in self.args:
                 l = re.sub(f"\\\\{arg}(\\W|$)",args_dict[arg] + "\\1",l)
             l = re.sub("\\\\\\(\\)","",l)
@@ -814,7 +816,7 @@ class AsmMacro():
         macro_end_regexp = re.compile(macro_end_regexp_txt)
 
         for cur in source:
-            cur_str = str(cur)
+            cur_str = cur.text
 
             if state == 0:
 

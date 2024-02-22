@@ -487,7 +487,7 @@ class DataFlowGraph:
         log_func = self.logger.debug if not error else self.logger.error
         log_func(txt)
         for idx, l in enumerate(self.src):
-            log_func(" * %s: %s", idx, l[0])
+            log_func(" * %s: %s", idx, l[0][0].source_line.to_string())
 
     @property
     def arch(self):

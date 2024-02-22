@@ -815,7 +815,7 @@ class Heuristics():
     @staticmethod
     def _dump(name, s, logger, err=False, no_comments=False):
         assert SourceLine.is_source(s)
-        s = [ str(l) for l in s]
+        s = [ l.to_string() for l in s]
 
         def strip_comments(sl):
             return [ s.split("//")[0].strip() for s in sl ]

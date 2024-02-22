@@ -269,10 +269,10 @@ class Loop:
         while True:
             if not keep:
                 l = next(lines, None)
-                l_str = str(l)
             keep = False
             if l is None:
                 break
+            l_str = l.text
             assert isinstance(l, str) is False
             if state == 0:
                 p = loop_lbl_regexp.match(l_str)

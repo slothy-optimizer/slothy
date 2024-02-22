@@ -103,7 +103,7 @@ class Result(LockAttributes):
             t_comment = ''.join(t_comment)
 
             yield SourceLine("")                                      \
-                .set_comment(f"{str(self.orig_code[i]):{fixlen-3}s}") \
+                .set_comment(f"{self.orig_code[i].text:{fixlen-3}s}") \
                 .add_comment(t_comment)
 
         yield SourceLine("")
@@ -1656,7 +1656,7 @@ class SlothyBase(LockAttributes):
 
             self.logger.result.debug("Optimized code")
             for s in self._result.code:
-                self.logger.result.debug("> " + str(s).strip())
+                self.logger.result.debug("> " + s.to_string())
 
     def _add_path_constraint( self, consumer, producer, cb):
         """Add model constraint cb() relating to the pair of producer-consumer instructions
