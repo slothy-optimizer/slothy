@@ -9,12 +9,12 @@ RUN passwd -d ubuntu
 USER ubuntu
 WORKDIR /home/ubuntu
 # Fetching repositories as zips; could use git clone as well
-RUN wget https://github.com/slothy-optimizer/slothy/archive/refs/heads/main.zip -O slothy.zip
+RUN wget https://github.com/slothy-optimizer/slothy/archive/refs/heads/ches2024_artifact.zip -O slothy.zip
 RUN wget https://github.com/slothy-optimizer/pqmx/archive/refs/heads/ches2024_artifact.zip -O pqmx.zip
 RUN wget https://github.com/slothy-optimizer/pqax/archive/refs/heads/ches2024_artifact.zip -O pqax.zip
 RUN unzip slothy.zip
 RUN rm slothy.zip
-RUN mv slothy-main slothy
+RUN mv slothy-ches2024_artifact slothy
 RUN unzip pqax.zip
 RUN rm pqax.zip
 RUN mv pqax-ches2024_artifact pqax
