@@ -80,7 +80,7 @@ def add_slot_constraints(slothy):
         Instruction.is_q_form_vector_instruction, [0])
     # fcsel and vld2 on slot 0 only
     slothy.restrict_slots_for_instructions_by_class(
-        [fcsel_dform, stack_vld2_lane], [0])
+        [fcsel_dform, q_ld2_lane_post_inc], [0])
 
 def add_st_hazard(slothy):
     def is_vec_st_st_pair(inst_a, inst_b):
@@ -111,7 +111,7 @@ execution_units = {
         vsrshr, vand, vbic,
         Ldr_Q,
         Str_Q,
-        stack_vld1r, stack_vld2_lane,
+        q_ldr1_stack, q_ld2_lane_post_inc,
         vmull, vmlal, vushr, vusra
     ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
@@ -122,8 +122,8 @@ execution_units = {
     ( umov_d, mov_d01, mov_b00,
       fcsel_dform,
       VecToGprMov, Mov_xtov_d,
-      stack_vstp_dform, stack_vstr_dform, stack_vldr_bform, stack_vldr_dform,
-      stack_vld1r, stack_vld2_lane,
+      d_stp_stack_with_inc, d_str_stack_with_inc, b_ldr_stack_with_inc, d_ldr_stack_with_inc,
+      q_ldr1_stack, q_ld2_lane_post_inc,
     ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],  # these instructions use VEC0 or VEC1
 
     is_qform_form_of(vmov) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
@@ -157,8 +157,8 @@ execution_units = {
     is_qform_form_of(vshl) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vshl) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
 
-    (stack_stp, stack_stp_wform, stack_str, Str_X) : ExecutionUnit.SCALAR_STORE,
-    (stack_ldr, ldr_const, ldr_sxtw_wform, Ldr_X) : ExecutionUnit.SCALAR_LOAD,
+    (x_stp_with_imm_sp, w_stp_with_imm_sp, x_str_sp_imm, Str_X) : ExecutionUnit.SCALAR_STORE,
+    (x_ldr_stack_imm, ldr_const, ldr_sxtw_wform, Ldr_X) : ExecutionUnit.SCALAR_LOAD,
     (umull_wform, mul_wform, umaddl_wform ): ExecutionUnit.SCALAR_MUL(),
     ( lsr, bic, bfi, add, add_imm, add_sp_imm, add2, add_lsr, add_lsl,
       and_imm, nop, Vins, tst_wform, movk_imm, sub, mov,
@@ -180,9 +180,9 @@ inverse_throughput = {
     (fcsel_dform) : 1,
     (VecToGprMov, Mov_xtov_d) : 1,
     (movk_imm, mov) : 1,
-    (stack_vstp_dform, stack_vstr_dform) : 1,
-    (stack_stp, stack_stp_wform, stack_str) : 1,
-    (stack_ldr, ldr_const) : 1,
+    (d_stp_stack_with_inc, d_str_stack_with_inc) : 1,
+    (x_stp_with_imm_sp, w_stp_with_imm_sp, x_str_sp_imm) : 1,
+    (x_ldr_stack_imm, ldr_const) : 1,
     (ldr_sxtw_wform) : 3,
     (lsr, lsr_wform) : 1,
     (umull_wform, mul_wform, umaddl_wform) : 1,
@@ -194,8 +194,8 @@ inverse_throughput = {
     (vusra) : 1,
     (vand, vbic) : 1,
     (vuzp1, vuzp2) : 1,
-    (stack_vld1r, stack_vld2_lane) : 1,
-    (stack_vldr_bform, stack_vldr_dform) : 1,
+    (q_ldr1_stack, q_ld2_lane_post_inc) : 1,
+    (b_ldr_stack_with_inc, d_ldr_stack_with_inc) : 1,
     (mov_d01, mov_b00) : 1,
     (vzip1, vzip2) : 1,
     (eor_wform) : 1,
@@ -221,9 +221,9 @@ default_latencies = {
     (fcsel_dform) : 2,
     (VecToGprMov, Mov_xtov_d) : 2,
     (movk_imm, mov) : 1,
-    (stack_vstp_dform, stack_vstr_dform) : 1,
-    (stack_stp, stack_stp_wform, stack_str) : 1,
-    (stack_ldr, ldr_const) : 3,
+    (d_stp_stack_with_inc, d_str_stack_with_inc) : 1,
+    (x_stp_with_imm_sp, w_stp_with_imm_sp, x_str_sp_imm) : 1,
+    (x_ldr_stack_imm, ldr_const) : 3,
     (ldr_sxtw_wform) : 5,
     (lsr, lsr_wform) : 1,
     (umull_wform, mul_wform, umaddl_wform) : 3,
@@ -235,8 +235,8 @@ default_latencies = {
     (vusra) : 3,
     (vand, vbic) : 1,
     (vuzp1, vuzp2) : 2,
-    (stack_vld1r, stack_vld2_lane) : 3,
-    (stack_vldr_bform, stack_vldr_dform) : 3,
+    (q_ldr1_stack, q_ld2_lane_post_inc) : 3,
+    (b_ldr_stack_with_inc, d_ldr_stack_with_inc) : 3,
     (mov_d01, mov_b00) : 2,
     (vzip1, vzip2) : 2,
     (eor_wform) : 1,
