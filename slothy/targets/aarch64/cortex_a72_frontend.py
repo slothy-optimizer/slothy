@@ -156,7 +156,7 @@ inverse_throughput = {
 
     ( Ldr_Q,
       Str_Q,
-      stack_vld1r, stack_vld2_lane, Ldr_X, Str_X )
+      Ldr_X, Str_X )
       : 1,
 
     vsrshr : 1,
@@ -179,8 +179,7 @@ default_latencies = {
     : 3, # Approximation -- not necessary to get it exactly right, as mentioned above
 
     ( Ldr_Q, Ldr_X,
-      Str_Q, Str_X,
-      stack_vld1r, stack_vld2_lane )
+      Str_Q, Str_X )
       : 4, # approx
 
     Vins : 6, # approx

@@ -132,10 +132,22 @@ class RegisterType(Enum):
     @staticmethod
     def find_type(r):
         """Find type of architectural register"""
+
+        if r.startswith("hint_"):
+            return RegisterType.HINT
+
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
                 return ty
-        raise UnknownRegister(f"Unknown architectural register {r}")
+
+        return None
+
+    @staticmethod
+    def is_renamed(ty):
+        """Indicate if register type should be subject to renaming"""
+        if ty == RegisterType.HINT:
+            return False
+        return True
 
     @staticmethod
     def from_string(string):
@@ -269,10 +281,10 @@ class Loop:
         while True:
             if not keep:
                 l = next(lines, None)
-                l_str = str(l)
             keep = False
             if l is None:
                 break
+            l_str = l.text
             assert isinstance(l, str) is False
             if state == 0:
                 p = loop_lbl_regexp.match(l_str)
@@ -364,6 +376,44 @@ class Instruction:
         self.pre_index = None
         self.immediate = None
 
+    def extract_read_writes(self):
+        """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
+
+        src_line = self.source_line
+
+        def hint_register_name(tag):
+            return f"hint_{tag}"
+
+        # Check if the source line is tagged as reading/writing from memory
+        def add_memory_write(tag):
+            self.num_out += 1
+            self.args_out_restrictions.append(None)
+            self.args_out.append(hint_register_name(tag))
+            self.arg_types_out.append(RegisterType.HINT)
+
+        def add_memory_read(tag):
+            self.num_in += 1
+            self.args_in_restrictions.append(None)
+            self.args_in.append(hint_register_name(tag))
+            self.arg_types_in.append(RegisterType.HINT)
+
+        write_tags = src_line.tags.get("writes", [])
+        read_tags = src_line.tags.get("reads", [])
+
+        if not isinstance(write_tags, list):
+            write_tags = [write_tags]
+
+        if not isinstance(read_tags, list):
+            read_tags = [read_tags]
+
+        for w in write_tags:
+            add_memory_write(w)
+
+        for r in read_tags:
+            add_memory_read(r)
+
+        return self
+
     def global_parsing_cb(self, a, log=None):
         """Parsing callback triggered after DataFlowGraph parsing which allows modification
         of the instruction in the context of the overall computation.
@@ -390,11 +440,10 @@ class Instruction:
     def unfold_abbrevs(mnemonic):
         if mnemonic.count("<dt") > 1:
             for i in range(mnemonic.count("<dt")):
-                mnemonic = re.sub(f"<dt{i}>", f"(?P<datatype{i}>(?:2|4|8|16)(?:B|H|S|D))",
+                mnemonic = re.sub(f"<dt{i}>", f"(?P<datatype{i}>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))",
                                   mnemonic)
         else:
-            mnemonic = re.sub("<dt>",  "(?P<datatype>(?:|i|u|s)(?:8|16|32|64))", mnemonic)
-            mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f)(?:8|16|32))", mnemonic)
+            mnemonic = re.sub("<dt>",  f"(?P<datatype>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))", mnemonic)
         return mnemonic
 
     def _is_instance_of(self, inst_list):
@@ -416,15 +465,22 @@ class Instruction:
                                       vqdmulh_lane,
                                       vsrshr,
                                       Str_Q, Ldr_Q,
-                                      stack_vld1r])
+                                      q_ldr1_stack])
         dt = getattr(self, "datatype")
+
+        if self._is_instance_of([Q_Ld2_Lane_Post_Inc]):
+            return False
+
+        if isinstance(dt, list):
+            dt = dt[0]
+
         if dt == "":
             return False
-        if dt[0].lower() in ["2d", "4s", "8h", "16b"]:
+        if dt.lower() in ["2d", "4s", "8h", "16b"]:
             return True
-        if dt[0].lower() in ["1d", "2s", "4h", "8b"]:
+        if dt.lower() in ["1d", "2s", "4h", "8b"]:
             return False
-        raise FatalParsingException(f"unknown datatype {dt}")
+        raise FatalParsingException(f"unknown datatype '{dt}' in {self}")
 
     def is_vector_mul(self):
         """Indicates if an instruction is a Neon vector multiplication"""
@@ -440,7 +496,7 @@ class Instruction:
         return self._is_instance_of([ Ldr_Q, Ldp_Q ]) # TODO: Ld4 missing?
     def is_vector_store(self):
         """Indicates if an instruction is a Neon store instruction"""
-        return self._is_instance_of([ Str_Q, Stp_Q, St4, stack_vstp_dform, stack_vstr_dform])
+        return self._is_instance_of([ Str_Q, Stp_Q, St4, d_stp_stack_with_inc, d_str_stack_with_inc])
 
     # scalar
     def is_scalar_load(self):
@@ -544,6 +600,10 @@ class Instruction:
                 break
             except Instruction.ParsingException as e:
                 exceptions[inst_class.__name__] = e
+
+        for i in insts:
+            i.source_line = src_line
+            i.extract_read_writes()
 
         if len(insts) == 0:
             logging.error("Failed to parse instruction %s", src)
@@ -651,7 +711,7 @@ class AArch64Instruction(Instruction):
     def _infer_register_type(ptrn):
         if ptrn[0].upper() in ["X","W"]:
             return RegisterType.GPR
-        if ptrn[0].upper() in ["V","Q","D"]:
+        if ptrn[0].upper() in ["V","Q","D","B"]:
             return RegisterType.NEON
         if ptrn[0].upper() in ["T"]:
             return RegisterType.HINT
@@ -882,143 +942,6 @@ class restore(Instruction): # pylint: disable=missing-docstring,invalid-name
         obj.increment = None
         return obj
 
-# TODO: Need to unify these
-class stack_vstp_dform(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_vstp_dform",
-                               arg_types_in=[RegisterType.NEON, RegisterType.NEON],
-                               arg_types_out=[RegisterType.STACK_ANY, RegisterType.STACK_ANY])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_vstr_dform(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_vstr_dform",
-                               arg_types_in=[RegisterType.NEON],
-                               arg_types_out=[RegisterType.STACK_ANY])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_stp(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_stp",
-                               arg_types_in=[RegisterType.GPR, RegisterType.GPR],
-                               arg_types_out=[RegisterType.STACK_ANY, RegisterType.STACK_ANY])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_stp_wform(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_stp_wform",
-                               arg_types_in=[RegisterType.GPR, RegisterType.GPR],
-                               arg_types_out=[RegisterType.STACK_ANY, RegisterType.STACK_ANY])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_str(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_str",
-                               arg_types_in=[RegisterType.GPR],
-                               arg_types_out=[RegisterType.STACK_ANY])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_ldr(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_ldr",
-                               arg_types_in=[RegisterType.STACK_ANY],
-                               arg_types_out=[RegisterType.GPR])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_vld1r(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_vld1r",
-                               arg_types_in=[RegisterType.STACK_ANY],
-                               arg_types_out=[RegisterType.NEON])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_vldr_bform(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_vldr_bform",
-                               arg_types_in=[RegisterType.STACK_ANY],
-                               arg_types_out=[RegisterType.NEON])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_vldr_dform(Instruction): # pylint: disable=missing-docstring,invalid-name
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_vldr_dform",
-                               arg_types_in=[RegisterType.STACK_ANY],
-                               arg_types_out=[RegisterType.NEON])
-        obj.addr = "sp"
-        obj.increment = None
-        return obj
-
-class stack_vld2_lane(Instruction): # pylint: disable=missing-docstring,invalid-name
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.detected_stack_vld2_lane_pair = None
-        self.lane = None
-
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(cls, src, mnemonic="stack_vld2_lane",
-            arg_types_in=[RegisterType.STACK_ANY],
-            arg_types_in_out=[RegisterType.NEON, RegisterType.NEON, RegisterType.GPR])
-
-        regexp_txt = r"stack_vld2_lane\s+(?P<dst1>\w+)\s*,\s*(?P<dst2>\w+)\s*,\s*"\
-            r"(?P<src1>\w+)\s*,\s*"\
-            r"(?P<src2>\w+)\s*,\s*"\
-            r"(?P<lane>.*),\s*(?P<immediate>.*)"
-        regexp_txt = Instruction.unfold_abbrevs(regexp_txt)
-        regexp = re.compile(regexp_txt)
-        p = regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        obj.args_in     = [p.group("src2")]
-        obj.args_in_out = [p.group("dst1"), p.group("dst2"), p.group("src1")]
-        obj.args_out = []
-
-        obj.lane = p.group("lane")
-        obj.immediate = p.group("immediate")
-
-        obj.args_in_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
-            ]
-
-        obj.addr = p.group("src1")
-        obj.increment = obj.immediate
-        obj.detected_stack_vld2_lane_pair = False
-        return obj
-
-    def write(self):
-        if not self.detected_stack_vld2_lane_pair:
-            return f"stack_vld2_lane {self.args_in_out[0]}, {self.args_in_out[1]}, "\
-                   f"{self.args_in_out[2]}, {self.args_in[0]}, {self.lane}, {self.immediate}"
-
-        return f"stack_vld2_lane {self.args_out[0]}, {self.args_out[1]}, "\
-               f"{self.args_in_out[0]}, {self.args_in[0]}, {self.lane}, {self.immediate}"
-
 class nop(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "nop"
 
@@ -1077,6 +1000,108 @@ class q_ldr_with_inc_hint(Ldr_Q): # pylint: disable=missing-docstring,invalid-na
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class b_ldr_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldr <Ba>, [sp, <imm>]"
+    # TODO: Model sp dependency
+    outputs = ["Ba"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class d_ldr_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldr <Da>, [sp, <imm>]"
+    # TODO: Model sp dependency
+    outputs = ["Da"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class Q_Ld2_Lane_Post_Inc(AArch64Instruction):
+    pass
+
+class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
+    # TODO: Model sp dependency
+    inputs = ["Xa"]
+    in_outs = ["Va", "Vb"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        obj.detected_q_ld2_lane_post_inc_pair = False
+        return obj
+
+    def write(self):
+        return super().write()
+
+class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
+    # TODO: Model sp dependency
+    inputs = ["Xa"]
+    outputs = ["Va", "Vb"]
+    @classmethod
+    def make(cls, src, force=False):
+        if force is False:
+            raise Instruction.ParsingException("Instruction ignored")
+
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        return super().write()
+
+class q_ldr1_stack(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ld1r {<Va>.<dt>}, [sp]"
+    # TODO: Model sp dependency
+    outputs = ["Va"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        return super().write()
+
+class q_ldr_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldr <Qa>, [sp, <imm>]"
+    # TODO: Model sp dependency
+    outputs = ["Qa"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
         return obj
 
     def write(self):
@@ -1157,16 +1182,6 @@ class Str_Q(AArch64Instruction): # pylint: disable=missing-docstring,invalid-nam
 class Stp_Q(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pass
 
-class d_stp_sp_imm(Str_Q): # pylint: disable=missing-docstring,invalid-name
-    pattern = "stp <Da>, <Db>, [sp, <imm>]"
-    @classmethod
-    def make(cls, src):
-        obj = AArch64Instruction.build(cls, src)
-        obj.increment = None
-        obj.pre_index = obj.immediate
-        obj.addr = "sp"
-        return obj
-
 class q_str(Str_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "str <Qa>, [<Xc>]"
     inputs = ["Qa", "Xc"]
@@ -1203,6 +1218,66 @@ class q_str_with_inc(Str_Q): # pylint: disable=missing-docstring,invalid-name
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[1]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class d_str_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "str <Da>, [sp, <imm>]"
+    inputs = ["Da"] # TODO: Model sp dependency
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class q_str_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "str <Qa>, [sp, <imm>]"
+    inputs = ["Qa"] # TODO: Model sp dependency
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class d_stp_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "stp <Da>, <Db>, [sp, <imm>]"
+    inputs = ["Da", "Db"] # TODO: Model sp dependency
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class q_stp_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "stp <Qa>, <Qb>, [sp, <imm>]"
+    inputs = ["Qa", "Qb"] # TODO: Model sp dependency
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
         return obj
 
     def write(self):
@@ -2483,7 +2558,6 @@ class x_str_postinc(Str_X): # pylint: disable=missing-docstring,invalid-name
 class x_str_sp_imm(Str_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "str <Xa>, [sp, <imm>]"
     inputs = ["Xa"]
-    outputs = ["Th"]
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
@@ -2515,6 +2589,7 @@ class x_str_sp_imm_hint(Str_X): # pylint: disable=missing-docstring,invalid-name
 class x_str_imm_hint(Str_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "strh <Xa>, <Xb>, <imm>, <Th>"
     inputs = ["Xa", "Xb"]
+    outputs = ["Th"]
 
     @classmethod
     def make(cls, src):
@@ -2551,6 +2626,21 @@ class x_stp(Stp_X): # pylint: disable=missing-docstring,invalid-name
 class x_stp_with_imm_xzr_sp(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stp <Xa>, xzr, [sp, <imm>]"
     inputs = ["Xa"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class w_stp_with_imm_sp(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "stp <Wa>, <Wb>, [sp, <imm>]"
+    inputs = ["Wa", "Wb"]
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
@@ -2805,11 +2895,12 @@ def vins_d_parsing_cb():
                     succ = r
         if succ is None:
             return False
+
         # Reparse as instruction-variant treating the input/output as an output
-        inst_txt = t.inst.write()
         old_src = t.inst.source_line.copy()
+        inst_txt = old_src.to_string(indentation=False)
         t.inst = vins_d_force_output.make(inst_txt, force=True)
-        t.inst.source_line = old_src.set_text(inst_txt)
+        t.inst.source_line = old_src
         t.changed = True
         return True
     return core
@@ -2831,11 +2922,12 @@ def fmov_0_parsing_cb():
                     succ = r
         if succ is None:
             return False
+
         # Reparse as instruction-variant treating the input/output as an output
-        inst_txt = t.inst.write()
-        old_src = t.inst.source_line
+        old_src = t.inst.source_line.copy()
+        inst_txt = old_src.to_string(indentation=False)
         t.inst = fmov_0_force_output.make(inst_txt, force=True)
-        t.inst.source_line = old_src.set_text(inst_txt)
+        t.inst.source_line = old_src
         t.changed = True
         return True
     return core
@@ -2854,59 +2946,47 @@ def fmov_1_parsing_cb():
                     succ = r
         if succ is None:
             return False
+
         # Reparse as instruction-variant treating the input/output as an output
-        inst_txt = t.inst.write()
-        old_src = t.inst.source_line
+        old_src = t.inst.source_line.copy()
+        inst_txt = old_src.to_string(indentation=False)
         t.inst = fmov_1_force_output.make(inst_txt, force=True)
-        t.inst.source_line = old_src.set_text("inst_txt")
+        t.inst.source_line = old_src
         t.changed = True
         return True
     return core
 fmov_1.global_parsing_cb = fmov_1_parsing_cb()
 
-def stack_vld2_lane_parsing_cb():
+def q_ld2_lane_post_inc_parsing_cb():
     def core(inst,t, log=None):
         _ = log # log is not used
 
         succ = None
 
-        if inst.detected_stack_vld2_lane_pair:
-            return False
-
-        # Check if this is the first in a pair of stack_vld2_lane+stack_vld2_lane
+        # Check if this is the first in a pair of q_ld2_lane_post_inc+q_ld2_lane_post_inc
         if len(t.dst_in_out[0]) == 1:
             r = t.dst_in_out[0][0]
-            if isinstance(r.inst, stack_vld2_lane):
+            if isinstance(r.inst, q_ld2_lane_post_inc):
                 if r.inst.args_in_out[:2] == inst.args_in_out[:2] and \
-                   {r.inst.lane, inst.lane} == {'0','1'}:
+                   {r.inst.index, inst.index} == {0, 1}:
                     succ = r
 
         if succ is None:
             return False
 
-        # If so, mark in/out as output only, and signal the need for re-building
-        # the dataflow graph
+        # Reparse as instruction-variant treating input/output as output
 
-        inst.num_out = 2
-        inst.args_out = [ inst.args_in_out[0], inst.args_in_out[1] ]
-        inst.arg_types_out = [ RegisterType.NEON, RegisterType.NEON ]
-        inst.args_out_restrictions = inst.args_in_out_restrictions[:2]
-        inst.args_out_combinations = inst.args_in_out_combinations[:2]
-
-        inst.num_in_out = 1
-        inst.args_in_out = [ inst.args_in_out[2] ]
-        inst.arg_types_in_out = [ RegisterType.GPR ]
-        inst.args_in_out_restrictions = [None]
-        inst.args_in_out_combinations = None
-
-        inst.detected_stack_vld2_lane_pair = True
-
+        old_src = t.inst.source_line.copy()
+        inst_txt = old_src.to_string(indentation=False)
+        t.inst = q_ld2_lane_post_inc_force_output.make(inst_txt, force=True)
+        t.inst.source_line = old_src
         t.changed = True
+        t.inst.extract_read_writes()
         return True
 
     return core
 
-stack_vld2_lane.global_parsing_cb  = stack_vld2_lane_parsing_cb()
+q_ld2_lane_post_inc.global_parsing_cb  = q_ld2_lane_post_inc_parsing_cb()
 
 def eor3_fusion_cb():
     def core(inst,t,log=None):
