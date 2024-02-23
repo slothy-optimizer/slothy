@@ -82,13 +82,13 @@ class Config(NestedPrint, LockAttributes):
     @property
     def selfcheck(self):
         """Indicates whether SLOTHY performs a self-check on the optimization result.
-        
+
         The selfcheck confirms that the scheduling permutation found by SLOTHY yields
         an isomorphism between the data flow graphs of the original and optimized code.
 
         WARNING: Do not unset this option unless you know what you are doing.
             It is vital in catching bugs in the model generation early.
-        
+
         WARNING: The selfcheck is not a formal verification of SLOTHY's output!
             There are at least two classes of bugs uncaught by the selfcheck:
 
@@ -122,10 +122,10 @@ class Config(NestedPrint, LockAttributes):
     @property
     def allow_useless_instructions(self):
         """Indicates whether SLOTHY should abort upon encountering unused instructions.
-        
+
         SLOTHY requires explicit knowledge of the intended output registers of its
-        input assembly. If this option is set, and an instruction is encountered which 
-        writes to a register which (a) is not an output register, (b) is not used by 
+        input assembly. If this option is set, and an instruction is encountered which
+        writes to a register which (a) is not an output register, (b) is not used by
         any later instruction, then SLOTHY will flag this instruction and abort.
 
         The reason for this behaviour is that such unused instructions are usually
@@ -141,15 +141,15 @@ class Config(NestedPrint, LockAttributes):
     @property
     def variable_size(self):
         """Model number of stalls as a parameter in the constraint model.
-        
+
         If this is set, one-shot SLOTHY optimization will make the number of stalls
         flexible in the model and, by default, task the underlying constraint solver
         to minimize it.
-        
+
         If this is not set, one-shot SLOTHY optimizations will search for solutions
         with a fixed number of stalls, and an external binary search be used to
         find the minimum number of stalls.
-        
+
         For small-to-medium sizes assembly input, this option should be set, and will
         lead to faster optimization. For large assembly input, the user should experiment
         and consider unsetting it to reduce model complexity.
@@ -159,15 +159,21 @@ class Config(NestedPrint, LockAttributes):
     @property
     def keep_tags(self):
         """Indicates whether tags in the input source should be kept or removed.
-        
+
         Tags include pre/core/post or ordering annotations that usually become meaningless
         post-optimization. However, for preprocessing runs that do not reorder code, it makes
         sense to keep them."""
         return self._keep_tags
 
     @property
+    def inherit_macro_comments(self):
+        """Indicates whether comments at macro invocations should be inherited to instructions
+        in the macro body."""
+        return self._inherit_macro_comments
+
+    @property
     def ignore_tags(self):
-        """Indicates whether tags in the input source should be ignored."""        
+        """Indicates whether tags in the input source should be ignored."""
         return self._ignore_tags
 
     @property
@@ -313,9 +319,9 @@ class Config(NestedPrint, LockAttributes):
     @property
     def do_address_fixup(self):
         """Indicates whether post-optimization address fixup should be conducted.
-        
+
         SLOTHY's modelling of post-load/store address increments is deliberately
-        inaccurate to allow for reordering of such instructions leveraging commutativity 
+        inaccurate to allow for reordering of such instructions leveraging commutativity
         relations such as:
 
         ```
@@ -323,11 +329,11 @@ class Config(NestedPrint, LockAttributes):
         ```
 
         When such reordering happens, a "post-optimization address fixup" of immediate
-        load/store offsets is necessary. See also section "Address offset rewrites" in 
+        load/store offsets is necessary. See also section "Address offset rewrites" in
         the SLOTHY paper.
 
         Disabling this option will skip post-optimization address fixup and put the
-        burden of post-optimization address fixup on the user. 
+        burden of post-optimization address fixup on the user.
         Disabling this option does NOT tighten the constraint model to forbid reorderings
         such as the above.
 
@@ -788,6 +794,24 @@ class Config(NestedPrint, LockAttributes):
             in order to find the number of model violations in a piece of code."""
             return self._allow_renaming
 
+        @property
+        def max_displacement(self):
+            """The maximum relative displacement of an instruction.
+
+            Examples:
+            - If set to 1, instructions can be reordered freely.
+            - If set to 0, no reordering will happen.
+            - If set to 0.5, an instruction will not move by more than N/2
+              places between original and re-scheduled source code.
+
+            This is an experimental feature for the purpose of speeding
+            up otherwise intractable optimization tasks.
+
+            LIMITATION: This only takes effect in straightline optimization
+              (no software pipelining).
+            """
+            return self._max_displacement
+
         def __init__(self):
             super().__init__()
 
@@ -796,6 +820,8 @@ class Config(NestedPrint, LockAttributes):
             self.st_ld_hazard_ignore_scattergather = False
             self.st_ld_hazard_ignore_stack = False
             self.minimize_st_ld_hazards = False
+
+            self._max_displacement = 1.0
 
             self.maximize_register_lifetimes = False
 
@@ -819,6 +845,9 @@ class Config(NestedPrint, LockAttributes):
 
             self.lock()
 
+        @max_displacement.setter
+        def max_displacement(self,val):
+            self._max_displacement = val
         @stalls_allowed.setter
         def stalls_allowed(self,val):
             self._stalls_allowed = val
@@ -881,7 +910,7 @@ class Config(NestedPrint, LockAttributes):
         def ext_bsearch_remember_successes(self):
             """When using an external binary search, hint previous successful
                 optimiation.
-                
+
             See also Config.variable_size."""
             return self._ext_bsearch_remember_successes
 
@@ -945,6 +974,7 @@ class Config(NestedPrint, LockAttributes):
         self._compiler_binary = "gcc"
 
         self.keep_tags = True
+        self.inherit_macro_comments = False
         self.ignore_tags = False
 
         self._do_address_fixup = True
@@ -1039,6 +1069,9 @@ class Config(NestedPrint, LockAttributes):
     @keep_tags.setter
     def keep_tags(self, val):
         self._keep_tags = val
+    @inherit_macro_comments.setter
+    def inherit_macro_comments(self, val):
+        self._inherit_macro_comments = val
     @ignore_tags.setter
     def ignore_tags(self, val):
         self._ignore_tags = val

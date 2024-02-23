@@ -38,8 +38,21 @@ up to 150 instructions in minutes to hours, while for larger kernels some heuris
 ### Applications
 
 SLOTHY has been used to provide the fastest known implementations of various cryptographic and DSP primitives:
-For example, the [SLOTHY paper](https://eprint.iacr.org/2022/1303) discusses the NTTs underlying ML-KEM and ML-DSA for Cortex-{A55, A72, M55, M85}, the FFT for Cortex-{M55,M85}, and the X25519 scalar multiplication for Cortex-A55. You find the clean and
-optimized source code for those examples in [`paper/`](paper).
+For example, the [SLOTHY paper](https://eprint.iacr.org/2022/1303) discusses the NTTs underlying ML-KEM and ML-DSA for
+Cortex-{A55, A72, M55, M85}, the FFT for Cortex-{M55,M85}, and the X25519 scalar multiplication for Cortex-A55. You find
+the clean and optimized source code for those examples in [`paper/`](paper).
+
+## Real world uses
+
+* Arm EndpointAI: SLOTHY-optimized code has been deployed to the CMSIS DSP Library for the radix-4 CFFT routines as part
+  of the [Arm EndpointAI project](https://github.com/ARM-software/EndpointAI) in [this
+  commit](https://github.com/ARM-software/EndpointAI/commit/817bb57d8a4a604538a04627851f5e9adb5f08fc).
+
+* Amazon AWS Labs s2n-bignum: SLOTHY-optimized X25519 code based on our un-interleaved form of the [original code by Emil
+  Lenngren](https://github.com/Emill/X25519-AArch64) has been [formally verified and
+  included](https://github.com/awslabs/s2n-bignum/pull/108) in
+  [s2n-bignum](https://github.com/awslabs/s2n-bignum/). s2n-bignum is a collection of bignum arithmetic routines
+  used in [AWS libcrypto (AWS-LC)](https://github.com/aws/aws-lc).
 
 ## Installation
 

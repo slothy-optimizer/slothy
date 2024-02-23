@@ -103,7 +103,7 @@ class Result(LockAttributes):
             t_comment = ''.join(t_comment)
 
             yield SourceLine("")                                      \
-                .set_comment(f"{str(self.orig_code[i]):{fixlen-3}s}") \
+                .set_comment(f"{self.orig_code[i].text:{fixlen-3}s}") \
                 .add_comment(t_comment)
 
         yield SourceLine("")
@@ -393,10 +393,13 @@ class Result(LockAttributes):
         code = self._code
         assert SourceLine.is_source(code)
         ri = self.periodic_reordering_with_bubbles_inv
-        if not self.config.visualize_reordering:
-            return code
 
         fixlen = max(map(len, code), default=0) + 8
+        for l in code:
+            l.set_length(fixlen)
+
+        if not self.config.visualize_reordering:
+            return code
 
         early_char = self.config.early_char
         late_char  = self.config.late_char
@@ -409,7 +412,7 @@ class Result(LockAttributes):
                 if p is None:
                     gap_str = "gap"
                     yield SourceLine("")    \
-                        .set_comment(f"{gap_str:{fixlen-3}s}") \
+                        .set_comment(f"{gap_str:{fixlen-4}s}") \
                         .add_comment(d * self.codesize)
                     continue
                 s = code[self.periodic_reordering[p]]
@@ -1209,6 +1212,11 @@ class SlothyBase(LockAttributes):
             is_arch = self._reg_is_architectural(reg, ty)
             arch_str = "arch" if is_arch else "symbolic"
 
+            # If the register type does not participate in renaming, always
+            # keep original register assignment
+            if self.arch.RegisterType.is_renamed(ty) is False:
+                return True, reg
+
             if not isinstance(conf_val, dict):
                 raise SlothyException(f"Couldn't make sense of renaming configuration {conf_val}")
 
@@ -1314,8 +1322,9 @@ class SlothyBase(LockAttributes):
         interval = self._NewOptionalIntervalVar(
             start_var, dur_var, end_var, var, f"Usage({t.inst})({reg})<{var}>")
 
-        # At this stage, we should only operate with _architectural_ register names
-        assert reg in self.arch.RegisterType.list_registers(reg_ty)
+        if self.arch.RegisterType.is_renamed(reg_ty):
+            # At this stage, we should only operate with _architectural_ register names
+            assert reg in self.arch.RegisterType.list_registers(reg_ty)
 
         self._model.register_usages.setdefault(reg, [])
         self._model.register_usages[reg].append(interval)
@@ -1653,10 +1662,7 @@ class SlothyBase(LockAttributes):
 
             self.logger.result.debug("Optimized code")
             for s in self._result.code:
-                self.logger.result.debug("> " + str(s).strip())
-
-        if self.config.visualize_reordering:
-            self._result._code += self._result.orig_code_visualized
+                self.logger.result.debug("> " + s.to_string())
 
     def _add_path_constraint( self, consumer, producer, cb):
         """Add model constraint cb() relating to the pair of producer-consumer instructions
@@ -1762,6 +1768,18 @@ class SlothyBase(LockAttributes):
 
             if self.config.hints.order_hint_orig_order:
                 self._AddHint(t.program_start_var, int(t.id))
+
+            if self.config.sw_pipelining.enabled is False and \
+               self.config.constraints.max_displacement < 1.0:
+                # We also measure the displacement of an instruction relative to its
+                # original position (scaled to the padded program length).
+                # By default, no constraints are associated with this, but the amount
+                # of displacement is an interesting measure for how much reordering was
+                # still necessary, and may perhaps drive heuristics.
+                rel_pos = t.orig_pos / len(self._model.tree.nodes)
+                t.orig_pos_scaled = int( rel_pos * self._model.program_padded_size_const)
+                t.program_displacement = self._NewIntVar(0,self._model.program_horizon,
+                                                         f"{t.varname()}_program_displacement")
 
         if self.config.constraints.functional_only:
             return
@@ -1886,17 +1904,22 @@ class SlothyBase(LockAttributes):
                 # outputs of locked instructions.
                 self.logger.debug("Locked registers: %s", self.config.locked_registers)
                 is_locked = arg_out in self.config.locked_registers
-                # Symbolic registers are always renamed
-                if self._reg_is_architectural(arg_out, arg_ty) and (t.is_locked or is_locked
-                                                                    or not _allow_renaming(t)):
-                    self.logger.input.debug(f"Instruction {t.inst.write()} has its output locked")
-                    if is_locked:
-                        self.logger.input.debug("Reason: Register is locked")
-                    if not _allow_renaming(t):
-                        self.logger.input.debug("Reason: Register renaming has been disabled "
-                                                "for this instruction")
+
+                locked = False
+                reason = None
+                if self.arch.RegisterType.is_renamed(arg_ty) is False:
+                    locked, reason = True, "Register type is not renamed"
+                elif self._reg_is_architectural(arg_out, arg_ty):
                     if t.is_locked:
-                        self.logger.input.debug("Reason: Instruction is locked")
+                        locked, reason = True, "Instruction is locked"
+                    elif is_locked:
+                        locked, reason = True, "Register is locked"
+                    elif not _allow_renaming(t):
+                        locked, reason = True, "Register renaming disabled for this instruction"
+
+                if locked is True:
+                    self.logger.input.debug(f"Instruction {t.inst.write()} has its output locked")
+                    self.logger.input.debug(f"Reason: {reason}")
                     candidates = [arg_out]
                 else:
                     candidates = list(set(self._model.avail_renaming_regs[arg_ty]))
@@ -2392,6 +2415,13 @@ class SlothyBase(LockAttributes):
                 self._Add( s <= self._model.program_padded_size)
             for s in t.inout_lifetime_end + t.inout_lifetime_duration:
                 self._Add( s <= self._model.program_padded_size)
+
+            if self.config.constraints.max_displacement < 1.0:
+                self._AddAbsEq( t.program_displacement,
+                                t.program_start_var - t.orig_pos_scaled )
+                max_disp = int(self.config.constraints.max_displacement *
+                               self._model.program_padded_size_const)
+                c = self._Add( t.program_displacement < max_disp )
 
             if self.config.constraints.functional_only:
                 continue

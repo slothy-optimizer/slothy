@@ -35,15 +35,15 @@ class SourceLine:
     def _extract_comments_from_text(self):
         if not "//" in self._raw:
             return
-        s = list(map(str.strip, self._raw.split("//")))
+        s = list(self._raw.split("//"))
         self._raw = s[0]
-        self._comments += s[1:]
+        self._comments += map(str.strip, s[1:])
         self._trim_comments()
 
     def _extract_indentation_from_text(self):
         old = self._raw
         new = old.lstrip()
-        self._indentation = len(old) - len(new)
+        self._indentation += len(old) - len(new)
         self._raw = new
 
     @staticmethod
@@ -63,14 +63,22 @@ class SourceLine:
             tags[tag] = value
             return ""
 
+        def tag_list_callback(g):
+            tag = g.group("tag")
+            values = list(map(parse_value, g.group("value").split(',')))
+            tags[tag] = values
+            return ""
+
         def tag_callback(g):
             tag = g.group("tag")
             tags[tag] = True
             return ""
 
         tag_value_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=(?P<value>\w+)"
+        tag_list_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=\[(?P<value>.+)\]"
         tag_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)"
         s = re.sub(tag_value_regexp_txt, tag_value_callback, s)
+        s = re.sub(tag_list_regexp_txt, tag_list_callback, s)
         s = re.sub(tag_regexp_txt, tag_callback, s)
         return s
 
@@ -174,11 +182,16 @@ class SourceLine:
         return self._raw.strip() != ""
 
     @property
+    def indentation(self):
+        """Returns the current level of indentation for the source line"""
+        return self._indentation
+
+    @property
     def text(self):
         """Returns the (non-metadata) text in the source line"""
         return self._raw
 
-    def to_string(self, indentation=False, comments=False, tags=False):
+    def to_string(self, indentation=True, comments=True, tags=True):
         """Convert source line to a string
 
         This includes formatting the metadata in a way reversing the
@@ -195,18 +208,30 @@ class SourceLine:
         triple_comments = map(lambda s: (" " + s[1:].strip()).rstrip(),
                               filter(lambda t: t.startswith("/"), self._comments))
 
-        comment_str = ""
+        additional = []
+
         if comments is True:
-            comment_str += ''.join(map(lambda s: f"// {s}", double_comments))
-            comment_str += ''.join(map(lambda s: f"///{s}", triple_comments))
+            additional += list(map(lambda s: f"// {s}", double_comments))
+            additional += list(map(lambda s: f"///{s}", triple_comments))
 
-        tags = ' '.join(map(lambda tv: f" // @slothy:{tv[0]}={tv[1]}", self._tags.items())) \
-            if tags is True else ""
+        if tags is True:
+            def print_tag_value(tv):
+                t, v = tv
+                if v is True:
+                    return f"// @slothy:{t}"
+                if isinstance(v, list):
+                    return f"// @slothy:{t}=[{','.join(v)}]"
+                return f"// @slothy:{t}={v}"
+            additional += list(map(print_tag_value, self._tags.items()))
 
-        return f"{indentation}{core}{comment_str}{tags}"
+        add_str = ' '.join(additional)
+
+        return f"{indentation}{core}{add_str}".rstrip()
 
     def __str__(self):
-        return self.to_string()
+        raise AsmHelperException("Forbid str(SourceLine) for now -- call SourceLine.to_string() "
+                                 "explicitly and indicate if indentation, comments and tags "
+                                 "should be printed as well.")
 
     @staticmethod
     def reduce_source(src):
@@ -228,7 +253,7 @@ class SourceLine:
             return
         fun(f"Dump: {name}")
         for l in s:
-            fun(f"> {l}")
+            fun(f"> {l.to_string()}")
 
     def set_text(self, s):
         """Set the text of the source line
@@ -237,6 +262,10 @@ class SourceLine:
         metadata (such as comments, indentation or tags) unmodified."""
         self._raw = s
         return self
+
+    def transform_text(self, f):
+        """Apply transformation f to text of source line."""
+        self._raw=f(self._raw)
 
     def add_text(self, s):
         """Add text to a source line
@@ -285,6 +314,8 @@ class SourceLine:
         for l in s:
             if cur is not None:
                 cur.add_text(l.text)
+                cur.add_tags(l.tags)
+                cur.add_comments(l.comments)
             else:
                 cur = l.copy()
             if cur.is_escaped:
@@ -333,6 +364,12 @@ class SourceLine:
         self.add_tags(l.tags)
         return self
 
+    def inherit_comments(self, l):
+        """Inhertis the comments from another source line"""
+        assert SourceLine.is_source_line(l)
+        self.add_comments(l.comments)
+        return self
+
     @staticmethod
     def apply_indentation(source, indentation):
         """Apply consistent indentation to assembly source"""
@@ -358,7 +395,7 @@ class SourceLine:
         assert SourceLine.is_source(s)
         res = []
         for line in s:
-            for l in str(line).split(';'):
+            for l in line.text.split(';'):
                 t = line.copy()
                 t.set_text(l)
                 res.append(t)
@@ -432,7 +469,8 @@ class AsmHelper():
         def get_indentation(l):
             return len(l) - len(l.lstrip())
 
-        source = map(str, source)
+        source = map(SourceLine.to_string, source)
+
         # Remove empty lines
         source = list(filter(lambda t: t.strip() != "", source))
         l = len(source)
@@ -459,7 +497,7 @@ class AsmHelper():
 
         # For now, just replace function names line by line
         def change_funcname(line):
-            s = str(line)
+            s = line.text
             s = re.sub( f"{old_funcname}:", f"{new_funcname}:", s)
             s = re.sub( f"\\.global(\\s+){old_funcname}", f".global\\1{new_funcname}", s)
             s = re.sub( f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
@@ -476,7 +514,6 @@ class AsmHelper():
     def extract(source, lbl_start=None, lbl_end=None):
         """Extract code between two labels from an assembly source"""
         pre, body, post = AsmHelper._extract_core(source, lbl_start, lbl_end)
-        body = SourceLine.reduce_source(body)
         return pre, body, post
 
     @staticmethod
@@ -505,9 +542,9 @@ class AsmHelper():
             idx += 1
             if not keep:
                 l = next(lines, None)
-                l_str = str(l)
             if l is None:
                 break
+            l_str = l.text
             keep = False
             if state == 2:
                 post.append(l)
@@ -639,9 +676,8 @@ class AsmAllocation():
             return line
         res = []
         for line in src:
-            l = str(line)
             t = line.copy()
-            t.set_text(_apply_multiple_aliases_to_line(l))
+            t.set_text(_apply_multiple_aliases_to_line(line.text))
             res.append(t)
         return res
 
@@ -694,21 +730,41 @@ class AsmMacro():
         self.body = body
 
     def __call__(self,args_dict):
+
+        def prepare_value(a):
+            a = a.strip()
+            a = a.replace("\\","\\\\")
+            if a.startswith("\\") and not "\\\\()" in a:
+                a = a + "\\\\()"
+            return a
+
+        def apply_arg(l, arg, val):
+            l = re.sub(f"\\\\{arg}\\\\\(\)", val, l)
+            l = re.sub(f"\\\\{arg}(\\W|$)",val + "\\1", l)
+            l = l.replace("\\()\\()", "\\()")
+            return l
+
+        def apply_args(l):
+            for arg in self.args:
+                val = prepare_value(args_dict[arg])
+                if not isinstance(l, list):
+                    l = apply_arg(l, arg, val)
+                else:
+                    l = list(map(lambda x: apply_arg(x, arg, val), l))
+            return l
+
         output = []
         for line in self.body:
-            l = str(line)
-            for arg in self.args:
-                l = re.sub(f"\\\\{arg}(\\W|$)",args_dict[arg] + "\\1",l)
-            l = re.sub("\\\\\\(\\)","",l)
             t = line.copy()
-            t.set_text(l)
+            t.transform_text(apply_args)
+            t.tags = { k:apply_args(v) for (k,v) in t.tags.items() }
             output.append(t)
         return output
 
     def __repr__(self):
         return self.name
 
-    def unfold_in(self, source, change_callback=None):
+    def unfold_in(self, source, change_callback=None, inherit_comments=False):
         """Unfold all applications of macro in assembly source"""
         assert SourceLine.is_source(source)
 
@@ -733,7 +789,7 @@ class AsmMacro():
         indentation_regexp = re.compile(indentation_regexp_txt)
 
         # Go through source line by line and check if there's a macro invocation
-        for l in SourceLine.reduce_source(source):
+        for l in source:
             assert SourceLine.is_source_line(l)
 
             if l.has_text():
@@ -747,17 +803,18 @@ class AsmMacro():
             if change_callback:
                 change_callback()
             # Try to keep indentation
-            indentation = len(indentation_regexp.match(l.text).group("whitespace"))
             repl = self(p.groupdict())
             for l0 in repl:
-                l0.set_indentation(indentation)
+                l0.set_indentation(l.indentation)
                 l0.inherit_tags(l)
+                if inherit_comments is True:
+                    l0.inherit_comments(l)
             output += repl
 
         return output
 
     @staticmethod
-    def unfold_all_macros(macros, source):
+    def unfold_all_macros(macros, source, **kwargs):
         """Unfold list of macros in assembly source"""
         assert isinstance(macros, list)
         assert SourceLine.is_source(source)
@@ -777,7 +834,7 @@ class AsmMacro():
                 nonlocal change
                 change = True
             for m in macros.values():
-                source = m.unfold_in(source, change_callback=cb)
+                source = m.unfold_in(source, change_callback=cb, **kwargs)
         return source
 
     @staticmethod
@@ -798,7 +855,7 @@ class AsmMacro():
         macro_end_regexp = re.compile(macro_end_regexp_txt)
 
         for cur in source:
-            cur_str = str(cur)
+            cur_str = cur.text
 
             if state == 0:
 
@@ -851,10 +908,18 @@ class CPreprocessor():
     @staticmethod
     def unfold(header, body, gcc):
         """Runs the concatenation of header and body through the preprocessor"""
-        code = header + [CPreprocessor.magic_string] + body
 
-        r = subprocess.run([gcc, "-E", "-x", "assembler-with-cpp","-"],
-                           input='\n'.join(code), text=True, capture_output=True, check=True)
+        assert SourceLine.is_source(body)
+        assert SourceLine.is_source(header)
+
+        body_txt = SourceLine.write_multiline(body)
+        header_txt = SourceLine.write_multiline(header)
+
+        code_txt = '\n'.join([header_txt, CPreprocessor.magic_string, body_txt])
+
+        # Pass -CC to keep comments
+        r = subprocess.run([gcc, "-E", "-CC", "-x", "assembler-with-cpp","-"],
+                           input=code_txt, text=True, capture_output=True, check=True)
 
         unfolded_code = r.stdout.split('\n')
         magic_idx = unfolded_code.index(CPreprocessor.magic_string)
