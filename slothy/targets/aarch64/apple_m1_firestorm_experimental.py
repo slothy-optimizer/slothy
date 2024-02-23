@@ -168,8 +168,8 @@ inverse_throughput = {
 
     vsrshr: 1,
 
-    St4: 6,  # or maybe 12?
-    Ld4: 6  # or maybe 12?
+    St4: 5,  # guessed
+    Ld4: 5  # guessed
 }
 
 # REVISIT
@@ -181,21 +181,22 @@ default_latencies = {
      vqdmulh_lane): 3,
 
     (vadd, vsub,
-     trn1, trn2): 2,  #  Approximation -- not necessary to get it exactly right, as mentioned above
+     trn1, trn2): 2,
 
-    (Ldr_Q, Ldr_X,
-     Str_Q, Str_X,
-     stack_vld1r, stack_vld2_lane): 4,  # approx
-
-    Vins: 2,  # approx
-    umov_d: 10,  # approx, worst case
+    (Ldr_Q): 4,  # probably something less than 10
+    (Str_Q): 4,  # guessed
+    (Ldr_X): 3,  # something less than 5
+    (Str_X): 4,  # guessed
+    (stack_vld1r, stack_vld2_lane): 4,  # guessed
+    Vins: 2,  # or something less than 13
+    umov_d: 5,  # less than 11
 
     (add, add_imm): 1,
     (add_lsl, add_lsr): 2,
 
-    vsrshr: 3,  # approx
-    St4: 8,  # guessed
-    Ld4: 4  # guessed
+    vsrshr: 3,
+    St4: 4,  # guessed
+    Ld4: 6  # guessed
 }
 
 
