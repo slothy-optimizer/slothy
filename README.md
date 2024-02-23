@@ -274,8 +274,3 @@ The [examples](examples/naive) directory contains numerous exemplary assembly sn
 
 The use of SLOTHY from the command line is illustrated in [scripts/](scripts/) supporting the real-world optimizations
 for the NTT, FFT and X25519 discussed in [Fast and Clean: Auditable high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303).
-
-## Usage Tracking
-SLOTHY was used to generate optimized assembly and improve upon previous performance in multiple instances:
-- Arm EndpointAI: SLOTHY-optimized code has been deployed to the CMSIS DSP Library for the radix-4 CFFT routines as part of the Arm EndpointAI project in [this commit](https://github.com/ARM-software/EndpointAI/commit/817bb57d8a4a604538a04627851f5e9adb5f08fc).
-- Amazon AWS Labs s2n-bignum: In [this PR](https://github.com/awslabs/s2n-bignum/pull/108), SLOTHY-optimized X25519 code based on our un-interleaved form of the [code by Emil Lenngren](https://github.com/Emill/X25519-AArch64) has been included. s2n-bignum is a collection of bignum arithmetic routines also used in [AWS libcrypto (AWS-LC)](https://github.com/aws/aws-lc). 
