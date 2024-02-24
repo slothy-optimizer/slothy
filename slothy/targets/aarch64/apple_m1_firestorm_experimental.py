@@ -163,7 +163,7 @@ inverse_throughput = {
 
     (Ldr_Q,
      Str_Q,
-     stack_vld1r, stack_vld2_lane, Ldr_X, Str_X): 1,
+     q_ldr1_stack, Ld2, Ldr_X, Str_X): 1,
 
     vsrshr: 1,
 
@@ -186,7 +186,7 @@ default_latencies = {
     (Str_Q): 4,  # guessed
     (Ldr_X): 3,  # something less than 5
     (Str_X): 4,  # guessed
-    (stack_vld1r, stack_vld2_lane): 4,  # guessed
+    (q_ldr1_stack, Ld2): 4,  # guessed
     Vins: 2,  # or something less than 13
     umov_d: 5,  # less than 11
 
