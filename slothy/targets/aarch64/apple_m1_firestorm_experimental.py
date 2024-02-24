@@ -135,8 +135,7 @@ execution_units = {
 
     St4: list(map(list, product(ExecutionUnit.STORE(), ExecutionUnit.V()))),
 
-    Ld4: list(map(list, (product(map(list, combinations(
-        ExecutionUnit.LOAD(), 2)), ExecutionUnit.V()))))
+    Ld4: [list(l[0] + (l[1],)) for l in map(list, (product(combinations(ExecutionUnit.LOAD(), 2), ExecutionUnit.V())))]
 }
 
 # NOTE: Throughput as defined in https://dougallj.github.io/applecpu/firestorm.html
