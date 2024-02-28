@@ -112,30 +112,60 @@ def get_min_max_objective(slothy):
 
 
 execution_units = {
+    # Neon Arithmetic
     (vmul, vmul_lane,
      vmla, vmla_lane,
      vmls, vmls_lane,
      vqrdmulh, vqrdmulh_lane,
-     vqdmulh_lane): ExecutionUnit.V(),
-
+     vqdmulh_lane,
+     vmull, vmlal,
+     vsrshr, vushr, vusra, vshl,
+     vand, vbic): ExecutionUnit.V(),
     (vadd, vsub,
      trn1, trn2): ExecutionUnit.V(),
+    Vins: ExecutionUnit.V(),  # guessed
+    (umov_d, mov_d): ExecutionUnit.V(),  # guessed
+    (mov_d01, mov_b00): ExecutionUnit.V(),  # guessed
+    fcsel_dform: [ExecutionUnit.VEC2, ExecutionUnit.VEC3],
 
-    Vins: ExecutionUnit.V(),
-    umov_d: ExecutionUnit.V(),  # ???
-
-    (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
-
-    (Str_Q, Str_X): ExecutionUnit.STORE(),
-
-    (add, add_imm): ExecutionUnit.I(),
-    (add_lsl, add_lsr): list(map(list, combinations(ExecutionUnit.I(), 2))),
-
-    vsrshr: ExecutionUnit.V(),
-
+    # Neon Load/Store
     St4: list(map(list, product(ExecutionUnit.STORE(), ExecutionUnit.V()))),
+    Ld4: [list(l[0] + (l[1],)) for l in map(list, (product(combinations(ExecutionUnit.LOAD(), 2),
+                                                           ExecutionUnit.V())))],
+    (Ldr_Q): ExecutionUnit.LOAD(),
+    (Str_Q): ExecutionUnit.STORE(),
+    (q_ldr1_stack, Q_Ld2_Lane_Post_Inc): list(map(list, product(ExecutionUnit.V(),
+                                                                ExecutionUnit.LOAD()))),  # ?
+    Mov_xtov_d: ExecutionUnit.LOAD(),  # based on FMOV
+    # guessed
+    d_stp_stack_with_inc: list(map(list, combinations(ExecutionUnit.STORE(), 2))),
+    d_str_stack_with_inc: [list(l[0] + (l[1],)) for l in map(list, (product(combinations(ExecutionUnit.STORE(), 2),
+                                                                            ExecutionUnit.I())))],
+    b_ldr_stack_with_inc: ExecutionUnit.LOAD(),  # for LDR (unsigned offset, S)
+    d_ldr_stack_with_inc: ExecutionUnit.LOAD(),  # for LDR (unsigned offset, S)
+    is_qform_form_of(vmov): [],  # TODO: Can this be empty?
+    is_dform_form_of(vmov): ExecutionUnit.V(),
+    (vzip1, vzip2,
+     vuzp1, vuzp2): ExecutionUnit.V(),
 
-    Ld4: [list(l[0] + (l[1],)) for l in map(list, (product(combinations(ExecutionUnit.LOAD(), 2), ExecutionUnit.V())))]
+    # Arithmetic
+    (add, add_imm): ExecutionUnit.I(),
+    (add_lsl, add_lsr, add2): list(map(list, combinations(ExecutionUnit.I(), 2))),
+    (umull_wform, mul_wform): ExecutionUnit.M(),
+    (umaddl_wform): ExecutionUnit.SCALAR_I5,
+    (lsr, bic, add_sp_imm,
+     and_imm, movk_imm, sub, mov,
+     asr_wform, and_imm_wform, lsr_wform, eor_wform): ExecutionUnit.I(),
+    (bfi): ExecutionUnit.SCALAR_I5,
+    (nop): [],
+    (tst_wform, subs_wform): [ExecutionUnit.SCALAR_I0, ExecutionUnit.SCALAR_I1,
+                              ExecutionUnit.SCALAR_I2],
+
+
+    # Load/Store
+    (Ldr_X, x_ldr_stack_imm, ldr_sxtw_wform, ldr_const): ExecutionUnit.LOAD(),
+    (Str_X, x_str_sp_imm): ExecutionUnit.STORE(),
+    (x_stp_with_imm_sp, w_stp_with_imm_sp): ExecutionUnit.STORE(),
 }
 
 # NOTE: Throughput as defined in https://dougallj.github.io/applecpu/firestorm.html
@@ -146,56 +176,111 @@ execution_units = {
 # the tables by the number of execution units able to execute the given instruction.
 
 inverse_throughput = {
+    # Neon Arithmetic
     (vmul, vmul_lane,
      vqrdmulh, vqrdmulh_lane,
      vmla, vmla_lane,
      vmls, vmls_lane,
-     vqdmulh_lane): 1,
-
+     vqdmulh_lane,
+     vmull, vmlal,
+     vsrshr, vushr, vusra, vshl,
+     vand, vbic): 1,
     (vadd, vsub,
      trn1, trn2): 1,
 
     Vins: 1,
-    umov_d: 2,
+    (umov_d, mov_d): 2,  # guessed
+    (mov_d01, mov_b00): 1,  # guessed
+    fcsel_dform: 1,
 
-    (add, add_imm): 1,
-    (add_lsl, add_lsr): 1,
-
+    # Neon Load/Store
     (Ldr_Q,
-     Str_Q,
-     q_ldr1_stack, Ld2, Ldr_X, Str_X): 1,
-
-    vsrshr: 1,
-
+     Str_Q): 1,
+    (q_ldr1_stack,
+     Q_Ld2_Lane_Post_Inc): 3,  # guessed
     St4: 5,  # guessed
-    Ld4: 5  # guessed
+    Ld4: 5,  # guessed
+    Mov_xtov_d: 1,  # based on FMOV
+    d_stp_stack_with_inc: 2,  # guessed
+    d_str_stack_with_inc: 1,
+    b_ldr_stack_with_inc: 1,  # for LDR (unsigned offset, S)
+    d_ldr_stack_with_inc: 1,  # for LDR (unsigned offset, S)
+    is_qform_form_of(vmov): 1,  # guessed
+    is_dform_form_of(vmov): 1,
+    (vzip1, vzip2,
+     vuzp1, vuzp2): 1,
+
+    # Arithmetic
+    (add, add_imm): 1,
+    (add_lsl, add_lsr, add2): 1,
+    (umull_wform, mul_wform): 1,
+    (umaddl_wform): 1,
+    (lsr, bic, add_sp_imm,
+     and_imm, movk_imm, sub, mov,
+     asr_wform, and_imm_wform, lsr_wform, eor_wform): 1,
+    (bfi): 1,
+    (nop): 1,  # guessed
+    (tst_wform, subs_wform): 1,
+
+    # Load/Store
+    (Ldr_X, x_ldr_stack_imm, ldr_sxtw_wform, ldr_const): 1,
+    (Str_X, x_str_sp_imm): 1,
+    (x_stp_with_imm_sp, w_stp_with_imm_sp): 1,
 }
 
-# REVISIT
+
 default_latencies = {
+    # Neon Arithmetic
     (vmul, vmul_lane,
      vqrdmulh, vqrdmulh_lane,
      vmls, vmls_lane,
      vmla, vmla_lane,
-     vqdmulh_lane): 3,
-
+     vqdmulh_lane,
+     vmull, vmlal,
+     vsrshr, vusra): 3,
+    (vshl, vushr,
+     vand, vbic): 2,
     (vadd, vsub,
      trn1, trn2): 2,
+    Vins: 2,  # or something less than 13
+    (umov_d, mov_d): 5,  # <= 10
+    (mov_d01, mov_b00): 2,  # guessed
+    fcsel_dform: 2,
 
+    # Neon Load/Store
     (Ldr_Q): 4,  # probably something less than 10
     (Str_Q): 4,  # guessed
-    (Ldr_X): 3,  # something less than 5
-    (Str_X): 4,  # guessed
-    (q_ldr1_stack, Ld2): 4,  # guessed
-    Vins: 2,  # or something less than 13
-    umov_d: 5,  # less than 11
-
-    (add, add_imm): 1,
-    (add_lsl, add_lsr): 2,
-
-    vsrshr: 3,
     St4: 4,  # guessed
-    Ld4: 6  # guessed
+    Ld4: 6,  # guessed
+    (q_ldr1_stack, Q_Ld2_Lane_Post_Inc): 4,  # guessed
+    Mov_xtov_d: 5,  # <=10, based on FMOV
+    d_stp_stack_with_inc: 4,  # guessed
+    d_str_stack_with_inc: 4,  # guessed
+    b_ldr_stack_with_inc: 4,  # <=9, for LDR (unsigned offset, S)
+    d_ldr_stack_with_inc: 4,  # <=9, for LDR (unsigned offset, S)
+    is_qform_form_of(vmov): 0,
+    is_dform_form_of(vmov): 2,
+    (vzip1, vzip2,
+     vuzp1, vuzp2): 2,
+
+    # Arithmetic
+    (add, add_imm): 1,
+    (add_lsl, add_lsr, add2): 2,
+    (umull_wform, mul_wform): 3,
+    (umaddl_wform): 3,  # TODO: Add exception with 1 cycle
+    (lsr, bic, add_sp_imm,
+     and_imm, movk_imm, sub, mov,
+     asr_wform, and_imm_wform, lsr_wform, eor_wform): 1,
+    (bfi): 1,
+    (nop): 0,  # TODO: Does this work?
+    (tst_wform, subs_wform): 1,
+
+    # Load/Store
+    (Ldr_X, x_ldr_stack_imm): 3,  # something less than 5
+    (Str_X, x_str_sp_imm): 4,  # guessed
+    (x_stp_with_imm_sp, w_stp_with_imm_sp): 4,  # guessed
+    (ldr_const): 3,  # guessed
+    (ldr_sxtw_wform): 3  # <= 4
 }
 
 
