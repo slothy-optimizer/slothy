@@ -267,7 +267,7 @@ default_latencies = {
     (add, add_imm): 1,
     (add_lsl, add_lsr, add2): 2,
     (umull_wform, mul_wform): 3,
-    (umaddl_wform): 3,  # TODO: Add exception with 1 cycle
+    (umaddl_wform): 3,
     (lsr, bic, add_sp_imm,
      and_imm, movk_imm, sub, mov,
      asr_wform, and_imm_wform, lsr_wform, eor_wform): 1,
@@ -289,6 +289,11 @@ def get_latency(src, out_idx, dst):
     instclass_dst = find_class(dst)
 
     latency = lookup_multidict(default_latencies, src)
+
+    if instclass_src == umaddl_wform and instclass_dst == umaddl_wform and \
+       src.args_out[0] == dst.args_in[2]:
+        return (3, lambda t_src, t_dst: t_dst.program_start_var == t_src.program_start_var + 1)
+    
     return latency
 
 

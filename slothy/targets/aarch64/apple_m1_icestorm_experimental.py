@@ -258,6 +258,10 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
+    if instclass_src == umaddl_wform and instclass_dst == umaddl_wform and \
+       src.args_out[0] == dst.args_in[2]:
+        return (3, lambda t_src, t_dst: t_dst.program_start_var == t_src.program_start_var + 1)
+
     latency = lookup_multidict(default_latencies, src)
     return latency
 
