@@ -38,21 +38,27 @@ import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
 import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
 import slothy.targets.aarch64.cortex_a72_frontend as Target_CortexA72
+import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
+import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
                      Target_CortexM55r1: "m55",
-                     Target_CortexM85r1: "m85"}
+                     Target_CortexM85r1: "m85",
+                     Target_AppleM1_firestorm: "m1_firestorm",
+                     Target_AppleM1_icestorm: "m1_icestorm"}
+
 
 class ExampleException(Exception):
     """Exception thrown when an example goes wrong"""
+
 
 class Example():
     """Common boilerplate for SLOTHY examples"""
 
     def __init__(self, infile, name=None, funcname=None, suffix="opt",
                  rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
-                 **kwargs):
+                 timeout=None, **kwargs):
         if name is None:
             name = infile
 
@@ -70,15 +76,17 @@ class Example():
         subfolder = ""
         if self.arch == AArch64_Neon:
             subfolder = "aarch64/"
-        self.infile_full  = f"examples/naive/{subfolder}{self.infile}.s"
+        self.infile_full = f"examples/naive/{subfolder}{self.infile}.s"
         self.outfile_full = f"examples/opt/{subfolder}{self.outfile}.s"
         self.name = name
         self.rename = rename
-
+        self.timeout = timeout
         self.extra_args = kwargs
     # By default, optimize the whole file
+
     def core(self, slothy):
         slothy.optimize()
+
     def run(self, debug=False):
 
         h_err = logging.StreamHandler(sys.stderr)
@@ -89,86 +97,101 @@ class Example():
         h_info.addFilter(lambda r: r.levelno <= logging.INFO)
 
         logging.basicConfig(
-            level = logging.DEBUG if debug else logging.INFO,
-            handlers = [h_err, h_info]
+            level=logging.DEBUG if debug else logging.INFO,
+            handlers=[h_err, h_info]
         )
 
         logger = logging.getLogger(self.name)
 
         slothy = Slothy(self.arch, self.target, logger=logger)
         slothy.load_source_from_file(self.infile_full)
+        if self.timeout is not None:
+            slothy.config.timeout = self.timeout
         self.core(slothy, *self.extra_args)
 
         if self.rename:
-            slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+            slothy.rename_function(
+                self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
         slothy.write_source_to_file(self.outfile_full)
+
 
 class Example0(Example):
     def __init__(self):
         super().__init__("simple0")
 
+
 class Example1(Example):
     def __init__(self):
         super().__init__("simple1")
 
+
 class Example2(Example):
     def __init__(self):
         super().__init__("simple0_loop")
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints["const"] = Arch_Armv81M.RegisterType.GPR
         slothy.optimize_loop("start")
 
+
 class Example3(Example):
     def __init__(self):
         super().__init__("simple1_loop")
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("start")
+
 
 class CRT(Example):
     def __init__(self):
         super().__init__("crt")
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.selfcheck = True
         # Double the loop body to create more interleaving opportunities
         # Basically a tradeoff of code-size vs performance
         slothy.config.sw_pipelining.unroll = 2
         slothy.config.typing_hints = {
-            "const_prshift"  : Arch_Armv81M.RegisterType.GPR,
-            "const_shift9"   : Arch_Armv81M.RegisterType.GPR,
-            "p_inv_mod_q"    : Arch_Armv81M.RegisterType.GPR,
-            "p_inv_mod_q_tw" : Arch_Armv81M.RegisterType.GPR,
-            "mod_p"          : Arch_Armv81M.RegisterType.GPR,
-            "mod_p_tw"       : Arch_Armv81M.RegisterType.GPR,
+            "const_prshift": Arch_Armv81M.RegisterType.GPR,
+            "const_shift9": Arch_Armv81M.RegisterType.GPR,
+            "p_inv_mod_q": Arch_Armv81M.RegisterType.GPR,
+            "p_inv_mod_q_tw": Arch_Armv81M.RegisterType.GPR,
+            "mod_p": Arch_Armv81M.RegisterType.GPR,
+            "mod_p_tw": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize()
 
+
 class ntt_n256_l6_s32(Example):
-    def __init__(self,var):
+    def __init__(self, var):
         super().__init__(f"ntt_n256_l6_s32_{var}")
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
-        slothy.config.typing_hints = { r : Arch_Armv81M.RegisterType.GPR for r in
-           [ "root0",         "root1",         "root2",
-             "root0_twisted", "root1_twisted", "root2_twisted" ] }
+        slothy.config.typing_hints = {r: Arch_Armv81M.RegisterType.GPR for r in
+                                      ["root0",         "root1",         "root2",
+                                       "root0_twisted", "root1_twisted", "root2_twisted"]}
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
         slothy.optimize_loop("layer56_loop")
 
+
 class ntt_n256_l8_s32(Example):
-    def __init__(self,var):
+    def __init__(self, var):
         super().__init__(f"ntt_n256_l8_s32_{var}")
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
@@ -176,35 +199,39 @@ class ntt_n256_l8_s32(Example):
         slothy.config.typing_hints = {}
         slothy.optimize_loop("layer78_loop")
 
+
 class intt_n256_l6_s32(Example):
     def __init__(self, var):
         super().__init__(f"intt_n256_l6_s32_{var}")
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
         slothy.optimize_loop("layer56_loop")
 
+
 class intt_n256_l8_s32(Example):
     def __init__(self, var):
         super().__init__(f"intt_n256_l8_s32_{var}")
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
@@ -223,15 +250,16 @@ class ntt_kyber_1_23_45_67(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
+
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer1_loop")
@@ -242,6 +270,7 @@ class ntt_kyber_1_23_45_67(Example):
             slothy.config.constraints.st_ld_hazard = True
         slothy.config.typing_hints = {}
         slothy.optimize_loop("layer67_loop")
+
 
 class ntt_kyber_1(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -258,14 +287,15 @@ class ntt_kyber_1(Example):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer1_loop")
+
 
 class ntt_kyber_23(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -282,14 +312,15 @@ class ntt_kyber_23(Example):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer23_loop")
+
 
 class ntt_kyber_45(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -306,14 +337,15 @@ class ntt_kyber_45(Example):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer45_loop")
+
 
 class ntt_kyber_67(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -333,6 +365,7 @@ class ntt_kyber_67(Example):
         slothy.config.typing_hints = {}
         slothy.optimize_loop("layer67_loop")
 
+
 class ntt_kyber_12_345_67(Example):
     def __init__(self, cross_loops_optim=False, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
         infile = "ntt_kyber_12_345_67"
@@ -346,18 +379,19 @@ class ntt_kyber_12_345_67(Example):
             name += f"_{var}"
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
-        self.var=var
+        self.var = var
         super().__init__(infile, name=name,
                          suffix=suffix, rename=True, arch=arch, target=target)
         self.cross_loops_optim = cross_loops_optim
 
-    def core(self,slothy):
+    def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
-        slothy.optimize_loop("layer12_loop", postamble_label="layer12_loop_end")
+        slothy.optimize_loop(
+            "layer12_loop", postamble_label="layer12_loop_end")
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
-                                               [ "STACK0" ] )
+        slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
+                                             ["STACK0"])
         if not self.cross_loops_optim:
             if "no_trans" not in self.var and "trans" in self.var:
                 slothy.config.constraints.st_ld_hazard = False  # optional, if it takes too long
@@ -369,7 +403,8 @@ class ntt_kyber_12_345_67(Example):
             slothy.config.sw_pipelining.enabled = True
             slothy.config.sw_pipelining.halving_heuristic = True
             slothy.config.sw_pipelining.halving_heuristic_periodic = True
-            slothy.optimize_loop("layer345_loop", postamble_label="layer345_loop_end")
+            slothy.optimize_loop(
+                "layer345_loop", postamble_label="layer345_loop_end")
             layer345_deps = slothy.last_result.kernel_input_output.copy()
 
         slothy.config.sw_pipelining.enabled = True
@@ -402,7 +437,8 @@ class ntt_kyber_12(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.optimize_loop("layer12_loop", postamble_label="layer12_loop_end")
+        slothy.optimize_loop(
+            "layer12_loop", postamble_label="layer12_loop_end")
 
 
 class ntt_kyber_345(Example):
@@ -414,7 +450,7 @@ class ntt_kyber_345(Example):
 
     def core(self, slothy):
         slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
-                                              ["STACK0"])
+                                             ["STACK0"])
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
@@ -426,7 +462,8 @@ class ntt_kyber_345(Example):
 class ntt_kyber_l345_symbolic(Example):
     def __init__(self):
         super().__init__("ntt_kyber_layer345_symbolic")
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.sw_pipelining.halving_heuristic_periodic = True
@@ -434,7 +471,7 @@ class ntt_kyber_l345_symbolic(Example):
 
 
 class ntt_kyber_123_4567(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
         name = "ntt_kyber_123_4567"
         infile = name
 
@@ -443,14 +480,15 @@ class ntt_kyber_123_4567(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.variable_size = True
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
         slothy.config.constraints.stalls_first_attempt = 64
         slothy.optimize_loop("layer123_start")
         slothy.optimize_loop("layer4567_start")
@@ -474,7 +512,8 @@ class ntt_kyber_123(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
         slothy.optimize_loop("layer123_start")
 
 
@@ -496,12 +535,13 @@ class ntt_kyber_4567(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
         slothy.optimize_loop("layer4567_start")
 
 
 class ntt_kyber_1234_567(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None):
         name = "ntt_kyber_1234_567"
         infile = name
 
@@ -510,14 +550,16 @@ class ntt_kyber_1234_567(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target)
-    def core(self,slothy):
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
-        slothy.config.sw_pipelining.minimize_overlapping=False
+        slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.variable_size = True
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0,6)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 2
         slothy.config.split_heuristic_stepsize = 0.1
@@ -529,14 +571,17 @@ class ntt_kyber_1234_567(Example):
 
         # layer567 is small enough for SW pipelining without heuristics
         slothy.config = Config(self.arch, self.target)
+        slothy.config.timeout = self.timeout
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.variable_size = True
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
         slothy.config.constraints.stalls_first_attempt = 64
 
         slothy.optimize_loop("layer567_start")
+
 
 class ntt_kyber_1234(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
@@ -556,13 +601,14 @@ class ntt_kyber_1234(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
 
         slothy.optimize_loop("layer1234_start")
 
 
 class ntt_kyber_567(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None):
         name = "ntt_kyber_567"
         infile = "ntt_kyber_1234_567"
 
@@ -571,17 +617,19 @@ class ntt_kyber_567(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target, timeout=timeout)
 
     def core(self, slothy):
         # layer567 is small enough for SW pipelining without heuristics
         slothy.config = Config(self.arch, self.target)
+        slothy.config.timeout = self.timeout
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
 
         slothy.optimize_loop("layer567_start")
 
@@ -589,21 +637,23 @@ class ntt_kyber_567(Example):
 class intt_kyber_1_23_45_67(Example):
     def __init__(self):
         super().__init__("intt_kyber_1_23_45_67", rename=True)
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer1_loop")
         slothy.optimize_loop("layer23_loop")
         slothy.optimize_loop("layer45_loop")
         slothy.config.typing_hints = {}
         slothy.optimize_loop("layer67_loop")
+
 
 class ntt_dilithium_12_34_56_78(Example):
     def __init__(self, var="", target=Target_CortexM55r1, arch=Arch_Armv81M):
@@ -615,34 +665,38 @@ class ntt_dilithium_12_34_56_78(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
+
     def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "const1"        : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
+            "const1": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
-        slothy.config.sw_pipelining.optimize_preamble  = True
+        slothy.config.sw_pipelining.optimize_preamble = True
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.optimize_loop("layer56_loop", postamble_label="layer56_loop_end")
-        slothy.config.sw_pipelining.optimize_preamble  = False
+        slothy.optimize_loop(
+            "layer56_loop", postamble_label="layer56_loop_end")
+        slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = True
         slothy.config.typing_hints = {}
         slothy.config.constraints.st_ld_hazard = False
         slothy.optimize_loop("layer78_loop")
         # Optimize seams between loops
         # Make sure we preserve the inputs to the loop body
-        slothy.config.outputs = slothy.last_result.kernel_input_output + ["r14"]
+        slothy.config.outputs = slothy.last_result.kernel_input_output + \
+            ["r14"]
         slothy.config.constraints.st_ld_hazard = True
         slothy.config.sw_pipelining.enabled = False
         slothy.optimize(start="layer56_loop_end", end="layer78_loop")
+
 
 class ntt_dilithium_12(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -650,17 +704,18 @@ class ntt_dilithium_12(Example):
         infile = "ntt_dilithium_12_34_56_78"
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
+
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "const1"        : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
+            "const1": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
@@ -668,23 +723,25 @@ class ntt_dilithium_12(Example):
 
         slothy.optimize_loop("layer12_loop")
 
+
 class ntt_dilithium_34(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
         name = "ntt_dilithium_34"
         infile = "ntt_dilithium_12_34_56_78"
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
+
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "const1"        : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
+            "const1": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
@@ -692,23 +749,25 @@ class ntt_dilithium_34(Example):
 
         slothy.optimize_loop("layer34_loop")
 
+
 class ntt_dilithium_56(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
         name = "ntt_dilithium_56"
         infile = "ntt_dilithium_12_34_56_78"
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
+
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "const1"        : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
+            "const1": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
@@ -716,12 +775,14 @@ class ntt_dilithium_56(Example):
 
         slothy.optimize_loop("layer56_loop")
 
+
 class ntt_dilithium_78(Example):
     def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
         name = "ntt_dilithium_78"
         infile = "ntt_dilithium_12_34_56_78"
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
+
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
@@ -731,6 +792,7 @@ class ntt_dilithium_78(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
 
         slothy.optimize_loop("layer78_loop")
+
 
 class ntt_dilithium_123_456_78(Example):
     def __init__(self, cross_loops_optim=False, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -749,36 +811,39 @@ class ntt_dilithium_123_456_78(Example):
                          suffix=suffix, arch=arch, target=target, rename=True)
         self.cross_loops_optim = cross_loops_optim
         self.var = var
+
     def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root3"         : Arch_Armv81M.RegisterType.GPR,
-            "root5"         : Arch_Armv81M.RegisterType.GPR,
-            "root6"         : Arch_Armv81M.RegisterType.GPR,
-            "rtmp"          : Arch_Armv81M.RegisterType.GPR,
-            "rtmp_tw"       : Arch_Armv81M.RegisterType.GPR,
-            "root2_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root3_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root5_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root3": Arch_Armv81M.RegisterType.GPR,
+            "root5": Arch_Armv81M.RegisterType.GPR,
+            "root6": Arch_Armv81M.RegisterType.GPR,
+            "rtmp": Arch_Armv81M.RegisterType.GPR,
+            "rtmp_tw": Arch_Armv81M.RegisterType.GPR,
+            "root2_tw": Arch_Armv81M.RegisterType.GPR,
+            "root3_tw": Arch_Armv81M.RegisterType.GPR,
+            "root5_tw": Arch_Armv81M.RegisterType.GPR,
+            "root6_tw": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.config.constraints.stalls_minimum_attempt = 0
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
-                                              [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
+                                             [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
         if self.var != "" or ("speed" in self.name and self.target == Target_CortexM85r1):
             slothy.config.constraints.st_ld_hazard = False  # optional, if it takes too long
         if not self.cross_loops_optim:
-            slothy.config.sw_pipelining.enabled=False
+            slothy.config.sw_pipelining.enabled = False
             slothy.optimize_loop("layer123_loop")
             slothy.optimize_loop("layer456_loop")
         else:
             slothy.config.sw_pipelining.enabled = True
             slothy.config.sw_pipelining.halving_heuristic = True
             slothy.config.sw_pipelining.halving_heuristic_periodic = True
-            slothy.optimize_loop("layer123_loop", postamble_label="layer123_loop_end")
-            slothy.optimize_loop("layer456_loop", postamble_label="layer456_loop_end")
+            slothy.optimize_loop(
+                "layer123_loop", postamble_label="layer123_loop_end")
+            slothy.optimize_loop(
+                "layer456_loop", postamble_label="layer456_loop_end")
 
         slothy.config.constraints.st_ld_hazard = False
         slothy.config.sw_pipelining.enabled = True
@@ -789,35 +854,38 @@ class ntt_dilithium_123_456_78(Example):
         if self.cross_loops_optim:
             slothy.config.sw_pipelining.enabled = False
             slothy.config.constraints.st_ld_hazard = True
-            slothy.config.outputs = slothy.last_result.kernel_input_output + ["r14"]
+            slothy.config.outputs = slothy.last_result.kernel_input_output + \
+                ["r14"]
             slothy.optimize(start="layer456_loop_end", end="layer78_loop")
 
 
 class ntt_dilithium_123_456_78_symbolic(Example):
     def __init__(self):
         super().__init__("ntt_dilithium_123_456_78_symbolic", rename=True)
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.typing_hints = {
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root3"         : Arch_Armv81M.RegisterType.GPR,
-            "root5"         : Arch_Armv81M.RegisterType.GPR,
-            "root6"         : Arch_Armv81M.RegisterType.GPR,
-            "rtmp"          : Arch_Armv81M.RegisterType.GPR,
-            "rtmp_tw"       : Arch_Armv81M.RegisterType.GPR,
-            "root2_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root3_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root5_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root3": Arch_Armv81M.RegisterType.GPR,
+            "root5": Arch_Armv81M.RegisterType.GPR,
+            "root6": Arch_Armv81M.RegisterType.GPR,
+            "rtmp": Arch_Armv81M.RegisterType.GPR,
+            "rtmp_tw": Arch_Armv81M.RegisterType.GPR,
+            "root2_tw": Arch_Armv81M.RegisterType.GPR,
+            "root3_tw": Arch_Armv81M.RegisterType.GPR,
+            "root5_tw": Arch_Armv81M.RegisterType.GPR,
+            "root6_tw": Arch_Armv81M.RegisterType.GPR,
         }
-        slothy.config.sw_pipelining.enabled=True
+        slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_minimum_attempt = 0
         slothy.config.constraints.stalls_first_attempt = 0
-        slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
-                                               [ "ROOT0_STACK", "RPTR_STACK" ] )
+        slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
+                                             ["ROOT0_STACK", "RPTR_STACK"])
         slothy.optimize_loop("layer456_loop")
 
+
 class ntt_dilithium_123_45678(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
         name = f"ntt_dilithium_123_45678"
         infile = name
 
@@ -826,11 +894,13 @@ class ntt_dilithium_123_45678(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target)
-    def core(self,slothy):
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.minimize_overlapping=False
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0,7)] + ["v8", "x30", "sp"]
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
         slothy.config.inputs_are_outputs = True
         slothy.config.constraints.stalls_first_attempt = 110
         slothy.optimize_loop("layer123_start")
@@ -858,7 +928,8 @@ class ntt_dilithium_123(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
         slothy.optimize_loop("layer123_start")
 
 
@@ -885,7 +956,7 @@ class ntt_dilithium_45678(Example):
 
 
 class ntt_dilithium_1234_5678(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None):
         name = f"ntt_dilithium_1234_5678"
         infile = name
 
@@ -894,12 +965,13 @@ class ntt_dilithium_1234_5678(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.minimize_overlapping = False
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
         slothy.config.inputs_are_outputs = True
         # slothy.config.sw_pipelining.halving_heuristic = True
         # slothy.config.split_heuristic = True
@@ -932,7 +1004,8 @@ class ntt_dilithium_1234(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
         slothy.optimize_loop("layer1234_start")
 
 
@@ -961,21 +1034,23 @@ class ntt_dilithium_5678(Example):
 class intt_dilithium_12_34_56_78(Example):
     def __init__(self):
         super().__init__("intt_dilithium_12_34_56_78", rename=True)
-    def core(self,slothy):
+
+    def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
         slothy.optimize_loop("layer56_loop")
         slothy.config.typing_hints = {}
         slothy.optimize_loop("layer78_loop")
+
 
 class fft_fixedpoint_radix4(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -989,7 +1064,8 @@ class fft_fixedpoint_radix4(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, outfile=outfile, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, outfile=outfile,
+                         rename=True, arch=arch, target=target)
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
@@ -998,6 +1074,7 @@ class fft_fixedpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("fixedpoint_radix4_fft_loop_start")
+
 
 class fft_floatingpoint_radix4(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
@@ -1011,7 +1088,8 @@ class fft_floatingpoint_radix4(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, outfile=outfile, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, outfile=outfile,
+                         rename=True, arch=arch, target=target)
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
@@ -1022,6 +1100,7 @@ class fft_floatingpoint_radix4(Example):
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
 #############################################################################################
+
 
 def main():
     examples = [ Example0(),
@@ -1068,6 +1147,22 @@ def main():
                  ntt_kyber_123_4567(var="scalar_load_store", target=Target_CortexA72),
                  ntt_kyber_123_4567(var="manual_st4", target=Target_CortexA72),
                  ntt_kyber_1234_567(target=Target_CortexA72),
+                #  # Apple M1 Firestorm
+                 ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_kyber_1234_567(target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=10800),
+                 # Apple M1 Icestorm
+                 ntt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_kyber_1234_567(target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=10800),
                  # Kyber InvNTT
                  # Cortex-M55
                  intt_kyber_1_23_45_67(),
@@ -1095,6 +1190,18 @@ def main():
                  ntt_dilithium_123_45678(var="manual_st4", target=Target_CortexA72),
                  ntt_dilithium_1234_5678(target=Target_CortexA72),
                  ntt_dilithium_1234_5678(var="manual_st4", target=Target_CortexA72),
+                 # Apple M1 Firestorm
+                 ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_firestorm, timeout=10800),  # done
+                 ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=10800),
+                 # Apple M1 Icestorm
+                 ntt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=10800),
                  # Dilithium invNTT
                  # Cortex-M55
                  intt_dilithium_12_34_56_78(),
@@ -1106,13 +1213,13 @@ def main():
                  fft_fixedpoint_radix4(),
                 ]
 
-    all_example_names = [ e.name for e in examples ]
+    all_example_names = [e.name for e in examples]
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "--examples", type=str, default="all",
-        help=f"The list of examples to be run, comma-separated list from {all_example_names}. "\
+        help=f"The list of examples to be run, comma-separated list from {all_example_names}. "
         f"Format: {{name}}_{{variant}}_{{target}}, e.g., ntt_kyber_123_4567_scalar_load_a55"
     )
     parser.add_argument("--debug", default=False, action="store_true")
@@ -1139,5 +1246,6 @@ def main():
         for _ in range(iterations):
             run_example(e, debug=args.debug)
 
+
 if __name__ == "__main__":
-   main()
+    main()
