@@ -82,6 +82,7 @@ class Example():
         self.rename = rename
         self.timeout = timeout
         self.extra_args = kwargs
+        self.target_reserved = ""
     # By default, optimize the whole file
 
     def core(self, slothy):
@@ -107,6 +108,11 @@ class Example():
         slothy.load_source_from_file(self.infile_full)
         if self.timeout is not None:
             slothy.config.timeout = self.timeout
+
+        # On Apple M1, we must not use x18
+        if "m1" in target_label_dict[self.target]:
+            self.target_reserved = ["x18"]
+
         self.core(slothy, *self.extra_args)
 
         if self.rename:
@@ -489,6 +495,7 @@ class ntt_kyber_123_4567(Example):
         slothy.config.variable_size = True
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.config.constraints.stalls_first_attempt = 64
         slothy.optimize_loop("layer123_start")
         slothy.optimize_loop("layer4567_start")
@@ -514,6 +521,7 @@ class ntt_kyber_123(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.optimize_loop("layer123_start")
 
 
@@ -537,6 +545,7 @@ class ntt_kyber_4567(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.optimize_loop("layer4567_start")
 
 
@@ -560,6 +569,7 @@ class ntt_kyber_1234_567(Example):
         slothy.config.variable_size = True
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 2
         slothy.config.split_heuristic_stepsize = 0.1
@@ -578,6 +588,7 @@ class ntt_kyber_1234_567(Example):
         slothy.config.variable_size = True
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.config.constraints.stalls_first_attempt = 64
 
         slothy.optimize_loop("layer567_start")
@@ -603,6 +614,7 @@ class ntt_kyber_1234(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
 
         slothy.optimize_loop("layer1234_start")
 
@@ -630,6 +642,7 @@ class ntt_kyber_567(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
 
         slothy.optimize_loop("layer567_start")
 
@@ -901,11 +914,13 @@ class ntt_dilithium_123_45678(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.config.inputs_are_outputs = True
         slothy.config.constraints.stalls_first_attempt = 110
         slothy.optimize_loop("layer123_start")
 
         slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.config.constraints.stalls_first_attempt = 40
         slothy.optimize_loop("layer45678_start")
 
@@ -930,6 +945,7 @@ class ntt_dilithium_123(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.optimize_loop("layer123_start")
 
 
@@ -952,6 +968,7 @@ class ntt_dilithium_45678(Example):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.optimize_loop("layer45678_start")
 
 
@@ -972,6 +989,7 @@ class ntt_dilithium_1234_5678(Example):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.config.inputs_are_outputs = True
         # slothy.config.sw_pipelining.halving_heuristic = True
         # slothy.config.split_heuristic = True
@@ -981,6 +999,7 @@ class ntt_dilithium_1234_5678(Example):
         slothy.config.constraints.stalls_first_attempt = 40
         slothy.optimize_loop("layer1234_start")
         slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.split_heuristic = False
         slothy.optimize_loop("layer5678_start")
@@ -1006,6 +1025,7 @@ class ntt_dilithium_1234(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.optimize_loop("layer1234_start")
 
 
@@ -1028,6 +1048,7 @@ class ntt_dilithium_5678(Example):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
         slothy.optimize_loop("layer5678_start")
 
 
