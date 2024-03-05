@@ -334,10 +334,14 @@ _intt_dilithium_1234_5678:
 
         .p2align 2
 layer5678_start:
-        ldr_vo data0, inp, (16*0)
-        ldr_vo data1, inp, (16*1)
-        ldr_vo data2, inp, (16*2)
-        ldr_vo data3, inp, (16*3)
+        // manual_ld4
+        // ldr_vo data0, inp, (16*0)
+        // ldr_vo data1, inp, (16*1)
+        // ldr_vo data2, inp, (16*2)
+        // ldr_vo data3, inp, (16*3)
+        // transpose4 data
+
+        ld4 {data0.4S, data1.4S, data2.4S, data3.4S}, [inp]
 
         load_next_roots_78 root0, root0_tw, root1, root1_tw, root2, root2_tw, r_ptr0
 

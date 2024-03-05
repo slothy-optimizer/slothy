@@ -428,6 +428,11 @@ def _main():
     ntt_dilithium_l123.export("../naive/ntt_dilithium_123_456_78_twiddles.s")
     ntt_dilithium_l123.export("../opt/ntt_dilithium_123_456_78_twiddles.s")
 
+    intt_dilithium_l123 = NttRootGen(size=256,inverse=True,bitsize=32,modulus=8380417,root=1753,layers=8,
+                                    print_label=True, pad=[0,3], iters=[(0,3),(3,3),(6,2)])
+    intt_dilithium_l123.export("../naive/aarch64/intt_dilithium_123_456_78_twiddles.s")
+    intt_dilithium_l123.export("../opt/aarch64/intt_dilithium_123_456_78_twiddles.s")
+
     ntt_dilithium_l123 = NttRootGen(size=256,bitsize=32,modulus=8380417,root=1753,layers=8,
                                     print_label=True, pad=[0,3], iters=[(0,3),(3,3),(6,2)])
     ntt_dilithium_l123.export("../naive/aarch64/ntt_dilithium_123_456_78_twiddles.s")
