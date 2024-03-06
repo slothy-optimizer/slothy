@@ -405,6 +405,13 @@ def _main():
     ntt_kyber_l123.export("../naive/ntt_kyber_123_45_67_twiddles.s")
     ntt_kyber_l123.export("../opt/ntt_kyber_123_45_67_twiddles.s")
 
+    # For intt_kyber_123_4567.s
+    intt_kyber_l123 = NttRootGen(size=256,modulus=3329,root=17,layers=7,iters=[(0,3),(3,2),(5,2)], 
+                                pad=[0,3], print_label=True, widen_single_twiddles_to_words=False,
+                                inverse=True)
+    intt_kyber_l123.export("../naive/aarch64/intt_kyber_123_45_67_twiddles.s")
+    intt_kyber_l123.export("../opt/aarch64/intt_kyber_123_45_67_twiddles.s")
+
     ntt_kyber = NttRootGen(size=256,modulus=3329,root=17,layers=7)
     ntt_kyber.export("../naive/ntt_kyber_1_23_45_67_twiddles.s")
     ntt_kyber.export("../opt/ntt_kyber_1_23_45_67_twiddles.s")
