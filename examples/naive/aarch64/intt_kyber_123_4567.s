@@ -378,15 +378,14 @@ layer4567_start:
         // Layer 5
         gs_butterfly data0, data1, root0, 2, 3
         gs_butterfly data2, data3, root0, 4, 5
+
+        barrett_reduce data0
+        barrett_reduce data2
+
         // Layer 4
         gs_butterfly data0, data2, root0, 0, 1
         gs_butterfly data1, data3, root0, 0, 1
 
-        // or Montgomery?
-        barrett_reduce data0
-        barrett_reduce data1
-        barrett_reduce data2
-        barrett_reduce data3
         str_vi data0, inp, (64)
         str_vo data1, inp, (-64 + 16*1)
         str_vo data2, inp, (-64 + 16*2)
@@ -432,26 +431,20 @@ layer123_start:
         gs_butterfly data4, data6, root0, 4, 5
         gs_butterfly data5, data7, root0, 4, 5
 
+        barrett_reduce data0
+        barrett_reduce data1
+
         gs_butterfly data0, data4, root0, 0, 1
         gs_butterfly data1, data5, root0, 0, 1
         gs_butterfly data2, data6, root0, 0, 1
         gs_butterfly data3, data7, root0, 0, 1
 
-        // barrett_reduce data4 // JUST TEMPORARY for canonical output
-        // barrett_reduce data5 // JUST TEMPORARY for canonical output
-        // barrett_reduce data6 // JUST TEMPORARY for canonical output
-        // barrett_reduce data7 // JUST TEMPORARY for canonical output
         str_vo data4, in, (4*(512/8))
         str_vo data5, in, (5*(512/8))
         str_vo data6, in, (6*(512/8))
         str_vo data7, in, (7*(512/8))
 
         mul_ninv data4, data5, data6, data7, data0, data1, data2, data3
-
-        // barrett_reduce data4 // JUST TEMPORARY for canonical output
-        // barrett_reduce data5 // JUST TEMPORARY for canonical output
-        // barrett_reduce data6 // JUST TEMPORARY for canonical output
-        // barrett_reduce data7 // JUST TEMPORARY for canonical output
 
         str_vi data4, in, (16)
         str_vo data5, in, (-16 + 1*(512/8))
