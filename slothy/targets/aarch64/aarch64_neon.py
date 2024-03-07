@@ -493,7 +493,7 @@ class Instruction:
         return self._is_instance_of([ vadd, vsub ])
     def is_vector_load(self):
         """Indicates if an instruction is a Neon load instruction"""
-        return self._is_instance_of([ Ldr_Q, Ldp_Q ]) # TODO: Ld4 missing?
+        return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld4 ]) # TODO: Ld4 missing?
     def is_vector_store(self):
         """Indicates if an instruction is a Neon store instruction"""
         return self._is_instance_of([ Str_Q, Stp_Q, St4, d_stp_stack_with_inc, d_str_stack_with_inc])
