@@ -211,7 +211,7 @@ roots:
 .text
 
         .global ntt_kyber_123_4567_manual_st4_opt_m1_icestorm
-        .global _ntt_kyber_123_4567_manual_st4
+        .global _ntt_kyber_123_4567_manual_st4_opt_m1_icestorm
 
 .p2align 4
 const_addr:       .short 3329
