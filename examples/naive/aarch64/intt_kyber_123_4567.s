@@ -432,7 +432,7 @@ layer123_start:
         gs_butterfly data5, data7, root0, 4, 5
 
         barrett_reduce data0
-        barrett_reduce data1
+        barrett_reduce data4
 
         gs_butterfly data0, data4, root0, 0, 1
         gs_butterfly data1, data5, root0, 0, 1
