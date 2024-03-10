@@ -51,9 +51,8 @@ class RegisterType(Enum):
     NEON = 2
     STACK_NEON = 3
     STACK_GPR = 4
-    STACK_ANY = 5
-    FLAGS = 6
-    HINT = 7
+    FLAGS = 5
+    HINT = 6
 
     def __str__(self):
         return self.name
@@ -67,33 +66,6 @@ class RegisterType(Enum):
 
         qstack_locations = [ f"QSTACK{i}" for i in range(8) ]
         stack_locations  = [ f"STACK{i}"  for i in range(8) ]
-
-        # TODO: this is needed for X25519; as we use the same stack space
-        # for Neon and GPR; It would be great to unify. Ideally, one should
-        # be able to just use STACK_ without having to define it here
-        stack_any_locations = [
-            "STACK_MASK1",
-            "STACK_MASK2",
-            "STACK_A_0",
-            "STACK_A_8",
-            "STACK_A_16",
-            "STACK_A_24",
-            "STACK_A_32",
-            "STACK_B_0",
-            "STACK_B_8",
-            "STACK_B_16",
-            "STACK_B_24",
-            "STACK_B_32",
-            "STACK_CTR",
-            "STACK_LASTBIT",
-            "STACK_SCALAR",
-            "STACK_X_0",
-            "STACK_X_8",
-            "STACK_X_16",
-            "STACK_X_24",
-            "STACK_X_32"
-        ]
-
 
         gprs_normal  = [ f"x{i}" for i in range(31) ] + ["sp"]
         vregs_normal = [ f"v{i}" for i in range(32) ]
@@ -124,7 +96,6 @@ class RegisterType(Enum):
         return { RegisterType.GPR      : gprs,
                  RegisterType.STACK_GPR : stack_locations,
                  RegisterType.STACK_NEON : qstack_locations,
-                 RegisterType.STACK_ANY  : stack_any_locations,
                  RegisterType.NEON      : vregs,
                  RegisterType.HINT      : hints,
                  RegisterType.FLAGS     : flags}[reg_type]
@@ -155,7 +126,6 @@ class RegisterType(Enum):
         string = string.lower()
         return { "qstack"    : RegisterType.STACK_NEON,
                  "stack"     : RegisterType.STACK_GPR,
-                 "stack_any" : RegisterType.STACK_ANY,
                  "neon"      : RegisterType.NEON,
                  "gpr"       : RegisterType.GPR,
                  "hint"      : RegisterType.HINT,
@@ -164,28 +134,7 @@ class RegisterType(Enum):
     @staticmethod
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["flags", "sp",
-            "STACK_MASK1",
-            "STACK_MASK2",
-            "STACK_A_0",
-            "STACK_A_8",
-            "STACK_A_16",
-            "STACK_A_24",
-            "STACK_A_32",
-            "STACK_B_0",
-            "STACK_B_8",
-            "STACK_B_16",
-            "STACK_B_24",
-            "STACK_B_32",
-            "STACK_CTR",
-            "STACK_LASTBIT",
-            "STACK_SCALAR",
-            "STACK_X_0",
-            "STACK_X_8",
-            "STACK_X_16",
-            "STACK_X_24",
-            "STACK_X_32"
-                    ] + RegisterType.list_registers(RegisterType.HINT))
+        return set(["flags", "sp"] + RegisterType.list_registers(RegisterType.HINT))
 
     @staticmethod
     def default_aliases():
