@@ -674,14 +674,18 @@ class Heuristics():
 
             return new_body, new_stalls, len(result.stall_positions), perm
 
-        def optimize_chunks_many(start_end_idx_lst, body, stalls, abort_stall_threshold=None,
-            **kwargs):
+        def optimize_chunks_many(start_end_idx_lst, body, stalls,
+                                 abort_stall_threshold_high=None,
+                                 abort_stall_threshold_low=None,
+                                 **kwargs):
             perm = Permutation.permutation_id(len(body))
             for start_idx, end_idx in start_end_idx_lst:
                 body, stalls, cur_stalls, local_perm = optimize_chunk(start_idx, end_idx, body,
                                                                       stalls, **kwargs)
                 perm = Permutation.permutation_comp(local_perm, perm)
-                if abort_stall_threshold is not None and cur_stalls > abort_stall_threshold:
+                if abort_stall_threshold_high is not None and cur_stalls > abort_stall_threshold_high:
+                    break
+                if abort_stall_threshold_low is not None and cur_stalls < abort_stall_threshold_low:
                     break
             return body, stalls, perm
 
@@ -750,7 +754,8 @@ class Heuristics():
                     idx_lst.reverse()
 
             cur_body, stalls, local_perm = optimize_chunks_many(idx_lst, cur_body, stalls,
-                                    abort_stall_threshold=conf.split_heuristic_abort_cycle_at)
+                               abort_stall_threshold_high=conf.split_heuristic_abort_cycle_at_high,
+                               abort_stall_threshold_low=conf.split_heuristic_abort_cycle_at_low)
             perm = Permutation.permutation_comp(local_perm, perm)
 
         # Check complete result

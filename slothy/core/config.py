@@ -399,13 +399,22 @@ class Config(NestedPrint, LockAttributes):
         return self._split_heuristic_factor
 
     @property
-    def split_heuristic_abort_cycle_at(self):
+    def split_heuristic_abort_cycle_at_high(self):
         """During the split heuristic, a threshold for the number of stalls in the current
         optimization window above which the current pass of the split heuristic should stop."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
-        return self._split_heuristic_abort_cycle_at
+        return self._split_heuristic_abort_cycle_at_high
+
+    @property
+    def split_heuristic_abort_cycle_at_low(self):
+        """During the split heuristic, a threshold for the number of stalls in the current
+        optimization window below which the current pass of the split heuristic should stop."""
+        if not self.split_heuristic:
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
+                            "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
+        return self._split_heuristic_abort_cycle_at_low
 
     @property
     def split_heuristic_stepsize(self):
@@ -965,7 +974,8 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_optimize_seam = 0
         self._split_heuristic_bottom_to_top = False
         self._split_heuristic_factor = 2
-        self._split_heuristic_abort_cycle_at = None
+        self._split_heuristic_abort_cycle_at_high = None
+        self._split_heuristic_abort_cycle_at_low = None
         self._split_heuristic_stepsize = None
         self._split_heuristic_repeat = 1
         self._split_heuristic_preprocess_naive_interleaving = False
@@ -1090,9 +1100,12 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_factor.setter
     def split_heuristic_factor(self, val):
         self._split_heuristic_factor = float(val)
-    @split_heuristic_abort_cycle_at.setter
-    def split_heuristic_abort_cycle_at(self, val):
-        self._split_heuristic_abort_cycle_at = val
+    @split_heuristic_abort_cycle_at_high.setter
+    def split_heuristic_abort_cycle_at_high(self, val):
+        self._split_heuristic_abort_cycle_at_high = val
+    @split_heuristic_abort_cycle_at_low.setter
+    def split_heuristic_abort_cycle_at_low(self, val):
+        self._split_heuristic_abort_cycle_at_low = val
     @split_heuristic_stepsize.setter
     def split_heuristic_stepsize(self, val):
         self._split_heuristic_stepsize = float(val)
