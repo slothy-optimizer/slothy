@@ -477,15 +477,6 @@ class Instruction:
             return False
         raise FatalParsingException(f"unknown datatype '{dt}' in {self}")
 
-    def is_vector_mul(self):
-        """Indicates if an instruction is a Neon vector multiplication"""
-        return self._is_instance_of([ vmul, vmul_lane,
-                                      vmla, vmls_lane, vmls,
-                                      vqrdmulh, vqrdmulh_lane, vqdmulh_lane,
-                                      vmull, vmlal ])
-    def is_vector_add_sub(self):
-        """Indicates if an instruction is a Neon add/sub operation"""
-        return self._is_instance_of([ vadd, vsub ])
     def is_vector_load(self):
         """Indicates if an instruction is a Neon load instruction"""
         return self._is_instance_of([ Ldr_Q, Ldp_Q ]) # TODO: Ld4 missing?
