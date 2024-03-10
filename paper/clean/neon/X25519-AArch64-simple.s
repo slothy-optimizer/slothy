@@ -19,7 +19,14 @@
  * and no conditional branches or memory access pattern depend on secret data.
  */
 
-//#include <hal_env.h>
+/*
+ * Implementation manually de-interleaved and modularized for use with SLOTHY. See
+ *
+ *   Fast and Clean: Auditable High Performance Assembly via Constraint Solving
+ *   (Abdulrahman, Becker, Kannwischer, Klein)
+ */
+
+#include <hal_env.h>
 
 #define STACK_MASK1     0
 #define STACK_MASK2     8

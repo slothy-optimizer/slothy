@@ -1,4 +1,4 @@
-/* X25519-AArch64 by Emil Lenngren (2018)
+ /* X25519-AArch64 by Emil Lenngren (2018)
  *
  * To the extent possible under law, the person who associated CvC0 with
  * X25519-AArch64 has waived all copyright and related or neighboring rights
@@ -19,112 +19,36 @@
  * and no conditional branches or memory access pattern depend on secret data.
  */
 
+/*
+ * Implementation manually de-interleaved and modularized for use with SLOTHY. See
+ *
+ *   Fast and Clean: Auditable High Performance Assembly via Constraint Solving
+ *   (Abdulrahman, Becker, Kannwischer, Klein)
+ */
+
 #include <hal_env.h>
-#include "instruction_wrappers.i"
 
-
-.macro vmull out, in0, in1
-  umull \out\().2d, \in0\().2s, \in1\().2s
-.endm
-
-.macro vmlal out, in0, in1
-  umlal \out\().2d, \in0\().2s, \in1\().2s
-.endm
-
-.macro vmul out, in0, in1
-  mul \out\().2s, \in0\().2s, \in1\().2s
-.endm
-
-.macro vshl_d out, in, shift
-  shl \out\().2d, \in\().2d, \shift
-.endm
-
-.macro vshl_s out, in, shift
-  shl \out\().2s, \in\().2s, \shift
-.endm
-
-.macro vushr out, in, shift
-  ushr \out\().2d, \in\().2d, \shift
-.endm
-
-.macro vusra out, in, shift
-  usra \out\().2d, \in\().2d, \shift
-.endm
-
-.macro vand out, in0, in1
-  and \out\().16b, \in0\().16b, \in1\().16b
-.endm
-
-.macro vbic out, in0, in1
-  bic \out\().16b, \in0\().16b, \in1\().16b
-.endm
-
-.macro trn1_s out, in0, in1
-  trn1 \out\().4s, \in0\().4s, \in1\().4s
-.endm
-
-.macro vuzp1 out, in0, in1
-  uzp1 \out\().4s, \in0\().4s, \in1\().4s
-.endm
-
-.macro vuzp2 out, in0, in1
-  uzp2 \out\().4s, \in0\().4s, \in1\().4s
-.endm
-
-.macro vzip1_4s out, in0, in1
-  zip1 \out\().4s, \in0\().4s, \in1\().4s
-.endm
-
-.macro vzip1_2s out, in0, in1
-  zip1 \out\().2s, \in0\().2s, \in1\().2s
-.endm
-
-.macro vzip2_4s out, in0, in1
-  zip2 \out\().4s, \in0\().4s, \in1\().4s
-.endm
-
-.macro vzip2_2s out, in0, in1
-  zip2 \out\().2s, \in0\().2s, \in1\().2s
-.endm
-
-
-.macro mov_d01 out, in
-  mov \out\().d[0], \in\().d[1]
-.endm
-
-.macro mov_b00 out, in
-  mov \out\().b[0], \in\().b[0]
-.endm
-
-.macro vadd_4s out, in0, in1
-  add \out\().4s, \in0\().4s, \in1\().4s
-.endm
-
-.macro vadd_2s out, in0, in1
-  add \out\().2s, \in0\().2s, \in1\().2s
-.endm
-
-.macro vsub_4s out, in0, in1
-  sub \out\().4s, \in0\().4s, \in1\().4s
-.endm
-
-.macro vsub_2s out, in0, in1
-  sub \out\().2s, \in0\().2s, \in1\().2s
-.endm
-
-# TODO: also unwrap
-.macro fcsel_dform out, in0, in1, cond // slothy:no-unfold
-  fcsel dform_\out, dform_\in0, dform_\in1, \cond
-.endm
-
-.macro trn2_2s out, in0, in1
-    trn2 \out\().2s, \in0\().2s, \in1\().2s
-.endm
-
-.macro trn1_2s out, in0, in1
-    trn1 \out\().2s, \in0\().2s, \in1\().2s
-.endm
-
+#define STACK_MASK1     0
+#define STACK_MASK2     8
+#define STACK_A_0      16
+#define STACK_A_8      (STACK_A_0+ 8)
+#define STACK_A_16     (STACK_A_0+16)
+#define STACK_A_24     (STACK_A_0+24)
+#define STACK_A_32     (STACK_A_0+32)
+#define STACK_B_0      64
+#define STACK_B_8      (STACK_B_0+ 8)
+#define STACK_B_16     (STACK_B_0+16)
+#define STACK_B_24     (STACK_B_0+24)
+#define STACK_B_32     (STACK_B_0+32)
+#define STACK_CTR      104
+#define STACK_LASTBIT  108
+#define STACK_SCALAR  112
+#define STACK_X_0     168
+#define STACK_X_8     (STACK_X_0+ 8)
+#define STACK_X_16    (STACK_X_0+16)
+#define STACK_X_24    (STACK_X_0+24)
+#define STACK_X_32    (STACK_X_0+32)
+#define STACK_OUT_PTR (STACK_X_0+48)
 
     .cpu generic+fp+simd
     .text
@@ -396,82 +320,76 @@ sZ45 .req x6
 sZ46 .req x24
 sZ48 .req x22
 
-.macro scalar_stack_ldr sA, offset
-  stack_ldr \sA\()0, \offset\()_0
-  stack_ldr \sA\()2, \offset\()_8
-  stack_ldr \sA\()4, \offset\()_16
-  stack_ldr \sA\()6, \offset\()_24
-  stack_ldr \sA\()8, \offset\()_32
+START:
+
+
+.macro scalar_stack_ldr sA, offset, name
+  ldr \sA\()0, [sp, #\offset\()_0]  // @slothy:reads=[\name\()0]
+  ldr \sA\()2, [sp, #\offset\()_8]  // @slothy:reads=[\name\()8]
+  ldr \sA\()4, [sp, #\offset\()_16] // @slothy:reads=[\name\()16]
+  ldr \sA\()6, [sp, #\offset\()_24] // @slothy:reads=[\name\()24]
+  ldr \sA\()8, [sp, #\offset\()_32] // @slothy:reads=[\name\()32]
 .endm
 
-.macro scalar_stack_str offset, sA
-    stack_stp \offset\()_0, \offset\()_8, \sA\()0, \sA\()2
-    stack_stp \offset\()_16, \offset\()_24, \sA\()4, \sA\()6
-    stack_str \offset\()_32, \sA\()8
+.macro scalar_stack_str offset, sA, name
+    stp \sA\()0, \sA\()2, [sp, #\offset\()_0]  // @slothy:writes=[\name\()0,\name\()8]
+    stp \sA\()4, \sA\()6, [sp, #\offset\()_16] // @slothy:writes=[\name\()16,\name\()24]
+    str \sA\()8, [sp, #\offset\()_32]          // @slothy:writes=[\name\()32]
 .endm
 
-.macro vector_stack_str offset, vA
-    stack_vstp_dform \offset\()_0, \offset\()_8, \vA\()0, \vA\()2
-    stack_vstp_dform \offset\()_16, \offset\()_24, \vA\()4, \vA\()6
-    stack_vstr_dform \offset\()_32, \vA\()8
+.macro vector_stack_str offset, vA, name
+    stp D<\vA\()0>, D<\vA\()2>, [sp, #\offset\()_0]  // @slothy:writes=[\name\()0,\name\()8]
+    stp D<\vA\()4>, D<\vA\()6>, [sp, #\offset\()_16] // @slothy:writes=[\name\()16,\name\()24]
+    str D<\vA\()8>, [sp, #\offset\()_32]             // @slothy:writes=[\name\()32]
 .endm
 
-.macro vector_load_lane vA, offset, lane
     // TODO: eliminate this explicit register assignment by converting stack_vld2_lane to AArch64Instruction
     xvector_load_lane_tmp .req x26
 
+.macro vector_load_lane vA, offset, lane, name
     add xvector_load_lane_tmp, sp, #\offset\()_0
-    stack_vld2_lane \vA\()0, \vA\()1, xvector_load_lane_tmp, \offset\()_0,  \lane, 8
-    stack_vld2_lane \vA\()2, \vA\()3, xvector_load_lane_tmp, \offset\()_8,  \lane, 8
-    stack_vld2_lane \vA\()4, \vA\()5, xvector_load_lane_tmp, \offset\()_16, \lane, 8
-    stack_vld2_lane \vA\()6, \vA\()7, xvector_load_lane_tmp, \offset\()_24, \lane, 8
-    stack_vld2_lane \vA\()8, \vA\()9, xvector_load_lane_tmp, \offset\()_32, \lane, 8
+    ld2 { \vA\()0.s, \vA\()1.s }[\lane\()], [xvector_load_lane_tmp], #8 // @slothy:reads=[\name\()0]
+    ld2 { \vA\()2.s, \vA\()3.s }[\lane\()], [xvector_load_lane_tmp], #8 // @slothy:reads=[\name\()8]
+    ld2 { \vA\()4.s, \vA\()5.s }[\lane\()], [xvector_load_lane_tmp], #8 // @slothy:reads=[\name\()16]
+    ld2 { \vA\()6.s, \vA\()7.s }[\lane\()], [xvector_load_lane_tmp], #8 // @slothy:reads=[\name\()24]
+    ld2 { \vA\()8.s, \vA\()9.s }[\lane\()], [xvector_load_lane_tmp], #8 // @slothy:reads=[\name\()32]
 .endm
 
 .macro vector_sub_inner vC0, vC2, vC4, vC6, vC8, \
-                        vA0, vA2, vA4, vA6, vA8, \
-                        vB0, vB2, vB4, vB6, vB8
+                        vA0, vA2, vA4, vA6, vA8,  vB0, vB2, vB4, vB6, vB8
     // (2^255-19)*4 - vB
-    vsub_2s    \vC0, v28, \vB0
-    vsub_2s    \vC2, v29, \vB2
-    vsub_2s    \vC4, v29, \vB4
-    vsub_2s    \vC6, v29, \vB6
-    vsub_2s    \vC8, v29, \vB8
+    sub \vC0\().2s, v28.2s, \vB0\().2s
+    sub \vC2\().2s, v29.2s, \vB2\().2s
+    sub \vC4\().2s, v29.2s, \vB4\().2s
+    sub \vC6\().2s, v29.2s, \vB6\().2s
+    sub \vC8\().2s, v29.2s, \vB8\().2s
 
     // ... + vA
-    vadd_2s    \vC0, \vA0, \vC0
-    vadd_2s    \vC2, \vA2, \vC2
-    vadd_2s    \vC4, \vA4, \vC4
-    vadd_2s    \vC6, \vA6, \vC6
-    vadd_2s    \vC8, \vA8, \vC8
+    add \vC0\().2s, \vA0\().2s, \vC0\().2s
+    add \vC2\().2s, \vA2\().2s, \vC2\().2s
+    add \vC4\().2s, \vA4\().2s, \vC4\().2s
+    add \vC6\().2s, \vA6\().2s, \vC6\().2s
+    add \vC8\().2s, \vA8\().2s, \vC8\().2s
 .endm
 
 .macro vector_sub vC, vA, vB
-    vector_sub_inner \vC\()0, \vC\()2, \vC\()4, \vC\()6, \vC\()8, \
-                     \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8, \
-                     \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8
+    vector_sub_inner \vC\()0, \vC\()2, \vC\()4, \vC\()6, \vC\()8,  \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8,  \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8
 .endm
 
 
-.macro vector_add_inner vC0, vC2, vC4, vC6, vC8, \
-                        vA0, vA2, vA4, vA6, vA8, \
-                        vB0, vB2, vB4, vB6, vB8
-    vadd_2s    \vC0, \vA0, \vB0
-    vadd_2s    \vC2, \vA2, \vB2
-    vadd_2s    \vC4, \vA4, \vB4
-    vadd_2s    \vC6, \vA6, \vB6
-    vadd_2s    \vC8, \vA8, \vB8
+.macro vector_add_inner vC0, vC2, vC4, vC6, vC8,  vA0, vA2, vA4, vA6, vA8,  vB0, vB2, vB4, vB6, vB8
+    add \vC0\().2s, \vA0\().2s, \vB0\().2s
+    add \vC2\().2s, \vA2\().2s, \vB2\().2s
+    add \vC4\().2s, \vA4\().2s, \vB4\().2s
+    add \vC6\().2s, \vA6\().2s, \vB6\().2s
+    add \vC8\().2s, \vA8\().2s, \vB8\().2s
 .endm
 
 .macro vector_add vC, vA, vB
-    vector_add_inner \vC\()0, \vC\()2, \vC\()4, \vC\()6, \vC\()8, \
-                     \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8, \
-                     \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8
+    vector_add_inner \vC\()0, \vC\()2, \vC\()4, \vC\()6, \vC\()8,  \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8,  \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8
 .endm
 
-.macro vector_cmov_inner vA0, vA2, vA4, vA6, vA8, \
-                         vB0, vB2, vB4, vB6, vB8, \
-                         vC0, vC2, vC4, vC6, vC8
+.macro vector_cmov_inner vA0, vA2, vA4, vA6, vA8,  vB0, vB2, vB4, vB6, vB8,  vC0, vC2, vC4, vC6, vC8
     fcsel_dform    \vA0, \vB0, \vC0, eq
     fcsel_dform    \vA2, \vB2, \vC2, eq
     fcsel_dform    \vA4, \vB4, \vC4, eq
@@ -480,34 +398,27 @@ sZ48 .req x22
 .endm
 
 .macro vector_cmov vA, vB, vC
-    vector_cmov_inner \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8, \
-                      \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8, \
-                      \vC\()0, \vC\()2, \vC\()4, \vC\()6, \vC\()8,
+    vector_cmov_inner \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8,  \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8,  \vC\()0, \vC\()2, \vC\()4, \vC\()6, \vC\()8,
 .endm
 
-.macro vector_transpose_inner vA0, vA1, vA2, vA3, vA4, vA5, vA6, vA7, vA8, vA9, \
-                              vB0, vB2, vB4, vB6, vB8, \
-                              vC0, vC2, vC4, vC6, vC8
-    trn2_2s    \vA1, \vB0, \vC0
-    trn1_2s    \vA0, \vB0, \vC0
-    trn2_2s    \vA3, \vB2, \vC2
-    trn1_2s    \vA2, \vB2, \vC2
-    trn2_2s    \vA5, \vB4, \vC4
-    trn1_2s    \vA4, \vB4, \vC4
-    trn2_2s    \vA7, \vB6, \vC6
-    trn1_2s    \vA6, \vB6, \vC6
-    trn2_2s    \vA9, \vB8, \vC8
-    trn1_2s    \vA8, \vB8, \vC8
+.macro vector_transpose_inner vA0, vA1, vA2, vA3, vA4, vA5, vA6, vA7, vA8, vA9,  vB0, vB2, vB4, vB6, vB8,  vC0, vC2, vC4, vC6, vC8
+    trn2 \vA1\().2s, \vB0\().2s, \vC0\().2s
+    trn1 \vA0\().2s, \vB0\().2s, \vC0\().2s
+    trn2 \vA3\().2s, \vB2\().2s, \vC2\().2s
+    trn1 \vA2\().2s, \vB2\().2s, \vC2\().2s
+    trn2 \vA5\().2s, \vB4\().2s, \vC4\().2s
+    trn1 \vA4\().2s, \vB4\().2s, \vC4\().2s
+    trn2 \vA7\().2s, \vB6\().2s, \vC6\().2s
+    trn1 \vA6\().2s, \vB6\().2s, \vC6\().2s
+    trn2 \vA9\().2s, \vB8\().2s, \vC8\().2s
+    trn1 \vA8\().2s, \vB8\().2s, \vC8\().2s
 .endm
 
 .macro vector_transpose vA, vB, vC
-    vector_transpose_inner \vA\()0, \vA\()1, \vA\()2, \vA\()3, \vA\()4, \vA\()5, \vA\()6, \vA\()7, \vA\()8, \vA\()9, \
-                           \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8, \
-                           \vC\()0, \vC\()2, \vC\()4, \vC\()6, \vC\()8,
+    vector_transpose_inner \vA\()0, \vA\()1, \vA\()2, \vA\()3, \vA\()4, \vA\()5, \vA\()6, \vA\()7, \vA\()8, \vA\()9,  \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8,  \vC\()0, \vC\()2, \vC\()4, \vC\()6, \vC\()8,
 .endm
 
-.macro vector_to_scalar_inner sA0, sA2, sA4, sA6, sA8, \
-                              vB0, vB2, vB4, vB6, vB8
+.macro vector_to_scalar_inner sA0, sA2, sA4, sA6, sA8,  vB0, vB2, vB4, vB6, vB8
     mov    \sA0, \vB0\().d[0]
     mov    \sA2, \vB2\().d[0]
     mov    \sA4, \vB4\().d[0]
@@ -516,12 +427,10 @@ sZ48 .req x22
 .endm
 
 .macro vector_to_scalar sA, vB
-    vector_to_scalar_inner \sA\()0, \sA\()2, \sA\()4, \sA\()6, \sA\()8, \
-                           \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8
+    vector_to_scalar_inner \sA\()0, \sA\()2, \sA\()4, \sA\()6, \sA\()8,  \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8
 .endm
 
-.macro scalar_to_vector_inner vA0, vA2, vA4, vA6, vA8, \
-                              sB0, sB2, sB4, sB6, sB8
+.macro scalar_to_vector_inner vA0, vA2, vA4, vA6, vA8,  sB0, sB2, sB4, sB6, sB8
     mov    \vA0\().d[0], \sB0
     mov    \vA2\().d[0], \sB2
     mov    \vA4\().d[0], \sB4
@@ -530,37 +439,32 @@ sZ48 .req x22
 .endm
 
 .macro scalar_to_vector vA, sB
-    scalar_to_vector_inner \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8, \
-                           \sB\()0, \sB\()2, \sB\()4, \sB\()6, \sB\()8
+    scalar_to_vector_inner \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8,  \sB\()0, \sB\()2, \sB\()4, \sB\()6, \sB\()8
 .endm
 
 
-.macro vector_extract_upper_inner vA0, vA2, vA4, vA6, vA8, \
-                                  vB0, vB2, vB4, vB6, vB8
-    mov_d01 \vA0, \vB0
-    mov_d01 \vA2, \vB2
-    mov_d01 \vA4, \vB4
-    mov_d01 \vA6, \vB6
-    mov_d01 \vA8, \vB8
+.macro vector_extract_upper_inner vA0, vA2, vA4, vA6, vA8,  vB0, vB2, vB4, vB6, vB8
+    mov \vA0\().d[0], \vB0\().d[1]
+    mov \vA2\().d[0], \vB2\().d[1]
+    mov \vA4\().d[0], \vB4\().d[1]
+    mov \vA6\().d[0], \vB6\().d[1]
+    mov \vA8\().d[0], \vB8\().d[1]
 .endm
 
 .macro vector_extract_upper vA, vB
-    vector_extract_upper_inner \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8, \
-                               \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8
+    vector_extract_upper_inner \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8,  \vB\()0, \vB\()2, \vB\()4, \vB\()6, \vB\()8
 .endm
 
-.macro vector_compress_inner vA0, vA2, vA4, vA6, vA8, \
-                             vB0, vB1, vB2, vB3, vB4, vB5, vB6, vB7, vB8, vB9
-    trn1_s   \vA0, \vB0, \vB1
-    trn1_s   \vA2, \vB2, \vB3
-    trn1_s   \vA4, \vB4, \vB5
-    trn1_s   \vA6, \vB6, \vB7
-    trn1_s   \vA8, \vB8, \vB9
+.macro vector_compress_inner vA0, vA2, vA4, vA6, vA8,  vB0, vB1, vB2, vB3, vB4, vB5, vB6, vB7, vB8, vB9
+    trn1 \vA0\().4s, \vB0\().4s, \vB1\().4s
+    trn1 \vA2\().4s, \vB2\().4s, \vB3\().4s
+    trn1 \vA4\().4s, \vB4\().4s, \vB5\().4s
+    trn1 \vA6\().4s, \vB6\().4s, \vB7\().4s
+    trn1 \vA8\().4s, \vB8\().4s, \vB9\().4s
 .endm
 
 .macro vector_compress vA, vB
-    vector_compress_inner \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8, \
-                          \vB\()0, \vB\()1, \vB\()2, \vB\()3, \vB\()4, \vB\()5, \vB\()6, \vB\()7, \vB\()8, \vB\()9,
+    vector_compress_inner \vA\()0, \vA\()2, \vA\()4, \vA\()6, \vA\()8,  \vB\()0, \vB\()1, \vB\()2, \vB\()3, \vB\()4, \vB\()5, \vB\()6, \vB\()7, \vB\()8, \vB\()9,
 .endm
 
 .macro scalar_clear_carries_inner sA0, sA1, sA2, sA3, sA4, sA5, sA6, sA7, sA8, sA9
@@ -591,8 +495,6 @@ sZ48 .req x22
     scalar_decompress_inner \sA\()0, \sA\()1, \sA\()2, \sA\()3, \sA\()4, \sA\()5, \sA\()6, \sA\()7, \sA\()8, \sA\()9
 .endm
 
-.macro vector_addsub_repack_inner vA0, vA1, vA2, vA3, vA4, vA5, vA6, vA7, vA8, vA9, \
-                    vC0, vC1, vC2, vC3, vC4, vC5, vC6, vC7, vC8, vC9
     // TODO: eliminate those. should be easy
     vR_l4h4l5h5 .req vADBC4
     vR_l6h6l7h7 .req vADBC5
@@ -620,52 +522,49 @@ sZ48 .req x22
     vrepack_inner_tmp .req v19
     vrepack_inner_tmp2 .req v0
 
-    vuzp1    vR_l4h4l5h5, \vC4, \vC5
-    vuzp1    vR_l6h6l7h7, \vC6, \vC7
-    stack_vld1r vrepack_inner_tmp, STACK_MASK1
-    vuzp1    vR_l4567, vR_l4h4l5h5, vR_l6h6l7h7
-    vuzp2    vR_h4567, vR_l4h4l5h5, vR_l6h6l7h7
-    trn1_s   vR_l89h89, \vC8, \vC9
-    stack_vldr_bform vrepack_inner_tmp2, STACK_MASK2    // ldr      b0, [sp, #8]
-    vuzp1    vR_l0h0l1h1, \vC0, \vC1
-    vuzp1    vR_l2h2l3h3, \vC2, \vC3
-    mov_d01  vR_h89xx, vR_l89h89
-    vuzp1    vR_l0123, vR_l0h0l1h1, vR_l2h2l3h3
-    vuzp2    vR_h0123, vR_l0h0l1h1, vR_l2h2l3h3
-    vadd_4s  vDiff4567, vR_l4567, vrepack_inner_tmp
-    vadd_2s  vDiff89xx, vR_l89h89, vrepack_inner_tmp
-    mov_b00 vrepack_inner_tmp, vrepack_inner_tmp2
-    vadd_4s  vSum0123, vR_l0123, vR_h0123
-    vadd_4s  vSum4567, vR_l4567, vR_h4567
-    vadd_2s  vSum89xx, vR_l89h89, vR_h89xx
-    vadd_4s  vDiff0123, vR_l0123, vrepack_inner_tmp
-    vsub_4s  vDiff4567, vDiff4567, vR_h4567
-    vsub_4s  vDiff0123, vDiff0123, vR_h0123
-    vsub_2s  vDiff89xx, vDiff89xx, vR_h89xx
-    vzip1_4s \vA0, vDiff0123, vSum0123
-    vzip2_4s \vA2, vDiff0123, vSum0123
-    vzip1_4s \vA4, vDiff4567, vSum4567
-    vzip2_4s \vA6, vDiff4567, vSum4567
-    vzip1_2s \vA8, vDiff89xx, vSum89xx
-    vzip2_2s \vA9, vDiff89xx, vSum89xx
-    mov_d01  \vA1, \vA0
-    mov_d01  \vA3, \vA2
-    mov_d01  \vA5, \vA4
-    mov_d01  \vA7, \vA6
+.macro vector_addsub_repack_inner vA0, vA1, vA2, vA3, vA4, vA5, vA6, vA7, vA8, vA9,  vC0, vC1, vC2, vC3, vC4, vC5, vC6, vC7, vC8, vC9
+    uzp1 vR_l4h4l5h5.4s, \vC4\().4s, \vC5\().4s
+    uzp1 vR_l6h6l7h7.4s, \vC6\().4s, \vC7\().4s
+    ld1r {vrepack_inner_tmp.2d}, [sp] // @slothy:reads=mask1
+    uzp1 vR_l4567.4s, vR_l4h4l5h5.4s, vR_l6h6l7h7.4s
+    uzp2 vR_h4567.4s, vR_l4h4l5h5.4s, vR_l6h6l7h7.4s
+    trn1 vR_l89h89.4s, \vC8\().4s, \vC9\().4s
+    ldr B<vrepack_inner_tmp2>, [sp, #STACK_MASK2] // @slothy:reads=mask2
+    uzp1 vR_l0h0l1h1.4s, \vC0\().4s, \vC1\().4s
+    uzp1 vR_l2h2l3h3.4s, \vC2\().4s, \vC3\().4s
+    mov vR_h89xx.d[0], vR_l89h89.d[1]
+    uzp1 vR_l0123.4s, vR_l0h0l1h1.4s, vR_l2h2l3h3.4s
+    uzp2 vR_h0123.4s, vR_l0h0l1h1.4s, vR_l2h2l3h3.4s
+    add vDiff4567.4s, vR_l4567.4s, vrepack_inner_tmp.4s
+    add vDiff89xx.2s, vR_l89h89.2s, vrepack_inner_tmp.2s
+    mov vrepack_inner_tmp.b[0], vrepack_inner_tmp2.b[0]
+    add vSum0123.4s, vR_l0123.4s, vR_h0123.4s
+    add vSum4567.4s, vR_l4567.4s, vR_h4567.4s
+    add vSum89xx.2s, vR_l89h89.2s, vR_h89xx.2s
+    add vDiff0123.4s, vR_l0123.4s, vrepack_inner_tmp.4s
+    sub vDiff4567.4s, vDiff4567.4s, vR_h4567.4s
+    sub vDiff0123.4s, vDiff0123.4s, vR_h0123.4s
+    sub vDiff89xx.2s, vDiff89xx.2s, vR_h89xx.2s
+    zip1 \vA0\().4s, vDiff0123.4s, vSum0123.4s
+    zip2 \vA2\().4s, vDiff0123.4s, vSum0123.4s
+    zip1 \vA4\().4s, vDiff4567.4s, vSum4567.4s
+    zip2 \vA6\().4s, vDiff4567.4s, vSum4567.4s
+    zip1 \vA8\().2s, vDiff89xx.2s, vSum89xx.2s
+    zip2 \vA9\().2s, vDiff89xx.2s, vSum89xx.2s
+    mov \vA1\().d[0], \vA0\().d[1]
+    mov \vA3\().d[0], \vA2\().d[1]
+    mov \vA5\().d[0], \vA4\().d[1]
+    mov \vA7\().d[0], \vA6\().d[1]
 .endm
 
 .macro vector_addsub_repack vA, vC
-vector_addsub_repack_inner \
-        \vA\()0, \vA\()1, \vA\()2, \vA\()3, \vA\()4, \vA\()5, \vA\()6, \vA\()7, \vA\()8, \vA\()9, \
-        \vC\()0, \vC\()1, \vC\()2, \vC\()3, \vC\()4, \vC\()5, \vC\()6, \vC\()7, \vC\()8, \vC\()9
+vector_addsub_repack_inner  \vA\()0, \vA\()1, \vA\()2, \vA\()3, \vA\()4, \vA\()5, \vA\()6, \vA\()7, \vA\()8, \vA\()9,  \vC\()0, \vC\()1, \vC\()2, \vC\()3, \vC\()4, \vC\()5, \vC\()6, \vC\()7, \vC\()8, \vC\()9
 .endm
 
 // sAA0     .. sAA9       output AA = A^2
 // sA0      .. sA9        input A
 // TODO: simplify (this is still the same instruction order as before; we can make it simpler and leave the re-ordering to Sloty)
-.macro scalar_sqr_inner \
-        sAA0,     sAA1,     sAA2,     sAA3,     sAA4,     sAA5,     sAA6,     sAA7,     sAA8,     sAA9,      \
-        sA0,      sA1,      sA2,      sA3,      sA4,      sA5,      sA6,      sA7,      sA8,      sA9
+.macro scalar_sqr_inner  sAA0,     sAA1,     sAA2,     sAA3,     sAA4,     sAA5,     sAA6,     sAA7,     sAA8,     sAA9,       sA0,      sA1,      sA2,      sA3,      sA4,      sA5,      sA6,      sA7,      sA8,      sA9
   lsr    \sA1, \sA0, #32
   lsr    \sA3, \sA2, #32
   lsr    \sA5, \sA4, #32
@@ -773,18 +672,13 @@ vector_addsub_repack_inner \
 .endm
 
 .macro scalar_sqr sAA, sA
-scalar_sqr_inner \
-        \sAA\()0,  \sAA\()1,  \sAA\()2,  \sAA\()3,  \sAA\()4,  \sAA\()5,  \sAA\()6,  \sAA\()7,  \sAA\()8,  \sAA\()9,  \
-        \sA\()0,   \sA\()1,   \sA\()2,   \sA\()3,   \sA\()4,   \sA\()5,   \sA\()6,   \sA\()7,   \sA\()8,   \sA\()9
+scalar_sqr_inner  \sAA\()0,  \sAA\()1,  \sAA\()2,  \sAA\()3,  \sAA\()4,  \sAA\()5,  \sAA\()6,  \sAA\()7,  \sAA\()8,  \sAA\()9,   \sA\()0,   \sA\()1,   \sA\()2,   \sA\()3,   \sA\()4,   \sA\()5,   \sA\()6,   \sA\()7,   \sA\()8,   \sA\()9
 .endm
 
 // sC0     .. sC9        output C = A*B
 // sA0     .. sA9        input A
 // sB0     .. sB9        input B
-.macro scalar_mul_inner \
-        sC0,     sC1,     sC2,     sC3,     sC4,     sC5,     sC6,     sC7,     sC8,     sC9,     \
-        sA0,     sA1,     sA2,     sA3,     sA4,     sA5,     sA6,     sA7,     sA8,     sA9,     \
-        sB0,     sB1,     sB2,     sB3,     sB4,     sB5,     sB6,     sB7,     sB8,     sB9
+.macro scalar_mul_inner  sC0,     sC1,     sC2,     sC3,     sC4,     sC5,     sC6,     sC7,     sC8,     sC9,      sA0,     sA1,     sA2,     sA3,     sA4,     sA5,     sA6,     sA7,     sA8,     sA9,      sB0,     sB1,     sB2,     sB3,     sB4,     sB5,     sB6,     sB7,     sB8,     sB9
 
 
   mul    W<tmp_scalar_mul_tw_1>, W<\sA1>,                W<const19>
@@ -943,21 +837,15 @@ scalar_sqr_inner \
 .endm
 
 .macro scalar_mul sC, sA, sB
-scalar_mul_inner \
-        \sC\()0,  \sC\()1,  \sC\()2,  \sC\()3,  \sC\()4,  \sC\()5,  \sC\()6,  \sC\()7,  \sC\()8,  \sC\()9,  \
-        \sA\()0,  \sA\()1,  \sA\()2,  \sA\()3,  \sA\()4,  \sA\()5,  \sA\()6,  \sA\()7,  \sA\()8,  \sA\()9,  \
-        \sB\()0,  \sB\()1,  \sB\()2,  \sB\()3,  \sB\()4,  \sB\()5,  \sB\()6,  \sB\()7,  \sB\()8,  \sB\()9
+scalar_mul_inner  \sC\()0,  \sC\()1,  \sC\()2,  \sC\()3,  \sC\()4,  \sC\()5,  \sC\()6,  \sC\()7,  \sC\()8,  \sC\()9,   \sA\()0,  \sA\()1,  \sA\()2,  \sA\()3,  \sA\()4,  \sA\()5,  \sA\()6,  \sA\()7,  \sA\()8,  \sA\()9,   \sB\()0,  \sB\()1,  \sB\()2,  \sB\()3,  \sB\()4,  \sB\()5,  \sB\()6,  \sB\()7,  \sB\()8,  \sB\()9
 .endm
+
+xtmp_scalar_sub_0 .req x21
 
 // sC0 .. sC4   output C = A +  4p - B  (registers may be the same as A)
 // sA0 .. sA4   first operand A
 // sB0 .. sB4   second operand B
-.macro scalar_sub_inner \
-        sC0, sC1, sC2, sC3, sC4, \
-        sA0, sA1, sA2, sA3, sA4, \
-        sB0, sB1, sB2, sB3, sB4
-
-  xtmp_scalar_sub_0 .req x21
+.macro scalar_sub_inner  sC0, sC1, sC2, sC3, sC4,  sA0, sA1, sA2, sA3, sA4,  sB0, sB1, sB2, sB3, sB4
 
   ldr    xtmp_scalar_sub_0, #=0x07fffffe07fffffc
   add    \sC1, \sA1, xtmp_scalar_sub_0
@@ -974,17 +862,11 @@ scalar_mul_inner \
 .endm
 
 .macro scalar_sub sC, sA, sB
-scalar_sub_inner \sC\()0, \sC\()2, \sC\()4, \sC\()6, \sC\()8, \
-                 \sA\()0, \sA\()2, \sA\()4, \sA\()6, \sA\()8, \
-                 \sB\()0, \sB\()2, \sB\()4, \sB\()6, \sB\()8
+scalar_sub_inner \sC\()0, \sC\()2, \sC\()4, \sC\()6, \sC\()8,  \sA\()0, \sA\()2, \sA\()4, \sA\()6, \sA\()8,  \sB\()0, \sB\()2, \sB\()4, \sB\()6, \sB\()8
 .endm
 
 
-.macro scalar_addm_inner  \
-        sC0, sC1, sC2, sC3, sC4, sC5, sC6, sC7, sC8, sC9, \
-        sA0, sA1, sA2, sA3, sA4, sA5, sA6, sA7, sA8, sA9, \
-        sB0, sB1, sB2, sB3, sB4, sB5, sB6, sB7, sB8, sB9, \
-        multconst
+.macro scalar_addm_inner   sC0, sC1, sC2, sC3, sC4, sC5, sC6, sC7, sC8, sC9,  sA0, sA1, sA2, sA3, sA4, sA5, sA6, sA7, sA8, sA9,  sB0, sB1, sB2, sB3, sB4, sB5, sB6, sB7, sB8, sB9,  multconst
 
   ldr    X<tmp_scalar_addm_0>, #=\multconst
   umaddl \sC9, W<\sB9>, W<tmp_scalar_addm_0>, \sA9
@@ -1024,302 +906,265 @@ scalar_sub_inner \sC\()0, \sC\()2, \sC\()4, \sC\()6, \sC\()8, \
 .endm
 
 .macro scalar_addm sC, sA, sB, multconst
-scalar_addm_inner \sC\()0, \sC\()1, \sC\()2, \sC\()3, \sC\()4, \sC\()5, \sC\()6, \sC\()7, \sC\()8, \sC\()9,  \
-                  \sA\()0, \sA\()1, \sA\()2, \sA\()3, \sA\()4, \sA\()5, \sA\()6, \sA\()7, \sA\()8, \sA\()9,  \
-                  \sB\()0, \sB\()1, \sB\()2, \sB\()3, \sB\()4, \sB\()5, \sB\()6, \sB\()7, \sB\()8, \sB\()9, \
-                  \multconst
+scalar_addm_inner \sC\()0, \sC\()1, \sC\()2, \sC\()3, \sC\()4, \sC\()5, \sC\()6, \sC\()7, \sC\()8, \sC\()9,   \sA\()0, \sA\()1, \sA\()2, \sA\()3, \sA\()4, \sA\()5, \sA\()6, \sA\()7, \sA\()8, \sA\()9,   \sB\()0, \sB\()1, \sB\()2, \sB\()3, \sB\()4, \sB\()5, \sB\()6, \sB\()7, \sB\()8, \sB\()9,  \multconst
 .endm
 
 // vAA0     .. vAA9        output AA = A^2
 // vA0      .. vA9         input A
-.macro vector_sqr_inner \
-        vAA0,     vAA1,     vAA2,     vAA3,     vAA4,     vAA5,     vAA6,     vAA7,     vAA8,     vAA9,     \
-        vA0,      vA1,      vA2,      vA3,      vA4,      vA5,      vA6,      vA7,      vA8,      vA9
-  vshl_s   V<tmp_vector_sqr_dbl_9>,  \vA9,  #1
-  vshl_s   V<tmp_vector_sqr_dbl_8>,  \vA8,  #1
-  vshl_s   V<tmp_vector_sqr_dbl_7>,  \vA7,  #1
-  vshl_s   V<tmp_vector_sqr_dbl_6>,  \vA6,  #1
-  vshl_s   V<tmp_vector_sqr_dbl_5>,  \vA5,  #1
-  vshl_s   V<tmp_vector_sqr_dbl_4>,  \vA4,  #1
-  vshl_s   V<tmp_vector_sqr_dbl_3>,  \vA3,  #1
-  vshl_s   V<tmp_vector_sqr_dbl_2>,  \vA2,  #1
-  vshl_s   V<tmp_vector_sqr_dbl_1>,  \vA1,  #1
-  vmull    V<tmp_vector_sqr_9>,      \vA0,     V<tmp_vector_sqr_dbl_9>
-  vmlal    V<tmp_vector_sqr_9>,      \vA1,     V<tmp_vector_sqr_dbl_8>
-  vmlal    V<tmp_vector_sqr_9>,      \vA2,     V<tmp_vector_sqr_dbl_7>
-  vmlal    V<tmp_vector_sqr_9>,      \vA3,     V<tmp_vector_sqr_dbl_6>
-  vmlal    V<tmp_vector_sqr_9>,      \vA4,     V<tmp_vector_sqr_dbl_5>
-  vmull    V<tmp_vector_sqr_8>,      \vA0,     V<tmp_vector_sqr_dbl_8>
-  vmlal    V<tmp_vector_sqr_8>,      V<tmp_vector_sqr_dbl_1>, V<tmp_vector_sqr_dbl_7>
-  vmlal    V<tmp_vector_sqr_8>,      \vA2,     V<tmp_vector_sqr_dbl_6>
-  vmlal    V<tmp_vector_sqr_8>,      V<tmp_vector_sqr_dbl_3>, V<tmp_vector_sqr_dbl_5>
-  vmlal    V<tmp_vector_sqr_8>,      \vA4,     \vA4
-  vmul     V<tmp_vector_sqr_tw_9>,   \vA9,     vconst19
-  vmull    V<tmp_vector_sqr_7>,      \vA0,     V<tmp_vector_sqr_dbl_7>
-  vmlal    V<tmp_vector_sqr_7>,      \vA1,     V<tmp_vector_sqr_dbl_6>
-  vmlal    V<tmp_vector_sqr_7>,      \vA2,     V<tmp_vector_sqr_dbl_5>
-  vmlal    V<tmp_vector_sqr_7>,      \vA3,     V<tmp_vector_sqr_dbl_4>
-  vmlal    V<tmp_vector_sqr_8>,      V<tmp_vector_sqr_tw_9>,     V<tmp_vector_sqr_dbl_9>
-  vmull    V<tmp_vector_sqr_6>,      \vA0,     V<tmp_vector_sqr_dbl_6>
-  vmlal    V<tmp_vector_sqr_6>,      V<tmp_vector_sqr_dbl_1>, V<tmp_vector_sqr_dbl_5>
-  vmlal    V<tmp_vector_sqr_6>,      \vA2,     V<tmp_vector_sqr_dbl_4>
-  vmlal    V<tmp_vector_sqr_6>,      V<tmp_vector_sqr_dbl_3>, \vA3
-  vmull    V<tmp_vector_sqr_5>,      \vA0,     V<tmp_vector_sqr_dbl_5>
-  vmlal    V<tmp_vector_sqr_5>,      \vA1,     V<tmp_vector_sqr_dbl_4>
-  vmlal    V<tmp_vector_sqr_5>,      \vA2,     V<tmp_vector_sqr_dbl_3>
-  vmull    V<tmp_vector_sqr_4>,      \vA0,     V<tmp_vector_sqr_dbl_4>
-  vmlal    V<tmp_vector_sqr_4>,      V<tmp_vector_sqr_dbl_1>, V<tmp_vector_sqr_dbl_3>
-  vmlal    V<tmp_vector_sqr_4>,      \vA2,     \vA2
-  vmull    V<tmp_vector_sqr_3>,      \vA0,     V<tmp_vector_sqr_dbl_3>
-  vmlal    V<tmp_vector_sqr_3>,      \vA1,     V<tmp_vector_sqr_dbl_2>
-  vmull    V<tmp_vector_sqr_2>,      \vA0,     V<tmp_vector_sqr_dbl_2>
-  vmlal    V<tmp_vector_sqr_2>,      V<tmp_vector_sqr_dbl_1>, \vA1
-  vmull    V<tmp_vector_sqr_1>,      \vA0,     V<tmp_vector_sqr_dbl_1>
-  vmull    V<tmp_vector_sqr_0>,      \vA0,     \vA0
-  vusra    V<tmp_vector_sqr_9>,      V<tmp_vector_sqr_8>,     #26
-  vand     V<tmp_vector_sqr_8>,      V<tmp_vector_sqr_8>,     vMaskA
-  vmul     V<tmp_vector_sqr_tw_8>,   \vA8,     vconst19
-  vbic     V<tmp_vector_sqr_dbl_9>,  V<tmp_vector_sqr_9>,     vMaskB
-  vand     \vA9,      V<tmp_vector_sqr_9>,     vMaskB
-  vusra    V<tmp_vector_sqr_0>,      V<tmp_vector_sqr_dbl_9>, #25
-  vmul     V<tmp_vector_sqr_tw_7>,   \vA7,     vconst19
-  vusra    V<tmp_vector_sqr_0>,      V<tmp_vector_sqr_dbl_9>, #24
-  vmul     V<tmp_vector_sqr_tw_6>,   \vA6,     vconst19
-  vusra    V<tmp_vector_sqr_0>,      V<tmp_vector_sqr_dbl_9>, #21
-  vmul     V<tmp_vector_sqr_tw_5>,   \vA5,     vconst19
-  vshl_s   V<tmp_vector_sqr_quad_1>, V<tmp_vector_sqr_dbl_1>, #1
-  vshl_s   V<tmp_vector_sqr_quad_3>, V<tmp_vector_sqr_dbl_3>, #1
-  vshl_s   V<tmp_vector_sqr_quad_5>, V<tmp_vector_sqr_dbl_5>, #1
-  vshl_s   V<tmp_vector_sqr_quad_7>, V<tmp_vector_sqr_dbl_7>, #1
-  vmlal    V<tmp_vector_sqr_0>, V<tmp_vector_sqr_tw_5>,  V<tmp_vector_sqr_dbl_5>
-  vmlal    V<tmp_vector_sqr_0>, V<tmp_vector_sqr_tw_9>,  V<tmp_vector_sqr_quad_1>
-  vmlal    V<tmp_vector_sqr_0>, V<tmp_vector_sqr_tw_8>,  V<tmp_vector_sqr_dbl_2>
-  vmlal    V<tmp_vector_sqr_0>, V<tmp_vector_sqr_tw_7>,  V<tmp_vector_sqr_quad_3>
-  vmlal    V<tmp_vector_sqr_0>, V<tmp_vector_sqr_tw_6>,  V<tmp_vector_sqr_dbl_4>
-  vmlal    V<tmp_vector_sqr_1>, V<tmp_vector_sqr_tw_9>,  V<tmp_vector_sqr_dbl_2>
-  vmlal    V<tmp_vector_sqr_1>, V<tmp_vector_sqr_tw_8>,  V<tmp_vector_sqr_dbl_3>
-  vmlal    V<tmp_vector_sqr_1>, V<tmp_vector_sqr_tw_7>,  V<tmp_vector_sqr_dbl_4>
-  vmlal    V<tmp_vector_sqr_1>, V<tmp_vector_sqr_tw_6>,  V<tmp_vector_sqr_dbl_5>
-  vmlal    V<tmp_vector_sqr_2>, V<tmp_vector_sqr_tw_6>,  \vA6
-  vmlal    V<tmp_vector_sqr_2>, V<tmp_vector_sqr_tw_9>,  V<tmp_vector_sqr_quad_3>
-  vmlal    V<tmp_vector_sqr_2>, V<tmp_vector_sqr_tw_8>,  V<tmp_vector_sqr_dbl_4>
-  vmlal    V<tmp_vector_sqr_2>, V<tmp_vector_sqr_tw_7>,  V<tmp_vector_sqr_quad_5>
-  vusra    V<tmp_vector_sqr_1>, V<tmp_vector_sqr_0>, #26
-  vmlal    V<tmp_vector_sqr_3>, V<tmp_vector_sqr_tw_9>,  V<tmp_vector_sqr_dbl_4>
-  vmlal    V<tmp_vector_sqr_3>, V<tmp_vector_sqr_tw_8>,  V<tmp_vector_sqr_dbl_5>
-  vmlal    V<tmp_vector_sqr_3>, V<tmp_vector_sqr_tw_7>,  V<tmp_vector_sqr_dbl_6>
-  vusra    V<tmp_vector_sqr_2>, V<tmp_vector_sqr_1>, #25
-  vmlal    V<tmp_vector_sqr_4>, V<tmp_vector_sqr_tw_7>,  V<tmp_vector_sqr_dbl_7>
-  vmlal    V<tmp_vector_sqr_4>, V<tmp_vector_sqr_tw_9>,  V<tmp_vector_sqr_quad_5>
-  vmlal    V<tmp_vector_sqr_4>, V<tmp_vector_sqr_tw_8>,  V<tmp_vector_sqr_dbl_6>
-  vusra    V<tmp_vector_sqr_3>, V<tmp_vector_sqr_2>, #26
-  vmlal    V<tmp_vector_sqr_5>, V<tmp_vector_sqr_tw_9>,  V<tmp_vector_sqr_dbl_6>
-  vmlal    V<tmp_vector_sqr_5>, V<tmp_vector_sqr_tw_8>,  V<tmp_vector_sqr_dbl_7>
-  vusra    V<tmp_vector_sqr_4>, V<tmp_vector_sqr_3>, #25
-  vmlal    V<tmp_vector_sqr_6>, V<tmp_vector_sqr_tw_8>,  \vA8
-  vmlal    V<tmp_vector_sqr_6>, V<tmp_vector_sqr_tw_9>,  V<tmp_vector_sqr_quad_7>
-  vusra    V<tmp_vector_sqr_5>, V<tmp_vector_sqr_4>, #26
-  vmlal    V<tmp_vector_sqr_7>, V<tmp_vector_sqr_tw_9>,  V<tmp_vector_sqr_dbl_8>
-  vusra    V<tmp_vector_sqr_6>,  V<tmp_vector_sqr_5>, #25
-  vusra    V<tmp_vector_sqr_7>,  V<tmp_vector_sqr_6>, #26
-  vusra    V<tmp_vector_sqr_8>,  V<tmp_vector_sqr_7>, #25
-  vusra    \vAA9,  V<tmp_vector_sqr_8>, #26
-  vand     \vAA4,  V<tmp_vector_sqr_4>, vMaskA
-  vand     \vAA5,  V<tmp_vector_sqr_5>, vMaskB
-  vand     \vAA0,  V<tmp_vector_sqr_0>, vMaskA
-  vand     \vAA6,  V<tmp_vector_sqr_6>, vMaskA
-  vand     \vAA1,  V<tmp_vector_sqr_1>, vMaskB
-  vand     \vAA7,  V<tmp_vector_sqr_7>, vMaskB
-  vand     \vAA2,  V<tmp_vector_sqr_2>, vMaskA
-  vand     \vAA8,  V<tmp_vector_sqr_8>, vMaskA
-  vand     \vAA3,  V<tmp_vector_sqr_3>, vMaskB
+.macro vector_sqr_inner  vAA0,     vAA1,     vAA2,     vAA3,     vAA4,     vAA5,     vAA6,     vAA7,     vAA8,     vAA9,      vA0,      vA1,      vA2,      vA3,      vA4,      vA5,      vA6,      vA7,      vA8,      vA9
+  shl V<tmp_vector_sqr_dbl_9>.2s, \vA9\().2s, #1
+  shl V<tmp_vector_sqr_dbl_8>.2s, \vA8\().2s, #1
+  shl V<tmp_vector_sqr_dbl_7>.2s, \vA7\().2s, #1
+  shl V<tmp_vector_sqr_dbl_6>.2s, \vA6\().2s, #1
+  shl V<tmp_vector_sqr_dbl_5>.2s, \vA5\().2s, #1
+  shl V<tmp_vector_sqr_dbl_4>.2s, \vA4\().2s, #1
+  shl V<tmp_vector_sqr_dbl_3>.2s, \vA3\().2s, #1
+  shl V<tmp_vector_sqr_dbl_2>.2s, \vA2\().2s, #1
+  shl V<tmp_vector_sqr_dbl_1>.2s, \vA1\().2s, #1
+  umull V<tmp_vector_sqr_9>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_9>.2s
+  umlal V<tmp_vector_sqr_9>.2d, \vA1\().2s, V<tmp_vector_sqr_dbl_8>.2s
+  umlal V<tmp_vector_sqr_9>.2d, \vA2\().2s, V<tmp_vector_sqr_dbl_7>.2s
+  umlal V<tmp_vector_sqr_9>.2d, \vA3\().2s, V<tmp_vector_sqr_dbl_6>.2s
+  umlal V<tmp_vector_sqr_9>.2d, \vA4\().2s, V<tmp_vector_sqr_dbl_5>.2s
+  umull V<tmp_vector_sqr_8>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_8>.2s
+  umlal V<tmp_vector_sqr_8>.2d, V<tmp_vector_sqr_dbl_1>.2s, V<tmp_vector_sqr_dbl_7>.2s
+  umlal V<tmp_vector_sqr_8>.2d, \vA2\().2s, V<tmp_vector_sqr_dbl_6>.2s
+  umlal V<tmp_vector_sqr_8>.2d, V<tmp_vector_sqr_dbl_3>.2s, V<tmp_vector_sqr_dbl_5>.2s
+  umlal V<tmp_vector_sqr_8>.2d, \vA4\().2s, \vA4\().2s
+  mul V<tmp_vector_sqr_tw_9>.2s, \vA9\().2s, vconst19.2s
+  umull V<tmp_vector_sqr_7>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_7>.2s
+  umlal V<tmp_vector_sqr_7>.2d, \vA1\().2s, V<tmp_vector_sqr_dbl_6>.2s
+  umlal V<tmp_vector_sqr_7>.2d, \vA2\().2s, V<tmp_vector_sqr_dbl_5>.2s
+  umlal V<tmp_vector_sqr_7>.2d, \vA3\().2s, V<tmp_vector_sqr_dbl_4>.2s
+  umlal V<tmp_vector_sqr_8>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_dbl_9>.2s
+  umull V<tmp_vector_sqr_6>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_6>.2s
+  umlal V<tmp_vector_sqr_6>.2d, V<tmp_vector_sqr_dbl_1>.2s, V<tmp_vector_sqr_dbl_5>.2s
+  umlal V<tmp_vector_sqr_6>.2d, \vA2\().2s, V<tmp_vector_sqr_dbl_4>.2s
+  umlal V<tmp_vector_sqr_6>.2d, V<tmp_vector_sqr_dbl_3>.2s, \vA3\().2s
+  umull V<tmp_vector_sqr_5>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_5>.2s
+  umlal V<tmp_vector_sqr_5>.2d, \vA1\().2s, V<tmp_vector_sqr_dbl_4>.2s
+  umlal V<tmp_vector_sqr_5>.2d, \vA2\().2s, V<tmp_vector_sqr_dbl_3>.2s
+  umull V<tmp_vector_sqr_4>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_4>.2s
+  umlal V<tmp_vector_sqr_4>.2d, V<tmp_vector_sqr_dbl_1>.2s, V<tmp_vector_sqr_dbl_3>.2s
+  umlal V<tmp_vector_sqr_4>.2d, \vA2\().2s, \vA2\().2s
+  umull V<tmp_vector_sqr_3>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_3>.2s
+  umlal V<tmp_vector_sqr_3>.2d, \vA1\().2s, V<tmp_vector_sqr_dbl_2>.2s
+  umull V<tmp_vector_sqr_2>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_2>.2s
+  umlal V<tmp_vector_sqr_2>.2d, V<tmp_vector_sqr_dbl_1>.2s, \vA1\().2s
+  umull V<tmp_vector_sqr_1>.2d, \vA0\().2s, V<tmp_vector_sqr_dbl_1>.2s
+  umull V<tmp_vector_sqr_0>.2d, \vA0\().2s, \vA0\().2s
+  usra V<tmp_vector_sqr_9>.2d, V<tmp_vector_sqr_8>.2d, #26
+  and V<tmp_vector_sqr_8>.16b, V<tmp_vector_sqr_8>.16b, vMaskA.16b
+  mul V<tmp_vector_sqr_tw_8>.2s, \vA8\().2s, vconst19.2s
+  bic V<tmp_vector_sqr_dbl_9>.16b, V<tmp_vector_sqr_9>.16b, vMaskB.16b
+  and \vA9\().16b, V<tmp_vector_sqr_9>.16b, vMaskB.16b
+  usra V<tmp_vector_sqr_0>.2d, V<tmp_vector_sqr_dbl_9>.2d, #25
+  mul V<tmp_vector_sqr_tw_7>.2s, \vA7\().2s, vconst19.2s
+  usra V<tmp_vector_sqr_0>.2d, V<tmp_vector_sqr_dbl_9>.2d, #24
+  mul V<tmp_vector_sqr_tw_6>.2s, \vA6\().2s, vconst19.2s
+  usra V<tmp_vector_sqr_0>.2d, V<tmp_vector_sqr_dbl_9>.2d, #21
+  mul V<tmp_vector_sqr_tw_5>.2s, \vA5\().2s, vconst19.2s
+  shl V<tmp_vector_sqr_quad_1>.2s, V<tmp_vector_sqr_dbl_1>.2s, #1
+  shl V<tmp_vector_sqr_quad_3>.2s, V<tmp_vector_sqr_dbl_3>.2s, #1
+  shl V<tmp_vector_sqr_quad_5>.2s, V<tmp_vector_sqr_dbl_5>.2s, #1
+  shl V<tmp_vector_sqr_quad_7>.2s, V<tmp_vector_sqr_dbl_7>.2s, #1
+  umlal V<tmp_vector_sqr_0>.2d, V<tmp_vector_sqr_tw_5>.2s, V<tmp_vector_sqr_dbl_5>.2s
+  umlal V<tmp_vector_sqr_0>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_quad_1>.2s
+  umlal V<tmp_vector_sqr_0>.2d, V<tmp_vector_sqr_tw_8>.2s, V<tmp_vector_sqr_dbl_2>.2s
+  umlal V<tmp_vector_sqr_0>.2d, V<tmp_vector_sqr_tw_7>.2s, V<tmp_vector_sqr_quad_3>.2s
+  umlal V<tmp_vector_sqr_0>.2d, V<tmp_vector_sqr_tw_6>.2s, V<tmp_vector_sqr_dbl_4>.2s
+  umlal V<tmp_vector_sqr_1>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_dbl_2>.2s
+  umlal V<tmp_vector_sqr_1>.2d, V<tmp_vector_sqr_tw_8>.2s, V<tmp_vector_sqr_dbl_3>.2s
+  umlal V<tmp_vector_sqr_1>.2d, V<tmp_vector_sqr_tw_7>.2s, V<tmp_vector_sqr_dbl_4>.2s
+  umlal V<tmp_vector_sqr_1>.2d, V<tmp_vector_sqr_tw_6>.2s, V<tmp_vector_sqr_dbl_5>.2s
+  umlal V<tmp_vector_sqr_2>.2d, V<tmp_vector_sqr_tw_6>.2s, \vA6\().2s
+  umlal V<tmp_vector_sqr_2>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_quad_3>.2s
+  umlal V<tmp_vector_sqr_2>.2d, V<tmp_vector_sqr_tw_8>.2s, V<tmp_vector_sqr_dbl_4>.2s
+  umlal V<tmp_vector_sqr_2>.2d, V<tmp_vector_sqr_tw_7>.2s, V<tmp_vector_sqr_quad_5>.2s
+  usra V<tmp_vector_sqr_1>.2d, V<tmp_vector_sqr_0>.2d, #26
+  umlal V<tmp_vector_sqr_3>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_dbl_4>.2s
+  umlal V<tmp_vector_sqr_3>.2d, V<tmp_vector_sqr_tw_8>.2s, V<tmp_vector_sqr_dbl_5>.2s
+  umlal V<tmp_vector_sqr_3>.2d, V<tmp_vector_sqr_tw_7>.2s, V<tmp_vector_sqr_dbl_6>.2s
+  usra V<tmp_vector_sqr_2>.2d, V<tmp_vector_sqr_1>.2d, #25
+  umlal V<tmp_vector_sqr_4>.2d, V<tmp_vector_sqr_tw_7>.2s, V<tmp_vector_sqr_dbl_7>.2s
+  umlal V<tmp_vector_sqr_4>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_quad_5>.2s
+  umlal V<tmp_vector_sqr_4>.2d, V<tmp_vector_sqr_tw_8>.2s, V<tmp_vector_sqr_dbl_6>.2s
+  usra V<tmp_vector_sqr_3>.2d, V<tmp_vector_sqr_2>.2d, #26
+  umlal V<tmp_vector_sqr_5>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_dbl_6>.2s
+  umlal V<tmp_vector_sqr_5>.2d, V<tmp_vector_sqr_tw_8>.2s, V<tmp_vector_sqr_dbl_7>.2s
+  usra V<tmp_vector_sqr_4>.2d, V<tmp_vector_sqr_3>.2d, #25
+  umlal V<tmp_vector_sqr_6>.2d, V<tmp_vector_sqr_tw_8>.2s, \vA8\().2s
+  umlal V<tmp_vector_sqr_6>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_quad_7>.2s
+  usra V<tmp_vector_sqr_5>.2d, V<tmp_vector_sqr_4>.2d, #26
+  umlal V<tmp_vector_sqr_7>.2d, V<tmp_vector_sqr_tw_9>.2s, V<tmp_vector_sqr_dbl_8>.2s
+  usra V<tmp_vector_sqr_6>.2d, V<tmp_vector_sqr_5>.2d, #25
+  usra V<tmp_vector_sqr_7>.2d, V<tmp_vector_sqr_6>.2d, #26
+  usra V<tmp_vector_sqr_8>.2d, V<tmp_vector_sqr_7>.2d, #25
+  usra \vAA9\().2d, V<tmp_vector_sqr_8>.2d, #26
+  and \vAA4\().16b, V<tmp_vector_sqr_4>.16b, vMaskA.16b
+  and \vAA5\().16b, V<tmp_vector_sqr_5>.16b, vMaskB.16b
+  and \vAA0\().16b, V<tmp_vector_sqr_0>.16b, vMaskA.16b
+  and \vAA6\().16b, V<tmp_vector_sqr_6>.16b, vMaskA.16b
+  and \vAA1\().16b, V<tmp_vector_sqr_1>.16b, vMaskB.16b
+  and \vAA7\().16b, V<tmp_vector_sqr_7>.16b, vMaskB.16b
+  and \vAA2\().16b, V<tmp_vector_sqr_2>.16b, vMaskA.16b
+  and \vAA8\().16b, V<tmp_vector_sqr_8>.16b, vMaskA.16b
+  and \vAA3\().16b, V<tmp_vector_sqr_3>.16b, vMaskB.16b
 .endm
 
 .macro vector_sqr vAA, vA
-vector_sqr_inner \
-        \vAA\()0,  \vAA\()1,  \vAA\()2,  \vAA\()3,  \vAA\()4,  \vAA\()5,  \vAA\()6,  \vAA\()7,  \vAA\()8,  \vAA\()9,  \
-        \vA\()0,   \vA\()1,   \vA\()2,   \vA\()3,   \vA\()4,   \vA\()5,   \vA\()6,   \vA\()7,   \vA\()8,   \vA\()9
+vector_sqr_inner  \vAA\()0,  \vAA\()1,  \vAA\()2,  \vAA\()3,  \vAA\()4,  \vAA\()5,  \vAA\()6,  \vAA\()7,  \vAA\()8,  \vAA\()9,   \vA\()0,   \vA\()1,   \vA\()2,   \vA\()3,   \vA\()4,   \vA\()5,   \vA\()6,   \vA\()7,   \vA\()8,   \vA\()9
 .endm
 
 // vC0 .. vC9   output C = A*B
 // vA0 .. vA9   first operand A
 // vB0 .. vB9   second operand B
-.macro vector_mul_inner \
-        vC0, vC1, vC2, vC3, vC4, vC5, vC6, vC7, vC8, vC9, \
-        vA0, vA1, vA2, vA3, vA4, vA5, vA6, vA7, vA8, vA9, \
-        vB0, vB1, vB2, vB3, vB4, vB5, vB6, vB7, vB8, vB9
-  vmull    \vC9, \vA0, \vB9
-  vmlal    \vC9, \vA2, \vB7
-  vmlal    \vC9, \vA4, \vB5
-  vmlal    \vC9, \vA6, \vB3
-  vmlal    \vC9, \vA8, \vB1
-  vmul     \vB9, \vB9, vconst19
-  vmull    \vC8, \vA1, \vB7
-  vmlal    \vC8, \vA3, \vB5
-  vmlal    \vC8, \vA5, \vB3
-  vmlal    \vC8, \vA7, \vB1
-  vmlal    \vC8, \vA9, \vB9
-  vmlal    \vC9, \vA1, \vB8
-  vmlal    \vC9, \vA3, \vB6
-  vmlal    \vC9, \vA5, \vB4
-  vmlal    \vC9, \vA7, \vB2
-  vmlal    \vC9, \vA9, \vB0
-  vshl_d   \vC8, \vC8, #1
-  vmull    \vC7, \vA0, \vB7
-  vmlal    \vC7, \vA2, \vB5
-  vmlal    \vC7, \vA4, \vB3
-  vmlal    \vC7, \vA6, \vB1
-  vmlal    \vC7, \vA8, \vB9
-  vmul     \vB7, \vB7, vconst19
-  vmlal    \vC8, \vA0, \vB8
-  vmlal    \vC8, \vA2, \vB6
-  vmlal    \vC8, \vA4, \vB4
-  vmlal    \vC8, \vA6, \vB2
-  vmlal    \vC8, \vA8, \vB0
-  vmul     \vB8, \vB8, vconst19
-  vmull    \vC6, \vA1, \vB5
-  vmlal    \vC6, \vA3, \vB3
-  vmlal    \vC6, \vA5, \vB1
-  vmlal    \vC6, \vA7, \vB9
-  vmlal    \vC6, \vA9, \vB7
-  vmlal    \vC7, \vA1, \vB6
-  vmlal    \vC7, \vA3, \vB4
-  vmlal    \vC7, \vA5, \vB2
-  vmlal    \vC7, \vA7, \vB0
-  vmlal    \vC7, \vA9, \vB8
-  vshl_d   \vC6, \vC6, #1
-  vmull    \vC5, \vA0, \vB5
-  vmlal    \vC5, \vA2, \vB3
-  vmlal    \vC5, \vA4, \vB1
-  vmlal    \vC5, \vA6, \vB9
-  vmlal    \vC5, \vA8, \vB7
-  vmul     \vB5, \vB5, vconst19
-  vmlal    \vC6, \vA0, \vB6
-  vmlal    \vC6, \vA2, \vB4
-  vmlal    \vC6, \vA4, \vB2
-  vmlal    \vC6, \vA6, \vB0
-  vmlal    \vC6, \vA8, \vB8
-  vmul     \vB6, \vB6, vconst19
-  vmull    \vC4, \vA1, \vB3
-  vmlal    \vC4, \vA3, \vB1
-  vmlal    \vC4, \vA5, \vB9
-  vmlal    \vC4, \vA7, \vB7
-  vmlal    \vC4, \vA9, \vB5
-  vmlal    \vC5, \vA1, \vB4
-  vmlal    \vC5, \vA3, \vB2
-  vmlal    \vC5, \vA5, \vB0
-  vmlal    \vC5, \vA7, \vB8
-  vmlal    \vC5, \vA9, \vB6
-  vshl_d   \vC4, \vC4, #1
-  vmull    \vC3, \vA0, \vB3
-  vmlal    \vC3, \vA2, \vB1
-  vmlal    \vC3, \vA4, \vB9
-  vmlal    \vC3, \vA6, \vB7
-  vmlal    \vC3, \vA8, \vB5
-  vmul     \vB3, \vB3, vconst19
-  vmlal    \vC4, \vA0, \vB4
-  vmlal    \vC4, \vA2, \vB2
-  vmlal    \vC4, \vA4, \vB0
-  vmlal    \vC4, \vA6, \vB8
-  vmlal    \vC4, \vA8, \vB6
-  vmul     \vB4, \vB4, vconst19
-  vmull    \vC2, \vA1, \vB1
-  vmlal    \vC2, \vA3, \vB9
-  vmlal    \vC2, \vA5, \vB7
-  vmlal    \vC2, \vA7, \vB5
-  vmlal    \vC2, \vA9, \vB3
-  vmlal    \vC3, \vA1, \vB2
-  vmlal    \vC3, \vA3, \vB0
-  vmlal    \vC3, \vA5, \vB8
-  vmlal    \vC3, \vA7, \vB6
-  vmlal    \vC3, \vA9, \vB4
-  vshl_d   \vC2, \vC2, #1
-  vmull    \vC1, \vA0, \vB1
-  vmlal    \vC1, \vA2, \vB9
-  vmlal    \vC1, \vA4, \vB7
-  vmlal    \vC1, \vA6, \vB5
-  vmlal    \vC1, \vA8, \vB3
-  vmul     \vB1, \vB1, vconst19
-  vmlal    \vC2, \vA0, \vB2
-  vmlal    \vC2, \vA2, \vB0
-  vmlal    \vC2, \vA4, \vB8
-  vmlal    \vC2, \vA6, \vB6
-  vmlal    \vC2, \vA8, \vB4
-  vmul     \vB2, \vB2, vconst19
-  vmull    \vC0, \vA1, \vB9
-  vmlal    \vC0, \vA3, \vB7
-  vmlal    \vC0, \vA5, \vB5
-  vushr    vMaskB, vMaskA, #1
-  vusra    \vC3, \vC2, #26
-  vand     \vC2, \vC2, vMaskA
-  vmlal    \vC1, \vA1, \vB0
-  vusra    \vC4, \vC3, #25
-  vand     \vC3, \vC3, vMaskB
-  vmlal    \vC0, \vA7, \vB3
-  vusra    \vC5, \vC4, #26
-  vand     \vC4, \vC4, vMaskA
-  vmlal    \vC1, \vA3, \vB8
-  vusra    \vC6, \vC5, #25
-  vand     \vC5, \vC5, vMaskB
-  vmlal    \vC0, \vA9, \vB1
-  vusra    \vC7, \vC6, #26
-  vand     \vC6, \vC6, vMaskA
-  vmlal    \vC1, \vA5, \vB6
-  vmlal    \vC1, \vA7, \vB4
-  vmlal    \vC1, \vA9, \vB2
-  vusra    \vC8, \vC7, #25
-  vand     \vC7, \vC7, vMaskB
-  vshl_d   \vC0, \vC0, #1
-  vusra    \vC9, \vC8, #26
-  vand     \vC8, \vC8, vMaskA
-  vmlal    \vC0, \vA0, \vB0
-  vmlal    \vC0, \vA2, \vB8
-  vmlal    \vC0, \vA4, \vB6
-  vmlal    \vC0, \vA6, \vB4
-  vmlal    \vC0, \vA8, \vB2
-  vbic     \vB9, \vC9, vMaskB
-  vand     \vC9, \vC9, vMaskB
-  vusra    \vC0, \vB9, #25
-  vusra    \vC0, \vB9, #24
-  vusra    \vC0, \vB9, #21
-  vusra    \vC1, \vC0, #26
-  vand     \vC0, \vC0, vMaskA
-  vusra    \vC2, \vC1, #25
-  vand     \vC1, \vC1, vMaskB
-  vusra    \vC3, \vC2, #26
-  vand     \vC2, \vC2, vMaskA
+.macro vector_mul_inner  vC0, vC1, vC2, vC3, vC4, vC5, vC6, vC7, vC8, vC9,  vA0, vA1, vA2, vA3, vA4, vA5, vA6, vA7, vA8, vA9,  vB0, vB1, vB2, vB3, vB4, vB5, vB6, vB7, vB8, vB9
+  umull \vC9\().2d, \vA0\().2s, \vB9\().2s
+  umlal \vC9\().2d, \vA2\().2s, \vB7\().2s
+  umlal \vC9\().2d, \vA4\().2s, \vB5\().2s
+  umlal \vC9\().2d, \vA6\().2s, \vB3\().2s
+  umlal \vC9\().2d, \vA8\().2s, \vB1\().2s
+  mul \vB9\().2s, \vB9\().2s, vconst19.2s
+  umull \vC8\().2d, \vA1\().2s, \vB7\().2s
+  umlal \vC8\().2d, \vA3\().2s, \vB5\().2s
+  umlal \vC8\().2d, \vA5\().2s, \vB3\().2s
+  umlal \vC8\().2d, \vA7\().2s, \vB1\().2s
+  umlal \vC8\().2d, \vA9\().2s, \vB9\().2s
+  umlal \vC9\().2d, \vA1\().2s, \vB8\().2s
+  umlal \vC9\().2d, \vA3\().2s, \vB6\().2s
+  umlal \vC9\().2d, \vA5\().2s, \vB4\().2s
+  umlal \vC9\().2d, \vA7\().2s, \vB2\().2s
+  umlal \vC9\().2d, \vA9\().2s, \vB0\().2s
+  shl \vC8\().2d, \vC8\().2d, #1
+  umull \vC7\().2d, \vA0\().2s, \vB7\().2s
+  umlal \vC7\().2d, \vA2\().2s, \vB5\().2s
+  umlal \vC7\().2d, \vA4\().2s, \vB3\().2s
+  umlal \vC7\().2d, \vA6\().2s, \vB1\().2s
+  umlal \vC7\().2d, \vA8\().2s, \vB9\().2s
+  mul \vB7\().2s, \vB7\().2s, vconst19.2s
+  umlal \vC8\().2d, \vA0\().2s, \vB8\().2s
+  umlal \vC8\().2d, \vA2\().2s, \vB6\().2s
+  umlal \vC8\().2d, \vA4\().2s, \vB4\().2s
+  umlal \vC8\().2d, \vA6\().2s, \vB2\().2s
+  umlal \vC8\().2d, \vA8\().2s, \vB0\().2s
+  mul \vB8\().2s, \vB8\().2s, vconst19.2s
+  umull \vC6\().2d, \vA1\().2s, \vB5\().2s
+  umlal \vC6\().2d, \vA3\().2s, \vB3\().2s
+  umlal \vC6\().2d, \vA5\().2s, \vB1\().2s
+  umlal \vC6\().2d, \vA7\().2s, \vB9\().2s
+  umlal \vC6\().2d, \vA9\().2s, \vB7\().2s
+  umlal \vC7\().2d, \vA1\().2s, \vB6\().2s
+  umlal \vC7\().2d, \vA3\().2s, \vB4\().2s
+  umlal \vC7\().2d, \vA5\().2s, \vB2\().2s
+  umlal \vC7\().2d, \vA7\().2s, \vB0\().2s
+  umlal \vC7\().2d, \vA9\().2s, \vB8\().2s
+  shl \vC6\().2d, \vC6\().2d, #1
+  umull \vC5\().2d, \vA0\().2s, \vB5\().2s
+  umlal \vC5\().2d, \vA2\().2s, \vB3\().2s
+  umlal \vC5\().2d, \vA4\().2s, \vB1\().2s
+  umlal \vC5\().2d, \vA6\().2s, \vB9\().2s
+  umlal \vC5\().2d, \vA8\().2s, \vB7\().2s
+  mul \vB5\().2s, \vB5\().2s, vconst19.2s
+  umlal \vC6\().2d, \vA0\().2s, \vB6\().2s
+  umlal \vC6\().2d, \vA2\().2s, \vB4\().2s
+  umlal \vC6\().2d, \vA4\().2s, \vB2\().2s
+  umlal \vC6\().2d, \vA6\().2s, \vB0\().2s
+  umlal \vC6\().2d, \vA8\().2s, \vB8\().2s
+  mul \vB6\().2s, \vB6\().2s, vconst19.2s
+  umull \vC4\().2d, \vA1\().2s, \vB3\().2s
+  umlal \vC4\().2d, \vA3\().2s, \vB1\().2s
+  umlal \vC4\().2d, \vA5\().2s, \vB9\().2s
+  umlal \vC4\().2d, \vA7\().2s, \vB7\().2s
+  umlal \vC4\().2d, \vA9\().2s, \vB5\().2s
+  umlal \vC5\().2d, \vA1\().2s, \vB4\().2s
+  umlal \vC5\().2d, \vA3\().2s, \vB2\().2s
+  umlal \vC5\().2d, \vA5\().2s, \vB0\().2s
+  umlal \vC5\().2d, \vA7\().2s, \vB8\().2s
+  umlal \vC5\().2d, \vA9\().2s, \vB6\().2s
+  shl \vC4\().2d, \vC4\().2d, #1
+  umull \vC3\().2d, \vA0\().2s, \vB3\().2s
+  umlal \vC3\().2d, \vA2\().2s, \vB1\().2s
+  umlal \vC3\().2d, \vA4\().2s, \vB9\().2s
+  umlal \vC3\().2d, \vA6\().2s, \vB7\().2s
+  umlal \vC3\().2d, \vA8\().2s, \vB5\().2s
+  mul \vB3\().2s, \vB3\().2s, vconst19.2s
+  umlal \vC4\().2d, \vA0\().2s, \vB4\().2s
+  umlal \vC4\().2d, \vA2\().2s, \vB2\().2s
+  umlal \vC4\().2d, \vA4\().2s, \vB0\().2s
+  umlal \vC4\().2d, \vA6\().2s, \vB8\().2s
+  umlal \vC4\().2d, \vA8\().2s, \vB6\().2s
+  mul \vB4\().2s, \vB4\().2s, vconst19.2s
+  umull \vC2\().2d, \vA1\().2s, \vB1\().2s
+  umlal \vC2\().2d, \vA3\().2s, \vB9\().2s
+  umlal \vC2\().2d, \vA5\().2s, \vB7\().2s
+  umlal \vC2\().2d, \vA7\().2s, \vB5\().2s
+  umlal \vC2\().2d, \vA9\().2s, \vB3\().2s
+  umlal \vC3\().2d, \vA1\().2s, \vB2\().2s
+  umlal \vC3\().2d, \vA3\().2s, \vB0\().2s
+  umlal \vC3\().2d, \vA5\().2s, \vB8\().2s
+  umlal \vC3\().2d, \vA7\().2s, \vB6\().2s
+  umlal \vC3\().2d, \vA9\().2s, \vB4\().2s
+  shl \vC2\().2d, \vC2\().2d, #1
+  umull \vC1\().2d, \vA0\().2s, \vB1\().2s
+  umlal \vC1\().2d, \vA2\().2s, \vB9\().2s
+  umlal \vC1\().2d, \vA4\().2s, \vB7\().2s
+  umlal \vC1\().2d, \vA6\().2s, \vB5\().2s
+  umlal \vC1\().2d, \vA8\().2s, \vB3\().2s
+  mul \vB1\().2s, \vB1\().2s, vconst19.2s
+  umlal \vC2\().2d, \vA0\().2s, \vB2\().2s
+  umlal \vC2\().2d, \vA2\().2s, \vB0\().2s
+  umlal \vC2\().2d, \vA4\().2s, \vB8\().2s
+  umlal \vC2\().2d, \vA6\().2s, \vB6\().2s
+  umlal \vC2\().2d, \vA8\().2s, \vB4\().2s
+  mul \vB2\().2s, \vB2\().2s, vconst19.2s
+  umull \vC0\().2d, \vA1\().2s, \vB9\().2s
+  umlal \vC0\().2d, \vA3\().2s, \vB7\().2s
+  umlal \vC0\().2d, \vA5\().2s, \vB5\().2s
+  ushr vMaskB.2d, vMaskA.2d, #1
+  usra \vC3\().2d, \vC2\().2d, #26
+  and \vC2\().16b, \vC2\().16b, vMaskA.16b
+  umlal \vC1\().2d, \vA1\().2s, \vB0\().2s
+  usra \vC4\().2d, \vC3\().2d, #25
+  and \vC3\().16b, \vC3\().16b, vMaskB.16b
+  umlal \vC0\().2d, \vA7\().2s, \vB3\().2s
+  usra \vC5\().2d, \vC4\().2d, #26
+  and \vC4\().16b, \vC4\().16b, vMaskA.16b
+  umlal \vC1\().2d, \vA3\().2s, \vB8\().2s
+  usra \vC6\().2d, \vC5\().2d, #25
+  and \vC5\().16b, \vC5\().16b, vMaskB.16b
+  umlal \vC0\().2d, \vA9\().2s, \vB1\().2s
+  usra \vC7\().2d, \vC6\().2d, #26
+  and \vC6\().16b, \vC6\().16b, vMaskA.16b
+  umlal \vC1\().2d, \vA5\().2s, \vB6\().2s
+  umlal \vC1\().2d, \vA7\().2s, \vB4\().2s
+  umlal \vC1\().2d, \vA9\().2s, \vB2\().2s
+  usra \vC8\().2d, \vC7\().2d, #25
+  and \vC7\().16b, \vC7\().16b, vMaskB.16b
+  shl \vC0\().2d, \vC0\().2d, #1
+  usra \vC9\().2d, \vC8\().2d, #26
+  and \vC8\().16b, \vC8\().16b, vMaskA.16b
+  umlal \vC0\().2d, \vA0\().2s, \vB0\().2s
+  umlal \vC0\().2d, \vA2\().2s, \vB8\().2s
+  umlal \vC0\().2d, \vA4\().2s, \vB6\().2s
+  umlal \vC0\().2d, \vA6\().2s, \vB4\().2s
+  umlal \vC0\().2d, \vA8\().2s, \vB2\().2s
+  bic \vB9\().16b, \vC9\().16b, vMaskB.16b
+  and \vC9\().16b, \vC9\().16b, vMaskB.16b
+  usra \vC0\().2d, \vB9\().2d, #25
+  usra \vC0\().2d, \vB9\().2d, #24
+  usra \vC0\().2d, \vB9\().2d, #21
+  usra \vC1\().2d, \vC0\().2d, #26
+  and \vC0\().16b, \vC0\().16b, vMaskA.16b
+  usra \vC2\().2d, \vC1\().2d, #25
+  and \vC1\().16b, \vC1\().16b, vMaskB.16b
+  usra \vC3\().2d, \vC2\().2d, #26
+  and \vC2\().16b, \vC2\().16b, vMaskA.16b
 .endm
 
 .macro vector_mul vC, vA, vB
-vector_mul_inner \
-        \vC\()0, \vC\()1, \vC\()2, \vC\()3, \vC\()4, \vC\()5, \vC\()6, \vC\()7, \vC\()8, \vC\()9, \
-        \vA\()0, \vA\()1, \vA\()2, \vA\()3, \vA\()4, \vA\()5, \vA\()6, \vA\()7, \vA\()8, \vA\()9, \
-        \vB\()0, \vB\()1, \vB\()2, \vB\()3, \vB\()4, \vB\()5, \vB\()6, \vB\()7, \vB\()8, \vB\()9
+vector_mul_inner  \vC\()0, \vC\()1, \vC\()2, \vC\()3, \vC\()4, \vC\()5, \vC\()6, \vC\()7, \vC\()8, \vC\()9,  \vA\()0, \vA\()1, \vA\()2, \vA\()3, \vA\()4, \vA\()5, \vA\()6, \vA\()7, \vA\()8, \vA\()9,  \vB\()0, \vB\()1, \vB\()2, \vB\()3, \vB\()4, \vB\()5, \vB\()6, \vB\()7, \vB\()8, \vB\()9
 .endm
-
-#define STACK_MASK1     0
-#define STACK_MASK2     8
-#define STACK_A_0      16
-#define STACK_A_8      (STACK_A_0+ 8)
-#define STACK_A_16     (STACK_A_0+16)
-#define STACK_A_24     (STACK_A_0+24)
-#define STACK_A_32     (STACK_A_0+32)
-#define STACK_B_0      64
-#define STACK_B_8      (STACK_B_0+ 8)
-#define STACK_B_16     (STACK_B_0+16)
-#define STACK_B_24     (STACK_B_0+24)
-#define STACK_B_32     (STACK_B_0+32)
-#define STACK_CTR      104
-#define STACK_LASTBIT  108
-#define STACK_SCALAR  112
-#define STACK_X_0     168
-#define STACK_X_8     (STACK_X_0+ 8)
-#define STACK_X_16    (STACK_X_0+16)
-#define STACK_X_24    (STACK_X_0+24)
-#define STACK_X_32    (STACK_X_0+32)
-#define STACK_OUT_PTR (STACK_X_0+48)
-
-
 
     // in: x1: scalar pointer, x2: base point pointer
     // out: x0: result pointer
@@ -1415,7 +1260,7 @@ _x25519_scalarmult_alt_orig:
     mov    v19.d[0], xzr
 
     mov    x0,  #255-1 // 255 iterations
-    stack_str_wform STACK_CTR, x0
+    str W0, [sp, #STACK_CTR] // @slothy:writes=ctr
 
     const19  .req x30
     vconst19 .req v31
@@ -1427,17 +1272,18 @@ _x25519_scalarmult_alt_orig:
     ldr    x0, #=0x07fffffe07fffffc
     // TODO: I do not quite understand what the two stps are doing
     // First seems to write bytes 0-15 (mask1+mask2); second seems to write bytes 16-31 (mask2+A)
-    stack_stp STACK_MASK1, STACK_MASK2, x0, x0
+    // stp x0, x0, [sp, #STACK_MASK1] // @slothy:writes=mask1
 
-    sub    x1, x0, #0xfc-0xb4
-    stack_stp STACK_MASK2, STACK_A_0, x1, x0
+    sub x1, x0, #0xfc-0xb4
+    str x0, [sp, #STACK_MASK1] // @slothy:writes=mask1
+    str x1, [sp, #STACK_MASK2] // @slothy:writes=mask2
 
-    stack_vldr_dform v28, STACK_MASK2
-    stack_vldr_dform v29, STACK_MASK1
+    ldr d28, [sp, #STACK_MASK2] // @slothy:reads=mask2
+    ldr d29, [sp, #STACK_MASK1] // @slothy:reads=mask1
 
-    stack_ldrb w1, STACK_SCALAR, 31
+    ldrb w1, [sp, #STACK_SCALAR+31]
     lsr    w1, w1, #6
-    stack_str STACK_LASTBIT, w1
+    str w1, [sp, #STACK_LASTBIT] // @slothy:writes=lastbit
 mainloop:
     tst    W<x1>, #1
     vector_sub vB, vX2, vZ2
@@ -1446,16 +1292,16 @@ mainloop:
     vector_add vC, vX3, vZ3
     vector_cmov  vF, vA, vC
     vector_to_scalar sF, vF
-    vector_transpose vAB, vA, vB   // (B|A)
+    vector_transpose vAB, vA, vB
     vector_cmov vG, vB, vD
-    vector_transpose vDC, vD, vC   // (C|D)
-    vector_stack_str STACK_B, vG
+    vector_transpose vDC, vD, vC
+    vector_stack_str STACK_B, vG, B
     scalar_sqr sAA, sF
-    scalar_stack_str STACK_A, sAA
-    scalar_stack_ldr sG, STACK_B
+    scalar_stack_str STACK_A, sAA, A
+    scalar_stack_ldr sG, STACK_B, B
     scalar_sqr sBB, sG
-    scalar_stack_str STACK_B, sBB
-    scalar_stack_ldr sE, STACK_A
+    scalar_stack_str STACK_B, sBB, B
+    scalar_stack_ldr sE, STACK_A, A
     // EE = FF - GG (scalar)
     scalar_sub sE, sE, sBB
     scalar_clear_carries sBB
@@ -1466,7 +1312,7 @@ mainloop:
     scalar_mul sZ4, sBB, sE
 
     // unnamed ones are only counter + lastbit logic
-    stack_ldr x2, STACK_CTR
+    ldr x2, [sp, #STACK_CTR] // @slothy:reads=[ctr,lastbit]
     lsr    x3, x2, #32
     subs   W<x0>, W<x2>, #1
     asr    W<x1>, W<x0>, #5
@@ -1474,27 +1320,24 @@ mainloop:
     ldr    W<x1>, [x4, W<x1>, SXTW #2]
     and    W<x4>, W<x0>, #0x1f
     lsr    W<x1>, W<x1>, W<x4>
-    stack_stp_wform STACK_CTR, STACK_LASTBIT, x0, x1
+    stp w0, w1, [sp, #STACK_CTR] // @slothy:writes=[ctr,lastbit]
 
-    // C = A*B -- (CB | DA) = (C|D)*(B|A) (vector)
     vector_mul vADBC, vAB, vDC
-    // Compute T1 = DA + CB; T2 = DA - CB; Repack T=(T1|T2)
     vector_addsub_repack vT, vADBC
-    // TA = T^2 = (T1^2 | T2^2)
     vector_sqr vTA, vT
-    vector_load_lane vTA, STACK_A, 1
-    vector_load_lane vBX, STACK_B, 1
-    vector_load_lane vBX, STACK_X, 0
+    vector_load_lane vTA, STACK_A, 1, A
+    vector_load_lane vBX, STACK_B, 1, B
+    vector_load_lane vBX, STACK_X, 0, X
     vector_mul vX4Z5, vTA, vBX
     vector_compress vTA, vTA
     vector_compress vZ3, vX4Z5
-    eor W<x1>, W<x1>, W<x3>
+    eor W1, W1, W3
     // Make X4 and Z5 more compact
     vector_extract_upper vX3, vTA
     // Z4 -> Z2
     scalar_to_vector vZ2, sZ4
-    stack_vldr_dform v28, STACK_MASK2
-    stack_vldr_dform v29, STACK_MASK1
+    ldr D28, [sp, #STACK_MASK2] // @slothy:reads=mask2
+    ldr D29, [sp, #STACK_MASK1] // @slothy:reads=mask1
 
     // X4 -> X2
     vector_extract_upper vX2, vZ3
@@ -1918,10 +1761,10 @@ end_label:
     // .size    x25519_scalarmult, .-x25519_scalarmult
     // .type    invtable, %object
 invtable:
-    //        square times,
-    //            skip mul,
-    //                   mulsource,
-    //                          dest
+    // square times,
+    // skip mul,
+    // mulsource,
+    // dest
     .hword      1|(1<<8)       |(1<<11)
     .hword      2|       (2<<9)|(2<<11)
     .hword      0|       (1<<9)|(1<<11)
@@ -1936,3 +1779,5 @@ invtable:
     .hword      5|       (1<<9)
     .hword      0|       (0<<9)
     // .size    invtable, .-invtable
+
+END:
