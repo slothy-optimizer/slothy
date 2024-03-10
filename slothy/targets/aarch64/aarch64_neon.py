@@ -456,26 +456,21 @@ class Instruction:
     def is_q_form_vector_instruction(self):
         """Indicates whether an instruction is Neon instruction operating on
         a 128-bit vector"""
-        if not hasattr(self, "datatype"):
-            return self._is_instance_of([
-                                      vmul, vmul_lane,
-                                      vmla, vmla_lane,
-                                      vmls, vmls_lane,
-                                      vqrdmulh, vqrdmulh_lane,
-                                      vqdmulh_lane,
-                                      vsrshr,
-                                      Str_Q, Ldr_Q,
-                                      q_ldr1_stack])
-        dt = getattr(self, "datatype")
 
+        # For most instructions, we infer their operating size from explicit
+        # datatype annotations. Others need listing explicitly.
+
+        if not hasattr(self, "datatype"):
+            return self._is_instance_of([Str_Q, Ldr_Q])
+
+        # Operations on specific lanes are not counted as Q-form instructions
         if self._is_instance_of([Q_Ld2_Lane_Post_Inc]):
             return False
 
+        dt = getattr(self, "datatype")
         if isinstance(dt, list):
             dt = dt[0]
 
-        if dt == "":
-            return False
         if dt.lower() in ["2d", "4s", "8h", "16b"]:
             return True
         if dt.lower() in ["1d", "2s", "4h", "8b"]:
@@ -2195,19 +2190,6 @@ class vqdmulh_lane(AArch64Instruction): # pylint: disable=missing-docstring,inva
 
         return obj
 
-class vmul_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
-    inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-    @classmethod
-    def make(cls, src):
-        obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[0] == "8h":
-            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
-                                          [ f"v{i}" for i in range(0,16) ]]
-
-        return obj
-
 class fcsel_dform(Instruction): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
@@ -2303,6 +2285,19 @@ class vmul(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
+
+class vmul_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
+                                         [ f"v{i}" for i in range(0,16) ]]
+
+        return obj
 
 class vmla(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
