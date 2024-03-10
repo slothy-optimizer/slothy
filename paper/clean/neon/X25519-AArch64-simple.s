@@ -27,6 +27,7 @@
  */
 
 #include <hal_env.h>
+#include "instruction_wrappers.i"
 
 #define STACK_MASK1     0
 #define STACK_MASK2     8
