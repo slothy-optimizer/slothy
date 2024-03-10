@@ -323,7 +323,11 @@ class Instruction:
         self.addr = None
         self.increment = None
         self.pre_index = None
+
         self.immediate = None
+        self.datatype = None
+        self.index = None
+        self.flag = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -409,14 +413,14 @@ class Instruction:
         # For most instructions, we infer their operating size from explicit
         # datatype annotations. Others need listing explicitly.
 
-        if not hasattr(self, "datatype"):
+        if self.datatype is None:
             return self._is_instance_of([Str_Q, Ldr_Q])
 
         # Operations on specific lanes are not counted as Q-form instructions
         if self._is_instance_of([Q_Ld2_Lane_Post_Inc]):
             return False
 
-        dt = getattr(self, "datatype")
+        dt = self.datatype
         if isinstance(dt, list):
             dt = dt[0]
 
@@ -496,7 +500,6 @@ class Instruction:
                 f"Doesn't match basic instruction template {regexp_txt}")
 
         operands = list(p.groups())
-        obj.datatype = ""
 
         if obj.num_out > 0:
             obj.args_out = operands[:obj.num_out]
@@ -518,7 +521,7 @@ class Instruction:
     @staticmethod
     def parser(src_line):
         """Global factory method parsing an assembly line into an instance
-        of a subclass of Instance"""
+        of a subclass of Instruction."""
         insts = []
         exceptions = {}
         instnames = []
@@ -684,11 +687,12 @@ class AArch64Instruction(Instruction):
         self.outputs = outputs
         self.in_outs = in_outs
 
-
         self.pattern = pattern
         self.pattern_inputs = list(zip(inputs, arg_types_in, strict=True))
         self.pattern_outputs = list(zip(outputs, arg_types_out, strict=True))
         self.pattern_in_outs = list(zip(in_outs, arg_types_in_out, strict=True))
+
+
 
     @staticmethod
     def _to_reg(ty, s):
@@ -732,9 +736,6 @@ class AArch64Instruction(Instruction):
 
     @staticmethod
     def build_core(obj, res):
-        obj.args_in = []
-        obj.args_in_out = []
-        obj.args_out = []
 
         def group_to_attribute(group_name, attr_name, f=None):
             def f_default(x):
@@ -812,9 +813,10 @@ class AArch64Instruction(Instruction):
                 return x
             if t is None:
                 t = t_default
-            if not hasattr(self, attr_name):
-                return txt
+
             a = getattr(self, attr_name)
+            if a is None:
+                return txt
             if not isinstance(a, list):
                 txt = txt.replace(f"<{mnemonic_key}>", t(a))
                 return txt
