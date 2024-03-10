@@ -1092,7 +1092,7 @@ class q_ldr1_stack(AArch64Instruction): # pylint: disable=missing-docstring,inva
     def write(self):
         return super().write()
 
-class q_ldr_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class q_ldr_stack_with_inc(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr <Qa>, [sp, <imm>]"
     # TODO: Model sp dependency
     outputs = ["Qa"]
@@ -1239,7 +1239,7 @@ class d_str_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstr
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class q_str_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class q_str_stack_with_inc(Str_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "str <Qa>, [sp, <imm>]"
     inputs = ["Qa"] # TODO: Model sp dependency
     @classmethod
