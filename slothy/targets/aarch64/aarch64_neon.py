@@ -990,6 +990,9 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstr
         obj.pre_index = None
         obj.addr = obj.args_in[0]
         obj.detected_q_ld2_lane_post_inc_pair = False
+        obj.args_in_out_combinations = [
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+            ]
         return obj
 
     def write(self):
@@ -1009,6 +1012,9 @@ class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc): # pylint: disable=m
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+            ]
         return obj
 
     def write(self):
@@ -2735,7 +2741,7 @@ class st2_base(St2): # pylint: disable=missing-docstring,invalid-name
         obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -2749,7 +2755,7 @@ class st2_with_inc(St2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -2796,7 +2802,7 @@ class ld2_base(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -2811,9 +2817,8 @@ class ld2_with_inc(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
-
         return obj
 
 # In a pair of vins writing both 64-bit lanes of a vector, mark the
