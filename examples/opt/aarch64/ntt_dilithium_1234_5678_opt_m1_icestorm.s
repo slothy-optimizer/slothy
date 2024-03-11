@@ -202,7 +202,7 @@ roots:
 .text
 
         .global ntt_dilithium_1234_5678_opt_m1_icestorm
-        .global _ntt_dilithium_1234_5678
+        .global _ntt_dilithium_1234_5678_opt_m1_icestorm
 
 .p2align 4
 modulus_addr:   .quad -8380417

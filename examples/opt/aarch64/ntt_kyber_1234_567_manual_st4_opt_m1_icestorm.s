@@ -210,8 +210,8 @@ roots:
 #include "ntt_kyber_1234_567_twiddles.s"
 .text
 
-        .global ntt_kyber_1234_567
-        .global _ntt_kyber_1234_567
+        .global ntt_kyber_1234_567_manual_st4_opt_m1_icestorm
+        .global _ntt_kyber_1234_567_manual_st4_opt_m1_icestorm
 
 .p2align 4
 const_addr:     .short -3329
@@ -223,8 +223,8 @@ const_addr:     .short -3329
                 .short 0
                 .short 0
 
-ntt_kyber_1234_567:
-_ntt_kyber_1234_567:
+ntt_kyber_1234_567_manual_st4_opt_m1_icestorm:
+_ntt_kyber_1234_567_manual_st4_opt_m1_icestorm:
         push_stack
 
         in      .req x0

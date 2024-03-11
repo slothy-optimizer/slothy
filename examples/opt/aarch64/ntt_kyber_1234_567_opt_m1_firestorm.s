@@ -203,7 +203,7 @@ roots:
 .text
 
         .global ntt_kyber_1234_567_opt_m1_firestorm
-        .global _ntt_kyber_1234_567
+        .global _ntt_kyber_1234_567_opt_m1_firestorm
 
 .p2align 4
 const_addr:     .short -3329
