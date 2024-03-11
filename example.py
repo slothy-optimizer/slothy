@@ -601,6 +601,28 @@ class ntt_kyber_123_4567(Example):
         slothy.optimize_loop("layer123_start")
         slothy.optimize_loop("layer4567_start")
 
+class intt_kyber_123_4567(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "intt_kyber_123_4567"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.variable_size = True
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.optimize_loop("layer4567_start")
+        slothy.optimize_loop("layer123_start")
+
 
 class ntt_kyber_123(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
@@ -1319,6 +1341,7 @@ def main():
                  ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
                  ntt_kyber_1234_567(target=Target_AppleM1_icestorm, timeout=300),
                  ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
+                 intt_kyber_123_4567(target=Target_CortexA72),
                  # Kyber InvNTT
                  # Cortex-M55
                  intt_kyber_1_23_45_67(),
