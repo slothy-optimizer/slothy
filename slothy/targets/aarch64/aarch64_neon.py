@@ -323,6 +323,7 @@ class Instruction:
         self.addr = None
         self.increment = None
         self.pre_index = None
+        self.offset_adjustable = True
 
         self.immediate = None
         self.datatype = None
@@ -432,10 +433,11 @@ class Instruction:
 
     def is_vector_load(self):
         """Indicates if an instruction is a Neon load instruction"""
-        return self._is_instance_of([ Ldr_Q, Ldp_Q ]) # TODO: Ld4 missing?
+        return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld2, Ld4, Q_Ld2_Lane_Post_Inc ])
     def is_vector_store(self):
         """Indicates if an instruction is a Neon store instruction"""
-        return self._is_instance_of([ Str_Q, Stp_Q, St4, d_stp_stack_with_inc, d_str_stack_with_inc])
+        return self._is_instance_of([ Str_Q, Stp_Q, St2, St4,
+                                      d_stp_stack_with_inc, d_str_stack_with_inc])
 
     # scalar
     def is_scalar_load(self):
@@ -2710,6 +2712,7 @@ class st4_base(St4): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
@@ -2739,6 +2742,7 @@ class st2_base(St2): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
                 ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
@@ -2769,6 +2773,7 @@ class ld4_base(Ld4): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
@@ -2800,6 +2805,7 @@ class ld2_base(Ld2): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
                 ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )

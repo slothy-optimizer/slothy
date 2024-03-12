@@ -2326,14 +2326,20 @@ class SlothyBase(LockAttributes):
         def inst_changes_addr(inst):
             return inst.increment is not None
 
-        def _change_same_address(t0,t1):
+        def _forbid_reordering(t0,t1):
             if not t0.inst.is_load_store_instruction():
                 return False
             if not t1.inst.is_load_store_instruction():
                 return False
             if t0.inst.addr != t1.inst.addr:
                 return False
-            return inst_changes_addr(t0.inst) and inst_changes_addr(t1.inst)
+            if inst_changes_addr(t0.inst) and inst_changes_addr(t1.inst):
+                return True
+            if inst_changes_addr(t0.inst) and not t1.inst.offset_adjustable:
+                return True
+            if inst_changes_addr(t1.inst) and not t0.inst.offset_adjustable:
+                return True
+            return False
 
         for t0, t1 in self.get_inst_pairs():
             if not t0.orig_pos < t1.orig_pos:
@@ -2341,14 +2347,14 @@ class SlothyBase(LockAttributes):
             if not self.config.constraints.allow_reordering or \
                t0.is_locked                                 or \
                t1.is_locked                                 or \
-               _change_same_address(t0,t1):
+               _forbid_reordering(t0,t1):
 
                 if self.config.sw_pipelining.enabled:
                     self._AddImplication( t0.post_var, t1.post_var )
                     self._AddImplication( t1.pre_var,  t0.pre_var )
                     self._AddImplication( t0.pre_var,  t1.post_var.Not() )
 
-                if _change_same_address(t0,t1):
+                if _forbid_reordering(t0,t1):
                     self.logger.debug("Forbid reordering of (%s,%s) to avoid address fixup issues",
                                       t0, t1)
 
