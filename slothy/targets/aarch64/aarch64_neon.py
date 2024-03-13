@@ -982,15 +982,10 @@ class Q_Ld2_Lane_Post_Inc(AArch64Instruction):
 
 class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstring,invalid-name
     pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
-    # TODO: Model sp dependency
-    inputs = ["Xa"]
-    in_outs = ["Va", "Vb"]
+    in_outs = ["Va", "Vb", "Xa"]
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        obj.increment = obj.immediate
-        obj.pre_index = None
-        obj.addr = obj.args_in[0]
         obj.detected_q_ld2_lane_post_inc_pair = False
         obj.args_in_out_combinations = [
                 ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
@@ -1003,7 +998,7 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstr
 class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstring,invalid-name
     pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
     # TODO: Model sp dependency
-    inputs = ["Xa"]
+    in_outs = ["Xa"]
     outputs = ["Va", "Vb"]
     @classmethod
     def make(cls, src, force=False):
@@ -1011,9 +1006,6 @@ class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc): # pylint: disable=m
             raise Instruction.ParsingException("Instruction ignored")
 
         obj = AArch64Instruction.build(cls, src)
-        obj.increment = obj.immediate
-        obj.pre_index = None
-        obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
                 ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
