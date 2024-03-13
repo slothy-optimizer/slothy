@@ -582,6 +582,8 @@ class ntt_kyber_1234_567(Example):
         # layer567 is small enough for SW pipelining without heuristics
         slothy.config = Config(self.arch, self.target)
         slothy.config.timeout = self.timeout
+        # Increase the timeout when not using heuristics
+        slothy.config.timeout = self.timeout * 12
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
@@ -984,25 +986,32 @@ class ntt_dilithium_1234_5678(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
-    def core(self, slothy):
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.minimize_overlapping = False
-        slothy.config.reserved_regs = [
-            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
-        slothy.config.reserved_regs += self.target_reserved
-        slothy.config.inputs_are_outputs = True
-        # slothy.config.sw_pipelining.halving_heuristic = True
-        # slothy.config.split_heuristic = True
-        # slothy.config.split_heuristic_factor = 2
-        # slothy.config.split_heuristic_repeat = 4
-        # slothy.config.split_heuristic_stepsize = 0.1
-        slothy.config.constraints.stalls_first_attempt = 40
-        slothy.optimize_loop("layer1234_start")
-        slothy.config.reserved_regs = ["x3", "x30", "sp"]
-        slothy.config.reserved_regs += self.target_reserved
-        slothy.config.sw_pipelining.halving_heuristic = False
-        slothy.config.split_heuristic = False
-        slothy.optimize_loop("layer5678_start")
+        def core(self, slothy):
+            slothy.config.sw_pipelining.enabled = True
+            slothy.config.sw_pipelining.minimize_overlapping = False
+            slothy.config.reserved_regs = [
+                f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+            slothy.config.reserved_regs += self.target_reserved
+            slothy.config.inputs_are_outputs = True
+            slothy.config.sw_pipelining.halving_heuristic = True
+            slothy.config.split_heuristic = True
+            slothy.config.split_heuristic_factor = 2
+            slothy.config.split_heuristic_repeat = 4
+            slothy.config.split_heuristic_stepsize = 0.1
+            slothy.config.constraints.stalls_first_attempt = 14
+            # slothy.optimize_loop("layer1234_start")
+
+            slothy.config = Config(self.arch, self.target)
+            slothy.config.timeout = self.timeout * 12
+            slothy.config.reserved_regs = [
+                f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+            slothy.config.inputs_are_outputs = True
+            slothy.config.reserved_regs += self.target_reserved
+            slothy.config.sw_pipelining.enabled = True
+            slothy.config.sw_pipelining.minimize_overlapping = False
+            slothy.config.sw_pipelining.halving_heuristic = False
+            slothy.config.split_heuristic = False
+            slothy.optimize_loop("layer5678_start")
 
 
 class ntt_dilithium_1234(Example):
@@ -1169,21 +1178,21 @@ def main():
                  ntt_kyber_123_4567(var="manual_st4", target=Target_CortexA72),
                  ntt_kyber_1234_567(target=Target_CortexA72),
                 #  # Apple M1 Firestorm
-                 ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_kyber_1234_567(target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_1234_567(target=Target_AppleM1_firestorm, timeout=300),
+                 ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
                  # Apple M1 Icestorm
-                 ntt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_kyber_1234_567(target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_1234_567(target=Target_AppleM1_icestorm, timeout=300),
+                 ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
                  # Kyber InvNTT
                  # Cortex-M55
                  intt_kyber_1_23_45_67(),
@@ -1212,17 +1221,17 @@ def main():
                  ntt_dilithium_1234_5678(target=Target_CortexA72),
                  ntt_dilithium_1234_5678(var="manual_st4", target=Target_CortexA72),
                  # Apple M1 Firestorm
-                 ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_firestorm, timeout=10800),  # done
-                 ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=10800),
-                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=10800),
+                 ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=300),
+                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
                  # Apple M1 Icestorm
-                 ntt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=10800),
-                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=10800),
+                 ntt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=300),
+                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
                  # Dilithium invNTT
                  # Cortex-M55
                  intt_dilithium_12_34_56_78(),
