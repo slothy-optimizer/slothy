@@ -12,9 +12,9 @@ for:
 2. Register allocation
 3. Software pipelining (= periodic loop interleaving)
 
-SLOTHY is generic in the target architecture and microarchitecture. This repository provides instantiations for the
-the Cortex-M55 and Cortex-M85 CPUs implementing Armv8.1-M + Helium, and the Cortex-A55 and Cortex-A72
-CPUs implementing Armv8-A + Neon. There is an experimental model for Cortex-X/Neoverse-V cores.
+SLOTHY is generic in the target architecture and microarchitecture. This repository provides instantiations for:
+- Armv8.1-M+Helium: Cortex-M55, Cortex-M85
+- AArch64: Cortex-A55, and experimentally Cortex-A72, Cortex-X/Neoverse-V, Apple M1 (Firestorm, Icestorm)
 
 SLOTHY is discussed in [Fast and Clean: Auditable high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303).
 
