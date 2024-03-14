@@ -120,7 +120,7 @@ execution_units = {
      vqdmulh_lane,
      vmull, vmlal,
      vsrshr, vushr, vusra, vshl,
-     vand, vbic): ExecutionUnit.V(),
+     vand, vbic, cmge): ExecutionUnit.V(),
     (vadd, vsub,
      trn1, trn2): ExecutionUnit.V(),
     Vins: ExecutionUnit.V(),  # guessed
@@ -184,7 +184,7 @@ inverse_throughput = {
      vqdmulh_lane,
      vmull, vmlal,
      vsrshr, vushr, vusra, vshl,
-     vand, vbic): 1,
+     vand, vbic, cmge): 1,
     (vadd, vsub,
      trn1, trn2): 1,
 
@@ -239,7 +239,7 @@ default_latencies = {
      vmull, vmlal,
      vsrshr, vusra): 3,
     (vshl, vushr,
-     vand, vbic): 2,
+     vand, vbic, cmge): 2,
     (vadd, vsub,
      trn1, trn2): 2,
     Vins: 2,  # or something less than 13
