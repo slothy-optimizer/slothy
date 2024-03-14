@@ -33,7 +33,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55         \
          -c inputs_are_outputs                                   \
          -c sw_pipelining.minimize_overlapping=False             \
          -c constraints.stalls_first_attempt=64 -c variable_size \
-         ${REDIRECT_OUTPUT}
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A55, 123-4567 (vector loads via scalar, with reduction)"
 
@@ -49,7 +49,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c sw_pipelining.minimize_overlapping=False                                    \
          -c constraints.stalls_first_attempt=64                                         \
          -c variable_size                                                               \
-         ${REDIRECT_OUTPUT}
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A55, 123-4567 (vector stores via scalar, with reduction)"
 
@@ -65,7 +65,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c inputs_are_outputs                                                          \
          -c constraints.stalls_first_attempt=64                                         \
          -c variable_size                                                               \
-         ${REDIRECT_OUTPUT}
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A55, 123-4567 (vector loads+stores via scalar, with reduction)"
 
@@ -80,7 +80,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
        -c inputs_are_outputs                                                                    \
        -c sw_pipelining.minimize_overlapping=False                                              \
        -c constraints.stalls_first_attempt=64 -c variable_size                                  \
-         ${REDIRECT_OUTPUT}
+       $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Kyber NTT, Cortex-A55, 123-4567 (manual ST4, with reduction)"
 
@@ -95,6 +95,6 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
        -c inputs_are_outputs                                                    \
        -c sw_pipelining.minimize_overlapping=False                              \
        -c constraints.stalls_first_attempt=64 -c variable_size                  \
-         ${REDIRECT_OUTPUT}
+       $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 cd "${0%/*}"

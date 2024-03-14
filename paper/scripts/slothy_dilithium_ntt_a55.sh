@@ -34,7 +34,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,v8,x30,sp]"                    \
          -c sw_pipelining.minimize_overlapping=False                            \
          -c constraints.stalls_first_attempt=110 -c variable_size               \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "** Layer 45678"
 
@@ -48,7 +48,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
          -c reserved_regs="[x3,x30,sp]"                                        \
          -c sw_pipelining.minimize_overlapping=False                           \
          -c constraints.stalls_first_attempt=40                                \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Dilithium NTT, Cortex-A55, 123-45678 (vector with scalar loads, without reduction)"
 echo "** Layer 123"
@@ -63,7 +63,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,v8,x30,sp]"                            \
          -c sw_pipelining.minimize_overlapping=False                                    \
          -c constraints.stalls_first_attempt=110 -c variable_size                       \
-         $REDIRECT_OUTPUT                                                               \
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT                                                               \
 
 echo "** Layer 45678"
 
@@ -77,7 +77,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c reserved_regs="[x3,x30,sp]"                                                        \
          -c sw_pipelining.minimize_overlapping=False                                           \
          -c constraints.stalls_first_attempt=40                                                \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "* Dilithium NTT, Cortex-A55, 123-45678 (manual st4, without reduction)"
 echo "** Layer 123"
@@ -93,7 +93,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c sw_pipelining.minimize_overlapping=False                                       \
          -c constraints.stalls_first_attempt=110                                           \
          -c variable_size                                                                  \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "** Layer 45678"
 
@@ -109,6 +109,6 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c split_heuristic                                                                        \
          -c split_heuristic_factor=2                                                               \
          -c constraints.stalls_first_attempt=40                                                    \
-         $REDIRECT_OUTPUT
+         $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 cd "${0%/*}"

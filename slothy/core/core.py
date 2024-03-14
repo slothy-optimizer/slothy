@@ -1586,7 +1586,7 @@ class SlothyBase(LockAttributes):
     def _extract_kernel_input_output(self):
         dfg_log = self.logger.getChild("kernel_input_output")
         self._result.kernel_input_output = list(\
-            DFG(self._result.code, dfg_log,
+            DFG(self._result.code_raw, dfg_log,
                 DFGConfig(self.config,inputs_are_outputs=True)).inputs)
 
     def _extract_code(self):

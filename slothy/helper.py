@@ -917,6 +917,9 @@ class CPreprocessor():
 
         code_txt = '\n'.join([header_txt, CPreprocessor.magic_string, body_txt])
 
+        # Ignore #include's until -I can be configured
+        code_txt = code_txt.replace("#include","//#include")
+
         # Pass -CC to keep comments
         r = subprocess.run([gcc, "-E", "-CC", "-x", "assembler-with-cpp","-"],
                            input=code_txt, text=True, capture_output=True, check=True)
@@ -925,7 +928,32 @@ class CPreprocessor():
         magic_idx = unfolded_code.index(CPreprocessor.magic_string)
         unfolded_code = unfolded_code[magic_idx+1:]
 
-        return unfolded_code
+        return [SourceLine(r) for r in unfolded_code]
+
+class LLVM_Mca_Error(Exception):
+    """Exception thrown if llvm-mca subprocess fails"""
+
+class LLVM_Mca():
+    """Helper class for the application of the LLVM MCA tool"""
+
+    @staticmethod
+    def run(header, body, mca_binary, arch, cpu, log):
+        """Runs LLVM-MCA tool on body and returns result as array of strings"""
+
+        LLVM_MCA_BEGIN = SourceLine("").add_comment("LLVM-MCA-BEGIN")
+        LLVM_MCA_END = SourceLine("").add_comment("LLVM-MCA-END")
+
+        data = SourceLine.write_multiline(header + [LLVM_MCA_BEGIN] + body + [LLVM_MCA_END])
+
+        try:
+            r = subprocess.run([mca_binary, f"--mcpu={cpu}", f"--march={arch}",
+                            "--instruction-info=0", "--dispatch-stats=0", "--timeline=1", "--timeline-max-cycles=0",
+                            "--timeline-max-iterations=3"],
+                            input=data, text=True, capture_output=True, check=True)
+        except subprocess.CalledProcessError as exc:
+            raise LLVM_Mca_Error from exc
+        res = r.stdout.split('\n')
+        return res
 
 class Permutation():
     """Helper class for manipulating permutations"""

@@ -52,7 +52,9 @@ from slothy.core.dataflow import DataFlowGraph as DFG
 from slothy.core.dataflow import Config as DFGConfig, ComputationNode
 from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
-from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, CPreprocessor, SourceLine
+from slothy.helper import CPreprocessor, SourceLine
+from slothy.helper import AsmAllocation, AsmMacro, AsmHelper
+from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mca_Error
 
 class Slothy:
     """SLOTHY optimizer
@@ -181,6 +183,21 @@ class Slothy:
 
         self.source = pre + body + post
 
+    def _make_llvm_mca_stats(self, pre, code, txt, indentation):
+        try:
+            code = CPreprocessor.unfold(pre, code, self.config.compiler_binary)
+            stats = LLVM_Mca.run(pre, code, self.config.llvm_mca_binary,
+                             self.config.arch.llvm_mca_arch,
+                             self.config.target.llvm_mca_target, self.logger)
+            stats = ["",f"LLVM MCA STATISTICS ({txt}) BEGIN",""] + stats + \
+                ["", f"ORIGINAL LLVM MCA STATISTICS ({txt}) END",""]
+            stats = [SourceLine("").add_comment(r) for r in stats]
+            stats = SourceLine.apply_indentation(stats, indentation)
+        except LLVM_Mca_Error:
+            self.logger.warning("Failed to run LLVM-MCA -- ignoring")
+            stats = []
+        return stats
+
     def optimize(self, start=None, end=None, loop_synthesis_cb=None, logname=None):
         """Optimize all or part of the currently loaded source code
 
@@ -215,6 +232,9 @@ class Slothy:
         # Check if the body has a dominant indentation
         indentation = AsmHelper.find_indentation(body)
 
+        if self.config.with_llvm_mca_before is True:
+            orig_stats = self._make_llvm_mca_stats(pre, body, "ORIGINAL", indentation)
+
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
             body = CPreprocessor.unfold(pre, body, c.compiler_binary)
@@ -227,6 +247,15 @@ class Slothy:
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
         early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
+
+        if self.config.with_llvm_mca_before is True:
+            core = core + orig_stats
+
+        if self.config.with_llvm_mca_after is True:
+            new_stats_kernel = self._make_llvm_mca_stats(pre, core, "OPTIMIZED",
+                                                         indentation)
+
+            core = core + new_stats_kernel
 
         def indented(code):
             return [ SourceLine(l).set_indentation(indentation) for l in code]
@@ -359,12 +388,15 @@ class Slothy:
         early, body, late, _, other_data = \
             self.arch.Loop.extract(self.source, loop_lbl)
 
+        # Check if the body has a dominant indentation
+        indentation = AsmHelper.find_indentation(body)
+
         aliases = AsmAllocation.parse_allocs(early)
         c = self.config.copy()
         c.add_aliases(aliases)
 
-        # Check if the body has a dominant indentation
-        indentation = AsmHelper.find_indentation(body)
+        if self.config.with_llvm_mca_before is True:
+            orig_stats = self._make_llvm_mca_stats(early, body, "ORIGINAL", indentation)
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
@@ -382,6 +414,24 @@ class Slothy:
 
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
+
+        if self.config.with_llvm_mca_before is True:
+            kernel_code = kernel_code + orig_stats
+
+        if self.config.with_llvm_mca_after is True:
+            new_stats_kernel = self._make_llvm_mca_stats(early, kernel_code, "OPTIMIZED",
+                                                         indentation)
+            kernel_code = kernel_code + new_stats_kernel
+
+            if len(preamble_code) > 0:
+                new_stats_preamble = self._make_llvm_mca_stats(early, preamble_code, "PREAMBLE",
+                                                               indentation)
+                preamble_code = preamble_code + new_stats_preamble
+
+            if len(postamble_code) > 0:
+                new_stats_postamble = self._make_llvm_mca_stats(early, postamble_code, "POSTAMBLE",
+                                                                indentation)
+                postamble_code = postamble_code + new_stats_postamble
 
         def indented(code):
             if not SourceLine.is_source(code):
