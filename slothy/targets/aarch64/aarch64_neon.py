@@ -51,9 +51,8 @@ class RegisterType(Enum):
     NEON = 2
     STACK_NEON = 3
     STACK_GPR = 4
-    STACK_ANY = 5
-    FLAGS = 6
-    HINT = 7
+    FLAGS = 5
+    HINT = 6
 
     def __str__(self):
         return self.name
@@ -67,33 +66,6 @@ class RegisterType(Enum):
 
         qstack_locations = [ f"QSTACK{i}" for i in range(8) ]
         stack_locations  = [ f"STACK{i}"  for i in range(8) ]
-
-        # TODO: this is needed for X25519; as we use the same stack space
-        # for Neon and GPR; It would be great to unify. Ideally, one should
-        # be able to just use STACK_ without having to define it here
-        stack_any_locations = [
-            "STACK_MASK1",
-            "STACK_MASK2",
-            "STACK_A_0",
-            "STACK_A_8",
-            "STACK_A_16",
-            "STACK_A_24",
-            "STACK_A_32",
-            "STACK_B_0",
-            "STACK_B_8",
-            "STACK_B_16",
-            "STACK_B_24",
-            "STACK_B_32",
-            "STACK_CTR",
-            "STACK_LASTBIT",
-            "STACK_SCALAR",
-            "STACK_X_0",
-            "STACK_X_8",
-            "STACK_X_16",
-            "STACK_X_24",
-            "STACK_X_32"
-        ]
-
 
         gprs_normal  = [ f"x{i}" for i in range(31) ] + ["sp"]
         vregs_normal = [ f"v{i}" for i in range(32) ]
@@ -124,7 +96,6 @@ class RegisterType(Enum):
         return { RegisterType.GPR      : gprs,
                  RegisterType.STACK_GPR : stack_locations,
                  RegisterType.STACK_NEON : qstack_locations,
-                 RegisterType.STACK_ANY  : stack_any_locations,
                  RegisterType.NEON      : vregs,
                  RegisterType.HINT      : hints,
                  RegisterType.FLAGS     : flags}[reg_type]
@@ -155,7 +126,6 @@ class RegisterType(Enum):
         string = string.lower()
         return { "qstack"    : RegisterType.STACK_NEON,
                  "stack"     : RegisterType.STACK_GPR,
-                 "stack_any" : RegisterType.STACK_ANY,
                  "neon"      : RegisterType.NEON,
                  "gpr"       : RegisterType.GPR,
                  "hint"      : RegisterType.HINT,
@@ -164,28 +134,7 @@ class RegisterType(Enum):
     @staticmethod
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["flags", "sp",
-            "STACK_MASK1",
-            "STACK_MASK2",
-            "STACK_A_0",
-            "STACK_A_8",
-            "STACK_A_16",
-            "STACK_A_24",
-            "STACK_A_32",
-            "STACK_B_0",
-            "STACK_B_8",
-            "STACK_B_16",
-            "STACK_B_24",
-            "STACK_B_32",
-            "STACK_CTR",
-            "STACK_LASTBIT",
-            "STACK_SCALAR",
-            "STACK_X_0",
-            "STACK_X_8",
-            "STACK_X_16",
-            "STACK_X_24",
-            "STACK_X_32"
-                    ] + RegisterType.list_registers(RegisterType.HINT))
+        return set(["flags", "sp"] + RegisterType.list_registers(RegisterType.HINT))
 
     @staticmethod
     def default_aliases():
@@ -374,7 +323,12 @@ class Instruction:
         self.addr = None
         self.increment = None
         self.pre_index = None
+        self.offset_adjustable = True
+
         self.immediate = None
+        self.datatype = None
+        self.index = None
+        self.flag = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -456,47 +410,34 @@ class Instruction:
     def is_q_form_vector_instruction(self):
         """Indicates whether an instruction is Neon instruction operating on
         a 128-bit vector"""
-        if not hasattr(self, "datatype"):
-            return self._is_instance_of([
-                                      vmul, vmul_lane,
-                                      vmla, vmla_lane,
-                                      vmls, vmls_lane,
-                                      vqrdmulh, vqrdmulh_lane,
-                                      vqdmulh_lane,
-                                      vsrshr,
-                                      Str_Q, Ldr_Q,
-                                      q_ldr1_stack])
-        dt = getattr(self, "datatype")
 
+        # For most instructions, we infer their operating size from explicit
+        # datatype annotations. Others need listing explicitly.
+
+        if self.datatype is None:
+            return self._is_instance_of([Str_Q, Ldr_Q])
+
+        # Operations on specific lanes are not counted as Q-form instructions
         if self._is_instance_of([Q_Ld2_Lane_Post_Inc]):
             return False
 
+        dt = self.datatype
         if isinstance(dt, list):
             dt = dt[0]
 
-        if dt == "":
-            return False
         if dt.lower() in ["2d", "4s", "8h", "16b"]:
             return True
         if dt.lower() in ["1d", "2s", "4h", "8b"]:
             return False
         raise FatalParsingException(f"unknown datatype '{dt}' in {self}")
 
-    def is_vector_mul(self):
-        """Indicates if an instruction is a Neon vector multiplication"""
-        return self._is_instance_of([ vmul, vmul_lane,
-                                      vmla, vmls_lane, vmls,
-                                      vqrdmulh, vqrdmulh_lane, vqdmulh_lane,
-                                      vmull, vmlal ])
-    def is_vector_add_sub(self):
-        """Indicates if an instruction is a Neon add/sub operation"""
-        return self._is_instance_of([ vadd, vsub ])
     def is_vector_load(self):
         """Indicates if an instruction is a Neon load instruction"""
-        return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld4 ]) # TODO: Ld4 missing?
+        return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld2, Ld4, Q_Ld2_Lane_Post_Inc ])
     def is_vector_store(self):
         """Indicates if an instruction is a Neon store instruction"""
-        return self._is_instance_of([ Str_Q, Stp_Q, St4, d_stp_stack_with_inc, d_str_stack_with_inc])
+        return self._is_instance_of([ Str_Q, Stp_Q, St2, St4,
+                                      d_stp_stack_with_inc, d_str_stack_with_inc])
 
     # scalar
     def is_scalar_load(self):
@@ -561,7 +502,6 @@ class Instruction:
                 f"Doesn't match basic instruction template {regexp_txt}")
 
         operands = list(p.groups())
-        obj.datatype = ""
 
         if obj.num_out > 0:
             obj.args_out = operands[:obj.num_out]
@@ -583,7 +523,7 @@ class Instruction:
     @staticmethod
     def parser(src_line):
         """Global factory method parsing an assembly line into an instance
-        of a subclass of Instance"""
+        of a subclass of Instruction."""
         insts = []
         exceptions = {}
         instnames = []
@@ -749,11 +689,12 @@ class AArch64Instruction(Instruction):
         self.outputs = outputs
         self.in_outs = in_outs
 
-
         self.pattern = pattern
         self.pattern_inputs = list(zip(inputs, arg_types_in, strict=True))
         self.pattern_outputs = list(zip(outputs, arg_types_out, strict=True))
         self.pattern_in_outs = list(zip(in_outs, arg_types_in_out, strict=True))
+
+
 
     @staticmethod
     def _to_reg(ty, s):
@@ -797,9 +738,6 @@ class AArch64Instruction(Instruction):
 
     @staticmethod
     def build_core(obj, res):
-        obj.args_in = []
-        obj.args_in_out = []
-        obj.args_out = []
 
         def group_to_attribute(group_name, attr_name, f=None):
             def f_default(x):
@@ -877,9 +815,10 @@ class AArch64Instruction(Instruction):
                 return x
             if t is None:
                 t = t_default
-            if not hasattr(self, attr_name):
-                return txt
+
             a = getattr(self, attr_name)
+            if a is None:
+                return txt
             if not isinstance(a, list):
                 txt = txt.replace(f"<{mnemonic_key}>", t(a))
                 return txt
@@ -1043,16 +982,14 @@ class Q_Ld2_Lane_Post_Inc(AArch64Instruction):
 
 class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstring,invalid-name
     pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
-    # TODO: Model sp dependency
-    inputs = ["Xa"]
-    in_outs = ["Va", "Vb"]
+    in_outs = ["Va", "Vb", "Xa"]
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        obj.increment = obj.immediate
-        obj.pre_index = None
-        obj.addr = obj.args_in[0]
         obj.detected_q_ld2_lane_post_inc_pair = False
+        obj.args_in_out_combinations = [
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+            ]
         return obj
 
     def write(self):
@@ -1061,7 +998,7 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstr
 class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstring,invalid-name
     pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
     # TODO: Model sp dependency
-    inputs = ["Xa"]
+    in_outs = ["Xa"]
     outputs = ["Va", "Vb"]
     @classmethod
     def make(cls, src, force=False):
@@ -1069,9 +1006,9 @@ class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc): # pylint: disable=m
             raise Instruction.ParsingException("Instruction ignored")
 
         obj = AArch64Instruction.build(cls, src)
-        obj.increment = obj.immediate
-        obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+            ]
         return obj
 
     def write(self):
@@ -1092,7 +1029,7 @@ class q_ldr1_stack(AArch64Instruction): # pylint: disable=missing-docstring,inva
     def write(self):
         return super().write()
 
-class q_ldr_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class q_ldr_stack_with_inc(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr <Qa>, [sp, <imm>]"
     # TODO: Model sp dependency
     outputs = ["Qa"]
@@ -1239,7 +1176,7 @@ class d_str_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstr
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class q_str_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class q_str_stack_with_inc(Str_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "str <Qa>, [sp, <imm>]"
     inputs = ["Qa"] # TODO: Model sp dependency
     @classmethod
@@ -2195,19 +2132,6 @@ class vqdmulh_lane(AArch64Instruction): # pylint: disable=missing-docstring,inva
 
         return obj
 
-class vmul_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
-    inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-    @classmethod
-    def make(cls, src):
-        obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[0] == "8h":
-            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
-                                          [ f"v{i}" for i in range(0,16) ]]
-
-        return obj
-
 class fcsel_dform(Instruction): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
@@ -2303,6 +2227,19 @@ class vmul(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
+
+class vmul_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
+                                         [ f"v{i}" for i in range(0,16) ]]
+
+        return obj
 
 class vmla(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
@@ -2767,6 +2704,7 @@ class st4_base(St4): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
                 ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
@@ -2796,9 +2734,10 @@ class st2_base(St2): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -2812,7 +2751,7 @@ class st2_with_inc(St2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -2826,6 +2765,7 @@ class ld4_base(Ld4): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
                 ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
@@ -2857,9 +2797,10 @@ class ld2_base(Ld2): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -2874,9 +2815,8 @@ class ld2_with_inc(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
             ]
-
         return obj
 
 # In a pair of vins writing both 64-bit lanes of a vector, mark the
