@@ -583,7 +583,8 @@ class ntt_kyber_1234_567(Example):
         slothy.config = Config(self.arch, self.target)
         slothy.config.timeout = self.timeout
         # Increase the timeout when not using heuristics
-        slothy.config.timeout = self.timeout * 12
+        if self.timeout is not None:
+            slothy.config.timeout = self.timeout * 12
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
@@ -999,10 +1000,13 @@ class ntt_dilithium_1234_5678(Example):
             slothy.config.split_heuristic_repeat = 4
             slothy.config.split_heuristic_stepsize = 0.1
             slothy.config.constraints.stalls_first_attempt = 14
-            # slothy.optimize_loop("layer1234_start")
+            slothy.optimize_loop("layer1234_start")
 
             slothy.config = Config(self.arch, self.target)
-            slothy.config.timeout = self.timeout * 12
+
+            if self.timeout is not None:
+                slothy.config.timeout = self.timeout * 12
+
             slothy.config.reserved_regs = [
                 f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
             slothy.config.inputs_are_outputs = True
