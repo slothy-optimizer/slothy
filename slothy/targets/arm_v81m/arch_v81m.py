@@ -219,6 +219,8 @@ class Instruction:
         self.args_in_out_combinations = None
         self.args_in_combinations = None
 
+        self.offset_adjustable = True
+
     def global_parsing_cb(self,a, log=None):
         return False
 

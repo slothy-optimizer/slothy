@@ -107,9 +107,10 @@ i=2
     -c split_heuristic_region="[0.3,1]"                                      \
     -c objective_precision=0.1                                               \
     -c constraints.move_stalls_to_top                                        \
-    -c split_heuristic_stepsize=0.08                                         \
+    -c split_heuristic_bottom_to_top                                         \
+    -c split_heuristic_stepsize=0.2                                          \
     -c split_heuristic_factor=6                                              \
-    -c split_heuristic_repeat=3                                              \
+    -c split_heuristic_repeat=1                                              \
     -c constraints.model_latencies=False                                     \
     $REDIRECT_OUTPUT
 
@@ -129,41 +130,16 @@ i=3
     -c split_heuristic_region="[0.3,1]"                                      \
     -c objective_precision=0.1                                               \
     -c constraints.move_stalls_to_top                                        \
-    -c split_heuristic_stepsize=0.05                                         \
-    -c split_heuristic_factor=5                                              \
-    -c split_heuristic_repeat=3                                              \
-    -c split_heuristic_abort_cycle_at=8                                      \
-    -c constraints.model_latencies=False                                     \
-    $REDIRECT_OUTPUT
-
-echo "*** Step 6"
-i=4
-    ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                      \
-       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
-    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
-    -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
-    -c inputs_are_outputs -c outputs="[x0]"                                  \
-    -s mainloop -e end_label                                                 \
-    -c variable_size                                                         \
-    -c max_solutions=512                                                     \
-    -c timeout=180                                                           \
-    -c constraints.stalls_first_attempt=32                                   \
-    -c split_heuristic                                                       \
-    -c split_heuristic_region="[0.2,1]"                                      \
-    -c objective_precision=0.1                                               \
-    -c constraints.move_stalls_to_top                                        \
-    -c split_heuristic_stepsize=0.05                                         \
-    -c split_heuristic_factor=5                                              \
-    -c split_heuristic_repeat=3                                              \
-    -c split_heuristic_abort_cycle_at=5                                      \
+    -c split_heuristic_stepsize=0.2                                          \
+    -c split_heuristic_factor=6                                              \
+    -c split_heuristic_repeat=1                                              \
     -c constraints.model_latencies=False                                     \
     $REDIRECT_OUTPUT
 
 # Finally, also consider latencies
 
-echo "** Step 7-9: Consider latencies"
-echo "*** Step 7"
-i=5
+echo "*** Step 6"
+i=4
    ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
        ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
     -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
@@ -180,50 +156,51 @@ i=5
     -c split_heuristic_stepsize=0.05                                         \
     -c split_heuristic_optimize_seam=10                                      \
     -c split_heuristic_factor=8                                              \
-    -c split_heuristic_repeat=10                                             \
+    -c split_heuristic_repeat=1                                              \
+    $REDIRECT_OUTPUT
+
+echo "*** Step 7"
+i=5
+   ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s     \
+    -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
+    -c inputs_are_outputs -c outputs="[x0]"                                  \
+    -s mainloop -e end_label                                                 \
+    -c variable_size                                                         \
+    -c max_solutions=512                                                     \
+    -c timeout=300                                                           \
+    -c constraints.stalls_first_attempt=32                                   \
+    -c split_heuristic                                                       \
+    -c split_heuristic_region="[0,1]"                                        \
+    -c split_heuristic_bottom_to_top=True                                    \
+    -c objective_precision=0.1                                               \
+    -c split_heuristic_stepsize=0.05                                         \
+    -c split_heuristic_optimize_seam=10                                      \
+    -c constraints.move_stalls_to_top                                        \
+    -c split_heuristic_factor=8                                              \
+    -c split_heuristic_repeat=2                                             \
     $REDIRECT_OUTPUT
 
 echo "*** Step 8"
 i=6
-  ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
-      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s         \
-   -o ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process$((${i}+1)).s  \
-   -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_alt_unfold_process$((${i}+1)) \
-   -c inputs_are_outputs -c outputs="[x0]"                                  \
-   -s mainloop -e end_label                                                 \
-   -c variable_size                                                         \
-   -c max_solutions=512                                                     \
-   -c timeout=300                                                           \
-   -c constraints.stalls_first_attempt=32                                   \
-   -c split_heuristic                                                       \
-   -c split_heuristic_region="[0,1]"                                        \
-   -c objective_precision=0.1                                               \
-   -c split_heuristic_stepsize=0.05                                         \
-   -c split_heuristic_optimize_seam=10                                      \
-   -c split_heuristic_factor=8                                              \
-   -c split_heuristic_repeat=3                                              \
-    $REDIRECT_OUTPUT
-
-echo "*** Step 9"
-i=7
-  ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
-      ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s         \
-   -o ${OPT_DIR}/neon/X25519-AArch64-simple_opt.s                           \
-   -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_opt     \
-   -c inputs_are_outputs -c outputs="[x0]"                                  \
-   -s mainloop -e end_label                                                 \
-   -c variable_size                                                         \
-   -c max_solutions=512                                                     \
-   -c timeout=300                                                           \
-   -c constraints.stalls_first_attempt=32                                   \
-   -c split_heuristic                                                       \
-   -c split_heuristic_region="[0,1]"                                        \
-   -c objective_precision=0.1                                               \
-   -c split_heuristic_stepsize=0.05                                         \
-   -c split_heuristic_optimize_seam=10                                      \
-   -c split_heuristic_factor=8                                              \
-   -c split_heuristic_repeat=3                                              \
-   -c constraints.move_stalls_to_top                                        \
+   ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                       \
+       ${OPT_DIR}/neon/X25519-AArch64-simple_unfold_process${i}.s            \
+    -o ${OPT_DIR}/neon/X25519-AArch64-simple_opt.s                           \
+    -r x25519_scalarmult_alt_unfold_process${i},x25519_scalarmult_opt        \
+    -c inputs_are_outputs -c outputs="[x0]"                                  \
+    -s mainloop -e end_label                                                 \
+    -c variable_size                                                         \
+    -c max_solutions=512                                                     \
+    -c timeout=300                                                           \
+    -c constraints.stalls_first_attempt=32                                   \
+    -c split_heuristic                                                       \
+    -c split_heuristic_region="[0,1]"                                        \
+    -c objective_precision=0.1                                               \
+    -c split_heuristic_stepsize=0.05                                         \
+    -c split_heuristic_optimize_seam=10                                      \
+    -c constraints.move_stalls_to_top                                        \
+    -c split_heuristic_factor=8                                              \
     $REDIRECT_OUTPUT
 
 cd "${0%/*}"
