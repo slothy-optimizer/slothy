@@ -37,7 +37,6 @@ for uarch in M55 M85; do for i in 1 2 4; do
       -c sw_pipelining.enabled=True                                                     \
       -c sw_pipelining.unroll=$i                                                        \
       -c constraints.stalls_first_attempt=1                                             \
-      -c with_llvm_mca                                                                  \
       -c timeout=$((10*$i))                                                             \
       -c /sw_pipelining.minimize_overlapping                                            \
       -c variable_size $SLOTHY_FLAGS $REDIRECT_OUTPUT ;
