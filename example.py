@@ -88,24 +88,40 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False, dry_run=False):
+    def run(self, debug=False, dry_run=False, silent=False):
+
+        handlers = []
 
         h_err = logging.StreamHandler(sys.stderr)
         h_err.setLevel(logging.WARNING)
+        handlers.append(h_err)
 
-        h_info = logging.StreamHandler(sys.stdout)
-        h_info.setLevel(logging.DEBUG)
-        h_info.addFilter(lambda r: r.levelno <= logging.INFO)
+        if silent is False:
+            h_info = logging.StreamHandler(sys.stdout)
+            h_info.setLevel(logging.DEBUG)
+            h_info.addFilter(lambda r: r.levelno == logging.INFO)
+            handlers.append(h_info)
+
+        if debug is True:
+            h_verbose = logging.StreamHandler(sys.stdout)
+            h_verbose.setLevel(logging.DEBUG)
+            h_verbose.addFilter(lambda r: r.levelno < logging.INFO)
+            handlers.append(h_verbose)
+
+        if debug is True:
+            base_level = logging.DEBUG
+        else:
+            base_level = logging.INFO
 
         logging.basicConfig(
-            level=logging.DEBUG if debug else logging.INFO,
-            handlers=[h_err, h_info]
+            level = base_level,
+            handlers = handlers,
         )
-
         logger = logging.getLogger(self.name)
 
         slothy = Slothy(self.arch, self.target, logger=logger)
         slothy.load_source_from_file(self.infile_full)
+
         if self.timeout is not None:
             slothy.config.timeout = self.timeout
 
@@ -1264,6 +1280,7 @@ def main():
     )
     parser.add_argument("--dry-run", default=False, action="store_true")
     parser.add_argument("--debug", default=False, action="store_true")
+    parser.add_argument("--silent", default=False, action="store_true")
     parser.add_argument("--iterations", type=int, default=1)
 
     args = parser.parse_args()
@@ -1273,7 +1290,7 @@ def main():
         todo = all_example_names
     iterations = args.iterations
 
-    def run_example(name, **kwargs):
+    def run_example(name, dry_run=False, **kwargs):
         ex = None
         for e in examples:
             if e.name == name:
@@ -1281,12 +1298,17 @@ def main():
                 break
         if ex is None:
             raise ExampleException(f"Could not find example {name}")
-        ex.run(**kwargs)
+        if dry_run is True:
+            annotation = " (dry run only)"
+        else:
+            annotation = ""
+        print(f"* Example{annotation}: {name}...")
+        ex.run(dry_run=dry_run, **kwargs)
 
     for e in todo:
         for _ in range(iterations):
-            run_example(e, debug=args.debug, dry_run=args.dry_run)
-
+            run_example(e, debug=args.debug, dry_run=args.dry_run,
+                        silent=args.silent)
 
 if __name__ == "__main__":
     main()
