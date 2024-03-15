@@ -26,15 +26,6 @@
 // Needed to provide ASM_LOAD directive
 #include <hal_env.h>
 
-// NOTE
-// We use a lot of trivial macros to simplify the parsing burden for Slothy
-// The macros are not unfolded by Slothy and thus interpreted as instructions,
-// which are easier to parse due to e.g. the lack of size specifiers and simpler
-// syntax for pre and post increment for loads and stores.
-//
-// Eventually, NeLight should include a proper parser for AArch64,
-// but for initial investigations, the below is enough.
-
 xtmp0 .req x10
 xtmp1 .req x11
 .macro vins vec_out, gpr_in, lane
@@ -43,27 +34,6 @@ xtmp1 .req x11
 
 .macro vext gpr_out, vec_in, lane
         umov \gpr_out\(), \vec_in\().d[\lane]
-.endm
-
-.macro ldr_vo vec, base, offset
-        ldr xtmp0, [\base, #\offset]
-        ldr xtmp1, [\base, #(\offset+8)]
-        vins \vec, xtmp0, 0
-        vins \vec, xtmp1, 1
-.endm
-
-.macro ldr_vi vec, base, inc
-        ldr xtmp0, [\base], #\inc
-        ldr xtmp1, [\base, #(-\inc+8)]
-        vins \vec, xtmp0, 0
-        vins \vec, xtmp1, 1
-.endm
-
-.macro str_vo vec, base, offset
-        str qform_\vec, [\base, #\offset]
-.endm
-.macro str_vi vec, base, inc
-        str qform_\vec, [\base], #\inc
 .endm
 
 .macro vqrdmulh d,a,b
@@ -119,21 +89,21 @@ xtmp1 .req x11
 .endm
 
 .macro load_roots_123
-        ldr_vi root0, r_ptr0, 32
-        ldr_vo root1, r_ptr0, -16
+        ldr qform_root0, [r_ptr0], #32
+        ldr qform_root1, [r_ptr0, #-16]
 .endm
 
 .macro load_next_roots_45
-        ldr_vi root0, r_ptr0, 16
+        ldr qform_root0, [r_ptr0], #16
 .endm
 
 .macro load_next_roots_67
-        ldr_vi root0,    r_ptr1, (6*16)
-        ldr_vo root0_tw, r_ptr1, (-6*16 + 1*16)
-        ldr_vo root1,    r_ptr1, (-6*16 + 2*16)
-        ldr_vo root1_tw, r_ptr1, (-6*16 + 3*16)
-        ldr_vo root2,    r_ptr1, (-6*16 + 4*16)
-        ldr_vo root2_tw, r_ptr1, (-6*16 + 5*16)
+        ldr qform_root0, [   r_ptr1], #(6*16)
+        ldr qform_root0_tw, [r_ptr1, #(-6*16 + 1*16)]
+        ldr qform_root1, [   r_ptr1, #(-6*16 + 2*16)]
+        ldr qform_root1_tw, [r_ptr1, #(-6*16 + 3*16)]
+        ldr qform_root2, [   r_ptr1, #(-6*16 + 4*16)]
+        ldr qform_root2_tw, [r_ptr1, #(-6*16 + 5*16)]
 .endm
 
 .macro transpose4 data
@@ -371,14 +341,14 @@ _ntt_kyber_123_4567_scalar_load_store:
         .p2align 2
 layer123_start:
 
-        ldr_vo data0, in, 0
-        ldr_vo data1, in, (1*(512/8))
-        ldr_vo data2, in, (2*(512/8))
-        ldr_vo data3, in, (3*(512/8))
-        ldr_vo data4, in, (4*(512/8))
-        ldr_vo data5, in, (5*(512/8))
-        ldr_vo data6, in, (6*(512/8))
-        ldr_vo data7, in, (7*(512/8))
+        ldr qform_data0, [in, #0]
+        ldr qform_data1, [in, #(1*(512/8))]
+        ldr qform_data2, [in, #(2*(512/8))]
+        ldr qform_data3, [in, #(3*(512/8))]
+        ldr qform_data4, [in, #(4*(512/8))]
+        ldr qform_data5, [in, #(5*(512/8))]
+        ldr qform_data6, [in, #(6*(512/8))]
+        ldr qform_data7, [in, #(7*(512/8))]
 
         ct_butterfly data0, data4, root0, 0, 1
         ct_butterfly data1, data5, root0, 0, 1
@@ -395,14 +365,14 @@ layer123_start:
         ct_butterfly data4, data5, root1, 2, 3
         ct_butterfly data6, data7, root1, 4, 5
 
-        str_vi data0, in, (16)
-        str_vo data1, in, (-16 + 1*(512/8))
-        str_vo data2, in, (-16 + 2*(512/8))
-        str_vo data3, in, (-16 + 3*(512/8))
-        str_vo data4, in, (-16 + 4*(512/8))
-        str_vo data5, in, (-16 + 5*(512/8))
-        str_vo data6, in, (-16 + 6*(512/8))
-        str_vo data7, in, (-16 + 7*(512/8))
+        str qform_data0, [in], #(16)
+        str qform_data1, [in, #(-16 + 1*(512/8))]
+        str qform_data2, [in, #(-16 + 2*(512/8))]
+        str qform_data3, [in, #(-16 + 3*(512/8))]
+        str qform_data4, [in, #(-16 + 4*(512/8))]
+        str qform_data5, [in, #(-16 + 5*(512/8))]
+        str qform_data6, [in, #(-16 + 6*(512/8))]
+        str qform_data7, [in, #(-16 + 7*(512/8))]
 
         subs count, count, #1
         cbnz count, layer123_start
@@ -412,10 +382,10 @@ layer123_start:
 
         .p2align 2
 layer4567_start:
-        ldr_vo data0, inp, (16*0)
-        ldr_vo data1, inp, (16*1)
-        ldr_vo data2, inp, (16*2)
-        ldr_vo data3, inp, (16*3)
+        ldr qform_data0, [inp, #(16*0)]
+        ldr qform_data1, [inp, #(16*1)]
+        ldr qform_data2, [inp, #(16*2)]
+        ldr qform_data3, [inp, #(16*3)]
 
         load_next_roots_45
 
