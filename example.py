@@ -88,7 +88,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False, dry_run=False, silent=False):
+    def run(self, debug=False, dry_run=False, silent=False, timeout=0):
 
         if dry_run is True:
             annotation = " (dry run only)"
@@ -129,7 +129,9 @@ class Example():
         slothy = Slothy(self.arch, self.target, logger=logger)
         slothy.load_source_from_file(self.infile_full)
 
-        if self.timeout is not None:
+        if timeout != 0:
+            slothy.config.timeout = timeout
+        elif self.timeout is not None:
             slothy.config.timeout = self.timeout
 
         if dry_run is True:
@@ -1311,6 +1313,7 @@ def main():
     parser.add_argument("--debug", default=False, action="store_true")
     parser.add_argument("--silent", default=False, action="store_true")
     parser.add_argument("--iterations", type=int, default=1)
+    parser.add_argument("--timeout", type=int, default=0)
 
     args = parser.parse_args()
     if args.examples != "all":
@@ -1332,7 +1335,7 @@ def main():
     for e in todo:
         for _ in range(iterations):
             run_example(e, debug=args.debug, dry_run=args.dry_run,
-                        silent=args.silent)
+                        silent=args.silent, timeout=args.timeout)
 
 if __name__ == "__main__":
     main()
