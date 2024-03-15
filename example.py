@@ -88,7 +88,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False):
+    def run(self, debug=False, dry_run=False):
 
         h_err = logging.StreamHandler(sys.stderr)
         h_err.setLevel(logging.WARNING)
@@ -109,6 +109,11 @@ class Example():
         if self.timeout is not None:
             slothy.config.timeout = self.timeout
 
+        if dry_run is True:
+            slothy.config.constraints.functional_only = True
+            slothy.config.constraints.allow_reordering = False
+            slothy.config.constraints.allow_renaming = False
+
         # On Apple M1, we must not use x18
         if "m1" in target_label_dict[self.target]:
             self.target_reserved = ["x18"]
@@ -118,8 +123,9 @@ class Example():
         if self.rename:
             slothy.rename_function(
                 self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
-        slothy.write_source_to_file(self.outfile_full)
 
+        if dry_run is False:
+            slothy.write_source_to_file(self.outfile_full)
 
 class Example0(Example):
     def __init__(self):
@@ -1256,6 +1262,7 @@ def main():
         help=f"The list of examples to be run, comma-separated list from {all_example_names}. "
         f"Format: {{name}}_{{variant}}_{{target}}, e.g., ntt_kyber_123_4567_scalar_load_a55"
     )
+    parser.add_argument("--dry-run", default=False, action="store_true")
     parser.add_argument("--debug", default=False, action="store_true")
     parser.add_argument("--iterations", type=int, default=1)
 
@@ -1266,7 +1273,7 @@ def main():
         todo = all_example_names
     iterations = args.iterations
 
-    def run_example(name, debug=False):
+    def run_example(name, **kwargs):
         ex = None
         for e in examples:
             if e.name == name:
@@ -1274,11 +1281,11 @@ def main():
                 break
         if ex is None:
             raise ExampleException(f"Could not find example {name}")
-        ex.run(debug=debug)
+        ex.run(**kwargs)
 
     for e in todo:
         for _ in range(iterations):
-            run_example(e, debug=args.debug)
+            run_example(e, debug=args.debug, dry_run=args.dry_run)
 
 
 if __name__ == "__main__":
