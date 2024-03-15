@@ -142,7 +142,7 @@ ntt_kyber_12_345_67_trans:
         movw modulus, #:lower16:modulus_const
         ldr  r_ptr, roots_addr
 
-        /* Layers 1,2 */
+        // Layers 1,2
 
         save STACK0, in
         add in_high, in_low, #(2*128)
@@ -167,7 +167,7 @@ layer12_loop:
         vstrw.u32 data3, [in_high, #(2*64 - 16)]
         le lr, layer12_loop
 
-        /* Layers 3,4,5 */
+        // Layers 3,4,5
 
         restore in, STACK0
         mov lr, #4

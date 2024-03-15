@@ -89,7 +89,7 @@ ntt_kyber:
 
         tmp .req q4
 
-        /* Layers 1 */
+        // Layers 1
 
         load_first_root root0, root0_twisted
 
@@ -157,7 +157,7 @@ layer1_loop_end:
         in .req r0
         sub in, in, #(4*64)
 
-        /* Layers 2,3 */
+        // Layers 2,3
 
         count .req r1
         mov count, #2
@@ -304,7 +304,7 @@ layer23_loop_end:
 
         sub in, in, #(4*128)
 
-        /* Layers 4,5 */
+        // Layers 4,5
 
         mov lr, #8
         ldrd r4, r6, [root_ptr] , #24          // ..*....
@@ -463,7 +463,7 @@ layer45_loop_end:
 
         sub in, in, #(4*128)
 
-        /* Layers 6,7 */
+        // Layers 6,7
 
         .unreq root0
         .unreq root0_twisted

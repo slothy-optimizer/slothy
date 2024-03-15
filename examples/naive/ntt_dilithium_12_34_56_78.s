@@ -79,7 +79,7 @@ ntt_dilithium_12_34_56_78:
 
         tmp .req q4
 
-        /* Layers 1-2 */
+        // Layers 1-2
         ldrd root0, root0_twisted, [root_ptr], #+8
         ldrd root1, root1_twisted, [root_ptr], #+8
         ldrd root2, root2_twisted, [root_ptr], #+8
@@ -104,7 +104,7 @@ layer12_loop:
         .unreq in_low
         in .req r0
 
-        /* Layers 3,4 */
+        // Layers 3,4
         sub in, in, #(64*4)
 
         // 4 butterfly blocks per root config, 4 root configs
@@ -138,7 +138,7 @@ layer34_loop:
         subs count, count, #1
         bne out_start
 
-        /* Layers 5,6 */
+        // Layers 5,6
         sub in, in, #(4*256)
 
         mov lr, #16
@@ -160,7 +160,7 @@ layer56_loop:
         vst43.u32 {data0, data1, data2, data3}, [in]!
         le lr, layer56_loop
 
-        /* Layers 7,8 */
+        // Layers 7,8
         sub in, in, #(4*256)
 
         .unreq root0

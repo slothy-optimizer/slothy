@@ -86,7 +86,7 @@ intt_kyber_1_23_45_67:
 
         tmp .req q4
 
-        /* Layers 6,7 */
+        // Layers 6,7
 
         mov lr, #8
 layer67_loop:
@@ -153,7 +153,7 @@ layer67_loop:
         sub in, in, #(4*128)
         .unreq barrett_const
 
-        /* Layers 4,5 */
+        // Layers 4,5
 
         mov lr, #8
 layer45_loop:
@@ -198,7 +198,7 @@ layer45_loop:
         sub in, in, #(4*128)
         .unreq barrett_const
 
-        /* Layers 2,3 */
+        // Layers 2,3
 
         count .req r1
         mov count, #2
@@ -252,7 +252,7 @@ layer23_loop:
         in_high      .req r1
         add in_high, in_low, #(4*64)
 
-        /* Layers 1 */
+        // Layers 1
 
         load_first_root root0, root0_twisted
 
