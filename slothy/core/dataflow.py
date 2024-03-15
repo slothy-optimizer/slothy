@@ -755,8 +755,10 @@ class DataFlowGraph:
         # information on the type of `const` -- it could be either a GPR or a vector.
         if num_valid_candidates > 1:
             cnames = list(map(lambda c: type(c).__name__,candidates))
-            raise DataFlowGraphException(f"Cannot unambiguously choose between {cnames} "\
-                            f"in {candidates} -- need typing information")
+            self.logger.error("Source line %s can be parsed in multiple ways:", sourceline)
+            for c in candidates:
+                self.logger.error("* %s", c)
+            raise DataFlowGraphException(f"Parsing failure during type checking")
         # Add the single valid candidate parsing to the CFG
         self._add_node(valid_candidates[0])
 
