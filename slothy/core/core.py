@@ -1493,6 +1493,7 @@ class SlothyBase(LockAttributes):
         self._extract_positions(get_value)
         self._extract_register_renamings(get_value)
         self._extract_input_output_renaming()
+        self._rename_symbolic_outputs()
 
         self._extract_code()
         self._result.selfcheck_with_fixup(self.logger.getChild("selfcheck"))
@@ -1561,6 +1562,10 @@ class SlothyBase(LockAttributes):
                 self.logger.debug("%s %s renamed to %s", name, k, v)
         _dump_renaming("Input",  self._result.input_renamings)
         _dump_renaming("Output", self._result.output_renamings)
+
+    def _rename_symbolic_outputs(self):
+        self.config.outputs = list(map(lambda o: self._result.output_renamings.get(o, o),
+                                       self.config.outputs))
 
     def _extract_register_renamings(self, get_value):
         # From a dictionary with Boolean variables as values, extract the single
