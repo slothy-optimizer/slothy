@@ -2326,7 +2326,7 @@ class SlothyBase(LockAttributes):
         def inst_changes_addr(inst):
             return inst.increment is not None
 
-        def _forbid_reordering(t0,t1):
+        def should_forbid_reordering(t0,t1):
             if not t0.inst.is_load_store_instruction():
                 return False
             if not t1.inst.is_load_store_instruction():
@@ -2341,27 +2341,36 @@ class SlothyBase(LockAttributes):
                 return True
             return False
 
-        for t0, t1 in self.get_inst_pairs():
-            if not t0.orig_pos < t1.orig_pos:
-                continue
-            if not self.config.constraints.allow_reordering or \
-               t0.is_locked                                 or \
-               t1.is_locked                                 or \
-               _forbid_reordering(t0,t1):
+        def force_stays_before(t0, t1):
+            if self.config.sw_pipelining.enabled:
+                self._AddImplication( t0.post_var, t1.post_var )
+                self._AddImplication( t1.pre_var,  t0.pre_var )
+                self._AddImplication( t0.pre_var,  t1.post_var.Not() )
+            if should_forbid_reordering(t0,t1):
+                self.logger.debug("Forbid reordering of (%s,%s) to avoid address fixup issues",
+                                  t0, t1)
+            self._add_path_constraint( t1, t0,
+               lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var) )
 
-                if self.config.sw_pipelining.enabled:
-                    self._AddImplication( t0.post_var, t1.post_var )
-                    self._AddImplication( t1.pre_var,  t0.pre_var )
-                    self._AddImplication( t0.pre_var,  t1.post_var.Not() )
+        def comes_before(t0, t1):
+            return (t0.orig_pos < t1.orig_pos)
 
-                if _forbid_reordering(t0,t1):
-                    self.logger.debug("Forbid reordering of (%s,%s) to avoid address fixup issues",
-                                      t0, t1)
+        if self.config.constraints.allow_reordering is False:
+            for t0, t1 in self.get_inst_pairs(cond=comes_before):
+                force_stays_before(t0, t1)
+        else:
+            for t0, t1 in self.get_inst_pairs(
+                    cond_fst=lambda t: t.is_locked,
+                    cond_snd=lambda t: t.is_locked,
+                    cond = comes_before):
+                force_stays_before(t0, t1)
 
-                self._add_path_constraint( t1, t0,
-                   lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var) )
-
-        # Look for source annotations forcing orderings
+            for t0, t1 in self.get_inst_pairs(
+                    cond_fst = lambda t: t.inst.is_load_store_instruction(),
+                    cond_snd = lambda t: t.inst.is_load_store_instruction(),
+                    cond = comes_before):
+                if should_forbid_reordering(t0, t1):
+                    force_stays_before(t0, t1)
 
         if self.config.sw_pipelining.enabled is True:
             nodes = self._get_nodes(low=True)
@@ -2502,7 +2511,7 @@ class SlothyBase(LockAttributes):
     def _add_constraints_misc(self):
         self.target.add_further_constraints(self)
 
-    def get_inst_pairs(self, cond=None):
+    def get_inst_pairs(self, cond_fst=None, cond_snd=None, cond=None):
         """Yields all instruction pairs satisfying the provided predicate.
 
         This can be useful for the specification of additional
@@ -2513,9 +2522,18 @@ class SlothyBase(LockAttributes):
 
         Returns:
             Generator of all instruction pairs satisfying the predicate."""
-        for t0 in self._model.tree.nodes:
-            for t1 in self._model.tree.nodes:
-                if cond is None or cond(t0,t1):
+        if cond_fst is None:
+            cond_fst = lambda x: True
+        if cond_snd is None:
+            cond_snd = lambda x: True
+        if cond is None:
+            cond = lambda x, y: True
+
+        fst = list(filter(cond_fst, self._model.tree.nodes))
+        snd = list(filter(cond_snd, self._model.tree.nodes))
+        for t0 in fst:
+            for t1 in snd:
+                if cond(t0,t1):
                     yield (t0,t1)
 
     # ================================================================#

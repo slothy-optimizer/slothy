@@ -83,7 +83,7 @@ def _add_st_ld_hazard(slothy):
         return True
 
     slothy._model.st_ld_hazard_vars = {}
-    for t_st, t_ld in slothy.get_inst_pairs(is_st_ld_pair):
+    for t_st, t_ld in slothy.get_inst_pairs(cond=is_st_ld_pair):
         if t_st.is_locked and t_ld.is_locked:
             continue
         if slothy.config.constraints.st_ld_hazard:

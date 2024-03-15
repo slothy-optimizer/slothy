@@ -87,7 +87,7 @@ def add_st_hazard(slothy):
     def is_vec_st_st_pair(inst_a, inst_b):
         return inst_a.inst.is_vector_store() and inst_b.inst.is_vector_store()
 
-    for t0, t1 in slothy.get_inst_pairs(is_vec_st_st_pair):
+    for t0, t1 in slothy.get_inst_pairs(cond=is_vec_st_st_pair):
         if t0.is_locked and t1.is_locked:
             continue
         slothy._Add( t0.cycle_start_var != t1.cycle_start_var + 1 )

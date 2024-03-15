@@ -77,17 +77,19 @@ class ExecutionUnit(Enum):
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
-    for t0, t1 in slothy.get_inst_pairs():
-        for t2, t3 in slothy.get_inst_pairs():
-            if (not t0.inst.is_load_store_instruction() and
-                t1.inst.is_vector_load()                and
-                t2.inst.is_vector_store()               and
-                t3.inst.is_vector_load()):
-                b = [ slothy._NewBoolVar("") for _ in range(0,3) ]
-                slothy._AddAtLeastOne(b)
-                slothy._Add(t1.program_start_var != t0.program_start_var + 1).OnlyEnforceIf(b[0])
-                slothy._Add(t2.program_start_var != t1.program_start_var + 1).OnlyEnforceIf(b[1])
-                slothy._Add(t3.program_start_var != t2.program_start_var + 1).OnlyEnforceIf(b[2])
+    t0_t1 = slothy.get_inst_pairs(
+            cond_fst=lambda t: not t.inst.is_load_store_instruction(),
+            cond_snd=lambda t: t.inst.is_vector_load())
+    t2_t3 = slothy.get_inst_pairs(
+            cond_fst=lambda t: t.inst.is_vector_store(),
+            cond_snd=lambda t: t.inst.is_vector_load())
+    for t0, t1 in t0_t1:
+        for t2, t3 in t2_t3:
+            b = [ slothy._NewBoolVar("") for _ in range(0,3) ]
+            slothy._AddAtLeastOne(b)
+            slothy._Add(t1.program_start_var != t0.program_start_var + 1).OnlyEnforceIf(b[0])
+            slothy._Add(t2.program_start_var != t1.program_start_var + 1).OnlyEnforceIf(b[1])
+            slothy._Add(t3.program_start_var != t2.program_start_var + 1).OnlyEnforceIf(b[2])
 
 
     for t0, t1 in slothy.get_inst_pairs():
