@@ -1145,6 +1145,11 @@ class fft_fixedpoint_radix4(Example):
                          rename=True, arch=arch, target=target)
 
     def core(self, slothy):
+        # This is default value, but it's overwritten in case of a dry-run.
+        # However, the symbolic registers in the FLT FFT cannot be resolved
+        # without reordering, so let's ignore the dry-run parameter here.
+        slothy.config.constraints.allow_reordering = True
+
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
@@ -1169,8 +1174,13 @@ class fft_floatingpoint_radix4(Example):
                          rename=True, arch=arch, target=target)
 
     def core(self, slothy):
+        # This is default value, but it's overwritten in case of a dry-run.
+        # However, the symbolic registers in the FLT FFT cannot be resolved
+        # without reordering, so let's ignore the dry-run parameter here.
+        slothy.config.constraints.allow_reordering = True
+
         slothy.config.sw_pipelining.enabled = True
-        # slothy.config.inputs_are_outputs = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
