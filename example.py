@@ -90,6 +90,13 @@ class Example():
 
     def run(self, debug=False, dry_run=False, silent=False):
 
+        if dry_run is True:
+            annotation = " (dry run only)"
+        else:
+            annotation = ""
+
+        print(f"* Example: {self.name}{annotation}...")
+
         handlers = []
 
         h_err = logging.StreamHandler(sys.stderr)
@@ -129,6 +136,7 @@ class Example():
             slothy.config.constraints.functional_only = True
             slothy.config.constraints.allow_reordering = False
             slothy.config.constraints.allow_renaming = False
+            slothy.config.variable_size = True
 
         # On Apple M1, we must not use x18
         if "m1" in target_label_dict[self.target]:
@@ -1298,7 +1306,7 @@ def main():
         todo = all_example_names
     iterations = args.iterations
 
-    def run_example(name, dry_run=False, **kwargs):
+    def run_example(name, **kwargs):
         ex = None
         for e in examples:
             if e.name == name:
@@ -1306,12 +1314,7 @@ def main():
                 break
         if ex is None:
             raise ExampleException(f"Could not find example {name}")
-        if dry_run is True:
-            annotation = " (dry run only)"
-        else:
-            annotation = ""
-        print(f"* Example{annotation}: {name}...")
-        ex.run(dry_run=dry_run, **kwargs)
+        ex.run(**kwargs)
 
     for e in todo:
         for _ in range(iterations):
