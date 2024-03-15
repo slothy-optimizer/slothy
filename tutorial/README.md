@@ -35,7 +35,7 @@ Content of this tutorial:
 5) Optimizing a full Neon NTT
 6) Visualising SLOTHY optimizations
 7) Optimizing larger pieces of code
-8) Modelling a different microarchitecture
+8) Adding a new microarchitecture
 
 
 ## 1. Installation
@@ -66,7 +66,7 @@ We will look into more examples shortly and discuss input, output, and available
 ## 2. Getting Started
 
 The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
-Once you work on your own code, you will likely be using the `slothy-cli` command or calling the Slothy module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has. 
+Once you work on your own code, you will likely be using the `slothy-cli` command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has. 
 However, for now we will be using the `example.py` script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
 You can run `python3 example.py --help` to see all examples available. 
 
@@ -214,9 +214,9 @@ You can see that various instructions have been moved around to achieve fewer st
 In the scheduled code, you can `// gap` where SLOTHY would expect a `gap` given the current model.
 Note that this does not equal a pipeline stall in the sense of a wasted cycle, but rather in an issue slot of the CPU that was not used.
 The Cortex-A55 is a dual-issue CPU meaning in ideal circumstances 2 instructions can be issued per cycle.
-However, the Neon pipeline can only issue a single Neon instruction per cycle.
-Since our code only consists of Neon instructions, the best we can hope for is a single `gap` after each instruction.
-To make use of these issue slots one would have to mix in scalar instructions.
+However, the Neon pipeline can only issue a single (128-bit/q-form) Neon instruction per cycle.
+Since our code only consists of (128-bit/q-form) Neon instructions, the best we can hope for is a single `gap` after each instruction.
+To make use of these issue slots one would have to mix in scalar instructions (or use 64-bit (d-form) Neon instructions).
 
 Also note the registers used: In the original code `v24` was as a temporary register in both computation streams preventing to effectively interleave them.
 SLOTHY renamed those registers to be able to interleave both computations. Other registers have also been arbitrarily renamed, but without any specific reason.
@@ -530,7 +530,104 @@ You notice that both loops have many early instructions, and coming up with this
 ## 7. Optimizing larger pieces of code
 
 
-## 8. Modelling a different microarchitecture
+## 8. Adding a new microarchitecture
+
+You may wonder how to extend SLOTHY to include a new microarchitecture.
+For example, you may want to optimize code for a newer iteration of the Arm Cortex-A55, e.g., the Arm Cortex-A510.
+To understand what is needed for that, let's look at the microarchitectural model for the Cortex-A55 available in [../slothy/targets/aarch64/cortex_a55.py](../slothy/targets/aarch64/cortex_a55.py). 
+
+Skipping some boilerplate code, you will see the following structure:
+```
+from slothy.targets.aarch64.aarch64_neon import *
+
+issue_rate = 2
+class ExecutionUnit(Enum):
+    """Enumeration of execution units in Cortex-A55 model"""
+    SCALAR_ALU0=1
+    SCALAR_ALU1=2
+    SCALAR_MAC=3
+    SCALAR_LOAD=4
+    SCALAR_STORE=5
+    VEC0=6
+    VEC1=7
+    # ...
+    
+execution_units = {
+        // ... 
+}
+
+inverse_throughput = {
+        // ...
+}
+
+default_latencies = {
+        // ...
+}
+
+
+def get_latency(src, out_idx, dst):
+    // ...
+    latency = lookup_multidict(
+        default_latencies, src)
+    // ...
+    return latency
+
+def get_units(src):
+    units = lookup_multidict(execution_units, src)
+    if isinstance(units,list):
+        return units
+    return [units]
+
+def get_inverse_throughput(src):
+    return lookup_multidict(
+        inverse_throughput, src)
+```
+
+Going through the snippet, we can see the core components:
+ - Definition of the `issue_rate` corresponding to the number of issue slots available per cycle. Since the Cortex-A55 is a dual-issue CPU, this is 2
+ - Definition of an `Enum` modelling the different execution units available. In this case, we model 2 scalar units, one MAC unit, 2 vector units, one load unit, and one store unit.
+ - Finally, we need to implement the functions `get_latency`, `get_units`, `get_inverse_throughput` returning the latency, occupied execution units, and throughputs. The input to these functions is a class from the architectural model representing the instruction in question. For example, the class `vmull` in [](../slothy/targets/aarch64/aarch64_neon.py) corresponds to the `umull` instruction. We commonly implement this using dictionaries above.
+
+For example, for the `vmull` instruction, we can find in the Arm Cortex-A55 SWOG, that it occupies both vector execution units, has an inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way: 
+
+```
+execution_units = {
+    ( vmull ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]], 
+}
+
+inverse_throughput = {
+    ( vmull ) : 1,
+}
+
+default_latencies = {
+    ( vmull ) : 4,
+}
+```
+
+We mostly use the tuple-syntax, so we can group together instructions that belong together.
+For example, later we may want to add the Neon`add`. From the SWOG we can see that (128-bit) `add` occupies both vector execution units, has a latency of 3 cycles, and throughput of 1 cycle.
+We can extend the above model as follows:
+
+```
+execution_units = {
+    ( vmull, vadd ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]], 
+}
+
+inverse_throughput = {
+    ( vmull, vadd ) : 1,
+}
+
+default_latencies = {
+    ( vmull ) : 4,
+    ( vadd ) : 3,
+}
+```
+
+
+(When looking at the actual model, you will notice that this is not quite how it is modelled. You will see that for some instructions, we have to distinguish between the q-form (128-bit) and the d-form (64-bit) of the instruction. Q-form instructions occupy both vector execution units, while most D-form instructions occupy only 1. Latencies also vary depending on the actual for.)
+
+Note that both the architectural model and the micro-architectural model can be built lazily: As long as the corresponding instruction do not appear in your input, you may leave out their description.
+As soon as you hit an instruction that is not part of the architectural or micro-architectural model, you will see an error.
 
 
 ## Troubleshooting
