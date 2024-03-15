@@ -325,6 +325,8 @@ class Heuristics():
         c.inputs_are_outputs = True
         result = Heuristics.optimize_binsearch(body,logger.getChild("slothy"),c)
 
+        conf.outputs = list(map(lambda o: result.output_renamings.get(o,o), conf.outputs))
+
         num_exceptional_iterations = result.num_exceptional_iterations
         kernel = result.code
         assert SourceLine.is_source(kernel)
