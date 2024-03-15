@@ -2346,7 +2346,11 @@ class SlothyBase(LockAttributes):
                 return True
             return False
 
-        for t0, t1 in self.get_inst_pairs():
+        pairs = self.get_inst_pairs(
+            cond_fst=lambda t: t.inst.is_load_store_instruction(),
+            cond_snd=lambda t: t.inst.is_load_store_instruction())
+
+        for t0, t1 in pairs:
             if not t0.orig_pos < t1.orig_pos:
                 continue
             if not self.config.constraints.allow_reordering or \
@@ -2507,7 +2511,7 @@ class SlothyBase(LockAttributes):
     def _add_constraints_misc(self):
         self.target.add_further_constraints(self)
 
-    def get_inst_pairs(self, cond=None):
+    def get_inst_pairs(self, cond_fst=None, cond_snd=None, cond=None):
         """Yields all instruction pairs satisfying the provided predicate.
 
         This can be useful for the specification of additional
@@ -2518,9 +2522,18 @@ class SlothyBase(LockAttributes):
 
         Returns:
             Generator of all instruction pairs satisfying the predicate."""
-        for t0 in self._model.tree.nodes:
-            for t1 in self._model.tree.nodes:
-                if cond is None or cond(t0,t1):
+        if cond_fst is None:
+            cond_fst = lambda _: True
+        if cond_snd is None:
+            cond_snd = lambda _: True
+        if cond is None:
+            cond = lambda _: True
+
+        fst = list(filter(cond_fst, self._model.tree.nodes))
+        snd = list(filter(cond_snd, self._model.tree.nodes))
+        for t0 in fst:
+            for t1 in snd:
+                if cond((t0,t1)):
                     yield (t0,t1)
 
     # ================================================================#
