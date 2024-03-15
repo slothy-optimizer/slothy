@@ -12,6 +12,9 @@ LOG_DIR=logs
 mkdir -p $LOG_DIR
 
 REDIRECT_OUTPUT="--log --logdir=${LOG_DIR}"
+if [ "$NO_LOG" = "Y" ]; then
+    REDIRECT_OUTPUT=""
+fi
 if [ "$SILENT" = "Y" ]; then
     REDIRECT_OUTPUT="${REDIRECT_OUTPUT} --silent"
 fi

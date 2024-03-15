@@ -13,6 +13,9 @@ ARGS=""
 if [ "$SILENT" = "Y" ]; then
     ARGS="$ARGS --silent"
 fi
+if [ "$NO_LOG" = "Y" ]; then
+    ARGS="$ARGS --no-log"
+fi
 
 export PYTHONPATH=../../
 
