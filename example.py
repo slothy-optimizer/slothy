@@ -1028,37 +1028,37 @@ class ntt_dilithium_1234_5678(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
-        def core(self, slothy):
-            conf = slothy.config.copy()
+    def core(self, slothy):
+        conf = slothy.config.copy()
 
-            slothy.config.sw_pipelining.enabled = True
-            slothy.config.sw_pipelining.minimize_overlapping = False
-            slothy.config.reserved_regs = [
-                f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
-            slothy.config.reserved_regs += self.target_reserved
-            slothy.config.inputs_are_outputs = True
-            slothy.config.sw_pipelining.halving_heuristic = True
-            slothy.config.split_heuristic = True
-            slothy.config.split_heuristic_factor = 2
-            slothy.config.split_heuristic_repeat = 4
-            slothy.config.split_heuristic_stepsize = 0.1
-            slothy.config.constraints.stalls_first_attempt = 14
-            slothy.optimize_loop("layer1234_start")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 2
+        slothy.config.split_heuristic_repeat = 4
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.constraints.stalls_first_attempt = 14
+        slothy.optimize_loop("layer1234_start")
 
-            slothy.config = conf.copy()
+        slothy.config = conf.copy()
 
-            if self.timeout is not None:
-                slothy.config.timeout = self.timeout * 12
+        if self.timeout is not None:
+            slothy.config.timeout = self.timeout * 12
 
-            slothy.config.reserved_regs = [
-                f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
-            slothy.config.inputs_are_outputs = True
-            slothy.config.reserved_regs += self.target_reserved
-            slothy.config.sw_pipelining.enabled = True
-            slothy.config.sw_pipelining.minimize_overlapping = False
-            slothy.config.sw_pipelining.halving_heuristic = False
-            slothy.config.split_heuristic = False
-            slothy.optimize_loop("layer5678_start")
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.reserved_regs += self.target_reserved
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.halving_heuristic = False
+        slothy.config.split_heuristic = False
+        slothy.optimize_loop("layer5678_start")
 
 
 class ntt_dilithium_1234(Example):
