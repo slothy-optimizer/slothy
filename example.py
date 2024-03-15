@@ -90,6 +90,13 @@ class Example():
 
     def run(self, debug=False, dry_run=False, silent=False):
 
+        if dry_run is True:
+            annotation = " (dry run only)"
+        else:
+            annotation = ""
+
+        print(f"* Example: {self.name}{annotation}...")
+
         handlers = []
 
         h_err = logging.StreamHandler(sys.stderr)
@@ -129,6 +136,7 @@ class Example():
             slothy.config.constraints.functional_only = True
             slothy.config.constraints.allow_reordering = False
             slothy.config.constraints.allow_renaming = False
+            slothy.config.variable_size = True
 
         # On Apple M1, we must not use x18
         if "m1" in target_label_dict[self.target]:
@@ -594,6 +602,8 @@ class ntt_kyber_1234_567(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
     def core(self, slothy):
+        conf = slothy.config.copy()
+
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
@@ -612,7 +622,7 @@ class ntt_kyber_1234_567(Example):
         slothy.optimize_loop("layer1234_start")
 
         # layer567 is small enough for SW pipelining without heuristics
-        slothy.config = Config(self.arch, self.target)
+        slothy.config = conf.copy()
         slothy.config.timeout = self.timeout
         # Increase the timeout when not using heuristics
         if self.timeout is not None:
@@ -668,7 +678,6 @@ class ntt_kyber_567(Example):
 
     def core(self, slothy):
         # layer567 is small enough for SW pipelining without heuristics
-        slothy.config = Config(self.arch, self.target)
         slothy.config.timeout = self.timeout
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
@@ -1020,6 +1029,8 @@ class ntt_dilithium_1234_5678(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
         def core(self, slothy):
+            conf = slothy.config.copy()
+
             slothy.config.sw_pipelining.enabled = True
             slothy.config.sw_pipelining.minimize_overlapping = False
             slothy.config.reserved_regs = [
@@ -1034,7 +1045,7 @@ class ntt_dilithium_1234_5678(Example):
             slothy.config.constraints.stalls_first_attempt = 14
             slothy.optimize_loop("layer1234_start")
 
-            slothy.config = Config(self.arch, self.target)
+            slothy.config = conf.copy()
 
             if self.timeout is not None:
                 slothy.config.timeout = self.timeout * 12
@@ -1298,7 +1309,7 @@ def main():
         todo = all_example_names
     iterations = args.iterations
 
-    def run_example(name, dry_run=False, **kwargs):
+    def run_example(name, **kwargs):
         ex = None
         for e in examples:
             if e.name == name:
@@ -1306,12 +1317,7 @@ def main():
                 break
         if ex is None:
             raise ExampleException(f"Could not find example {name}")
-        if dry_run is True:
-            annotation = " (dry run only)"
-        else:
-            annotation = ""
-        print(f"* Example{annotation}: {name}...")
-        ex.run(dry_run=dry_run, **kwargs)
+        ex.run(**kwargs)
 
     for e in todo:
         for _ in range(iterations):
