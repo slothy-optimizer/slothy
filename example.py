@@ -159,6 +159,7 @@ class Example2(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints["const"] = Arch_Armv81M.RegisterType.GPR
         slothy.optimize_loop("start")
 
@@ -169,6 +170,7 @@ class Example3(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("start")
 
 
@@ -178,6 +180,7 @@ class CRT(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.selfcheck = True
         # Double the loop body to create more interleaving opportunities
         # Basically a tradeoff of code-size vs performance
@@ -199,6 +202,7 @@ class ntt_n256_l6_s32(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {r: Arch_Armv81M.RegisterType.GPR for r in
                                       ["root0",         "root1",         "root2",
                                        "root0_twisted", "root1_twisted", "root2_twisted"]}
@@ -213,6 +217,7 @@ class ntt_n256_l8_s32(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root0": Arch_Armv81M.RegisterType.GPR,
             "root1": Arch_Armv81M.RegisterType.GPR,
@@ -234,6 +239,7 @@ class intt_n256_l6_s32(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root0": Arch_Armv81M.RegisterType.GPR,
             "root1": Arch_Armv81M.RegisterType.GPR,
@@ -253,6 +259,7 @@ class intt_n256_l8_s32(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root0": Arch_Armv81M.RegisterType.GPR,
             "root1": Arch_Armv81M.RegisterType.GPR,
@@ -281,6 +288,7 @@ class ntt_kyber_1_23_45_67(Example):
         self.timeout = timeout
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root0": Arch_Armv81M.RegisterType.GPR,
             "root1": Arch_Armv81M.RegisterType.GPR,
