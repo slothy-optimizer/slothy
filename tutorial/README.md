@@ -280,28 +280,39 @@ slothy.optimize()
 slothy.write_source_to_file("examples/opt/aarch64/aarch64_simple0_a55.s")
 ```
 
-You will need to pass to SLOTHY both the architecture model (containing the instruction mnemonics and which registers are input and outputs for each instruction) and the microarchitectual model (containing latencies, throughputs, execution units, etc.).
-In this case, we use the AArch64+Neon architecture model and the Arm Cortex-A55 microarchitecture model that come with SLOTHY.
+You will need to pass to SLOTHY both the architecture model (containing the instruction mnemonics and which registers
+are input and outputs for each instruction) and the microarchitectual model (containing latencies, throughputs,
+execution units, etc.). In this case, we use the AArch64+Neon architecture model and the Arm Cortex-A55
+microarchitecture model that come with SLOTHY.
 
 The calls to SLOTHY should be self-explanatory:
- - `load_source_from_file` loads an assembly file to be optimized
+ - `load_source_from_file` loads an assembly file to be optimized.
  - `slothy.config` can be used to configure SLOTHY. For the documentation of the configuration options, see the comments in [config.py](../slothy/core/config.py).
- - `optimize` performs the actual optimizations by calling the external constraint solver
- - `write_source_to_file` writes back the optimized assembly to a file
+ - `optimize` performs the actual optimizations by calling the external constraint solver.
+ - `write_source_to_file` writes back the optimized assembly to a file.
 
-Setting `slothy.config.variable_size` results in the number of stalls being a parameter of the model and the constraint solver is trying to minimize.
-One still has to pass a maximum number of stalls to the constraint solver. By default, SLOTHY starts with 0 stalls as a maximum and then exponentially increases it if no solution could be found.
-To speed this process up one can set a `stalls_first_attempt` to a reasonable number.
-The `variable_size` may not perform well for large examples. The default strategy (`variable_size=False`) is, hence, to pass a fixed number of allowed stalls to the constraint solver and performing a binary search to find the minimum number of stalls for which a solution exists.
+Setting `slothy.config.variable_size` results in the number of stalls being a parameter of the model that the constraint
+solver is trying to minimize within a static 'stall budget'. By default, SLOTHY would start with a stall budget of 0 and
+exponentially increase until a solution is found. To speed this process up, we set `stalls_first_attempt=32`, starting
+the search with a sufficient stall budget of 32 cycles.
+
+The `variable_size` may not perform well for large examples. The default strategy (`variable_size=False`) is, hence, to
+pass a fixed number of allowed stalls to the constraint solver and to have SLOTHY perform an 'external' binary search to
+find the minimum number of stalls for which a solution exists.
 
 ## 4. Software Pipelining
 
-One of the most powerful features of SLOTHY is software pipelining (also known as periodic loop interleaving).
-The core idea of software pipelining is that even though the body of a loop itself may not have a stall-free scheduling, it may still be possible to eliminate more stalls when moving some instructions to earlier or later iterations of the loop.
-Note that this does not mean that the loop has to be unrolled -- by maintaining the periodicity of the code, it is possible to keep the code within a loop resulting in compact code size. Only the first and last iteration may require to be treated separately.
+One of the most powerful features of SLOTHY is [software
+pipelining](https://en.wikipedia.org/wiki/Software_pipelining). The core idea of software pipelining is that loop
+scheduling can be improved by moving some instructions to earlier or later iterations of the loop, that is, by
+interleaving loop iterations. Note that this does not mean that the loop has to be unrolled: By maintaining
+the periodicity of the interleaved code, it is possible to keep it within a loop, thereby retaining code compactness.
+Only the first and last iteration(s) may require to be treated separately; those are called the preamble and
+postamble, respectively.
 
 Let's look at an example demonstrating how SLOTHY can perform software pipelining for you.
-Consider the simple case of performing the code from the previous example within a loop. This is exactly what the `aarch64_simple0_loop` example in SLOTHY does:
+Consider the simple case of performing the code from the previous example within a loop. This is exactly what the
+`aarch64_simple0_loop` example in SLOTHY does:
 ```
 count .req x2
 
@@ -349,8 +360,8 @@ slothy.write_source_to_file("examples/opt/aarch64/aarch64_simple0_loop_a55.s")
 ```
 
 Software pipelining needs to be enabled by setting `slothy.config.sw_pipelining.enabled = True`.
-We also need to specifically tell SLOTHY that we would like to optimize the loop starting at `start` -- SLOTHY will automatically detect that the loop ends at `cbnz count, start`.
-The produced output will look like this:
+We also need to specifically tell SLOTHY that we would like to optimize the loop starting at `start` -- SLOTHY will
+automatically detect that the loop ends at `cbnz count, start`. The produced output will look like this:
 
 ```
 count .req x2
@@ -508,11 +519,16 @@ start:
 
 ```
 
-Let's start by looking at the loop body going from `start:` to `cbnz count, start`.
-We see that the loop now has 4 blocks of 3 `gap`s meaning that there are 4 1-cycle stalls. This compares to 7 stalls in the version without software pipelining.
-We see that 2 instructions are marked as early (e) instructions meaning they are merged into the previous iteration.
-For the code to still be correct, SLOTHY decreases the number of iterations by one (`sub count, count, #1`), adds the missing early-instructions for the first iteration before the loop, and finally adds the non-early instructions of the last iteration after the loop.
-Also note that addresses have been adjusted accordingly.
+Let's start by looking at the optimized loop body going from `start:` to `cbnz count, start`.
+We see that the loop now has 4 blocks of 3 `gap`s meaning that there are 4 1-cycle stalls. This compares to 7 stalls in
+the version without software pipelining. We see that 2 load instructions are marked as early (e) instructions, meaning they
+are moved into the previous iteration: Intuitively, this makes sense: We know statically what data we need to load for
+the next iteration, and loads have a fairly long latency, so we can improve performance by issuing loads early. For the
+code to still be correct, SLOTHY decreases the number of iterations by one (`sub count, count, #1`), adds the missing
+early-instructions for the first iteration before the loop, and finally adds the non-early instructions of the last
+iteration after the loop. Also note that addresses have been adjusted accordingly.
+
+**TODO: Explain address offset fixup!**
 
 ## 5. Optimizing a full Neon NTT
 
