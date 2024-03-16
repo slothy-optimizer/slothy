@@ -1,33 +1,56 @@
-# SLOTHY
+# SLOTHY Tutorial
 
 ## Introduction & Overview
 
-This tutorial covers using the superoptimizer SLOTHY for optimizing assembly programs for a specific microarchitecture.
-It goes beyond what it is written in the README in that it gives more examples on how we (the developers of SLOTHY) are commonly using SLOTHY to optimize cryptographic code.
-This should get you familiar with the workflow and a number of common ways to debug or improve your results.
+This tutorial introduces you to using the SLOTHY superoptimizer for optimizing assembly programs for a specific microarchitecture.
+It goes beyond what is written in the [README](../README.md) or the [SLOTHY
+paper](https://eprint.iacr.org/2022/1303.pdf) in that it gives more examples on how we, the developers of SLOTHY,
+typically use SLOTHY to optimize cryptographic code. At the end of the tutorial, you should be familiar with
+the workflow of using SLOTHY as well as a number of common ways to debug or improve your results.
 
-SLOTHY is a fixed instruction superoptimizer. That means that the input to the program is assembly and the output is semantically-equivalent optimized assembly. In particular, SLOTHY performs three main jobs:
-1) (Re-)schedule instructions to hide latencies and improve utilization of all execution units
-2) Rename registers in case this results in a better scheduling
-3) Perform software pipelining (aka periodic loop interleaving). We will cover software pipelining in more depth later in this tutorial. 
+SLOTHY is a fixed instruction superoptimizer: Its input is assembly and its output is semantically-equivalent optimized
+assembly using the same instructions and data flow. The fact that SLOTHY does not change instructions is very important
+both theoretically (in terms of complexity of optimization) and practically (in terms of developer control) and sets SLOTHY apart from
+_synthesizing_ superoptimizers like [souper](https://github.com/google/souper).
 
-SLOTHY performs these jobs by first transforming the input assembly into a data-flow graph (DFG) modelling the dependencies between all instructions. 
-The goal of SLOTHY is to find a traversal of the DFG (and register allocation) that results in the least number of pipeline stalls.
-A traversal of the graph is basically assigning each instruction an index at which the instruction will be in the output.
-SLOTHY does so by turning the graph together with information about the microarchitecture into constraints that are fed into a generic constraint solver. We have been using Google OR-tools, but it can be replaced easily.
-Modelling the graph itself as constraints is straightforward: Each instruction depending on data from another instruction has to be after said instruction.
-The microarchitecture is modelled in terms of latencies, throughput, forwarding paths, and the number of execution units able to execute certain instructions.
-Lastly, constraints are added that a register allocation must exist with the number of architectural registers available.
+Concretely, SLOTHY performs three main jobs:
+1. (Re-)schedule instructions to hide latencies and improve utilization of all execution units.
+2. Rename registers in case this enables a better scheduling.
+3. Perform software pipelining (aka periodic loop interleaving). We will cover software pipelining in more depth later in this tutorial.
 
-Note that SLOTHY does not change instructions itself, i.e., instruction selection is left to the developer.
-For cryptographic code -- which is what SLOTHY was developed for -- instructions selection is a core focus of research and highly-optimized instruction sequences implementing a cryptographic (sub-)routine usually exist. 
+SLOTHY performs these jobs by first lifting the input assembly into a data-flow graph (DFG) modelling dependencies
+between instructions. At this level, the ordering of instructions and the choice of register names is no longer visible.
+The goal of SLOTHY, then, is to find a traversal/lowering of the DFG that results in the least
+number of pipeline stalls. A traversal/lowering of the graph is assigning to each instruction an index at which
+the instruction will be in the output, plus a choice a registers to be used for its outputs. SLOTHY does so by turning
+the graph together with information about the (micro)architecture into constraints that are fed into an external constraint
+solver; so far, we have been using Google OR-tools, but in principle one can use other solvers as well.
+Constraints come in two flavours: Architectural and microarchitectural. Architectural constraints simply ensure that the
+resulting code is architecturally valid (e.g. SLOTHY does not use a vector register in a scalar instruction) and
+functionally correct (it has the same DFG). Microarchitectural constraints imply (hopefully) that the code will run fast
+on the target; SLOTHY models microarchitectures in terms of issue width, instruction latencies, throughput, forwarding
+paths, and the number of execution units able to execute certain instructions. We refer to the [SLOTHY
+paper](https://eprint.iacr.org/2022/1303.pdf) for details of the constraint model, which are not relevant here.
 
-**High-assurance cryptography**: While formal verification is not part of the SLOTHY tool as of now, we do see potential for combining formal verification tools with SLOTHY. Right now, SLOTHY checks that the output is correct through a simple selfcheck: 
-SLOTHY transform the output code back into a DFG and checks that this graph is isomorphic to the input graph.
-Since all operations optimizations performed by SLOTHY (except for software pipelining) should not change the (isomorphism class of the) DFG, this selfcheck is mostly intended for finding bugs in SLOTHY. 
+Note again that SLOTHY does (largely) not change instructions: Instruction selection is left to the developer.
+For cryptographic code -- which is what SLOTHY was developed for -- instruction selection is a core focus of research
+and highly-optimized instruction sequences implementing a cryptographic (sub-)routine usually exist. Tight control over
+the choice of instructions is also important from a security perspective, as variable-time instructions have to be
+avoided.
 
+**High-assurance cryptography**: While formal verification is not part of SLOTHY itself, there is potential for
+combining existing formal verification tools with SLOTHY. From a high level, formal verification should be relatively
+simple, owing to the fact that SLOTHY does not change the DFG: In fact, SLOTHY itself includes a selfcheck that
+lifts the output assembly back into a DFG and confirms that it is isomorphic to the input DFG via the permutation found by
+SLOTHY. However, while this is a strong indicator of correctness of the output assembly, it does _not_ amount to a
+formal verification, as pitfalls do remain (notably bad user configurations and subtleties around modelling
+memory and load/store offsets which we will not discuss in this tutorial). Research into combining SLOTHY with trusted
+verification infrastructure is therefore needed. As a first promising example, AWS-LC has recently
+[integrated](https://github.com/aws/aws-lc/pull/1478) an implementation of X25519 that was auto-generated by SLOTHY and
+formally verified using the [HOL-Light](https://github.com/jrh13/hol-light) proof assistant.
 
-Content of this tutorial:
+## Table of contents
+
 1) Installation. This is limited to the fastest way of installing SLOTHY using pip. For more compete instructions, see the README.
 2) Getting started
 3) Using SLOTHY for your own code
@@ -67,9 +90,9 @@ We will look into more examples shortly and discuss input, output, and available
 ## 2. Getting Started
 
 The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
-Once you work on your own code, you will likely be using the `slothy-cli` command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has. 
+Once you work on your own code, you will likely be using the `slothy-cli` command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has.
 However, for now we will be using the `example.py` script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
-You can run `python3 example.py --help` to see all examples available. 
+You can run `python3 example.py --help` to see all examples available.
 
 Let's look at a very simple example from the previous section called `aarch64_simple0`.
 You can find the corresponding code in [examples/naive/aarch64/aarch64_simple0.s](../examples/naive/aarch64/aarch64_simple0.s):
@@ -100,16 +123,16 @@ str q11, [x0, #-1*16]
 ```
 
 It contains a straight-line piece of assembly for the Armv8-A architecture. This architecture implements the Neon vector instruction extension and all the instructions in this example are Neon vector instructions.
-If you have never written Neon assembly before, you do not have to worry about it at this point. 
-All you need to know about the code is that it loads some vectors from memory, performs some arithmetic operations, and writes back the result to memory. 
+If you have never written Neon assembly before, you do not have to worry about it at this point.
+All you need to know about the code is that it loads some vectors from memory, performs some arithmetic operations, and writes back the result to memory.
 Note that there is two independent streams of computation on the four vectors loaded from memory, and, hence, there is quite some possibilities to re-order this code without affecting its semantics.
 This code is able to run on a variety of different microarchitectures, ranging from low-end energy efficient in-order cores like the Arm Cortex-A55 to high-end out-of-order CPUs with very complex pipelines like the Apple M1 or Arm Neoverse server CPUs.
 For the in-order cores, the instruction scheduling plays the most essential role as poorly scheduled code is very likely to have terrible performance, and hence, we will focus on the Cortex-A55 architecture in the following.
 Note, however, that SLOTHY has been used to also obtain significant speed-ups for out-of-order cores.
 
 SLOTHY already includes models for the Arm Cortex-A55 microarchitecture, so we can now optimize this piece of code for that microarchitecture.
-`example.py` contains the needed SLOTHY incarnations for convenience, so we can simply run `python3 example.py --examples aarch64_simple0_a55` which will optimize for the Cortex-A55 microarchitecture. You can check `example.py` for the details. 
-This will optimize the piece of code above and write the output code to [examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s). 
+`example.py` contains the needed SLOTHY incarnations for convenience, so we can simply run `python3 example.py --examples aarch64_simple0_a55` which will optimize for the Cortex-A55 microarchitecture. You can check `example.py` for the details.
+This will optimize the piece of code above and write the output code to [examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s).
 SLOTHY should print something similar to this:
 ```
 INFO:aarch64_simple0_a55:Instructions in body: 19
@@ -128,7 +151,7 @@ INFO:aarch64_simple0_a55.slothy:Minimum number of stalls: 16
 You can follow the steps SLOTHY performs and see the calls the constraint solver trying to find a re-scheduling of this code containing at most 32 stalls (a default starting point we have set here to speed up the example).
 At the same time it is trying to minimize the number of stalls. This is past as an objective to the constraint solver (OR-tools) which tries to find a solution with the minimum number of stalls.
 The best solution it can find has 16 stalls -- which is guaranteed to be the minimum number of stalls given this piece of code and the model of the microarchitecture in SLOTHY.
-In the last step, SLOTHY will transform the found traversal of the DFG into actual assembly and write it to the file. 
+In the last step, SLOTHY will transform the found traversal of the DFG into actual assembly and write it to the file.
 To make sure everything worked out as expected, it will perform a selfcheck which consists of transforming the output assembly into a DFG again and testing that the resulting graph is isomorphic to the input DFG.
 
 We can now take a look at the output assembly in [examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s):
@@ -209,9 +232,9 @@ str q5, [x0, #-16]                     // ..................*
 
 ```
 
-At the top you can see the re-scheduled assembly and at the bottom you find the original source code as a comment. 
+At the top you can see the re-scheduled assembly and at the bottom you find the original source code as a comment.
 As comments next to the two sections, you can also see a visual representation on how these instructions have been rescheduled.
-You can see that various instructions have been moved around to achieve fewer stalls. 
+You can see that various instructions have been moved around to achieve fewer stalls.
 In the scheduled code, you can `// gap` where SLOTHY would expect a `gap` given the current model.
 Note that this does not equal a pipeline stall in the sense of a wasted cycle, but rather in an issue slot of the CPU that was not used.
 The Cortex-A55 is a dual-issue CPU meaning in ideal circumstances 2 instructions can be issued per cycle.
@@ -226,7 +249,7 @@ Even with this small Neon example, you can see that understanding the input code
 ## 3. Writing your own calling code
 
 When writing your own calls to SLOTHY, there are generally two options:
-(1) Using SLOTHY as a Python module, or (2) using `slothy-cli` using command line options. We will continue with (1) to demonstrate some features. 
+(1) Using SLOTHY as a Python module, or (2) using `slothy-cli` using command line options. We will continue with (1) to demonstrate some features.
 To reproduce the example above, you can place the following code into your own Python script in the root directory of SLOTHY:
 
 ```
@@ -271,7 +294,7 @@ The `variable_size` may not perform well for large examples. The default strateg
 ## 4. Software Pipelining
 
 One of the most powerful features of SLOTHY is software pipelining (also known as periodic loop interleaving).
-The core idea of software pipelining is that even though the body of a loop itself may not have a stall-free scheduling, it may still be possible to eliminate more stalls when moving some instructions to earlier or later iterations of the loop. 
+The core idea of software pipelining is that even though the body of a loop itself may not have a stall-free scheduling, it may still be possible to eliminate more stalls when moving some instructions to earlier or later iterations of the loop.
 Note that this does not mean that the loop has to be unrolled -- by maintaining the periodicity of the code, it is possible to keep the code within a loop resulting in compact code size. Only the first and last iteration may require to be treated separately.
 
 Let's look at an example demonstrating how SLOTHY can perform software pipelining for you.
@@ -323,7 +346,7 @@ slothy.write_source_to_file("examples/opt/aarch64/aarch64_simple0_loop_a55.s")
 ```
 
 Software pipelining needs to be enabled by setting `slothy.config.sw_pipelining.enabled = True`.
-We also need to specifically tell SLOTHY that we would like to optimize the loop starting at `start` -- SLOTHY will automatically detect that the loop ends at `cbnz count, start`. 
+We also need to specifically tell SLOTHY that we would like to optimize the loop starting at `start` -- SLOTHY will automatically detect that the loop ends at `cbnz count, start`.
 The produced output will look like this:
 
 ```
@@ -484,7 +507,7 @@ start:
 
 Let's start by looking at the loop body going from `start:` to `cbnz count, start`.
 We see that the loop now has 4 blocks of 3 `gap`s meaning that there are 4 1-cycle stalls. This compares to 7 stalls in the version without software pipelining.
-We see that 2 instructions are marked as early (e) instructions meaning they are merged into the previous iteration. 
+We see that 2 instructions are marked as early (e) instructions meaning they are merged into the previous iteration.
 For the code to still be correct, SLOTHY decreases the number of iterations by one (`sub count, count, #1`), adds the missing early-instructions for the first iteration before the loop, and finally adds the non-early instructions of the last iteration after the loop.
 Also note that addresses have been adjusted accordingly.
 
@@ -493,10 +516,10 @@ Also note that addresses have been adjusted accordingly.
 The examples previously considered were all toy examples, so you may wonder how to apply SLOTHY to actual cryptographic code.
 Let's look at a real-world example: The Kyber number-theoretic transform -- a core arithmetic function of the Kyber key-encapsulation mechanism making up a large chunk of the total run-time.
 The target platform is again the Arm Cortex-M55 and the code primarily consists of Helium instructions.
-We'll consider a straightforward implementation available here: [ntt_kyber_123_4567.s](../examples/naive/aarch64/ntt_kyber_123_4567.s). 
-If you have ever written an NTT, it should be fairly easy to understand what the code is doing. 
+We'll consider a straightforward implementation available here: [ntt_kyber_123_4567.s](../examples/naive/aarch64/ntt_kyber_123_4567.s).
+If you have ever written an NTT, it should be fairly easy to understand what the code is doing.
 The code consists of 2 main loops implementing layers 1+2+3 and 4+5+6+7 of the NTT.
-The actual operations are wrapped in macros implementing butterflies on single vector registers. 
+The actual operations are wrapped in macros implementing butterflies on single vector registers.
 Note that this code performs very poorly: It does not consideration was given to the intricacies of the microarchitecture.
 
 Let's run SLOTHY on this code:
@@ -520,7 +543,7 @@ This is commonly needed when optimizing loops.
 We also use the `reserved_regs` option to tell SLOTHY that registers `x0, ..., x7, x30, sp` are used for other purposes and should not be used by SLOTHY. When optimizing only parts of a function, it is essential to tell SLOTHY which registers should not be used. By default SLOTHY will use any of the architectural registers.
 
 
-When running this example, you will notice that it has a significantly longer runtime. 
+When running this example, you will notice that it has a significantly longer runtime.
 On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
 You may instead look at an optimized version of the same code [examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s](../examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s).
 You notice that both loops have many early instructions, and coming up with this code by hand seems nearly impossible.
@@ -528,12 +551,12 @@ You notice that both loops have many early instructions, and coming up with this
 ## 6. Visualizing SLOTHY optimizations
 
 When working SLOTHY, we commonly have to refine the models of the microarchitecture to get the best results.
-Especially, when developing a new model, we commonly encounter the case that the performance does not match what we would expect given the model. Most of the times, the cause for this is one of the following two: 
+Especially, when developing a new model, we commonly encounter the case that the performance does not match what we would expect given the model. Most of the times, the cause for this is one of the following two:
 1) There is a mistake in the microarchitectural model mismatching what is written in the SWOG;
 2) Some aspect of the microarchtecture (e.g., certain shortcuts in multiply-accumulate chains) is not documented in the SWOG.
 
 Debugging these special cases if oftentimes the most timeconsuming step when superoptimizing code using SLOTHY.
-While is sometimes no way around performing actual profiling on the target architecture, there are some tools that we found useful. 
+While is sometimes no way around performing actual profiling on the target architecture, there are some tools that we found useful.
 
 One tool that we found particularly useful is LLVM's [Machine Code Analyzer](https://llvm.org/docs/CommandGuide/llvm-mca.html).
 If you have `llvm-mca` available in your PATH (you may have to compile LLVM >= 18 yourself), you can make use of it in SLOTHY
@@ -581,7 +604,7 @@ Somewhere in the code you will see:
 
 This confirms that our optimization was actually useful reducing the execution time from 30 cycles to 21 cycles.
 
-But LLVM MCA gives you more: It outputs a timeline view showing how each instruction travels through the pipeline: 
+But LLVM MCA gives you more: It outputs a timeline view showing how each instruction travels through the pipeline:
 ```
 // Timeline view (ORIGINAL):
 //                     0123456789          0123456789          0123456789          0123456789          01
@@ -645,7 +668,7 @@ But LLVM MCA gives you more: It outputs a timeline view showing how each instruc
 // [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DE.   stur	q10, [x0, #-32]
 // [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DE   stur	q11, [x0, #-16]
 
-// .. 
+// ..
 // Timeline view (OPTIMIZED):
 //                     0123456789          0123456789          0123456789
 // Index     0123456789          0123456789          0123456789          01234
@@ -720,7 +743,7 @@ Once could also imagine using the LLVM pipeline models within SLOTHY itself rath
 
 You may wonder how to extend SLOTHY to include a new microarchitecture.
 For example, you may want to optimize code for a newer iteration of the Arm Cortex-A55, e.g., the Arm Cortex-A510.
-To understand what is needed for that, let's look at the microarchitectural model for the Cortex-A55 available in [slothy/targets/aarch64/cortex_a55.py](../slothy/targets/aarch64/cortex_a55.py). 
+To understand what is needed for that, let's look at the microarchitectural model for the Cortex-A55 available in [slothy/targets/aarch64/cortex_a55.py](../slothy/targets/aarch64/cortex_a55.py).
 
 Skipping some boilerplate code, you will see the following structure:
 ```
@@ -737,9 +760,9 @@ class ExecutionUnit(Enum):
     VEC0=6
     VEC1=7
     # ...
-    
+
 execution_units = {
-        // ... 
+        // ...
 }
 
 inverse_throughput = {
@@ -774,11 +797,11 @@ Going through the snippet, we can see the core components:
  - Definition of an `Enum` modelling the different execution units available. In this case, we model 2 scalar units, one MAC unit, 2 vector units, one load unit, and one store unit.
  - Finally, we need to implement the functions `get_latency`, `get_units`, `get_inverse_throughput` returning the latency, occupied execution units, and throughputs. The input to these functions is a class from the architectural model representing the instruction in question. For example, the class `vmull` in [](../slothy/targets/aarch64/aarch64_neon.py) corresponds to the `umull` instruction. We commonly implement this using dictionaries above.
 
-For example, for the `vmull` instruction, we can find in the Arm Cortex-A55 SWOG, that it occupies both vector execution units, has an inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way: 
+For example, for the `vmull` instruction, we can find in the Arm Cortex-A55 SWOG, that it occupies both vector execution units, has an inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way:
 
 ```
 execution_units = {
-    ( vmull ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]], 
+    ( vmull ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
 
 inverse_throughput = {
@@ -796,7 +819,7 @@ We can extend the above model as follows:
 
 ```
 execution_units = {
-    ( vmull, vadd ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]], 
+    ( vmull, vadd ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
 
 inverse_throughput = {
