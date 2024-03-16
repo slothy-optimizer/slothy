@@ -1,0 +1,96 @@
+name: Regression tests
+on:
+  pull_request:
+    branches: [ "main" ]
+    types: [ opened, synchronize, labeled ]
+jobs:
+  examples_dry_run:
+    if: ${{ github.event.label.name == 'needs-ci' ||
+            github.event.pull_request.user.login == 'hanno-becker' ||
+            github.event.pull_request.user.login == 'dop-amin' ||
+            github.event.pull_request.user.login == 'mkannwischer'
+            }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install python dependencies
+      run: |
+        python -m pip install -r requirements.txt
+    - name: Run examples
+      run: |
+        python3 example.py --dry-run
+  examples_basic:
+    if: ${{ github.event.label.name == 'needs-ci' ||
+            github.event.pull_request.user.login == 'hanno-becker' ||
+            github.event.pull_request.user.login == 'dop-amin' ||
+            github.event.pull_request.user.login == 'mkannwischer'
+            }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install python dependencies
+      run: |
+        python -m pip install -r requirements.txt
+    - name: Run examples
+      run: |
+        python3 example.py --examples simple0,simple1,simple0_loop,simple1_loop
+  examples_ntt_kyber_dilithium_helium_core:
+    if: ${{ github.event.label.name == 'needs-ci' ||
+            github.event.pull_request.user.login == 'hanno-becker' ||
+            github.event.pull_request.user.login == 'dop-amin' ||
+            github.event.pull_request.user.login == 'mkannwischer'
+            }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install python dependencies
+      run: |
+        python -m pip install -r requirements.txt
+    - name: Run examples
+      run: |
+        python3 example.py --examples ntt_kyber_1_23_45_67_m55,ntt_dilithium_12_34_56_78_m55 --timeout=300
+  examples_ntt_kyber_dilithium_neon_core:
+    if: ${{ github.event.label.name == 'needs-ci' ||
+            github.event.pull_request.user.login == 'hanno-becker' ||
+            github.event.pull_request.user.login == 'dop-amin' ||
+            github.event.pull_request.user.login == 'mkannwischer'
+            }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install python dependencies
+      run: |
+        python -m pip install -r requirements.txt
+    - name: Run examples
+      run: |
+        python3 example.py --examples ntt_kyber_123_4567_a55,ntt_dilithium_123_45678_a55 --timeout=300
+  sqmag:
+    if: ${{ github.event.label.name == 'needs-ci' ||
+            github.event.pull_request.user.login == 'hanno-becker' ||
+            github.event.pull_request.user.login == 'dop-amin' ||
+            github.event.pull_request.user.login == 'mkannwischer'
+            }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install python dependencies
+      run: |
+        python -m pip install -r requirements.txt
+    - name: Run examples
+      run: |
+        (cd paper/scripts && NO_LOG=Y ./slothy_sqmag.sh)
+  fft:
+    if: ${{ github.event.label.name == 'needs-ci' ||
+            github.event.pull_request.user.login == 'hanno-becker' ||
+            github.event.pull_request.user.login == 'dop-amin' ||
+            github.event.pull_request.user.login == 'mkannwischer'
+            }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install python dependencies
+      run: |
+        python -m pip install -r requirements.txt
+    - name: Run examples
+      run: |
+        (cd paper/scripts && NO_LOG=Y ./slothy_fft.sh)

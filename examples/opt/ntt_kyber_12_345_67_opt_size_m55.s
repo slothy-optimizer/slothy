@@ -142,7 +142,7 @@ ntt_kyber_12_345_67_opt_size_m55:
         movw modulus, #:lower16:modulus_const
         ldr  r_ptr, roots_addr
 
-        /* Layers 1,2 */
+        // Layers 1,2
 
         save STACK0, in
         add in_high, in_low, #(2*128)
@@ -281,7 +281,7 @@ layer12_loop_end: // end of loop kernel
         // vstrw.u32 q0, [r0] , #16       // ..................*.... 
         
 
-        /* Layers 3,4,5 */
+        // Layers 3,4,5
 
         restore in, STACK0
         mov lr, #4
