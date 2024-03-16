@@ -562,11 +562,11 @@ We have set an additional flag: `inputs_are_outputs = True`. This is required to
 This is commonly needed when optimizing loops.
 We also use the `reserved_regs` option to tell SLOTHY that registers `x0, ..., x7, x30, sp` are used for other purposes and should not be used by SLOTHY. When optimizing only parts of a function, it is essential to tell SLOTHY which registers should not be used. By default SLOTHY will use any of the architectural registers.
 
-
 When running this example, you will notice that it has a significantly longer runtime.
 On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
 You may instead look at an optimized version of the same code [examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s](../examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s).
-You notice that both loops have many early instructions, and coming up with this code by hand seems nearly impossible.
+You notice that both loops have many early instructions, and coming up with this code by hand would be tedious, time
+consuming and error prone.
 
 ## 6. Visualizing SLOTHY optimizations
 
