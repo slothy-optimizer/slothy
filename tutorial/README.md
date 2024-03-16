@@ -624,9 +624,14 @@ slothy.write_source_to_file("examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s")
 
 We simply optimize both loops separately.
 You will notice some additional flags we have set. To read the documentation of those, please have a look at [config.py](../slothy/core/config.py).
-We have set an additional flag: `inputs_are_outputs = True`. This is required to tell SLOTHY that the registers that are used as inputs to the loop (e.g., the pointer to the polynomial input) are also outputs of the loop, otherwise SLOTHY may re-use those registers for something else once they are no longer needed.
-This is commonly needed when optimizing loops.
-We also use the `reserved_regs` option to tell SLOTHY that registers `x0, ..., x7, x30, sp` are used for other purposes and should not be used by SLOTHY. When optimizing only parts of a function, it is essential to tell SLOTHY which registers should not be used. By default SLOTHY will use any of the architectural registers.
+We have set an additional flag: `inputs_are_outputs = True`. This tells SLOTHY that the registers that are used as
+inputs to the loop (e.g., the pointer to the polynomial input) are also outputs of the entire loop; otherwise, SLOTHY
+could overwrite them in the postamble once they are no longer needed. You most likely want `inputs_are_outputs=True`
+whenever you are optimizing a loop. We also use the `reserved_regs` option to tell SLOTHY that registers `x0, ..., x7,
+x30, sp` are used for other purposes and should not be used by SLOTHY. When optimizing only parts of a function, it is
+essential to tell SLOTHY which registers should not be used: By default SLOTHY will use any of the architectural
+registers. If you are familiar with inline assembly, SLOTHY's `reserved_regs` are essentially the complement of the
+'clobber list'.
 
 When running this example, you will notice that it has a significantly longer runtime.
 On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
