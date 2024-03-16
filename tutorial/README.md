@@ -534,7 +534,8 @@ iteration after the loop. Also note that addresses have been adjusted accordingl
 
 The examples previously considered were all toy examples, so you may wonder how to apply SLOTHY to actual cryptographic code.
 Let's look at a real-world example: The Kyber number-theoretic transform -- a core arithmetic function of the Kyber key-encapsulation mechanism making up a large chunk of the total run-time.
-The target platform is again the Arm Cortex-M55 and the code primarily consists of Helium instructions.
+The target platform is again the Arm Cortex-M55 and the code primarily consists of
+[Helium](https://www.arm.com/technologies/helium) vector instructions (the little sibling of Neon for the M-profile of the Arm architecture).
 We'll consider a straightforward implementation available here: [ntt_kyber_123_4567.s](../examples/naive/aarch64/ntt_kyber_123_4567.s).
 If you have ever written an NTT, it should be fairly easy to understand what the code is doing.
 The code consists of 2 main loops implementing layers 1+2+3 and 4+5+6+7 of the NTT.
