@@ -244,7 +244,10 @@ To make use of these issue slots one would have to mix in scalar instructions (o
 
 Also note the registers used: In the original code `v24` was as a temporary register in both computation streams preventing to effectively interleave them.
 SLOTHY renamed those registers to be able to interleave both computations. Other registers have also been arbitrarily renamed, but without any specific reason.
-Even with this small Neon example, you can see that understanding the input code is much easier than the output code which is the reason why we believe SLOTHY can help with writing auditable code.
+Even with this small Neon example, you can see that understanding the input code is much easier than the output code
+which is the reason why we believe SLOTHY can help with writing auditable code.
+
+**TODO: Add section on taking readability one step further by making extensive use of aliases and macros? See `aarch64_simple0_macros.s`**
 
 ## 3. Writing your own calling code
 
