@@ -1,4 +1,5 @@
 ldr q0, [x1, #0]
+ldr q1, [x2, #0]
 
 ldr q8,  [x0]
 ldr q9,  [x0, #1*16]

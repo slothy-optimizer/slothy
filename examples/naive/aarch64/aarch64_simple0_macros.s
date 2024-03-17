@@ -4,6 +4,7 @@ qdata2   .req q10
 qdata3   .req q11
 
 qtwiddle .req q0
+qmodulus .req q1
 
 data0    .req v8
 data1    .req v9
@@ -17,6 +18,7 @@ tmp      .req v12
 
 data_ptr      .req x0
 twiddle_ptr   .req x1
+modulus_ptr   .req x2
 
 .macro barmul out, in, twiddle, modulus
     mul      \out.8h,   \in.8h, \twiddle.h[0]
@@ -35,6 +37,7 @@ count .req x2
 start:
 
     ldr qtwiddle, [twiddle_ptr, #0]
+    ldr qmodulus, [modulus_ptr, #0]
 
     ldr qdata0, [data_ptr, #0*16]
     ldr qdata1, [data_ptr, #1*16]
