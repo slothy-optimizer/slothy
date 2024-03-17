@@ -380,38 +380,29 @@ Let's look at an example demonstrating how SLOTHY can perform software pipelinin
 Consider the simple case of performing the code from the previous example within a loop. This is exactly what the
 `aarch64_simple0_loop` example in SLOTHY does:
 ```
+... // .req and .macro as above
+
 count .req x2
 
-mov count, #16
-
 start:
-    ldr q0, [x1, #0]
 
-    ldr q8,  [x0]
-    ldr q9,  [x0, #1*16]
-    ldr q10, [x0, #2*16]
-    ldr q11, [x0, #3*16]
+    ldr qtwiddle, [twiddle_ptr, #0]
 
-    mul v24.8h, v9.8h, v0.h[0]
-    sqrdmulh v9.8h, v9.8h, v0.h[1]
-    mls v24.8h, v9.8h, v1.h[0]
-    sub     v9.8h,    v8.8h, v24.8h
-    add     v8.8h,    v8.8h, v24.8h
+    ldr qdata0, [data_ptr, #0*16]
+    ldr qdata1, [data_ptr, #1*16]
+    ldr qdata2, [data_ptr, #2*16]
+    ldr qdata3, [data_ptr, #3*16]
 
-    mul v24.8h, v11.8h, v0.h[0]
-    sqrdmulh v11.8h, v11.8h, v0.h[1]
-    mls v24.8h, v11.8h, v1.h[0]
-    sub     v11.8h,    v10.8h, v24.8h
-    add     v10.8h,    v10.8h, v24.8h
+    butterfly data0, data1, tmp, twiddle, modulus
+    butterfly data2, data3, tmp, twiddle, modulus
 
-    str q8,  [x0], #4*16
-    str q9,  [x0, #-3*16]
-    str q10, [x0, #-2*16]
-    str q11, [x0, #-1*16]
+    str qdata0, [data_ptr], #4*16
+    str qdata1, [data_ptr, #-3*16]
+    str qdata2, [data_ptr, #-2*16]
+    str qdata3, [data_ptr, #-1*16]
 
     subs count, count, #1
     cbnz count, start
-
 ```
 
 Let's use SLOTHY to superoptimize this loop:
@@ -421,168 +412,117 @@ slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
 
 slothy.config.sw_pipelining.enabled = True
+slothy.config.sw_pipelining.optimize_preamble = False
+slothy.config.sw_pipelining.optimize_postamble = False
 slothy.optimize_loop("start")
 slothy.write_source_to_file("examples/opt/aarch64/aarch64_simple0_loop_a55.s")
 ```
 
 Software pipelining needs to be enabled by setting `slothy.config.sw_pipelining.enabled = True`.
 We also need to specifically tell SLOTHY that we would like to optimize the loop starting at `start` -- SLOTHY will
-automatically detect that the loop ends at `cbnz count, start`. The produced output will look like this:
+automatically detect that the loop ends at `cbnz count, start`. Finally, `optimize_preamble = False` and
+`optimize_preamble = False` prevent SLOTHY from optimizing the loop preamble and postamble (first/last iteration), which
+it would by default -- you normally want this set, but we unset it here to simplify the output. This is what it will
+look like:
 
 ```
 count .req x2
 
-mov count, #16
-
-        ldr q14, [x0, #16]        // *.
-        // gap                    // ..
-        // gap                    // ..
-        // gap                    // ..
-        ldr q6, [x1, #0]          // .*
-        // gap                    // ..
-
-        // original source code
-        // ldr q14, [x0, #16]      // *.
-        // ldr q6, [x1, #0]        // .*
-
+        // Preamble
+        ldr q2, [x1, #0]
+        ldr q6, [x0, #48]
         sub count, count, #1
 start:
-        ldr q23, [x0, #48]                      // ....*..............
-        // gap                                  // ...................
-        // gap                                  // ...................
-        // gap                                  // ...................
-        mul v11.8H, v14.8H, v6.H[0]             // .....*.............
-        // gap                                  // ...................
-        sqrdmulh v21.8H, v14.8H, v6.H[1]        // ......*............
-        // gap                                  // ...................
-        mul v16.8H, v23.8H, v6.H[0]             // ..........*........
-        // gap                                  // ...................
-        sqrdmulh v29.8H, v23.8H, v6.H[1]        // ...........*.......
-        // gap                                  // ...................
-        ldr q4, [x0]                            // .*.................
-        // gap                                  // ...................
-        // gap                                  // ...................
-        // gap                                  // ...................
-        mls v11.8H, v21.8H, v1.H[0]             // .......*...........
-        // gap                                  // ...................
-        ldr q13, [x0, #32]                      // ...*...............
-        // gap                                  // ...................
-        // gap                                  // ...................
-        // gap                                  // ...................
-        mls v16.8H, v29.8H, v1.H[0]             // ............*......
-        // gap                                  // ...................
-        sub v23.8H, v4.8H, v11.8H               // ........*..........
-        // gap                                  // ...................
-        add v22.8H, v4.8H, v11.8H               // .........*.........
-        // gap                                  // ...................
-        ldr q14, [x0, #80]                      // ..e................
-        // gap                                  // ...................
-        // gap                                  // ...................
-        // gap                                  // ...................
-        str q23, [x0, #16]                      // ................*..
-        // gap                                  // ...................
-        add v29.8H, v13.8H, v16.8H              // ..............*....
-        // gap                                  // ...................
-        str q22, [x0], #4*16                    // ...............*...
-        // gap                                  // ...................
-        sub v5.8H, v13.8H, v16.8H               // .............*.....
-        // gap                                  // ...................
-        str q29, [x0, #-32]                     // .................*.
-        // gap                                  // ...................
-        ldr q6, [x1, #0]                        // e..................
-        // gap                                  // ...................
-        // gap                                  // ...................
-        // gap                                  // ...................
-        str q5, [x0, #-16]                      // ..................*
-        // gap                                  // ...................
+        ldr q18, [x0, #16]                     // ..*................
+        // gap                                 // ...................
+        // gap                                 // ...................
+        // gap                                 // ...................
+        sqrdmulh v8.8H, v6.8H, v2.H[1]         // ...........*.......
+        // gap                                 // ...................
+        mul v23.8H, v6.8H, v2.H[0]             // ..........*........
+        // gap                                 // ...................
+        ldr q31, [x0, #32]                     // ...*...............
+        // gap                                 // ...................
+        // gap                                 // ...................
+        // gap                                 // ...................
+        mul v3.8H, v18.8H, v2.H[0]             // .....*.............
+        // gap                                 // ...................
+        mls v23.8H, v8.8H, v1.H[0]             // ............*......
+        // gap                                 // ...................
+        sqrdmulh v9.8H, v18.8H, v2.H[1]        // ......*............
+        // gap                                 // ...................
+        ldr q15, [x0, #0]                      // .*.................
+        // gap                                 // ...................
+        // gap                                 // ...................
+        // gap                                 // ...................
+        sub v11.8H, v31.8H, v23.8H             // .............*.....
+        // gap                                 // ...................
+        mls v3.8H, v9.8H, v1.H[0]              // .......*...........
+        // gap                                 // ...................
+        add v16.8H, v31.8H, v23.8H             // ..............*....
+        // gap                                 // ...................
+        str q11, [x0, #48]                     // ..................*
+        // gap                                 // ...................
+        ldr q2, [x1, #0]                       // e..................
+        // gap                                 // ...................
+        // gap                                 // ...................
+        // gap                                 // ...................
+        add v13.8H, v15.8H, v3.8H              // .........*.........
+        // gap                                 // ...................
+        str q16, [x0, #32]                     // .................*.
+        // gap                                 // ...................
+        sub v7.8H, v15.8H, v3.8H               // ........*..........
+        // gap                                 // ...................
+        str q13, [x0], #4*16                   // ...............*...
+        // gap                                 // ...................
+        ldr q6, [x0, #48]                      // ....e..............
+        // gap                                 // ...................
+        // gap                                 // ...................
+        // gap                                 // ...................
+        str q7, [x0, #-48]                     // ................*..
+        // gap                                 // ...................
 
         // original source code
-        // ldr q0, [x1, #0]                       // ......e.|................e.
-        // ldr q8,  [x0]                          // ........|....*.............
-        // ldr q9,  [x0, #1*16]                   // e.......|..........e.......
-        // ldr q10, [x0, #2*16]                   // ........|......*...........
-        // ldr q11, [x0, #3*16]                   // ........*..................
-        // mul v24.8h, v9.8h, v0.h[0]             // ........|*.................
-        // sqrdmulh v9.8h, v9.8h, v0.h[1]         // ........|.*................
-        // mls v24.8h, v9.8h, v1.h[0]             // ........|.....*............
-        // sub     v9.8h,    v8.8h, v24.8h        // ........|........*.........
-        // add     v8.8h,    v8.8h, v24.8h        // ........|.........*........
-        // mul v24.8h, v11.8h, v0.h[0]            // ........|..*...............
-        // sqrdmulh v11.8h, v11.8h, v0.h[1]       // ........|...*..............
-        // mls v24.8h, v11.8h, v1.h[0]            // ........|.......*..........
-        // sub     v11.8h,    v10.8h, v24.8h      // ....*...|..............*...
-        // add     v10.8h,    v10.8h, v24.8h      // ..*.....|............*.....
-        // str q8,  [x0], #4*16                   // ...*....|.............*....
-        // str q9,  [x0, #-3*16]                  // .*......|...........*......
-        // str q10, [x0, #-2*16]                  // .....*..|...............*..
-        // str q11, [x0, #-1*16]                  // .......*|.................*
-
+        // ldr q0, [x1, #0]                         // e......|...........e......
+        // ldr q8, [x0, #0*16]                      // .......|......*...........
+        // ldr q9, [x0, #1*16]                      // .......*..................
+        // ldr q10, [x0, #2*16]                     // .......|..*...............
+        // ldr q11, [x0, #3*16]                     // .....e.|................e.
+        // mul      v12.8h,   v9.8h, v0.h[0]        // .......|...*..............
+        // sqrdmulh v9.8h,    v9.8h, v0.h[1]        // .......|.....*............
+        // mls      v12.8h,   v9.8h, v1.h[0]        // .......|........*.........
+        // sub    v9.8h, v8.8h, v12.8h              // ...*...|..............*...
+        // add    v8.8h, v8.8h, v12.8h              // .*.....|............*.....
+        // mul      v12.8h,   v11.8h, v0.h[0]       // .......|.*................
+        // sqrdmulh v11.8h,    v11.8h, v0.h[1]      // .......|*.................
+        // mls      v12.8h,   v11.8h, v1.h[0]       // .......|....*.............
+        // sub    v11.8h, v10.8h, v12.8h            // .......|.......*..........
+        // add    v10.8h, v10.8h, v12.8h            // .......|.........*........
+        // str q8, [x0], #4*16                      // ....*..|...............*..
+        // str q9, [x0, #-3*16]                     // ......*|.................*
+        // str q10, [x0, #-2*16]                    // ..*....|.............*....
+        // str q11, [x0, #-1*16]                    // .......|..........*.......
         sub count, count, #1
         cbnz count, start
-        ldr q5, [x0, #48]                       // *................
-        // gap                                  // .................
-        // gap                                  // .................
-        // gap                                  // .................
-        sqrdmulh v23.8H, v14.8H, v6.H[1]        // ..*..............
-        // gap                                  // .................
-        mul v25.8H, v14.8H, v6.H[0]             // .*...............
-        // gap                                  // .................
-        mul v22.8H, v5.8H, v6.H[0]              // ...*.............
-        // gap                                  // .................
-        sqrdmulh v6.8H, v5.8H, v6.H[1]          // ....*............
-        // gap                                  // .................
-        ldr q15, [x0]                           // .....*...........
-        // gap                                  // .................
-        // gap                                  // .................
-        // gap                                  // .................
-        mls v25.8H, v23.8H, v1.H[0]             // ......*..........
-        // gap                                  // .................
-        mls v22.8H, v6.8H, v1.H[0]              // ........*........
-        // gap                                  // .................
-        ldr q11, [x0, #32]                      // .......*.........
-        // gap                                  // .................
-        // gap                                  // .................
-        // gap                                  // .................
-        sub v5.8H, v15.8H, v25.8H               // .........*.......
-        // gap                                  // .................
-        // gap                                  // .................
-        // gap                                  // .................
-        add v29.8H, v11.8H, v22.8H              // ............*....
-        // gap                                  // .................
-        str q5, [x0, #16]                       // ...........*.....
-        // gap                                  // .................
-        sub v5.8H, v11.8H, v22.8H               // ..............*..
-        // gap                                  // .................
-        str q29, [x0, #32]                      // ...............*.
-        // gap                                  // .................
-        add v29.8H, v15.8H, v25.8H              // ..........*......
-        // gap                                  // .................
-        str q5, [x0, #48]                       // ................*
-        // gap                                  // .................
-        // gap                                  // .................
-        // gap                                  // .................
-        str q29, [x0], #4*16                    // .............*...
-        // gap                                  // .................
 
-        // original source code
-        // ldr q23, [x0, #48]                    // *................
-        // mul v11.8H, v14.8H, v6.H[0]           // ..*..............
-        // sqrdmulh v21.8H, v14.8H, v6.H[1]      // .*...............
-        // mul v16.8H, v23.8H, v6.H[0]           // ...*.............
-        // sqrdmulh v29.8H, v23.8H, v6.H[1]      // ....*............
-        // ldr q4, [x0]                          // .....*...........
-        // mls v11.8H, v21.8H, v1.H[0]           // ......*..........
-        // ldr q13, [x0, #32]                    // ........*........
-        // mls v16.8H, v29.8H, v1.H[0]           // .......*.........
-        // sub v23.8H, v4.8H, v11.8H             // .........*.......
-        // add v22.8H, v4.8H, v11.8H             // ..............*..
-        // str q23, [x0, #16]                    // ...........*.....
-        // add v29.8H, v13.8H, v16.8H            // ..........*......
-        // str q22, [x0], #4*16                  // ................*
-        // sub v5.8H, v13.8H, v16.8H             // ............*....
-        // str q29, [x0, #-32]                   // .............*...
-        // str q5, [x0, #-16]                    // ...............*.
-
+        // Postamble
+        ldr q18, [x0, #16]
+        sqrdmulh v8.8H, v6.8H, v2.H[1]
+        mul v23.8H, v6.8H, v2.H[0]
+        ldr q31, [x0, #32]
+        mul v3.8H, v18.8H, v2.H[0]
+        mls v23.8H, v8.8H, v1.H[0]
+        sqrdmulh v9.8H, v18.8H, v2.H[1]
+        ldr q15, [x0, #0]
+        sub v11.8H, v31.8H, v23.8H
+        mls v3.8H, v9.8H, v1.H[0]
+        add v16.8H, v31.8H, v23.8H
+        str q11, [x0, #48]
+        add v13.8H, v15.8H, v3.8H
+        str q16, [x0, #32]
+        sub v7.8H, v15.8H, v3.8H
+        str q13, [x0], #4*16
+        str q7, [x0, #-48]
 ```
 
 Let's start by looking at the optimized loop body going from `start:` to `cbnz count, start`.
@@ -596,7 +536,256 @@ iteration after the loop. Also note that addresses have been adjusted accordingl
 
 **TODO: Explain address offset fixup!**
 
-## 5. Optimizing a full Neon NTT
+## 5. Checking the quality of SLOTHY optimizations
+
+You may ask how we know that SLOTHY has actually done something useful here? Sure enough, the interleaving in the above
+example looks somewhat sensible, and SLOTHY's model predicts only few full-cycle stalls. However, at this point we don't
+have any indicator of the impact of SLOTHY's optimizations on real hardware.
+
+Indeed, developing accurate microarchitectural models for SLOTHY is a time-consuming and iterative process:
+It usually takes a while until you have refined things to the point where SLOTHY's prediction closely relates to
+performance on real hardware. The most common refinement steps are:
+1) There is a mistake in the microarchitectural model mismatching what is written in the SWOG;
+2) Some aspect of the microarchtecture (e.g., certain forwarding paths or other latency exceptions) is not documented in the SWOG.
+
+We briefly discuss two ways that we found useful to evaluate the quality SLOTHY's optimizations and drive the
+refinement of microarchitectural models.
+
+First, one useful tool for approximative but independent (of SLOTHY) performance evaluation is LLVM's [Machine Code
+Analyzer](https://llvm.org/docs/CommandGuide/llvm-mca.html). If you have `llvm-mca` available in your PATH (you may have
+to compile LLVM >= 18 yourself), you can make use of it in SLOTHY by setting the `with_llvm_mca` flag.
+Let's look at the last example and enable LLVM MCA:
+
+```
+slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0_loop.s")
+slothy.config.variable_size=True
+slothy.config.constraints.stalls_first_attempt=32
+
+slothy.config.sw_pipelining.enabled = True
+slothy.config.sw_pipelining.optimize_preamble = False
+slothy.config.sw_pipelining.optimize_postamble = False
+slothy.config.with_llvm_mca = True
+slothy.optimize_loop("start")
+slothy.write_source_to_file("../examples/opt/aarch64/aarch64_simple0_loop_a55.s")
+```
+
+This will call LLVM MCA on both the original code and the optimized code and append the LLVM MCA statistics as a comment to the output.
+Somewhere in the code you will see:
+```
+// LLVM MCA STATISTICS (ORIGINAL) BEGIN
+//
+// Iterations:        100
+// Instructions:      1900
+// Total Cycles:      3002
+// Total uOps:        2000
+//
+// Dispatch Width:    2
+// uOps Per Cycle:    0.67
+// IPC:               0.63
+// Block RThroughput: 10.0
+
+...
+
+// LLVM MCA STATISTICS (OPTIMIZED) BEGIN
+//
+// Iterations:        100
+// Instructions:      1900
+// Total Cycles:      2002
+// Total uOps:        2000
+//
+// Dispatch Width:    2
+// uOps Per Cycle:    1.00
+// IPC:               0.95
+// Block RThroughput: 10.0
+```
+
+This suggests that our optimizations were actually useful: With respect to LLVM-MCA's scheduling model of Cortex-A55, the
+ cycle count per iteration was reduced from 30 cycles to 20 cycles.
+
+But LLVM MCA gives you more: It outputs a timeline view showing how each instruction travels through the pipeline:
+```
+// Timeline view (ORIGINAL):
+//                     0123456789          0123456789          0123456789          0123456789          01
+// Index     0123456789          0123456789          0123456789          0123456789          0123456789
+//
+// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q0, [x1]
+// [0,1]     .DeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q8, [x0]
+// [0,2]     . DeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q9, [x0, #16]
+// [0,3]     .  DeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q10, [x0, #32]
+// [0,4]     .   DeeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q11, [x0, #48]
+// [0,5]     .    DeeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mul.8h	v12, v9, v0[0]
+// [0,6]     .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v9, v9, v0[1]
+// [0,7]     .    .    DeeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mls.8h	v12, v9, v1[0]
+// [0,8]     .    .    .   DeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sub.8h	v9, v8, v12
+// [0,9]     .    .    .    DeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   add.8h	v8, v8, v12
+// [0,10]    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mul.8h	v12, v11, v0[0]
+// [0,11]    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v11, v11, v0[1]
+// [0,12]    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    ..   mls.8h	v12, v11, v1[0]
+// [0,13]    .    .    .    .    .    DeE  .    .    .    .    .    .    .    .    .    .    .    .    ..   sub.8h	v11, v10, v12
+// [0,14]    .    .    .    .    .    .DeE .    .    .    .    .    .    .    .    .    .    .    .    ..   add.8h	v10, v10, v12
+// [0,15]    .    .    .    .    .    . DE .    .    .    .    .    .    .    .    .    .    .    .    ..   str	q8, [x0], #64
+// [0,16]    .    .    .    .    .    .  DE.    .    .    .    .    .    .    .    .    .    .    .    ..   stur	q9, [x0, #-48]
+// [0,17]    .    .    .    .    .    .   DE    .    .    .    .    .    .    .    .    .    .    .    ..   stur	q10, [x0, #-32]
+// [0,18]    .    .    .    .    .    .    DE   .    .    .    .    .    .    .    .    .    .    .    ..   stur	q11, [x0, #-16]
+// [1,0]     .    .    .    .    .    .    DeeE .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q0, [x1]
+// [1,1]     .    .    .    .    .    .    .DeeE.    .    .    .    .    .    .    .    .    .    .    ..   ldr	q8, [x0]
+// [1,2]     .    .    .    .    .    .    . DeeE    .    .    .    .    .    .    .    .    .    .    ..   ldr	q9, [x0, #16]
+// [1,3]     .    .    .    .    .    .    .  DeeE   .    .    .    .    .    .    .    .    .    .    ..   ldr	q10, [x0, #32]
+// [1,4]     .    .    .    .    .    .    .   DeeE  .    .    .    .    .    .    .    .    .    .    ..   ldr	q11, [x0, #48]
+// [1,5]     .    .    .    .    .    .    .    DeeeE.    .    .    .    .    .    .    .    .    .    ..   mul.8h	v12, v9, v0[0]
+// [1,6]     .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v9, v9, v0[1]
+// [1,7]     .    .    .    .    .    .    .    .    DeeeE.    .    .    .    .    .    .    .    .    ..   mls.8h	v12, v9, v1[0]
+// [1,8]     .    .    .    .    .    .    .    .    .   DeE   .    .    .    .    .    .    .    .    ..   sub.8h	v9, v8, v12
+// [1,9]     .    .    .    .    .    .    .    .    .    DeE  .    .    .    .    .    .    .    .    ..   add.8h	v8, v8, v12
+// [1,10]    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    ..   mul.8h	v12, v11, v0[0]
+// [1,11]    .    .    .    .    .    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    ..   sqrdmulh.8h	v11, v11, v0[1]
+// [1,12]    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    ..   mls.8h	v12, v11, v1[0]
+// [1,13]    .    .    .    .    .    .    .    .    .    .    .    DeE  .    .    .    .    .    .    ..   sub.8h	v11, v10, v12
+// [1,14]    .    .    .    .    .    .    .    .    .    .    .    .DeE .    .    .    .    .    .    ..   add.8h	v10, v10, v12
+// [1,15]    .    .    .    .    .    .    .    .    .    .    .    . DE .    .    .    .    .    .    ..   str	q8, [x0], #64
+// [1,16]    .    .    .    .    .    .    .    .    .    .    .    .  DE.    .    .    .    .    .    ..   stur	q9, [x0, #-48]
+// [1,17]    .    .    .    .    .    .    .    .    .    .    .    .   DE    .    .    .    .    .    ..   stur	q10, [x0, #-32]
+// [1,18]    .    .    .    .    .    .    .    .    .    .    .    .    DE   .    .    .    .    .    ..   stur	q11, [x0, #-16]
+// [2,0]     .    .    .    .    .    .    .    .    .    .    .    .    DeeE .    .    .    .    .    ..   ldr	q0, [x1]
+// [2,1]     .    .    .    .    .    .    .    .    .    .    .    .    .DeeE.    .    .    .    .    ..   ldr	q8, [x0]
+// [2,2]     .    .    .    .    .    .    .    .    .    .    .    .    . DeeE    .    .    .    .    ..   ldr	q9, [x0, #16]
+// [2,3]     .    .    .    .    .    .    .    .    .    .    .    .    .  DeeE   .    .    .    .    ..   ldr	q10, [x0, #32]
+// [2,4]     .    .    .    .    .    .    .    .    .    .    .    .    .   DeeE  .    .    .    .    ..   ldr	q11, [x0, #48]
+// [2,5]     .    .    .    .    .    .    .    .    .    .    .    .    .    DeeeE.    .    .    .    ..   mul.8h	v12, v9, v0[0]
+// [2,6]     .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    ..   sqrdmulh.8h	v9, v9, v0[1]
+// [2,7]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeeeE.    .    .    ..   mls.8h	v12, v9, v1[0]
+// [2,8]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeE   .    .    ..   sub.8h	v9, v8, v12
+// [2,9]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeE  .    .    ..   add.8h	v8, v8, v12
+// [2,10]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    ..   mul.8h	v12, v11, v0[0]
+// [2,11]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DeeeE   .    ..   sqrdmulh.8h	v11, v11, v0[1]
+// [2,12]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    ..   mls.8h	v12, v11, v1[0]
+// [2,13]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeE  ..   sub.8h	v11, v10, v12
+// [2,14]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeE ..   add.8h	v10, v10, v12
+// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DE ..   str	q8, [x0], #64
+// [2,16]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DE..   stur	q9, [x0, #-48]
+// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DE.   stur	q10, [x0, #-32]
+// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DE   stur	q11, [x0, #-16]
+
+...
+
+// Timeline view (OPTIMIZED):
+//                     0123456789          0123456789          0123456789
+// Index     0123456789          0123456789          0123456789          01
+//
+// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q18, [x0, #16]
+// [0,1]     .DeeeE    .    .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v8, v6, v2[1]
+// [0,2]     . DeeeE   .    .    .    .    .    .    .    .    .    .    ..   mul.8h	v23, v6, v2[0]
+// [0,3]     .  DeeE   .    .    .    .    .    .    .    .    .    .    ..   ldr	q31, [x0, #32]
+// [0,4]     .   DeeeE .    .    .    .    .    .    .    .    .    .    ..   mul.8h	v3, v18, v2[0]
+// [0,5]     .    .DeeeE    .    .    .    .    .    .    .    .    .    ..   mls.8h	v23, v8, v1[0]
+// [0,6]     .    . DeeeE   .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v9, v18, v2[1]
+// [0,7]     .    .  DeeE   .    .    .    .    .    .    .    .    .    ..   ldr	q15, [x0]
+// [0,8]     .    .    DeE  .    .    .    .    .    .    .    .    .    ..   sub.8h	v11, v31, v23
+// [0,9]     .    .    .DeeeE    .    .    .    .    .    .    .    .    ..   mls.8h	v3, v9, v1[0]
+// [0,10]    .    .    .  DeE    .    .    .    .    .    .    .    .    ..   add.8h	v16, v31, v23
+// [0,11]    .    .    .  DE.    .    .    .    .    .    .    .    .    ..   str	q11, [x0, #48]
+// [0,12]    .    .    .   DeeE  .    .    .    .    .    .    .    .    ..   ldr	q2, [x1]
+// [0,13]    .    .    .    DeE  .    .    .    .    .    .    .    .    ..   add.8h	v13, v15, v3
+// [0,14]    .    .    .    DE   .    .    .    .    .    .    .    .    ..   str	q16, [x0, #32]
+// [0,15]    .    .    .    .DeE .    .    .    .    .    .    .    .    ..   sub.8h	v7, v15, v3
+// [0,16]    .    .    .    . DE .    .    .    .    .    .    .    .    ..   str	q13, [x0], #64
+// [0,17]    .    .    .    .  DeeE   .    .    .    .    .    .    .    ..   ldr	q6, [x0, #48]
+// [0,18]    .    .    .    .  DE.    .    .    .    .    .    .    .    ..   stur	q7, [x0, #-48]
+// [1,0]     .    .    .    .   DeeE  .    .    .    .    .    .    .    ..   ldr	q18, [x0, #16]
+// [1,1]     .    .    .    .    .DeeeE    .    .    .    .    .    .    ..   sqrdmulh.8h	v8, v6, v2[1]
+// [1,2]     .    .    .    .    . DeeeE   .    .    .    .    .    .    ..   mul.8h	v23, v6, v2[0]
+// [1,3]     .    .    .    .    .  DeeE   .    .    .    .    .    .    ..   ldr	q31, [x0, #32]
+// [1,4]     .    .    .    .    .   DeeeE .    .    .    .    .    .    ..   mul.8h	v3, v18, v2[0]
+// [1,5]     .    .    .    .    .    .DeeeE    .    .    .    .    .    ..   mls.8h	v23, v8, v1[0]
+// [1,6]     .    .    .    .    .    . DeeeE   .    .    .    .    .    ..   sqrdmulh.8h	v9, v18, v2[1]
+// [1,7]     .    .    .    .    .    .  DeeE   .    .    .    .    .    ..   ldr	q15, [x0]
+// [1,8]     .    .    .    .    .    .    DeE  .    .    .    .    .    ..   sub.8h	v11, v31, v23
+// [1,9]     .    .    .    .    .    .    .DeeeE    .    .    .    .    ..   mls.8h	v3, v9, v1[0]
+// [1,10]    .    .    .    .    .    .    .  DeE    .    .    .    .    ..   add.8h	v16, v31, v23
+// [1,11]    .    .    .    .    .    .    .  DE.    .    .    .    .    ..   str	q11, [x0, #48]
+// [1,12]    .    .    .    .    .    .    .   DeeE  .    .    .    .    ..   ldr	q2, [x1]
+// [1,13]    .    .    .    .    .    .    .    DeE  .    .    .    .    ..   add.8h	v13, v15, v3
+// [1,14]    .    .    .    .    .    .    .    DE   .    .    .    .    ..   str	q16, [x0, #32]
+// [1,15]    .    .    .    .    .    .    .    .DeE .    .    .    .    ..   sub.8h	v7, v15, v3
+// [1,16]    .    .    .    .    .    .    .    . DE .    .    .    .    ..   str	q13, [x0], #64
+// [1,17]    .    .    .    .    .    .    .    .  DeeE   .    .    .    ..   ldr	q6, [x0, #48]
+// [1,18]    .    .    .    .    .    .    .    .  DE.    .    .    .    ..   stur	q7, [x0, #-48]
+// [2,0]     .    .    .    .    .    .    .    .   DeeE  .    .    .    ..   ldr	q18, [x0, #16]
+// [2,1]     .    .    .    .    .    .    .    .    .DeeeE    .    .    ..   sqrdmulh.8h	v8, v6, v2[1]
+// [2,2]     .    .    .    .    .    .    .    .    . DeeeE   .    .    ..   mul.8h	v23, v6, v2[0]
+// [2,3]     .    .    .    .    .    .    .    .    .  DeeE   .    .    ..   ldr	q31, [x0, #32]
+// [2,4]     .    .    .    .    .    .    .    .    .   DeeeE .    .    ..   mul.8h	v3, v18, v2[0]
+// [2,5]     .    .    .    .    .    .    .    .    .    .DeeeE    .    ..   mls.8h	v23, v8, v1[0]
+// [2,6]     .    .    .    .    .    .    .    .    .    . DeeeE   .    ..   sqrdmulh.8h	v9, v18, v2[1]
+// [2,7]     .    .    .    .    .    .    .    .    .    .  DeeE   .    ..   ldr	q15, [x0]
+// [2,8]     .    .    .    .    .    .    .    .    .    .    DeE  .    ..   sub.8h	v11, v31, v23
+// [2,9]     .    .    .    .    .    .    .    .    .    .    .DeeeE    ..   mls.8h	v3, v9, v1[0]
+// [2,10]    .    .    .    .    .    .    .    .    .    .    .  DeE    ..   add.8h	v16, v31, v23
+// [2,11]    .    .    .    .    .    .    .    .    .    .    .  DE.    ..   str	q11, [x0, #48]
+// [2,12]    .    .    .    .    .    .    .    .    .    .    .   DeeE  ..   ldr	q2, [x1]
+// [2,13]    .    .    .    .    .    .    .    .    .    .    .    DeE  ..   add.8h	v13, v15, v3
+// [2,14]    .    .    .    .    .    .    .    .    .    .    .    DE   ..   str	q16, [x0, #32]
+// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .DeE ..   sub.8h	v7, v15, v3
+// [2,16]    .    .    .    .    .    .    .    .    .    .    .    . DE ..   str	q13, [x0], #64
+// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .  DeeE   ldr	q6, [x0, #48]
+// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .  DE..   stur	q7, [x0, #-48]
+```
+
+However, LLVM MCA's model might not be accurate either and cannot replacement measurements on real hardware -- so let's
+do that. Here, we use a [profiling tool](https://github.com/slothy-optimizer/pqax/tree/main/tests/profiling) we wrote
+as part of the [pqax](https://github.com/slothy-optimizer/pqax) benchmarking framework. It takes an assembly snippet as
+input and automatically generates a program running and benchmarking prefixes of the input, and combining them into a
+performance diagram similar to the one generated by LLVM-MCA. Here's the output in our case:
+
+```
+===== Stepwise profiling =======
+[  0]:                     ldr q0, [x1, #0] ......*.....................................
+[  1]:                  ldr q8, [x0, #0*16] .......*....................................
+[  2]:                  ldr q9, [x0, #1*16] .........*..................................
+[  3]:                 ldr q10, [x0, #2*16] ...........*................................
+[  4]:                 ldr q11, [x0, #3*16] .............*..............................
+[  5]:    mul      v12.8h,   v9.8h, v0.h[0] ...............*............................
+[  6]:    sqrdmulh v9.8h,    v9.8h, v0.h[1] ................*...........................
+[  7]:    mls      v12.8h,   v9.8h, v1.h[0] .................*..........................
+[  8]:          sub    v9.8h, v8.8h, v12.8h .....................*......................
+[  9]:          add    v8.8h, v8.8h, v12.8h ........................*...................
+[ 10]:   mul      v12.8h,   v11.8h, v0.h[0] .........................*..................
+[ 11]:  sqrdmulh v11.8h,    v11.8h, v0.h[1] ..........................*.................
+[ 12]:   mls      v12.8h,   v11.8h, v1.h[0] ...........................*................
+[ 13]:        sub    v11.8h, v10.8h, v12.8h ...............................*............
+[ 14]:        add    v10.8h, v10.8h, v12.8h ..................................*.........
+[ 15]:                  str q8, [x0], #4*16 ...................................*........
+[ 16]:                 str q9, [x0, #-3*16] .....................................*......
+[ 17]:                str q10, [x0, #-2*16] .....................................*......
+[ 18]:                str q11, [x0, #-1*16] ........................................*...
+
+===== Stepwise profiling (OPTIMIZED) =======
+[  0]:  ldr q18, [x0, #16]              // .*........................
+[  1]:  sqrdmulh v8.8H, v6.8H, v2.H[1]  // ..*.......................
+[  2]:  mul v23.8H, v6.8H, v2.H[0]      // ...*......................
+[  3]:  ldr q31, [x0, #32]              // ....*.....................
+[  4]:  mul v3.8H, v18.8H, v2.H[0]      // ......*...................
+[  5]:  mls v23.8H, v8.8H, v1.H[0]      // .......*..................
+[  6]:  sqrdmulh v9.8H, v18.8H, v2.H[1] // ........*.................
+[  7]:  ldr q15, [x0, #0]               // .........*................
+[  8]:  sub v11.8H, v31.8H, v23.8H      // ...........*..............
+[  9]:  mls v3.8H, v9.8H, v1.H[0]       // ............*.............
+[ 10]:  add v16.8H, v31.8H, v23.8H      // .............*............
+[ 11]:  str q11, [x0, #48]              // ..............*...........
+[ 12]:  ldr q2, [x1, #0]                // ...............*..........
+[ 13]:  add v13.8H, v15.8H, v3.8H       // .................*........
+[ 14]:  str q16, [x0, #32]              // ..................*.......
+[ 15]:  sub v7.8H, v15.8H, v3.8H        // ...................*......
+[ 16]:  str q13, [x0], #4*16            // ....................*.....
+[ 17]:  ldr q6, [x0, #48]               // .....................*....
+[ 18]:  str q7, [x0, #-48]              // .......................*..
+```
+
+We can see that SLOTHY's predictions were exactly right, and that LLVM-MCA's model is off in a few places.
+So, in a nutshell, we'd say that LLVM-MCA is great for quick evaluation of performance, but when you get down
+to the last cycle and fine-tuning your model, there is no way around measurements on real hardware.
+
+## 6. Optimizing a full Neon NTT
 
 The examples previously considered were all toy examples, so you may wonder how to apply SLOTHY to actual cryptographic code.
 Let's look at a real-world example: The Kyber number-theoretic transform -- a core arithmetic function of the Kyber key-encapsulation mechanism making up a large chunk of the total run-time.
@@ -638,193 +827,6 @@ On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
 You may instead look at an optimized version of the same code [examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s](../examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s).
 You notice that both loops have many early instructions, and coming up with this code by hand would be tedious, time
 consuming and error prone.
-
-## 6. Visualizing SLOTHY optimizations
-
-When working SLOTHY, we commonly have to refine the models of the microarchitecture to get the best results.
-Especially, when developing a new model, we commonly encounter the case that the performance does not match what we would expect given the model. Most of the times, the cause for this is one of the following two:
-1) There is a mistake in the microarchitectural model mismatching what is written in the SWOG;
-2) Some aspect of the microarchtecture (e.g., certain shortcuts in multiply-accumulate chains) is not documented in the SWOG.
-
-Debugging these special cases if oftentimes the most timeconsuming step when superoptimizing code using SLOTHY.
-While is sometimes no way around performing actual profiling on the target architecture, there are some tools that we found useful.
-
-One tool that we found particularly useful is LLVM's [Machine Code Analyzer](https://llvm.org/docs/CommandGuide/llvm-mca.html).
-If you have `llvm-mca` available in your PATH (you may have to compile LLVM >= 18 yourself), you can make use of it in SLOTHY
-by setting the `with_llvm_mca` flag.
-Let's look at our first example and enable LLVM MCA:
-
-```
-slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0.s")
-slothy.config.variable_size=True
-slothy.config.constraints.stalls_first_attempt=32
-slothy.config.with_llvm_mca = True
-slothy.optimize()
-slothy.write_source_to_file("test.s")
-```
-
-This will call LLVM MCA on both the original code and the optimized code and append the LLVM MCA statistics as a comment to the output.
-Somewhere in the code you will see:
-```
-// LLVM MCA STATISTICS (ORIGINAL) BEGIN
-//
-// Iterations:        100
-// Instructions:      1900
-// Total Cycles:      3002
-// Total uOps:        2000
-//
-// Dispatch Width:    2
-// uOps Per Cycle:    0.67
-// IPC:               0.63
-// Block RThroughput: 10.0
-
-// ...
-
-// LLVM MCA STATISTICS (OPTIMIZED) BEGIN
-//
-// Iterations:        100
-// Instructions:      1900
-// Total Cycles:      2102
-// Total uOps:        2000
-//
-// Dispatch Width:    2
-// uOps Per Cycle:    0.95
-// IPC:               0.90
-// Block RThroughput: 10.0
-```
-
-This confirms that our optimization was actually useful reducing the execution time from 30 cycles to 21 cycles.
-
-But LLVM MCA gives you more: It outputs a timeline view showing how each instruction travels through the pipeline:
-```
-// Timeline view (ORIGINAL):
-//                     0123456789          0123456789          0123456789          0123456789          01
-// Index     0123456789          0123456789          0123456789          0123456789          0123456789
-//
-// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q0, [x1]
-// [0,1]     .DeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q8, [x0]
-// [0,2]     . DeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q9, [x0, #16]
-// [0,3]     .  DeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q10, [x0, #32]
-// [0,4]     .   DeeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q11, [x0, #48]
-// [0,5]     .    DeeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mul	v24.8h, v9.8h, v0.h[0]
-// [0,6]     .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sqrdmulh	v9.8h, v9.8h, v0.h[1]
-// [0,7]     .    .    DeeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mls	v24.8h, v9.8h, v1.h[0]
-// [0,8]     .    .    .   DeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sub	v9.8h, v8.8h, v24.8h
-// [0,9]     .    .    .    DeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   add	v8.8h, v8.8h, v24.8h
-// [0,10]    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mul	v24.8h, v11.8h, v0.h[0]
-// [0,11]    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sqrdmulh	v11.8h, v11.8h, v0.h[1]
-// [0,12]    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    ..   mls	v24.8h, v11.8h, v1.h[0]
-// [0,13]    .    .    .    .    .    DeE  .    .    .    .    .    .    .    .    .    .    .    .    ..   sub	v11.8h, v10.8h, v24.8h
-// [0,14]    .    .    .    .    .    .DeE .    .    .    .    .    .    .    .    .    .    .    .    ..   add	v10.8h, v10.8h, v24.8h
-// [0,15]    .    .    .    .    .    . DE .    .    .    .    .    .    .    .    .    .    .    .    ..   str	q8, [x0], #64
-// [0,16]    .    .    .    .    .    .  DE.    .    .    .    .    .    .    .    .    .    .    .    ..   stur	q9, [x0, #-48]
-// [0,17]    .    .    .    .    .    .   DE    .    .    .    .    .    .    .    .    .    .    .    ..   stur	q10, [x0, #-32]
-// [0,18]    .    .    .    .    .    .    DE   .    .    .    .    .    .    .    .    .    .    .    ..   stur	q11, [x0, #-16]
-// [1,0]     .    .    .    .    .    .    DeeE .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q0, [x1]
-// [1,1]     .    .    .    .    .    .    .DeeE.    .    .    .    .    .    .    .    .    .    .    ..   ldr	q8, [x0]
-// [1,2]     .    .    .    .    .    .    . DeeE    .    .    .    .    .    .    .    .    .    .    ..   ldr	q9, [x0, #16]
-// [1,3]     .    .    .    .    .    .    .  DeeE   .    .    .    .    .    .    .    .    .    .    ..   ldr	q10, [x0, #32]
-// [1,4]     .    .    .    .    .    .    .   DeeE  .    .    .    .    .    .    .    .    .    .    ..   ldr	q11, [x0, #48]
-// [1,5]     .    .    .    .    .    .    .    DeeeE.    .    .    .    .    .    .    .    .    .    ..   mul	v24.8h, v9.8h, v0.h[0]
-// [1,6]     .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    ..   sqrdmulh	v9.8h, v9.8h, v0.h[1]
-// [1,7]     .    .    .    .    .    .    .    .    DeeeE.    .    .    .    .    .    .    .    .    ..   mls	v24.8h, v9.8h, v1.h[0]
-// [1,8]     .    .    .    .    .    .    .    .    .   DeE   .    .    .    .    .    .    .    .    ..   sub	v9.8h, v8.8h, v24.8h
-// [1,9]     .    .    .    .    .    .    .    .    .    DeE  .    .    .    .    .    .    .    .    ..   add	v8.8h, v8.8h, v24.8h
-// [1,10]    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    ..   mul	v24.8h, v11.8h, v0.h[0]
-// [1,11]    .    .    .    .    .    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    ..   sqrdmulh	v11.8h, v11.8h, v0.h[1]
-// [1,12]    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    ..   mls	v24.8h, v11.8h, v1.h[0]
-// [1,13]    .    .    .    .    .    .    .    .    .    .    .    DeE  .    .    .    .    .    .    ..   sub	v11.8h, v10.8h, v24.8h
-// [1,14]    .    .    .    .    .    .    .    .    .    .    .    .DeE .    .    .    .    .    .    ..   add	v10.8h, v10.8h, v24.8h
-// [1,15]    .    .    .    .    .    .    .    .    .    .    .    . DE .    .    .    .    .    .    ..   str	q8, [x0], #64
-// [1,16]    .    .    .    .    .    .    .    .    .    .    .    .  DE.    .    .    .    .    .    ..   stur	q9, [x0, #-48]
-// [1,17]    .    .    .    .    .    .    .    .    .    .    .    .   DE    .    .    .    .    .    ..   stur	q10, [x0, #-32]
-// [1,18]    .    .    .    .    .    .    .    .    .    .    .    .    DE   .    .    .    .    .    ..   stur	q11, [x0, #-16]
-// [2,0]     .    .    .    .    .    .    .    .    .    .    .    .    DeeE .    .    .    .    .    ..   ldr	q0, [x1]
-// [2,1]     .    .    .    .    .    .    .    .    .    .    .    .    .DeeE.    .    .    .    .    ..   ldr	q8, [x0]
-// [2,2]     .    .    .    .    .    .    .    .    .    .    .    .    . DeeE    .    .    .    .    ..   ldr	q9, [x0, #16]
-// [2,3]     .    .    .    .    .    .    .    .    .    .    .    .    .  DeeE   .    .    .    .    ..   ldr	q10, [x0, #32]
-// [2,4]     .    .    .    .    .    .    .    .    .    .    .    .    .   DeeE  .    .    .    .    ..   ldr	q11, [x0, #48]
-// [2,5]     .    .    .    .    .    .    .    .    .    .    .    .    .    DeeeE.    .    .    .    ..   mul	v24.8h, v9.8h, v0.h[0]
-// [2,6]     .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    ..   sqrdmulh	v9.8h, v9.8h, v0.h[1]
-// [2,7]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeeeE.    .    .    ..   mls	v24.8h, v9.8h, v1.h[0]
-// [2,8]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeE   .    .    ..   sub	v9.8h, v8.8h, v24.8h
-// [2,9]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeE  .    .    ..   add	v8.8h, v8.8h, v24.8h
-// [2,10]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    ..   mul	v24.8h, v11.8h, v0.h[0]
-// [2,11]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DeeeE   .    ..   sqrdmulh	v11.8h, v11.8h, v0.h[1]
-// [2,12]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    ..   mls	v24.8h, v11.8h, v1.h[0]
-// [2,13]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeE  ..   sub	v11.8h, v10.8h, v24.8h
-// [2,14]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeE ..   add	v10.8h, v10.8h, v24.8h
-// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DE ..   str	q8, [x0], #64
-// [2,16]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DE..   stur	q9, [x0, #-48]
-// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DE.   stur	q10, [x0, #-32]
-// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DE   stur	q11, [x0, #-16]
-
-// ..
-// Timeline view (OPTIMIZED):
-//                     0123456789          0123456789          0123456789
-// Index     0123456789          0123456789          0123456789          01234
-//
-// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q8, [x1]
-// [0,1]     .DeeE.    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q20, [x0, #16]
-// [0,2]     . DeeE    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q22, [x0, #48]
-// [0,3]     .   DeeeE .    .    .    .    .    .    .    .    .    .    .   .   mul	v29.8h, v20.8h, v8.h[0]
-// [0,4]     .    DeeeE.    .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v0.8h, v20.8h, v8.h[1]
-// [0,5]     .    .DeeeE    .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v20.8h, v22.8h, v8.h[1]
-// [0,6]     .    . DeeE    .    .    .    .    .    .    .    .    .    .   .   ldr	q25, [x0]
-// [0,7]     .    .   DeeeE .    .    .    .    .    .    .    .    .    .   .   mls	v29.8h, v0.8h, v1.h[0]
-// [0,8]     .    .    DeeeE.    .    .    .    .    .    .    .    .    .   .   mul	v17.8h, v22.8h, v8.h[0]
-// [0,9]     .    .    .DeeE.    .    .    .    .    .    .    .    .    .   .   ldr	q26, [x0, #32]
-// [0,10]    .    .    .  DeE    .    .    .    .    .    .    .    .    .   .   add	v5.8h, v25.8h, v29.8h
-// [0,11]    .    .    .   DeeeE .    .    .    .    .    .    .    .    .   .   mls	v17.8h, v20.8h, v1.h[0]
-// [0,12]    .    .    .    .DeE .    .    .    .    .    .    .    .    .   .   sub	v20.8h, v25.8h, v29.8h
-// [0,13]    .    .    .    . DE .    .    .    .    .    .    .    .    .   .   str	q5, [x0], #64
-// [0,14]    .    .    .    .  DeE    .    .    .    .    .    .    .    .   .   sub	v1.8h, v26.8h, v17.8h
-// [0,15]    .    .    .    .  DE.    .    .    .    .    .    .    .    .   .   stur	q20, [x0, #-48]
-// [0,16]    .    .    .    .   DeE   .    .    .    .    .    .    .    .   .   add	v17.8h, v26.8h, v17.8h
-// [0,17]    .    .    .    .    DE   .    .    .    .    .    .    .    .   .   stur	q1, [x0, #-16]
-// [0,18]    .    .    .    .    .DE  .    .    .    .    .    .    .    .   .   stur	q17, [x0, #-32]
-// [1,0]     .    .    .    .    .DeeE.    .    .    .    .    .    .    .   .   ldr	q8, [x1]
-// [1,1]     .    .    .    .    . DeeE    .    .    .    .    .    .    .   .   ldr	q20, [x0, #16]
-// [1,2]     .    .    .    .    .  DeeE   .    .    .    .    .    .    .   .   ldr	q22, [x0, #48]
-// [1,3]     .    .    .    .    .    DeeeE.    .    .    .    .    .    .   .   mul	v29.8h, v20.8h, v8.h[0]
-// [1,4]     .    .    .    .    .    .DeeeE    .    .    .    .    .    .   .   sqrdmulh	v0.8h, v20.8h, v8.h[1]
-// [1,5]     .    .    .    .    .    . DeeeE   .    .    .    .    .    .   .   sqrdmulh	v20.8h, v22.8h, v8.h[1]
-// [1,6]     .    .    .    .    .    .  DeeE   .    .    .    .    .    .   .   ldr	q25, [x0]
-// [1,7]     .    .    .    .    .    .    DeeeE.    .    .    .    .    .   .   mls	v29.8h, v0.8h, v1.h[0]
-// [1,8]     .    .    .    .    .    .    .DeeeE    .    .    .    .    .   .   mul	v17.8h, v22.8h, v8.h[0]
-// [1,9]     .    .    .    .    .    .    . DeeE    .    .    .    .    .   .   ldr	q26, [x0, #32]
-// [1,10]    .    .    .    .    .    .    .   DeE   .    .    .    .    .   .   add	v5.8h, v25.8h, v29.8h
-// [1,11]    .    .    .    .    .    .    .    DeeeE.    .    .    .    .   .   mls	v17.8h, v20.8h, v1.h[0]
-// [1,12]    .    .    .    .    .    .    .    . DeE.    .    .    .    .   .   sub	v20.8h, v25.8h, v29.8h
-// [1,13]    .    .    .    .    .    .    .    .  DE.    .    .    .    .   .   str	q5, [x0], #64
-// [1,14]    .    .    .    .    .    .    .    .   DeE   .    .    .    .   .   sub	v1.8h, v26.8h, v17.8h
-// [1,15]    .    .    .    .    .    .    .    .   DE    .    .    .    .   .   stur	q20, [x0, #-48]
-// [1,16]    .    .    .    .    .    .    .    .    DeE  .    .    .    .   .   add	v17.8h, v26.8h, v17.8h
-// [1,17]    .    .    .    .    .    .    .    .    .DE  .    .    .    .   .   stur	q1, [x0, #-16]
-// [1,18]    .    .    .    .    .    .    .    .    . DE .    .    .    .   .   stur	q17, [x0, #-32]
-// [2,0]     .    .    .    .    .    .    .    .    . DeeE    .    .    .   .   ldr	q8, [x1]
-// [2,1]     .    .    .    .    .    .    .    .    .  DeeE   .    .    .   .   ldr	q20, [x0, #16]
-// [2,2]     .    .    .    .    .    .    .    .    .   DeeE  .    .    .   .   ldr	q22, [x0, #48]
-// [2,3]     .    .    .    .    .    .    .    .    .    .DeeeE    .    .   .   mul	v29.8h, v20.8h, v8.h[0]
-// [2,4]     .    .    .    .    .    .    .    .    .    . DeeeE   .    .   .   sqrdmulh	v0.8h, v20.8h, v8.h[1]
-// [2,5]     .    .    .    .    .    .    .    .    .    .  DeeeE  .    .   .   sqrdmulh	v20.8h, v22.8h, v8.h[1]
-// [2,6]     .    .    .    .    .    .    .    .    .    .   DeeE  .    .   .   ldr	q25, [x0]
-// [2,7]     .    .    .    .    .    .    .    .    .    .    .DeeeE    .   .   mls	v29.8h, v0.8h, v1.h[0]
-// [2,8]     .    .    .    .    .    .    .    .    .    .    . DeeeE   .   .   mul	v17.8h, v22.8h, v8.h[0]
-// [2,9]     .    .    .    .    .    .    .    .    .    .    .  DeeE   .   .   ldr	q26, [x0, #32]
-// [2,10]    .    .    .    .    .    .    .    .    .    .    .    DeE  .   .   add	v5.8h, v25.8h, v29.8h
-// [2,11]    .    .    .    .    .    .    .    .    .    .    .    .DeeeE   .   mls	v17.8h, v20.8h, v1.h[0]
-// [2,12]    .    .    .    .    .    .    .    .    .    .    .    .  DeE   .   sub	v20.8h, v25.8h, v29.8h
-// [2,13]    .    .    .    .    .    .    .    .    .    .    .    .   DE   .   str	q5, [x0], #64
-// [2,14]    .    .    .    .    .    .    .    .    .    .    .    .    DeE .   sub	v1.8h, v26.8h, v17.8h
-// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .    DE  .   stur	q20, [x0, #-48]
-// [2,16]    .    .    .    .    .    .    .    .    .    .    .    .    .DeE.   add	v17.8h, v26.8h, v17.8h
-// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    . DE.   stur	q1, [x0, #-16]
-// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    .  DE   stur	q17, [x0, #-32]
-```
-
-Caveat: Note that LLVM MCA (just like SLOTHY) uses an approximate model of the pipeline and, hence, the results you are seeing may not be 100% accurate and can't replace experiments on actual hardware. But we think it is incredibly useful for debugging a SLOTHY model requiring a lot less time than running code on the actual hardware.
-Once could also imagine using the LLVM pipeline models within SLOTHY itself rather than building a custom model.
 
 
 ## 7. Optimizing larger pieces of code

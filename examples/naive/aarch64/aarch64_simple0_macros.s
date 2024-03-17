@@ -30,6 +30,8 @@ twiddle_ptr   .req x1
     add    \data0.8h, \data0.8h, \tmp.8h
 .endm
 
+count .req x2
+
 start:
 
     ldr qtwiddle, [twiddle_ptr, #0]
