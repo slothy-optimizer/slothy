@@ -51,7 +51,7 @@ formally verified using the [HOL-Light](https://github.com/jrh13/hol-light) proo
 
 ## Table of contents
 
-1) [Installation](#1-installation). This is limited to the fastest way of installing SLOTHY using pip. For more compete instructions, see the [README](../README.md).
+1) [Installation](#1-installation). This is limited to the fastest way of installing SLOTHY using pip. For more complete instructions, see the [README](../README.md).
 2) [Getting started](#2-getting-started)
 3) [Using SLOTHY for your own code](#3-writing-your-own-calling-code)
 4) [Using SLOTHY's Software Pipelining](#4-software-pipelining)
@@ -447,7 +447,7 @@ it would by default -- you normally want this set, but we unset it here to simpl
 look like:
 
 ```
-// ... 
+// ...
 count .req x2
 
     ldr qtwiddle, [twiddle_ptr, #0]
