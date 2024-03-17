@@ -550,7 +550,7 @@ class ntt_kyber_4567(Example):
 
 
 class ntt_kyber_1234_567(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
         name = "ntt_kyber_1234_567"
         infile = name
 
@@ -598,7 +598,7 @@ class ntt_kyber_1234_567(Example):
 
 
 class ntt_kyber_1234(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "ntt_kyber_1234"
         infile = "ntt_kyber_1234_567"
 
@@ -623,7 +623,7 @@ class ntt_kyber_1234(Example):
 
 
 class ntt_kyber_567(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
         name = "ntt_kyber_567"
         infile = "ntt_kyber_1234_567"
 
@@ -976,7 +976,7 @@ class ntt_dilithium_45678(Example):
 
 
 class ntt_dilithium_1234_5678(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
         name = f"ntt_dilithium_1234_5678"
         infile = name
 
@@ -1019,7 +1019,7 @@ class ntt_dilithium_1234_5678(Example):
 
 
 class ntt_dilithium_1234(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "ntt_dilithium_1234"
         infile = "ntt_dilithium_1234_5678"
 
@@ -1043,7 +1043,7 @@ class ntt_dilithium_1234(Example):
 
 
 class ntt_dilithium_5678(Example):
-    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "ntt_dilithium_5678"
         infile = "ntt_dilithium_1234_5678"
 
@@ -1174,6 +1174,8 @@ def main():
                  ntt_kyber_123_4567(var="scalar_load_store"),
                  ntt_kyber_123_4567(var="manual_st4"),
                  ntt_kyber_1234_567(),
+                 ntt_kyber_1234(),
+                 ntt_kyber_567(),
                  # Cortex-A72
                  ntt_kyber_123_4567(target=Target_CortexA72),
                  ntt_kyber_123_4567(var="scalar_load", target=Target_CortexA72),
@@ -1181,6 +1183,8 @@ def main():
                  ntt_kyber_123_4567(var="scalar_load_store", target=Target_CortexA72),
                  ntt_kyber_123_4567(var="manual_st4", target=Target_CortexA72),
                  ntt_kyber_1234_567(target=Target_CortexA72),
+                 ntt_kyber_1234(target=Target_CortexA72),
+                 ntt_kyber_567(target=Target_CortexA72),
                 #  # Apple M1 Firestorm
                  ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_firestorm, timeout=3600),
@@ -1218,12 +1222,16 @@ def main():
                  ntt_dilithium_123_45678(var="manual_st4"),
                  ntt_dilithium_1234_5678(),
                  ntt_dilithium_1234_5678(var="manual_st4"),
+                 ntt_dilithium_1234(),
+                 ntt_dilithium_5678(),
                  # Cortex-A72
                  ntt_dilithium_123_45678(target=Target_CortexA72),
                  ntt_dilithium_123_45678(var="w_scalar", target=Target_CortexA72),
                  ntt_dilithium_123_45678(var="manual_st4", target=Target_CortexA72),
                  ntt_dilithium_1234_5678(target=Target_CortexA72),
                  ntt_dilithium_1234_5678(var="manual_st4", target=Target_CortexA72),
+                 ntt_dilithium_1234(target=Target_CortexA72),
+                 ntt_dilithium_5678(target=Target_CortexA72),
                  # Apple M1 Firestorm
                  ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_firestorm, timeout=3600),
