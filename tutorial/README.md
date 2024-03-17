@@ -525,16 +525,21 @@ start:
         str q7, [x0, #-48]
 ```
 
-Let's start by looking at the optimized loop body going from `start:` to `cbnz count, start`.
-We see that the loop now has 4 blocks of 3 `gap`s meaning that there are 4 1-cycle stalls. This compares to 7 stalls in
-the version without software pipelining. We see that 2 load instructions are marked as early (e) instructions, meaning they
-are moved into the previous iteration: Intuitively, this makes sense: We know statically what data we need to load for
-the next iteration, and loads have a fairly long latency, so we can improve performance by issuing loads early. For the
-code to still be correct, SLOTHY decreases the number of iterations by one (`sub count, count, #1`), adds the missing
-early-instructions for the first iteration before the loop, and finally adds the non-early instructions of the last
-iteration after the loop. Also note that addresses have been adjusted accordingly.
+Let's start by looking at the optimized loop body going from `start:` to `cbnz count, start`:
+We see that the loop now has 4 blocks of 3 `gap`s meaning that SLOTHY predicts 4 stalls of 1 cycle each. This compares
+to 7 stalls in the version without software pipelining. We see that 2 load instructions are marked as early instructions
+(annotated `(e)`), meaning they have been moved into the previous iteration: Intuitively, this makes sense: We know
+statically what data we need to load for the next iteration, and loads have a fairly long latency, so we can improve
+performance by issuing loads early. For the code to still be correct, SLOTHY decreases the number of iterations by one
+(`sub count, count, #1`), adds the missing early-instructions for the first iteration before the loop, and finally adds
+the non-early instructions of the last iteration after the loop.
 
-**TODO: Explain address offset fixup!**
+Another experimental feature that can be witnessed in this example is _address offset fixup_. The two `ldr`s that
+were moved into the previous iteration have been reordered with the `str _, [x0], #64` which modifies the address
+register. SLOTHY is aware of this and has adjusted the immediate offsets in `ldr` accordingly. Without this, software
+pipelining would not be possible here. Address offset fixup is an important yet somewhat subtle feature, and mistakes
+in its handling are currently not caught by SLOTHY's selfcheck. Going into the details of why that is goes too far for
+this tutorial, but it is one of the reasons why the selfcheck does, as it stands, not replace a formal verification.
 
 ## 5. Checking the quality of SLOTHY optimizations
 
@@ -933,7 +938,17 @@ As soon as you hit an instruction that is not part of the architectural or micro
 
 
 ## Troubleshooting
+
 - ModuleNotFoundError: No module named 'ortools'
 
 This suggests that you have not installed the required dependencies needed by SLOTHY.
 Either you need to follow the installation instructions, or if you have done that already, you likely forgot to enter the virtual environment you have installed them in using `source venv/bin/activate`. You will have to run this every time you open a new terminal.
+
+- The selfcheck passes but the code is functionally incorrect!
+
+The most common reason for this is a bad configuration: Check that you all registers that must be kept for the sake of
+the surrounding code are marked as `reserved_regs`.
+
+Another possibility, albeit hopefully rare by now, is a failure during address offset fixup: This feature is not yet
+stable, and the selfcheck is currently blind to erroneous calculations here. If you are sure your configuration is correct, you might
+want to check the adjusted address offsets manually. If you find a bug, let us know!
