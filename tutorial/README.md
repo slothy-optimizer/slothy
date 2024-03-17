@@ -22,7 +22,7 @@ SLOTHY performs these jobs by first lifting the input assembly into a data-flow 
 between instructions. At this level, the ordering of instructions and the choice of register names is no longer visible.
 The goal of SLOTHY, then, is to find a traversal/lowering of the DFG that results in the least
 number of pipeline stalls. A traversal/lowering of the graph is assigning to each instruction an index at which
-the instruction will be in the output, plus a choice a registers to be used for its outputs. SLOTHY does so by turning
+the instruction will be in the output, plus a choice of registers to be used for its outputs. SLOTHY does so by turning
 the graph together with information about the (micro)architecture into constraints that are fed into an external constraint
 solver; so far, we have been using Google OR-tools, but in principle one can use other solvers as well.
 Constraints come in two flavours: Architectural and microarchitectural. Architectural constraints simply ensure that the
@@ -51,14 +51,14 @@ formally verified using the [HOL-Light](https://github.com/jrh13/hol-light) proo
 
 ## Table of contents
 
-1) Installation. This is limited to the fastest way of installing SLOTHY using pip. For more compete instructions, see the README.
-2) Getting started
-3) Using SLOTHY for your own code
-4) Using SLOTHY's Software Pipelining
-5) Optimizing a full Neon NTT
-6) Visualising SLOTHY optimizations
-7) Optimizing larger pieces of code
-8) Adding a new microarchitecture
+1) [Installation](#1-installation). This is limited to the fastest way of installing SLOTHY using pip. For more compete instructions, see the [README](../README.md).
+2) [Getting started](#2-getting-started)
+3) [Using SLOTHY for your own code](#3-writing-your-own-calling-code)
+4) [Using SLOTHY's Software Pipelining](#4-software-pipelining)
+5) [Checking the quality of SLOTHY optimizations](#5-checking-the-quality-of-slothy-optimizations)
+6) [Optimizing a full Neon NTT](#6-optimizing-a-full-neon-ntt)
+7) [Optimizing larger pieces of code](#7-optimizing-larger-pieces-of-code)
+8) [Adding a new microarchitecture](#8-adding-a-new-microarchitecture)
 
 The SLOTHY calling code used for the parts 3-7 is located in `tutorial-{3,4,5,6,7}.py`.
 
@@ -98,6 +98,7 @@ Let's look at a very simple example from the previous section called `aarch64_si
 You can find the corresponding code in [examples/naive/aarch64/aarch64_simple0.s](../examples/naive/aarch64/aarch64_simple0.s):
 ```
 ldr q0, [x1, #0]
+ldr q1, [x2, #0]
 
 ldr q8,  [x0]
 ldr q9,  [x0, #1*16]
@@ -125,9 +126,9 @@ str q11, [x0, #-1*16]
 It contains a straight-line piece of assembly for the Armv8-A architecture. This architecture implements the Neon vector instruction extension and all the instructions in this example are Neon vector instructions.
 If you have never written Neon assembly before, you do not have to worry about it at this point.
 All you need to know about the code is that it loads some vectors from memory, performs some arithmetic operations, and writes back the result to memory.
-Note that there is two independent streams of computation on the four vectors loaded from memory, and, hence, there is quite some possibilities to re-order this code without affecting its semantics.
+Note that there are two independent streams of computation on the four vectors loaded from memory, and, hence, there is quite some possibilities to re-order this code without affecting its semantics.
 This code is able to run on a variety of different microarchitectures, ranging from low-end energy efficient in-order cores like the Arm Cortex-A55 to high-end out-of-order CPUs with very complex pipelines like the Apple M1 or Arm Neoverse server CPUs.
-For the in-order cores, the instruction scheduling plays the most essential role as poorly scheduled code is very likely to have terrible performance, and hence, we will focus on the Cortex-A55 architecture in the following.
+For the in-order cores, the instruction scheduling plays the most essential role as poorly scheduled code is very likely to have poor performance, and hence, we will focus on the Cortex-A55 architecture in the following.
 Note, however, that SLOTHY has been used to also obtain significant speed-ups for out-of-order cores.
 
 SLOTHY already includes models for the Arm Cortex-A55 microarchitecture, so we can now optimize this piece of code for that microarchitecture.
@@ -135,100 +136,105 @@ SLOTHY already includes models for the Arm Cortex-A55 microarchitecture, so we c
 This will optimize the piece of code above and write the output code to [examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s).
 SLOTHY should print something similar to this:
 ```
-INFO:aarch64_simple0_a55:Instructions in body: 19
+INFO:aarch64_simple0_a55:Instructions in body: 20
 INFO:aarch64_simple0_a55.slothy:Perform internal binary search for minimal number of stalls...
 INFO:aarch64_simple0_a55.slothy:Attempt optimization with max 32 stalls...
 INFO:aarch64_simple0_a55.slothy:Objective: minimize number of stalls
 INFO:aarch64_simple0_a55.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
-INFO:aarch64_simple0_a55.slothy:[0.0659s]: Found 1 solutions so far... objective 17.0, bound 11.0 (minimize number of stalls)
-INFO:aarch64_simple0_a55.slothy:[0.0805s]: Found 2 solutions so far... objective 16.0, bound 11.0 (minimize number of stalls)
-INFO:aarch64_simple0_a55.slothy:OPTIMAL, wall time: 0.158787 s
-INFO:aarch64_simple0_a55.slothy:Booleans in result: 424
+INFO:aarch64_simple0_a55.slothy:[0.0653s]: Found 1 solutions so far... objective 19.0, bound 12.0 (minimize number of stalls)
+INFO:aarch64_simple0_a55.slothy:[0.0801s]: Found 2 solutions so far... objective 18.0, bound 12.0 (minimize number of stalls)
+INFO:aarch64_simple0_a55.slothy:OPTIMAL, wall time: 0.180540 s
+INFO:aarch64_simple0_a55.slothy:Booleans in result: 449
 INFO:aarch64_simple0_a55.slothy.selfcheck:OK!
-INFO:aarch64_simple0_a55.slothy:Minimum number of stalls: 16
+INFO:aarch64_simple0_a55.slothy:Minimum number of stalls: 18
 ```
 
 You can follow the steps SLOTHY performs and see the calls the constraint solver trying to find a re-scheduling of this code containing at most 32 stalls (a default starting point we have set here to speed up the example).
-At the same time it is trying to minimize the number of stalls. This is past as an objective to the constraint solver (OR-tools) which tries to find a solution with the minimum number of stalls.
+At the same time it is trying to minimize the number of stalls. This is passed as an objective to the constraint solver (OR-tools) which tries to find a solution with the minimum number of stalls.
 The best solution it can find has 16 stalls -- which is guaranteed to be the minimum number of stalls given this piece of code and the model of the microarchitecture in SLOTHY.
 In the last step, SLOTHY will transform the found traversal of the DFG into actual assembly and write it to the file.
 To make sure everything worked out as expected, it will perform a selfcheck which consists of transforming the output assembly into a DFG again and testing that the resulting graph is isomorphic to the input DFG.
 
 We can now take a look at the output assembly in [examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s):
 ```
-ldr q8, [x1, #0]                       // *..................
-// gap                                 // ...................
-// gap                                 // ...................
-// gap                                 // ...................
-ldr q29, [x0, #16]                     // ..*................
-// gap                                 // ...................
-// gap                                 // ...................
-// gap                                 // ...................
-ldr q26, [x0, #48]                     // ....*..............
-// gap                                 // ...................
-// gap                                 // ...................
-// gap                                 // ...................
-mul v10.8H, v29.8H, v8.H[0]            // .....*.............
-// gap                                 // ...................
-sqrdmulh v4.8H, v29.8H, v8.H[1]        // ......*............
-// gap                                 // ...................
-mul v25.8H, v26.8H, v8.H[0]            // ..........*........
-// gap                                 // ...................
-ldr q29, [x0]                          // .*.................
-// gap                                 // ...................
-// gap                                 // ...................
-// gap                                 // ...................
-mls v10.8H, v4.8H, v1.H[0]             // .......*...........
-// gap                                 // ...................
-sqrdmulh v3.8H, v26.8H, v8.H[1]        // ...........*.......
-// gap                                 // ...................
-ldr q4, [x0, #32]                      // ...*...............
-// gap                                 // ...................
-// gap                                 // ...................
-// gap                                 // ...................
-sub v26.8H, v29.8H, v10.8H             // ........*..........
-// gap                                 // ...................
-mls v25.8H, v3.8H, v1.H[0]             // ............*......
-// gap                                 // ...................
-add v2.8H, v29.8H, v10.8H              // .........*.........
-// gap                                 // ...................
-str q26, [x0, #16]                     // ................*..
-// gap                                 // ...................
-// gap                                 // ...................
-// gap                                 // ...................
-add v10.8H, v4.8H, v25.8H              // ..............*....
-// gap                                 // ...................
-str q2, [x0], #4*16                    // ...............*...
-// gap                                 // ...................
-sub v5.8H, v4.8H, v25.8H               // .............*.....
-// gap                                 // ...................
-str q10, [x0, #-32]                    // .................*.
-// gap                                 // ...................
-// gap                                 // ...................
-// gap                                 // ...................
-str q5, [x0, #-16]                     // ..................*
-// gap                                 // ...................
+        ldr q8, [x1, #0]                        // *...................
+// gap                                  // ....................
+// gap                                  // ....................
+// gap                                  // ....................
+        ldr q30, [x0, #16]                      // ...*................
+// gap                                  // ....................
+// gap                                  // ....................
+// gap                                  // ....................
+        ldr q25, [x0]                           // ..*.................
+// gap                                  // ....................
+// gap                                  // ....................
+// gap                                  // ....................
+        mul v13.8H, v30.8H, v8.H[0]             // ......*.............
+// gap                                  // ....................
+        sqrdmulh v21.8H, v30.8H, v8.H[1]        // .......*............
+// gap                                  // ....................
+        ldr q30, [x0, #48]                      // .....*..............
+// gap                                  // ....................
+// gap                                  // ....................
+// gap                                  // ....................
+        ldr q3, [x2, #0]                        // .*..................
+// gap                                  // ....................
+// gap                                  // ....................
+// gap                                  // ....................
+        sqrdmulh v5.8H, v30.8H, v8.H[1]         // ............*.......
+// gap                                  // ....................
+        mul v30.8H, v30.8H, v8.H[0]             // ...........*........
+// gap                                  // ....................
+        mls v13.8H, v21.8H, v3.H[0]             // ........*...........
+// gap                                  // ....................
+        ldr q15, [x0, #32]                      // ....*...............
+// gap                                  // ....................
+// gap                                  // ....................
+// gap                                  // ....................
+        mls v30.8H, v5.8H, v3.H[0]              // .............*......
+// gap                                  // ....................
+        add v8.8H, v25.8H, v13.8H               // ..........*.........
+// gap                                  // ....................
+        sub v20.8H, v25.8H, v13.8H              // .........*..........
+// gap                                  // ....................
+// gap                                  // ....................
+// gap                                  // ....................
+        str q8, [x0], #4*16                     // ................*...
+// gap                                  // ....................
+        add v26.8H, v15.8H, v30.8H              // ...............*....
+// gap                                  // ....................
+        str q20, [x0, #-48]                     // .................*..
+// gap                                  // ....................
+        sub v5.8H, v15.8H, v30.8H               // ..............*.....
+// gap                                  // ....................
+        str q26, [x0, #-32]                     // ..................*.
+// gap                                  // ....................
+// gap                                  // ....................
+// gap                                  // ....................
+        str q5, [x0, #-16]                      // ...................*
+// gap                                  // ....................
 
 // original source code
-// ldr q0, [x1, #0]                       // *..................
-// ldr q8,  [x0]                          // ......*............
-// ldr q9,  [x0, #1*16]                   // .*.................
-// ldr q10, [x0, #2*16]                   // .........*.........
-// ldr q11, [x0, #3*16]                   // ..*................
-// mul v24.8h, v9.8h, v0.h[0]             // ...*...............
-// sqrdmulh v9.8h, v9.8h, v0.h[1]         // ....*..............
-// mls v24.8h, v9.8h, v1.h[0]             // .......*...........
-// sub     v9.8h,    v8.8h, v24.8h        // ..........*........
-// add     v8.8h,    v8.8h, v24.8h        // ............*......
-// mul v24.8h, v11.8h, v0.h[0]            // .....*.............
-// sqrdmulh v11.8h, v11.8h, v0.h[1]       // ........*..........
-// mls v24.8h, v11.8h, v1.h[0]            // ...........*.......
-// sub     v11.8h,    v10.8h, v24.8h      // ................*..
-// add     v10.8h,    v10.8h, v24.8h      // ..............*....
-// str q8,  [x0], #4*16                   // ...............*...
-// str q9,  [x0, #-3*16]                  // .............*.....
-// str q10, [x0, #-2*16]                  // .................*.
-// str q11, [x0, #-1*16]                  // ..................*
+// ldr q0, [x1, #0]                       // *...................
+// ldr q1, [x2, #0]                       // ......*.............
+// ldr q8,  [x0]                          // ..*.................
+// ldr q9,  [x0, #1*16]                   // .*..................
+// ldr q10, [x0, #2*16]                   // ..........*.........
+// ldr q11, [x0, #3*16]                   // .....*..............
+// mul v24.8h, v9.8h, v0.h[0]             // ...*................
+// sqrdmulh v9.8h, v9.8h, v0.h[1]         // ....*...............
+// mls v24.8h, v9.8h, v1.h[0]             // .........*..........
+// sub     v9.8h,    v8.8h, v24.8h        // .............*......
+// add     v8.8h,    v8.8h, v24.8h        // ............*.......
+// mul v24.8h, v11.8h, v0.h[0]            // ........*...........
+// sqrdmulh v11.8h, v11.8h, v0.h[1]       // .......*............
+// mls v24.8h, v11.8h, v1.h[0]            // ...........*........
+// sub     v11.8h,    v10.8h, v24.8h      // .................*..
+// add     v10.8h,    v10.8h, v24.8h      // ...............*....
+// str q8,  [x0], #4*16                   // ..............*.....
+// str q9,  [x0, #-3*16]                  // ................*...
+// str q10, [x0, #-2*16]                  // ..................*.
+// str q11, [x0, #-1*16]                  // ...................*
 
 ```
 
@@ -237,7 +243,7 @@ As comments next to the two sections, you can also see a visual representation o
 You can see that various instructions have been moved around to achieve fewer stalls.
 
 In the scheduled code, you can see `// gap` where SLOTHY would expect a "gap" in the current model:
-This is not a pipeline stall in the sense of a wasted cycle, but rather in an issue slot of
+This is not a pipeline stall in the sense of a wasted cycle, but rather an issue slot of
 the CPU that was not used. The Cortex-A55 is a dual-issue CPU meaning in ideal circumstances 2 instructions can be issued per cycle.
 However, the Neon pipeline can only issue a single (128-bit/q-form) Neon instruction per cycle.
 Since our code only consists of (128-bit/q-form) Neon instructions, the best we can hope for is a single `gap` after each instruction.
@@ -246,6 +252,58 @@ To make use of these issue slots one would have to mix in scalar instructions (o
 Also note the registers used: In the original code `v24` was as a temporary register in both computation streams preventing to effectively interleave them.
 SLOTHY renamed those registers to be able to interleave both computations. Other registers have also been arbitrarily
 renamed, but without any specific reason.
+
+
+## 3. Writing your own calling code
+
+When writing your own calls to SLOTHY, there are generally two options:
+(1) Using SLOTHY as a Python module, or (2) using `slothy-cli` using command line options. We will continue with (1) to demonstrate some features.
+To reproduce the example above, you can place the following code into your own Python script in the root directory of SLOTHY:
+
+```
+import logging
+import sys
+
+from slothy import Slothy
+
+import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
+import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+arch = AArch64_Neon
+target = Target_CortexA55
+
+slothy = Slothy(arch, target)
+
+# example
+slothy.load_source_from_file("examples/naive/aarch64/aarch64_simple0.s")
+slothy.config.variable_size=True
+slothy.config.constraints.stalls_first_attempt=32
+
+slothy.optimize()
+slothy.write_source_to_file("examples/opt/aarch64/aarch64_simple0_a55.s")
+```
+
+You will need to pass to SLOTHY both the architecture model (containing the instruction mnemonics and which registers
+are input and outputs for each instruction) and the microarchitectual model (containing latencies, throughputs,
+execution units, etc.). In this case, we use the AArch64+Neon architecture model and the Arm Cortex-A55
+microarchitecture model that come with SLOTHY.
+
+The calls to SLOTHY should be self-explanatory:
+ - `load_source_from_file` loads an assembly file to be optimized.
+ - `slothy.config` can be used to configure SLOTHY. For the documentation of the configuration options, see the comments in [config.py](../slothy/core/config.py).
+ - `optimize` performs the actual optimizations by calling the external constraint solver.
+ - `write_source_to_file` writes back the optimized assembly to a file.
+
+Setting `slothy.config.variable_size` results in the number of stalls being a parameter of the model that the constraint
+solver is trying to minimize within a static 'stall budget'. By default, SLOTHY would start with a stall budget of 0 and
+exponentially increase until a solution is found. To speed this process up, we set `stalls_first_attempt=32`, starting
+the search with a sufficient stall budget of 32 cycles.
+
+The `variable_size` may not perform well for large examples. The default strategy (`variable_size=False`) is, hence, to
+pass a fixed number of allowed stalls to the constraint solver and to have SLOTHY perform an 'external' binary search to
+find the minimum number of stalls for which a solution exists.
 
 Even with this small Neon example, you can see that understanding the input code is much easier than the output code. In
 fact, the input code can be further clarified through the use of macros and register aliases, leading to the following
@@ -308,63 +366,25 @@ start:
 end:
 ```
 
-Running ``python3 example.py --examples aarch64_simple0_macros_a55` (**TODO: Add this**) should give the same result as
-before.
+SLOTHY will then internally expand all macros and the resulting DFG will be exactly the same as before.
+To make this work, we have to slightly change the SLOTHY code:
+```
+# example
+slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0_macros.s")
+slothy.config.variable_size=True
+slothy.config.constraints.stalls_first_attempt=32
+
+slothy.optimize(start="start", end="end")
+slothy.write_source_to_file("../examples/opt/aarch64/aarch64_simple0_macros_a55.s")
+```
+
+The difference is that, we have to explicitly pass `start` and `end` labels to SLOTHY.
+This is because SLOTHY does not understand the code before that and the parsing would fail if run on that part of the code.
 
 We have found it very useful to base assembly optimization on a 'clean' version as above and automate its optimization
 using SLOTHY, which is the reason why we believe that SLOTHY can help with the development of auditable and maintainable
 high-performance assembly.
 
-## 3. Writing your own calling code
-
-When writing your own calls to SLOTHY, there are generally two options:
-(1) Using SLOTHY as a Python module, or (2) using `slothy-cli` using command line options. We will continue with (1) to demonstrate some features.
-To reproduce the example above, you can place the following code into your own Python script in the root directory of SLOTHY:
-
-```
-import logging
-import sys
-
-from slothy import Slothy
-
-import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
-import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
-arch = AArch64_Neon
-target = Target_CortexA55
-
-slothy = Slothy(arch, target)
-
-# example
-slothy.load_source_from_file("examples/naive/aarch64/aarch64_simple0.s")
-slothy.config.variable_size=True
-slothy.config.constraints.stalls_first_attempt=32
-
-slothy.optimize()
-slothy.write_source_to_file("examples/opt/aarch64/aarch64_simple0_a55.s")
-```
-
-You will need to pass to SLOTHY both the architecture model (containing the instruction mnemonics and which registers
-are input and outputs for each instruction) and the microarchitectual model (containing latencies, throughputs,
-execution units, etc.). In this case, we use the AArch64+Neon architecture model and the Arm Cortex-A55
-microarchitecture model that come with SLOTHY.
-
-The calls to SLOTHY should be self-explanatory:
- - `load_source_from_file` loads an assembly file to be optimized.
- - `slothy.config` can be used to configure SLOTHY. For the documentation of the configuration options, see the comments in [config.py](../slothy/core/config.py).
- - `optimize` performs the actual optimizations by calling the external constraint solver.
- - `write_source_to_file` writes back the optimized assembly to a file.
-
-Setting `slothy.config.variable_size` results in the number of stalls being a parameter of the model that the constraint
-solver is trying to minimize within a static 'stall budget'. By default, SLOTHY would start with a stall budget of 0 and
-exponentially increase until a solution is found. To speed this process up, we set `stalls_first_attempt=32`, starting
-the search with a sufficient stall budget of 32 cycles.
-
-The `variable_size` may not perform well for large examples. The default strategy (`variable_size=False`) is, hence, to
-pass a fixed number of allowed stalls to the constraint solver and to have SLOTHY perform an 'external' binary search to
-find the minimum number of stalls for which a solution exists.
 
 ## 4. Software Pipelining
 
@@ -383,7 +403,8 @@ Consider the simple case of performing the code from the previous example within
 ... // .req and .macro as above
 
 count .req x2
-
+    ldr qtwiddle, [twiddle_ptr, #0]
+    ldr qmodulus, modulus_ptr, #0
 start:
 
     ldr qtwiddle, [twiddle_ptr, #0]
@@ -426,103 +447,100 @@ it would by default -- you normally want this set, but we unset it here to simpl
 look like:
 
 ```
+// ... 
 count .req x2
 
+    ldr qtwiddle, [twiddle_ptr, #0]
+    ldr qmodulus, [modulus_ptr, #0]
         // Preamble
-        ldr q2, [x1, #0]
-        ldr q6, [x0, #48]
+        ldr q30, [x0, #48]
+        sqrdmulh v7.8H, v30.8H, v0.H[1]
         sub count, count, #1
 start:
-        ldr q18, [x0, #16]                     // ..*................
-        // gap                                 // ...................
-        // gap                                 // ...................
-        // gap                                 // ...................
-        sqrdmulh v8.8H, v6.8H, v2.H[1]         // ...........*.......
-        // gap                                 // ...................
-        mul v23.8H, v6.8H, v2.H[0]             // ..........*........
-        // gap                                 // ...................
-        ldr q31, [x0, #32]                     // ...*...............
-        // gap                                 // ...................
-        // gap                                 // ...................
-        // gap                                 // ...................
-        mul v3.8H, v18.8H, v2.H[0]             // .....*.............
-        // gap                                 // ...................
-        mls v23.8H, v8.8H, v1.H[0]             // ............*......
-        // gap                                 // ...................
-        sqrdmulh v9.8H, v18.8H, v2.H[1]        // ......*............
-        // gap                                 // ...................
-        ldr q15, [x0, #0]                      // .*.................
-        // gap                                 // ...................
-        // gap                                 // ...................
-        // gap                                 // ...................
-        sub v11.8H, v31.8H, v23.8H             // .............*.....
-        // gap                                 // ...................
-        mls v3.8H, v9.8H, v1.H[0]              // .......*...........
-        // gap                                 // ...................
-        add v16.8H, v31.8H, v23.8H             // ..............*....
-        // gap                                 // ...................
-        str q11, [x0, #48]                     // ..................*
-        // gap                                 // ...................
-        ldr q2, [x1, #0]                       // e..................
-        // gap                                 // ...................
-        // gap                                 // ...................
-        // gap                                 // ...................
-        add v13.8H, v15.8H, v3.8H              // .........*.........
-        // gap                                 // ...................
-        str q16, [x0, #32]                     // .................*.
-        // gap                                 // ...................
-        sub v7.8H, v15.8H, v3.8H               // ........*..........
-        // gap                                 // ...................
-        str q13, [x0], #4*16                   // ...............*...
-        // gap                                 // ...................
-        ldr q6, [x0, #48]                      // ....e..............
-        // gap                                 // ...................
-        // gap                                 // ...................
-        // gap                                 // ...................
-        str q7, [x0, #-48]                     // ................*..
-        // gap                                 // ...................
+        ldr q28, [x0, #16]                      // .*................
+        // gap                                  // ..................
+        // gap                                  // ..................
+        // gap                                  // ..................
+        mul v5.8H, v30.8H, v0.H[0]              // .........*........
+        // gap                                  // ..................
+        ldr q20, [x0, #32]                      // ..*...............
+        // gap                                  // ..................
+        // gap                                  // ..................
+        // gap                                  // ..................
+        mul v14.8H, v28.8H, v0.H[0]             // ....*.............
+        // gap                                  // ..................
+        mls v5.8H, v7.8H, v1.H[0]               // ...........*......
+        // gap                                  // ..................
+        sqrdmulh v13.8H, v28.8H, v0.H[1]        // .....*............
+        // gap                                  // ..................
+        ldr q25, [x0, #0]                       // *.................
+        // gap                                  // ..................
+        // gap                                  // ..................
+        // gap                                  // ..................
+        sub v11.8H, v20.8H, v5.8H               // ............*.....
+        // gap                                  // ..................
+        add v12.8H, v20.8H, v5.8H               // .............*....
+        // gap                                  // ..................
+        mls v14.8H, v13.8H, v1.H[0]             // ......*...........
+        // gap                                  // ..................
+        ldr q30, [x0, #112]                     // ...e..............
+        // gap                                  // ..................
+        // gap                                  // ..................
+        // gap                                  // ..................
+        str q11, [x0, #48]                      // .................*
+        // gap                                  // ..................
+        sub v26.8H, v25.8H, v14.8H              // .......*..........
+        // gap                                  // ..................
+        str q12, [x0, #32]                      // ................*.
+        // gap                                  // ..................
+        add v13.8H, v25.8H, v14.8H              // ........*.........
+        // gap                                  // ..................
+        str q26, [x0, #16]                      // ...............*..
+        // gap                                  // ..................
+        sqrdmulh v7.8H, v30.8H, v0.H[1]         // ..........e.......
+        // gap                                  // ..................
+        str q13, [x0], #4*16                    // ..............*...
+        // gap                                  // ..................
 
         // original source code
-        // ldr q0, [x1, #0]                         // e......|...........e......
-        // ldr q8, [x0, #0*16]                      // .......|......*...........
-        // ldr q9, [x0, #1*16]                      // .......*..................
-        // ldr q10, [x0, #2*16]                     // .......|..*...............
-        // ldr q11, [x0, #3*16]                     // .....e.|................e.
-        // mul      v12.8h,   v9.8h, v0.h[0]        // .......|...*..............
-        // sqrdmulh v9.8h,    v9.8h, v0.h[1]        // .......|.....*............
-        // mls      v12.8h,   v9.8h, v1.h[0]        // .......|........*.........
-        // sub    v9.8h, v8.8h, v12.8h              // ...*...|..............*...
-        // add    v8.8h, v8.8h, v12.8h              // .*.....|............*.....
-        // mul      v12.8h,   v11.8h, v0.h[0]       // .......|.*................
-        // sqrdmulh v11.8h,    v11.8h, v0.h[1]      // .......|*.................
-        // mls      v12.8h,   v11.8h, v1.h[0]       // .......|....*.............
-        // sub    v11.8h, v10.8h, v12.8h            // .......|.......*..........
-        // add    v10.8h, v10.8h, v12.8h            // .......|.........*........
-        // str q8, [x0], #4*16                      // ....*..|...............*..
-        // str q9, [x0, #-3*16]                     // ......*|.................*
-        // str q10, [x0, #-2*16]                    // ..*....|.............*....
-        // str q11, [x0, #-1*16]                    // .......|..........*.......
+        // ldr q8, [x0, #0*16]                      // ........|.....*...........
+        // ldr q9, [x0, #1*16]                      // ........*.................
+        // ldr q10, [x0, #2*16]                     // ........|.*...............
+        // ldr q11, [x0, #3*16]                     // e.......|.........e.......
+        // mul      v12.8h,   v9.8h, v0.h[0]        // ........|..*..............
+        // sqrdmulh v9.8h,    v9.8h, v0.h[1]        // ........|....*............
+        // mls      v12.8h,   v9.8h, v1.h[0]        // ........|........*........
+        // sub    v9.8h, v8.8h, v12.8h              // ..*.....|...........*.....
+        // add    v8.8h, v8.8h, v12.8h              // ....*...|.............*...
+        // mul      v12.8h,   v11.8h, v0.h[0]       // ........|*................
+        // sqrdmulh v11.8h,    v11.8h, v0.h[1]      // ......e.|...............e.
+        // mls      v12.8h,   v11.8h, v1.h[0]       // ........|...*.............
+        // sub    v11.8h, v10.8h, v12.8h            // ........|......*..........
+        // add    v10.8h, v10.8h, v12.8h            // ........|.......*.........
+        // str q8, [x0], #4*16                      // .......*|................*
+        // str q9, [x0, #-3*16]                     // .....*..|..............*..
+        // str q10, [x0, #-2*16]                    // ...*....|............*....
+        // str q11, [x0, #-1*16]                    // .*......|..........*......
+
         sub count, count, #1
         cbnz count, start
-
         // Postamble
-        ldr q18, [x0, #16]
-        sqrdmulh v8.8H, v6.8H, v2.H[1]
-        mul v23.8H, v6.8H, v2.H[0]
-        ldr q31, [x0, #32]
-        mul v3.8H, v18.8H, v2.H[0]
-        mls v23.8H, v8.8H, v1.H[0]
-        sqrdmulh v9.8H, v18.8H, v2.H[1]
-        ldr q15, [x0, #0]
-        sub v11.8H, v31.8H, v23.8H
-        mls v3.8H, v9.8H, v1.H[0]
-        add v16.8H, v31.8H, v23.8H
+        ldr q28, [x0, #16]
+        mul v5.8H, v30.8H, v0.H[0]
+        ldr q20, [x0, #32]
+        mul v14.8H, v28.8H, v0.H[0]
+        mls v5.8H, v7.8H, v1.H[0]
+        sqrdmulh v13.8H, v28.8H, v0.H[1]
+        ldr q25, [x0, #0]
+        sub v11.8H, v20.8H, v5.8H
+        add v12.8H, v20.8H, v5.8H
+        mls v14.8H, v13.8H, v1.H[0]
         str q11, [x0, #48]
-        add v13.8H, v15.8H, v3.8H
-        str q16, [x0, #32]
-        sub v7.8H, v15.8H, v3.8H
+        sub v26.8H, v25.8H, v14.8H
+        str q12, [x0, #32]
+        add v13.8H, v25.8H, v14.8H
+        str q26, [x0, #16]
         str q13, [x0], #4*16
-        str q7, [x0, #-48]
 ```
 
 Let's start by looking at the optimized loop body going from `start:` to `cbnz count, start`:
@@ -556,7 +574,7 @@ performance on real hardware. The most common refinement steps are:
 We briefly discuss two ways that we found useful to evaluate the quality SLOTHY's optimizations and drive the
 refinement of microarchitectural models.
 
-First, one useful tool for approximative but independent (of SLOTHY) performance evaluation is LLVM's [Machine Code
+First, one useful tool for approximate but independent (of SLOTHY) performance evaluation is LLVM's [Machine Code
 Analyzer](https://llvm.org/docs/CommandGuide/llvm-mca.html). If you have `llvm-mca` available in your PATH (you may have
 to compile LLVM >= 18 yourself), you can make use of it in SLOTHY by setting the `with_llvm_mca` flag.
 Let's look at the last example and enable LLVM MCA:
@@ -571,7 +589,7 @@ slothy.config.sw_pipelining.optimize_preamble = False
 slothy.config.sw_pipelining.optimize_postamble = False
 slothy.config.with_llvm_mca = True
 slothy.optimize_loop("start")
-slothy.write_source_to_file("../examples/opt/aarch64/aarch64_simple0_loop_a55.s")
+slothy.write_source_to_file("./aarch64_simple0_loop_mca_a55.s")
 ```
 
 This will call LLVM MCA on both the original code and the optimized code and append the LLVM MCA statistics as a comment to the output.
@@ -580,160 +598,165 @@ Somewhere in the code you will see:
 // LLVM MCA STATISTICS (ORIGINAL) BEGIN
 //
 // Iterations:        100
-// Instructions:      1900
-// Total Cycles:      3002
-// Total uOps:        2000
+// Instructions:      2000
+// Total Cycles:      3102
+// Total uOps:        2100
 //
 // Dispatch Width:    2
-// uOps Per Cycle:    0.67
-// IPC:               0.63
-// Block RThroughput: 10.0
+// uOps Per Cycle:    0.68
+// IPC:               0.64
+// Block RThroughput: 10.5
 
 ...
 
 // LLVM MCA STATISTICS (OPTIMIZED) BEGIN
 //
 // Iterations:        100
-// Instructions:      1900
-// Total Cycles:      2002
-// Total uOps:        2000
+// Instructions:      2000
+// Total Cycles:      2102
+// Total uOps:        2100
 //
 // Dispatch Width:    2
 // uOps Per Cycle:    1.00
 // IPC:               0.95
-// Block RThroughput: 10.0
+// Block RThroughput: 10.5
 ```
 
 This suggests that our optimizations were actually useful: With respect to LLVM-MCA's scheduling model of Cortex-A55, the
- cycle count per iteration was reduced from 30 cycles to 20 cycles.
+ cycle count per iteration was reduced from 31 cycles to 21 cycles.
 
 But LLVM MCA gives you more: It outputs a timeline view showing how each instruction travels through the pipeline:
 ```
 // Timeline view (ORIGINAL):
-//                     0123456789          0123456789          0123456789          0123456789          01
+//                     0123456789          0123456789          0123456789          0123456789          01234
 // Index     0123456789          0123456789          0123456789          0123456789          0123456789
 //
-// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q0, [x1]
-// [0,1]     .DeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q8, [x0]
-// [0,2]     . DeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q9, [x0, #16]
-// [0,3]     .  DeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q10, [x0, #32]
-// [0,4]     .   DeeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q11, [x0, #48]
-// [0,5]     .    DeeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mul.8h	v12, v9, v0[0]
-// [0,6]     .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v9, v9, v0[1]
-// [0,7]     .    .    DeeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mls.8h	v12, v9, v1[0]
-// [0,8]     .    .    .   DeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sub.8h	v9, v8, v12
-// [0,9]     .    .    .    DeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   add.8h	v8, v8, v12
-// [0,10]    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    ..   mul.8h	v12, v11, v0[0]
-// [0,11]    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v11, v11, v0[1]
-// [0,12]    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    ..   mls.8h	v12, v11, v1[0]
-// [0,13]    .    .    .    .    .    DeE  .    .    .    .    .    .    .    .    .    .    .    .    ..   sub.8h	v11, v10, v12
-// [0,14]    .    .    .    .    .    .DeE .    .    .    .    .    .    .    .    .    .    .    .    ..   add.8h	v10, v10, v12
-// [0,15]    .    .    .    .    .    . DE .    .    .    .    .    .    .    .    .    .    .    .    ..   str	q8, [x0], #64
-// [0,16]    .    .    .    .    .    .  DE.    .    .    .    .    .    .    .    .    .    .    .    ..   stur	q9, [x0, #-48]
-// [0,17]    .    .    .    .    .    .   DE    .    .    .    .    .    .    .    .    .    .    .    ..   stur	q10, [x0, #-32]
-// [0,18]    .    .    .    .    .    .    DE   .    .    .    .    .    .    .    .    .    .    .    ..   stur	q11, [x0, #-16]
-// [1,0]     .    .    .    .    .    .    DeeE .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q0, [x1]
-// [1,1]     .    .    .    .    .    .    .DeeE.    .    .    .    .    .    .    .    .    .    .    ..   ldr	q8, [x0]
-// [1,2]     .    .    .    .    .    .    . DeeE    .    .    .    .    .    .    .    .    .    .    ..   ldr	q9, [x0, #16]
-// [1,3]     .    .    .    .    .    .    .  DeeE   .    .    .    .    .    .    .    .    .    .    ..   ldr	q10, [x0, #32]
-// [1,4]     .    .    .    .    .    .    .   DeeE  .    .    .    .    .    .    .    .    .    .    ..   ldr	q11, [x0, #48]
-// [1,5]     .    .    .    .    .    .    .    DeeeE.    .    .    .    .    .    .    .    .    .    ..   mul.8h	v12, v9, v0[0]
-// [1,6]     .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v9, v9, v0[1]
-// [1,7]     .    .    .    .    .    .    .    .    DeeeE.    .    .    .    .    .    .    .    .    ..   mls.8h	v12, v9, v1[0]
-// [1,8]     .    .    .    .    .    .    .    .    .   DeE   .    .    .    .    .    .    .    .    ..   sub.8h	v9, v8, v12
-// [1,9]     .    .    .    .    .    .    .    .    .    DeE  .    .    .    .    .    .    .    .    ..   add.8h	v8, v8, v12
-// [1,10]    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    .    ..   mul.8h	v12, v11, v0[0]
-// [1,11]    .    .    .    .    .    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    ..   sqrdmulh.8h	v11, v11, v0[1]
-// [1,12]    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    .    .    .    ..   mls.8h	v12, v11, v1[0]
-// [1,13]    .    .    .    .    .    .    .    .    .    .    .    DeE  .    .    .    .    .    .    ..   sub.8h	v11, v10, v12
-// [1,14]    .    .    .    .    .    .    .    .    .    .    .    .DeE .    .    .    .    .    .    ..   add.8h	v10, v10, v12
-// [1,15]    .    .    .    .    .    .    .    .    .    .    .    . DE .    .    .    .    .    .    ..   str	q8, [x0], #64
-// [1,16]    .    .    .    .    .    .    .    .    .    .    .    .  DE.    .    .    .    .    .    ..   stur	q9, [x0, #-48]
-// [1,17]    .    .    .    .    .    .    .    .    .    .    .    .   DE    .    .    .    .    .    ..   stur	q10, [x0, #-32]
-// [1,18]    .    .    .    .    .    .    .    .    .    .    .    .    DE   .    .    .    .    .    ..   stur	q11, [x0, #-16]
-// [2,0]     .    .    .    .    .    .    .    .    .    .    .    .    DeeE .    .    .    .    .    ..   ldr	q0, [x1]
-// [2,1]     .    .    .    .    .    .    .    .    .    .    .    .    .DeeE.    .    .    .    .    ..   ldr	q8, [x0]
-// [2,2]     .    .    .    .    .    .    .    .    .    .    .    .    . DeeE    .    .    .    .    ..   ldr	q9, [x0, #16]
-// [2,3]     .    .    .    .    .    .    .    .    .    .    .    .    .  DeeE   .    .    .    .    ..   ldr	q10, [x0, #32]
-// [2,4]     .    .    .    .    .    .    .    .    .    .    .    .    .   DeeE  .    .    .    .    ..   ldr	q11, [x0, #48]
-// [2,5]     .    .    .    .    .    .    .    .    .    .    .    .    .    DeeeE.    .    .    .    ..   mul.8h	v12, v9, v0[0]
-// [2,6]     .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    .    .    ..   sqrdmulh.8h	v9, v9, v0[1]
-// [2,7]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeeeE.    .    .    ..   mls.8h	v12, v9, v1[0]
-// [2,8]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeE   .    .    ..   sub.8h	v9, v8, v12
-// [2,9]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeE  .    .    ..   add.8h	v8, v8, v12
-// [2,10]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    .    ..   mul.8h	v12, v11, v0[0]
-// [2,11]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DeeeE   .    ..   sqrdmulh.8h	v11, v11, v0[1]
-// [2,12]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeeE    ..   mls.8h	v12, v11, v1[0]
-// [2,13]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeE  ..   sub.8h	v11, v10, v12
-// [2,14]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DeE ..   add.8h	v10, v10, v12
-// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DE ..   str	q8, [x0], #64
-// [2,16]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DE..   stur	q9, [x0, #-48]
-// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DE.   stur	q10, [x0, #-32]
-// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DE   stur	q11, [x0, #-16]
-
+// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q0, [x1]
+// [0,1]     .DeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q1, [x2]
+// [0,2]     . DeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q8, [x0]
+// [0,3]     .  DeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q9, [x0, #16]
+// [0,4]     .   DeeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q10, [x0, #32]
+// [0,5]     .    DeeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q11, [x0, #48]
+// [0,6]     .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   mul	v24.8h, v9.8h, v0.h[0]
+// [0,7]     .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v9.8h, v9.8h, v0.h[1]
+// [0,8]     .    .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   mls	v24.8h, v9.8h, v1.h[0]
+// [0,9]     .    .    .    DeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   sub	v9.8h, v8.8h, v24.8h
+// [0,10]    .    .    .    .DeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   add	v8.8h, v8.8h, v24.8h
+// [0,11]    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   mul	v24.8h, v11.8h, v0.h[0]
+// [0,12]    .    .    .    .  DeeeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v11.8h, v11.8h, v0.h[1]
+// [0,13]    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .   .   mls	v24.8h, v11.8h, v1.h[0]
+// [0,14]    .    .    .    .    .    .DeE .    .    .    .    .    .    .    .    .    .    .    .    .   .   sub	v11.8h, v10.8h, v24.8h
+// [0,15]    .    .    .    .    .    . DeE.    .    .    .    .    .    .    .    .    .    .    .    .   .   add	v10.8h, v10.8h, v24.8h
+// [0,16]    .    .    .    .    .    .  DE.    .    .    .    .    .    .    .    .    .    .    .    .   .   str	q8, [x0], #64
+// [0,17]    .    .    .    .    .    .   DE    .    .    .    .    .    .    .    .    .    .    .    .   .   stur	q9, [x0, #-48]
+// [0,18]    .    .    .    .    .    .    DE   .    .    .    .    .    .    .    .    .    .    .    .   .   stur	q10, [x0, #-32]
+// [0,19]    .    .    .    .    .    .    .DE  .    .    .    .    .    .    .    .    .    .    .    .   .   stur	q11, [x0, #-16]
+// [1,0]     .    .    .    .    .    .    .DeeE.    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q0, [x1]
+// [1,1]     .    .    .    .    .    .    . DeeE    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q1, [x2]
+// [1,2]     .    .    .    .    .    .    .  DeeE   .    .    .    .    .    .    .    .    .    .    .   .   ldr	q8, [x0]
+// [1,3]     .    .    .    .    .    .    .   DeeE  .    .    .    .    .    .    .    .    .    .    .   .   ldr	q9, [x0, #16]
+// [1,4]     .    .    .    .    .    .    .    DeeE .    .    .    .    .    .    .    .    .    .    .   .   ldr	q10, [x0, #32]
+// [1,5]     .    .    .    .    .    .    .    .DeeE.    .    .    .    .    .    .    .    .    .    .   .   ldr	q11, [x0, #48]
+// [1,6]     .    .    .    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .   .   mul	v24.8h, v9.8h, v0.h[0]
+// [1,7]     .    .    .    .    .    .    .    .  DeeeE  .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v9.8h, v9.8h, v0.h[1]
+// [1,8]     .    .    .    .    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .   .   mls	v24.8h, v9.8h, v1.h[0]
+// [1,9]     .    .    .    .    .    .    .    .    .    .DeE .    .    .    .    .    .    .    .    .   .   sub	v9.8h, v8.8h, v24.8h
+// [1,10]    .    .    .    .    .    .    .    .    .    . DeE.    .    .    .    .    .    .    .    .   .   add	v8.8h, v8.8h, v24.8h
+// [1,11]    .    .    .    .    .    .    .    .    .    .  DeeeE  .    .    .    .    .    .    .    .   .   mul	v24.8h, v11.8h, v0.h[0]
+// [1,12]    .    .    .    .    .    .    .    .    .    .   DeeeE .    .    .    .    .    .    .    .   .   sqrdmulh	v11.8h, v11.8h, v0.h[1]
+// [1,13]    .    .    .    .    .    .    .    .    .    .    .  DeeeE  .    .    .    .    .    .    .   .   mls	v24.8h, v11.8h, v1.h[0]
+// [1,14]    .    .    .    .    .    .    .    .    .    .    .    . DeE.    .    .    .    .    .    .   .   sub	v11.8h, v10.8h, v24.8h
+// [1,15]    .    .    .    .    .    .    .    .    .    .    .    .  DeE    .    .    .    .    .    .   .   add	v10.8h, v10.8h, v24.8h
+// [1,16]    .    .    .    .    .    .    .    .    .    .    .    .   DE    .    .    .    .    .    .   .   str	q8, [x0], #64
+// [1,17]    .    .    .    .    .    .    .    .    .    .    .    .    DE   .    .    .    .    .    .   .   stur	q9, [x0, #-48]
+// [1,18]    .    .    .    .    .    .    .    .    .    .    .    .    .DE  .    .    .    .    .    .   .   stur	q10, [x0, #-32]
+// [1,19]    .    .    .    .    .    .    .    .    .    .    .    .    . DE .    .    .    .    .    .   .   stur	q11, [x0, #-16]
+// [2,0]     .    .    .    .    .    .    .    .    .    .    .    .    . DeeE    .    .    .    .    .   .   ldr	q0, [x1]
+// [2,1]     .    .    .    .    .    .    .    .    .    .    .    .    .  DeeE   .    .    .    .    .   .   ldr	q1, [x2]
+// [2,2]     .    .    .    .    .    .    .    .    .    .    .    .    .   DeeE  .    .    .    .    .   .   ldr	q8, [x0]
+// [2,3]     .    .    .    .    .    .    .    .    .    .    .    .    .    DeeE .    .    .    .    .   .   ldr	q9, [x0, #16]
+// [2,4]     .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeE.    .    .    .    .   .   ldr	q10, [x0, #32]
+// [2,5]     .    .    .    .    .    .    .    .    .    .    .    .    .    . DeeE    .    .    .    .   .   ldr	q11, [x0, #48]
+// [2,6]     .    .    .    .    .    .    .    .    .    .    .    .    .    .  DeeeE  .    .    .    .   .   mul	v24.8h, v9.8h, v0.h[0]
+// [2,7]     .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeeeE .    .    .    .   .   sqrdmulh	v9.8h, v9.8h, v0.h[1]
+// [2,8]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DeeeE  .    .    .   .   mls	v24.8h, v9.8h, v1.h[0]
+// [2,9]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DeE.    .    .   .   sub	v9.8h, v8.8h, v24.8h
+// [2,10]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DeE    .    .   .   add	v8.8h, v8.8h, v24.8h
+// [2,11]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeeeE .    .   .   mul	v24.8h, v11.8h, v0.h[0]
+// [2,12]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeeeE.    .   .   sqrdmulh	v11.8h, v11.8h, v0.h[1]
+// [2,13]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeeeE .   .   mls	v24.8h, v11.8h, v1.h[0]
+// [2,14]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DeE   .   sub	v11.8h, v10.8h, v24.8h
+// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeE  .   add	v10.8h, v10.8h, v24.8h
+// [2,16]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DE  .   str	q8, [x0], #64
+// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DE .   stur	q9, [x0, #-48]
+// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DE.   stur	q10, [x0, #-32]
+// [2,19]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DE   stur	q11, [x0, #-16]
 ...
 
 // Timeline view (OPTIMIZED):
 //                     0123456789          0123456789          0123456789
-// Index     0123456789          0123456789          0123456789          01
+// Index     0123456789          0123456789          0123456789          01234
 //
-// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    ..   ldr	q18, [x0, #16]
-// [0,1]     .DeeeE    .    .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v8, v6, v2[1]
-// [0,2]     . DeeeE   .    .    .    .    .    .    .    .    .    .    ..   mul.8h	v23, v6, v2[0]
-// [0,3]     .  DeeE   .    .    .    .    .    .    .    .    .    .    ..   ldr	q31, [x0, #32]
-// [0,4]     .   DeeeE .    .    .    .    .    .    .    .    .    .    ..   mul.8h	v3, v18, v2[0]
-// [0,5]     .    .DeeeE    .    .    .    .    .    .    .    .    .    ..   mls.8h	v23, v8, v1[0]
-// [0,6]     .    . DeeeE   .    .    .    .    .    .    .    .    .    ..   sqrdmulh.8h	v9, v18, v2[1]
-// [0,7]     .    .  DeeE   .    .    .    .    .    .    .    .    .    ..   ldr	q15, [x0]
-// [0,8]     .    .    DeE  .    .    .    .    .    .    .    .    .    ..   sub.8h	v11, v31, v23
-// [0,9]     .    .    .DeeeE    .    .    .    .    .    .    .    .    ..   mls.8h	v3, v9, v1[0]
-// [0,10]    .    .    .  DeE    .    .    .    .    .    .    .    .    ..   add.8h	v16, v31, v23
-// [0,11]    .    .    .  DE.    .    .    .    .    .    .    .    .    ..   str	q11, [x0, #48]
-// [0,12]    .    .    .   DeeE  .    .    .    .    .    .    .    .    ..   ldr	q2, [x1]
-// [0,13]    .    .    .    DeE  .    .    .    .    .    .    .    .    ..   add.8h	v13, v15, v3
-// [0,14]    .    .    .    DE   .    .    .    .    .    .    .    .    ..   str	q16, [x0, #32]
-// [0,15]    .    .    .    .DeE .    .    .    .    .    .    .    .    ..   sub.8h	v7, v15, v3
-// [0,16]    .    .    .    . DE .    .    .    .    .    .    .    .    ..   str	q13, [x0], #64
-// [0,17]    .    .    .    .  DeeE   .    .    .    .    .    .    .    ..   ldr	q6, [x0, #48]
-// [0,18]    .    .    .    .  DE.    .    .    .    .    .    .    .    ..   stur	q7, [x0, #-48]
-// [1,0]     .    .    .    .   DeeE  .    .    .    .    .    .    .    ..   ldr	q18, [x0, #16]
-// [1,1]     .    .    .    .    .DeeeE    .    .    .    .    .    .    ..   sqrdmulh.8h	v8, v6, v2[1]
-// [1,2]     .    .    .    .    . DeeeE   .    .    .    .    .    .    ..   mul.8h	v23, v6, v2[0]
-// [1,3]     .    .    .    .    .  DeeE   .    .    .    .    .    .    ..   ldr	q31, [x0, #32]
-// [1,4]     .    .    .    .    .   DeeeE .    .    .    .    .    .    ..   mul.8h	v3, v18, v2[0]
-// [1,5]     .    .    .    .    .    .DeeeE    .    .    .    .    .    ..   mls.8h	v23, v8, v1[0]
-// [1,6]     .    .    .    .    .    . DeeeE   .    .    .    .    .    ..   sqrdmulh.8h	v9, v18, v2[1]
-// [1,7]     .    .    .    .    .    .  DeeE   .    .    .    .    .    ..   ldr	q15, [x0]
-// [1,8]     .    .    .    .    .    .    DeE  .    .    .    .    .    ..   sub.8h	v11, v31, v23
-// [1,9]     .    .    .    .    .    .    .DeeeE    .    .    .    .    ..   mls.8h	v3, v9, v1[0]
-// [1,10]    .    .    .    .    .    .    .  DeE    .    .    .    .    ..   add.8h	v16, v31, v23
-// [1,11]    .    .    .    .    .    .    .  DE.    .    .    .    .    ..   str	q11, [x0, #48]
-// [1,12]    .    .    .    .    .    .    .   DeeE  .    .    .    .    ..   ldr	q2, [x1]
-// [1,13]    .    .    .    .    .    .    .    DeE  .    .    .    .    ..   add.8h	v13, v15, v3
-// [1,14]    .    .    .    .    .    .    .    DE   .    .    .    .    ..   str	q16, [x0, #32]
-// [1,15]    .    .    .    .    .    .    .    .DeE .    .    .    .    ..   sub.8h	v7, v15, v3
-// [1,16]    .    .    .    .    .    .    .    . DE .    .    .    .    ..   str	q13, [x0], #64
-// [1,17]    .    .    .    .    .    .    .    .  DeeE   .    .    .    ..   ldr	q6, [x0, #48]
-// [1,18]    .    .    .    .    .    .    .    .  DE.    .    .    .    ..   stur	q7, [x0, #-48]
-// [2,0]     .    .    .    .    .    .    .    .   DeeE  .    .    .    ..   ldr	q18, [x0, #16]
-// [2,1]     .    .    .    .    .    .    .    .    .DeeeE    .    .    ..   sqrdmulh.8h	v8, v6, v2[1]
-// [2,2]     .    .    .    .    .    .    .    .    . DeeeE   .    .    ..   mul.8h	v23, v6, v2[0]
-// [2,3]     .    .    .    .    .    .    .    .    .  DeeE   .    .    ..   ldr	q31, [x0, #32]
-// [2,4]     .    .    .    .    .    .    .    .    .   DeeeE .    .    ..   mul.8h	v3, v18, v2[0]
-// [2,5]     .    .    .    .    .    .    .    .    .    .DeeeE    .    ..   mls.8h	v23, v8, v1[0]
-// [2,6]     .    .    .    .    .    .    .    .    .    . DeeeE   .    ..   sqrdmulh.8h	v9, v18, v2[1]
-// [2,7]     .    .    .    .    .    .    .    .    .    .  DeeE   .    ..   ldr	q15, [x0]
-// [2,8]     .    .    .    .    .    .    .    .    .    .    DeE  .    ..   sub.8h	v11, v31, v23
-// [2,9]     .    .    .    .    .    .    .    .    .    .    .DeeeE    ..   mls.8h	v3, v9, v1[0]
-// [2,10]    .    .    .    .    .    .    .    .    .    .    .  DeE    ..   add.8h	v16, v31, v23
-// [2,11]    .    .    .    .    .    .    .    .    .    .    .  DE.    ..   str	q11, [x0, #48]
-// [2,12]    .    .    .    .    .    .    .    .    .    .    .   DeeE  ..   ldr	q2, [x1]
-// [2,13]    .    .    .    .    .    .    .    .    .    .    .    DeE  ..   add.8h	v13, v15, v3
-// [2,14]    .    .    .    .    .    .    .    .    .    .    .    DE   ..   str	q16, [x0, #32]
-// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .DeE ..   sub.8h	v7, v15, v3
-// [2,16]    .    .    .    .    .    .    .    .    .    .    .    . DE ..   str	q13, [x0], #64
-// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .  DeeE   ldr	q6, [x0, #48]
-// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .  DE..   stur	q7, [x0, #-48]
+// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q7, [x1]
+// [0,1]     .DeeE.    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q31, [x0, #16]
+// [0,2]     . DeeE    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q11, [x0, #48]
+// [0,3]     .   DeeeE .    .    .    .    .    .    .    .    .    .    .   .   mul	v20.8h, v31.8h, v7.h[0]
+// [0,4]     .    DeeeE.    .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v31.8h, v31.8h, v7.h[1]
+// [0,5]     .    .DeeeE    .    .    .    .    .    .    .    .    .    .   .   mul	v18.8h, v11.8h, v7.h[0]
+// [0,6]     .    . DeeeE   .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v7.8h, v11.8h, v7.h[1]
+// [0,7]     .    .  DeeE   .    .    .    .    .    .    .    .    .    .   .   ldr	q11, [x2]
+// [0,8]     .    .   DeeE  .    .    .    .    .    .    .    .    .    .   .   ldr	q8, [x0]
+// [0,9]     .    .    .DeeeE    .    .    .    .    .    .    .    .    .   .   mls	v20.8h, v31.8h, v11.h[0]
+// [0,10]    .    .    . DeeeE   .    .    .    .    .    .    .    .    .   .   mls	v18.8h, v7.8h, v11.h[0]
+// [0,11]    .    .    .  DeeE   .    .    .    .    .    .    .    .    .   .   ldr	q7, [x0, #32]
+// [0,12]    .    .    .    DeE  .    .    .    .    .    .    .    .    .   .   sub	v31.8h, v8.8h, v20.8h
+// [0,13]    .    .    .    .DeE .    .    .    .    .    .    .    .    .   .   add	v11.8h, v8.8h, v20.8h
+// [0,14]    .    .    .    . DeE.    .    .    .    .    .    .    .    .   .   sub	v20.8h, v7.8h, v18.8h
+// [0,15]    .    .    .    . DE .    .    .    .    .    .    .    .    .   .   str	q31, [x0, #16]
+// [0,16]    .    .    .    .  DeE    .    .    .    .    .    .    .    .   .   add	v7.8h, v7.8h, v18.8h
+// [0,17]    .    .    .    .   DE    .    .    .    .    .    .    .    .   .   str	q11, [x0], #64
+// [0,18]    .    .    .    .    DE   .    .    .    .    .    .    .    .   .   stur	q7, [x0, #-32]
+// [0,19]    .    .    .    .    .DE  .    .    .    .    .    .    .    .   .   stur	q20, [x0, #-16]
+// [1,0]     .    .    .    .    .DeeE.    .    .    .    .    .    .    .   .   ldr	q7, [x1]
+// [1,1]     .    .    .    .    . DeeE    .    .    .    .    .    .    .   .   ldr	q31, [x0, #16]
+// [1,2]     .    .    .    .    .  DeeE   .    .    .    .    .    .    .   .   ldr	q11, [x0, #48]
+// [1,3]     .    .    .    .    .    DeeeE.    .    .    .    .    .    .   .   mul	v20.8h, v31.8h, v7.h[0]
+// [1,4]     .    .    .    .    .    .DeeeE    .    .    .    .    .    .   .   sqrdmulh	v31.8h, v31.8h, v7.h[1]
+// [1,5]     .    .    .    .    .    . DeeeE   .    .    .    .    .    .   .   mul	v18.8h, v11.8h, v7.h[0]
+// [1,6]     .    .    .    .    .    .  DeeeE  .    .    .    .    .    .   .   sqrdmulh	v7.8h, v11.8h, v7.h[1]
+// [1,7]     .    .    .    .    .    .   DeeE  .    .    .    .    .    .   .   ldr	q11, [x2]
+// [1,8]     .    .    .    .    .    .    DeeE .    .    .    .    .    .   .   ldr	q8, [x0]
+// [1,9]     .    .    .    .    .    .    . DeeeE   .    .    .    .    .   .   mls	v20.8h, v31.8h, v11.h[0]
+// [1,10]    .    .    .    .    .    .    .  DeeeE  .    .    .    .    .   .   mls	v18.8h, v7.8h, v11.h[0]
+// [1,11]    .    .    .    .    .    .    .   DeeE  .    .    .    .    .   .   ldr	q7, [x0, #32]
+// [1,12]    .    .    .    .    .    .    .    .DeE .    .    .    .    .   .   sub	v31.8h, v8.8h, v20.8h
+// [1,13]    .    .    .    .    .    .    .    . DeE.    .    .    .    .   .   add	v11.8h, v8.8h, v20.8h
+// [1,14]    .    .    .    .    .    .    .    .  DeE    .    .    .    .   .   sub	v20.8h, v7.8h, v18.8h
+// [1,15]    .    .    .    .    .    .    .    .  DE.    .    .    .    .   .   str	q31, [x0, #16]
+// [1,16]    .    .    .    .    .    .    .    .   DeE   .    .    .    .   .   add	v7.8h, v7.8h, v18.8h
+// [1,17]    .    .    .    .    .    .    .    .    DE   .    .    .    .   .   str	q11, [x0], #64
+// [1,18]    .    .    .    .    .    .    .    .    .DE  .    .    .    .   .   stur	q7, [x0, #-32]
+// [1,19]    .    .    .    .    .    .    .    .    . DE .    .    .    .   .   stur	q20, [x0, #-16]
+// [2,0]     .    .    .    .    .    .    .    .    . DeeE    .    .    .   .   ldr	q7, [x1]
+// [2,1]     .    .    .    .    .    .    .    .    .  DeeE   .    .    .   .   ldr	q31, [x0, #16]
+// [2,2]     .    .    .    .    .    .    .    .    .   DeeE  .    .    .   .   ldr	q11, [x0, #48]
+// [2,3]     .    .    .    .    .    .    .    .    .    .DeeeE    .    .   .   mul	v20.8h, v31.8h, v7.h[0]
+// [2,4]     .    .    .    .    .    .    .    .    .    . DeeeE   .    .   .   sqrdmulh	v31.8h, v31.8h, v7.h[1]
+// [2,5]     .    .    .    .    .    .    .    .    .    .  DeeeE  .    .   .   mul	v18.8h, v11.8h, v7.h[0]
+// [2,6]     .    .    .    .    .    .    .    .    .    .   DeeeE .    .   .   sqrdmulh	v7.8h, v11.8h, v7.h[1]
+// [2,7]     .    .    .    .    .    .    .    .    .    .    DeeE .    .   .   ldr	q11, [x2]
+// [2,8]     .    .    .    .    .    .    .    .    .    .    .DeeE.    .   .   ldr	q8, [x0]
+// [2,9]     .    .    .    .    .    .    .    .    .    .    .  DeeeE  .   .   mls	v20.8h, v31.8h, v11.h[0]
+// [2,10]    .    .    .    .    .    .    .    .    .    .    .   DeeeE .   .   mls	v18.8h, v7.8h, v11.h[0]
+// [2,11]    .    .    .    .    .    .    .    .    .    .    .    DeeE .   .   ldr	q7, [x0, #32]
+// [2,12]    .    .    .    .    .    .    .    .    .    .    .    . DeE.   .   sub	v31.8h, v8.8h, v20.8h
+// [2,13]    .    .    .    .    .    .    .    .    .    .    .    .  DeE   .   add	v11.8h, v8.8h, v20.8h
+// [2,14]    .    .    .    .    .    .    .    .    .    .    .    .   DeE  .   sub	v20.8h, v7.8h, v18.8h
+// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .   DE   .   str	q31, [x0, #16]
+// [2,16]    .    .    .    .    .    .    .    .    .    .    .    .    DeE .   add	v7.8h, v7.8h, v18.8h
+// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    .DE .   str	q11, [x0], #64
+// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    . DE.   stur	q7, [x0, #-32]
+// [2,19]    .    .    .    .    .    .    .    .    .    .    .    .    .  DE   stur	q20, [x0, #-16]
 ```
 
 However, LLVM MCA's model might not be accurate either and cannot replacement measurements on real hardware -- so let's
@@ -794,13 +817,13 @@ to the last cycle and fine-tuning your model, there is no way around measurement
 
 The examples previously considered were all toy examples, so you may wonder how to apply SLOTHY to actual cryptographic code.
 Let's look at a real-world example: The Kyber number-theoretic transform -- a core arithmetic function of the Kyber key-encapsulation mechanism making up a large chunk of the total run-time.
-The target platform is again the Arm Cortex-M55 and the code primarily consists of
-[Helium](https://www.arm.com/technologies/helium) vector instructions (the little sibling of Neon for the M-profile of the Arm architecture).
+The target platform is again the Arm Cortex-A55 and the code primarily consists of
+Neon vector instructions.
 We'll consider a straightforward implementation available here: [ntt_kyber_123_4567.s](../examples/naive/aarch64/ntt_kyber_123_4567.s).
 If you have ever written an NTT, it should be fairly easy to understand what the code is doing.
 The code consists of 2 main loops implementing layers 1+2+3 and 4+5+6+7 of the NTT.
 The actual operations are wrapped in macros implementing butterflies on single vector registers.
-Note that this code performs very poorly: It does not consideration was given to the intricacies of the microarchitecture.
+Note that this code performs very poorly: No consideration was given to the intricacies of the microarchitecture.
 
 Let's run SLOTHY on this code:
 ```
@@ -830,8 +853,7 @@ registers. If you are familiar with inline assembly, SLOTHY's `reserved_regs` ar
 When running this example, you will notice that it has a significantly longer runtime.
 On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
 You may instead look at an optimized version of the same code [examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s](../examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s).
-You notice that both loops have many early instructions, and coming up with this code by hand would be tedious, time
-consuming and error prone.
+You notice that both loops have many early instructions, and coming up with this code by hand would be tedious, time-consuming and error-prone.
 
 
 ## 7. Optimizing larger pieces of code
@@ -891,11 +913,11 @@ def get_inverse_throughput(src):
 ```
 
 Going through the snippet, we can see the core components:
- - Definition of the `issue_rate` corresponding to the number of issue slots available per cycle. Since the Cortex-A55 is a dual-issue CPU, this is 2
+ - Definition of the `issue_rate` corresponding to the number of issue slots available per cycle. Since the Cortex-A55 is a dual-issue CPU, this is two.
  - Definition of an `Enum` modelling the different execution units available. In this case, we model 2 scalar units, one MAC unit, 2 vector units, one load unit, and one store unit.
- - Finally, we need to implement the functions `get_latency`, `get_units`, `get_inverse_throughput` returning the latency, occupied execution units, and throughputs. The input to these functions is a class from the architectural model representing the instruction in question. For example, the class `vmull` in [](../slothy/targets/aarch64/aarch64_neon.py) corresponds to the `umull` instruction. We commonly implement this using dictionaries above.
+ - Finally, we need to implement the functions `get_latency`, `get_units`, `get_inverse_throughput` returning the latency, occupied execution units, and throughputs. The input to these functions is a class from the architectural model representing the instruction in question. For example, the class `vmull` in [aarch64_neon.py](../slothy/targets/aarch64/aarch64_neon.py) corresponds to the `umull` instruction. We commonly implement this using dictionaries above.
 
-For example, for the `vmull` instruction, we can find in the Arm Cortex-A55 SWOG, that it occupies both vector execution units, has an inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way:
+For example, for the (128-bit/qform) `vmull` instruction, we can find in the Arm Cortex-A55 SWOG, that it occupies both vector execution units, has an inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way:
 
 ```
 execution_units = {
@@ -912,7 +934,7 @@ default_latencies = {
 ```
 
 We mostly use the tuple-syntax, so we can group together instructions that belong together.
-For example, later we may want to add the Neon`add`. From the SWOG we can see that (128-bit) `add` occupies both vector execution units, has a latency of 3 cycles, and throughput of 1 cycle.
+For example, later we may want to add the Neon `add`. From the SWOG we can see that (128-bit/qform) `add` occupies both vector execution units, has a latency of 3 cycles, and throughput of 1 cycle.
 We can extend the above model as follows:
 
 ```
@@ -931,7 +953,7 @@ default_latencies = {
 ```
 
 
-(When looking at the actual model, you will notice that this is not quite how it is modelled. You will see that for some instructions, we have to distinguish between the q-form (128-bit) and the d-form (64-bit) of the instruction. Q-form instructions occupy both vector execution units, while most D-form instructions occupy only 1. Latencies also vary depending on the actual for.)
+(When looking at the actual model, you will notice that this is not quite how it is modelled. You will see that for some instructions, we have to distinguish between the q-form (128-bit) and the d-form (64-bit) of the instruction. Q-form instructions occupy both vector execution units, while most D-form instructions occupy only 1. Latencies also vary depending on the actual form.)
 
 Note that both the architectural model and the micro-architectural model can be built lazily: As long as the corresponding instruction do not appear in your input, you may leave out their description.
 As soon as you hit an instruction that is not part of the architectural or micro-architectural model, you will see an error.

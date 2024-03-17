@@ -15,13 +15,9 @@ target = Target_CortexA55
 slothy = Slothy(arch, target)
 
 # example
-slothy.load_source_from_file("../examples/naive/aarch64/ntt_kyber_123_4567.s")
-slothy.config.sw_pipelining.enabled = True
-slothy.config.inputs_are_outputs = True
-slothy.config.sw_pipelining.minimize_overlapping = False
-slothy.config.variable_size = True
-slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
-slothy.config.constraints.stalls_first_attempt = 64
-slothy.optimize_loop("layer123_start")
-slothy.optimize_loop("layer4567_start")
-slothy.write_source_to_file("../examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s")
+slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0.s")
+slothy.config.variable_size=True
+slothy.config.constraints.stalls_first_attempt=32
+slothy.config.with_llvm_mca = True
+slothy.optimize()
+slothy.write_source_to_file("aarch64_simple0_loop_mca_a55.s")
