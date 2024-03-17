@@ -568,6 +568,8 @@ class AArch64Example2(Example):
         slothy.config.variable_size=True
         slothy.config.constraints.stalls_first_attempt=32
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("start")
 
 
