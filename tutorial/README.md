@@ -1,12 +1,12 @@
 # SLOTHY Tutorial
 
-## Introduction & Overview
-
 This tutorial introduces you to using the SLOTHY superoptimizer for optimizing assembly programs for a specific microarchitecture.
 It goes beyond what is written in the [README](../README.md) or the [SLOTHY
 paper](https://eprint.iacr.org/2022/1303.pdf) in that it gives more examples on how we, the developers of SLOTHY,
 typically use SLOTHY to optimize cryptographic code. At the end of the tutorial, you should be familiar with
 the workflow of using SLOTHY as well as a number of common ways to debug or improve your results.
+
+## Introduction to SLOTHY
 
 SLOTHY is a fixed instruction superoptimizer: Its input is assembly and its output is semantically-equivalent optimized
 assembly using the same instructions and data flow. The fact that SLOTHY does not change instructions is very important
@@ -91,7 +91,7 @@ We will look into more examples shortly and discuss input, output, and available
 
 The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
 Once you work on your own code, you will likely be using the `slothy-cli` command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has.
-However, for now we will be using the `example.py` script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
+However, for now we will be using the [example.py](../example.py) script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
 You can run `python3 example.py --help` to see all examples available.
 
 Let's look at a very simple example from the previous section called `aarch64_simple0`.
@@ -131,9 +131,12 @@ This code is able to run on a variety of different microarchitectures, ranging f
 For the in-order cores, the instruction scheduling plays the most essential role as poorly scheduled code is very likely to have poor performance, and hence, we will focus on the Cortex-A55 architecture in the following.
 Note, however, that SLOTHY has been used to also obtain significant speed-ups for out-of-order cores.
 
-SLOTHY already includes models for the Arm Cortex-A55 microarchitecture, so we can now optimize this piece of code for that microarchitecture.
-`example.py` contains the needed SLOTHY incarnations for convenience, so we can simply run `python3 example.py --examples aarch64_simple0_a55` which will optimize for the Cortex-A55 microarchitecture. You can check `example.py` for the details.
-This will optimize the piece of code above and write the output code to [examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s).
+SLOTHY comes with models for various Arm architectures, including the power-efficient, in-order
+[Cortex-A55](https://developer.arm.com/Processors/Cortex-A55), so we can now optimize this piece of code for that
+microarchitecture. [example.py](../example.py) contains the needed SLOTHY incarnations for convenience, so we can simply run `python3
+example.py --examples aarch64_simple0_a55` which will optimize for the Cortex-A55 microarchitecture. You can check
+[example.py](../example.py) for the details. This will optimize the piece of code above and write the output code to
+[examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s).
 SLOTHY should print something similar to this:
 ```
 INFO:aarch64_simple0_a55:Instructions in body: 20
