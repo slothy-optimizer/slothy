@@ -34,7 +34,7 @@ modulus_ptr   .req x2
 
 count .req x2
     ldr qtwiddle, [twiddle_ptr, #0]
-    ldr wmodulus, modulus_ptr, #0
+    ldr qmodulus, [modulus_ptr, #0]
 start:
 
     ldr qdata0, [data_ptr, #0*16]
