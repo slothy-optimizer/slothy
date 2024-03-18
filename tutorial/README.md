@@ -861,6 +861,64 @@ You notice that both loops have many early instructions, and coming up with this
 
 ## 7. Optimizing larger pieces of code
 
+We've seen that the code above can be optimized relatively fast (within seconds to minutes on a laptop).
+When using a more powerful machine and allowing optimization times of hours, one can scale this up to larger examples.
+We've successfully used (vanilla) SLOTHY for optimized code snippets of up to 180 instructions.
+However, for larger code at a certain point the constraint solving becomes prohibitively expensive and we need to use a different strategy.
+
+One such example is the X25519 implementation we looked at in the [SLOTHY paper](https://eprint.iacr.org/2022/1303) available in [X25519-AArch64-simple.s](../examples/naive/aarch64/X25519-AArch64-simple.s)
+It is a hybrid vector-scalar implementation based on an [implementation](https://github.com/Emill/X25519-AArch64) by Lenngren.
+Its core loop consists of 958 instructions which well exceeds what SLOTHY can currently optimize in a single pass.
+
+However, we can still make use of SLOTHY to optimize this code by employing heuristics.
+One particularly useful heuristics supported by SLOTHY is the `splitting` heuristic.
+When a piece of code is too large to be optimized at once, it splits it into multiple overlapping pieces that are optimized separately.
+With this approach one loses the optimality guarantees as it may be that there is a solution that SLOTHY cannot find due to the splitting.
+However, by repeatedly running SLOTHY using the `splitting` heuristic, we managed to outperform the state-of-the-art and get very close to optimal results (in terms of IPS).
+
+To demonstrate the splitting heuristic we can use the following SLOTHY call:
+```
+# example
+slothy.load_source_from_file("../examples/naive/aarch64/X25519-AArch64-simple.s")
+
+# first pass: replace symbolic register names by architectural registers
+slothy.config.inputs_are_outputs=True
+slothy.config.outputs=["x0"]
+slothy.config.constraints.functional_only = True
+slothy.config.constraints.allow_reordering = False
+slothy.optimize(start="mainloop", end="end_label")
+slothy.config.constraints.functional_only = False
+slothy.config.constraints.allow_reordering = True
+
+# second pass: splitting heuristic
+slothy.config.variable_size=True
+slothy.config.constraints.stalls_first_attempt=32
+slothy.config.split_heuristic = True
+slothy.config.split_heuristic_stepsize = 0.05
+slothy.config.split_heuristic_factor = 10
+slothy.config.split_heuristic_repeat = 2
+slothy.optimize(start="mainloop", end="end_label")
+slothy.write_source_to_file("X25519-AArch64-simple_opt.s")
+```
+
+
+The `splitting` heuristic can be turned on by setting `slothy.config.split_heuristic = True`.
+It has three main parameters:
+- `split_heuristic_factor` : Determines the size of each split. In this case, 10 means that we will be optimizing 10% of the original code at a time.
+- `split_heuristic_stepsize` : Controls the degree of overlapping of the sliding window. Setting it to 0.05 means the sliding window moves by 5% every time. We will start with optimizing the first 10% ([0,0.1]) of the code, then [0.05,0.15], [0.1,0.20], ...
+- `split_heuristic_repeat`: The number of times the optimization should be repeated.
+
+You will notice in the example above, that there is another call to `slothy.optimize()` prior to that.
+This is needed as the input implementation is using symbolic register names which is a feature unrelated to the splitting heuristic that we want to demonstrate here.
+It allows a developer of the code to leave the register allocation up to SLOTHY.
+Unfortunately, it is not compatible with the splitting heuristic (as register allocation can't be performed locally), and hence we first need to do the register allocation on the full code before we continue.
+We can perform register allocation only by setting the `allow_reordering=False` (disabling the ordering constraints) and `functional_only=True` (disabling the microarchitectural constraints).
+In this way, the constraints remain manageable, and SLOTHY finds a register allocation within a few minutes.
+
+Running this example takes around 15 minutes.
+You can instead look at the output available in [X25519-AArch64-simple_opt.s](X25519-AArch64-simple_opt.s)
+The output will look similar to the previous examples and contains significantly less pipeline stalls than the input.
+For achieving the best performance, we require a few more calls to SLOTHY. You can find the script we used [here](../paper/scripts/slothy_x25519.sh) - it runs around 1.5 hours.
 
 ## 8. Adding a new microarchitecture
 
