@@ -139,27 +139,6 @@
         trn2 \data_out\()3.4s, \data_in\()2.4s, \data_in\()3.4s
 .endm
 
-.macro save_gprs // @slothy:no-unfold
-        sub sp, sp, #(16*6)
-        stp x19, x20, [sp, #16*0]
-        stp x19, x20, [sp, #16*0]
-        stp x21, x22, [sp, #16*1]
-        stp x23, x24, [sp, #16*2]
-        stp x25, x26, [sp, #16*3]
-        stp x27, x28, [sp, #16*4]
-        str x29, [sp, #16*5]
-.endm
-
-.macro restore_gprs // @slothy:no-unfold
-        ldp x19, x20, [sp, #16*0]
-        ldp x21, x22, [sp, #16*1]
-        ldp x23, x24, [sp, #16*2]
-        ldp x25, x26, [sp, #16*3]
-        ldp x27, x28, [sp, #16*4]
-        ldr x29, [sp, #16*5]
-        add sp, sp, #(16*6)
-.endm
-
 .macro save_vregs // @slothy:no-unfold
         sub sp, sp, #(16*4)
         stp  d8,  d9, [sp, #16*0]
@@ -176,51 +155,16 @@
         add sp, sp, #(16*4)
 .endm
 
-#define STACK_SIZE 16
-#define STACK0 0
-
-.macro restore a, loc     // @slothy:no-unfold
-        ldr \a, [sp, #\loc\()]
-.endm
-.macro save loc, a        // @slothy:no-unfold
-        str \a, [sp, #\loc\()]
-.endm
 .macro push_stack // @slothy:no-unfold
-        save_gprs
         save_vregs
-        sub sp, sp, #STACK_SIZE
 .endm
 
 .macro pop_stack // @slothy:no-unfold
-        add sp, sp, #STACK_SIZE
         restore_vregs
-        restore_gprs
 .endm
 
-.data
-.p2align 4
-roots:
-#include "ntt_kyber_123_45_67_twiddles.s"
-.text
-
-        .global ntt_kyber_123_4567
-        .global _ntt_kyber_123_4567
-
-.p2align 4
-const_addr:       .short 3329
-                  .short 20159
-                  .short 0
-                  .short 0
-                  .short 0
-                  .short 0
-                  .short 0
-                  .short 0
-ntt_kyber_123_4567:
-_ntt_kyber_123_4567:
-        push_stack
-
         in      .req x0
-        inp     .req x1
+        in_orig .req x1
         count   .req x2
         r_ptr0  .req x3
         r_ptr1  .req x4
@@ -318,13 +262,35 @@ _ntt_kyber_123_4567:
         t2  .req v27
         t3  .req v28
 
+.data
+.p2align 4
+roots:
+#include "ntt_kyber_123_45_67_twiddles.s"
+.text
+
+        .global ntt_kyber_123_4567
+        .global _ntt_kyber_123_4567
+
+.p2align 4
+const_addr:       .short 3329
+                  .short 20159
+                  .short 0
+                  .short 0
+                  .short 0
+                  .short 0
+                  .short 0
+                  .short 0
+ntt_kyber_123_4567:
+_ntt_kyber_123_4567:
+        push_stack
+
         ASM_LOAD(r_ptr0, roots)
         ASM_LOAD(r_ptr1, roots_l56)
 
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
 
-        save STACK0, in
+        mov in_orig, in
         mov count, #4
 
         load_roots_123
@@ -368,15 +334,15 @@ layer123_start:
         subs count, count, #1
         cbnz count, layer123_start
 
-        restore inp, STACK0
+        mov in, in_orig
         mov count, #8
 
         .p2align 2
 layer4567_start:
-        ldr_vo data0, inp, (16*0)
-        ldr_vo data1, inp, (16*1)
-        ldr_vo data2, inp, (16*2)
-        ldr_vo data3, inp, (16*3)
+        ldr_vo data0, in, (16*0)
+        ldr_vo data1, in, (16*1)
+        ldr_vo data2, in, (16*2)
+        ldr_vo data3, in, (16*3)
 
         load_next_roots_45
 
@@ -397,7 +363,7 @@ layer4567_start:
         barrett_reduce data1
         barrett_reduce data2
         barrett_reduce data3
-        st4 {data0.4S, data1.4S, data2.4S, data3.4S}, [inp], #64
+        st4 {data0.4S, data1.4S, data2.4S, data3.4S}, [in], #64
 
         subs count, count, #1
         cbnz count, layer4567_start

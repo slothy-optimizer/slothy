@@ -1,4 +1,3 @@
-
 ///
 /// Copyright (c) 2022 Arm Limited
 /// Copyright (c) 2022 Hanno Becker

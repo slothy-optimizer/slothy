@@ -33,7 +33,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -l layer123_start                                              \
          -l layer4567_start                                             \
          -c sw_pipelining.enabled=true                                  \
-         -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,x30,sp]"               \
+         -c reserved_regs="[x0--x30,sp]"                                \
          -c inputs_are_outputs                                          \
          -c sw_pipelining.minimize_overlapping=False                    \
          -c constraints.stalls_first_attempt=64 -c variable_size        \
@@ -48,7 +48,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend               
          -l layer123_start                                                              \
          -l layer4567_start                                                             \
          -c sw_pipelining.enabled=true                                                  \
-         -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,x30,sp]"                               \
+         -c reserved_regs="[x0--x5,x18--x30,sp]"                                        \
          -c inputs_are_outputs                                                          \
          -c sw_pipelining.minimize_overlapping=False                                    \
          -c constraints.stalls_first_attempt=64 -c variable_size                        \
@@ -115,7 +115,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c split_heuristic_stepsize=0.1                                \
          -c split_heuristic_repeat=4                                    \
          -c max_solutions=64                                            \
-         -c reserved_regs="[x0,x1,x2,x3,x4,x5,x30,sp]"                  \
+         -c reserved_regs="[x0--x30,sp]"                                \
          -c inputs_are_outputs                                          \
          -c sw_pipelining.minimize_overlapping=False                    \
          -c variable_size                                               \
@@ -130,7 +130,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A72_frontend       \
          -c sw_pipelining.enabled=true                                  \
          -c constraints.stalls_first_attempt=40                         \
          -c max_solutions=64                                            \
-         -c reserved_regs="[x0,x1,x2,x3,x4,x5,x30,sp]"                  \
+         -c reserved_regs="[x0--x30,sp]"                                \
          -c inputs_are_outputs                                          \
          -c sw_pipelining.minimize_overlapping=False                    \
          -c variable_size                                               \
