@@ -125,10 +125,10 @@ execution_units = {
     ( Ldr_Q, Ldr_X )
     : ExecutionUnit.LOAD(),
 
-    ( Str_Q, Str_X )
+    ( d_stp_stack_with_inc, Str_Q, Str_X )
     : ExecutionUnit.STORE(),
 
-    (add, add_imm, add_lsl, add_lsr) : ExecutionUnit.SCALAR(),
+    (mov_x, mov_imm, sub_imm, add, add_imm, add_lsl, add_lsr) : ExecutionUnit.SCALAR(),
 
     vsrshr : [ExecutionUnit.ASIMD1],
 
@@ -153,10 +153,10 @@ inverse_throughput = {
     Vins : 1,
     umov_d : 1,
 
-    (add, add_imm, add_lsl, add_lsr) : 1,
+    (mov_x, mov_imm, sub_imm, add, add_imm, add_lsl, add_lsr) : 1,
 
     ( Ldr_Q,
-      Str_Q,
+      d_stp_stack_with_inc, Str_Q,
       Ldr_X, Str_X )
       : 1,
 
@@ -179,14 +179,14 @@ default_latencies = {
      trn1, trn2 )
     : 3, # Approximation -- not necessary to get it exactly right, as mentioned above
 
-    ( Ldr_Q, Ldr_X,
+    ( d_stp_stack_with_inc, Ldr_Q, Ldr_X,
       Str_Q, Str_X )
       : 4, # approx
 
     Vins : 6, # approx
     umov_d : 4, # approx
 
-    (add, add_imm, add_lsl, add_lsr) : 2,
+    (mov_x, mov_imm, sub_imm, add, add_imm, add_lsl, add_lsr) : 2,
 
     vsrshr : 3, # approx
     St4 : 8,

@@ -139,28 +139,26 @@
         trn2 \data_out\()3.4s, \data_in\()2.4s, \data_in\()3.4s
 .endm
 
-.macro save_vregs // @slothy:no-unfold
-        sub sp, sp, #(16*4)
+.macro save_vregs
         stp  d8,  d9, [sp, #16*0]
         stp d10, d11, [sp, #16*1]
         stp d12, d13, [sp, #16*2]
         stp d14, d15, [sp, #16*3]
 .endm
 
-.macro restore_vregs // @slothy:no-unfold
+.macro restore_vregs
         ldp  d8,  d9, [sp, #16*0]
         ldp d10, d11, [sp, #16*1]
         ldp d12, d13, [sp, #16*2]
         ldp d14, d15, [sp, #16*3]
+.endm
+
+.macro alloc_stack
+        sub sp, sp, #(16*4)
+.endm
+
+.macro free_stack
         add sp, sp, #(16*4)
-.endm
-
-.macro push_stack // @slothy:no-unfold
-        save_vregs
-.endm
-
-.macro pop_stack // @slothy:no-unfold
-        restore_vregs
 .endm
 
         in      .req x0
@@ -282,13 +280,15 @@ const_addr:       .short 3329
                   .short 0
 ntt_kyber_123_4567:
 _ntt_kyber_123_4567:
-        push_stack
-
         ASM_LOAD(r_ptr0, roots)
         ASM_LOAD(r_ptr1, roots_l56)
-
         ASM_LOAD(xtmp, const_addr)
-        ld1 {consts.8h}, [xtmp]
+        alloc_stack
+
+ntt_kyber_123_4567_preamble:
+        save_vregs
+
+        ldr qform_consts, [xtmp]
 
         mov in_orig, in
         mov count, #4
@@ -368,5 +368,7 @@ layer4567_start:
         subs count, count, #1
         cbnz count, layer4567_start
 
-       pop_stack
-       ret
+        restore_vregs
+ntt_kyber_123_4567_end:
+        free_stack
+        ret
