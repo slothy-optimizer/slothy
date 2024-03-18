@@ -874,7 +874,7 @@ However, we can still make use of SLOTHY to optimize this code by employing heur
 One particularly useful heuristics supported by SLOTHY is the `splitting` heuristic.
 When a piece of code is too large to be optimized at once, it splits it into multiple overlapping pieces that are optimized separately.
 With this approach one loses the optimality guarantees as it may be that there is a solution that SLOTHY cannot find due to the splitting.
-However, by repeatedly running SLOTHY using the `splitting` heuristic, we managed to outperform the state-of-the-art and get very close to optimal results (in terms of IPS).
+However, by repeatedly running SLOTHY using the `splitting` heuristic, we managed to outperform the state-of-the-art and get very close to optimal results (in terms of IPC).
 
 To demonstrate the splitting heuristic we can use the following SLOTHY call:
 ```
@@ -912,7 +912,7 @@ You will notice in the example above, that there is another call to `slothy.opti
 This is needed as the input implementation is using symbolic register names which is a feature unrelated to the splitting heuristic that we want to demonstrate here.
 It allows a developer of the code to leave the register allocation up to SLOTHY.
 Unfortunately, it is not compatible with the splitting heuristic (as register allocation can't be performed locally), and hence we first need to do the register allocation on the full code before we continue.
-We can perform register allocation only by setting the `allow_reordering=False` (disabling the ordering constraints) and `functional_only=True` (disabling the microarchitectural constraints).
+We can configure SLOTHY to only consider register allocation by setting the `allow_reordering=False` (disabling the ordering constraints) and `functional_only=True` (disabling the microarchitectural constraints).
 In this way, the constraints remain manageable, and SLOTHY finds a register allocation within a few minutes.
 
 Running this example takes around 15 minutes.
