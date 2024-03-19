@@ -70,7 +70,7 @@ It's advised to make use of [virtual environment](https://docs.python.org/3/libr
 
 The following steps should get you started:
 
-```
+```bash
 git clone https://github.com/slothy-optimizer/slothy
 cd slothy
 # setup venv
@@ -96,7 +96,7 @@ You can run `python3 example.py --help` to see all examples available.
 
 Let's look at a very simple example from the previous section called `aarch64_simple0`.
 You can find the corresponding code in [examples/naive/aarch64/aarch64_simple0.s](../examples/naive/aarch64/aarch64_simple0.s):
-```
+```nasm
 ldr q0, [x1, #0]
 ldr q1, [x2, #0]
 
@@ -159,7 +159,7 @@ In the last step, SLOTHY will transform the found traversal of the DFG into actu
 To make sure everything worked out as expected, it will perform a selfcheck which consists of transforming the output assembly into a DFG again and testing that the resulting graph is isomorphic to the input DFG.
 
 We can now take a look at the output assembly in [examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s):
-```
+```nasm
 ldr q8, [x1, #0]                        // *...................
 // gap                                  // ....................
 // gap                                  // ....................
@@ -238,7 +238,6 @@ str q5, [x0, #-16]                      // ...................*
 // str q9,  [x0, #-3*16]                  // ................*...
 // str q10, [x0, #-2*16]                  // ..................*.
 // str q11, [x0, #-1*16]                  // ...................*
-
 ```
 
 At the top you can see the re-scheduled assembly and at the bottom you find the original source code as a comment.
@@ -263,7 +262,7 @@ When writing your own calls to SLOTHY, there are generally two options:
 (1) Using SLOTHY as a Python module, or (2) using `slothy-cli` using command line options. We will continue with (1) to demonstrate some features.
 To reproduce the example above, you can place the following code into your own Python script in the root directory of SLOTHY:
 
-```
+```python
 import logging
 import sys
 
@@ -316,7 +315,7 @@ apparent that our example is just a pair of NTT butterflies using Barrett multip
 `.macro` directives used here are commonly supported [assembly
 directives](https://www.sourceware.org/binutils/docs/as/ARM-Directives.html).
 
-```
+```nasm
 qdata0   .req q8
 qdata1   .req q9
 qdata2   .req q10
@@ -371,7 +370,7 @@ end:
 
 SLOTHY will then internally expand all macros and the resulting DFG will be exactly the same as before.
 To make this work, we have to slightly change the SLOTHY code:
-```
+```python
 # example
 slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0_macros.s")
 slothy.config.variable_size=True
@@ -402,7 +401,7 @@ postamble, respectively.
 Let's look at an example demonstrating how SLOTHY can perform software pipelining for you.
 Consider the simple case of performing the code from the previous example within a loop. This is exactly what the
 `aarch64_simple0_loop` example in SLOTHY does:
-```
+```nasm
 ... // .req and .macro as above
 
 count .req x2
@@ -430,7 +429,7 @@ start:
 ```
 
 Let's use SLOTHY to superoptimize this loop:
-```
+```python
 slothy.load_source_from_file("examples/naive/aarch64/aarch64_simple0_loop.s")
 slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
@@ -449,7 +448,7 @@ automatically detect that the loop ends at `cbnz count, start`. Finally, `optimi
 it would by default -- you normally want this set, but we unset it here to simplify the output. This is what it will
 look like:
 
-```
+```nasm
 // ...
 count .req x2
 
@@ -582,7 +581,7 @@ Analyzer](https://llvm.org/docs/CommandGuide/llvm-mca.html). If you have `llvm-m
 to compile LLVM >= 18 yourself), you can make use of it in SLOTHY by setting the `with_llvm_mca` flag.
 Let's look at the last example and enable LLVM MCA:
 
-```
+```python
 slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0_loop.s")
 slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
@@ -597,7 +596,7 @@ slothy.write_source_to_file("./aarch64_simple0_loop_mca_a55.s")
 
 This will call LLVM MCA on both the original code and the optimized code and append the LLVM MCA statistics as a comment to the output.
 Somewhere in the code you will see:
-```
+```nasm
 // LLVM MCA STATISTICS (ORIGINAL) BEGIN
 //
 // Iterations:        100
@@ -629,7 +628,7 @@ This suggests that our optimizations were actually useful: With respect to LLVM-
  cycle count per iteration was reduced from 31 cycles to 21 cycles.
 
 But LLVM MCA gives you more: It outputs a timeline view showing how each instruction travels through the pipeline:
-```
+```nasm
 // Timeline view (ORIGINAL):
 //                     0123456789          0123456789          0123456789          0123456789          01234
 // Index     0123456789          0123456789          0123456789          0123456789          0123456789
@@ -768,7 +767,7 @@ as part of the [pqax](https://github.com/slothy-optimizer/pqax) benchmarking fra
 input and automatically generates a program running and benchmarking prefixes of the input, and combining them into a
 performance diagram similar to the one generated by LLVM-MCA. Here's the output in our case:
 
-```
+```nasm
 ===== Stepwise profiling =======
 [  0]:                     ldr q0, [x1, #0] ......*.....................................
 [  1]:                  ldr q8, [x0, #0*16] .......*....................................
@@ -829,7 +828,7 @@ The actual operations are wrapped in macros implementing butterflies on single v
 Note that this code performs very poorly: No consideration was given to the intricacies of the microarchitecture.
 
 Let's run SLOTHY on this code:
-```
+```python
 slothy.load_source_from_file("examples/naive/aarch64/ntt_kyber_123_4567.s")
 slothy.config.sw_pipelining.enabled = True
 slothy.config.inputs_are_outputs = True
@@ -877,7 +876,7 @@ With this approach one loses the optimality guarantees as it may be that there i
 However, by repeatedly running SLOTHY using the `splitting` heuristic, we managed to outperform the state-of-the-art and get very close to optimal results (in terms of IPC).
 
 To demonstrate the splitting heuristic we can use the following SLOTHY call:
-```
+```python
 # example
 slothy.load_source_from_file("../examples/naive/aarch64/X25519-AArch64-simple.s")
 
@@ -927,7 +926,7 @@ For example, you may want to optimize code for a newer iteration of the Arm Cort
 To understand what is needed for that, let's look at the microarchitectural model for the Cortex-A55 available in [slothy/targets/aarch64/cortex_a55.py](../slothy/targets/aarch64/cortex_a55.py).
 
 Skipping some boilerplate code, you will see the following structure:
-```
+```python
 from slothy.targets.aarch64.aarch64_neon import *
 
 issue_rate = 2
@@ -980,7 +979,7 @@ Going through the snippet, we can see the core components:
 
 For example, for the (128-bit/qform) `vmull` instruction, we can find in the Arm Cortex-A55 SWOG, that it occupies both vector execution units, has an inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way:
 
-```
+```python
 execution_units = {
     ( vmull ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
@@ -998,7 +997,7 @@ We mostly use the tuple-syntax, so we can group together instructions that belon
 For example, later we may want to add the Neon `add`. From the SWOG we can see that (128-bit/qform) `add` occupies both vector execution units, has a latency of 3 cycles, and throughput of 1 cycle.
 We can extend the above model as follows:
 
-```
+```python
 execution_units = {
     ( vmull, vadd ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
