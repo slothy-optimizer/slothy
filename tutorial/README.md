@@ -974,10 +974,17 @@ def get_inverse_throughput(src):
 
 Going through the snippet, we can see the core components:
  - Definition of the `issue_rate` corresponding to the number of issue slots available per cycle. Since the Cortex-A55 is a dual-issue CPU, this is two.
- - Definition of an `Enum` modelling the different execution units available. In this case, we model 2 scalar units, one MAC unit, 2 vector units, one load unit, and one store unit.
- - Finally, we need to implement the functions `get_latency`, `get_units`, `get_inverse_throughput` returning the latency, occupied execution units, and throughputs. The input to these functions is a class from the architectural model representing the instruction in question. For example, the class `vmull` in [aarch64_neon.py](../slothy/targets/aarch64/aarch64_neon.py) corresponds to the `umull` instruction. We commonly implement this using dictionaries above.
+ - Definition of an `Enum` modelling the different execution units available. In this case, we model 2 scalar units, one
+   MAC unit, 2 64-bit vector units, one load unit, and one store unit.
+ - Finally, we need to implement the functions `get_latency`, `get_units`, `get_inverse_throughput` returning the
+   latency, occupied execution units, and throughputs. The input to these functions is a class from the architectural
+   model representing the instruction in question. For example, the class `vmull` in
+   [aarch64_neon.py](../slothy/targets/aarch64/aarch64_neon.py) corresponds to the `umull` instruction. We commonly
+   implement this using dictionaries above.
 
-For example, for the (128-bit/qform) `vmull` instruction, we can find in the Arm Cortex-A55 SWOG, that it occupies both vector execution units, has an inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way:
+For example, for the (128-bit/qform) `vmull` instruction, we can find in the [Arm Cortex-A55 Software Optimization
+Guide](https://developer.arm.com/documentation/EPM128372/latest/) that it occupies both vector execution units, has an
+inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way:
 
 ```python
 execution_units = {
@@ -994,7 +1001,8 @@ default_latencies = {
 ```
 
 We mostly use the tuple-syntax, so we can group together instructions that belong together.
-For example, later we may want to add the Neon `add`. From the SWOG we can see that (128-bit/qform) `add` occupies both vector execution units, has a latency of 3 cycles, and throughput of 1 cycle.
+For example, later we may want to add the Neon `add`. From the SWOG we can see that (128-bit/qform) `add` occupies both
+64-bit vector execution units, has a latency of 3 cycles, and throughput of 1 cycle.
 We can extend the above model as follows:
 
 ```python
@@ -1013,11 +1021,15 @@ default_latencies = {
 ```
 
 
-(When looking at the actual model, you will notice that this is not quite how it is modelled. You will see that for some instructions, we have to distinguish between the q-form (128-bit) and the d-form (64-bit) of the instruction. Q-form instructions occupy both vector execution units, while most D-form instructions occupy only 1. Latencies also vary depending on the actual form.)
+(When looking at the actual model, you will notice that this is not quite how it is modelled. You will see that for some
+instructions, we have to distinguish between the q-form (128-bit) and the d-form (64-bit) of the instruction. Q-form
+instructions occupy both vector execution units, while most D-form instructions occupy only 1. Latencies also vary
+depending on the actual form.)
 
-Note that both the architectural model and the micro-architectural model can be built lazily: As long as the corresponding instruction do not appear in your input, you may leave out their description.
-As soon as you hit an instruction that is not part of the architectural or micro-architectural model, you will see an error.
-
+Note that both the architectural model and the micro-architectural model can be built lazily: As long as the
+corresponding instruction do not appear in your input, you may leave out their description.
+As soon as you hit an instruction that is not part of the architectural or micro-architectural model, you will see an
+error.
 
 ## Troubleshooting
 
