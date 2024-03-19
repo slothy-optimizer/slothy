@@ -108,36 +108,6 @@
         vmlaq    \a, t0, consts, 0
 .endm
 
-.macro load_roots_123
-        ldr_vi root0, r_ptr0, 32
-        ldr_vo root1, r_ptr0, -16
-.endm
-
-.macro load_next_roots_45 root0, r_ptr0
-        ldr_vi \root0, \r_ptr0, 16
-.endm
-
-.macro load_next_roots_67 root0, root0_tw, root1, root1_tw, root2, root2_tw, r_ptr1
-        ldr_vi \root0,    \r_ptr1, (6*16)
-        ldr_vo \root0_tw, \r_ptr1, (-6*16 + 1*16)
-        ldr_vo \root1,    \r_ptr1, (-6*16 + 2*16)
-        ldr_vo \root1_tw, \r_ptr1, (-6*16 + 3*16)
-        ldr_vo \root2,    \r_ptr1, (-6*16 + 4*16)
-        ldr_vo \root2_tw, \r_ptr1, (-6*16 + 5*16)
-.endm
-
-.macro transpose4 data
-        trn1 t0.4s, \data\()0.4s, \data\()1.4s
-        trn2 t1.4s, \data\()0.4s, \data\()1.4s
-        trn1 t2.4s, \data\()2.4s, \data\()3.4s
-        trn2 t3.4s, \data\()2.4s, \data\()3.4s
-
-        trn2 \data\()2.2d, t0.2d, t2.2d
-        trn2 \data\()3.2d, t1.2d, t3.2d
-        trn1 \data\()0.2d, t0.2d, t2.2d
-        trn1 \data\()1.2d, t1.2d, t3.2d
-.endm
-
 .macro save_gprs // @slothy:no-unfold
         sub sp, sp, #(16*6)
         stp x19, x20, [sp, #16*0]
@@ -196,29 +166,6 @@
         restore_gprs
 .endm
 
-.data
-.p2align 4
-roots:
-#include "ntt_kyber_1234_567_twiddles.s"
-.text
-
-        .global ntt_kyber_1234_567
-        .global _ntt_kyber_1234_567
-
-.p2align 4
-const_addr:     .short -3329
-                .short 20159
-                .short 0
-                .short 0
-                .short 0
-                .short 0
-                .short 0
-                .short 0
-
-ntt_kyber_1234_567:
-_ntt_kyber_1234_567:
-        push_stack
-
         in      .req x0
         inp     .req x1
         count   .req x2
@@ -228,20 +175,6 @@ _ntt_kyber_1234_567:
 
         src0      .req x6
         src1      .req x7
-        src2      .req x8
-        src3      .req x9
-        src4      .req x10
-        src5      .req x11
-        src6      .req x12
-        src7      .req x13
-        src8      .req x14
-        src9      .req x15
-        src10     .req x16
-        src11     .req x17
-        src12     .req x18
-        src13     .req x19
-        src14     .req x20
-        src15     .req x21
 
         qform_v0  .req q0
         qform_v1  .req q1
@@ -336,17 +269,43 @@ _ntt_kyber_1234_567:
 
         consts .req v8
 
-        ASM_LOAD(r_ptr0, roots)
+.data
+.p2align 4
+roots:
+#include "ntt_kyber_1234_567_twiddles.s"
+.text
 
+        .global ntt_kyber_1234_567
+        .global _ntt_kyber_1234_567
+
+.p2align 4
+const_addr:     .short -3329
+                .short 20159
+                .short 0
+                .short 0
+                .short 0
+                .short 0
+                .short 0
+                .short 0
+
+ntt_kyber_1234_567:
+_ntt_kyber_1234_567:
+        push_stack
+
+        ASM_LOAD(r_ptr0, roots)
+        ASM_LOAD(r_ptr1, roots_l456)
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
 
         save STACK0, in
 
         add  src0, x0,  #32*0
-        add  src8, x0,  #32*8
+        add  src1, x0,  #32*8
 
-        ld1 { root0.8h,  root1.8h,  root2.8h,  root3.8h}, [r_ptr0], #64
+        ldr_vo root0, r_ptr0, 0
+        ldr_vo root1, r_ptr0, 16
+        ldr_vo root2, r_ptr0, 32
+        ldr_vo root3, r_ptr0, 48
 
         mov count, #2
 
@@ -362,14 +321,14 @@ layer1234_start:
         ldr_vo data6, src0, 6*32
         ldr_vo data7, src0, 7*32
 
-        ldr_vo data8, src8, 0
-        ldr_vo data9, src8, 1*32
-        ldr_vo data10, src8, 2*32
-        ldr_vo data11, src8, 3*32
-        ldr_vo data12, src8, 4*32
-        ldr_vo data13, src8, 5*32
-        ldr_vo data14, src8, 6*32
-        ldr_vo data15, src8, 7*32
+        ldr_vo data8, src1, 0
+        ldr_vo data9, src1, 1*32
+        ldr_vo data10, src1, 2*32
+        ldr_vo data11, src1, 3*32
+        ldr_vo data12, src1, 4*32
+        ldr_vo data13, src1, 5*32
+        ldr_vo data14, src1, 6*32
+        ldr_vo data15, src1, 7*32
 
         ct_butterfly data0,  data8, root0, 0, 1
         ct_butterfly data1,  data9, root0, 0, 1
@@ -416,22 +375,20 @@ layer1234_start:
         str_vo data6, src0, -16+6*32
         str_vo data7, src0, -16+7*32
 
-        str_vi data8, src8, 16
-        str_vo data9, src8, -16+1*32
-        str_vo data10, src8, -16+2*32
-        str_vo data11, src8, -16+3*32
-        str_vo data12, src8, -16+4*32
-        str_vo data13, src8, -16+5*32
-        str_vo data14, src8, -16+6*32
-        str_vo data15, src8, -16+7*32
+        str_vi data8, src1, 16
+        str_vo data9, src1, -16+1*32
+        str_vo data10, src1, -16+2*32
+        str_vo data11, src1, -16+3*32
+        str_vo data12, src1, -16+4*32
+        str_vo data13, src1, -16+5*32
+        str_vo data14, src1, -16+6*32
+        str_vo data15, src1, -16+7*32
 
         subs count, count, #1
         cbnz count, layer1234_start
 
         restore inp, STACK0
         mov count, #4
-
-        ASM_LOAD(r_ptr1, roots_l456)
 
         add src0, inp, #256*0
         add src1, inp, #256*1

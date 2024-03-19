@@ -30,6 +30,7 @@ roots_l0123:
 .short -1583
 .short -15582
 
+.p2align 4
 roots_l456:
 .short 296
 .short 296
