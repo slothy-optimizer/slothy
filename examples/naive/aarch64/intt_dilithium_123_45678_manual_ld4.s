@@ -371,6 +371,8 @@ _intt_dilithium_123_45678_manual_ld4:
         consts .req v8
         qform_consts .req q8
 
+        modulus .req v29
+
         ASM_LOAD(r_ptr0, roots_l345)
         ASM_LOAD(r_ptr1, roots_l67)
 
@@ -442,6 +444,12 @@ layer45678_start:
         gs_butterfly data4, data6, root1, 0, 1
         gs_butterfly data5, data7, root1, 0, 1
 
+        // Interm. Reduction
+        montg_reduce data0
+        montg_reduce data1
+        montg_reduce data4
+        montg_reduce data5
+
         // Layer 4
         gs_butterfly data0, data4, root0, 0, 1
         gs_butterfly data1, data5, root0, 0, 1
@@ -470,11 +478,16 @@ layer45678_start:
 
         ninv             .req v25
         ninv_tw          .req v26
+        modulus_half     .req v30
+        neg_modulus_half .req v31
 
         ASM_LOAD(xtmp, ninv_addr)
         ld1r {ninv.4s}, [xtmp]
         ASM_LOAD(xtmp, ninv_tw_addr)
         ld1r {ninv_tw.4s}, [xtmp]
+
+        ushr modulus_half.4S, modulus.4S, #1
+        neg neg_modulus_half.4S, modulus_half.4S
 
         mov count, #8
         ASM_LOAD(r_ptr0, roots_l012)
@@ -508,10 +521,10 @@ layer123_start:
         gs_butterfly data2, data6, root0, 0, 1
         gs_butterfly data3, data7, root0, 0, 1
 
-        montg_reduce data4
-        montg_reduce data5
-        montg_reduce data6
-        montg_reduce data7
+        canonical_reduce data4, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data5, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data6, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data7, modulus_half, neg_modulus_half, t2, t3
 
         str_vo data4, in, (4*(1024/8))
         str_vo data5, in, (5*(1024/8))
@@ -519,6 +532,11 @@ layer123_start:
         str_vo data7, in, (7*(1024/8))        
 
         mul_ninv data4, data5, data6, data7, data0, data1, data2, data3
+
+        canonical_reduce data4, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data5, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data6, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data7, modulus_half, neg_modulus_half, t2, t3
 
         str_vi data4, in, (16)
         str_vo data5, in, (-16 + 1*(1024/8))
