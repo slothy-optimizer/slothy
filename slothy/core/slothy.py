@@ -266,6 +266,7 @@ class Slothy:
         if end is not None:
             core += [SourceLine(f"{end}:")]
 
+        core = SourceLine.apply_indentation(core, self.config.indentation)
         if not self.config.sw_pipelining.enabled:
             assert early == []
             assert late == []

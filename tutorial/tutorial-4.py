@@ -22,6 +22,5 @@ slothy.config.constraints.stalls_first_attempt=32
 slothy.config.sw_pipelining.enabled = True
 slothy.config.sw_pipelining.optimize_preamble = False
 slothy.config.sw_pipelining.optimize_postamble = False
-slothy.config.with_llvm_mca = True
 slothy.optimize_loop("start")
 slothy.write_source_to_file("../examples/opt/aarch64/aarch64_simple0_loop_opt_a55.s")
