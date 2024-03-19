@@ -20,4 +20,4 @@ slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
 
 slothy.optimize()
-slothy.write_source_to_file("../examples/opt/aarch64/aarch64_simple0_a55.s")
+slothy.write_source_to_file("../examples/opt/aarch64/aarch64_simple0_opt_a55.s")
