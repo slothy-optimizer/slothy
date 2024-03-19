@@ -570,7 +570,7 @@ have any indicator of the impact of SLOTHY's optimizations on real hardware.
 Indeed, developing accurate microarchitectural models for SLOTHY is a time-consuming and iterative process:
 It usually takes a while until you have refined things to the point where SLOTHY's prediction closely relates to
 performance on real hardware. The most common refinement steps are:
-1) There is a mistake in the microarchitectural model mismatching what is written in the SWOG;
+1) There is a mistake in the microarchitectural model mismatching what is written in the Software Optimization Guide (SWOG);
 2) Some aspect of the microarchtecture (e.g., certain forwarding paths or other latency exceptions) is not documented in the SWOG.
 
 We briefly discuss two ways that we found useful to evaluate the quality SLOTHY's optimizations and drive the
