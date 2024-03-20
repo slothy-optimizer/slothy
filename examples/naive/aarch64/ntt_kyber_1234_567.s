@@ -26,32 +26,11 @@
 // Needed to provide ASM_LOAD directive
 #include <hal_env.h>
 
-// NOTE
-// We use a lot of trivial macros to simplify the parsing burden for Slothy
-// The macros are not unfolded by Slothy and thus interpreted as instructions,
-// which are easier to parse due to e.g. the lack of size specifiers and simpler
-// syntax for pre and post increment for loads and stores.
-//
-// Eventually, NeLight should include a proper parser for AArch64,
-// but for initial investigations, the below is enough.
-
 .macro trn1_s d,a,b
         trn1 \d\().4s, \a\().4s, \b\().4s
 .endm
 .macro trn2_s d,a,b
         trn2 \d\().4s, \a\().4s, \b\().4s
-.endm
-.macro ldr_vo vec, base, offset
-        ldr qform_\vec, [\base, #\offset]
-.endm
-.macro ldr_vi vec, base, inc
-        ldr qform_\vec, [\base], #\inc
-.endm
-.macro str_vo vec, base, offset
-        str qform_\vec, [\base, #\offset]
-.endm
-.macro str_vi vec, base, inc
-        str qform_\vec, [\base], #\inc
 .endm
 .macro vqrdmulh d,a,b
         sqrdmulh \d\().8h, \a\().8h, \b\().8h
@@ -109,21 +88,21 @@
 .endm
 
 .macro load_roots_123
-        ldr_vi root0, r_ptr0, 32
-        ldr_vo root1, r_ptr0, -16
+        ldr qform_root0, [r_ptr0], #32
+        ldr qform_root1, [r_ptr0, #-16]
 .endm
 
 .macro load_next_roots_45 root0, r_ptr0
-        ldr_vi \root0, \r_ptr0, 16
+        ldr qform_\root0, [\r_ptr0], #16
 .endm
 
 .macro load_next_roots_67 root0, root0_tw, root1, root1_tw, root2, root2_tw, r_ptr1
-        ldr_vi \root0,    \r_ptr1, (6*16)
-        ldr_vo \root0_tw, \r_ptr1, (-6*16 + 1*16)
-        ldr_vo \root1,    \r_ptr1, (-6*16 + 2*16)
-        ldr_vo \root1_tw, \r_ptr1, (-6*16 + 3*16)
-        ldr_vo \root2,    \r_ptr1, (-6*16 + 4*16)
-        ldr_vo \root2_tw, \r_ptr1, (-6*16 + 5*16)
+        ldr qform_\root0, [   \r_ptr1], #(6*16)
+        ldr qform_\root0_tw, [\r_ptr1, #(-6*16 + 1*16)]
+        ldr qform_\root1, [   \r_ptr1, #(-6*16 + 2*16)]
+        ldr qform_\root1_tw, [\r_ptr1, #(-6*16 + 3*16)]
+        ldr qform_\root2, [   \r_ptr1, #(-6*16 + 4*16)]
+        ldr qform_\root2_tw, [\r_ptr1, #(-6*16 + 5*16)]
 .endm
 
 .macro transpose4 data
@@ -353,23 +332,23 @@ _ntt_kyber_1234_567:
         .p2align 2
 layer1234_start:
 
-        ldr_vo data0, src0, 0
-        ldr_vo data1, src0, 1*32
-        ldr_vo data2, src0, 2*32
-        ldr_vo data3, src0, 3*32
-        ldr_vo data4, src0, 4*32
-        ldr_vo data5, src0, 5*32
-        ldr_vo data6, src0, 6*32
-        ldr_vo data7, src0, 7*32
+        ldr qform_data0, [src0, #0]
+        ldr qform_data1, [src0, #1*32]
+        ldr qform_data2, [src0, #2*32]
+        ldr qform_data3, [src0, #3*32]
+        ldr qform_data4, [src0, #4*32]
+        ldr qform_data5, [src0, #5*32]
+        ldr qform_data6, [src0, #6*32]
+        ldr qform_data7, [src0, #7*32]
 
-        ldr_vo data8, src8, 0
-        ldr_vo data9, src8, 1*32
-        ldr_vo data10, src8, 2*32
-        ldr_vo data11, src8, 3*32
-        ldr_vo data12, src8, 4*32
-        ldr_vo data13, src8, 5*32
-        ldr_vo data14, src8, 6*32
-        ldr_vo data15, src8, 7*32
+        ldr qform_data8, [src8, #0]
+        ldr qform_data9, [src8, #1*32]
+        ldr qform_data10, [src8, #2*32]
+        ldr qform_data11, [src8, #3*32]
+        ldr qform_data12, [src8, #4*32]
+        ldr qform_data13, [src8, #5*32]
+        ldr qform_data14, [src8, #6*32]
+        ldr qform_data15, [src8, #7*32]
 
         ct_butterfly data0,  data8, root0, 0, 1
         ct_butterfly data1,  data9, root0, 0, 1
@@ -407,23 +386,23 @@ layer1234_start:
         ct_butterfly data12, data13, root3, 2, 3
         ct_butterfly data14, data15, root3, 4, 5
 
-        str_vi data0, src0, 16
-        str_vo data1, src0, -16+1*32
-        str_vo data2, src0, -16+2*32
-        str_vo data3, src0, -16+3*32
-        str_vo data4, src0, -16+4*32
-        str_vo data5, src0, -16+5*32
-        str_vo data6, src0, -16+6*32
-        str_vo data7, src0, -16+7*32
+        str qform_data0, [src0], #16
+        str qform_data1, [src0, #-16+1*32]
+        str qform_data2, [src0, #-16+2*32]
+        str qform_data3, [src0, #-16+3*32]
+        str qform_data4, [src0, #-16+4*32]
+        str qform_data5, [src0, #-16+5*32]
+        str qform_data6, [src0, #-16+6*32]
+        str qform_data7, [src0, #-16+7*32]
 
-        str_vi data8, src8, 16
-        str_vo data9, src8, -16+1*32
-        str_vo data10, src8, -16+2*32
-        str_vo data11, src8, -16+3*32
-        str_vo data12, src8, -16+4*32
-        str_vo data13, src8, -16+5*32
-        str_vo data14, src8, -16+6*32
-        str_vo data15, src8, -16+7*32
+        str qform_data8, [src8], #16
+        str qform_data9, [src8, #-16+1*32]
+        str qform_data10, [src8, #-16+2*32]
+        str qform_data11, [src8, #-16+3*32]
+        str qform_data12, [src8, #-16+4*32]
+        str qform_data13, [src8, #-16+5*32]
+        str qform_data14, [src8, #-16+6*32]
+        str qform_data15, [src8, #-16+7*32]
 
         subs count, count, #1
         cbnz count, layer1234_start
@@ -452,21 +431,21 @@ layer567_start:
         trn2_s data7, data11, data15
 
         // load twiddle factors
-        ldr_vi root0,    r_ptr1, 16*14
-        ldr_vo root0_tw, r_ptr1, -16*14+16*1
-        ldr_vo root1,    r_ptr1, -16*14+16*2
-        ldr_vo root1_tw, r_ptr1, -16*14+16*3
-        ldr_vo root2,    r_ptr1, -16*14+16*4
-        ldr_vo root2_tw, r_ptr1, -16*14+16*5
-        ldr_vo root3,    r_ptr1, -16*14+16*6
-        ldr_vo root3_tw, r_ptr1, -16*14+16*7
+        ldr qform_root0, [   r_ptr1], #16*14
+        ldr qform_root0_tw, [r_ptr1, #-16*14+16*1]
+        ldr qform_root1, [   r_ptr1, #-16*14+16*2]
+        ldr qform_root1_tw, [r_ptr1, #-16*14+16*3]
+        ldr qform_root2, [   r_ptr1, #-16*14+16*4]
+        ldr qform_root2_tw, [r_ptr1, #-16*14+16*5]
+        ldr qform_root3, [   r_ptr1, #-16*14+16*6]
+        ldr qform_root3_tw, [r_ptr1, #-16*14+16*7]
 
-        ldr_vo data8,    r_ptr1, -16*14+16*8
-        ldr_vo data9,    r_ptr1, -16*14+16*9
-        ldr_vo data10,   r_ptr1, -16*14+16*10
-        ldr_vo data11,   r_ptr1, -16*14+16*11
-        ldr_vo data12,   r_ptr1, -16*14+16*12
-        ldr_vo data13,   r_ptr1, -16*14+16*13
+        ldr qform_data8, [   r_ptr1, #-16*14+16*8]
+        ldr qform_data9, [   r_ptr1, #-16*14+16*9]
+        ldr qform_data10, [  r_ptr1, #-16*14+16*10]
+        ldr qform_data11, [  r_ptr1, #-16*14+16*11]
+        ldr qform_data12, [  r_ptr1, #-16*14+16*12]
+        ldr qform_data13, [  r_ptr1, #-16*14+16*13]
 
         // butterflies
         ct_butterfly_v data0, data4, root0, root0_tw
