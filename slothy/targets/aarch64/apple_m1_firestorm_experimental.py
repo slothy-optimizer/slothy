@@ -149,7 +149,7 @@ execution_units = {
      vuzp1, vuzp2): ExecutionUnit.V(),
 
     # Arithmetic
-    (add, add_imm): ExecutionUnit.I(),
+    (mov_x, mov_imm, sub_imm, add, add_imm): ExecutionUnit.I(),
     (add_lsl, add_lsr, add2): list(map(list, combinations(ExecutionUnit.I(), 2))),
     (umull_wform, mul_wform): ExecutionUnit.M(),
     (umaddl_wform): ExecutionUnit.SCALAR_I5,
@@ -211,7 +211,7 @@ inverse_throughput = {
      vuzp1, vuzp2): 1,
 
     # Arithmetic
-    (add, add_imm): 1,
+    (mov_x, mov_imm, sub_imm, add, add_imm): 1,
     (add_lsl, add_lsr, add2): 1,
     (umull_wform, mul_wform): 1,
     (umaddl_wform): 1,
@@ -264,7 +264,7 @@ default_latencies = {
      vuzp1, vuzp2): 2,
 
     # Arithmetic
-    (add, add_imm): 1,
+    (mov_x, mov_imm, sub_imm, add, add_imm): 1,
     (add_lsl, add_lsr, add2): 2,
     (umull_wform, mul_wform): 3,
     (umaddl_wform): 3,
@@ -293,7 +293,7 @@ def get_latency(src, out_idx, dst):
     if instclass_src == umaddl_wform and instclass_dst == umaddl_wform and \
        src.args_out[0] == dst.args_in[2]:
         return (3, lambda t_src, t_dst: t_dst.program_start_var == t_src.program_start_var + 1)
-    
+
     return latency
 
 

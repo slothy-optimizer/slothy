@@ -1934,6 +1934,11 @@ class mov(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Wa"]
     outputs = ["Wd"]
 
+class mov_x(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "mov <Xd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
 class AArch64Move(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pass
 

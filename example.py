@@ -572,8 +572,6 @@ class AArch64Example2(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("start")
 
-
-
 class ntt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
         name = "ntt_kyber_123_4567"
@@ -598,6 +596,47 @@ class ntt_kyber_123_4567(Example):
         slothy.optimize_loop("layer123_start")
         slothy.optimize_loop("layer4567_start")
 
+class ntt_kyber_123_4567_speed(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
+        name = "ntt_kyber_123_4567"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.allow_post = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("layer123_start")
+
+        slothy.config.outputs = slothy.last_result.kernel_input_output + [f"x{i}" for i in range(0,6)]
+        slothy.config.locked_registers = [f"x{i}" for i in range(0,6)]
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.inputs_are_outputs = False
+        slothy.optimize(start="ntt_kyber_123_4567_preamble", end="layer123_start")
+
+        slothy.config.outputs = []
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.optimize_preamble = True
+        slothy.config.sw_pipelining.optimize_postamble = True
+        slothy.optimize_loop("layer4567_start", postamble_label="ntt_kyber_123_4567_postamble")
+
+        slothy.config.outputs = [f"v{i}" for i in range(8,16)]
+        slothy.config.locked_registers = [f"x{i}" for i in range(0,6)]
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.inputs_are_outputs = False
+        slothy.optimize(start="ntt_kyber_123_4567_postamble", end="ntt_kyber_123_4567_end")
 
 class ntt_kyber_123(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
@@ -1290,6 +1329,7 @@ def main():
                  ntt_kyber_123_4567(var="scalar_store"),
                  ntt_kyber_123_4567(var="scalar_load_store"),
                  ntt_kyber_123_4567(var="manual_st4"),
+                 ntt_kyber_123_4567_speed(var="lazy_trn"),
                  ntt_kyber_1234_567(),
                  # Cortex-A72
                  ntt_kyber_123_4567(target=Target_CortexA72),
@@ -1297,6 +1337,7 @@ def main():
                  ntt_kyber_123_4567(var="scalar_store", target=Target_CortexA72),
                  ntt_kyber_123_4567(var="scalar_load_store", target=Target_CortexA72),
                  ntt_kyber_123_4567(var="manual_st4", target=Target_CortexA72),
+                 ntt_kyber_123_4567_speed(var="lazy_trn", target=Target_CortexA72),
                  ntt_kyber_1234_567(target=Target_CortexA72),
                 #  # Apple M1 Firestorm
                  ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
@@ -1306,6 +1347,7 @@ def main():
                  ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_kyber_1234_567(target=Target_AppleM1_firestorm, timeout=300),
                  ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
+                 ntt_kyber_123_4567_speed(var="lazy_trn", target=Target_AppleM1_firestorm, timeout=3600),
                  # Apple M1 Icestorm
                  ntt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=3600),
                  ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_icestorm, timeout=3600),
@@ -1314,6 +1356,7 @@ def main():
                  ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
                  ntt_kyber_1234_567(target=Target_AppleM1_icestorm, timeout=300),
                  ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
+                 ntt_kyber_123_4567_speed(var="lazy_trn", target=Target_AppleM1_icestorm, timeout=3600),
                  # Kyber InvNTT
                  # Cortex-M55
                  intt_kyber_1_23_45_67(),
