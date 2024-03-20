@@ -34,6 +34,4 @@ slothy.config.split_heuristic_stepsize = 0.05
 slothy.config.split_heuristic_factor = 10
 slothy.config.split_heuristic_repeat = 2
 slothy.optimize(start="mainloop", end="end_label")
-slothy.write_source_to_file("X25519-AArch64-simple_opt.s")
-
-
+slothy.write_source_to_file("opt/X25519-AArch64-simple_opt.s")

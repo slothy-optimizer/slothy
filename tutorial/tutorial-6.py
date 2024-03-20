@@ -24,4 +24,4 @@ slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
 slothy.config.constraints.stalls_first_attempt = 64
 slothy.optimize_loop("layer123_start")
 slothy.optimize_loop("layer4567_start")
-slothy.write_source_to_file("../examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s")
+slothy.write_source_to_file("opt/ntt_kyber_123_4567_opt_a55.s")

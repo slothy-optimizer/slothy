@@ -60,7 +60,7 @@ formally verified using the [HOL-Light](https://github.com/jrh13/hol-light) proo
 7) [Optimizing larger pieces of code](#7-optimizing-larger-pieces-of-code)
 8) [Adding a new microarchitecture](#8-adding-a-new-microarchitecture)
 
-The SLOTHY calling code used for the parts 3-7 is located in `tutorial-{3,4,5,6,7}.py`.
+The SLOTHY calling code used for the parts 3-7 is located in `tutorial-{3a,3b,4,5,6,7}.py`.
 
 ## 1. Installation
 
@@ -258,7 +258,6 @@ Also note the registers used: In the original code `v24` was as a temporary regi
 SLOTHY renamed those registers to be able to interleave both computations. Other registers have also been arbitrarily
 renamed, but without any specific reason.
 
-
 ## 3. Writing your own calling code
 
 When writing your own calls to SLOTHY, there are generally two options:
@@ -287,7 +286,7 @@ slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
 
 slothy.optimize()
-slothy.write_source_to_file("examples/opt/aarch64/aarch64_simple0_a55.s")
+slothy.write_source_to_file("opt/aarch64_simple0_a55.s")
 ```
 
 You will need to pass to SLOTHY both the architecture model (containing the instruction mnemonics and which registers
@@ -380,7 +379,7 @@ slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
 
 slothy.optimize(start="start", end="end")
-slothy.write_source_to_file("../examples/opt/aarch64/aarch64_simple0_macros_a55.s")
+slothy.write_source_to_file("opt/aarch64_simple0_macros_a55.s")
 ```
 
 The difference is that, we have to explicitly pass `start` and `end` labels to SLOTHY.
@@ -443,7 +442,7 @@ slothy.config.sw_pipelining.enabled = True
 slothy.config.sw_pipelining.optimize_preamble = False
 slothy.config.sw_pipelining.optimize_postamble = False
 slothy.optimize_loop("start")
-slothy.write_source_to_file("examples/opt/aarch64/aarch64_simple0_loop_a55.s")
+slothy.write_source_to_file("opt/aarch64_simple0_loop_a55.s")
 ```
 
 Software pipelining needs to be enabled by setting `slothy.config.sw_pipelining.enabled = True`.
@@ -841,7 +840,7 @@ slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
 slothy.config.constraints.stalls_first_attempt = 64
 slothy.optimize_loop("layer123_start")
 slothy.optimize_loop("layer4567_start")
-slothy.write_source_to_file("examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s")
+slothy.write_source_to_file("opt/ntt_kyber_123_4567_opt_a55.s")
 ```
 
 We simply optimize both loops separately.
@@ -900,7 +899,7 @@ slothy.config.split_heuristic_stepsize = 0.05
 slothy.config.split_heuristic_factor = 10
 slothy.config.split_heuristic_repeat = 2
 slothy.optimize(start="mainloop", end="end_label")
-slothy.write_source_to_file("X25519-AArch64-simple_opt.s")
+slothy.write_source_to_file("opt/X25519-AArch64-simple_opt.s")
 ```
 
 
@@ -918,7 +917,7 @@ We can configure SLOTHY to only consider register allocation by setting the `all
 In this way, the constraints remain manageable, and SLOTHY finds a register allocation within a few minutes.
 
 Running this example takes around 15 minutes.
-You can instead look at the output available in [X25519-AArch64-simple_opt.s](X25519-AArch64-simple_opt.s)
+You can instead look at the output available in [opt/X25519-AArch64-simple_opt.s](opt/X25519-AArch64-simple_opt.s)
 The output will look similar to the previous examples and contains significantly less pipeline stalls than the input.
 For achieving the best performance, we require a few more calls to SLOTHY. You can find the script we used [here](../paper/scripts/slothy_x25519.sh) - it runs around 1.5 hours.
 
