@@ -19,6 +19,21 @@ jobs:
     - name: Run examples
       run: |
         python3 example.py --dry-run
+  tutorial:
+    if: ${{ github.event.label.name == 'needs-ci' ||
+            github.event.pull_request.user.login == 'hanno-becker' ||
+            github.event.pull_request.user.login == 'dop-amin' ||
+            github.event.pull_request.user.login == 'mkannwischer'
+            }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install python dependencies
+      run: |
+        python -m pip install -r requirements.txt
+    - name: Run tutorial
+      run: |
+        (cd tutorial && ./tutorial_all.sh)
   examples_basic:
     if: ${{ github.event.label.name == 'needs-ci' ||
             github.event.pull_request.user.login == 'hanno-becker' ||
