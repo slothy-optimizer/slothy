@@ -444,7 +444,7 @@ class Slothy:
 
         loop_lbl_end = f"{loop_lbl}_end"
         def loop_lbl_iter(i):
-            return SourceLine(f"{loop_lbl}_iter_{i}")
+            return f"{loop_lbl}_iter_{i}"
 
         optimized_code = []
 
