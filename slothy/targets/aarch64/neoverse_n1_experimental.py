@@ -90,6 +90,7 @@ execution_units = {
      Vrev, uaddlp)           : ExecutionUnit.V(),
     (vmov)                    : ExecutionUnit.V(),
     VecToGprMov               : ExecutionUnit.V(),
+    Transpose                 : ExecutionUnit.V(),
     (vmovi)                   : ExecutionUnit.V(),
     (vand, vadd)              : ExecutionUnit.V(),
     (vxtn)                    : ExecutionUnit.V(),
@@ -122,6 +123,7 @@ inverse_throughput = {
     VecToGprMov                : 1,
     (vand, vadd)               : 1,
     (vmov)                     : 1,
+    Transpose                  : 1,
     AESInstruction             : 1,
     AArch64NeonLogical         : 1,
     (vmovi)                    : 1,
@@ -156,6 +158,7 @@ default_latencies = {
     (vxtn)                    : 2,
     AESInstruction            : 2,
     AArch64NeonLogical        : 2,
+    Transpose                 : 2,
     (vand, vadd)              : 2,
     (vmov)                    : 2, # ???
     (vmovi)                   : 2,
