@@ -67,19 +67,13 @@ xtmp1 .req x11
         cmge \tmp1\().4s, \neg_modulus_half\().4s, \a\().4s
         cmge \tmp2\().4s, \a\().4s, \modulus_half\().4s
         sub \tmp2\().4s, \tmp1\().4s, \tmp2\().4s
-        vmls \a, \tmp2, modulus
+        vmls \a, \tmp2, consts
 .endm
 
 .macro gs_butterfly a, b, root, idx0, idx1
         sub     tmp.4s,    \a\().4s, \b\().4s
         add     \a\().4s,    \a\().4s, \b\().4s
         mulmodq  \b, tmp, \root, \idx0, \idx1
-.endm
-
-.macro mulmod_v dst, src, const, const_twisted
-        vmul        \dst,  \src, \const
-        vqrdmulh    \src,  \src, \const_twisted
-        vmls        \dst,  \src, modulus
 .endm
 
 .macro gs_butterfly_v a, b, root, root_twisted
@@ -371,8 +365,6 @@ _intt_dilithium_123_45678:
         consts .req v8
         qform_consts .req q8
 
-        modulus .req v29
-
         ASM_LOAD(r_ptr0, roots_l345)
         ASM_LOAD(r_ptr1, roots_l67)
 
@@ -477,7 +469,7 @@ layer45678_start:
         ASM_LOAD(xtmp, ninv_tw_addr)
         ld1r {ninv_tw.4s}, [xtmp]
 
-        ushr modulus_half.4S, modulus.4S, #1
+        ushr modulus_half.4S, consts.4S, #1
         neg neg_modulus_half.4S, modulus_half.4S
 
         mov count, #8
