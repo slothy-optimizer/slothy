@@ -109,6 +109,22 @@ class Result(LockAttributes):
         yield SourceLine("")
 
     @property
+    def cycles(self):
+        """The number of cycles that SLOTHY thinks the code will take.
+
+        If software pipelining is enabled, this is the expected average cycle
+        count per iteration."""
+        return (self.codesize_with_bubbles // self.config.target.issue_rate)
+
+    @property
+    def ipc(self):
+        """The instruction/cycle (IPC) count that SLOTHY thinks the code will have."""
+        cs = self.codesize
+        if cs == 0:
+            return 0
+        return (self.cycles / self.codesize)
+
+    @property
     def orig_code_visualized(self):
         """Optimization input: Source code, including visualization of reordering"""
         return list(self._gen_orig_code_visualized())
@@ -424,7 +440,11 @@ class Result(LockAttributes):
                 vis = d * p + c + d * (self.codesize - p - 1)
                 yield s.copy().set_length(fixlen).set_comment(vis)
 
-        res = list(_gen_visualized_code())
+        res = []
+        res.append(SourceLine("").set_comment(f"Instructions:    {self.codesize}"))
+        res.append(SourceLine("").set_comment(f"Expected cycles: {self.cycles}"))
+        res.append(SourceLine("").set_comment(f"Expected IPC:    {self.ipc}"))
+        res += list(_gen_visualized_code())
         res += self.orig_code_visualized
 
         return res
