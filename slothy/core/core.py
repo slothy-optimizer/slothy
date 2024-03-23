@@ -119,10 +119,10 @@ class Result(LockAttributes):
     @property
     def ipc(self):
         """The instruction/cycle (IPC) count that SLOTHY thinks the code will have."""
-        cs = self.codesize
-        if cs == 0:
+        cc = self.cycles
+        if cc == 0:
             return 0
-        return (self.cycles / self.codesize)
+        return (self.codesize / self.cycles)
 
     @property
     def orig_code_visualized(self):
@@ -421,7 +421,7 @@ class Result(LockAttributes):
         core_char  = self.config.core_char
         d = self.config.placeholder_char
 
-        def _gen_visualized_code():
+        def gen_visualized_code_perm():
             for i in range(self.codesize_with_bubbles):
                 p = ri.get(i, None)
                 if p is None:
@@ -439,11 +439,32 @@ class Result(LockAttributes):
                 vis = d * p + c + d * (self.codesize - p - 1)
                 yield s.copy().set_length(fixlen).set_comment(vis)
 
+        def gen_visualized_code_perf():
+            for i in range(self.codesize_with_bubbles):
+                p = ri.get(i, None)
+                if p is None:
+                    continue
+                s = code[self.periodic_reordering[p]]
+                c = core_char
+                if self.is_pre(p):
+                    c = early_char
+                elif self.is_post(p):
+                    c = late_char
+                cc = i // self.config.target.issue_rate
+                vis = d * cc + c + d * (self.cycles - cc - 1)
+                yield s.copy().set_length(fixlen).set_comment(vis)
+
+        def gen_visualized_code():
+            if self.config.visualize_expected_performance is True:
+                yield from gen_visualized_code_perf()
+            else:
+                yield from gen_visualized_code_perm()
+
         res = []
         res.append(SourceLine("").set_comment(f"Instructions:    {self.codesize}"))
         res.append(SourceLine("").set_comment(f"Expected cycles: {self.cycles}"))
         res.append(SourceLine("").set_comment(f"Expected IPC:    {self.ipc}"))
-        res += list(_gen_visualized_code())
+        res += list(gen_visualized_code())
         res += self.orig_code_visualized
         return res
 
