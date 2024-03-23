@@ -28,6 +28,7 @@
 import re
 import subprocess
 import logging
+import os
 
 class SourceLine:
     """Representation of a single line of source code"""
@@ -938,6 +939,67 @@ class CPreprocessor():
         unfolded_code = unfolded_code[magic_idx+1:]
 
         return [SourceLine(r) for r in unfolded_code]
+
+class CryptoLine():
+    @staticmethod
+    def _trace(assembly, entry, gasFile):
+        clTmpPath = ".cl"
+        if not os.path.exists(clTmpPath):
+            os.makedirs(clTmpPath)
+
+        # TODO: we need similar code for the other architectures
+        gccCrossBinary = "aarch64-linux-gnu-gcc"
+        qemuBinary = "qemu-aarch64"
+        itraceBinary = "submodules/cryptoline/scripts/itrace.py"
+
+
+        assemblyFile = f"{clTmpPath}/asm.S"
+        with open(assemblyFile, "w") as f:
+            f.write(assembly)
+
+        # TODO: need to find something generic here
+        main = f"""
+        #include <stdint.h>
+        void {entry}(int16_t p[256]);
+
+        int main(void){{
+            int16_t p[256];
+            {entry}(p);
+            return 0;
+        }}
+        """
+        mainFile = f"{clTmpPath}/main.c"
+        with open(mainFile, "w") as f:
+            f.write(main)
+
+
+        hal = """
+        #ifndef QEMU_V8A_HAL_ENV_H
+        #define QEMU_V8A_HAL_ENV_H
+
+        #define SEP ;
+
+        #define ASM_LOAD(dst,symbol) 	\
+            adrp dst, symbol ; add  dst, dst, :lo12:symbol;
+
+        #endif
+        """
+        halFile =  f"{clTmpPath}/hal_env.h"
+        with open(halFile, "w") as f:
+            f.write(hal)
+
+        subprocess.run([gccCrossBinary, "-static", "-fpic", f"-I{clTmpPath}", "-Iexamples/naive/aarch64/", "-o", "slothy.elf", assemblyFile, mainFile], check=True, input=main, text=True)
+        subprocess.Popen([qemuBinary, '-g', '1234', './slothy.elf'])
+        subprocess.run([itraceBinary, './slothy.elf', entry, ':1234', f"{clTmpPath}/{gasFile}"], capture_output=True)
+
+    @staticmethod
+    def traceRef(assembly, entry):
+        CryptoLine._trace(assembly, entry, "ref.gas")
+
+    @staticmethod
+    def traceOpt(assembly, entry):
+        CryptoLine._trace(assembly, entry, "opt.gas")
+
 
 class LLVM_Mca_Error(Exception):
     """Exception thrown if llvm-mca subprocess fails"""

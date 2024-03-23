@@ -297,6 +297,10 @@ class Config(NestedPrint, LockAttributes):
         return self._with_preprocessor
 
     @property
+    def cryptoline(self):
+        return self._cryptoline
+
+    @property
     def with_llvm_mca(self):
         """Indicates whether LLVM MCA should be run prior and after optimization
         to obtain approximate performance data based on LLVM's scheduling models.
@@ -569,6 +573,30 @@ class Config(NestedPrint, LockAttributes):
         res.arch, res.target   = arch, target
         self.arch, self.target = arch, target
         return res
+
+    class Cryptoline(NestedPrint, LockAttributes):
+        @property
+        def enabled(self):
+            return self._enabled
+
+        @property
+        def entry(self):
+            return self._entry
+
+        def __init__(self):
+            super().__init__()
+
+            self._enabled = False
+            self._entry = ""
+
+        @enabled.setter
+        def enabled(self,val):
+            self._enabled = val
+
+        @entry.setter
+        def entry(self,val):
+            self._entry = val
+
 
     class SoftwarePipelining(NestedPrint, LockAttributes):
         """Subconfiguration for software pipelining"""
@@ -1030,6 +1058,7 @@ class Config(NestedPrint, LockAttributes):
         self._do_address_fixup = True
 
         self._with_preprocessor = False
+        self._cryptoline = Config.Cryptoline()
         self._with_llvm_mca_before = False
         self._with_llvm_mca_after = False
         self._max_solutions = 64
@@ -1109,6 +1138,9 @@ class Config(NestedPrint, LockAttributes):
     @with_preprocessor.setter
     def with_preprocessor(self, val):
         self._with_preprocessor = val
+    @cryptoline.setter
+    def cryptoline(self, val):
+        self._cryptoline = val
     @with_llvm_mca.setter
     def with_llvm_mca(self, val):
         self._with_llvm_mca_before = val

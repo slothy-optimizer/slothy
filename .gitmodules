@@ -1,0 +1,3 @@
+[submodule "submodules/cryptoline"]
+	path = submodules/cryptoline
+	url = git@github.com:fmlab-iis/cryptoline.git

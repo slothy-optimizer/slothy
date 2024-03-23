@@ -55,6 +55,7 @@ from slothy.core.heuristics import Heuristics
 from slothy.helper import CPreprocessor, SourceLine
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper
 from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mca_Error
+from slothy.helper import CryptoLine
 
 class Slothy:
     """SLOTHY optimizer
@@ -127,10 +128,19 @@ class Slothy:
         with open(filename,"r", encoding="utf8") as f:
             self.load_source_raw(f.read())
 
+        if self.config.cryptoline.enabled is True:
+            self.logger.info("CryptoLine: Extracting execution trace for input...")
+            CryptoLine.traceRef(self.get_source_as_string(), self.config.cryptoline.entry)
+
+
     def write_source_to_file(self, filename):
         """Write current source code to file"""
         with open(filename,"w", encoding="utf8") as f:
             f.write(self.get_source_as_string())
+
+        if self.config.cryptoline.enabled is True:
+            self.logger.info("CryptoLine: Extracting execution trace for output...")
+            CryptoLine.traceOpt(self.get_source_as_string(), self.config.cryptoline.entry)
 
     def rename_function(self, old_funcname, new_funcname):
         """Rename a function in the current source code"""
