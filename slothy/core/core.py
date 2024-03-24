@@ -2789,7 +2789,7 @@ class SlothyBase(LockAttributes):
                     cs = self._model.tree.num_nodes
                     if cc == 0:
                         return ""
-                    return f" (IPC ~ {cs / cc:.2f})"
+                    return f" (Cycles ~ {psize // self._model.pfactor}, IPC ~ {cs / cc:.2f})"
                 printer = get_cpi
             minlist = [self._model.stalls]
         elif self.config.has_objective and not self.config.ignore_objective:
