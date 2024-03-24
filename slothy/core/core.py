@@ -1115,6 +1115,7 @@ class SlothyBase(LockAttributes):
             if not self.config.constraints.functional_only:
                 cpad_min = pad_min // self.target.issue_rate
                 cpad_max = pad_max // self.target.issue_rate
+                self._model.cpad_max = cpad_max
                 self._model.cycle_padded_size = self._NewIntVar(cpad_min, cpad_max)
                 self._model.cycle_horizon = cpad_max + 10
 
@@ -1395,12 +1396,14 @@ class SlothyBase(LockAttributes):
 
         This callback counts the solutions found so far, and aborts the search when the solution
         is sufficiently close to the optimum."""
-        def __init__(self, logger, objective_description, max_solutions=32, is_good_enough=None):
+        def __init__(self, logger, objective_description, max_solutions=32, is_good_enough=None,
+                     printer=None):
             cp_model.CpSolverSolutionCallback.__init__(self)
             self.__solution_count = 0
             self.__logger = logger
             self.__max_solutions = max_solutions
             self.__is_good_enough = is_good_enough
+            self.__printer = printer
             self.__objective_desc = objective_description
         def on_solution_callback(self):
             """Triggered when OR-Tools finds a solution to the current constraint problem"""
@@ -1409,9 +1412,15 @@ class SlothyBase(LockAttributes):
                 cur = self.ObjectiveValue()
                 bound = self.BestObjectiveBound()
                 time = self.WallTime()
+                if self.__printer is not None:
+                    add_cur = self.__printer(cur)
+                    add_bound = self.__printer(bound)
+                else:
+                    add_cur = ""
+                    add_bound = ""
                 self.__logger.info(
                     f"[{time:.4f}s]: Found {self.__solution_count} solutions so far... " +
-                    f"objective {cur}, bound {bound} ({self.__objective_desc})")
+                    f"objective {cur}{add_cur}, bound {bound}{add_bound} ({self.__objective_desc})")
                 if self.__is_good_enough and self.__is_good_enough(cur, bound):
                     self.StopSearch()
             if self.__solution_count >= self.__max_solutions:
@@ -2765,12 +2774,23 @@ class SlothyBase(LockAttributes):
         minlist = []
         maxlist = []
         name = None
+        printer = None
 
         # We only support objectives of the form: Maximize/Minimize the sum of a set of variables.
 
         # If the number of stalls is variable, its minimization is our objective
         if force_objective is False and self.config.variable_size:
             name = "minimize number of stalls"
+            if self.config.constraints.functional_only is False:
+                def get_cpi(stalls):
+                    psize = self._model.min_slots + \
+                        self._model.pfactor * stalls
+                    cc = psize // self.config.target.issue_rate
+                    cs = self._model.tree.num_nodes
+                    if cc == 0:
+                        return ""
+                    return f" (IPC ~ {cs / cc:.2f})"
+                printer = get_cpi
             minlist = [self._model.stalls]
         elif self.config.has_objective and not self.config.ignore_objective:
             if self.config.sw_pipelining.enabled is True and \
@@ -2804,6 +2824,8 @@ class SlothyBase(LockAttributes):
                     minlist = lst
                 else:
                     maxlist = lst
+
+        self._model.objective_printer = printer
 
         if name is not None:
             assert not (len(minlist) > 0 and len(maxlist) > 0)
@@ -2900,8 +2922,9 @@ class SlothyBase(LockAttributes):
             return False
 
         solution_cb = SlothyBase.CpSatSolutionCb(self.logger,self._model.objective_name,
-                                                self.config.max_solutions,
-                                                is_good_enough)
+                                                 self.config.max_solutions,
+                                                 is_good_enough=is_good_enough,
+                                                 printer=self._model.objective_printer)
         self._model.cp_model.status = self._model.cp_solver.Solve(self._model.cp_model, solution_cb)
 
         status_str = self._model.cp_solver.StatusName(self._model.cp_model.status)
