@@ -451,6 +451,11 @@ class Result(LockAttributes):
     @code.setter
     def code(self, val):
         assert SourceLine.is_source(val)
+        # We should only pass reduced source code here
+        pre_reduce_len = len(val)
+        val = SourceLine.reduce_source(val)
+        post_reduce_len = len(val)
+        assert pre_reduce_len == post_reduce_len
         self._code = val
 
     def _get_full_code(self, log):
