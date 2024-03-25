@@ -1775,6 +1775,13 @@ class SlothyBase(LockAttributes):
             cb()
             return
 
+        if self._is_low(consumer) and self._is_high(producer):
+            ct = cb()
+            ct.OnlyEnforceIf([consumer.pre_var, producer.pre_var])
+            ct = cb()
+            ct.OnlyEnforceIf([consumer.post_var, producer.post_var])
+            return
+
         if self._is_input(producer) and self._is_low(consumer):
             return
         if self._is_output(consumer) and self._is_high(producer):
@@ -1801,6 +1808,9 @@ class SlothyBase(LockAttributes):
         # _may_ hold as well, but we don't care).
         bvars = [ self._NewBoolVar("") for _ in cb_lst ]
         self._AddExactlyOne(bvars)
+
+        if self._is_low(consumer) and self._is_high(producer):
+            raise Exception("Not yet implemented")
 
         if not self.config.sw_pipelining.enabled or producer.is_virtual or consumer.is_virtual:
             for (cb, bvar) in zip(cb_lst, bvars, strict=True):
@@ -2141,15 +2151,29 @@ class SlothyBase(LockAttributes):
         assert isinstance(t, ComputationNode)
         return t.is_virtual_output
 
-    def _iter_dependencies(self, with_virt=True):
-        def f(t):
-            if with_virt:
-                return True
+    def _iter_dependencies(self, with_virt=True, with_duals=True):
+        def check_dep(t):
             (consumer, producer, _, _) = t
-            return consumer in self._get_nodes() and \
-                   producer.src in self._get_nodes()
+            if with_virt:
+                yield t
+            elif consumer in self._get_nodes() and \
+                 producer.src in self._get_nodes():
+                yield t
 
-        yield from filter(f, self._model.tree.iter_dependencies())
+        def is_cross_iteration_dependency(producer, consumer):
+            if not self.config.sw_pipelining.enabled is True:
+                return False
+            return self._is_low(producer.src) and self._is_high(consumer)
+
+        for t in self._model.tree.iter_dependencies():
+            yield from check_dep(t)
+
+            if with_duals is False:
+                continue
+
+            (consumer, producer, a, b) = t
+            if is_cross_iteration_dependency(producer, consumer):
+                yield from check_dep((consumer.sibling, producer.sibling(), a, b))
 
     def _iter_dependencies_with_lifetime(self):
 
@@ -2158,7 +2182,7 @@ class SlothyBase(LockAttributes):
                 return src.src.out_lifetime_start[src.idx]
             if isinstance(src, InstructionInOut):
                 return src.src.inout_lifetime_start[src.idx]
-            raise SlothyException("Unknown register source")
+            raise SlothyException(f"Unknown register source {src}")
 
         def _get_lifetime_end(src):
             if isinstance(src, InstructionOutput):
@@ -2168,9 +2192,9 @@ class SlothyBase(LockAttributes):
             raise SlothyException("Unknown register source")
 
         for (consumer, producer, ty, idx) in self._iter_dependencies():
-            start_var = _get_lifetime_start(producer)
-            end_var = _get_lifetime_end(producer)
-            yield (consumer, producer, ty, idx, start_var, end_var, producer.alloc())
+            producer_start_var = _get_lifetime_start(producer)
+            producer_end_var = _get_lifetime_end(producer)
+            yield (consumer, producer, ty, idx, producer_start_var, producer_end_var, producer.alloc())
 
     def _iter_cross_iteration_dependencies(self):
         def is_cross_iteration_dependency(dep):
@@ -2387,15 +2411,20 @@ class SlothyBase(LockAttributes):
                 self._AddImplication( producer.src.post_var, consumer.post_var )
                 self._AddImplication( consumer.pre_var, producer.src.pre_var )
                 self._AddImplication( producer.src.pre_var, consumer.post_var.Not() )
-            elif self._is_low(producer.src):
+            elif self._is_low(producer.src) and self._is_high(consumer):
+                self._AddImplication( producer.src.pre_var, consumer.pre_var )
+                self._AddImplication( consumer.post_var, producer.src.post_var )
+            #     self._AddImplication(producer.src.pre_var
+            #     pass
+
                 # An instruction with forward dependency to the next iteration
                 # cannot be an early instruction, and an instruction depending
                 # on an instruction from a previous iteration cannot be late.
 
                 # pylint:disable=singleton-comparison
-                self._Add(producer.src.pre_var == False)
+               #  self._Add(producer.src.pre_var == False)
                 # pylint:disable=singleton-comparison
-                self._Add(consumer.post_var == False)
+               # self._Add(consumer.post_var == False)
 
     # ================================================================
     #                  CONSTRAINTS (Single issuing)                  #
