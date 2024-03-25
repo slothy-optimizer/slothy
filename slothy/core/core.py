@@ -403,9 +403,8 @@ class Result(LockAttributes):
     def code_raw(self):
         """Optimized code, without annotations"""
         return self._code
-    @property
-    def code(self):
-        """The optimized source code"""
+
+    def _get_code(self, visualize_reordering):
         code = self._code
         assert SourceLine.is_source(code)
         ri = self.periodic_reordering_with_bubbles_inv
@@ -414,7 +413,7 @@ class Result(LockAttributes):
         for l in code:
             l.set_length(fixlen)
 
-        if not self.config.visualize_reordering:
+        if visualize_reordering is False:
             return code
 
         early_char = self.config.early_char
@@ -446,8 +445,13 @@ class Result(LockAttributes):
         res.append(SourceLine("").set_comment(f"Expected IPC:    {self.ipc}"))
         res += list(_gen_visualized_code())
         res += self.orig_code_visualized
-
         return res
+
+    @property
+    def code(self):
+        """The optimized source code"""
+        return self._get_code(self.config.visualize_reordering)
+
     @code.setter
     def code(self, val):
         assert SourceLine.is_source(val)
