@@ -74,7 +74,7 @@ class SourceLine:
             tags[tag] = True
             return ""
 
-        tag_value_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=(?P<value>\w+)"
+        tag_value_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=(?P<value>[a-zA-Z_0-9\\()]+)"
         tag_list_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)=\[(?P<value>.+)\]"
         tag_regexp_txt = r"@slothy:(?P<tag>(\w|-)+)"
         s = re.sub(tag_value_regexp_txt, tag_value_callback, s)

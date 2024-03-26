@@ -109,6 +109,22 @@ class Result(LockAttributes):
         yield SourceLine("")
 
     @property
+    def cycles(self):
+        """The number of cycles that SLOTHY thinks the code will take.
+
+        If software pipelining is enabled, this is the expected average cycle
+        count per iteration."""
+        return (self.codesize_with_bubbles // self.config.target.issue_rate)
+
+    @property
+    def ipc(self):
+        """The instruction/cycle (IPC) count that SLOTHY thinks the code will have."""
+        cc = self.cycles
+        if cc == 0:
+            return 0
+        return (self.codesize / self.cycles)
+
+    @property
     def orig_code_visualized(self):
         """Optimization input: Source code, including visualization of reordering"""
         return list(self._gen_orig_code_visualized())
@@ -387,9 +403,8 @@ class Result(LockAttributes):
     def code_raw(self):
         """Optimized code, without annotations"""
         return self._code
-    @property
-    def code(self):
-        """The optimized source code"""
+
+    def _get_code(self, visualize_reordering):
         code = self._code
         assert SourceLine.is_source(code)
         ri = self.periodic_reordering_with_bubbles_inv
@@ -398,7 +413,7 @@ class Result(LockAttributes):
         for l in code:
             l.set_length(fixlen)
 
-        if not self.config.visualize_reordering:
+        if visualize_reordering is False:
             return code
 
         early_char = self.config.early_char
@@ -406,7 +421,7 @@ class Result(LockAttributes):
         core_char  = self.config.core_char
         d = self.config.placeholder_char
 
-        def _gen_visualized_code():
+        def gen_visualized_code_perm():
             for i in range(self.codesize_with_bubbles):
                 p = ri.get(i, None)
                 if p is None:
@@ -424,13 +439,48 @@ class Result(LockAttributes):
                 vis = d * p + c + d * (self.codesize - p - 1)
                 yield s.copy().set_length(fixlen).set_comment(vis)
 
-        res = list(_gen_visualized_code())
-        res += self.orig_code_visualized
+        def gen_visualized_code_perf():
+            for i in range(self.codesize_with_bubbles):
+                p = ri.get(i, None)
+                if p is None:
+                    continue
+                s = code[self.periodic_reordering[p]]
+                c = core_char
+                if self.is_pre(p):
+                    c = early_char
+                elif self.is_post(p):
+                    c = late_char
+                cc = i // self.config.target.issue_rate
+                vis = d * cc + c + d * (self.cycles - cc - 1)
+                yield s.copy().set_length(fixlen).set_comment(vis)
 
+        def gen_visualized_code():
+            if self.config.visualize_expected_performance is True:
+                yield from gen_visualized_code_perf()
+            else:
+                yield from gen_visualized_code_perm()
+
+        res = []
+        res.append(SourceLine("").set_comment(f"Instructions:    {self.codesize}"))
+        res.append(SourceLine("").set_comment(f"Expected cycles: {self.cycles}"))
+        res.append(SourceLine("").set_comment(f"Expected IPC:    {self.ipc}"))
+        res += list(gen_visualized_code())
+        res += self.orig_code_visualized
         return res
+
+    @property
+    def code(self):
+        """The optimized source code"""
+        return self._get_code(self.config.visualize_reordering)
+
     @code.setter
     def code(self, val):
         assert SourceLine.is_source(val)
+        # We should only pass reduced source code here
+        pre_reduce_len = len(val)
+        val = SourceLine.reduce_source(val)
+        post_reduce_len = len(val)
+        assert pre_reduce_len == post_reduce_len
         self._code = val
 
     def _get_full_code(self, log):
@@ -1065,6 +1115,7 @@ class SlothyBase(LockAttributes):
             if not self.config.constraints.functional_only:
                 cpad_min = pad_min // self.target.issue_rate
                 cpad_max = pad_max // self.target.issue_rate
+                self._model.cpad_max = cpad_max
                 self._model.cycle_padded_size = self._NewIntVar(cpad_min, cpad_max)
                 self._model.cycle_horizon = cpad_max + 10
 
@@ -1345,12 +1396,14 @@ class SlothyBase(LockAttributes):
 
         This callback counts the solutions found so far, and aborts the search when the solution
         is sufficiently close to the optimum."""
-        def __init__(self, logger, objective_description, max_solutions=32, is_good_enough=None):
+        def __init__(self, logger, objective_description, max_solutions=32, is_good_enough=None,
+                     printer=None):
             cp_model.CpSolverSolutionCallback.__init__(self)
             self.__solution_count = 0
             self.__logger = logger
             self.__max_solutions = max_solutions
             self.__is_good_enough = is_good_enough
+            self.__printer = printer
             self.__objective_desc = objective_description
         def on_solution_callback(self):
             """Triggered when OR-Tools finds a solution to the current constraint problem"""
@@ -1359,9 +1412,15 @@ class SlothyBase(LockAttributes):
                 cur = self.ObjectiveValue()
                 bound = self.BestObjectiveBound()
                 time = self.WallTime()
+                if self.__printer is not None:
+                    add_cur = self.__printer(cur)
+                    add_bound = self.__printer(bound)
+                else:
+                    add_cur = ""
+                    add_bound = ""
                 self.__logger.info(
                     f"[{time:.4f}s]: Found {self.__solution_count} solutions so far... " +
-                    f"objective {cur}, bound {bound} ({self.__objective_desc})")
+                    f"objective {cur}{add_cur}, bound {bound}{add_bound} ({self.__objective_desc})")
                 if self.__is_good_enough and self.__is_good_enough(cur, bound):
                     self.StopSearch()
             if self.__solution_count >= self.__max_solutions:
@@ -2715,12 +2774,23 @@ class SlothyBase(LockAttributes):
         minlist = []
         maxlist = []
         name = None
+        printer = None
 
         # We only support objectives of the form: Maximize/Minimize the sum of a set of variables.
 
         # If the number of stalls is variable, its minimization is our objective
         if force_objective is False and self.config.variable_size:
             name = "minimize number of stalls"
+            if self.config.constraints.functional_only is False:
+                def get_cpi(stalls):
+                    psize = self._model.min_slots + \
+                        self._model.pfactor * stalls
+                    cc = psize // self.config.target.issue_rate
+                    cs = self._model.tree.num_nodes
+                    if cc == 0:
+                        return ""
+                    return f" (Cycles ~ {psize // self._model.pfactor}, IPC ~ {cs / cc:.2f})"
+                printer = get_cpi
             minlist = [self._model.stalls]
         elif self.config.has_objective and not self.config.ignore_objective:
             if self.config.sw_pipelining.enabled is True and \
@@ -2754,6 +2824,8 @@ class SlothyBase(LockAttributes):
                     minlist = lst
                 else:
                     maxlist = lst
+
+        self._model.objective_printer = printer
 
         if name is not None:
             assert not (len(minlist) > 0 and len(maxlist) > 0)
@@ -2850,8 +2922,9 @@ class SlothyBase(LockAttributes):
             return False
 
         solution_cb = SlothyBase.CpSatSolutionCb(self.logger,self._model.objective_name,
-                                                self.config.max_solutions,
-                                                is_good_enough)
+                                                 self.config.max_solutions,
+                                                 is_good_enough=is_good_enough,
+                                                 printer=self._model.objective_printer)
         self._model.cp_model.status = self._model.cp_solver.Solve(self._model.cp_model, solution_cb)
 
         status_str = self._model.cp_solver.StatusName(self._model.cp_model.status)

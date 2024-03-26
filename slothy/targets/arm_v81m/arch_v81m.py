@@ -115,7 +115,8 @@ class Loop:
         self.lbl_end   = lbl_end
         pass
 
-    def start(self,indentation=0, fixup=0, unroll=1, jump_if_empty=None):
+    def start(self,reg,indentation=0, fixup=0, unroll=1, jump_if_empty=None):
+        assert reg == "lr"
         indent = ' ' * indentation
         if unroll > 1:
             if not unroll in [1,2,4,8,16,32]:
@@ -176,7 +177,7 @@ class Loop:
                 continue
         if state < 2:
             raise Exception(f"Couldn't identify loop {lbl}")
-        return pre, body, post, lbl, None
+        return pre, body, post, lbl, ("lr", "lr", 0)
 
 class Instruction:
 

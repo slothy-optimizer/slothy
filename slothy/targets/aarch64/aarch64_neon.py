@@ -147,17 +147,15 @@ class Branch:
     """Helper for emitting branches"""
 
     @staticmethod
-    def if_equal(val, lbl):
+    def if_equal(cnt, val, lbl):
         """Emit assembly for a branch-if-equal sequence"""
-        reg = "count"
-        yield f"cmp {reg}, #{val}"
+        yield f"cmp {cnt}, #{val}"
         yield f"b.eq {lbl}"
 
     @staticmethod
-    def if_greater_equal(val, lbl):
+    def if_greater_equal(cnt, val, lbl):
         """Emit assembly for a branch-if-greater-equal sequence"""
-        reg = "count"
-        yield f"cmp {reg}, #{val}"
+        yield f"cmp {cnt}, #{val}"
         yield f"b.ge {lbl}"
 
     @staticmethod
@@ -175,16 +173,16 @@ class Loop:
         self.lbl_end   = lbl_end
         self.loop_init = loop_init
 
-    def start(self, indentation=0, fixup=0, unroll=1, jump_if_empty=None):
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:
             assert unroll in [1,2,4,8,16,32]
-            yield f"{indent}lsr count, count, #{int(math.log2(unroll))}"
+            yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
         if fixup != 0:
-            yield f"{indent}sub count, count, #{fixup}"
+            yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
         if jump_if_empty is not None:
-            yield f"cbz count, {jump_if_empty}"
+            yield f"cbz {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl_start}:"
 
     def end(self, other, indentation=0):

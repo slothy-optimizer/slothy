@@ -983,7 +983,7 @@ class Heuristics():
 
             res2 = Result(c2)
             res2.orig_code = body
-            res2.code = final_kernel
+            res2.code = SourceLine.reduce_source(final_kernel)
             res2.kernel_input_output = new_kernel_deps
             res2.codesize_with_bubbles = res_halving_1.codesize_with_bubbles
             res2.reordering_with_bubbles = reordering2
@@ -1005,7 +1005,7 @@ class Heuristics():
             # preamble and postamble that we don't account for in the selfcheck.
             # res2.selfcheck(logger.getChild("halving_heuristic_2"))
 
-            kernel = res2.code
+            kernel = final_kernel
 
         num_exceptional_iterations = 1
         return preamble, kernel, postamble, num_exceptional_iterations
