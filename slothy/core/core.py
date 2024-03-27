@@ -422,6 +422,7 @@ class Result(LockAttributes):
         d = self.config.placeholder_char
 
         def gen_visualized_code_perm():
+            yield SourceLine("").set_comment("----- original position ---->")
             for i in range(self.codesize_with_bubbles):
                 p = ri.get(i, None)
                 if p is None:
@@ -439,8 +440,29 @@ class Result(LockAttributes):
                 vis = d * p + c + d * (self.codesize - p - 1)
                 yield s.copy().set_length(fixlen).set_comment(vis)
 
+        def center_str_fixlen(txt, fixlen, char='-'):
+            txt = ' ' + txt + ' '
+            l = min(len(txt), fixlen)
+            lpad = (fixlen - l) // 2
+            rpad = (fixlen - l) - lpad
+            return char * lpad + txt + char * rpad
+
         def gen_visualized_code_perf():
-            for i in range(self.codesize_with_bubbles):
+            cs = self.codesize_with_bubbles
+            if cs == 0:
+                return
+            cycles = self.cycles
+            block_size = 25
+            cycle_blocks = math.ceil(cycles/block_size)
+
+            legend0 = center_str_fixlen('expected cycle count', cycles - 1, '-') + '>'
+            legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(cycle_blocks)])
+            legend2 = (('|' + '-' * (block_size - 1))) * (cycle_blocks - 1)
+            legend2 = legend2 + '|' + '-' * max(cycles % block_size - 1, 0)
+            yield SourceLine("").set_comment(legend0).set_length(fixlen)
+            yield SourceLine("").set_comment(legend1).set_length(fixlen)
+            yield SourceLine("").set_comment(legend2).set_length(fixlen)
+            for i in range(cs):
                 p = ri.get(i, None)
                 if p is None:
                     continue
@@ -451,7 +473,7 @@ class Result(LockAttributes):
                 elif self.is_post(p):
                     c = late_char
                 cc = i // self.config.target.issue_rate
-                vis = d * cc + c + d * (self.cycles - cc - 1)
+                vis = d * cc + c + d * (cycles - cc - 1)
                 yield s.copy().set_length(fixlen).set_comment(vis)
 
         def gen_visualized_code():
@@ -461,9 +483,16 @@ class Result(LockAttributes):
                 yield from gen_visualized_code_perm()
 
         res = []
-        res.append(SourceLine("").set_comment(f"Instructions:    {self.codesize}"))
-        res.append(SourceLine("").set_comment(f"Expected cycles: {self.cycles}"))
-        res.append(SourceLine("").set_comment(f"Expected IPC:    {self.ipc}"))
+        res.append(SourceLine("")                                     \
+                   .set_comment(f"Instructions:    {self.codesize}")  \
+                   .set_length(fixlen))
+        res.append(SourceLine("")                                     \
+                   .set_comment(f"Expected cycles: {self.cycles}")    \
+                   .set_length(fixlen))
+        res.append(SourceLine("")                                     \
+                   .set_comment(f"Expected IPC:    {self.ipc:.2f}")   \
+                   .set_length(fixlen))
+
         res += list(gen_visualized_code())
         res += self.orig_code_visualized
         return res
