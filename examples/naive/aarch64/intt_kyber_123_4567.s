@@ -381,6 +381,8 @@ layer4567_start:
 
         barrett_reduce data0
         barrett_reduce data2
+        barrett_reduce data1
+        barrett_reduce data3
 
         // Layer 4
         gs_butterfly data0, data2, root0, 0, 1
@@ -430,9 +432,6 @@ layer123_start:
         gs_butterfly data1, data3, root0, 2, 3
         gs_butterfly data4, data6, root0, 4, 5
         gs_butterfly data5, data7, root0, 4, 5
-
-        barrett_reduce data0
-        barrett_reduce data4
 
         gs_butterfly data0, data4, root0, 0, 1
         gs_butterfly data1, data5, root0, 0, 1
