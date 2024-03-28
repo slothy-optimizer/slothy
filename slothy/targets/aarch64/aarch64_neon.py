@@ -929,6 +929,17 @@ class q_ldr(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
         obj.addr = obj.args_in[0]
         return obj
 
+class prefetch(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
+    pattern = "prfm pld1lkeep, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
 class q_ldr_with_inc_hint(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrh <Qa>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Th"]
