@@ -959,7 +959,7 @@ class LLVM_Mca():
     """Helper class for the application of the LLVM MCA tool"""
 
     @staticmethod
-    def run(header, body, mca_binary, arch, cpu, log):
+    def run(header, body, mca_binary, arch, cpu, log, full=False, issue_width=None):
         """Runs LLVM-MCA tool on body and returns result as array of strings"""
 
         LLVM_MCA_BEGIN = SourceLine("").add_comment("LLVM-MCA-BEGIN")
@@ -968,9 +968,14 @@ class LLVM_Mca():
         data = SourceLine.write_multiline(header + [LLVM_MCA_BEGIN] + body + [LLVM_MCA_END])
 
         try:
-            r = subprocess.run([mca_binary, f"--mcpu={cpu}", f"--march={arch}",
-                            "--instruction-info=0", "--dispatch-stats=0", "--timeline=1", "--timeline-max-cycles=0",
-                            "--timeline-max-iterations=3"],
+            if full is False:
+                args = ["--instruction-info=0", "--dispatch-stats=0", "--timeline=1", "--timeline-max-cycles=0",
+                            "--timeline-max-iterations=3"]
+            else:
+                args = ["--all-stats", "--all-views", "--bottleneck-analysis", "--timeline=1", "--timeline-max-cycles=0", "--timeline-max-iterations=3"]
+            if issue_width is not None:
+                args += ["--dispatch", str(issue_width)]
+            r = subprocess.run([mca_binary, f"--mcpu={cpu}", f"--march={arch}"] + args,
                             input=data, text=True, capture_output=True, check=True)
         except subprocess.CalledProcessError as exc:
             raise LLVM_Mca_Error from exc

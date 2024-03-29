@@ -307,6 +307,18 @@ class Config(NestedPrint, LockAttributes):
         return self._with_llvm_mca_before and self._with_llvm_mca_after
 
     @property
+    def llvm_mca_full(self):
+        """Indicates whether all available statistics from LLVM MCA should be printed.
+        """
+        return self._llvm_mca_full
+
+    @property
+    def llvm_mca_issue_width_overwrite(self):
+        """Overwrite LLVM MCA's in-built issue width with the one SLOTHY uses
+        """
+        return self._llvm_mca_issue_width_overwrite
+
+    @property
     def with_llvm_mca_before(self):
         """Indicates whether LLVM MCA should be run prior to optimization
         to obtain approximate performance data based on LLVM's scheduling models.
@@ -1039,6 +1051,8 @@ class Config(NestedPrint, LockAttributes):
         self._do_address_fixup = True
 
         self._with_preprocessor = False
+        self._llvm_mca_full = False
+        self._llvm_mca_issue_width_overwrite = False
         self._with_llvm_mca_before = False
         self._with_llvm_mca_after = False
         self._max_solutions = 64
@@ -1123,6 +1137,12 @@ class Config(NestedPrint, LockAttributes):
     @with_preprocessor.setter
     def with_preprocessor(self, val):
         self._with_preprocessor = val
+    @llvm_mca_issue_width_overwrite.setter
+    def llvm_mca_issue_width_overwrite(self, val):
+        self._llvm_mca_issue_width_overwrite = val
+    @llvm_mca_full.setter
+    def llvm_mca_full(self, val):
+        self._llvm_mca_full = val
     @with_llvm_mca.setter
     def with_llvm_mca(self, val):
         self._with_llvm_mca_before = val

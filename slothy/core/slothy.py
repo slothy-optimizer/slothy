@@ -188,9 +188,15 @@ class Slothy:
         try:
             code = CPreprocessor.unfold(pre, code, post, self.config.compiler_binary,
                                         include=self.config.compiler_include_paths)
+            if self.config.llvm_mca_issue_width_overwrite is True:
+                issue_width = self.config.target.issue_rate
+            else:
+                issue_width = None
             stats = LLVM_Mca.run(pre, code, self.config.llvm_mca_binary,
-                             self.config.arch.llvm_mca_arch,
-                             self.config.target.llvm_mca_target, self.logger)
+                                 self.config.arch.llvm_mca_arch,
+                                 self.config.target.llvm_mca_target, self.logger,
+                                 full=self.config.llvm_mca_full,
+                                 issue_width=issue_width)
             stats = ["",f"LLVM MCA STATISTICS ({txt}) BEGIN",""] + stats + \
                 ["", f"ORIGINAL LLVM MCA STATISTICS ({txt}) END",""]
             stats = [SourceLine("").add_comment(r) for r in stats]
