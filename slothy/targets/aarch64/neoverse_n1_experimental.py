@@ -34,6 +34,7 @@ from enum import Enum
 from slothy.targets.aarch64.aarch64_neon import *
 
 issue_rate = 4
+llvm_mca_target="neoverse-n1"
 
 class ExecutionUnit(Enum):
     """Enumeration of execution units in approximative Neoverse-N1 SLOTHY model"""
