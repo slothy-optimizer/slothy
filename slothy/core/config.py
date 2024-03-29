@@ -1048,6 +1048,8 @@ class Config(NestedPrint, LockAttributes):
         self.late_char = 'l'
         self.core_char = '*'
 
+        self.mirror_char = "~"
+
         self.typing_hints = {}
 
         self.solver_random_seed = 42

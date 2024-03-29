@@ -58,13 +58,91 @@ class Result(LockAttributes):
         assert self._orig_code is None
         self._orig_code = val
 
-    def _gen_orig_code_visualized(self):
-        if self.codesize == 0:
-            return
-
+    def _gen_orig_code_visualized_perf(self):
         early_char = self.config.early_char
         late_char  = self.config.late_char
         core_char  = self.config.core_char
+        d = self.config.placeholder_char
+
+        mirror_char = self.config.mirror_char
+
+        fixlen = max(map(len, self.orig_code)) + 8
+
+        def arr_width(arr):
+            mi = min(arr)
+            ma = max(0, max(arr)) # pylint:disable=nested-min-max
+            return mi, ma-mi
+
+        def center_str_fixlen(txt, fixlen, char='-'):
+            txt = ' ' + txt + ' '
+            l = min(len(txt), fixlen)
+            lpad = (fixlen - l) // 2
+            rpad = (fixlen - l) - lpad
+            return char * lpad + txt + char * rpad
+
+        block_size = 25
+
+        min_pos, width = arr_width(self.cycle_position_with_bubbles.values())
+        width = max(width, block_size+5)
+
+        cycles = width
+        cycle_blocks = math.ceil(cycles/block_size)
+        cycle_remainder = cycles % block_size
+
+        legend0 = center_str_fixlen('cycle (expected)', cycles, '-') + '>'
+        legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(cycle_blocks)])
+        legend2 = (('|' + '-' * (block_size - 1))) * (cycle_blocks - 1)
+        legend2 = legend2 + '|' + '-' * (cycle_remainder if cycle_remainder != 0 else block_size)
+        yield SourceLine("")
+        yield SourceLine("").set_comment(legend0).set_length(fixlen + 1)
+        yield SourceLine("").set_comment(legend1).set_length(fixlen + 1)
+        yield SourceLine("").set_comment(legend2).set_length(fixlen + 1)
+        for i in range(self.codesize):
+            pos = self.cycle_position_with_bubbles[i] - min_pos
+            c = core_char
+            if self.config.sw_pipelining.enabled and self.is_pre(i):
+                c = early_char
+            elif self.config.sw_pipelining.enabled and self.is_post(i):
+                c = late_char
+
+            # String of the form "...{e,*,l}...", with e/l/* in position pos
+            t_comment = [d for _ in range(width+1)]
+            if self.config.sw_pipelining.enabled is True:
+                if min_pos < 0:
+                    t_comment[-min_pos] = "'"
+                c_pos = max(-min_pos,0) + self.cycles
+                while c_pos < width:
+                    t_comment[c_pos] = "'"
+                    c_pos += self.cycles
+
+            c_pos = pos
+            t_comment[c_pos] = c
+
+            if self.config.sw_pipelining.enabled is True:
+                # Also display sibling of instruction in other iterations
+                c = mirror_char
+                c_pos = pos - self.cycles
+                while c_pos >= 0:
+                    t_comment[c_pos] = c
+                    c_pos -= self.cycles
+                c_pos = pos + self.cycles
+                while c_pos < width:
+                    t_comment[c_pos] = c
+                    c_pos += self.cycles
+
+            t_comment = ''.join(t_comment)
+
+            yield SourceLine("")                                      \
+                .set_comment(f"{self.orig_code[i].text:{fixlen-3}s}") \
+                .add_comment(t_comment)
+
+        yield SourceLine("")
+
+    def _gen_orig_code_visualized_perm(self):
+        early_char = self.config.early_char
+        late_char  = self.config.late_char
+        core_char  = self.config.core_char
+        mirror_char = self.config.mirror_char
         d = self.config.placeholder_char
 
         fixlen = max(map(len, self.orig_code)) + 8
@@ -74,10 +152,30 @@ class Result(LockAttributes):
             ma = max(0, max(arr)) # pylint:disable=nested-min-max
             return mi, ma-mi
 
+        def center_str_fixlen(txt, fixlen, char='-'):
+            txt = ' ' + txt + ' '
+            l = min(len(txt), fixlen)
+            lpad = (fixlen - l) // 2
+            rpad = (fixlen - l) - lpad
+            return char * lpad + txt + char * rpad
+
         min_pos, width = arr_width(self.reordering.values())
 
+        block_size = 25
+        width = max(width, block_size+5)
+
+        cycles = width
+        cycle_blocks = math.ceil(cycles/block_size)
+        cycle_remainder = cycles % block_size
+
+        legend0 = center_str_fixlen('new position', cycles, '-') + '>'
+        legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(cycle_blocks)])
+        legend2 = (('|' + '-' * (block_size - 1))) * (cycle_blocks - 1)
+        legend2 = legend2 + '|' + '-' * (cycle_remainder if cycle_remainder != 0 else block_size)
         yield SourceLine("")
-        yield SourceLine("").set_comment("original source code")
+        yield SourceLine("").set_comment(legend0).set_length(fixlen + 1)
+        yield SourceLine("").set_comment(legend1).set_length(fixlen + 1)
+        yield SourceLine("").set_comment(legend2).set_length(fixlen + 1)
         for i in range(self.codesize):
             pos = self.reordering[i] - min_pos
             c = core_char
@@ -88,18 +186,29 @@ class Result(LockAttributes):
 
             # String of the form "...{e,*,l}...", with e/l/* in position pos
             t_comment = [d for _ in range(width+1)]
-            if min_pos < 0:
-                t_comment[-min_pos] = '|'
-            if width > max(-min_pos,0) + self.codesize:
-                t_comment[max(-min_pos,0) + self.codesize] = '|'
+            if self.config.sw_pipelining.enabled is True:
+                if min_pos < 0:
+                    t_comment[-min_pos] = "'"
+                c_pos = max(-min_pos,0) + self.codesize
+                while c_pos < width:
+                    t_comment[c_pos] = "'"
+                    c_pos += self.codesize
+
             c_pos = pos
-            while c_pos >= 0:
-                t_comment[c_pos] = c
-                c_pos -= self.codesize
-            c_pos = pos
-            while c_pos < width:
-                t_comment[c_pos] = c
-                c_pos += self.codesize
+            t_comment[c_pos] = c
+
+            if self.config.sw_pipelining.enabled is True:
+                # Also display sibling of instruction in other iterations
+                c = mirror_char
+                c_pos = pos - self.codesize
+                while c_pos >= 0:
+                    t_comment[c_pos] = c
+                    c_pos -= self.codesize
+                c_pos = pos + self.codesize
+                while c_pos < width:
+                    t_comment[c_pos] = c
+                    c_pos += self.codesize
+
             t_comment = ''.join(t_comment)
 
             yield SourceLine("")                                      \
@@ -107,6 +216,15 @@ class Result(LockAttributes):
                 .add_comment(t_comment)
 
         yield SourceLine("")
+
+    def _gen_orig_code_visualized(self):
+        if self.codesize == 0:
+            return
+
+        if self.config.visualize_expected_performance:
+            yield from self._gen_orig_code_visualized_perf()
+        else:
+            yield from self._gen_orig_code_visualized_perm()
 
     @property
     def cycles(self):
@@ -421,25 +539,6 @@ class Result(LockAttributes):
         core_char  = self.config.core_char
         d = self.config.placeholder_char
 
-        def gen_visualized_code_perm():
-            yield SourceLine("").set_comment("----- original position ---->")
-            for i in range(self.codesize_with_bubbles):
-                p = ri.get(i, None)
-                if p is None:
-                    gap_str = "gap"
-                    yield SourceLine("")    \
-                        .set_comment(f"{gap_str:{fixlen-4}s}") \
-                        .add_comment(d * self.codesize)
-                    continue
-                s = code[self.periodic_reordering[p]]
-                c = core_char
-                if self.is_pre(p):
-                    c = early_char
-                elif self.is_post(p):
-                    c = late_char
-                vis = d * p + c + d * (self.codesize - p - 1)
-                yield s.copy().set_length(fixlen).set_comment(vis)
-
         def center_str_fixlen(txt, fixlen, char='-'):
             txt = ' ' + txt + ' '
             l = min(len(txt), fixlen)
@@ -447,15 +546,47 @@ class Result(LockAttributes):
             rpad = (fixlen - l) - lpad
             return char * lpad + txt + char * rpad
 
+        def gen_visualized_code_perm():
+            cs = self.codesize_with_bubbles
+            if cs == 0:
+                return
+            block_size = 25
+            width = max(self.codesize, block_size + 5)
+            blocks = math.ceil(width/block_size)
+
+            legend0 = center_str_fixlen('original position', width - 1, '-') + '>'
+            legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(blocks)])
+            legend2 = (('|' + '-' * (block_size - 1))) * (blocks - 1)
+            legend2 = legend2 + '|' + '-' * max(width % block_size - 1, 0)
+            yield SourceLine("").set_comment(legend0).set_length(fixlen)
+            yield SourceLine("").set_comment(legend1).set_length(fixlen)
+            yield SourceLine("").set_comment(legend2).set_length(fixlen)
+            for i in range(self.codesize_with_bubbles):
+                p = ri.get(i, None)
+                if p is None:
+                    gap_str = "gap"
+                    yield SourceLine("")    \
+                        .set_comment(f"{gap_str:{fixlen-4}s}") \
+                        .add_comment(d * width)
+                    continue
+                s = code[self.periodic_reordering[p]]
+                c = core_char
+                if self.is_pre(p):
+                    c = early_char
+                elif self.is_post(p):
+                    c = late_char
+                vis = d * p + c + d * (width - p - 1)
+                yield s.copy().set_length(fixlen).set_comment(vis)
+
         def gen_visualized_code_perf():
             cs = self.codesize_with_bubbles
             if cs == 0:
                 return
-            cycles = self.cycles
             block_size = 25
+            cycles = max(self.cycles, block_size + 5)
             cycle_blocks = math.ceil(cycles/block_size)
 
-            legend0 = center_str_fixlen('expected cycle count', cycles - 1, '-') + '>'
+            legend0 = center_str_fixlen('cycle (expected)', cycles - 1, '-') + '>'
             legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(cycle_blocks)])
             legend2 = (('|' + '-' * (block_size - 1))) * (cycle_blocks - 1)
             legend2 = legend2 + '|' + '-' * max(cycles % block_size - 1, 0)
