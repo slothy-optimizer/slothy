@@ -912,30 +912,43 @@ class AsmMacro():
 class CPreprocessor():
     """Helper class for the application of the C preprocessor"""
 
-    magic_string = "SLOTHY_PREPROCESSED_REGION"
+    magic_string_start = "SLOTHY_PREPROCESSED_REGION_BEGIN"
+    magic_string_end = "SLOTHY_PREPROCESSED_REGION_END"
 
     @staticmethod
-    def unfold(header, body, gcc):
+    def unfold(header, body, post, gcc, include=None):
         """Runs the concatenation of header and body through the preprocessor"""
 
         assert SourceLine.is_source(body)
         assert SourceLine.is_source(header)
+        assert SourceLine.is_source(post)
 
         body_txt = SourceLine.write_multiline(body)
         header_txt = SourceLine.write_multiline(header)
+        footer_txt = SourceLine.write_multiline(post)
 
-        code_txt = '\n'.join([header_txt, CPreprocessor.magic_string, body_txt])
+        code_txt = '\n'.join([header_txt,
+                              CPreprocessor.magic_string_start,
+                              body_txt,
+                              CPreprocessor.magic_string_end,
+                              footer_txt])
 
-        # Ignore #include's until -I can be configured
-        code_txt = code_txt.replace("#include","//#include")
+        if include is None:
+            include = []
+            # Ignore #include's
+            code_txt = code_txt.replace("#include","//#include")
+        else:
+            include = ["-I", include]
+
+        cmd = [gcc] + include + ["-E", "-CC", "-x", "assembler-with-cpp","-"]
 
         # Pass -CC to keep comments
-        r = subprocess.run([gcc, "-E", "-CC", "-x", "assembler-with-cpp","-"],
-                           input=code_txt, text=True, capture_output=True, check=True)
+        r = subprocess.run(cmd, input=code_txt, text=True, capture_output=True, check=True)
 
         unfolded_code = r.stdout.split('\n')
-        magic_idx = unfolded_code.index(CPreprocessor.magic_string)
-        unfolded_code = unfolded_code[magic_idx+1:]
+        magic_idx_start = unfolded_code.index(CPreprocessor.magic_string_start)
+        magic_idx_end = unfolded_code.index(CPreprocessor.magic_string_end)
+        unfolded_code = unfolded_code[magic_idx_start+1:magic_idx_end]
 
         return [SourceLine(r) for r in unfolded_code]
 

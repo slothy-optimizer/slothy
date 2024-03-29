@@ -335,6 +335,14 @@ class Config(NestedPrint, LockAttributes):
         return self._compiler_binary
 
     @property
+    def compiler_include_paths(self):
+        """Include path to add to compiler invocations
+
+        This is only relevant if `with_preprocessor` or `with_llvm_mca_before`
+        or `with_llvm_mca_after` are set."""
+        return self._compiler_include_paths
+
+    @property
     def llvm_mca_binary(self):
         """The llvm-mca binary to be used for estimated performance annotations
 
@@ -1021,6 +1029,7 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_preprocess_naive_interleaving_by_latency = False
 
         self._compiler_binary = "gcc"
+        self._compiler_include_paths = None
         self._llvm_mca_binary = "llvm-mca"
 
         self.keep_tags = True
@@ -1127,6 +1136,9 @@ class Config(NestedPrint, LockAttributes):
     @compiler_binary.setter
     def compiler_binary(self, val):
         self._compiler_binary = val
+    @compiler_include_paths.setter
+    def compiler_include_paths(self, val):
+        self._compiler_include_paths = val
     @llvm_mca_binary.setter
     def llvm_mca_binary(self, val):
         self._llvm_mca_binary = val
