@@ -432,7 +432,6 @@ class Slothy:
             kernel_code = kernel_code + orig_stats
 
         if self.config.with_llvm_mca_after is True:
-            print(SourceLine.write_multiline(kernel_code))
             new_stats_kernel = self._make_llvm_mca_stats(early, kernel_code, late, "OPTIMIZED",
                                                          indentation)
             kernel_code = kernel_code + new_stats_kernel
