@@ -929,6 +929,18 @@ class q_ldr(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
         obj.addr = obj.args_in[0]
         return obj
 
+class q_ld1(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ld1 {<Va>.<dt>}, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Va"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
 class prefetch(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "prfm pld1lkeep, [<Xc>, <imm>]"
     inputs = ["Xc"]
@@ -1072,6 +1084,22 @@ class q_ldr_with_inc(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+class q_ld1_with_inc(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ld1 {<Va>.<dt>}, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Va"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 class q_ldp_with_inc(Ldp_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldp <Qa>, <Qb>, [<Xc>, <imm>]"
     inputs = ["Xc"]
@@ -1104,6 +1132,18 @@ class q_ldr_with_postinc(Ldr_Q): # pylint: disable=missing-docstring,invalid-nam
     pattern = "ldr <Qa>, [<Xc>], <imm>"
     inputs = ["Xc"]
     outputs = ["Qa"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
+class q_ld1_with_postinc(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ld1 {<Va>.<dt>}, [<Xc>], <imm>"
+    inputs = ["Xc"]
+    outputs = ["Va"]
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
