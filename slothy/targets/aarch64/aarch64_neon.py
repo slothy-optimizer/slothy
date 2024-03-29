@@ -2153,6 +2153,11 @@ class vuzp2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-nam
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
+class vuxtl(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "uxtl <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
 class vqrdmulh(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
@@ -2336,8 +2341,21 @@ class vmull(AArch64Instruction): # pylint: disable=missing-docstring,invalid-nam
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vmlal(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class Vmlal(AArch64Instruction):
+    pass
+
+class vmlal(Vmlal): # pylint: disable=missing-docstring,invalid-name
     pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs=["Vd"]
+
+class vsmlal(Vmlal): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs=["Vd"]
+
+class vsmlal2(Vmlal): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs=["Vd"]
 
