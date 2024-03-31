@@ -1052,6 +1052,8 @@ class Config(NestedPrint, LockAttributes):
 
         self.solver_random_seed = 42
 
+        # TODO: Document log_dir and log_model
+        self.log_model = None
         self.log_dir = "logs/"
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
