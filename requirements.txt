@@ -1,3 +1,3 @@
-ortools==9.7.2996
+ortools==9.9.3963
 pandas==2.1.1
 sympy==1.12
