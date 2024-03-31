@@ -1191,7 +1191,7 @@ class SlothyBase(LockAttributes):
         # - Objective
         self._add_objective()
         # - Export (optional)
-        self._export_model(log_model)
+        self._export_model()
 
         self._result = Result(self.config)
 
@@ -2926,11 +2926,12 @@ class SlothyBase(LockAttributes):
     def _AddNoOverlap(self,interval_list): # pylint:disable=invalid-name
         return self._model.cp_model.AddNoOverlap(interval_list)
 
-    def _export_model(self, log_model):
-        if log_model is None:
+    def _export_model(self):
+        if self.config.log_model is None:
             return
-        self.logger.info("Writing model to %s...", log_model)
-        assert self._model.cp_model.ExportToFile(self.config.log_dir + "/" + log_model)
+        log_file = self.config.log_dir + "/" + self.config.log_model
+        self.logger.info("Writing model to %s ...", log_file)
+        assert self._model.cp_model.ExportToFile(log_file)
 
     def _solve(self):
 

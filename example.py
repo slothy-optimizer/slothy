@@ -88,7 +88,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False, dry_run=False, silent=False, timeout=0):
+    def run(self, debug=False, log_model=False, dry_run=False, silent=False, timeout=0):
 
         if dry_run is True:
             annotation = " (dry run only)"
@@ -139,6 +139,9 @@ class Example():
             slothy.config.constraints.allow_reordering = False
             slothy.config.constraints.allow_renaming = False
             slothy.config.variable_size = True
+
+        if log_model is True:
+            slothy.config.log_model = f"{self.name}_model.txt"
 
         # On Apple M1, we must not use x18
         if "m1" in target_label_dict[self.target]:
@@ -1066,6 +1069,8 @@ class ntt_dilithium_45678(Example):
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.stalls_first_attempt = 160
+        slothy.config.constraints.stalls_minimum_attempt = 160
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
@@ -1329,6 +1334,7 @@ def main():
                  ntt_dilithium_123_456_78(False, target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78(True, target=Target_CortexM85r1),
                  # Cortex-A55
+                 ntt_dilithium_45678(),
                  ntt_dilithium_123_45678(),
                  ntt_dilithium_123_45678(var="w_scalar"),
                  ntt_dilithium_123_45678(var="manual_st4"),
@@ -1377,6 +1383,7 @@ def main():
     parser.add_argument("--silent", default=False, action="store_true")
     parser.add_argument("--iterations", type=int, default=1)
     parser.add_argument("--timeout", type=int, default=0)
+    parser.add_argument("--log-model", default=False, action="store_true")
 
     args = parser.parse_args()
     if args.examples != "all":
@@ -1398,7 +1405,7 @@ def main():
     for e in todo:
         for _ in range(iterations):
             run_example(e, debug=args.debug, dry_run=args.dry_run,
-                        silent=args.silent, timeout=args.timeout)
+                        silent=args.silent, log_model=args.log_model, timeout=args.timeout)
 
 if __name__ == "__main__":
     main()
