@@ -87,6 +87,15 @@ execution_units = {
     (Ldp_X, Ldr_X,
      Str_X, Stp_X,
      Ldr_Q, Str_Q)            : ExecutionUnit.LSU(),
+    # TODO: The following would be more accurate, but does not
+    #       necessarily lead to better results, while making the
+    #       optimization slower. Investigate...
+    #
+    # Ldr_Q)            : ExecutionUnit.LSU(),
+    # Str_Q : [[ExecutionUnit.VEC0, ExecutionUnit.LSU0],
+    #          [ExecutionUnit.VEC0, ExecutionUnit.LSU1],
+    #          [ExecutionUnit.VEC1, ExecutionUnit.LSU0],
+    #          [ExecutionUnit.VEC1, ExecutionUnit.LSU1]],
     (vuzp1, vuzp2, vzip1,
      Vrev, uaddlp)           : ExecutionUnit.V(),
     (vmov)                    : ExecutionUnit.V(),
