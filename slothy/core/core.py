@@ -235,12 +235,31 @@ class Result(LockAttributes):
         return (self.codesize_with_bubbles // self.config.target.issue_rate)
 
     @property
+    def cycles_bound(self):
+        """A lower bound for the number of cycles obtained during optimization.
+
+        This may be lower than the estimated cycle count of the result itself if optimization
+        terminated prematurely, e.g. because of a timeout."""
+        return self._cycles_bound
+
+    @property
+    def ipc_bound(self):
+        """An uppwer bound on the instruction/cycle (IPC) count obtained during optimization.
+
+        This may be lower than the IPC value of the result itself if optimization
+        terminated prematurely, e.g. because of a timeout."""
+        cc = self.cycles_bound
+        if cc is None or cc == 0:
+            return None
+        return (self.codesize / cc)
+
+    @property
     def ipc(self):
         """The instruction/cycle (IPC) count that SLOTHY thinks the code will have."""
         cc = self.cycles
         if cc == 0:
             return 0
-        return (self.codesize / self.cycles)
+        return (self.codesize / cc)
 
     @property
     def orig_code_visualized(self):
@@ -623,6 +642,13 @@ class Result(LockAttributes):
         res.append(SourceLine("")                                     \
                    .set_comment(f"Expected IPC:    {self.ipc:.2f}")   \
                    .set_length(fixlen))
+        if self.cycles_bound is not None:
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"Cycle bound:     {self.cycles_bound}")    \
+                       .set_length(fixlen))
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"IPC bound:       {self.ipc_bound:.2f}")   \
+                       .set_length(fixlen))
 
         res += list(gen_visualized_code())
         res += self.orig_code_visualized
@@ -843,6 +869,11 @@ class Result(LockAttributes):
     def stalls(self, v):
         assert self._stalls is None
         self._stalls = v
+
+    @cycles_bound.setter
+    def cycles_bound(self, v):
+        assert self._cycles_bound is None
+        self._cycles_bound = v
 
     def _build_stalls_idxs(self):
         self._stalls_idxs = { j for (i,j) in self.reordering.items() if
@@ -1155,6 +1186,7 @@ class Result(LockAttributes):
         self._reordering_with_bubbles = None
         self._valid = False
         self._success = None
+        self._cycles_bound = None
         self._stalls = None
         self._stalls_idxs = None
         self._input = None
@@ -1573,14 +1605,14 @@ class SlothyBase(LockAttributes):
                 bound = self.BestObjectiveBound()
                 time = self.WallTime()
                 if self.__printer is not None:
-                    add_cur = self.__printer(cur)
-                    add_bound = self.__printer(bound)
+                    cur_str = self.__printer(cur)
+                    bound_str = self.__printer(bound)
                 else:
-                    add_cur = ""
-                    add_bound = ""
+                    cur_str = str(cur)
+                    bound_str = str(bound)
                 self.__logger.info(
                     f"[{time:.4f}s]: Found {self.__solution_count} solutions so far... " +
-                    f"objective {cur}{add_cur}, bound {bound}{add_bound} ({self.__objective_desc})")
+                    f"objective ({self.__objective_desc}): currently {cur_str}, bound {bound_str}")
                 if self.__is_good_enough and self.__is_good_enough(cur, bound):
                     self.StopSearch()
             if self.__solution_count >= self.__max_solutions:
@@ -1721,6 +1753,11 @@ class SlothyBase(LockAttributes):
 
         if self.config.variable_size:
             self._result.stalls = get_value(self._model.stalls)
+            stalls_bound = self._model.cp_solver.BestObjectiveBound()
+            stats = self._stalls_to_stats(stalls_bound)
+            if stats is not None:
+                cycles_bound, _ = stats
+                self._result.cycles_bound = cycles_bound
 
         nodes = self._model.tree.nodes
         if self.config.sw_pipelining.enabled:
@@ -2959,6 +2996,21 @@ class SlothyBase(LockAttributes):
     #                         OBJECTIVES                            #
     # ==============================================================#
 
+    def _stalls_to_stats(self, stalls):
+        psize = self._model.min_slots + \
+            self._model.pfactor * stalls
+        cc = psize // self.config.target.issue_rate
+        cs = self._model.tree.num_nodes
+        if cc == 0:
+            return None
+        cycles = psize // self._model.pfactor
+        ipc = cs / cc
+        return (cycles, ipc)
+
+    def _print_stalls(self, stalls):
+        (cycles, ipc) = self._stalls_to_stats(stalls)
+        return f" (Cycles ~ {cycles}, IPC ~ {ipc:.2f})"
+
     def _add_objective(self, force_objective=False):
         minlist = []
         maxlist = []
@@ -2969,17 +3021,9 @@ class SlothyBase(LockAttributes):
 
         # If the number of stalls is variable, its minimization is our objective
         if force_objective is False and self.config.variable_size:
-            name = "minimize number of stalls"
+            name = "minimize cycles"
             if self.config.constraints.functional_only is False:
-                def get_cpi(stalls):
-                    psize = self._model.min_slots + \
-                        self._model.pfactor * stalls
-                    cc = psize // self.config.target.issue_rate
-                    cs = self._model.tree.num_nodes
-                    if cc == 0:
-                        return ""
-                    return f" (Cycles ~ {psize // self._model.pfactor}, IPC ~ {cs / cc:.2f})"
-                printer = get_cpi
+                printer = self._print_stalls
             minlist = [self._model.stalls]
         elif self.config.has_objective and not self.config.ignore_objective:
             if self.config.sw_pipelining.enabled is True and \
