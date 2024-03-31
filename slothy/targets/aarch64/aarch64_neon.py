@@ -2550,6 +2550,21 @@ class w_str_imm(Str_X): # pylint: disable=missing-docstring,invalid-name
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+class w_str_sp_imm(Str_X): # pylint: disable=missing-docstring,invalid-name
+    pattern = "str <Wa>, [sp, <imm>]"
+    inputs = ["Wa"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 class x_str_postinc(Str_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "str <Xa>, [<Xc>], <imm>"
     inputs = ["Xa", "Xc"]
