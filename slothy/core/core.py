@@ -254,6 +254,16 @@ class Result(LockAttributes):
         return (self.codesize / cc)
 
     @property
+    def optimization_wall_time(self):
+        """Returns the amount of wall clock time in seconds the optimization has taken"""
+        return self._optimization_wall_time
+
+    @property
+    def optimization_user_time(self):
+        """Returns the amount of CPU time in seconds the optimization has taken"""
+        return self._optimization_user_time
+
+    @property
     def ipc(self):
         """The instruction/cycle (IPC) count that SLOTHY thinks the code will have."""
         cc = self.cycles
@@ -295,6 +305,16 @@ class Result(LockAttributes):
     def codesize_with_bubbles(self, v):
         assert self._codesize_with_bubbles is None
         self._codesize_with_bubbles = v
+
+    @optimization_user_time.setter
+    def optimization_user_time(self, v):
+        assert self._optimization_user_time is None
+        self._optimization_user_time = v
+
+    @optimization_wall_time.setter
+    def optimization_wall_time(self, v):
+        assert self._optimization_wall_time is None
+        self._optimization_wall_time = v
 
     @property
     def pre_core_post_dict(self):
@@ -644,11 +664,27 @@ class Result(LockAttributes):
                    .set_length(fixlen))
         if self.cycles_bound is not None:
             res.append(SourceLine("")                                           \
+                       .set_comment(f"")                                        \
+                       .set_length(fixlen))
+            res.append(SourceLine("")                                           \
                        .set_comment(f"Cycle bound:     {self.cycles_bound}")    \
                        .set_length(fixlen))
             res.append(SourceLine("")                                           \
                        .set_comment(f"IPC bound:       {self.ipc_bound:.2f}")   \
                        .set_length(fixlen))
+        if self.optimization_wall_time is not None:
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"")                                        \
+                       .set_length(fixlen))
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"Wall time:     {self.optimization_wall_time:.2f}s")  \
+                       .set_length(fixlen))
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"User time:     {self.optimization_user_time:.2f}s")  \
+                       .set_length(fixlen))
+        res.append(SourceLine("")                                           \
+                   .set_comment(f"")                                        \
+                   .set_length(fixlen))
 
         res += list(gen_visualized_code())
         res += self.orig_code_visualized
@@ -1194,6 +1230,8 @@ class Result(LockAttributes):
         self._pre_core_post_dict = None
         self._codesize_with_bubbles = None
         self._register_used = None
+        self._optimization_wall_time = None
+        self._optimization_user_time = None
 
         self.lock()
 
@@ -1758,6 +1796,9 @@ class SlothyBase(LockAttributes):
             if stats is not None:
                 cycles_bound, _ = stats
                 self._result.cycles_bound = cycles_bound
+
+        self._result.optimization_wall_time = self._model.cp_solver.WallTime()
+        self._result.optimization_user_time = self._model.cp_solver.UserTime()
 
         nodes = self._model.tree.nodes
         if self.config.sw_pipelining.enabled:
