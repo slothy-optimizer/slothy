@@ -307,6 +307,18 @@ class Config(NestedPrint, LockAttributes):
         return self._with_llvm_mca_before and self._with_llvm_mca_after
 
     @property
+    def llvm_mca_full(self):
+        """Indicates whether all available statistics from LLVM MCA should be printed.
+        """
+        return self._llvm_mca_full
+
+    @property
+    def llvm_mca_issue_width_overwrite(self):
+        """Overwrite LLVM MCA's in-built issue width with the one SLOTHY uses
+        """
+        return self._llvm_mca_issue_width_overwrite
+
+    @property
     def with_llvm_mca_before(self):
         """Indicates whether LLVM MCA should be run prior to optimization
         to obtain approximate performance data based on LLVM's scheduling models.
@@ -333,6 +345,14 @@ class Config(NestedPrint, LockAttributes):
         This is only relevant if `with_preprocessor` or `with_llvm_mca_before`
         or `with_llvm_mca_after` are set."""
         return self._compiler_binary
+
+    @property
+    def compiler_include_paths(self):
+        """Include path to add to compiler invocations
+
+        This is only relevant if `with_preprocessor` or `with_llvm_mca_before`
+        or `with_llvm_mca_after` are set."""
+        return self._compiler_include_paths
 
     @property
     def llvm_mca_binary(self):
@@ -1021,6 +1041,7 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_preprocess_naive_interleaving_by_latency = False
 
         self._compiler_binary = "gcc"
+        self._compiler_include_paths = None
         self._llvm_mca_binary = "llvm-mca"
 
         self.keep_tags = True
@@ -1030,6 +1051,8 @@ class Config(NestedPrint, LockAttributes):
         self._do_address_fixup = True
 
         self._with_preprocessor = False
+        self._llvm_mca_full = False
+        self._llvm_mca_issue_width_overwrite = False
         self._with_llvm_mca_before = False
         self._with_llvm_mca_after = False
         self._max_solutions = 64
@@ -1047,6 +1070,8 @@ class Config(NestedPrint, LockAttributes):
         self.early_char = 'e'
         self.late_char = 'l'
         self.core_char = '*'
+
+        self.mirror_char = "~"
 
         self.typing_hints = {}
 
@@ -1112,6 +1137,12 @@ class Config(NestedPrint, LockAttributes):
     @with_preprocessor.setter
     def with_preprocessor(self, val):
         self._with_preprocessor = val
+    @llvm_mca_issue_width_overwrite.setter
+    def llvm_mca_issue_width_overwrite(self, val):
+        self._llvm_mca_issue_width_overwrite = val
+    @llvm_mca_full.setter
+    def llvm_mca_full(self, val):
+        self._llvm_mca_full = val
     @with_llvm_mca.setter
     def with_llvm_mca(self, val):
         self._with_llvm_mca_before = val
@@ -1125,6 +1156,9 @@ class Config(NestedPrint, LockAttributes):
     @compiler_binary.setter
     def compiler_binary(self, val):
         self._compiler_binary = val
+    @compiler_include_paths.setter
+    def compiler_include_paths(self, val):
+        self._compiler_include_paths = val
     @llvm_mca_binary.setter
     def llvm_mca_binary(self, val):
         self._llvm_mca_binary = val

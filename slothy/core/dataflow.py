@@ -74,6 +74,8 @@ class InstructionOutput(RegisterSource):
         return self.src.alloc_out_var[self.idx]
     def reduce(self):
         return self
+    def sibling(self):
+        return InstructionOutput(self.src.sibling, self.idx)
 
 class InstructionInOut(RegisterSource):
     """Represents an input/output of a node in the data flow graph"""
@@ -87,6 +89,8 @@ class InstructionInOut(RegisterSource):
         return self.src.alloc_in_out_var[self.idx]
     def reduce(self):
         return self.src.src_in_out[self.idx].reduce()
+    def sibling(self):
+        return InstructionInOut(self.src.sibling, self.idx)
 
 class VirtualInstruction:
     """A 'virtual' instruction node for inputs and outputs."""

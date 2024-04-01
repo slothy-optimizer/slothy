@@ -912,30 +912,43 @@ class AsmMacro():
 class CPreprocessor():
     """Helper class for the application of the C preprocessor"""
 
-    magic_string = "SLOTHY_PREPROCESSED_REGION"
+    magic_string_start = "SLOTHY_PREPROCESSED_REGION_BEGIN"
+    magic_string_end = "SLOTHY_PREPROCESSED_REGION_END"
 
     @staticmethod
-    def unfold(header, body, gcc):
+    def unfold(header, body, post, gcc, include=None):
         """Runs the concatenation of header and body through the preprocessor"""
 
         assert SourceLine.is_source(body)
         assert SourceLine.is_source(header)
+        assert SourceLine.is_source(post)
 
         body_txt = SourceLine.write_multiline(body)
         header_txt = SourceLine.write_multiline(header)
+        footer_txt = SourceLine.write_multiline(post)
 
-        code_txt = '\n'.join([header_txt, CPreprocessor.magic_string, body_txt])
+        code_txt = '\n'.join([header_txt,
+                              CPreprocessor.magic_string_start,
+                              body_txt,
+                              CPreprocessor.magic_string_end,
+                              footer_txt])
 
-        # Ignore #include's until -I can be configured
-        code_txt = code_txt.replace("#include","//#include")
+        if include is None:
+            include = []
+            # Ignore #include's
+            code_txt = code_txt.replace("#include","//#include")
+        else:
+            include = ["-I", include]
+
+        cmd = [gcc] + include + ["-E", "-CC", "-x", "assembler-with-cpp","-"]
 
         # Pass -CC to keep comments
-        r = subprocess.run([gcc, "-E", "-CC", "-x", "assembler-with-cpp","-"],
-                           input=code_txt, text=True, capture_output=True, check=True)
+        r = subprocess.run(cmd, input=code_txt, text=True, capture_output=True, check=True)
 
         unfolded_code = r.stdout.split('\n')
-        magic_idx = unfolded_code.index(CPreprocessor.magic_string)
-        unfolded_code = unfolded_code[magic_idx+1:]
+        magic_idx_start = unfolded_code.index(CPreprocessor.magic_string_start)
+        magic_idx_end = unfolded_code.index(CPreprocessor.magic_string_end)
+        unfolded_code = unfolded_code[magic_idx_start+1:magic_idx_end]
 
         return [SourceLine(r) for r in unfolded_code]
 
@@ -946,7 +959,7 @@ class LLVM_Mca():
     """Helper class for the application of the LLVM MCA tool"""
 
     @staticmethod
-    def run(header, body, mca_binary, arch, cpu, log):
+    def run(header, body, mca_binary, arch, cpu, log, full=False, issue_width=None):
         """Runs LLVM-MCA tool on body and returns result as array of strings"""
 
         LLVM_MCA_BEGIN = SourceLine("").add_comment("LLVM-MCA-BEGIN")
@@ -955,9 +968,14 @@ class LLVM_Mca():
         data = SourceLine.write_multiline(header + [LLVM_MCA_BEGIN] + body + [LLVM_MCA_END])
 
         try:
-            r = subprocess.run([mca_binary, f"--mcpu={cpu}", f"--march={arch}",
-                            "--instruction-info=0", "--dispatch-stats=0", "--timeline=1", "--timeline-max-cycles=0",
-                            "--timeline-max-iterations=3"],
+            if full is False:
+                args = ["--instruction-info=0", "--dispatch-stats=0", "--timeline=1", "--timeline-max-cycles=0",
+                            "--timeline-max-iterations=3"]
+            else:
+                args = ["--all-stats", "--all-views", "--bottleneck-analysis", "--timeline=1", "--timeline-max-cycles=0", "--timeline-max-iterations=3"]
+            if issue_width is not None:
+                args += ["--dispatch", str(issue_width)]
+            r = subprocess.run([mca_binary, f"--mcpu={cpu}", f"--march={arch}"] + args,
                             input=data, text=True, capture_output=True, check=True)
         except subprocess.CalledProcessError as exc:
             raise LLVM_Mca_Error from exc
