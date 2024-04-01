@@ -3131,7 +3131,6 @@ class SlothyBase(LockAttributes):
         self._model.cp_solver.random_seed = self.config.solver_random_seed
 
         self._model.cp_solver.parameters.search_branching = cp_model.FIXED_SEARCH
-        self._model.cp_solver.parameters.num_workers = 1
 
         # There is a bug in OR-Tools, https://github.com/google/or-tools/issues/3483,
         # that causes models to be incorrectly classes as INFEASIBLE at times.
