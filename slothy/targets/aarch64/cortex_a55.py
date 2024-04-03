@@ -177,7 +177,7 @@ inverse_throughput = {
       vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull,
       vmlal,
       vsrshr, umov_d ) : 1,
-    (trn2, trn1, cmge): 1,
+    (trn2, trn1, ASimdCompare): 1,
     ( Ldr_Q ) : 2,
     ( Str_Q ) : 1,
     ( tst_wform ) : 1,
@@ -215,7 +215,7 @@ default_latencies = {
     is_qform_form_of([vadd, vsub]) : 3,
     is_dform_form_of([vadd, vsub]) : 2,
 
-    (trn1, trn2, cmge): 2,
+    (trn1, trn2, ASimdCompare): 2,
     ( vsrshr ) : 3,
     ( vmul, vmul_lane, vmls, vmls_lane,
       vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull,

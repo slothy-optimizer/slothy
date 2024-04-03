@@ -98,7 +98,7 @@ execution_units = {
      vqdmulh_lane,
      vmull, vmlal,
      vsrshr, vushr, vusra, vshl,
-     vand, vbic, cmge): ExecutionUnit.V(),
+     vand, vbic, ASimdCompare): ExecutionUnit.V(),
 
     (vadd, vsub,
      trn1, trn2): ExecutionUnit.V(),
@@ -154,7 +154,7 @@ inverse_throughput = {
      vqdmulh_lane,
      vmull, vmlal,
      vsrshr, vushr, vusra, vshl,
-     vand, vbic, cmge): 1,
+     vand, vbic, ASimdCompare): 1,
     (vadd, vsub,
      trn1, trn2): 1,
 
@@ -209,7 +209,7 @@ default_latencies = {
      vmull, vmlal,
      vsrshr, vusra): 3,
     (vshl, vushr,
-     vand, vbic, cmge): 2,
+     vand, vbic, ASimdCompare): 2,
     (vadd, vsub,
      trn1, trn2): 2,
     Vins: 2,  # 2 or <= 9
