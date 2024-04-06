@@ -1194,6 +1194,8 @@ class intt_dilithium_1234_5678(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
     def core(self, slothy):
+        conf = slothy.config.copy()
+
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
         slothy.config.inputs_are_outputs = True
@@ -1204,7 +1206,7 @@ class intt_dilithium_1234_5678(Example):
         slothy.config.split_heuristic = False
         slothy.optimize_loop("layer5678_start")
 
-        slothy.config = Config(self.arch, self.target)
+        slothy.config = conf.copy()
         
         if self.timeout is not None:
             slothy.config.timeout = self.timeout // 12
