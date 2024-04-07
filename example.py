@@ -1167,8 +1167,6 @@ class ntt_dilithium_1234_5678(Example):
 
         if self.timeout is not None:
             slothy.config.timeout = self.timeout * 12
-        if self.timeout is not None:
-            slothy.config.timeout = self.timeout * 12
 
         slothy.config.reserved_regs = [
             f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
