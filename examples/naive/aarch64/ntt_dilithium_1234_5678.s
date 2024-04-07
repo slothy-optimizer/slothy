@@ -68,27 +68,21 @@
 
 
 .macro mulmodq dst, src, const, idx0, idx1
+        vqrdmulhq   t2,  \src, \const, \idx1
         vmulq       \dst,  \src, \const, \idx0
-        vqrdmulhq   \src,  \src, \const, \idx1
-        vmla        \dst,  \src, modulus
+        vmla       \dst,  t2, modulus
 .endm
 
 .macro mulmod dst, src, const, const_twisted
+        vqrdmulh   t2,  \src, \const_twisted
         mul        \dst\().4s,  \src\().4s, \const\().4s
-        vqrdmulh   \src,  \src, \const_twisted
-        vmla       \dst,  \src, modulus
+        vmla       \dst,  t2, modulus
 .endm
 
 .macro ct_butterfly a, b, root, idx0, idx1
         mulmodq  tmp, \b, \root, \idx0, \idx1
         sub     \b\().4s,    \a\().4s, tmp.4s
         add     \a\().4s,    \a\().4s, tmp.4s
-.endm
-
-.macro mulmod_v dst, src, const, const_twisted
-        mul        \dst\().4s,  \src\().4s, \const\().4s
-        vqrdmulh    \src,  \src, \const_twisted
-        vmla        \dst,  \src, modulus
 .endm
 
 .macro ct_butterfly_v a, b, root, root_twisted

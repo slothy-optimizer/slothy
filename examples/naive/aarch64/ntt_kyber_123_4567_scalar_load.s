@@ -79,27 +79,21 @@ xtmp1 .req x11
 .endm
 
 .macro mulmodq dst, src, const, idx0, idx1
+        vqrdmulhq   t2,  \src, \const, \idx1
         vmulq       \dst,  \src, \const, \idx0
-        vqrdmulhq   \src,  \src, \const, \idx1
-        vmlsq        \dst,  \src, consts, 0
+        vmlsq       \dst,  t2, consts, 0
 .endm
 
 .macro mulmod dst, src, const, const_twisted
+        vqrdmulh   t2,  \src, \const_twisted
         mul        \dst\().8h,  \src\().8h, \const\().8h
-        vqrdmulh   \src,  \src, \const_twisted
-        vmlsq      \dst,  \src, consts, 0
+        vmlsq      \dst,  t2, consts, 0
 .endm
 
 .macro ct_butterfly a, b, root, idx0, idx1
         mulmodq  tmp, \b, \root, \idx0, \idx1
         sub     \b\().8h,    \a\().8h, tmp.8h
         add     \a\().8h,    \a\().8h, tmp.8h
-.endm
-
-.macro mulmod_v dst, src, const, const_twisted
-        mul         \dst\().8h,  \src\().8h, \const\().8h
-        vqrdmulh    \src,  \src, \const_twisted
-        vmlsq       \dst,  \src, consts, 0
 .endm
 
 .macro ct_butterfly_v a, b, root, root_twisted

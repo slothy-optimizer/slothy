@@ -514,6 +514,9 @@ layer123_start:
         str_vo data6, in, (6*(1024/8))
         str_vo data7, in, (7*(1024/8))        
 
+        // Scale half the coeffs by 1/n; for the other half, the scaling has
+        // been merged into the multiplication with the twiddle factor on the
+        // last layer.
         mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
 
         canonical_reduce data0, modulus_half, neg_modulus_half, t2, t3

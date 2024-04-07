@@ -480,6 +480,9 @@ layer1234_start:
         str_vo data14, in, (14*(512/8))
         str_vo data15, in, (15*(512/8))
 
+        // Scale half the coeffs by 1/n; for the other half, the scaling has
+        // been merged into the multiplication with the twiddle factor on the
+        // last layer.
         mul_ninv data0, data1, data2, data3, data4, data5, data6, data7, data0, data1, data2, data3, data4, data5, data6, data7
 
         canonical_reduce data0, modulus_half, neg_modulus_half, t2, t3
