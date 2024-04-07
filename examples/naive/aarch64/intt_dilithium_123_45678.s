@@ -47,15 +47,15 @@ xtmp1 .req x11
 .endm
 
 .macro mulmodq dst, src, const, idx0, idx1
+        vqrdmulhq   t2,  \src, \const, \idx1
         vmulq       \dst,  \src, \const, \idx0
-        vqrdmulhq   \src,  \src, \const, \idx1
-        vmlsq        \dst,  \src, consts, 0
+        vmlsq       \dst,  t2, consts, 0
 .endm
 
 .macro mulmod dst, src, const, const_twisted
+        vqrdmulh   t2,  \src, \const_twisted
         mul        \dst\().4s,  \src\().4s, \const\().4s
-        vqrdmulh   \src,  \src, \const_twisted
-        vmlsq       \dst,  \src, consts, 0
+        vmlsq      \dst,  t2, consts, 0
 .endm
 
 .macro montg_reduce a
@@ -514,17 +514,17 @@ layer123_start:
         str_vo data6, in, (6*(1024/8))
         str_vo data7, in, (7*(1024/8))        
 
-        mul_ninv data4, data5, data6, data7, data0, data1, data2, data3
+        mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
 
-        canonical_reduce data4, modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data5, modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data6, modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data7, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data0, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data1, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data2, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data3, modulus_half, neg_modulus_half, t2, t3
 
-        str_vi data4, in, (16)
-        str_vo data5, in, (-16 + 1*(1024/8))
-        str_vo data6, in, (-16 + 2*(1024/8))
-        str_vo data7, in, (-16 + 3*(1024/8))
+        str_vi data0, in, (16)
+        str_vo data1, in, (-16 + 1*(1024/8))
+        str_vo data2, in, (-16 + 2*(1024/8))
+        str_vo data3, in, (-16 + 3*(1024/8))
 
         subs count, count, #1
         cbnz count, layer123_start

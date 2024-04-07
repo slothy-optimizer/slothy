@@ -67,27 +67,21 @@
 .endm
 
 .macro mulmodq dst, src, const, idx0, idx1
+        vqrdmulhq   t2,  \src, \const, \idx1
         vmulq       \dst,  \src, \const, \idx0
-        vqrdmulhq   \src,  \src, \const, \idx1
-        vmlsq       \dst,  \src, consts, 0
+        vmlsq       \dst,  t2, consts, 0
 .endm
 
 .macro mulmod dst, src, const, const_twisted
+        vqrdmulh   t2,  \src, \const_twisted
         mul        \dst\().8h,  \src\().8h, \const\().8h
-        vqrdmulh   \src,  \src, \const_twisted
-        vmlsq      \dst,  \src, consts, 0
+        vmlsq      \dst,  t2, consts, 0
 .endm
 
 .macro gs_butterfly a, b, root, idx0, idx1
         sub     tmp.8h,    \a\().8h, \b\().8h
         add     \a\().8h,    \a\().8h, \b\().8h
         mulmodq  \b, tmp, \root, \idx0, \idx1
-.endm
-
-.macro mulmod_v dst, src, const, const_twisted
-        mul         \dst\().8h,  \src\().8h, \const\().8h
-        vqrdmulh    \src,  \src, \const_twisted
-        vmlsq       \dst,  \src, consts, 0
 .endm
 
 .macro gs_butterfly_v a, b, root, root_twisted
@@ -443,12 +437,12 @@ layer123_start:
         str_vo data6, in, (6*(512/8))
         str_vo data7, in, (7*(512/8))
 
-        mul_ninv data4, data5, data6, data7, data0, data1, data2, data3
+        mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
 
-        str_vi data4, in, (16)
-        str_vo data5, in, (-16 + 1*(512/8))
-        str_vo data6, in, (-16 + 2*(512/8))
-        str_vo data7, in, (-16 + 3*(512/8))
+        str_vi data0, in, (16)
+        str_vo data1, in, (-16 + 1*(512/8))
+        str_vo data2, in, (-16 + 2*(512/8))
+        str_vo data3, in, (-16 + 3*(512/8))
 
 
         subs count, count, #1
