@@ -1651,6 +1651,12 @@ class neg(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-n
     inputs = ["Xa"]
     outputs = ["Xd"]
 
+class ngc_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ngc <Xd>, xzr"
+    inputs = []
+    outputs = ["Xd"]
+    dependsOnFlags=True
+
 class adds(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "adds <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
@@ -1697,6 +1703,13 @@ class sbcs_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,inv
     pattern = "sbcs <Xd>, <Xa>, xzr"
     inputs = ["Xa"]
     outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
+
+class sbcs_zero_to_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "sbcs xzr, <Xa>, xzr"
+    inputs = ["Xa"]
+    outputs = []
     modifiesFlags=True
     dependsOnFlags=True
 
@@ -2338,6 +2351,11 @@ class vdup(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
 
 class vmull(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+class vmull2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
