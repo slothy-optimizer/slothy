@@ -1393,15 +1393,15 @@ class SlothyBase(LockAttributes):
 
         # - Objective
         self._add_objective()
-        # - Export (optional)
-        self._export_model()
-
         self._result = Result(self.config)
 
         # Do the actual work
         self.logger.info("Invoking external constraint solver (%s) ...", self._describe_solver())
         self.result.success = self._solve()
         self.result.valid = True
+
+        # - Export (optional)
+        self._export_model()
 
         if not retry and self.success:
             self.logger.info("Booleans in result: %d", self._model.cp_solver.NumBooleans())
@@ -3172,6 +3172,7 @@ class SlothyBase(LockAttributes):
     def _export_model(self):
         if self.config.log_model is None:
             return
+
         if self.config.log_model is True:
             model_file = f"slothy_model"
         else:
@@ -3184,6 +3185,18 @@ class SlothyBase(LockAttributes):
         log_file = self.config.log_model_dir + "/" + model_file
         self.logger.info("Writing model to %s ...", log_file)
         assert self._model.cp_model.ExportToFile(log_file)
+
+        if self.config.log_model_log_results is True:
+            results_file = self.config.log_model_dir + "/" + self.config.log_model_results_file
+            result = []
+            result.append(f"Model: \"{model_file}\"")
+            result.append(f"Version: \"{ortools.__version__}\"")
+            result.append(f"Time (seconds): {self._model.cp_solver.WallTime():.4f}")
+            result.append(f"Status: \"{self._model.cp_solver.StatusName(self._model.cp_model.status)}\"")
+            result.append("")
+            result.append("")
+            with open(results_file, "a") as f:
+                f.write('\n'.join(result))
 
     def _solve(self):
 
