@@ -2636,6 +2636,7 @@ class x_stp(Stp_X): # pylint: disable=missing-docstring,invalid-name
         obj.increment = None
         obj.pre_index = None
         obj.addr = obj.args_in[0]
+        return obj
 
     def write(self):
         # For now, assert that no fixup has happened
