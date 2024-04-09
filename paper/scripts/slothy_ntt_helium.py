@@ -65,7 +65,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, silent=False, no_log=False):
+    def run(self, silent=False, no_log=False, log_model=False):
         logdir = "logs"
 
         handlers = []
@@ -97,6 +97,10 @@ class Example():
         logger = logging.getLogger(self.name)
         slothy = Slothy(self.arch, self.target, logger=logger)
         slothy.load_source_from_file(self.infile_full)
+
+        if log_model is True:
+            slothy.config.log_model = f"slothy_ci_ntt_helium_{self.name}"
+
         self.core(slothy, *self.extra_args)
 
         if self.rename:
@@ -286,6 +290,8 @@ def main():
                         help="Don't store logfiles")
     parser.add_argument("--silent", default=False, action='store_true',
                         help="""Silent mode: Only print warnings and errors""")
+    parser.add_argument("--log-model", default=False, action='store_true',
+                        help="""Export CP-SAT model to text file before solving""")
 
     args = parser.parse_args()
     if args.examples != "all":
@@ -302,7 +308,7 @@ def main():
                 break
         if ex == None:
             raise Exception(f"Could not find example {name} (known: {list(e.name for e in examples)}")
-        ex.run(silent=silent, no_log=args.no_log)
+        ex.run(silent=silent, no_log=args.no_log, log_model=args.log_model)
 
     for e in todo:
         for _ in range(iterations):
