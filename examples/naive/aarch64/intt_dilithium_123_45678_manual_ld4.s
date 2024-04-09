@@ -245,6 +245,12 @@ xtmp1 .req x11
         restore_gprs
 .endm
 
+// For comparability reasons, the output range for the coefficients of this
+// invNTT code is supposed to match the implementation from PQClean on commit
+// ee71d2c823982bfcf54686f3cf1d666f396dc9aa. After the invNTT, the coefficients
+// are canonically reduced. The ordering of the coefficients is canonical, also
+// matching PQClean.
+
 .data
 .p2align 4
 roots:
