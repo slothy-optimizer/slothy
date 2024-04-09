@@ -27,6 +27,8 @@
 
 import logging
 import math
+import time
+
 from types import SimpleNamespace
 from copy import deepcopy
 from functools import cached_property
@@ -3167,7 +3169,16 @@ class SlothyBase(LockAttributes):
     def _export_model(self):
         if self.config.log_model is None:
             return
-        log_file = self.config.log_dir + "/" + self.config.log_model
+        if self.config.log_model is True:
+            model_file = f"slothy_model"
+        else:
+            model_file = self.config.log_model
+            assert(isinstance(model_file, str))
+
+        # Always append a timestamp
+        model_file += f"_{int(time.time()*1000)}.txt"
+
+        log_file = self.config.log_model_dir + "/" + model_file
         self.logger.info("Writing model to %s ...", log_file)
         assert self._model.cp_model.ExportToFile(log_file)
 

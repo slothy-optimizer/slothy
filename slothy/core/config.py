@@ -1105,9 +1105,9 @@ class Config(NestedPrint, LockAttributes):
 
         # TODO: Document log_dir and log_model
         self.log_model = None
-        self.log_dir = "logs/"
-        if not os.path.exists(self.log_dir):
-            os.makedirs(self.log_dir)
+        self.log_model_dir = "models"
+        if not os.path.exists(self.log_model_dir):
+            os.makedirs(self.log_model_dir)
 
         self.lock()
 
