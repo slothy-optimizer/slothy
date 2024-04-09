@@ -96,7 +96,7 @@
         vmls       \dst,  t2, modulus
 .endm
 
-.macro montg_reduce a
+.macro barrett_reduce_single a
         srshr tmp.4S,  \a\().4S, #23
         vmls   \a, tmp, modulus
 .endm
@@ -354,8 +354,8 @@ layer5678_start:
         gs_butterfly data0, data2, root1, 0, 1
         gs_butterfly data1, data3, root1, 0, 1
 
-        montg_reduce data0
-        montg_reduce data1
+        barrett_reduce_single data0
+        barrett_reduce_single data1
 
         str_vi  data0, inp, (16*4)
         str_vo  data1, inp, (-16*4 +  1*16)

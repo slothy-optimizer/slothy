@@ -96,7 +96,7 @@
         vmls       \dst,  \src, modulus
 .endm
 
-.macro montg_reduce a
+.macro barrett_reduce_single a
         srshr tmp.4S,  \a\().4S, #23
         vmls   \a, tmp, modulus
 .endm

@@ -58,7 +58,7 @@ xtmp1 .req x11
         vmlsq      \dst,  t2, consts, 0
 .endm
 
-.macro montg_reduce a
+.macro barrett_reduce_single a
         srshr tmp.4S,  \a\().4S, #23
         vmls   \a, tmp, consts
 .endm
@@ -428,10 +428,10 @@ layer45678_start:
         gs_butterfly data5, data7, root1, 0, 1
 
         // Interm. Reduction
-        montg_reduce data0
-        montg_reduce data1
-        montg_reduce data4
-        montg_reduce data5
+        barrett_reduce_single data0
+        barrett_reduce_single data1
+        barrett_reduce_single data4
+        barrett_reduce_single data5
 
         // Layer 4
         gs_butterfly data0, data4, root0, 0, 1

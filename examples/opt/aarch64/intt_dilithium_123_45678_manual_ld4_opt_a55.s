@@ -58,7 +58,7 @@ xtmp1 .req x11
         vmlsq       \dst,  \src, consts, 0
 .endm
 
-.macro montg_reduce a
+.macro barrett_reduce_single a
         srshr tmp.4S,  \a\().4S, #23
         vmls   \a, tmp, consts
 .endm
