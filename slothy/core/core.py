@@ -3051,7 +3051,10 @@ class SlothyBase(LockAttributes):
         return (cycles, ipc)
 
     def _print_stalls(self, stalls):
-        (cycles, ipc) = self._stalls_to_stats(stalls)
+        r = self._stalls_to_stats(stalls)
+        if r is None:
+            return " (?)"
+        (cycles, ipc) = r
         return f" (Cycles ~ {cycles}, IPC ~ {ipc:.2f})"
 
     def _add_objective(self, force_objective=False):
