@@ -69,15 +69,36 @@ class Config(NestedPrint, LockAttributes):
     def reserved_regs(self):
         """Set of architectural registers _not_ available for register renaming.
         May be unset (None) to pick the default reserved registers for the target
-        architecture. If set, it _overwrites_ the default reserved registers for
-        the target architecture -- that is, if you still want the default reserved
-        registers to remain reserved, you have to explicitly list them.
+        architecture.
 
         In the lingo of inline assembly, this can be seen as the complement of
-        the clobber list."""
+        the clobber list.
+
+        NOTE: Reserved registers are, by default, considered  "locked": They
+          will not be _introduced_ during renaming, but existing uses will not
+          be touched. If you want to remove existing uses of reserved registers
+          through renaming, you should disable `reserved_regs_are_locked`.
+
+        WARNING: When this is set, it _overwrites_ the default reserved registers for
+          the target architecture. If you still want the default reserved
+          registers to remain reserved, you have to explicitly list them!"""
         if self._reserved_regs is not None:
             return self._reserved_regs
         return self._arch.RegisterType.default_reserved()
+
+    @property
+    def reserved_regs_are_locked(self):
+        """Indicates whether reserved registers should be locked by default.
+
+        Reserved registers are not introduced during renaming. However, where
+        they are already used by the input assembly, their use will not be
+        eliminated or altered -- that is, reserved registers are 'locked' by
+        default.
+
+        Disable this configuration option to allow (in fact, force) renaming
+        of existing uses of reserved registers. This can be useful when trying
+        to eliminate uses of particular registers from some piece of assembly."""
+        return self._reserved_regs_are_locked
 
     @property
     def selfcheck(self):
@@ -262,8 +283,12 @@ class Config(NestedPrint, LockAttributes):
     @property
     def locked_registers(self):
         """List of architectural registers that should not be renamed when they are
-           used as output registers. Reserved registers are always treated as locked."""
-        return set(self.reserved_regs).union(self._locked_registers)
+           used as output registers. Reserved registers are treated as locked if
+           the option `reserved_regs_are_locked` is set."""
+        if self.reserved_regs_are_locked:
+            return set(self.reserved_regs).union(self._locked_registers)
+        else:
+            return set(self._locked_registers)
 
     @property
     def sw_pipelining(self):
@@ -1023,6 +1048,7 @@ class Config(NestedPrint, LockAttributes):
 
         self._locked_registers = []
         self._reserved_regs = None
+        self._reserved_regs_are_locked = True
 
         self._selfcheck = True
         self._allow_useless_instructions = False
@@ -1119,6 +1145,9 @@ class Config(NestedPrint, LockAttributes):
     @reserved_regs.setter
     def reserved_regs(self,val):
         self._reserved_regs = val
+    @reserved_regs_are_locked.setter
+    def reserved_regs_are_locked(self,val):
+        self._reserved_regs_are_locked = val
     @variable_size.setter
     def variable_size(self,val):
         self._variable_size = val
