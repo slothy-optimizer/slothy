@@ -241,15 +241,15 @@ roots:
 #include "intt_dilithium_1234_5678_twiddles.s"
 .text
 
-        .global intt_dilithium_1234_5678
-        .global _intt_dilithium_1234_5678
+        .global intt_dilithium_1234_5678_manual_ld4
+        .global _intt_dilithium_1234_5678_manual_ld4
 
 .p2align 4
 modulus_addr:   .quad 8380417
 ninv_addr:      .quad 16382
 ninv_tw_addr:   .quad 4197891
-intt_dilithium_1234_5678:
-_intt_dilithium_1234_5678:
+intt_dilithium_1234_5678_manual_ld4:
+_intt_dilithium_1234_5678_manual_ld4:
         push_stack
 
         inp     .req x0
@@ -335,13 +335,11 @@ _intt_dilithium_1234_5678:
         .p2align 2
 layer5678_start:
         // manual_ld4
-        // ldr_vo data0, inp, (16*0)
-        // ldr_vo data1, inp, (16*1)
-        // ldr_vo data2, inp, (16*2)
-        // ldr_vo data3, inp, (16*3)
-        // transpose4 data
-
-        ld4 {data0.4S, data1.4S, data2.4S, data3.4S}, [inp]
+        ldr_vo data0, inp, (16*0)
+        ldr_vo data1, inp, (16*1)
+        ldr_vo data2, inp, (16*2)
+        ldr_vo data3, inp, (16*3)
+        transpose4 data
 
         load_next_roots_78 root0, root0_tw, root1, root1_tw, root2, root2_tw, r_ptr0
 

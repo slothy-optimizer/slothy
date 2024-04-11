@@ -2904,6 +2904,15 @@ class ld2_with_inc(Ld2): # pylint: disable=missing-docstring,invalid-name
             ]
         return obj
 
+
+class ASimdCompare(AArch64Instruction):
+   """Parent class for ASIMD compare instructions"""
+
+class cmge(ASimdCompare): # pylint: disable=missing-docstring,invalid-name
+    pattern = "cmge <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
 # In a pair of vins writing both 64-bit lanes of a vector, mark the
 # target vector as output rather than input/output. This enables further
 # renaming opportunities.

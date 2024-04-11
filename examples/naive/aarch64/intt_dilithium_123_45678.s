@@ -10,25 +10,15 @@
 //
 // Eventually, NeLight should include a proper parser for AArch64,
 // but for initial investigations, the below is enough.
-
-.macro vins vec_out, gpr_in, lane
-        ins \vec_out\().d[\lane], \gpr_in
-.endm
-
 xtmp0 .req x10
 xtmp1 .req x11
+
 .macro ldr_vo vec, base, offset
-        ldr xtmp0, [\base, #\offset]
-        ldr xtmp1, [\base, #(\offset+8)]
-        vins \vec, xtmp0, 0
-        vins \vec, xtmp1, 1
+       ldr qform_\vec, [\base, #\offset]
 .endm
 
 .macro ldr_vi vec, base, inc
-        ldr xtmp0, [\base], #\inc
-        ldr xtmp1, [\base, #(-\inc+8)]
-        vins \vec, xtmp0, 0
-        vins \vec, xtmp1, 1
+        ldr qform_\vec, [\base], #\inc
 .endm
 
 .macro str_vo vec, base, offset
@@ -68,28 +58,35 @@ xtmp1 .req x11
         vmlsq      \dst,  t2, consts, 0
 .endm
 
-.macro ct_butterfly a, b, root, idx0, idx1
-        mulmodq  tmp, \b, \root, \idx0, \idx1
-        sub     \b\().4s,    \a\().4s, tmp.4s
-        add     \a\().4s,    \a\().4s, tmp.4s
-.endm
-
-.macro ct_butterfly_v a, b, root, root_twisted
-        mulmod  tmp, \b, \root, \root_twisted
-        sub    \b\().4s,    \a\().4s, tmp.4s
-        add    \a\().4s,    \a\().4s, tmp.4s
-.endm
-
 .macro barrett_reduce_single a
-        srshr    tmp.4S, \a\().4S, #23
-        vmlsq    \a, tmp, consts, 0
+        srshr tmp.4S,  \a\().4S, #23
+        vmls   \a, tmp, consts
 .endm
 
-.macro barrett_reduce a0, a1, a2, a3
-        barrett_reduce_single \a0
-        barrett_reduce_single \a1
-        barrett_reduce_single \a2
-        barrett_reduce_single \a3
+.macro canonical_reduce a, modulus_half, neg_modulus_half, tmp1, tmp2
+        cmge \tmp1\().4s, \neg_modulus_half\().4s, \a\().4s
+        cmge \tmp2\().4s, \a\().4s, \modulus_half\().4s
+        sub \tmp2\().4s, \tmp1\().4s, \tmp2\().4s
+        vmls \a, \tmp2, consts
+.endm
+
+.macro gs_butterfly a, b, root, idx0, idx1
+        sub     tmp.4s,    \a\().4s, \b\().4s
+        add     \a\().4s,    \a\().4s, \b\().4s
+        mulmodq  \b, tmp, \root, \idx0, \idx1
+.endm
+
+.macro gs_butterfly_v a, b, root, root_twisted
+        sub    tmp.4s,    \a\().4s, \b\().4s
+        add    \a\().4s,    \a\().4s, \b\().4s
+        mulmod  \b, tmp, \root, \root_twisted
+.endm
+
+.macro mul_ninv dst0, dst1, dst2, dst3, src0, src1, src2, src3
+        mulmod \dst0, \src0, ninv, ninv_tw
+        mulmod \dst1, \src1, ninv, ninv_tw
+        mulmod \dst2, \src2, ninv, ninv_tw
+        mulmod \dst3, \src3, ninv, ninv_tw
 .endm
 
 .macro load_vectors a0, a1, a2, a3, addr
@@ -248,23 +245,30 @@ xtmp1 .req x11
         restore_gprs
 .endm
 
+// For comparability reasons, the output range for the coefficients of this
+// invNTT code is supposed to match the implementation from PQClean on commit
+// ee71d2c823982bfcf54686f3cf1d666f396dc9aa. After the invNTT, the coefficients
+// are canonically reduced. The ordering of the coefficients is canonical, also
+// matching PQClean.
+
 .data
 .p2align 4
 roots:
-#include "ntt_dilithium_123_456_78_twiddles.s"
+#include "intt_dilithium_123_456_78_twiddles.s"
 .text
 
-        .global ntt_dilithium_123_45678_w_scalar
-        .global _ntt_dilithium_123_45678_w_scalar
+        .global intt_dilithium_123_45678
+        .global _intt_dilithium_123_45678
 
 .p2align 4
 const_addr:   .word 8380417
               .word 0
               .word 0
               .word 0
-
-ntt_dilithium_123_45678_w_scalar:
-_ntt_dilithium_123_45678_w_scalar:
+ninv_addr:      .quad 16382
+ninv_tw_addr:   .quad 4197891
+intt_dilithium_123_45678:
+_intt_dilithium_123_45678:
         push_stack
 
         in      .req x0
@@ -367,15 +371,115 @@ _ntt_dilithium_123_45678_w_scalar:
         consts .req v8
         qform_consts .req q8
 
-        ASM_LOAD(r_ptr0, roots_l012)
+        ASM_LOAD(r_ptr0, roots_l345)
         ASM_LOAD(r_ptr1, roots_l67)
 
         ASM_LOAD(xtmp, const_addr)
         ld1r {consts.4s}, [xtmp]
-
         save STACK0, in
+
+        restore inp, STACK0
+        mov inp, in
+        add inpp, inp, #64
         mov count, #8
 
+        root0_tw .req v4
+        root1_tw .req v5
+        root2_tw .req v6
+        root3_tw .req v7
+        qform_root0_tw .req q4
+        qform_root1_tw .req q5
+        qform_root2_tw .req q6
+        qform_root3_tw .req q7
+
+        .p2align 2
+layer45678_start:
+        // Standard way using vector instructions
+        ld4 {data0.4S, data1.4S, data2.4S, data3.4S}, [inp]
+        ld4 {data4.4S, data5.4S, data6.4S, data7.4S}, [inpp]
+
+        load_roots_78_part1
+        
+        // Layer 8 Part 1
+        gs_butterfly_v data0, data1, root1, root1_tw
+        gs_butterfly_v data2, data3, root2, root2_tw
+        // Layer 7 Part 1
+        gs_butterfly_v data0, data2, root0, root0_tw
+        gs_butterfly_v data1, data3, root0, root0_tw
+
+        load_roots_78_part2
+
+        // Layer 8 Part 2
+        gs_butterfly_v data4, data5, root1, root1_tw
+        gs_butterfly_v data6, data7, root2, root2_tw
+        // Layer 7 Part 2
+        gs_butterfly_v data4, data6, root0, root0_tw
+        gs_butterfly_v data5, data7, root0, root0_tw
+
+        transpose4 data0, data1, data2, data3
+        transpose4 data4, data5, data6, data7
+
+        load_roots_456
+
+        // Layer 6
+        gs_butterfly data0, data1, root1, 2, 3
+        gs_butterfly data2, data3, root2, 0, 1
+        gs_butterfly data4, data5, root2, 2, 3
+        gs_butterfly data6, data7, root3, 0, 1
+
+        // Layer 5
+        gs_butterfly data0, data2, root0, 2, 3
+        gs_butterfly data1, data3, root0, 2, 3
+        gs_butterfly data4, data6, root1, 0, 1
+        gs_butterfly data5, data7, root1, 0, 1
+
+        // Interm. Reduction
+        barrett_reduce_single data0
+        barrett_reduce_single data1
+        barrett_reduce_single data4
+        barrett_reduce_single data5
+
+        // Layer 4
+        gs_butterfly data0, data4, root0, 0, 1
+        gs_butterfly data1, data5, root0, 0, 1
+        gs_butterfly data2, data6, root0, 0, 1
+        gs_butterfly data3, data7, root0, 0, 1
+
+        // Standard way using vector instructions
+
+        str_vi  data0, inp, (16*4)
+        str_vo  data1, inp, (-16*4 +  1*16)
+        str_vo  data2, inp, (-16*4 +  2*16)
+        str_vo  data3, inp, (-16*4 +  3*16)
+
+        str_vi  data4, inpp, (16*4)
+        str_vo  data5, inpp, (-16*4 +  1*16)
+        str_vo  data6, inpp, (-16*4 +  2*16)
+        str_vo  data7, inpp, (-16*4 +  3*16)
+
+        add inp, inp, #64
+        add inpp, inpp, #64
+
+        subs count, count, #1
+        cbnz count, layer45678_start
+
+// -----------------------------------------------------------------------------
+
+        ninv             .req v25
+        ninv_tw          .req v26
+        modulus_half     .req v30
+        neg_modulus_half .req v31
+
+        ASM_LOAD(xtmp, ninv_addr)
+        ld1r {ninv.4s}, [xtmp]
+        ASM_LOAD(xtmp, ninv_tw_addr)
+        ld1r {ninv_tw.4s}, [xtmp]
+
+        ushr modulus_half.4S, consts.4S, #1
+        neg neg_modulus_half.4S, modulus_half.4S
+
+        mov count, #8
+        ASM_LOAD(r_ptr0, roots_l012)
         load_roots_123
 
         .p2align 2
@@ -390,104 +494,49 @@ layer123_start:
         ldr_vo data6, in, (6*(1024/8))
         ldr_vo data7, in, (7*(1024/8))
 
-        ct_butterfly data0, data4, root0, 0, 1
-        ct_butterfly data1, data5, root0, 0, 1
-        ct_butterfly data2, data6, root0, 0, 1
-        ct_butterfly data3, data7, root0, 0, 1
+        gs_butterfly data0, data1, root1, 2, 3
+        gs_butterfly data2, data3, root2, 0, 1
+        gs_butterfly data4, data5, root2, 2, 3
+        gs_butterfly data6, data7, root3, 0, 1
 
-        ct_butterfly data0, data2, root0, 2, 3
-        ct_butterfly data1, data3, root0, 2, 3
-        ct_butterfly data4, data6, root1, 0, 1
-        ct_butterfly data5, data7, root1, 0, 1
+        gs_butterfly data0, data2, root0, 2, 3
+        gs_butterfly data1, data3, root0, 2, 3
+        gs_butterfly data4, data6, root1, 0, 1
+        gs_butterfly data5, data7, root1, 0, 1
 
-        ct_butterfly data0, data1, root1, 2, 3
-        ct_butterfly data2, data3, root2, 0, 1
-        ct_butterfly data4, data5, root2, 2, 3
-        ct_butterfly data6, data7, root3, 0, 1
+        // root0[0] includes ninv, manually computed.
+        gs_butterfly data0, data4, root0, 0, 1
+        gs_butterfly data1, data5, root0, 0, 1
+        gs_butterfly data2, data6, root0, 0, 1
+        gs_butterfly data3, data7, root0, 0, 1
+
+        canonical_reduce data4, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data5, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data6, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data7, modulus_half, neg_modulus_half, t2, t3
+
+        str_vo data4, in, (4*(1024/8))
+        str_vo data5, in, (5*(1024/8))
+        str_vo data6, in, (6*(1024/8))
+        str_vo data7, in, (7*(1024/8))        
+
+        // Scale half the coeffs by 1/n; for the other half, the scaling has
+        // been merged into the multiplication with the twiddle factor on the
+        // last layer.
+        mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
+
+        canonical_reduce data0, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data1, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data2, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data3, modulus_half, neg_modulus_half, t2, t3
 
         str_vi data0, in, (16)
         str_vo data1, in, (-16 + 1*(1024/8))
         str_vo data2, in, (-16 + 2*(1024/8))
         str_vo data3, in, (-16 + 3*(1024/8))
-        str_vo data4, in, (-16 + 4*(1024/8))
-        str_vo data5, in, (-16 + 5*(1024/8))
-        str_vo data6, in, (-16 + 6*(1024/8))
-        str_vo data7, in, (-16 + 7*(1024/8))
 
         subs count, count, #1
         cbnz count, layer123_start
-
-        restore inp, STACK0
-        add inpp, inp, #64
-        mov count, #8
-
-        root0_tw .req v4
-        root1_tw .req v5
-        root2_tw .req v6
-        root3_tw .req v7
-        qform_root0_tw .req q4
-        qform_root1_tw .req q5
-        qform_root2_tw .req q6
-        qform_root3_tw .req q7
-
-        sub inp, inp, #64
-        sub inpp, inpp, #64
-
-        .p2align 2
-layer45678_start:
-        load_vectors_with_offset data0, data1, data2, data3, inp, 64
-        load_vectors_with_offset data4, data5, data6, data7, inpp, 64
-
-        add inp, inp, #64
-        add inpp, inpp, #64
-        load_roots_456
-
-        ct_butterfly data0, data4, root0, 0, 1
-        ct_butterfly data1, data5, root0, 0, 1
-        ct_butterfly data2, data6, root0, 0, 1
-        ct_butterfly data3, data7, root0, 0, 1
-
-        ct_butterfly data0, data2, root0, 2, 3
-        ct_butterfly data1, data3, root0, 2, 3
-        ct_butterfly data4, data6, root1, 0, 1
-        ct_butterfly data5, data7, root1, 0, 1
-
-        ct_butterfly data0, data1, root1, 2, 3
-        ct_butterfly data2, data3, root2, 0, 1
-        ct_butterfly data4, data5, root2, 2, 3
-        ct_butterfly data6, data7, root3, 0, 1
-
-        transpose4 data0, data1, data2, data3
-        transpose4 data4, data5, data6, data7
-
-        load_roots_78_part1
-
-        ct_butterfly_v data0, data2, root0, root0_tw
-        ct_butterfly_v data1, data3, root0, root0_tw
-        ct_butterfly_v data0, data1, root1, root1_tw
-        ct_butterfly_v data2, data3, root2, root2_tw
-
-        load_roots_78_part2
-
-        ct_butterfly_v data4, data6, root0, root0_tw
-        ct_butterfly_v data5, data7, root0, root0_tw
-        ct_butterfly_v data4, data5, root1, root1_tw
-        ct_butterfly_v data6, data7, root2, root2_tw
-
-        st4 {data0.4S, data1.4S, data2.4S, data3.4S}, [inp], #64
-        st4 {data4.4S, data5.4S, data6.4S, data7.4S}, [inpp], #64
-
-        // Roundabout way using scalar instructions, to be interleaved with vector code
-        // transpose_single t0, t1, t2, t3, data0, data1, data2, data3
-        // vec_to_scalar_matrix x, t
-        // store_scalar_matrix_with_inc x, inp, 16*8
-
-        // transpose_single t0, t1, t2, t3, data4, data5, data6, data7
-        // vec_to_scalar_matrix x, t
-        // store_scalar_matrix_with_inc x, inpp, 16*8
-
-        subs count, count, #1
-        cbnz count, layer45678_start
 
        pop_stack
        ret

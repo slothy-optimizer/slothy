@@ -116,7 +116,7 @@ execution_units = {
     : [ExecutionUnit.ASIMD0],
 
     (vadd, vsub,
-     trn1, trn2 )
+     trn1, trn2, ASimdCompare )
     : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
     Vins : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
@@ -147,7 +147,7 @@ inverse_throughput = {
     : 2,
 
     (vadd, vsub,
-     trn1, trn2)
+     trn1, trn2, ASimdCompare)
     : 1,
 
     Vins : 1,
@@ -176,7 +176,7 @@ default_latencies = {
     : 5,
 
     (vadd, vsub,
-     trn1, trn2 )
+     trn1, trn2, ASimdCompare )
     : 3, # Approximation -- not necessary to get it exactly right, as mentioned above
 
     ( Ldr_Q, Ldr_X,
