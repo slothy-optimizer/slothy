@@ -113,7 +113,7 @@ execution_units = {
         Ldr_Q,
         Str_Q,
         q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
-        vmull, vmlal, vushr, vusra
+        vmull, vmull2, vmlal, vushr, vusra
     ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
     St4 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
@@ -166,15 +166,15 @@ execution_units = {
     (x_stp_with_imm_sp, w_stp_with_imm_sp, x_str_sp_imm, Str_X) : ExecutionUnit.SCALAR_STORE,
     (x_ldr_stack_imm, ldr_const, ldr_sxtw_wform, Ldr_X) : ExecutionUnit.SCALAR_LOAD,
     (umull_wform, mul_wform, umaddl_wform ): ExecutionUnit.SCALAR_MUL(),
-    ( lsr, bic, bfi, add, add_imm, add_sp_imm, add2, add_lsr, add_lsl,
-      and_imm, nop, Vins, tst_wform, movk_imm, sub, mov,
+    ( lsr, bic, bfi, add, add_imm, add_sp_imm, add2, add_lsr, add_lsl, adcs_zero2, cmn,
+      and_imm, nop, Vins, tst_wform, movk_imm, sub, sbcs_zero_to_zero, mov, ngc_zero,
       subs_wform, asr_wform, and_imm_wform, lsr_wform, eor_wform) : ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
     ( vadd, vsub, vmov,
       vmul, vmul_lane, vmls, vmls_lane,
-      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull,
+      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull, vmull2,
       vmlal,
       vsrshr, umov_d ) : 1,
     (trn2, trn1, ASimdCompare): 1,
@@ -193,9 +193,9 @@ inverse_throughput = {
     (ldr_sxtw_wform) : 3,
     (lsr, lsr_wform) : 1,
     (umull_wform, mul_wform, umaddl_wform) : 1,
-    (and_twoarg, and_imm, and_imm_wform, ) : 1,
-    (add, add_imm, add2, add_lsr, add_lsl, add_sp_imm) : 1,
-    (sub, subs_wform, asr_wform) : 1,
+    (and_twoarg, and_imm, and_imm_wform) : 1,
+    (add, add_imm, add2, add_lsr, add_lsl, add_sp_imm, adcs_zero2, cmn) : 1,
+    (sub, subs_wform, asr_wform, sbcs_zero_to_zero, ngc_zero) : 1,
     (bfi) : 1,
     (vshl, vshl, vushr) : 1,
     (vusra) : 1,
@@ -218,7 +218,7 @@ default_latencies = {
     (trn1, trn2, ASimdCompare): 2,
     ( vsrshr ) : 3,
     ( vmul, vmul_lane, vmls, vmls_lane,
-      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull,
+      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull, vmull2,
       vmlal) : 4,
     ( Ldr_Q, Str_Q ) : 4,
     St4 : 5,
@@ -238,7 +238,8 @@ default_latencies = {
     (umull_wform, mul_wform, umaddl_wform) : 3,
     (and_imm, and_imm_wform) : 1,
     (add2, add_lsr, add_lsl, add_sp_imm) : 2,
-    (add, add_imm, sub, subs_wform, asr_wform) : 1,
+    (add, add_imm, adcs_zero2, sub, subs_wform, asr_wform, sbcs_zero_to_zero,
+     cmn, ngc_zero) : 1,
     (bfi) : 2,
     (vshl, vushr) : 2,
     (vusra) : 3,

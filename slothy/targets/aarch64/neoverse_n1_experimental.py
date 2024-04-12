@@ -108,7 +108,8 @@ execution_units = {
      vshli, vshrn)            : ExecutionUnit.V1(),
     vusra                     : ExecutionUnit.V1(),
     AESInstruction            : ExecutionUnit.V0(),
-    (vmul, Vmlal, vmull)      : ExecutionUnit.V0(),
+    (vmul, Vmlal, vmull,
+     vmull2)                  : ExecutionUnit.V0(),
     AArch64NeonLogical        : ExecutionUnit.V(),
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
@@ -143,7 +144,7 @@ inverse_throughput = {
      vshli, vshrn)             : 1,
     (vmul)                     : 2,
     vusra                      : 1,
-    (Vmlal, vmull)             : 1,
+    (Vmlal, vmull, vmull2)     : 1,
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,
@@ -176,7 +177,7 @@ default_latencies = {
     (vmovi)                   : 2,
     (vmul)                    : 5,
     vusra                     : 4, # TODO: Add fwd path
-    (Vmlal, vmull)            : 4, # TODO: Add fwd path
+    (Vmlal, vmull, vmull2)    : 4, # TODO: Add fwd path
     (vuxtl, vshl, vshl_d,
      vshli, vshrn)            : 2,
     (AArch64BasicArithmetic,

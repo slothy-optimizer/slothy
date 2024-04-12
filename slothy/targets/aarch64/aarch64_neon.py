@@ -1651,6 +1651,12 @@ class neg(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-n
     inputs = ["Xa"]
     outputs = ["Xd"]
 
+class ngc_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ngc <Xd>, xzr"
+    inputs = []
+    outputs = ["Xd"]
+    dependsOnFlags=True
+
 class adds(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "adds <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
@@ -1700,6 +1706,13 @@ class sbcs_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,inv
     modifiesFlags=True
     dependsOnFlags=True
 
+class sbcs_zero_to_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "sbcs xzr, <Xa>, xzr"
+    inputs = ["Xa"]
+    outputs = []
+    modifiesFlags=True
+    dependsOnFlags=True
+
 class sbc(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sbc <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
@@ -1722,6 +1735,12 @@ class adcs_zero_r(AArch64BasicArithmetic): # pylint: disable=missing-docstring,i
 class adcs_zero_l(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "adcs <Xd>, xzr, <Xb>"
     inputs = ["Xb"]
+    outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
+
+class adcs_zero2(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "adcs <Xd>, xzr, xzr"
     outputs = ["Xd"]
     modifiesFlags=True
     dependsOnFlags=True
@@ -1962,6 +1981,11 @@ class cset(AArch64ConditionalSelect): # pylint: disable=missing-docstring,invali
     pattern = "cset <Xd>, <flag>"
     outputs = ["Xd"]
     dependsOnFlags=True
+
+class cmn(AArch64ConditionalSelect): # pylint: disable=missing-docstring,invalid-name
+    pattern = "cmn <Xd>, <Xe>"
+    inputs = ["Xd", "Xe"]
+    modifiesFlags=True
 
 class cmn_imm(AArch64ConditionalSelect): # pylint: disable=missing-docstring,invalid-name
     pattern = "cmn <Xd>, <imm>"
@@ -2338,6 +2362,11 @@ class vdup(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
 
 class vmull(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+class vmull2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
