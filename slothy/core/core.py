@@ -2885,6 +2885,12 @@ class SlothyBase(LockAttributes):
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
 
+        # cf https://github.com/google/or-tools/issues/4166
+        self._model.cp_solver.parameters.linearization_level = 0
+        self._model.cp_solver.parameters.use_rins_lns = False
+        self._model.cp_solver.parameters.use_feasibility_pump = False
+        self._model.cp_solver.parameters.cp_model_probing_level = 0
+
         # There is a bug in OR-Tools, https://github.com/google/or-tools/issues/3483,
         # that causes models to be incorrectly classes as INFEASIBLE at times.
         # The following turns of the buggy parts of the code:
