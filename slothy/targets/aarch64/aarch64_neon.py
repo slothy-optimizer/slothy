@@ -1745,6 +1745,18 @@ class adcs_zero2(AArch64BasicArithmetic): # pylint: disable=missing-docstring,in
     modifiesFlags=True
     dependsOnFlags=True
 
+class adcs_to_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "adcs xzr, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    modifiesFlags=True
+    dependsOnFlags=True
+
+class adcs_zero_r_to_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "adcs xzr, <Xa>, xzr"
+    inputs = ["Xa"]
+    modifiesFlags=True
+    dependsOnFlags=True
+
 class adc(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "adc <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
@@ -2102,6 +2114,11 @@ class tst_xform(Tst): # pylint: disable=missing-docstring,invalid-name
 class cmp_xzr(Tst): # pylint: disable=missing-docstring,invalid-name
     pattern = "cmp <Xa>, xzr"
     inputs = ["Xa"]
+    modifiesFlags=True
+
+class cmp_xzr2(Tst): # pylint: disable=missing-docstring,invalid-name
+    pattern = "cmp xzr, xzr"
+    inputs = []
     modifiesFlags=True
 
 class cmp_imm(Tst): # pylint: disable=missing-docstring,invalid-name
