@@ -98,7 +98,8 @@ class RegisterType(Enum):
     @staticmethod
     def default_aliases():
         "Register aliases used by the architecture"
-        return {}
+        return { "lr": "r14",
+                 "sp": "r13" }
 
 # TODO: Comparison can also be done with subs
 class Branch:
@@ -363,10 +364,10 @@ class Instruction:
     # TODO Fill in instructions
     def is_load(self):
         """Indicates if an instruction is a load instruction"""
-        return self._is_instance_of([  ])
+        return self._is_instance_of([ ldr_with_imm ])
     def is_store(self):
         """Indicates if an instruction is a store instruction"""
-        return self._is_instance_of([  ])
+        return self._is_instance_of([ str_with_imm ])
     def is_load_store_instruction(self):
         """Indicates if an instruction is a load or store instruction"""
         return self.is_load() or self.is_store()
