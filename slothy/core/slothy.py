@@ -53,7 +53,7 @@ from slothy.core.dataflow import Config as DFGConfig, ComputationNode
 from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
 from slothy.helper import CPreprocessor, SourceLine
-from slothy.helper import AsmAllocation, AsmMacro, AsmHelper
+from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, AsmIfElse
 from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mca_Error
 
 class Slothy:
@@ -143,7 +143,7 @@ class Slothy:
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
         for l in s:
-            fun(f"> {l}")
+            fun(f"> {l.to_string()}")
 
     #
     # Stateful wrappers around heuristics
@@ -251,6 +251,7 @@ class Slothy:
         body = SourceLine.split_semicolons(body)
         body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        body = AsmIfElse.process_instructions(body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
 

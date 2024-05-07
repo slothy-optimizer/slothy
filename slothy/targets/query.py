@@ -30,6 +30,8 @@ Convenience module for querying available architecture
 and microarchitecture models for SLOTHY.
 """
 
+from slothy.targets.arm_v7m import arch_v7m as Arch_Armv7M
+
 from slothy.targets.arm_v81m import arch_v81m as Arch_Armv81M
 from slothy.targets.arm_v81m import cortex_m55r1 as Target_CortexM55r1
 from slothy.targets.arm_v81m import cortex_m85r1 as Target_CortexM85r1
@@ -50,7 +52,8 @@ class UnknownTarget(Exception):
 class Archery:
     """This is a small helper class for querying architectures"""
 
-    _archs = { "Arm_v81M" : Arch_Armv81M,
+    _archs = { "Arm_v7M" : Arch_Armv7M,
+               "Arm_v81M" : Arch_Armv81M,
                "Arm_AArch64" : AArch64_Neon }
 
     _targets = { "Arm_Cortex_M55" : Target_CortexM55r1,
