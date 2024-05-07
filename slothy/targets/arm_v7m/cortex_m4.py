@@ -15,7 +15,7 @@ WARNING: The data in this module is approximate and may contain errors.
 from enum import Enum
 from slothy.targets.arm_v7m.arch_v7m import *
 
-issue_rate = 2
+issue_rate = 1
 llvm_mca_target = "cortex-m4"
 
 class ExecutionUnit(Enum):
@@ -29,14 +29,6 @@ class ExecutionUnit(Enum):
 def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
-    add_slot_constraints(slothy)
-    add_st_hazard(slothy)
-
-def add_slot_constraints(slothy):
-    pass
-
-def add_st_hazard(slothy):
-    pass
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
@@ -49,15 +41,16 @@ def get_min_max_objective(slothy):
     return
 
 execution_units = {
-    # q-form vector instructions
-        (adds_twoarg, add, add_short, add_imm, add_imm_short, add_lsl, sub_lsl, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_ror, bic, bic_ror, ror): ExecutionUnit.UNIT,
+    (adds_twoarg, add, add_short, add_imm, add_imm_short, add_lsl, sub_lsl, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_ror, bic, bic_ror, ror, ldr_with_imm, str_with_imm): ExecutionUnit.UNIT,
 }
 
 inverse_throughput = {
-    ( adds_twoarg, add, add_short, add_imm, add_imm_short, add_lsl, sub_lsl, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_ror, bic, bic_ror, ror ) : 1}
+    ( adds_twoarg, add, add_short, add_imm, add_imm_short, add_lsl, sub_lsl, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_ror, bic, bic_ror, ror ) : 1,
+    (ldr_with_imm, str_with_imm) : 2}
 
 default_latencies = {
     (adds_twoarg, add, add_short, add_imm, add_imm_short, add_lsl, sub_lsl, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_ror, bic, bic_ror, ror): 1,
+    (ldr_with_imm, str_with_imm) : 2
 }
 
 def get_latency(src, out_idx, dst):
