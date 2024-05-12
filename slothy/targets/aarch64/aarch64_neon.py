@@ -1487,6 +1487,20 @@ class x_ldp_with_imm_sp(Ldp_X): # pylint: disable=missing-docstring,invalid-name
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+class x_ldp_with_sp(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldp <Xa>, <Xb>, [sp]"
+    outputs = ["Xa", "Xb"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
+        return super().write()
+
 class x_ldp_with_inc(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldp <Xa>, <Xb>, [<Xc>, <imm>]"
     inputs = ["Xc"]
@@ -2719,6 +2733,20 @@ class w_stp_with_imm_sp(AArch64Instruction): # pylint: disable=missing-docstring
 
     def write(self):
         self.immediate = simplify(self.pre_index)
+        return super().write()
+
+class x_stp_with_sp(Stp_X): # pylint: disable=missing-docstring,invalid-name
+    pattern = "stp <Xa>, <Xb>, [sp]"
+    inputs = ["Xa", "Xb"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = "sp"
+        return obj
+
+    def write(self):
         return super().write()
 
 class x_stp_with_imm_sp(Stp_X): # pylint: disable=missing-docstring,invalid-name
