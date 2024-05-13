@@ -2,7 +2,7 @@
     add r0, r0, \parama
 .endm
 slothy_start:
-adds r0, r0, r1
+add.w r0, r0, r1
 .if 5 != 0
     add r0, r0, r1
     .if 5 > 2

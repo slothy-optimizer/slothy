@@ -7,7 +7,7 @@ from functools import cache
 
 from sympy import simplify
 
-llvm_mca_arch = ""  # TODO
+llvm_mca_arch = "arm"  # TODO
 
 
 class RegisterType(Enum):
@@ -93,7 +93,7 @@ class RegisterType(Enum):
     @staticmethod
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["flags", "sp"] + RegisterType.list_registers(RegisterType.HINT))
+        return set(["flags", "sp", "lr"] + RegisterType.list_registers(RegisterType.HINT))
 
     @staticmethod
     def default_aliases():
@@ -289,6 +289,7 @@ class Instruction:
         self.datatype = None
         self.index = None
         self.flag = None
+        self.width = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -396,7 +397,7 @@ class Instruction:
         """
 
         if src.split(' ')[0] != mnemonic:
-            raise Instruction.ParsingException("Mnemonic does not match")
+            raise Instruction.ParsingException(f"Mnemonic does not match: {src.split(' ')[0]} vs. {mnemonic}")
 
         obj = c(mnemonic=mnemonic, **kwargs)
 
@@ -516,6 +517,7 @@ class Armv7mInstruction(Instruction):
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"  # TODO: Notion of dt can be placed with notion for size in FP instructions
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
+        width_pattern = "(?:\.w|\.n|)"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
@@ -524,6 +526,7 @@ class Armv7mInstruction(Instruction):
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag") # TODO: Are any changes required for IT syntax?
+        src = replace_placeholders(src, "width", width_pattern, "width")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -674,6 +677,7 @@ class Armv7mInstruction(Instruction):
         group_to_attribute('imm', 'immediate', lambda x:x[1:]) # Strip '#'
         group_to_attribute('index', 'index', int)
         group_to_attribute('flag', 'flag')
+        group_to_attribute('width', 'width')
 
         for s, ty in obj.pattern_inputs:
             if ty == RegisterType.FLAGS:
@@ -699,8 +703,8 @@ class Armv7mInstruction(Instruction):
         depends_on_flags = getattr(c,"dependsOnFlags", False)
 
         if isinstance(src, str):
-            if src.split(' ')[0] != pattern.split(' ')[0]:
-                raise Instruction.ParsingException("Mnemonic does not match")
+            # Leave checking the mnemonic out for now; not strictly required
+            # Allows xxx.w and xxx.n syntax
             res = Armv7mInstruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
@@ -744,6 +748,7 @@ class Armv7mInstruction(Instruction):
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "width", "width", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -776,31 +781,31 @@ class vmov_gpr(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid
 # Addition
 
 class add(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add <Rd>, <Ra>, <Rb>"
+    pattern = "add<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
 class add_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add <Rd>, <Ra>"
+    pattern = "add<width> <Rd>, <Ra>"
     inputs = ["Ra"]
     in_outs = ["Rd"]
 
 class add_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add <Rd>, <Ra>, <imm>"
+    pattern = "add<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
     outputs = ["Rd"]
 
 class add_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add <Rd>, <imm>"
+    pattern = "add<width> <Rd>, <imm>"
     in_outs = ["Rd"]
 
 class add_lsl(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add <Rd>, <Ra>, <Rb>, lsl <imm>"
+    pattern = "add<width> <Rd>, <Ra>, <Rb>, lsl <imm>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
 class adds_twoarg(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "adds <Rd>, <Ra>, <Rb>"
+    pattern = "adds<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
     modifiesFlags=True
@@ -808,48 +813,48 @@ class adds_twoarg(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,in
 # Subtraction
 
 class sub_lsl(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "sub <Rd>, <Ra>, <Rb>, lsl <imm>"
+    pattern = "sub<width> <Rd>, <Ra>, <Rb>, lsl <imm>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
 class sub_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "sub <Ra>, <imm>"
+    pattern = "sub<width> <Ra>, <imm>"
     in_outs = ["Ra"]
 
 # Multiplication
 class mul(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "mul <Rd>, <Ra>, <Rb>"
+    pattern = "mul<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
 class smull(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "smull <Ra>, <Rb>, <Rc>, <Rd>"
+    pattern = "smull<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rc","Rd"]
     outputs = ["Ra", "Rb"]
 
 class smlal(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "smlal <Ra>, <Rb>, <Rc>, <Rd>"
+    pattern = "smlal<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rc","Rd"]
     in_outs = ["Ra", "Rb"]
 
 # Logical
 class log_and(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "and <Rd>, <Ra>, <Rb>"
+    pattern = "and<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
 class log_or(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "orr <Rd>, <Ra>, <Rb>"
+    pattern = "orr<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
 class eor(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "eor <Rd>, <Ra>, <Rb>"
+    pattern = "eor<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
 class eor_ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "eor <Rd>, <Ra>, <Rb>, ror <imm>"
+    pattern = "eor<width> <Rd>, <Ra>, <Rb>, ror <imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
@@ -858,23 +863,23 @@ class eor_ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 class bic(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "bic <Rd>, <Ra>, <Rb>"
+    pattern = "bic<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
 class bic_ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "bic <Rd>, <Ra>, <Rb>, ror <imm>"
+    pattern = "bic<width> <Rd>, <Ra>, <Rb>, ror <imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
 class ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "ror <Rd>, <Ra>, <imm>"
+    pattern = "ror<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
     outputs = ["Rd"]
 
 # Load 
 class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "ldr <Rd>, [<Ra>, <imm>]"
+    pattern = "ldr<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra"]
     outputs = ["Rd"]
 
@@ -883,12 +888,12 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
 
 # Store
 class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "str <Rd>, [<Ra>, <imm>]"
+    pattern = "str<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra", "Rd"]
 
 # Other
 class cmp(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "cmp <Ra>, <Rb>"
+    pattern = "cmp<width> <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     modifiesFlags=True
     dependsOnFlags=True
