@@ -34,6 +34,7 @@ from slothy import Slothy, Config
 import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
 import slothy.targets.arm_v7m.cortex_m4 as Target_CortexM4
+import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
@@ -46,6 +47,7 @@ import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_i
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
                      Target_CortexM4: "m4",
+                     Target_CortexM7: "m7",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85",
                      Target_AppleM1_firestorm: "m1_firestorm",
@@ -185,7 +187,7 @@ class ExampleDummy(Example):
         slothy.optimize(start="slothy_start", end="slothy_end")
 
 class ExampleKeccak(Example):
-    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM4, timeout=None):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"keccakf1600"
         infile = name
 
@@ -200,6 +202,8 @@ class ExampleKeccak(Example):
         slothy.config.inputs_are_outputs = True
         # slothy.config.with_preprocessor = True
         slothy.config.allow_useless_instructions = True
+        # slothy.config.variable_size=True
+        slothy.config.constraints.st_ld_hazard = True
         slothy.optimize(start="slothy_start", end="slothy_end")
 
 class Example0(Example):
@@ -1538,8 +1542,8 @@ def main():
                 #  # Fixed point
                 #  fft_fixedpoint_radix4(),
                  
-                 ExampleDummy()
-                 # ExampleKeccak()
+                #  ExampleDummy()
+                 ExampleKeccak()
                  ]
 
     all_example_names = [e.name for e in examples]
