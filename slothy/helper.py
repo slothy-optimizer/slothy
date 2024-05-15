@@ -912,7 +912,7 @@ class AsmMacro():
     
 
 class AsmIfElse():
-    _REGEXP_IF_TXT = r"\s*\.if\s+(?P<cond>\w+)"
+    _REGEXP_IF_TXT = r"\s*\.if\s+(?P<cond>.*)"
     _REGEXP_ELSE_TXT = r"\s*\.else"
     _REGEXP_ENDIF_TXT = r"\s*\.endif"
 
