@@ -24,8 +24,9 @@ class ExecutionUnit(Enum):
     LSU = 0
     ALU0 = 1
     ALU1 = 2
-    MAC = 3
-    FPU = 4
+    ALU_SHIFT = 3
+    MAC = 4
+    FPU = 5
 
     def __repr__(self):
         return self.name
@@ -89,22 +90,20 @@ execution_units = {
         str_with_imm,
     ): [ExecutionUnit.LSU],
     (
-        adds_twoarg,
+        adds,
         add,
         add_short,
         add_imm,
         add_imm_short,
-        add_lsl,
-        sub_lsl,
         sub_imm_short,
         log_and,
         log_or,
         eor,
-        eor_ror,
         bic,
-        bic_ror,
         ror,
     ): [ExecutionUnit.ALU0, ExecutionUnit.ALU1],
+    (Armv7mShiftedArithmetic): [ExecutionUnit.ALU_SHIFT],
+    (Armv7mShiftedLogical): [ExecutionUnit.ALU_SHIFT],
     (mul, smull, smlal): [ExecutionUnit.MAC],
 }
 
@@ -112,13 +111,13 @@ inverse_throughput = {
     (
         ldr_with_imm,
         str_with_imm,
-        adds_twoarg,
+        adds,
         add,
         add_short,
         add_imm,
         add_imm_short,
-        add_lsl,
-        sub_lsl,
+        add_shifted,
+        sub_shifted,
         sub_imm_short,
         mul,
         smull,
@@ -126,9 +125,9 @@ inverse_throughput = {
         log_and,
         log_or,
         eor,
-        eor_ror,
+        eor_shifted,
         bic,
-        bic_ror,
+        bic_shifted,
         ror,
     ): 1
 }
@@ -137,20 +136,20 @@ default_latencies = {
     (
         ldr_with_imm,
         str_with_imm,
-        adds_twoarg,
+        adds,
         add,
         add_short,
         add_imm,
         add_imm_short,
-        add_lsl,
-        sub_lsl,
+        add_shifted,
+        sub_shifted,
         sub_imm_short,
         log_and,
         log_or,
         eor,
-        eor_ror,
+        eor_shifted,
         bic,
-        bic_ror,
+        bic_shifted,
         ror,
     ): 1,
     (

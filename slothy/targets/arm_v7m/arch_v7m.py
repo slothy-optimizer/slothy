@@ -290,6 +290,7 @@ class Instruction:
         self.index = None
         self.flag = None
         self.width = None
+        self.barrel = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -518,6 +519,7 @@ class Armv7mInstruction(Instruction):
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
         width_pattern = "(?:\.w|\.n|)"
+        barrel_pattern = "(?:lsl|ror|lsr|asr)"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
@@ -527,6 +529,7 @@ class Armv7mInstruction(Instruction):
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag") # TODO: Are any changes required for IT syntax?
         src = replace_placeholders(src, "width", width_pattern, "width")
+        src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -678,6 +681,7 @@ class Armv7mInstruction(Instruction):
         group_to_attribute('index', 'index', int)
         group_to_attribute('flag', 'flag')
         group_to_attribute('width', 'width')
+        group_to_attribute('barrel', 'barrel')
 
         for s, ty in obj.pattern_inputs:
             if ty == RegisterType.FLAGS:
@@ -749,6 +753,7 @@ class Armv7mInstruction(Instruction):
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
         out = replace_pattern(out, "width", "width", lambda x: x.lower())
+        out = replace_pattern(out, "barrel", "barrel", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -760,23 +765,20 @@ class Armv7mShiftedArithmetic(Armv7mInstruction): # pylint: disable=missing-docs
     pass
 class Armv7mLogical(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+class Armv7mShiftedLogical(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
+    pass
 class Armv7mLoadInstruction(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
 class Armv7mStoreInstruction(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
 class Armv7mFPInstruction(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
-# class Armv7mFPInstruction(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
-#     pass
 
 # FP
 class vmov_gpr(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vmov <Rd>, <Ra>"
     inputs = ["Ra"]
     outputs = ["Rd"]
-
-# class vldm_with_inc_writeback(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid-name
-#     pass
 
 # Addition
 
@@ -799,12 +801,12 @@ class add_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,
     pattern = "add<width> <Rd>, <imm>"
     in_outs = ["Rd"]
 
-class add_lsl(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add<width> <Rd>, <Ra>, <Rb>, lsl <imm>"
+class add_shifted(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "add<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
-class adds_twoarg(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+class adds(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "adds<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
@@ -812,10 +814,20 @@ class adds_twoarg(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,in
 
 # Subtraction
 
-class sub_lsl(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "sub<width> <Rd>, <Ra>, <Rb>, lsl <imm>"
+class sub(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "sub<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+
+class sub_shifted(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "sub<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
+
+class sub_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "sub<width> <Rd>, <Ra>"
+    inputs = ["Ra"]
+    in_outs = ["Rd"]
 
 class sub_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sub<width> <Ra>, <imm>"
@@ -853,8 +865,8 @@ class eor(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
-class eor_ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "eor<width> <Rd>, <Ra>, <Rb>, ror <imm>"
+class eor_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "eor<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
@@ -867,8 +879,8 @@ class bic(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
-class bic_ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "bic<width> <Rd>, <Ra>, <Rb>, ror <imm>"
+class bic_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "bic<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
@@ -883,13 +895,35 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
     inputs = ["Ra"]
     outputs = ["Rd"]
 
-# class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
-#     pass
+class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "str<width> <Rd>, [<Ra>], <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 # Store
 class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>, <imm>]"
-    inputs = ["Ra", "Rd"]
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+
+class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "str<width> <Rd>, [<Ra>], <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mStoreInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 # Other
 class cmp(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
