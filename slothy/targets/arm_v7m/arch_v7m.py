@@ -896,7 +896,7 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
     outputs = ["Rd"]
 
 class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "str<width> <Rd>, [<Ra>], <imm>"
+    pattern = "ldr<width> <Rd>, [<Ra>], <imm>"
     inputs = ["Ra"]
     outputs = ["Rd"]
     @classmethod
@@ -910,13 +910,13 @@ class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstri
 # Store
 class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>, <imm>]"
-    inputs = ["Ra"]
-    outputs = ["Rd"]
+    inputs = ["Ra", "Rd"]
+    outputs = []
 
 class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>], <imm>"
-    inputs = ["Ra"]
-    outputs = ["Rd"]
+    inputs = ["Ra", "Rd"]
+    outputs = []
     @classmethod
     def make(cls, src):
         obj = Armv7mStoreInstruction.build(cls, src)
