@@ -41,15 +41,15 @@ def get_min_max_objective(slothy):
     return
 
 execution_units = {
-    (adds_twoarg, add, add_short, add_imm, add_imm_short, add_lsl, sub_lsl, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_ror, bic, bic_ror, ror, ldr_with_imm, str_with_imm): ExecutionUnit.UNIT,
+    (adds, add, add_short, add_imm, add_imm_short, add_shifted, sub_shifted, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_shifted, bic, bic_shifted, ror, ldr_with_imm, str_with_imm): ExecutionUnit.UNIT,
 }
 
 inverse_throughput = {
-    ( adds_twoarg, add, add_short, add_imm, add_imm_short, add_lsl, sub_lsl, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_ror, bic, bic_ror, ror ) : 1,
+    ( adds, add, add_short, add_imm, add_imm_short, add_shifted, sub_shifted, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_shifted, bic, bic_shifted, ror ) : 1,
     (ldr_with_imm, str_with_imm) : 2}
 
 default_latencies = {
-    (adds_twoarg, add, add_short, add_imm, add_imm_short, add_lsl, sub_lsl, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_ror, bic, bic_ror, ror): 1,
+    (adds, add, add_short, add_imm, add_imm_short, add_shifted, sub_shifted, sub_imm_short, mul, smull, smlal, log_and, log_or, eor, eor_shifted, bic, bic_shifted, ror): 1,
     (ldr_with_imm, str_with_imm) : 2
 }
 
