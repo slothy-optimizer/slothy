@@ -38,37 +38,10 @@ def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
     add_slot_constraints(slothy)
-    # _add_ld_ld_hazard(slothy)
 
 
 def add_slot_constraints(slothy):
     pass
-
-
-def _add_ld_ld_hazard(slothy):
-    if slothy.config.constraints.functional_only:
-        return
-
-    def is_ld_ld_pair(instA, instB):
-        if instA.inst.is_load() and instB.inst.is_load():
-            return True
-        return False
-
-    slothy._model.st_ld_hazard_vars = {}
-    for t_st, t_ld in slothy.get_inst_pairs(cond=is_ld_ld_pair):
-        if t_st.is_locked and t_ld.is_locked:
-            continue
-        if slothy.config.constraints.st_ld_hazard:
-            slothy._model.st_ld_hazard_vars[t_st,t_ld] = slothy._NewConstant(True)
-        else:
-            slothy._model.st_ld_hazard_vars[t_st,t_ld] = slothy._NewBoolVar("")
-
-        slothy.logger.debug(f"LD-LD hazard for {t_st.inst.mnemonic} "\
-                            f"({t_st.id}) -> {t_ld.inst.mnemonic} ({t_ld.id})")
-
-        slothy._Add( t_ld.cycle_start_var != t_st.cycle_start_var + 1 ).OnlyEnforceIf(
-            slothy._model.st_ld_hazard_vars[t_st,t_ld] )
-
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
