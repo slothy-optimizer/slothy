@@ -942,14 +942,14 @@ class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstri
 
 class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>, <imm>]!"
-    inputs = ["Ra"]
+    in_outs = ["Ra"]
     outputs = ["Rd"]
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.in_outs[0]
         return obj
 
 # Store
