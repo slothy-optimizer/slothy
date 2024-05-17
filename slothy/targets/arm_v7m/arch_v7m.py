@@ -31,8 +31,8 @@ class RegisterType(Enum):
         stack_locations  = [ f"STACK{i}"  for i in range(8) ]
         fpstack_locations  = [ f"STACK{i}"  for i in range(8) ]
 
-        gprs_normal  = [ f"r{i}" for i in range(14) ] + ["sp"]
-        fprs_normal  = [ f"v{i}" for i in range(14) ]
+        gprs_normal  = [ f"r{i}" for i in range(15) ]
+        fprs_normal  = [ f"s{i}" for i in range(31) ]
 
         gprs_extra  = []
         fprs_extra  = []
@@ -98,8 +98,10 @@ class RegisterType(Enum):
     @staticmethod
     def default_aliases():
         "Register aliases used by the architecture"
-        return { "lr": "r14",
-                 "sp": "r13" }
+        return { 
+                 "lr": "r14",
+                #  "sp": "r13" 
+                }
 
 # TODO: Comparison can also be done with subs
 class Branch:
@@ -362,14 +364,13 @@ class Instruction:
                 return True
         return False
 
-    # scalar or vector
     # TODO Fill in instructions
     def is_load(self):
         """Indicates if an instruction is a load instruction"""
-        return self._is_instance_of([ ldr_with_imm ])
+        return self._is_instance_of([ ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback ])
     def is_store(self):
         """Indicates if an instruction is a store instruction"""
-        return self._is_instance_of([ str_with_imm ])
+        return self._is_instance_of([ str_with_imm, str_with_imm_stack, str_with_postinc ])
     def is_load_store_instruction(self):
         """Indicates if an instruction is a load or store instruction"""
         return self.is_load() or self.is_store()
@@ -865,6 +866,18 @@ class eor(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
+class eors(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "eors<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
+    modifiesFlags = True
+
+class eors_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "eors<width> <Rd>, <Ra>"
+    inputs = ["Ra"]
+    in_outs = ["Rd"]
+    modifiesFlags = True
+
 class eor_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "eor<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra", "Rb"]
@@ -879,6 +892,12 @@ class bic(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
+class bics(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "bics<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
+    modifiesFlags = True
+
 class bic_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "bic<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra", "Rb"]
@@ -889,10 +908,24 @@ class ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra"]
     outputs = ["Rd"]
 
+class ror_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ror<width> <Rd>, <imm>"
+    in_outs = ["Rd"]
+
+class rors_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "rors<width> <Rd>, <imm>"
+    in_outs = ["Rd"]
+    modifiesFlags = True
+
 # Load 
 class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra"]
+    outputs = ["Rd"]
+
+class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldr<width> <Rd>, [sp, <imm>]"
+    inputs = []
     outputs = ["Rd"]
 
 class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -907,10 +940,27 @@ class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstri
         obj.addr = obj.args_in[0]
         return obj
 
+class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldr<width> <Rd>, [<Ra>, <imm>]!"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
 # Store
 class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra", "Rd"]
+    outputs = []
+
+class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "str<width> <Rd>, [sp, <imm>]"
+    inputs = ["Rd"]
     outputs = []
 
 class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -932,6 +982,11 @@ class cmp(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-na
     modifiesFlags=True
     dependsOnFlags=True
 
+class cmp_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "cmp<width> <Ra>, <imm>"
+    inputs = ["Ra"]
+    modifiesFlags=True
+    dependsOnFlags=True
 
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
