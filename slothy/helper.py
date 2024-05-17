@@ -978,37 +978,36 @@ class AsmIfElse():
     @staticmethod
     def process_instructions(instructions):
         """Processes a list of instructions with conditional statements."""
-        result = []
-        stack = []
-        skip_block = False
+        output_lines = []
+        skip_stack = []
 
         for instruction in instructions:
             if AsmIfElse.is_if(instruction):
                 # Extract condition and evaluate it.
                 condition = AsmIfElse.check_if(instruction)
-                stack.append((AsmIfElse.evaluate_condition(condition), False))  # (condition result, has else)
-                skip_block = not stack[-1][0]
+                if AsmIfElse.evaluate_condition(condition):
+                    skip_stack.append(False)
+                else:
+                    skip_stack.append(True)
+                continue
             elif AsmIfElse.is_else(instruction):
-                if stack:
-                    # Invert the skip block if we're in the else part of the last if.
-                    skip_block = stack[-1][0] or stack[-1][1]
-                    stack[-1] = (stack[-1][0], True)  # Mark that we've seen an else.
-                else:
-                    print("Error: .else without matching .if")
+                if skip_stack:
+                    # Invert the top of the stack
+                    skip_stack[-1] = not skip_stack[-1]
+                continue  # Skip adding the .else line to output
             elif AsmIfElse.is_endif(instruction):
-                if stack:
-                    skip_block = len(stack) > 1 and not stack[-2][0]
-                    stack.pop()
-                else:
-                    print("Error: .endif without matching .if")
-            else:
-                if not skip_block:
-                    result.append(instruction)
+                if skip_stack:
+                    skip_stack.pop()  # Exit the current .if block
+                continue  # Skip adding the .endif line to output
+            
+            # Determine if the current line should be skipped
+            if skip_stack and True in skip_stack:
+                continue  # Skip lines when inside a false .if block
 
-        if stack:
-            print("Error: Missing .endif for .if")
+            # Add the line to output if not skipped
+            output_lines.append(instruction)
 
-        return result
+        return output_lines
 
 class CPreprocessor():
     """Helper class for the application of the C preprocessor"""
