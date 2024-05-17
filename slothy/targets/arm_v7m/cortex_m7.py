@@ -57,10 +57,12 @@ def get_min_max_objective(slothy):
 
 
 execution_units = {
-    # q-form vector instructions
     (
         ldr_with_imm,
+        ldr_with_imm_stack,
+        ldr_with_inc_writeback,
         str_with_imm,
+        str_with_imm_stack
     ): [ExecutionUnit.LSU],
     (
         adds,
@@ -71,9 +73,10 @@ execution_units = {
         sub_imm_short,
         log_and,
         log_or,
-        eor,
-        bic,
-        ror,
+        eor, eors, eors_short,
+        bic, bics,
+        ror, ror_short, rors_short,
+        cmp, cmp_imm,
     ): [ExecutionUnit.ALU0, ExecutionUnit.ALU1],
     (Armv7mShiftedArithmetic): [ExecutionUnit.ALU_SHIFT],
     (Armv7mShiftedLogical): [ExecutionUnit.ALU_SHIFT],
@@ -83,7 +86,10 @@ execution_units = {
 inverse_throughput = {
     (
         ldr_with_imm,
+        ldr_with_imm_stack,
+        ldr_with_inc_writeback,
         str_with_imm,
+        str_with_imm_stack,
         adds,
         add,
         add_short,
@@ -97,18 +103,22 @@ inverse_throughput = {
         smlal,
         log_and,
         log_or,
-        eor,
+        eor, eors, eors_short,
         eor_shifted,
-        bic,
+        bic, bics,
         bic_shifted,
-        ror,
+        ror, ror_short, rors_short,
+        cmp, cmp_imm,
     ): 1
 }
 
 default_latencies = {
     (
         ldr_with_imm,
+        ldr_with_imm_stack,
+        ldr_with_inc_writeback,
         str_with_imm,
+        str_with_imm_stack,
         adds,
         add,
         add_short,
@@ -119,11 +129,12 @@ default_latencies = {
         sub_imm_short,
         log_and,
         log_or,
-        eor,
+        eor, eors, eors_short,
         eor_shifted,
-        bic,
+        bic, bics,
         bic_shifted,
-        ror,
+        ror, ror_short, rors_short,
+        cmp, cmp_imm,
     ): 1,
     (
         mul,
