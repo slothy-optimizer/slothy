@@ -509,7 +509,6 @@ slothy_start:
     xor5str   r4, Aba1, Aga1, Aka1, Ama1, Asa1, 0, 0, 0, 0, 0, r9, sp, mDo0
     eor      r11, r4, r7
     xorrol   r12, r3, r4, 32
-slothy_end:
     KeccakThetaRhoPiChi Abo0, Aka1,  r9, 14, 0, \
                         Agu0, Ame1, r12, 10, 0, \
                         Aka1, Asi1,  r8,  2, 0, \
@@ -575,6 +574,7 @@ slothy_end:
                             Amo0,  r9, 10, 0, \
                             Asu1, r14,  7, 0, \
                             4, 0, 1, Aku1, r14
+slothy_end:
 .endm
 
 
@@ -872,7 +872,6 @@ slothy_end:
 @ void KeccakF1600_Initialize( void )
 @
 .align 8
-.global   KeccakF1600_Initialize
 KeccakF1600_Initialize:
 	bx		lr
 
@@ -883,7 +882,6 @@ KeccakF1600_Initialize:
 @ void KeccakF1600_StateXORBytes(void *state, const unsigned char *data, unsigned int offset, unsigned int length)
 @
 .align 8
-.global   KeccakF1600_StateXORBytes
 KeccakF1600_StateXORBytes:
 	cbz		r3, KeccakF1600_StateXORBytes_Exit1
 	push	{r4 - r8, lr}							@ then
@@ -986,7 +984,6 @@ __KeccakF1600_StateXORBytesInLane_Loop:
 @ void KeccakF1600_StateExtractBytes(void *state, const unsigned char *data, unsigned int offset, unsigned int length)
 @
 .align 8
-.global   KeccakF1600_StateExtractBytes
 KeccakF1600_StateExtractBytes:
 	cbz		r3, KeccakF1600_StateExtractBytes_Exit1	@ .if length != 0
 	push	{r4 - r8, lr}							@ then
