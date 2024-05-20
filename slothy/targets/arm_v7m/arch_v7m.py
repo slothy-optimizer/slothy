@@ -93,7 +93,7 @@ class RegisterType(Enum):
     @staticmethod
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["flags", "sp", "lr"] + RegisterType.list_registers(RegisterType.HINT))
+        return set(["flags", "r13", "lr"] + RegisterType.list_registers(RegisterType.HINT))
 
     @staticmethod
     def default_aliases():
@@ -922,11 +922,25 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
     pattern = "ldr<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra"]
     outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
 class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [sp, <imm>]"
     inputs = []
     outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
 class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>], <imm>"
@@ -937,7 +951,7 @@ class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstri
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -949,7 +963,7 @@ class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-d
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.in_outs[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 # Store
@@ -957,11 +971,25 @@ class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,
     pattern = "str<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra", "Rd"]
     outputs = []
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
 class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [sp, <imm>]"
     inputs = ["Rd"]
     outputs = []
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = "sp"
+        return obj
 
 class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>], <imm>"
@@ -972,7 +1000,7 @@ class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstr
         obj = Armv7mStoreInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 # Other
@@ -986,7 +1014,6 @@ class cmp_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invali
     pattern = "cmp<width> <Ra>, <imm>"
     inputs = ["Ra"]
     modifiesFlags=True
-    dependsOnFlags=True
 
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
