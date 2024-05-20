@@ -170,7 +170,7 @@ class Example():
             slothy.write_source_to_file(self.outfile_full)
 
 class ExampleDummy(Example):
-    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM4, timeout=None):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"dummy"
         infile = name
 
@@ -190,20 +190,40 @@ class ExampleKeccak(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"keccakf1600"
         infile = name
+        funcname = "KeccakF1600_StatePermute"
 
         if var != "":
             name += f"_{var}"
             infile += f"_{var}"
+            funcname += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+        super().__init__(infile, name, funcname=funcname, rename=True, arch=arch, target=target, timeout=timeout)
 
     def core(self, slothy):
         slothy.config.inputs_are_outputs = True
-        # slothy.config.with_preprocessor = True
-        slothy.config.allow_useless_instructions = True
-        # slothy.config.variable_size=True
-        slothy.config.constraints.st_ld_hazard = True
+        # slothy.config.constraints.allow_reordering = False
+        # slothy.config.constraints.allow_renaming = False
+        # slothy.config.constraints.functional_only = True
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["flags"]
+        slothy.config.reserved_regs = ["sp", "r13"]
+        slothy.config.locked_registers = ["sp", "r13"]
+
+        slothy.config.constraints.stalls_first_attempt = 2
+
+        # slothy.config.rename_inputs = { "other" : "any" }
+        # slothy.config.rename_outputs = { "other" : "any" }
+
+        # slothy.config.typing_hints["r14"] = Arch_Armv7M.RegisterType.GPR
+
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_preprocess_naive_interleaving = True
+        slothy.config.split_heuristic_factor = 25
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_optimize_seam = 8
+        slothy.config.split_heuristic_stepsize = 0.05
+
         slothy.optimize(start="slothy_start", end="slothy_end")
 
 class Example0(Example):
@@ -1542,8 +1562,8 @@ def main():
                 #  # Fixed point
                 #  fft_fixedpoint_radix4(),
                  
-                #  ExampleDummy()
-                 ExampleKeccak()
+                # ExampleDummy()
+                 ExampleKeccak(var="old")
                  ]
 
     all_example_names = [e.name for e in examples]
