@@ -93,6 +93,7 @@ class RegisterType(Enum):
     @staticmethod
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
+        # r13 is the stack pointer
         return set(["flags", "r13", "lr"] + RegisterType.list_registers(RegisterType.HINT))
 
     @staticmethod
@@ -100,10 +101,9 @@ class RegisterType(Enum):
         "Register aliases used by the architecture"
         return { 
                  "lr": "r14",
-                #  "sp": "r13" 
                 }
 
-# TODO: Comparison can also be done with subs
+# TODO: Comparison can also be done with {add,sub,...}s
 class Branch:
     """Helper for emitting branches"""
 
@@ -495,7 +495,7 @@ class Armv7mInstruction(Instruction):
                 f"([{g.group(1).lower()}{g.group(1)}]" +\
                 f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|" +\
                 f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
-        src = re.sub(r"<([RV])(\w+)>", pattern_transform, src)  # TODO What does this do?
+        src = re.sub(r"<([RS])(\w+)>", pattern_transform, src)
 
         # Replace <key> or <key0>, <key1>, ... with pattern
         def replace_placeholders(src, mnemonic_key, regexp, group_name):
@@ -572,7 +572,7 @@ class Armv7mInstruction(Instruction):
     def _infer_register_type(ptrn):
         if ptrn[0].upper() in ["R"]:
             return RegisterType.GPR
-        if ptrn[0].upper() in ["V"]:
+        if ptrn[0].upper() in ["S"]:
             return RegisterType.FPR
         if ptrn[0].upper() in ["T"]:
             return RegisterType.HINT
@@ -622,7 +622,7 @@ class Armv7mInstruction(Instruction):
         if ty == RegisterType.GPR:
             c = "r"
         elif ty == RegisterType.FPR:
-            c = "v"
+            c = "s"
         elif ty == RegisterType.HINT:
             c = "t"
         else:
@@ -638,7 +638,7 @@ class Armv7mInstruction(Instruction):
                 return f"{s[0].upper()}<{arg}>"
             return s[0].lower() + arg[1:]
         if ty == RegisterType.FPR:
-            if arg[0] != "v":
+            if arg[0] != "s":
                 return f"{s[0].upper()}<{arg}>"
             return s[0].lower() + arg[1:]
         if ty == RegisterType.HINT:
