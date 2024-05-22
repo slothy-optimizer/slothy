@@ -1,5 +1,5 @@
 """
-Experimental Cortex-M4 microarchitecture model for SLOTHY
+Experimental Cortex-M7 microarchitecture model for SLOTHY
 
 WARNING: The data in this module is approximate and may contain errors.
 """
@@ -46,7 +46,6 @@ def add_slot_constraints(slothy):
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
 def has_min_max_objective(config):
-    """Adds Cortex-"""
     _ = config
     return False
 
@@ -114,9 +113,6 @@ inverse_throughput = {
 
 default_latencies = {
     (
-        ldr_with_imm,
-        ldr_with_imm_stack,
-        ldr_with_inc_writeback,
         str_with_imm,
         str_with_imm_stack,
         adds,
@@ -140,6 +136,10 @@ default_latencies = {
         mul,
         smull,
         smlal,
+        # TODO: Verify load latency
+        ldr_with_imm,
+        ldr_with_imm_stack,
+        ldr_with_inc_writeback,
     ): 2,
 }
 
