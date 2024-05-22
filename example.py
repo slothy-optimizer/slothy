@@ -210,21 +210,15 @@ class ExampleKeccak(Example):
         slothy.config.reserved_regs = ["sp", "r13"]
         slothy.config.locked_registers = ["sp", "r13"]
 
-        slothy.config.constraints.stalls_first_attempt = 2
-
-        # slothy.config.rename_inputs = { "other" : "any" }
-        # slothy.config.rename_outputs = { "other" : "any" }
-
-        # slothy.config.typing_hints["r14"] = Arch_Armv7M.RegisterType.GPR
-
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_preprocess_naive_interleaving = True
         slothy.config.split_heuristic_factor = 25
         slothy.config.split_heuristic_repeat = 2
-        slothy.config.split_heuristic_optimize_seam = 8
+        slothy.config.split_heuristic_optimize_seam = 4
         slothy.config.split_heuristic_stepsize = 0.05
 
         slothy.optimize(start="slothy_start", end="slothy_end")
+
 
 class Example0(Example):
     def __init__(self):
@@ -1423,147 +1417,147 @@ class fft_floatingpoint_radix4(Example):
 
 
 def main():
-    examples = [ # Example0(),
-                #  Example1(),
-                #  Example2(),
-                #  Example3(),
+    examples = [ Example0(),
+                 Example1(),
+                 Example2(),
+                 Example3(),
 
-                #  AArch64Example0(),
-                #  AArch64Example0(target=Target_CortexA72),
-                #  AArch64Example1(),
-                #  AArch64Example1(target=Target_CortexA72),
-                #  AArch64Example2(),
-                #  AArch64Example2(target=Target_CortexA72),
+                 AArch64Example0(),
+                 AArch64Example0(target=Target_CortexA72),
+                 AArch64Example1(),
+                 AArch64Example1(target=Target_CortexA72),
+                 AArch64Example2(),
+                 AArch64Example2(target=Target_CortexA72),
 
-                #  CRT(),
+                 CRT(),
 
-                #  ntt_n256_l6_s32("bar"),
-                #  ntt_n256_l6_s32("mont"),
-                #  ntt_n256_l8_s32("bar"),
-                #  ntt_n256_l8_s32("mont"),
-                #  intt_n256_l6_s32("bar"),
-                #  intt_n256_l6_s32("mont"),
-                #  intt_n256_l8_s32("bar"),
-                #  intt_n256_l8_s32("mont"),
+                 ntt_n256_l6_s32("bar"),
+                 ntt_n256_l6_s32("mont"),
+                 ntt_n256_l8_s32("bar"),
+                 ntt_n256_l8_s32("mont"),
+                 intt_n256_l6_s32("bar"),
+                 intt_n256_l6_s32("mont"),
+                 intt_n256_l8_s32("bar"),
+                 intt_n256_l8_s32("mont"),
 
-                #  # Kyber NTT
-                #  # Cortex-M55
-                #  ntt_kyber_1_23_45_67(),
-                #  ntt_kyber_1_23_45_67(var="no_trans"),
-                #  ntt_kyber_1_23_45_67(var="no_trans_vld4", timeout=600),
-                #  ntt_kyber_12_345_67(False),
-                #  ntt_kyber_12_345_67(True),
-                #  # Cortex-M85
-                #  ntt_kyber_1_23_45_67(target=Target_CortexM85r1),
-                #  ntt_kyber_1_23_45_67(var="no_trans", target=Target_CortexM85r1),
-                #  ntt_kyber_1_23_45_67(var="no_trans_vld4", target=Target_CortexM85r1, timeout=600),
-                #  ntt_kyber_12_345_67(False, target=Target_CortexM85r1),
-                #  ntt_kyber_12_345_67(True, target=Target_CortexM85r1),
-                #  # Cortex-A55
-                #  ntt_kyber_123_4567(),
-                #  ntt_kyber_123_4567(var="scalar_load"),
-                #  ntt_kyber_123_4567(var="scalar_store"),
-                #  ntt_kyber_123_4567(var="scalar_load_store"),
-                #  ntt_kyber_123_4567(var="manual_st4"),
-                #  ntt_kyber_1234_567(),
-                #  intt_kyber_123_4567(),
-                #  intt_kyber_123_4567(var="manual_ld4"),
-                #  # Cortex-A72
-                #  ntt_kyber_123_4567(target=Target_CortexA72),
-                #  ntt_kyber_123_4567(var="scalar_load", target=Target_CortexA72),
-                #  ntt_kyber_123_4567(var="scalar_store", target=Target_CortexA72),
-                #  ntt_kyber_123_4567(var="scalar_load_store", target=Target_CortexA72),
-                #  ntt_kyber_123_4567(var="manual_st4", target=Target_CortexA72),
-                #  ntt_kyber_1234_567(target=Target_CortexA72),
-                #  intt_kyber_123_4567(target=Target_CortexA72),
-                #  intt_kyber_123_4567(var="manual_ld4", target=Target_CortexA72),
-                # #  # Apple M1 Firestorm
-                #  ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
-                #  ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_firestorm, timeout=3600),
-                #  ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_firestorm, timeout=3600),
-                #  ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_firestorm, timeout=3600),
-                #  ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
-                #  ntt_kyber_1234_567(target=Target_AppleM1_firestorm, timeout=300),
-                #  ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
-                #  intt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
-                #  intt_kyber_123_4567(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
-                #  # Apple M1 Icestorm
-                #  ntt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=3600),
-                #  ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_icestorm, timeout=3600),
-                #  ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_icestorm, timeout=3600),
-                #  ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_icestorm, timeout=3600),
-                #  ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
-                #  ntt_kyber_1234_567(target=Target_AppleM1_icestorm, timeout=300),
-                #  ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
-                #  intt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=3600),
-                #  intt_kyber_123_4567(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
-                #  # Kyber InvNTT
-                #  # Cortex-M55
-                #  intt_kyber_1_23_45_67(),
-                #  # Dilithium NTT
-                #  # Cortex-M55
-                #  ntt_dilithium_12_34_56_78(),
-                #  ntt_dilithium_12_34_56_78(var="no_trans_vld4"),
-                #  ntt_dilithium_123_456_78(False),
-                #  ntt_dilithium_123_456_78(True),
-                #  # Cortex-M85
-                #  ntt_dilithium_12_34_56_78(target=Target_CortexM85r1),
-                #  ntt_dilithium_12_34_56_78(var="no_trans_vld4", target=Target_CortexM85r1),
-                #  ntt_dilithium_123_456_78(False, target=Target_CortexM85r1),
-                #  ntt_dilithium_123_456_78(True, target=Target_CortexM85r1),
-                #  # Cortex-A55
-                #  ntt_dilithium_45678(),
-                #  ntt_dilithium_123_45678(),
-                #  ntt_dilithium_123_45678(var="w_scalar"),
-                #  ntt_dilithium_123_45678(var="manual_st4"),
-                #  ntt_dilithium_1234_5678(),
-                #  ntt_dilithium_1234_5678(var="manual_st4"),
-                #  intt_dilithium_123_45678(),
-                #  intt_dilithium_123_45678(var="manual_ld4"),
-                #  intt_dilithium_1234_5678(),
-                #  intt_dilithium_1234_5678(var="manual_ld4"),
-                #  # Cortex-A72
-                #  ntt_dilithium_123_45678(target=Target_CortexA72),
-                #  ntt_dilithium_123_45678(var="w_scalar", target=Target_CortexA72),
-                #  ntt_dilithium_123_45678(var="manual_st4", target=Target_CortexA72),
-                #  ntt_dilithium_1234_5678(target=Target_CortexA72),
-                #  ntt_dilithium_1234_5678(var="manual_st4", target=Target_CortexA72),
-                #  intt_dilithium_123_45678(target=Target_CortexA72),
-                #  intt_dilithium_123_45678(var="manual_ld4", target=Target_CortexA72),
-                #  intt_dilithium_1234_5678(target=Target_CortexA72),
-                #  intt_dilithium_1234_5678(var="manual_ld4", target=Target_CortexA72),
+                 # Kyber NTT
+                 # Cortex-M55
+                 ntt_kyber_1_23_45_67(),
+                 ntt_kyber_1_23_45_67(var="no_trans"),
+                 ntt_kyber_1_23_45_67(var="no_trans_vld4", timeout=600),
+                 ntt_kyber_12_345_67(False),
+                 ntt_kyber_12_345_67(True),
+                 # Cortex-M85
+                 ntt_kyber_1_23_45_67(target=Target_CortexM85r1),
+                 ntt_kyber_1_23_45_67(var="no_trans", target=Target_CortexM85r1),
+                 ntt_kyber_1_23_45_67(var="no_trans_vld4", target=Target_CortexM85r1, timeout=600),
+                 ntt_kyber_12_345_67(False, target=Target_CortexM85r1),
+                 ntt_kyber_12_345_67(True, target=Target_CortexM85r1),
+                 # Cortex-A55
+                 ntt_kyber_123_4567(),
+                 ntt_kyber_123_4567(var="scalar_load"),
+                 ntt_kyber_123_4567(var="scalar_store"),
+                 ntt_kyber_123_4567(var="scalar_load_store"),
+                 ntt_kyber_123_4567(var="manual_st4"),
+                 ntt_kyber_1234_567(),
+                 intt_kyber_123_4567(),
+                 intt_kyber_123_4567(var="manual_ld4"),
+                 # Cortex-A72
+                 ntt_kyber_123_4567(target=Target_CortexA72),
+                 ntt_kyber_123_4567(var="scalar_load", target=Target_CortexA72),
+                 ntt_kyber_123_4567(var="scalar_store", target=Target_CortexA72),
+                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_CortexA72),
+                 ntt_kyber_123_4567(var="manual_st4", target=Target_CortexA72),
+                 ntt_kyber_1234_567(target=Target_CortexA72),
+                 intt_kyber_123_4567(target=Target_CortexA72),
+                 intt_kyber_123_4567(var="manual_ld4", target=Target_CortexA72),
                 #  # Apple M1 Firestorm
-                # ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
-                #  ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_firestorm, timeout=3600),
-                #  ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
-                #  ntt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=300),
-                #  ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
-                #  intt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
-                #  intt_dilithium_123_45678(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
-                #  intt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=3600),
-                #  intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
-                #  # Apple M1 Icestorm
-                #  ntt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=3600),
-                #  ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_icestorm, timeout=3600),
-                #  ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
-                #  ntt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=300),
-                #  ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
-                #  intt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=3600),
-                #  intt_dilithium_123_45678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
-                #  intt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=3600),
-                #  intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
-                #  # Dilithium invNTT
-                #  # Cortex-M55
-                #  intt_dilithium_12_34_56_78(),
+                 ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_kyber_1234_567(target=Target_AppleM1_firestorm, timeout=300),
+                 ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
+                 intt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
+                 intt_kyber_123_4567(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
+                 # Apple M1 Icestorm
+                 ntt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="scalar_load_store", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_kyber_1234_567(target=Target_AppleM1_icestorm, timeout=300),
+                 ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
+                 intt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=3600),
+                 intt_kyber_123_4567(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
+                 # Kyber InvNTT
+                 # Cortex-M55
+                 intt_kyber_1_23_45_67(),
+                 # Dilithium NTT
+                 # Cortex-M55
+                 ntt_dilithium_12_34_56_78(),
+                 ntt_dilithium_12_34_56_78(var="no_trans_vld4"),
+                 ntt_dilithium_123_456_78(False),
+                 ntt_dilithium_123_456_78(True),
+                 # Cortex-M85
+                 ntt_dilithium_12_34_56_78(target=Target_CortexM85r1),
+                 ntt_dilithium_12_34_56_78(var="no_trans_vld4", target=Target_CortexM85r1),
+                 ntt_dilithium_123_456_78(False, target=Target_CortexM85r1),
+                 ntt_dilithium_123_456_78(True, target=Target_CortexM85r1),
+                 # Cortex-A55
+                 ntt_dilithium_45678(),
+                 ntt_dilithium_123_45678(),
+                 ntt_dilithium_123_45678(var="w_scalar"),
+                 ntt_dilithium_123_45678(var="manual_st4"),
+                 ntt_dilithium_1234_5678(),
+                 ntt_dilithium_1234_5678(var="manual_st4"),
+                 intt_dilithium_123_45678(),
+                 intt_dilithium_123_45678(var="manual_ld4"),
+                 intt_dilithium_1234_5678(),
+                 intt_dilithium_1234_5678(var="manual_ld4"),
+                 # Cortex-A72
+                 ntt_dilithium_123_45678(target=Target_CortexA72),
+                 ntt_dilithium_123_45678(var="w_scalar", target=Target_CortexA72),
+                 ntt_dilithium_123_45678(var="manual_st4", target=Target_CortexA72),
+                 ntt_dilithium_1234_5678(target=Target_CortexA72),
+                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_CortexA72),
+                 intt_dilithium_123_45678(target=Target_CortexA72),
+                 intt_dilithium_123_45678(var="manual_ld4", target=Target_CortexA72),
+                 intt_dilithium_1234_5678(target=Target_CortexA72),
+                 intt_dilithium_1234_5678(var="manual_ld4", target=Target_CortexA72),
+                 # Apple M1 Firestorm
+                ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=300),
+                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
+                 intt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
+                 intt_dilithium_123_45678(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
+                 intt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=3600),
+                 intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
+                 # Apple M1 Icestorm
+                 ntt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
+                 ntt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=300),
+                 ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
+                 intt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=3600),
+                 intt_dilithium_123_45678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
+                 intt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=3600),
+                 intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
+                 # Dilithium invNTT
+                 # Cortex-M55
+                 intt_dilithium_12_34_56_78(),
 
-                #  # Fast Fourier Transform (FFT)
-                #  # Floating point
-                #  fft_floatingpoint_radix4(),
-                #  # Fixed point
-                #  fft_fixedpoint_radix4(),
+                 # Fast Fourier Transform (FFT)
+                 # Floating point
+                 fft_floatingpoint_radix4(),
+                 # Fixed point
+                 fft_fixedpoint_radix4(),
                  
-                # ExampleDummy()
-                 ExampleKeccak(var="old")
+                  ExampleDummy(),
+                  ExampleKeccak(var="old")
                  ]
 
     all_example_names = [e.name for e in examples]
