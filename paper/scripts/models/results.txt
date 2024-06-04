@@ -1,0 +1,480 @@
+Model: "slothy_ci_fft_1712650114847.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0279
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650118382.txt"
+Version: "9.7.2996"
+Time (seconds): 2.7857
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650121382.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0061
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650121689.txt"
+Version: "9.7.2996"
+Time (seconds): 0.2541
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650422585.txt"
+Version: "9.7.2996"
+Time (seconds): 300.0749
+Status: "FEASIBLE"
+
+Model: "slothy_ci_fft_1712650425218.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0043
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650426237.txt"
+Version: "9.7.2996"
+Time (seconds): 0.9642
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650426991.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0114
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650430665.txt"
+Version: "9.7.2996"
+Time (seconds): 2.8898
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650434346.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0152
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650434586.txt"
+Version: "9.7.2996"
+Time (seconds): 0.1706
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650437586.txt"
+Version: "9.7.2996"
+Time (seconds): 2.1546
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650439917.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0024
+Status: "OPTIMAL"
+
+Model: "slothy_ci_fft_1712650440253.txt"
+Version: "9.7.2996"
+Time (seconds): 0.2617
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650459267.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0149
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650459897.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0283
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650459948.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0296
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650460040.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0021
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650460076.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0007
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650460087.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0036
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650460860.txt"
+Version: "9.7.2996"
+Time (seconds): 0.1276
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650461049.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0014
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650461069.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0051
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650461108.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0038
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650464424.txt"
+Version: "9.7.2996"
+Time (seconds): 2.6087
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650464798.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0036
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650464854.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0327
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650464950.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0168
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650465618.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0051
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650465667.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0258
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650465738.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0496
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650465847.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0024
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650465867.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0007
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650465878.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0034
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650466669.txt"
+Version: "9.7.2996"
+Time (seconds): 0.1447
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650466857.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0004
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650466873.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0014
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650466893.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0049
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650466932.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0037
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650469179.txt"
+Version: "9.7.2996"
+Time (seconds): 1.5546
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650469560.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0032
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650469594.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0059
+Status: "INFEASIBLE"
+
+Model: "slothy_ci_sqmag_1712650469697.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0555
+Status: "OPTIMAL"
+
+Model: "slothy_ci_sqmag_1712650469764.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0038
+Status: "OPTIMAL"
+
+Model: "ntt_kyber_123_4567_a55_1712650528377.txt"
+Version: "9.7.2996"
+Time (seconds): 2.2660
+Status: "OPTIMAL"
+
+Model: "ntt_kyber_123_4567_a55_1712650529311.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0073
+Status: "OPTIMAL"
+
+Model: "ntt_kyber_123_4567_a55_1712650536861.txt"
+Version: "9.7.2996"
+Time (seconds): 7.3304
+Status: "OPTIMAL"
+
+Model: "ntt_kyber_123_4567_a55_1712650662724.txt"
+Version: "9.7.2996"
+Time (seconds): 124.8863
+Status: "OPTIMAL"
+
+Model: "ntt_kyber_123_4567_a55_1712650663668.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0059
+Status: "OPTIMAL"
+
+Model: "ntt_kyber_123_4567_a55_1712650671444.txt"
+Version: "9.7.2996"
+Time (seconds): 7.4486
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650674268.txt"
+Version: "9.7.2996"
+Time (seconds): 1.8252
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650677900.txt"
+Version: "9.7.2996"
+Time (seconds): 2.0557
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650679538.txt"
+Version: "9.7.2996"
+Time (seconds): 0.1085
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650680346.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0424
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650683180.txt"
+Version: "9.7.2996"
+Time (seconds): 2.0553
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650684758.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0421
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650685564.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0418
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650688466.txt"
+Version: "9.7.2996"
+Time (seconds): 2.1346
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650689402.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0035
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650689583.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0041
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650689783.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0268
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650689974.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0168
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650690188.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0017
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650690305.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0018
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650690422.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0018
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650690539.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0019
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650691060.txt"
+Version: "9.7.2996"
+Time (seconds): 0.3334
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650696610.txt"
+Version: "9.7.2996"
+Time (seconds): 5.2581
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650696941.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0363
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650700977.txt"
+Version: "9.7.2996"
+Time (seconds): 3.8633
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650701785.txt"
+Version: "9.7.2996"
+Time (seconds): 0.5101
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650705388.txt"
+Version: "9.7.2996"
+Time (seconds): 3.4299
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650708857.txt"
+Version: "9.7.2996"
+Time (seconds): 3.1709
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650711289.txt"
+Version: "9.7.2996"
+Time (seconds): 0.2992
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650713305.txt"
+Version: "9.7.2996"
+Time (seconds): 0.1108
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650722957.txt"
+Version: "9.7.2996"
+Time (seconds): 7.7117
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650735034.txt"
+Version: "9.7.2996"
+Time (seconds): 8.0557
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650739199.txt"
+Version: "9.7.2996"
+Time (seconds): 0.1112
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712650749412.txt"
+Version: "9.7.2996"
+Time (seconds): 8.2662
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712650761715.txt"
+Version: "9.7.2996"
+Time (seconds): 8.2726
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712651065788.txt"
+Version: "9.7.2996"
+Time (seconds): 300.0510
+Status: "UNKNOWN"
+
+Model: "ntt_dilithium_123_45678_a55_1712651235049.txt"
+Version: "9.7.2996"
+Time (seconds): 167.2677
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712651238340.txt"
+Version: "9.7.2996"
+Time (seconds): 0.1126
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712651241569.txt"
+Version: "9.7.2996"
+Time (seconds): 2.6106
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712651242514.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0822
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712651243143.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0761
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712651246365.txt"
+Version: "9.7.2996"
+Time (seconds): 2.6567
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712651247311.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0762
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712651247939.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0730
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712651251217.txt"
+Version: "9.7.2996"
+Time (seconds): 2.7390
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712651252993.txt"
+Version: "9.7.2996"
+Time (seconds): 1.2798
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712651253189.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0134
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712651254185.txt"
+Version: "9.7.2996"
+Time (seconds): 0.8666
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712651254419.txt"
+Version: "9.7.2996"
+Time (seconds): 0.0138
+Status: "INFEASIBLE"
+
+Model: "ntt_dilithium_123_45678_a55_1712651255130.txt"
+Version: "9.7.2996"
+Time (seconds): 0.5832
+Status: "OPTIMAL"
+
+Model: "ntt_dilithium_123_45678_a55_1712651255897.txt"
+Version: "9.7.2996"
+Time (seconds): 0.5574
+Status: "OPTIMAL"
+

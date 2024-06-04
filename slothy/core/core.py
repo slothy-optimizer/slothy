@@ -27,6 +27,8 @@
 
 import logging
 import math
+import time
+
 from types import SimpleNamespace
 from copy import deepcopy
 from functools import cached_property
@@ -1391,15 +1393,15 @@ class SlothyBase(LockAttributes):
 
         # - Objective
         self._add_objective()
-        # - Export (optional)
-        self._export_model()
-
         self._result = Result(self.config)
 
         # Do the actual work
         self.logger.info("Invoking external constraint solver (%s) ...", self._describe_solver())
         self.result.success = self._solve()
         self.result.valid = True
+
+        # - Export (optional)
+        self._export_model()
 
         if not retry and self.success:
             self.logger.info("Booleans in result: %d", self._model.cp_solver.NumBooleans())
@@ -3049,7 +3051,10 @@ class SlothyBase(LockAttributes):
         return (cycles, ipc)
 
     def _print_stalls(self, stalls):
-        (cycles, ipc) = self._stalls_to_stats(stalls)
+        r = self._stalls_to_stats(stalls)
+        if r is None:
+            return " (?)"
+        (cycles, ipc) = r
         return f" (Cycles ~ {cycles}, IPC ~ {ipc:.2f})"
 
     def _add_objective(self, force_objective=False):
@@ -3167,16 +3172,38 @@ class SlothyBase(LockAttributes):
     def _export_model(self):
         if self.config.log_model is None:
             return
-        log_file = self.config.log_dir + "/" + self.config.log_model
+
+        if self.config.log_model is True:
+            model_file = f"slothy_model"
+        else:
+            model_file = self.config.log_model
+            assert(isinstance(model_file, str))
+
+        # Always append a timestamp
+        model_file += f"_{int(time.time()*1000)}.txt"
+
+        log_file = self.config.log_model_dir + "/" + model_file
         self.logger.info("Writing model to %s ...", log_file)
         assert self._model.cp_model.ExportToFile(log_file)
+
+        if self.config.log_model_log_results is True:
+            results_file = self.config.log_model_dir + "/" + self.config.log_model_results_file
+            result = []
+            result.append(f"Model: \"{model_file}\"")
+            result.append(f"Version: \"{ortools.__version__}\"")
+            result.append(f"Time (seconds): {self._model.cp_solver.WallTime():.4f}")
+            result.append(f"Status: \"{self._model.cp_solver.StatusName(self._model.cp_model.status)}\"")
+            result.append("")
+            result.append("")
+            with open(results_file, "a") as f:
+                f.write('\n'.join(result))
 
     def _solve(self):
 
         # Determines whether the best solution found so far is close enough to the optimum
         # that we should stop.
         def is_good_enough( cur, bound ):
-            if self._model.objective_name == "minimize number of stalls":
+            if self._model.objective_name == "minimize cycles":
                 prec = self.config.constraints.stalls_precision
                 if cur - bound <= self.config.constraints.stalls_precision:
                     self.logger.info("Closer than %d stalls to theoretical optimum... stop", prec)

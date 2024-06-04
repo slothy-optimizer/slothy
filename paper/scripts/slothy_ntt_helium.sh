@@ -17,6 +17,8 @@ if [ "$NO_LOG" = "Y" ]; then
     ARGS="$ARGS --no-log"
 fi
 
+ARGS="$ARGS $ADDITIONAL_ARGS"
+
 export PYTHONPATH=../../
 
 echo "Kyber NTT, Cortex-M55, layer split 1-23-45-67, variant 0..."

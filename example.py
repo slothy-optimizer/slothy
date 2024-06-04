@@ -88,7 +88,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False, log_model=False, dry_run=False, silent=False, timeout=0):
+    def run(self, debug=False, log_model=False, log_model_dir="models", dry_run=False, silent=False, timeout=0):
 
         if dry_run is True:
             annotation = " (dry run only)"
@@ -141,7 +141,8 @@ class Example():
             slothy.config.variable_size = True
 
         if log_model is True:
-            slothy.config.log_model = f"{self.name}_model.txt"
+            slothy.config.log_model_dir = log_model_dir
+            slothy.config.log_model = self.name
 
         # On Apple M1, we must not use x18
         if "m1" in target_label_dict[self.target]:
@@ -1508,6 +1509,7 @@ def main():
     parser.add_argument("--iterations", type=int, default=1)
     parser.add_argument("--timeout", type=int, default=0)
     parser.add_argument("--log-model", default=False, action="store_true")
+    parser.add_argument("--log-model-dir", type=str, default="models")
 
     args = parser.parse_args()
     if args.examples != "all":
@@ -1529,7 +1531,8 @@ def main():
     for e in todo:
         for _ in range(iterations):
             run_example(e, debug=args.debug, dry_run=args.dry_run,
-                        silent=args.silent, log_model=args.log_model, timeout=args.timeout)
+                        silent=args.silent, log_model=args.log_model,
+                        log_model_dir=args.log_model_dir, timeout=args.timeout)
 
 if __name__ == "__main__":
     main()
