@@ -3130,13 +3130,6 @@ class SlothyBase(LockAttributes):
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
 
-        # There is a bug in OR-Tools, https://github.com/google/or-tools/issues/3483,
-        # that causes models to be incorrectly classes as INFEASIBLE at times.
-        # The following turns of the buggy parts of the code:
-        if ortools.__version__ < "9.5.2040":
-            self.logger.warning("Please consider upgrading OR-Tools to version >= 9.5.2040")
-            self._model.cp_solver.parameters.symmetry_level = 1
-
     def _NewIntVar(self, minval, maxval, name=""): # pylint:disable=invalid-name
         r = self._model.cp_model.NewIntVar(minval,maxval, name)
         self._model.variables.append(r)
