@@ -135,7 +135,7 @@ ntt_dilithium_123_456_78_opt_speed:
 
         tmp .req q7
 
-        /* Layers 1-3 */
+        // Layers 1-3
 
         rtmp    .req root6
         rtmp_tw .req root6_tw
@@ -429,7 +429,7 @@ layer123_loop_end: // end of loop kernel
         sub in, in, #(128)
         restore r_ptr, RPTR_STACK
 
-        /* Layers 4,5,6 */
+        // Layers 4,5,6
 
         .unreq rtmp
         .unreq rtmp_tw

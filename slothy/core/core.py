@@ -27,6 +27,8 @@
 
 import logging
 import math
+import time
+
 from types import SimpleNamespace
 from copy import deepcopy
 from functools import cached_property
@@ -58,13 +60,91 @@ class Result(LockAttributes):
         assert self._orig_code is None
         self._orig_code = val
 
-    def _gen_orig_code_visualized(self):
-        if self.codesize == 0:
-            return
-
+    def _gen_orig_code_visualized_perf(self):
         early_char = self.config.early_char
         late_char  = self.config.late_char
         core_char  = self.config.core_char
+        d = self.config.placeholder_char
+
+        mirror_char = self.config.mirror_char
+
+        fixlen = max(map(len, self.orig_code)) + 8
+
+        def arr_width(arr):
+            mi = min(arr)
+            ma = max(0, max(arr)) # pylint:disable=nested-min-max
+            return mi, ma-mi
+
+        def center_str_fixlen(txt, fixlen, char='-'):
+            txt = ' ' + txt + ' '
+            l = min(len(txt), fixlen)
+            lpad = (fixlen - l) // 2
+            rpad = (fixlen - l) - lpad
+            return char * lpad + txt + char * rpad
+
+        block_size = 25
+
+        min_pos, width = arr_width(self.cycle_position_with_bubbles.values())
+        width = max(width, block_size+5)
+
+        cycles = width
+        cycle_blocks = math.ceil(cycles/block_size)
+        cycle_remainder = cycles % block_size
+
+        legend0 = center_str_fixlen('cycle (expected)', cycles, '-') + '>'
+        legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(cycle_blocks)])
+        legend2 = (('|' + '-' * (block_size - 1))) * (cycle_blocks - 1)
+        legend2 = legend2 + '|' + '-' * (cycle_remainder if cycle_remainder != 0 else block_size)
+        yield SourceLine("")
+        yield SourceLine("").set_comment(legend0).set_length(fixlen + 1)
+        yield SourceLine("").set_comment(legend1).set_length(fixlen + 1)
+        yield SourceLine("").set_comment(legend2).set_length(fixlen + 1)
+        for i in range(self.codesize):
+            pos = self.cycle_position_with_bubbles[i] - min_pos
+            c = core_char
+            if self.config.sw_pipelining.enabled and self.is_pre(i):
+                c = early_char
+            elif self.config.sw_pipelining.enabled and self.is_post(i):
+                c = late_char
+
+            # String of the form "...{e,*,l}...", with e/l/* in position pos
+            t_comment = [d for _ in range(width+1)]
+            if self.config.sw_pipelining.enabled is True:
+                if min_pos < 0:
+                    t_comment[-min_pos] = "'"
+                c_pos = max(-min_pos,0) + self.cycles
+                while c_pos < width:
+                    t_comment[c_pos] = "'"
+                    c_pos += self.cycles
+
+            c_pos = pos
+            t_comment[c_pos] = c
+
+            if self.config.sw_pipelining.enabled is True:
+                # Also display sibling of instruction in other iterations
+                c = mirror_char
+                c_pos = pos - self.cycles
+                while c_pos >= 0:
+                    t_comment[c_pos] = c
+                    c_pos -= self.cycles
+                c_pos = pos + self.cycles
+                while c_pos < width:
+                    t_comment[c_pos] = c
+                    c_pos += self.cycles
+
+            t_comment = ''.join(t_comment)
+
+            yield SourceLine("")                                      \
+                .set_comment(f"{self.orig_code[i].text:{fixlen-3}s}") \
+                .add_comment(t_comment)
+
+        yield SourceLine("")
+
+    def _gen_orig_code_visualized_perm(self):
+        early_char = self.config.early_char
+        late_char  = self.config.late_char
+        core_char  = self.config.core_char
+        mirror_char = self.config.mirror_char
         d = self.config.placeholder_char
 
         fixlen = max(map(len, self.orig_code)) + 8
@@ -74,10 +154,30 @@ class Result(LockAttributes):
             ma = max(0, max(arr)) # pylint:disable=nested-min-max
             return mi, ma-mi
 
+        def center_str_fixlen(txt, fixlen, char='-'):
+            txt = ' ' + txt + ' '
+            l = min(len(txt), fixlen)
+            lpad = (fixlen - l) // 2
+            rpad = (fixlen - l) - lpad
+            return char * lpad + txt + char * rpad
+
         min_pos, width = arr_width(self.reordering.values())
 
+        block_size = 25
+        width = max(width, block_size+5)
+
+        cycles = width
+        cycle_blocks = math.ceil(cycles/block_size)
+        cycle_remainder = cycles % block_size
+
+        legend0 = center_str_fixlen('new position', cycles, '-') + '>'
+        legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(cycle_blocks)])
+        legend2 = (('|' + '-' * (block_size - 1))) * (cycle_blocks - 1)
+        legend2 = legend2 + '|' + '-' * (cycle_remainder if cycle_remainder != 0 else block_size)
         yield SourceLine("")
-        yield SourceLine("").set_comment("original source code")
+        yield SourceLine("").set_comment(legend0).set_length(fixlen + 1)
+        yield SourceLine("").set_comment(legend1).set_length(fixlen + 1)
+        yield SourceLine("").set_comment(legend2).set_length(fixlen + 1)
         for i in range(self.codesize):
             pos = self.reordering[i] - min_pos
             c = core_char
@@ -88,18 +188,29 @@ class Result(LockAttributes):
 
             # String of the form "...{e,*,l}...", with e/l/* in position pos
             t_comment = [d for _ in range(width+1)]
-            if min_pos < 0:
-                t_comment[-min_pos] = '|'
-            if width > max(-min_pos,0) + self.codesize:
-                t_comment[max(-min_pos,0) + self.codesize] = '|'
+            if self.config.sw_pipelining.enabled is True:
+                if min_pos < 0:
+                    t_comment[-min_pos] = "'"
+                c_pos = max(-min_pos,0) + self.codesize
+                while c_pos < width:
+                    t_comment[c_pos] = "'"
+                    c_pos += self.codesize
+
             c_pos = pos
-            while c_pos >= 0:
-                t_comment[c_pos] = c
-                c_pos -= self.codesize
-            c_pos = pos
-            while c_pos < width:
-                t_comment[c_pos] = c
-                c_pos += self.codesize
+            t_comment[c_pos] = c
+
+            if self.config.sw_pipelining.enabled is True:
+                # Also display sibling of instruction in other iterations
+                c = mirror_char
+                c_pos = pos - self.codesize
+                while c_pos >= 0:
+                    t_comment[c_pos] = c
+                    c_pos -= self.codesize
+                c_pos = pos + self.codesize
+                while c_pos < width:
+                    t_comment[c_pos] = c
+                    c_pos += self.codesize
+
             t_comment = ''.join(t_comment)
 
             yield SourceLine("")                                      \
@@ -107,6 +218,60 @@ class Result(LockAttributes):
                 .add_comment(t_comment)
 
         yield SourceLine("")
+
+    def _gen_orig_code_visualized(self):
+        if self.codesize == 0:
+            return
+
+        if self.config.visualize_expected_performance:
+            yield from self._gen_orig_code_visualized_perf()
+        else:
+            yield from self._gen_orig_code_visualized_perm()
+
+    @property
+    def cycles(self):
+        """The number of cycles that SLOTHY thinks the code will take.
+
+        If software pipelining is enabled, this is the expected average cycle
+        count per iteration."""
+        return (self.codesize_with_bubbles // self.config.target.issue_rate)
+
+    @property
+    def cycles_bound(self):
+        """A lower bound for the number of cycles obtained during optimization.
+
+        This may be lower than the estimated cycle count of the result itself if optimization
+        terminated prematurely, e.g. because of a timeout."""
+        return self._cycles_bound
+
+    @property
+    def ipc_bound(self):
+        """An uppwer bound on the instruction/cycle (IPC) count obtained during optimization.
+
+        This may be lower than the IPC value of the result itself if optimization
+        terminated prematurely, e.g. because of a timeout."""
+        cc = self.cycles_bound
+        if cc is None or cc == 0:
+            return None
+        return (self.codesize / cc)
+
+    @property
+    def optimization_wall_time(self):
+        """Returns the amount of wall clock time in seconds the optimization has taken"""
+        return self._optimization_wall_time
+
+    @property
+    def optimization_user_time(self):
+        """Returns the amount of CPU time in seconds the optimization has taken"""
+        return self._optimization_user_time
+
+    @property
+    def ipc(self):
+        """The instruction/cycle (IPC) count that SLOTHY thinks the code will have."""
+        cc = self.cycles
+        if cc == 0:
+            return 0
+        return (self.codesize / cc)
 
     @property
     def orig_code_visualized(self):
@@ -142,6 +307,16 @@ class Result(LockAttributes):
     def codesize_with_bubbles(self, v):
         assert self._codesize_with_bubbles is None
         self._codesize_with_bubbles = v
+
+    @optimization_user_time.setter
+    def optimization_user_time(self, v):
+        assert self._optimization_user_time is None
+        self._optimization_user_time = v
+
+    @optimization_wall_time.setter
+    def optimization_wall_time(self, v):
+        assert self._optimization_wall_time is None
+        self._optimization_wall_time = v
 
     @property
     def pre_core_post_dict(self):
@@ -387,9 +562,8 @@ class Result(LockAttributes):
     def code_raw(self):
         """Optimized code, without annotations"""
         return self._code
-    @property
-    def code(self):
-        """The optimized source code"""
+
+    def _get_code(self, visualize_reordering):
         code = self._code
         assert SourceLine.is_source(code)
         ri = self.periodic_reordering_with_bubbles_inv
@@ -398,7 +572,7 @@ class Result(LockAttributes):
         for l in code:
             l.set_length(fixlen)
 
-        if not self.config.visualize_reordering:
+        if visualize_reordering is False:
             return code
 
         early_char = self.config.early_char
@@ -406,14 +580,35 @@ class Result(LockAttributes):
         core_char  = self.config.core_char
         d = self.config.placeholder_char
 
-        def _gen_visualized_code():
+        def center_str_fixlen(txt, fixlen, char='-'):
+            txt = ' ' + txt + ' '
+            l = min(len(txt), fixlen)
+            lpad = (fixlen - l) // 2
+            rpad = (fixlen - l) - lpad
+            return char * lpad + txt + char * rpad
+
+        def gen_visualized_code_perm():
+            cs = self.codesize_with_bubbles
+            if cs == 0:
+                return
+            block_size = 25
+            width = max(self.codesize, block_size + 5)
+            blocks = math.ceil(width/block_size)
+
+            legend0 = center_str_fixlen('original position', width - 1, '-') + '>'
+            legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(blocks)])
+            legend2 = (('|' + '-' * (block_size - 1))) * (blocks - 1)
+            legend2 = legend2 + '|' + '-' * max(width % block_size - 1, 0)
+            yield SourceLine("").set_comment(legend0).set_length(fixlen)
+            yield SourceLine("").set_comment(legend1).set_length(fixlen)
+            yield SourceLine("").set_comment(legend2).set_length(fixlen)
             for i in range(self.codesize_with_bubbles):
                 p = ri.get(i, None)
                 if p is None:
                     gap_str = "gap"
                     yield SourceLine("")    \
                         .set_comment(f"{gap_str:{fixlen-4}s}") \
-                        .add_comment(d * self.codesize)
+                        .add_comment(d * width)
                     continue
                 s = code[self.periodic_reordering[p]]
                 c = core_char
@@ -421,16 +616,95 @@ class Result(LockAttributes):
                     c = early_char
                 elif self.is_post(p):
                     c = late_char
-                vis = d * p + c + d * (self.codesize - p - 1)
+                vis = d * p + c + d * (width - p - 1)
                 yield s.copy().set_length(fixlen).set_comment(vis)
 
-        res = list(_gen_visualized_code())
-        res += self.orig_code_visualized
+        def gen_visualized_code_perf():
+            cs = self.codesize_with_bubbles
+            if cs == 0:
+                return
+            block_size = 25
+            cycles = max(self.cycles, block_size + 5)
+            cycle_blocks = math.ceil(cycles/block_size)
 
+            legend0 = center_str_fixlen('cycle (expected)', cycles - 1, '-') + '>'
+            legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(cycle_blocks)])
+            legend2 = (('|' + '-' * (block_size - 1))) * (cycle_blocks - 1)
+            legend2 = legend2 + '|' + '-' * max(cycles % block_size - 1, 0)
+            yield SourceLine("").set_comment(legend0).set_length(fixlen)
+            yield SourceLine("").set_comment(legend1).set_length(fixlen)
+            yield SourceLine("").set_comment(legend2).set_length(fixlen)
+            for i in range(cs):
+                p = ri.get(i, None)
+                if p is None:
+                    continue
+                s = code[self.periodic_reordering[p]]
+                c = core_char
+                if self.is_pre(p):
+                    c = early_char
+                elif self.is_post(p):
+                    c = late_char
+                cc = i // self.config.target.issue_rate
+                vis = d * cc + c + d * (cycles - cc - 1)
+                yield s.copy().set_length(fixlen).set_comment(vis)
+
+        def gen_visualized_code():
+            if self.config.visualize_expected_performance is True:
+                yield from gen_visualized_code_perf()
+            else:
+                yield from gen_visualized_code_perm()
+
+        res = []
+        res.append(SourceLine("")                                     \
+                   .set_comment(f"Instructions:    {self.codesize}")  \
+                   .set_length(fixlen))
+        res.append(SourceLine("")                                     \
+                   .set_comment(f"Expected cycles: {self.cycles}")    \
+                   .set_length(fixlen))
+        res.append(SourceLine("")                                     \
+                   .set_comment(f"Expected IPC:    {self.ipc:.2f}")   \
+                   .set_length(fixlen))
+        if self.cycles_bound is not None:
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"")                                        \
+                       .set_length(fixlen))
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"Cycle bound:     {self.cycles_bound}")    \
+                       .set_length(fixlen))
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"IPC bound:       {self.ipc_bound:.2f}")   \
+                       .set_length(fixlen))
+        if self.optimization_wall_time is not None:
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"")                                        \
+                       .set_length(fixlen))
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"Wall time:     {self.optimization_wall_time:.2f}s")  \
+                       .set_length(fixlen))
+            res.append(SourceLine("")                                           \
+                       .set_comment(f"User time:     {self.optimization_user_time:.2f}s")  \
+                       .set_length(fixlen))
+        res.append(SourceLine("")                                           \
+                   .set_comment(f"")                                        \
+                   .set_length(fixlen))
+
+        res += list(gen_visualized_code())
+        res += self.orig_code_visualized
         return res
+
+    @property
+    def code(self):
+        """The optimized source code"""
+        return self._get_code(self.config.visualize_reordering)
+
     @code.setter
     def code(self, val):
         assert SourceLine.is_source(val)
+        # We should only pass reduced source code here
+        pre_reduce_len = len(val)
+        val = SourceLine.reduce_source(val)
+        post_reduce_len = len(val)
+        assert pre_reduce_len == post_reduce_len
         self._code = val
 
     def _get_full_code(self, log):
@@ -633,6 +907,11 @@ class Result(LockAttributes):
     def stalls(self, v):
         assert self._stalls is None
         self._stalls = v
+
+    @cycles_bound.setter
+    def cycles_bound(self, v):
+        assert self._cycles_bound is None
+        self._cycles_bound = v
 
     def _build_stalls_idxs(self):
         self._stalls_idxs = { j for (i,j) in self.reordering.items() if
@@ -945,6 +1224,7 @@ class Result(LockAttributes):
         self._reordering_with_bubbles = None
         self._valid = False
         self._success = None
+        self._cycles_bound = None
         self._stalls = None
         self._stalls_idxs = None
         self._input = None
@@ -952,6 +1232,8 @@ class Result(LockAttributes):
         self._pre_core_post_dict = None
         self._codesize_with_bubbles = None
         self._register_used = None
+        self._optimization_wall_time = None
+        self._optimization_user_time = None
 
         self.lock()
 
@@ -1065,6 +1347,7 @@ class SlothyBase(LockAttributes):
             if not self.config.constraints.functional_only:
                 cpad_min = pad_min // self.target.issue_rate
                 cpad_max = pad_max // self.target.issue_rate
+                self._model.cpad_max = cpad_max
                 self._model.cycle_padded_size = self._NewIntVar(cpad_min, cpad_max)
                 self._model.cycle_horizon = cpad_max + 10
 
@@ -1110,15 +1393,15 @@ class SlothyBase(LockAttributes):
 
         # - Objective
         self._add_objective()
-        # - Export (optional)
-        self._export_model(log_model)
-
         self._result = Result(self.config)
 
         # Do the actual work
         self.logger.info("Invoking external constraint solver (%s) ...", self._describe_solver())
         self.result.success = self._solve()
         self.result.valid = True
+
+        # - Export (optional)
+        self._export_model()
 
         if not retry and self.success:
             self.logger.info("Booleans in result: %d", self._model.cp_solver.NumBooleans())
@@ -1345,12 +1628,14 @@ class SlothyBase(LockAttributes):
 
         This callback counts the solutions found so far, and aborts the search when the solution
         is sufficiently close to the optimum."""
-        def __init__(self, logger, objective_description, max_solutions=32, is_good_enough=None):
+        def __init__(self, logger, objective_description, max_solutions=32, is_good_enough=None,
+                     printer=None):
             cp_model.CpSolverSolutionCallback.__init__(self)
             self.__solution_count = 0
             self.__logger = logger
             self.__max_solutions = max_solutions
             self.__is_good_enough = is_good_enough
+            self.__printer = printer
             self.__objective_desc = objective_description
         def on_solution_callback(self):
             """Triggered when OR-Tools finds a solution to the current constraint problem"""
@@ -1359,9 +1644,15 @@ class SlothyBase(LockAttributes):
                 cur = self.ObjectiveValue()
                 bound = self.BestObjectiveBound()
                 time = self.WallTime()
+                if self.__printer is not None:
+                    cur_str = self.__printer(cur)
+                    bound_str = self.__printer(bound)
+                else:
+                    cur_str = str(cur)
+                    bound_str = str(bound)
                 self.__logger.info(
                     f"[{time:.4f}s]: Found {self.__solution_count} solutions so far... " +
-                    f"objective {cur}, bound {bound} ({self.__objective_desc})")
+                    f"objective ({self.__objective_desc}): currently {cur_str}, bound {bound_str}")
                 if self.__is_good_enough and self.__is_good_enough(cur, bound):
                     self.StopSearch()
             if self.__solution_count >= self.__max_solutions:
@@ -1502,6 +1793,14 @@ class SlothyBase(LockAttributes):
 
         if self.config.variable_size:
             self._result.stalls = get_value(self._model.stalls)
+            stalls_bound = self._model.cp_solver.BestObjectiveBound()
+            stats = self._stalls_to_stats(stalls_bound)
+            if stats is not None:
+                cycles_bound, _ = stats
+                self._result.cycles_bound = cycles_bound
+
+        self._result.optimization_wall_time = self._model.cp_solver.WallTime()
+        self._result.optimization_user_time = self._model.cp_solver.UserTime()
 
         nodes = self._model.tree.nodes
         if self.config.sw_pipelining.enabled:
@@ -1585,9 +1884,14 @@ class SlothyBase(LockAttributes):
 
     def _extract_kernel_input_output(self):
         dfg_log = self.logger.getChild("kernel_input_output")
+
+        conf = self.config.copy()
+        conf.outputs = list(map(lambda o: self._result.output_renamings.get(o, o),
+                                       conf.outputs))
+
         self._result.kernel_input_output = list(\
             DFG(self._result.code_raw, dfg_log,
-                DFGConfig(self.config,inputs_are_outputs=True)).inputs)
+                DFGConfig(conf,inputs_are_outputs=True)).inputs)
 
     def _extract_code(self):
 
@@ -1682,6 +1986,13 @@ class SlothyBase(LockAttributes):
             cb()
             return
 
+        if self._is_low(consumer) and self._is_high(producer):
+            ct = cb()
+            ct.OnlyEnforceIf([consumer.pre_var, producer.pre_var])
+            ct = cb()
+            ct.OnlyEnforceIf([consumer.post_var, producer.post_var])
+            return
+
         if self._is_input(producer) and self._is_low(consumer):
             return
         if self._is_output(consumer) and self._is_high(producer):
@@ -1708,6 +2019,9 @@ class SlothyBase(LockAttributes):
         # _may_ hold as well, but we don't care).
         bvars = [ self._NewBoolVar("") for _ in cb_lst ]
         self._AddExactlyOne(bvars)
+
+        if self._is_low(consumer) and self._is_high(producer):
+            raise Exception("Not yet implemented")
 
         if not self.config.sw_pipelining.enabled or producer.is_virtual or consumer.is_virtual:
             for (cb, bvar) in zip(cb_lst, bvars, strict=True):
@@ -2048,15 +2362,29 @@ class SlothyBase(LockAttributes):
         assert isinstance(t, ComputationNode)
         return t.is_virtual_output
 
-    def _iter_dependencies(self, with_virt=True):
-        def f(t):
-            if with_virt:
-                return True
+    def _iter_dependencies(self, with_virt=True, with_duals=True):
+        def check_dep(t):
             (consumer, producer, _, _) = t
-            return consumer in self._get_nodes() and \
-                   producer.src in self._get_nodes()
+            if with_virt:
+                yield t
+            elif consumer in self._get_nodes() and \
+                 producer.src in self._get_nodes():
+                yield t
 
-        yield from filter(f, self._model.tree.iter_dependencies())
+        def is_cross_iteration_dependency(producer, consumer):
+            if not self.config.sw_pipelining.enabled is True:
+                return False
+            return self._is_low(producer.src) and self._is_high(consumer)
+
+        for t in self._model.tree.iter_dependencies():
+            yield from check_dep(t)
+
+            if with_duals is False:
+                continue
+
+            (consumer, producer, a, b) = t
+            if is_cross_iteration_dependency(producer, consumer):
+                yield from check_dep((consumer.sibling, producer.sibling(), a, b))
 
     def _iter_dependencies_with_lifetime(self):
 
@@ -2065,7 +2393,7 @@ class SlothyBase(LockAttributes):
                 return src.src.out_lifetime_start[src.idx]
             if isinstance(src, InstructionInOut):
                 return src.src.inout_lifetime_start[src.idx]
-            raise SlothyException("Unknown register source")
+            raise SlothyException(f"Unknown register source {src}")
 
         def _get_lifetime_end(src):
             if isinstance(src, InstructionOutput):
@@ -2075,9 +2403,9 @@ class SlothyBase(LockAttributes):
             raise SlothyException("Unknown register source")
 
         for (consumer, producer, ty, idx) in self._iter_dependencies():
-            start_var = _get_lifetime_start(producer)
-            end_var = _get_lifetime_end(producer)
-            yield (consumer, producer, ty, idx, start_var, end_var, producer.alloc())
+            producer_start_var = _get_lifetime_start(producer)
+            producer_end_var = _get_lifetime_end(producer)
+            yield (consumer, producer, ty, idx, producer_start_var, producer_end_var, producer.alloc())
 
     def _iter_cross_iteration_dependencies(self):
         def is_cross_iteration_dependency(dep):
@@ -2294,15 +2622,20 @@ class SlothyBase(LockAttributes):
                 self._AddImplication( producer.src.post_var, consumer.post_var )
                 self._AddImplication( consumer.pre_var, producer.src.pre_var )
                 self._AddImplication( producer.src.pre_var, consumer.post_var.Not() )
-            elif self._is_low(producer.src):
+            elif self._is_low(producer.src) and self._is_high(consumer):
+                self._AddImplication( producer.src.pre_var, consumer.pre_var )
+                self._AddImplication( consumer.post_var, producer.src.post_var )
+            #     self._AddImplication(producer.src.pre_var
+            #     pass
+
                 # An instruction with forward dependency to the next iteration
                 # cannot be an early instruction, and an instruction depending
                 # on an instruction from a previous iteration cannot be late.
 
                 # pylint:disable=singleton-comparison
-                self._Add(producer.src.pre_var == False)
+               #  self._Add(producer.src.pre_var == False)
                 # pylint:disable=singleton-comparison
-                self._Add(consumer.post_var == False)
+               # self._Add(consumer.post_var == False)
 
     # ================================================================
     #                  CONSTRAINTS (Single issuing)                  #
@@ -2326,7 +2659,7 @@ class SlothyBase(LockAttributes):
         def inst_changes_addr(inst):
             return inst.increment is not None
 
-        def _forbid_reordering(t0,t1):
+        def should_forbid_reordering(t0,t1):
             if not t0.inst.is_load_store_instruction():
                 return False
             if not t1.inst.is_load_store_instruction():
@@ -2341,27 +2674,36 @@ class SlothyBase(LockAttributes):
                 return True
             return False
 
-        for t0, t1 in self.get_inst_pairs():
-            if not t0.orig_pos < t1.orig_pos:
-                continue
-            if not self.config.constraints.allow_reordering or \
-               t0.is_locked                                 or \
-               t1.is_locked                                 or \
-               _forbid_reordering(t0,t1):
+        def force_stays_before(t0, t1):
+            if self.config.sw_pipelining.enabled:
+                self._AddImplication( t0.post_var, t1.post_var )
+                self._AddImplication( t1.pre_var,  t0.pre_var )
+                self._AddImplication( t0.pre_var,  t1.post_var.Not() )
+            if should_forbid_reordering(t0,t1):
+                self.logger.debug("Forbid reordering of (%s,%s) to avoid address fixup issues",
+                                  t0, t1)
+            self._add_path_constraint( t1, t0,
+               lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var) )
 
-                if self.config.sw_pipelining.enabled:
-                    self._AddImplication( t0.post_var, t1.post_var )
-                    self._AddImplication( t1.pre_var,  t0.pre_var )
-                    self._AddImplication( t0.pre_var,  t1.post_var.Not() )
+        def comes_before(t0, t1):
+            return (t0.orig_pos < t1.orig_pos)
 
-                if _forbid_reordering(t0,t1):
-                    self.logger.debug("Forbid reordering of (%s,%s) to avoid address fixup issues",
-                                      t0, t1)
+        if self.config.constraints.allow_reordering is False:
+            for t0, t1 in self.get_inst_pairs(cond=comes_before):
+                force_stays_before(t0, t1)
+        else:
+            for t0, t1 in self.get_inst_pairs(
+                    cond_fst=lambda t: t.is_locked,
+                    cond_snd=lambda t: t.is_locked,
+                    cond = comes_before):
+                force_stays_before(t0, t1)
 
-                self._add_path_constraint( t1, t0,
-                   lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var) )
-
-        # Look for source annotations forcing orderings
+            for t0, t1 in self.get_inst_pairs(
+                    cond_fst = lambda t: t.inst.is_load_store_instruction(),
+                    cond_snd = lambda t: t.inst.is_load_store_instruction(),
+                    cond = comes_before):
+                if should_forbid_reordering(t0, t1):
+                    force_stays_before(t0, t1)
 
         if self.config.sw_pipelining.enabled is True:
             nodes = self._get_nodes(low=True)
@@ -2502,7 +2844,7 @@ class SlothyBase(LockAttributes):
     def _add_constraints_misc(self):
         self.target.add_further_constraints(self)
 
-    def get_inst_pairs(self, cond=None):
+    def get_inst_pairs(self, cond_fst=None, cond_snd=None, cond=None):
         """Yields all instruction pairs satisfying the provided predicate.
 
         This can be useful for the specification of additional
@@ -2513,9 +2855,18 @@ class SlothyBase(LockAttributes):
 
         Returns:
             Generator of all instruction pairs satisfying the predicate."""
-        for t0 in self._model.tree.nodes:
-            for t1 in self._model.tree.nodes:
-                if cond is None or cond(t0,t1):
+        if cond_fst is None:
+            cond_fst = lambda x: True
+        if cond_snd is None:
+            cond_snd = lambda x: True
+        if cond is None:
+            cond = lambda x, y: True
+
+        fst = list(filter(cond_fst, self._model.tree.nodes))
+        snd = list(filter(cond_snd, self._model.tree.nodes))
+        for t0 in fst:
+            for t1 in snd:
+                if cond(t0,t1):
                     yield (t0,t1)
 
     # ================================================================#
@@ -2688,16 +3039,37 @@ class SlothyBase(LockAttributes):
     #                         OBJECTIVES                            #
     # ==============================================================#
 
+    def _stalls_to_stats(self, stalls):
+        psize = self._model.min_slots + \
+            self._model.pfactor * stalls
+        cc = psize // self.config.target.issue_rate
+        cs = self._model.tree.num_nodes
+        if cc == 0:
+            return None
+        cycles = psize // self._model.pfactor
+        ipc = cs / cc
+        return (cycles, ipc)
+
+    def _print_stalls(self, stalls):
+        r = self._stalls_to_stats(stalls)
+        if r is None:
+            return " (?)"
+        (cycles, ipc) = r
+        return f" (Cycles ~ {cycles}, IPC ~ {ipc:.2f})"
+
     def _add_objective(self, force_objective=False):
         minlist = []
         maxlist = []
         name = None
+        printer = None
 
         # We only support objectives of the form: Maximize/Minimize the sum of a set of variables.
 
         # If the number of stalls is variable, its minimization is our objective
         if force_objective is False and self.config.variable_size:
-            name = "minimize number of stalls"
+            name = "minimize cycles"
+            if self.config.constraints.functional_only is False:
+                printer = self._print_stalls
             minlist = [self._model.stalls]
         elif self.config.has_objective and not self.config.ignore_objective:
             if self.config.sw_pipelining.enabled is True and \
@@ -2732,6 +3104,8 @@ class SlothyBase(LockAttributes):
                 else:
                     maxlist = lst
 
+        self._model.objective_printer = printer
+
         if name is not None:
             assert not (len(minlist) > 0 and len(maxlist) > 0)
             if len(minlist) > 0:
@@ -2760,13 +3134,6 @@ class SlothyBase(LockAttributes):
         self._model.cp_model  = cp_model.CpModel()
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
-
-        # There is a bug in OR-Tools, https://github.com/google/or-tools/issues/3483,
-        # that causes models to be incorrectly classes as INFEASIBLE at times.
-        # The following turns of the buggy parts of the code:
-        if ortools.__version__ < "9.5.2040":
-            self.logger.warning("Please consider upgrading OR-Tools to version >= 9.5.2040")
-            self._model.cp_solver.parameters.symmetry_level = 1
 
     def _NewIntVar(self, minval, maxval, name=""): # pylint:disable=invalid-name
         r = self._model.cp_model.NewIntVar(minval,maxval, name)
@@ -2802,18 +3169,41 @@ class SlothyBase(LockAttributes):
     def _AddNoOverlap(self,interval_list): # pylint:disable=invalid-name
         return self._model.cp_model.AddNoOverlap(interval_list)
 
-    def _export_model(self, log_model):
-        if log_model is None:
+    def _export_model(self):
+        if self.config.log_model is None:
             return
-        self.logger.info("Writing model to %s...", log_model)
-        assert self._model.cp_model.ExportToFile(self.config.log_dir + "/" + log_model)
+
+        if self.config.log_model is True:
+            model_file = f"slothy_model"
+        else:
+            model_file = self.config.log_model
+            assert(isinstance(model_file, str))
+
+        # Always append a timestamp
+        model_file += f"_{int(time.time()*1000)}.txt"
+
+        log_file = self.config.log_model_dir + "/" + model_file
+        self.logger.info("Writing model to %s ...", log_file)
+        assert self._model.cp_model.ExportToFile(log_file)
+
+        if self.config.log_model_log_results is True:
+            results_file = self.config.log_model_dir + "/" + self.config.log_model_results_file
+            result = []
+            result.append(f"Model: \"{model_file}\"")
+            result.append(f"Version: \"{ortools.__version__}\"")
+            result.append(f"Time (seconds): {self._model.cp_solver.WallTime():.4f}")
+            result.append(f"Status: \"{self._model.cp_solver.StatusName(self._model.cp_model.status)}\"")
+            result.append("")
+            result.append("")
+            with open(results_file, "a") as f:
+                f.write('\n'.join(result))
 
     def _solve(self):
 
         # Determines whether the best solution found so far is close enough to the optimum
         # that we should stop.
         def is_good_enough( cur, bound ):
-            if self._model.objective_name == "minimize number of stalls":
+            if self._model.objective_name == "minimize cycles":
                 prec = self.config.constraints.stalls_precision
                 if cur - bound <= self.config.constraints.stalls_precision:
                     self.logger.info("Closer than %d stalls to theoretical optimum... stop", prec)
@@ -2827,8 +3217,9 @@ class SlothyBase(LockAttributes):
             return False
 
         solution_cb = SlothyBase.CpSatSolutionCb(self.logger,self._model.objective_name,
-                                                self.config.max_solutions,
-                                                is_good_enough)
+                                                 self.config.max_solutions,
+                                                 is_good_enough=is_good_enough,
+                                                 printer=self._model.objective_printer)
         self._model.cp_model.status = self._model.cp_solver.Solve(self._model.cp_model, solution_cb)
 
         status_str = self._model.cp_solver.StatusName(self._model.cp_model.status)

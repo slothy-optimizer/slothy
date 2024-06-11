@@ -29,27 +29,21 @@ xtmp1 .req x11
 .endm
 
 .macro mulmodq dst, src, const, idx0, idx1
+        vqrdmulhq   t2,  \src, \const, \idx1
         vmulq       \dst,  \src, \const, \idx0
-        vqrdmulhq   \src,  \src, \const, \idx1
-        vmlsq        \dst,  \src, consts, 0
+        vmlsq       \dst,  t2, consts, 0
 .endm
 
 .macro mulmod dst, src, const, const_twisted
+        vqrdmulh   t2,  \src, \const_twisted
         mul        \dst\().4s,  \src\().4s, \const\().4s
-        vqrdmulh   \src,  \src, \const_twisted
-        vmlsq       \dst,  \src, consts, 0
+        vmlsq      \dst,  t2, consts, 0
 .endm
 
 .macro ct_butterfly a, b, root, idx0, idx1
         mulmodq  tmp, \b, \root, \idx0, \idx1
         sub     \b\().4s,    \a\().4s, tmp.4s
         add     \a\().4s,    \a\().4s, tmp.4s
-.endm
-
-.macro mulmod_v dst, src, const, const_twisted
-        mul        \dst\().4s,  \src\().4s, \const\().4s
-        vqrdmulh    \src,  \src, \const_twisted
-        vmlsq        \dst,  \src, consts, 0
 .endm
 
 .macro ct_butterfly_v a, b, root, root_twisted
@@ -168,7 +162,7 @@ xtmp1 .req x11
         trn2 \data_out3\().4s, \data_in2\().4s, \data_in3\().4s
 .endm
 
-.macro save_gprs // slothy:no-unfold
+.macro save_gprs // @slothy:no-unfold
         sub sp, sp, #(16*6)
         stp x19, x20, [sp, #16*0]
         stp x19, x20, [sp, #16*0]
@@ -179,7 +173,7 @@ xtmp1 .req x11
         stp x29, x30, [sp, #16*5]
 .endm
 
-.macro restore_gprs // slothy:no-unfold
+.macro restore_gprs // @slothy:no-unfold
         ldp x19, x20, [sp, #16*0]
         ldp x21, x22, [sp, #16*1]
         ldp x23, x24, [sp, #16*2]
@@ -189,7 +183,7 @@ xtmp1 .req x11
         add sp, sp, #(16*6)
 .endm
 
-.macro save_vregs // slothy:no-unfold
+.macro save_vregs // @slothy:no-unfold
         sub sp, sp, #(16*4)
         stp  d8,  d9, [sp, #16*0]
         stp d10, d11, [sp, #16*1]
@@ -197,7 +191,7 @@ xtmp1 .req x11
         stp d14, d15, [sp, #16*3]
 .endm
 
-.macro restore_vregs // slothy:no-unfold
+.macro restore_vregs // @slothy:no-unfold
         ldp  d8,  d9, [sp, #16*0]
         ldp d10, d11, [sp, #16*1]
         ldp d12, d13, [sp, #16*2]
@@ -208,19 +202,19 @@ xtmp1 .req x11
 #define STACK_SIZE 16
 #define STACK0 0
 
-.macro restore a, loc     // slothy:no-unfold
+.macro restore a, loc     // @slothy:no-unfold
         ldr \a, [sp, #\loc\()]
 .endm
-.macro save loc, a        // slothy:no-unfold
+.macro save loc, a        // @slothy:no-unfold
         str \a, [sp, #\loc\()]
 .endm
-.macro push_stack // slothy:no-unfold
+.macro push_stack // @slothy:no-unfold
         save_gprs
         save_vregs
         sub sp, sp, #STACK_SIZE
 .endm
 
-.macro pop_stack // slothy:no-unfold
+.macro pop_stack // @slothy:no-unfold
         add sp, sp, #STACK_SIZE
         restore_vregs
         restore_gprs

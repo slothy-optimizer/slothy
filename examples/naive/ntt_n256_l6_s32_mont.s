@@ -212,7 +212,7 @@ ntt_n256_u32_33556993_28678040_incomplete_manual:
 
         tmp .req q4
 
-        /* Layers 1-2 */
+        // Layers 1-2
 
         ldrd root0, root0_twisted, [root_ptr], #+8
         ldrd root1, root1_twisted, [root_ptr], #+8
@@ -242,7 +242,7 @@ layer12_loop:
         in .req r0
         sub in, in, #(64*4)
 
-        /* Layers 3,4 */
+        // Layers 3,4
 
         // 4 butterfly blocks per root config, 4 root configs
         // loop over root configs
@@ -280,7 +280,7 @@ layer34_loop:
 
         sub in, in, #(4*256)
 
-        /* Layers 5,6 */
+        // Layers 5,6
 
         // 1 butterfly blocks per root config, 16 root configs
         // loop over root configs

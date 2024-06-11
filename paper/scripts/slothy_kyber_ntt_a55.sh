@@ -17,6 +17,10 @@ LOG_DIR=logs
 mkdir -p $LOG_DIR
 
 REDIRECT_OUTPUT="--log --logdir=${LOG_DIR}"
+if [ "$NO_LOG" = "Y" ]; then
+    REDIRECT_OUTPUT=""
+fi
+
 if [ "$SILENT" = "Y" ]; then
     REDIRECT_OUTPUT="${REDIRECT_OUTPUT} --silent"
 fi
@@ -29,7 +33,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55         \
          -c sw_pipelining.enabled=true                           \
          -o ${OPT_DIR}/neon/ntt_kyber_123_4567_opt_a55.s         \
          -r ntt_kyber_123_4567,ntt_kyber_123_4567_opt_a55        \
-         -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,x30,sp]"        \
+         -c reserved_regs="[x0--x30,sp]"                         \
          -c inputs_are_outputs                                   \
          -c sw_pipelining.minimize_overlapping=False             \
          -c constraints.stalls_first_attempt=64 -c variable_size \
@@ -44,7 +48,7 @@ time ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                        
          -c sw_pipelining.enabled=true                                                  \
          -o ${OPT_DIR}/neon/ntt_kyber_123_4567_scalar_load_opt_a55.s                    \
          -r ntt_kyber_123_4567_scalar_load,ntt_kyber_123_4567_scalar_load_opt_a55       \
-         -c reserved_regs="[x0,x1,x2,x3,x4,x5,x6,x30,sp]"                               \
+         -c reserved_regs="[x0--x5,x18--x30,sp]"                                        \
          -c inputs_are_outputs                                                          \
          -c sw_pipelining.minimize_overlapping=False                                    \
          -c constraints.stalls_first_attempt=64                                         \

@@ -172,6 +172,31 @@ def _main():
             check_ty(list)
             val = val[1:-1].split(',')
             val = list(map(str.strip, val))
+            # Find numeric suffix (e.g. x30 -> ('x', 30))
+            def split_numeric_suffix(v):
+                # Find first digit
+                i = next((i for (i,c) in enumerate(v) if c.isdigit()), len(v))
+                return v[:i], v[i:]
+            # Check for range entries (e.g. 'x10--x18')
+            def unfold_range(v):
+                if not "--" in v:
+                    return [v]
+                vs = v.split("--")
+                if not len(vs) == 2:
+                    logger.debug("Invalid range entry %s -- ignore", v)
+                    return [v]
+                # Find numeric suffix
+                v0, v1 = vs
+                v0, v0i = split_numeric_suffix(v0)
+                v1, v1i = split_numeric_suffix(v1)
+                if v0 != v1:
+                    logger.debug("Invalid range expression %s -- ignore", v)
+                    return [v]
+                # Ranges are inclusive
+                res = [f"{v0}{i}" for i in range(int(v0i), int(v1i)+1)]
+                logger.debug("Decoded range entry %s to %s", v, res)
+                return res
+            val = [ r for v in val for r in unfold_range(v) ]
             logger.debug("Parsing %s is a list -- parse recursively", val)
             return [ parse_config_value_as(v,None) for v in val ]
         if val[0] == '{' and val[-1] == '}':
@@ -184,10 +209,8 @@ def _main():
             logger.debug("Parsing %s is a dictionary -- parse recursively", val)
             return { parse_config_value_as(k, None) : parse_config_value_as(v, None)
                      for k,v in kvs }
-        if val.isidentifier():
-            logger.debug("Parsing %s as string", val)
-            return val
-        raise CmdLineException(f"Could not parse configuration value '{val}'")
+        logger.debug("Parsing %s as string", val)
+        return val
 
     # A plain '-c' without arguments should list all available configuration options
     if [] in args.config:

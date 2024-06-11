@@ -161,7 +161,8 @@ class Slothy:
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(pre, body, c.compiler_binary)
+            body = CPreprocessor.unfold(pre, body, post, c.compiler_binary,
+                                        include=c.compiler_include_paths)
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
@@ -183,12 +184,19 @@ class Slothy:
 
         self.source = pre + body + post
 
-    def _make_llvm_mca_stats(self, pre, code, txt, indentation):
+    def _make_llvm_mca_stats(self, pre, code, post, txt, indentation):
         try:
-            code = CPreprocessor.unfold(pre, code, self.config.compiler_binary)
+            code = CPreprocessor.unfold(pre, code, post, self.config.compiler_binary,
+                                        include=self.config.compiler_include_paths)
+            if self.config.llvm_mca_issue_width_overwrite is True:
+                issue_width = self.config.target.issue_rate
+            else:
+                issue_width = None
             stats = LLVM_Mca.run(pre, code, self.config.llvm_mca_binary,
-                             self.config.arch.llvm_mca_arch,
-                             self.config.target.llvm_mca_target, self.logger)
+                                 self.config.arch.llvm_mca_arch,
+                                 self.config.target.llvm_mca_target, self.logger,
+                                 full=self.config.llvm_mca_full,
+                                 issue_width=issue_width)
             stats = ["",f"LLVM MCA STATISTICS ({txt}) BEGIN",""] + stats + \
                 ["", f"ORIGINAL LLVM MCA STATISTICS ({txt}) END",""]
             stats = [SourceLine("").add_comment(r) for r in stats]
@@ -232,12 +240,10 @@ class Slothy:
         # Check if the body has a dominant indentation
         indentation = AsmHelper.find_indentation(body)
 
-        if self.config.with_llvm_mca_before is True:
-            orig_stats = self._make_llvm_mca_stats(pre, body, "ORIGINAL", indentation)
-
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(pre, body, c.compiler_binary)
+            body = CPreprocessor.unfold(pre, body, post, c.compiler_binary,
+                                        include=c.compiler_include_paths)
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
@@ -246,13 +252,17 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
+
+        if self.config.with_llvm_mca_before is True:
+            orig_stats = self._make_llvm_mca_stats(pre, body, post, "ORIGINAL", indentation)
+
         early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
 
         if self.config.with_llvm_mca_before is True:
             core = core + orig_stats
 
         if self.config.with_llvm_mca_after is True:
-            new_stats_kernel = self._make_llvm_mca_stats(pre, core, "OPTIMIZED",
+            new_stats_kernel = self._make_llvm_mca_stats(pre, core, post, "OPTIMIZED",
                                                          indentation)
 
             core = core + new_stats_kernel
@@ -265,6 +275,7 @@ class Slothy:
         if end is not None:
             core += [SourceLine(f"{end}:")]
 
+        core = SourceLine.apply_indentation(core, self.config.indentation)
         if not self.config.sw_pipelining.enabled:
             assert early == []
             assert late == []
@@ -312,12 +323,13 @@ class Slothy:
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
 
-    def _fusion_core(self, pre, body, logger):
+    def _fusion_core(self, pre, body, post, logger):
         c = self.config.copy()
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(pre, body, c.compiler_binary)
+            body = CPreprocessor.unfold(pre, body, post, c.compiler_binary,
+                                        include=c.compiler_include_paths)
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
         body = SourceLine.split_semicolons(body)
@@ -356,11 +368,11 @@ class Slothy:
 
         pre , body, post, _, other_data = \
             self.arch.Loop.extract(self.source, loop_lbl)
-
+        (loop_cnt, _, _) = other_data
         indentation = AsmHelper.find_indentation(body)
 
         loop = self.arch.Loop(lbl_start=loop_lbl)
-        body_ssa = SourceLine.read_multiline(loop.start()) + \
+        body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
             SourceLine.apply_indentation(self._fusion_core(pre, body, logger), indentation) + \
             SourceLine.read_multiline(loop.end(other_data))
 
@@ -387,6 +399,7 @@ class Slothy:
 
         early, body, late, _, other_data = \
             self.arch.Loop.extract(self.source, loop_lbl)
+        (loop_cnt, _, _) = other_data
 
         # Check if the body has a dominant indentation
         indentation = AsmHelper.find_indentation(body)
@@ -395,12 +408,10 @@ class Slothy:
         c = self.config.copy()
         c.add_aliases(aliases)
 
-        if self.config.with_llvm_mca_before is True:
-            orig_stats = self._make_llvm_mca_stats(early, body, "ORIGINAL", indentation)
-
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(early, body, c.compiler_binary)
+            body = CPreprocessor.unfold(early, body, late, c.compiler_binary,
+                                        include=c.compiler_include_paths)
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
@@ -408,9 +419,11 @@ class Slothy:
         body = AsmMacro.unfold_all_macros(early, body, inherit_comments=c.inherit_macro_comments)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
-
         self.logger.info("Optimizing loop %s (%d instructions) ...",
             loop_lbl, len(body))
+
+        if self.config.with_llvm_mca_before is True:
+            orig_stats = self._make_llvm_mca_stats(early, body, late, "ORIGINAL", indentation)
 
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
@@ -419,17 +432,19 @@ class Slothy:
             kernel_code = kernel_code + orig_stats
 
         if self.config.with_llvm_mca_after is True:
-            new_stats_kernel = self._make_llvm_mca_stats(early, kernel_code, "OPTIMIZED",
+            new_stats_kernel = self._make_llvm_mca_stats(early, kernel_code, late, "OPTIMIZED",
                                                          indentation)
             kernel_code = kernel_code + new_stats_kernel
 
-            if len(preamble_code) > 0:
-                new_stats_preamble = self._make_llvm_mca_stats(early, preamble_code, "PREAMBLE",
+            if self.config.sw_pipelining.optimize_preamble is True \
+               and len(preamble_code) > 0:
+                new_stats_preamble = self._make_llvm_mca_stats(early, preamble_code, late, "PREAMBLE",
                                                                indentation)
                 preamble_code = preamble_code + new_stats_preamble
 
-            if len(postamble_code) > 0:
-                new_stats_postamble = self._make_llvm_mca_stats(early, postamble_code, "POSTAMBLE",
+            if self.config.sw_pipelining.optimize_postamble is True \
+               and len(postamble_code) > 0:
+                new_stats_postamble = self._make_llvm_mca_stats(early, postamble_code, late, "POSTAMBLE",
                                                                 indentation)
                 postamble_code = postamble_code + new_stats_postamble
 
@@ -440,13 +455,13 @@ class Slothy:
 
         loop_lbl_end = f"{loop_lbl}_end"
         def loop_lbl_iter(i):
-            return SourceLine(f"{loop_lbl}_iter_{i}")
+            return f"{loop_lbl}_iter_{i}"
 
         optimized_code = []
 
         if self.config.sw_pipelining.unknown_iteration_count:
             for i in range(1, num_exceptional):
-                optimized_code += indented(self.arch.Branch.if_equal(i, loop_lbl_iter(i)))
+                optimized_code += indented(self.arch.Branch.if_equal(loop_cnt, i, loop_lbl_iter(i)))
 
         loop = self.arch.Loop(lbl_start=loop_lbl)
         optimized_code += indented(preamble_code)
@@ -459,6 +474,7 @@ class Slothy:
             jump_if_empty = None
 
         optimized_code += SourceLine.read_multiline(loop.start(
+            loop_cnt,
             indentation=self.config.indentation,
             fixup=num_exceptional,
             unroll=self.config.sw_pipelining.unroll,

@@ -88,26 +88,61 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False):
+    def run(self, debug=False, log_model=False, log_model_dir="models", dry_run=False, silent=False, timeout=0):
+
+        if dry_run is True:
+            annotation = " (dry run only)"
+        else:
+            annotation = ""
+
+        print(f"* Example: {self.name}{annotation}...")
+
+        handlers = []
 
         h_err = logging.StreamHandler(sys.stderr)
         h_err.setLevel(logging.WARNING)
+        handlers.append(h_err)
 
-        h_info = logging.StreamHandler(sys.stdout)
-        h_info.setLevel(logging.DEBUG)
-        h_info.addFilter(lambda r: r.levelno <= logging.INFO)
+        if silent is False:
+            h_info = logging.StreamHandler(sys.stdout)
+            h_info.setLevel(logging.DEBUG)
+            h_info.addFilter(lambda r: r.levelno == logging.INFO)
+            handlers.append(h_info)
+
+        if debug is True:
+            h_verbose = logging.StreamHandler(sys.stdout)
+            h_verbose.setLevel(logging.DEBUG)
+            h_verbose.addFilter(lambda r: r.levelno < logging.INFO)
+            handlers.append(h_verbose)
+
+        if debug is True:
+            base_level = logging.DEBUG
+        else:
+            base_level = logging.INFO
 
         logging.basicConfig(
-            level=logging.DEBUG if debug else logging.INFO,
-            handlers=[h_err, h_info]
+            level = base_level,
+            handlers = handlers,
         )
-
         logger = logging.getLogger(self.name)
 
         slothy = Slothy(self.arch, self.target, logger=logger)
         slothy.load_source_from_file(self.infile_full)
-        if self.timeout is not None:
+
+        if timeout != 0:
+            slothy.config.timeout = timeout
+        elif self.timeout is not None:
             slothy.config.timeout = self.timeout
+
+        if dry_run is True:
+            slothy.config.constraints.functional_only = True
+            slothy.config.constraints.allow_reordering = False
+            slothy.config.constraints.allow_renaming = False
+            slothy.config.variable_size = True
+
+        if log_model is True:
+            slothy.config.log_model_dir = log_model_dir
+            slothy.config.log_model = self.name
 
         # On Apple M1, we must not use x18
         if "m1" in target_label_dict[self.target]:
@@ -118,8 +153,9 @@ class Example():
         if self.rename:
             slothy.rename_function(
                 self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
-        slothy.write_source_to_file(self.outfile_full)
 
+        if dry_run is False:
+            slothy.write_source_to_file(self.outfile_full)
 
 class Example0(Example):
     def __init__(self):
@@ -137,6 +173,7 @@ class Example2(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints["const"] = Arch_Armv81M.RegisterType.GPR
         slothy.optimize_loop("start")
 
@@ -147,6 +184,7 @@ class Example3(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("start")
 
 
@@ -156,6 +194,7 @@ class CRT(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.selfcheck = True
         # Double the loop body to create more interleaving opportunities
         # Basically a tradeoff of code-size vs performance
@@ -177,6 +216,7 @@ class ntt_n256_l6_s32(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {r: Arch_Armv81M.RegisterType.GPR for r in
                                       ["root0",         "root1",         "root2",
                                        "root0_twisted", "root1_twisted", "root2_twisted"]}
@@ -191,6 +231,7 @@ class ntt_n256_l8_s32(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root0": Arch_Armv81M.RegisterType.GPR,
             "root1": Arch_Armv81M.RegisterType.GPR,
@@ -212,6 +253,7 @@ class intt_n256_l6_s32(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root0": Arch_Armv81M.RegisterType.GPR,
             "root1": Arch_Armv81M.RegisterType.GPR,
@@ -231,6 +273,7 @@ class intt_n256_l8_s32(Example):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root0": Arch_Armv81M.RegisterType.GPR,
             "root1": Arch_Armv81M.RegisterType.GPR,
@@ -247,7 +290,7 @@ class intt_n256_l8_s32(Example):
 
 
 class ntt_kyber_1_23_45_67(Example):
-    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
+    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1, timeout=None):
         name = "ntt_kyber_1_23_45_67"
         infile = name
         if var != "":
@@ -256,9 +299,10 @@ class ntt_kyber_1_23_45_67(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
-
+        self.timeout = timeout
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root0": Arch_Armv81M.RegisterType.GPR,
             "root1": Arch_Armv81M.RegisterType.GPR,
@@ -272,6 +316,8 @@ class ntt_kyber_1_23_45_67(Example):
         slothy.optimize_loop("layer23_loop")
         slothy.optimize_loop("layer45_loop")
         slothy.config.constraints.st_ld_hazard = False
+        if self.timeout is not None:
+            slothy.config.timeout = self.timeout
         if "no_trans" in self.var:
             slothy.config.constraints.st_ld_hazard = True
         slothy.config.typing_hints = {}
@@ -475,6 +521,62 @@ class ntt_kyber_l345_symbolic(Example):
         slothy.config.sw_pipelining.halving_heuristic_periodic = True
         slothy.optimize_loop("layer345_loop")
 
+class AArch64Example0(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_simple0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.optimize()
+
+class AArch64Example1(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_simple0_macros"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.optimize(start="start", end="end")
+
+
+class AArch64Example2(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_simple0_loop"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.optimize_preamble = False
+        slothy.config.sw_pipelining.optimize_postamble = False
+        slothy.optimize_loop("start")
+
+
 
 class ntt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
@@ -499,6 +601,28 @@ class ntt_kyber_123_4567(Example):
         slothy.config.constraints.stalls_first_attempt = 64
         slothy.optimize_loop("layer123_start")
         slothy.optimize_loop("layer4567_start")
+
+class intt_kyber_123_4567(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
+        name = "intt_kyber_123_4567"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.variable_size = True
+        slothy.config.reserved_regs = [f"x{i}" for i in range(0, 7)] + ["x30", "sp"]
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.optimize_loop("layer4567_start")
+        slothy.optimize_loop("layer123_start")
 
 
 class ntt_kyber_123(Example):
@@ -562,6 +686,8 @@ class ntt_kyber_1234_567(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
     def core(self, slothy):
+        conf = slothy.config.copy()
+
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
@@ -580,7 +706,7 @@ class ntt_kyber_1234_567(Example):
         slothy.optimize_loop("layer1234_start")
 
         # layer567 is small enough for SW pipelining without heuristics
-        slothy.config = Config(self.arch, self.target)
+        slothy.config = conf.copy()
         slothy.config.timeout = self.timeout
         # Increase the timeout when not using heuristics
         if self.timeout is not None:
@@ -636,7 +762,6 @@ class ntt_kyber_567(Example):
 
     def core(self, slothy):
         # layer567 is small enough for SW pipelining without heuristics
-        slothy.config = Config(self.arch, self.target)
         slothy.config.timeout = self.timeout
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
@@ -829,6 +954,8 @@ class ntt_dilithium_123_456_78(Example):
         self.var = var
 
     def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
             "root2": Arch_Armv81M.RegisterType.GPR,
@@ -842,8 +969,6 @@ class ntt_dilithium_123_456_78(Example):
             "root5_tw": Arch_Armv81M.RegisterType.GPR,
             "root6_tw": Arch_Armv81M.RegisterType.GPR,
         }
-        slothy.config.constraints.stalls_minimum_attempt = 0
-        slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
                                              [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
         if self.var != "" or ("speed" in self.name and self.target == Target_CortexM85r1):
@@ -928,6 +1053,39 @@ class ntt_dilithium_123_45678(Example):
         slothy.optimize_loop("layer45678_start")
 
 
+class intt_dilithium_123_45678(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
+        name = f"intt_dilithium_123_45678"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
+        slothy.config.constraints.stalls_first_attempt = 40
+        slothy.optimize_loop("layer45678_start")
+
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 7)] + ["v8", "x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.stalls_first_attempt = 110
+        slothy.optimize_loop("layer123_start")
+
+        
+
+
 class ntt_dilithium_123(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "ntt_dilithium_123"
@@ -967,6 +1125,8 @@ class ntt_dilithium_45678(Example):
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.stalls_first_attempt = 160
+        slothy.config.constraints.stalls_minimum_attempt = 160
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
@@ -987,36 +1147,83 @@ class ntt_dilithium_1234_5678(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
 
-        def core(self, slothy):
-            slothy.config.sw_pipelining.enabled = True
-            slothy.config.sw_pipelining.minimize_overlapping = False
-            slothy.config.reserved_regs = [
-                f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
-            slothy.config.reserved_regs += self.target_reserved
-            slothy.config.inputs_are_outputs = True
-            slothy.config.sw_pipelining.halving_heuristic = True
-            slothy.config.split_heuristic = True
-            slothy.config.split_heuristic_factor = 2
-            slothy.config.split_heuristic_repeat = 4
-            slothy.config.split_heuristic_stepsize = 0.1
-            slothy.config.constraints.stalls_first_attempt = 14
-            slothy.optimize_loop("layer1234_start")
+    def core(self, slothy):
+        conf = slothy.config.copy()
 
-            slothy.config = Config(self.arch, self.target)
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 2
+        slothy.config.split_heuristic_repeat = 4
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.constraints.stalls_first_attempt = 14
+        slothy.optimize_loop("layer1234_start")
 
-            if self.timeout is not None:
-                slothy.config.timeout = self.timeout * 12
+        slothy.config = conf.copy()
 
-            slothy.config.reserved_regs = [
-                f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
-            slothy.config.inputs_are_outputs = True
-            slothy.config.reserved_regs += self.target_reserved
-            slothy.config.sw_pipelining.enabled = True
-            slothy.config.sw_pipelining.minimize_overlapping = False
-            slothy.config.sw_pipelining.halving_heuristic = False
-            slothy.config.split_heuristic = False
-            slothy.optimize_loop("layer5678_start")
+        if self.timeout is not None:
+            slothy.config.timeout = self.timeout * 12
 
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.reserved_regs += self.target_reserved
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.halving_heuristic = False
+        slothy.config.split_heuristic = False
+        slothy.optimize_loop("layer5678_start")
+
+
+class intt_dilithium_1234_5678(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None):
+        name = f"intt_dilithium_1234_5678"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        conf = slothy.config.copy()
+
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.reserved_regs += self.target_reserved
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.halving_heuristic = False
+        slothy.config.split_heuristic = False
+        slothy.optimize_loop("layer5678_start")
+
+        slothy.config = conf.copy()
+        
+        if self.timeout is not None:
+            slothy.config.timeout = self.timeout // 12
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.reserved_regs = [
+            f"x{i}" for i in range(0, 6)] + ["x30", "sp"]
+        slothy.config.reserved_regs += self.target_reserved
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 2
+        slothy.config.split_heuristic_repeat = 4
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.constraints.stalls_first_attempt = 14
+        slothy.optimize_loop("layer1234_start")
+            
 
 class ntt_dilithium_1234(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
@@ -1102,6 +1309,11 @@ class fft_fixedpoint_radix4(Example):
                          rename=True, arch=arch, target=target)
 
     def core(self, slothy):
+        # This is default value, but it's overwritten in case of a dry-run.
+        # However, the symbolic registers in the FLT FFT cannot be resolved
+        # without reordering, so let's ignore the dry-run parameter here.
+        slothy.config.constraints.allow_reordering = True
+
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
@@ -1126,8 +1338,13 @@ class fft_floatingpoint_radix4(Example):
                          rename=True, arch=arch, target=target)
 
     def core(self, slothy):
+        # This is default value, but it's overwritten in case of a dry-run.
+        # However, the symbolic registers in the FLT FFT cannot be resolved
+        # without reordering, so let's ignore the dry-run parameter here.
+        slothy.config.constraints.allow_reordering = True
+
         slothy.config.sw_pipelining.enabled = True
-        # slothy.config.inputs_are_outputs = True
+        slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
@@ -1141,6 +1358,13 @@ def main():
                  Example1(),
                  Example2(),
                  Example3(),
+
+                 AArch64Example0(),
+                 AArch64Example0(target=Target_CortexA72),
+                 AArch64Example1(),
+                 AArch64Example1(target=Target_CortexA72),
+                 AArch64Example2(),
+                 AArch64Example2(target=Target_CortexA72),
 
                  CRT(),
 
@@ -1157,16 +1381,15 @@ def main():
                  # Cortex-M55
                  ntt_kyber_1_23_45_67(),
                  ntt_kyber_1_23_45_67(var="no_trans"),
-                 ntt_kyber_1_23_45_67(var="no_trans_vld4"),
+                 ntt_kyber_1_23_45_67(var="no_trans_vld4", timeout=600),
                  ntt_kyber_12_345_67(False),
                  ntt_kyber_12_345_67(True),
                  # Cortex-M85
                  ntt_kyber_1_23_45_67(target=Target_CortexM85r1),
                  ntt_kyber_1_23_45_67(var="no_trans", target=Target_CortexM85r1),
-                 ntt_kyber_1_23_45_67(var="no_trans_vld4", target=Target_CortexM85r1),
+                 ntt_kyber_1_23_45_67(var="no_trans_vld4", target=Target_CortexM85r1, timeout=600),
                  ntt_kyber_12_345_67(False, target=Target_CortexM85r1),
                  ntt_kyber_12_345_67(True, target=Target_CortexM85r1),
-                 ntt_kyber_l345_symbolic(),
                  # Cortex-A55
                  ntt_kyber_123_4567(),
                  ntt_kyber_123_4567(var="scalar_load"),
@@ -1174,8 +1397,9 @@ def main():
                  ntt_kyber_123_4567(var="scalar_load_store"),
                  ntt_kyber_123_4567(var="manual_st4"),
                  ntt_kyber_1234_567(),
-                 ntt_kyber_1234(),
-                 ntt_kyber_567(),
+                 intt_kyber_123_4567(),
+                 intt_kyber_123_4567(var="manual_ld4"),
+
                  # Cortex-A72
                  ntt_kyber_123_4567(target=Target_CortexA72),
                  ntt_kyber_123_4567(var="scalar_load", target=Target_CortexA72),
@@ -1183,8 +1407,9 @@ def main():
                  ntt_kyber_123_4567(var="scalar_load_store", target=Target_CortexA72),
                  ntt_kyber_123_4567(var="manual_st4", target=Target_CortexA72),
                  ntt_kyber_1234_567(target=Target_CortexA72),
-                 ntt_kyber_1234(target=Target_CortexA72),
-                 ntt_kyber_567(target=Target_CortexA72),
+                 intt_kyber_123_4567(target=Target_CortexA72),
+                 intt_kyber_123_4567(var="manual_ld4", target=Target_CortexA72),
+
                 #  # Apple M1 Firestorm
                  ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_firestorm, timeout=3600),
@@ -1193,6 +1418,8 @@ def main():
                  ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_kyber_1234_567(target=Target_AppleM1_firestorm, timeout=300),
                  ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
+                 intt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
+                 intt_kyber_123_4567(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
                  # Apple M1 Icestorm
                  ntt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=3600),
                  ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_icestorm, timeout=3600),
@@ -1201,6 +1428,8 @@ def main():
                  ntt_kyber_123_4567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
                  ntt_kyber_1234_567(target=Target_AppleM1_icestorm, timeout=300),
                  ntt_kyber_1234_567(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
+                 intt_kyber_123_4567(target=Target_AppleM1_icestorm, timeout=3600),
+                 intt_kyber_123_4567(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
                  # Kyber InvNTT
                  # Cortex-M55
                  intt_kyber_1_23_45_67(),
@@ -1215,35 +1444,49 @@ def main():
                  ntt_dilithium_12_34_56_78(var="no_trans_vld4", target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78(False, target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78(True, target=Target_CortexM85r1),
-                 ntt_dilithium_123_456_78_symbolic(),
                  # Cortex-A55
+                 ntt_dilithium_45678(),
                  ntt_dilithium_123_45678(),
                  ntt_dilithium_123_45678(var="w_scalar"),
                  ntt_dilithium_123_45678(var="manual_st4"),
                  ntt_dilithium_1234_5678(),
                  ntt_dilithium_1234_5678(var="manual_st4"),
-                 ntt_dilithium_1234(),
-                 ntt_dilithium_5678(),
+                 intt_dilithium_123_45678(),
+                 intt_dilithium_123_45678(var="manual_ld4"),
+                 intt_dilithium_1234_5678(),
+                 intt_dilithium_1234_5678(var="manual_ld4"),
+
                  # Cortex-A72
                  ntt_dilithium_123_45678(target=Target_CortexA72),
                  ntt_dilithium_123_45678(var="w_scalar", target=Target_CortexA72),
                  ntt_dilithium_123_45678(var="manual_st4", target=Target_CortexA72),
                  ntt_dilithium_1234_5678(target=Target_CortexA72),
                  ntt_dilithium_1234_5678(var="manual_st4", target=Target_CortexA72),
-                 ntt_dilithium_1234(target=Target_CortexA72),
-                 ntt_dilithium_5678(target=Target_CortexA72),
+                 intt_dilithium_123_45678(target=Target_CortexA72),
+                 intt_dilithium_123_45678(var="manual_ld4", target=Target_CortexA72),
+                 intt_dilithium_1234_5678(target=Target_CortexA72),
+                 intt_dilithium_1234_5678(var="manual_ld4", target=Target_CortexA72),
+
                  # Apple M1 Firestorm
-                 ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
+                ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=300),
                  ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=300),
+                 intt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
+                 intt_dilithium_123_45678(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
+                 intt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=3600),
+                 intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_firestorm, timeout=3600),
                  # Apple M1 Icestorm
                  ntt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=3600),
                  ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_icestorm, timeout=3600),
                  ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=3600),
                  ntt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=300),
                  ntt_dilithium_1234_5678(var="manual_st4", target=Target_AppleM1_icestorm, timeout=300),
+                 intt_dilithium_123_45678(target=Target_AppleM1_icestorm, timeout=3600),
+                 intt_dilithium_123_45678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
+                 intt_dilithium_1234_5678(target=Target_AppleM1_icestorm, timeout=3600),
+                 intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
                  # Dilithium invNTT
                  # Cortex-M55
                  intt_dilithium_12_34_56_78(),
@@ -1253,7 +1496,7 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
-                ]
+                 ]
 
     all_example_names = [e.name for e in examples]
 
@@ -1264,8 +1507,13 @@ def main():
         help=f"The list of examples to be run, comma-separated list from {all_example_names}. "
         f"Format: {{name}}_{{variant}}_{{target}}, e.g., ntt_kyber_123_4567_scalar_load_a55"
     )
+    parser.add_argument("--dry-run", default=False, action="store_true")
     parser.add_argument("--debug", default=False, action="store_true")
+    parser.add_argument("--silent", default=False, action="store_true")
     parser.add_argument("--iterations", type=int, default=1)
+    parser.add_argument("--timeout", type=int, default=0)
+    parser.add_argument("--log-model", default=False, action="store_true")
+    parser.add_argument("--log-model-dir", type=str, default="models")
 
     args = parser.parse_args()
     if args.examples != "all":
@@ -1274,7 +1522,7 @@ def main():
         todo = all_example_names
     iterations = args.iterations
 
-    def run_example(name, debug=False):
+    def run_example(name, **kwargs):
         ex = None
         for e in examples:
             if e.name == name:
@@ -1282,12 +1530,13 @@ def main():
                 break
         if ex is None:
             raise ExampleException(f"Could not find example {name}")
-        ex.run(debug=debug)
+        ex.run(**kwargs)
 
     for e in todo:
         for _ in range(iterations):
-            run_example(e, debug=args.debug)
-
+            run_example(e, debug=args.debug, dry_run=args.dry_run,
+                        silent=args.silent, log_model=args.log_model,
+                        log_model_dir=args.log_model_dir, timeout=args.timeout)
 
 if __name__ == "__main__":
     main()

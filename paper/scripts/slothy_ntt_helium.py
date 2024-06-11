@@ -65,7 +65,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, silent=False):
+    def run(self, silent=False, no_log=False, log_model=False):
         logdir = "logs"
 
         handlers = []
@@ -80,13 +80,14 @@ class Example():
             h_info.addFilter(lambda r: r.levelno == logging.INFO)
             handlers.append(h_info)
 
-        # By default, use time stamp and input file
-        file_base = os.path.basename(self.outfile_full).replace('.','_')
-        logfile = f"slothy_log_{int(time.time())}_{file_base}.log"
-        logfile = f"{logdir}/{logfile}"
-        h_log = logging.FileHandler(logfile)
-        h_log.setLevel(logging.DEBUG)
-        handlers.append(h_log)
+        if no_log is False:
+            # By default, use time stamp and input file
+            file_base = os.path.basename(self.outfile_full).replace('.','_')
+            logfile = f"slothy_log_{int(time.time())}_{file_base}.log"
+            logfile = f"{logdir}/{logfile}"
+            h_log = logging.FileHandler(logfile)
+            h_log.setLevel(logging.DEBUG)
+            handlers.append(h_log)
 
         logging.basicConfig(
             level = logging.INFO,
@@ -96,7 +97,10 @@ class Example():
         logger = logging.getLogger(self.name)
         slothy = Slothy(self.arch, self.target, logger=logger)
         slothy.load_source_from_file(self.infile_full)
-        slothy.config.with_llvm_mca = True
+
+        if log_model is True:
+            slothy.config.log_model = f"slothy_ci_ntt_helium_{self.name}"
+
         self.core(slothy, *self.extra_args)
 
         if self.rename:
@@ -282,8 +286,12 @@ def main():
         help=f"The list of examples to be run, comma-separated list from {all_example_names}."
     )
     parser.add_argument("--iterations", type=int, default=1)
+    parser.add_argument("--no-log", default=False, action='store_true',
+                        help="Don't store logfiles")
     parser.add_argument("--silent", default=False, action='store_true',
                         help="""Silent mode: Only print warnings and errors""")
+    parser.add_argument("--log-model", default=False, action='store_true',
+                        help="""Export CP-SAT model to text file before solving""")
 
     args = parser.parse_args()
     if args.examples != "all":
@@ -300,7 +308,7 @@ def main():
                 break
         if ex == None:
             raise Exception(f"Could not find example {name} (known: {list(e.name for e in examples)}")
-        ex.run(silent=silent)
+        ex.run(silent=silent, no_log=args.no_log, log_model=args.log_model)
 
     for e in todo:
         for _ in range(iterations):

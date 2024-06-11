@@ -64,18 +64,18 @@
 .endm
 
 .macro mulmodq dst, src, const, idx0, idx1
+        vqrdmulhq   t2,  \src, \const, \idx1
         vmulq       \dst,  \src, \const, \idx0
-        vqrdmulhq   \src,  \src, \const, \idx1
-        vmls        \dst,  \src, modulus
+        vmls       \dst,  t2, modulus
 .endm
 
 .macro mulmod dst, src, const, const_twisted
-        vmul       \dst,  \src, \const
-        vqrdmulh   \src,  \src, \const_twisted
-        vmls       \dst,  \src, modulus
+        vqrdmulh   t2,  \src, \const_twisted
+        mul        \dst\().4s,  \src\().4s, \const\().4s
+        vmls       \dst,  t2, modulus
 .endm
 
-.macro montg_reduce a
+.macro barrett_reduce_single a
         srshr tmp.4S,  \a\().4S, #23
         vmls   \a, tmp, modulus
 .endm
@@ -91,12 +91,6 @@
         vsub     tmp,    \a, \b
         vadd     \a,    \a, \b
         mulmodq  \b, tmp, \root, \idx0, \idx1
-.endm
-
-.macro mulmod_v dst, src, const, const_twisted
-        vmul        \dst,  \src, \const
-        vqrdmulh    \src,  \src, \const_twisted
-        vmls        \dst,  \src, modulus
 .endm
 
 .macro gs_butterfly_v a, b, root, root_twisted
@@ -156,7 +150,7 @@
         trn1_d \data\()1, t1, t3
 .endm
 
-.macro save_gprs // slothy:no-unfold
+.macro save_gprs // @slothy:no-unfold
         sub sp, sp, #(16*6)
         stp x19, x20, [sp, #16*0]
         stp x19, x20, [sp, #16*0]
@@ -167,7 +161,7 @@
         str x29, [sp, #16*5]
 .endm
 
-.macro restore_gprs // slothy:no-unfold
+.macro restore_gprs // @slothy:no-unfold
         ldp x19, x20, [sp, #16*0]
         ldp x21, x22, [sp, #16*1]
         ldp x23, x24, [sp, #16*2]
@@ -177,7 +171,7 @@
         add sp, sp, #(16*6)
 .endm
 
-.macro save_vregs // slothy:no-unfold
+.macro save_vregs // @slothy:no-unfold
         sub sp, sp, #(16*4)
         stp  d8,  d9, [sp, #16*0]
         stp d10, d11, [sp, #16*1]
@@ -185,7 +179,7 @@
         stp d14, d15, [sp, #16*3]
 .endm
 
-.macro restore_vregs // slothy:no-unfold
+.macro restore_vregs // @slothy:no-unfold
         ldp  d8,  d9, [sp, #16*0]
         ldp d10, d11, [sp, #16*1]
         ldp d12, d13, [sp, #16*2]
@@ -196,23 +190,29 @@
 #define STACK_SIZE 16
 #define STACK0 0
 
-.macro restore a, loc     // slothy:no-unfold
+.macro restore a, loc     // @slothy:no-unfold
         ldr \a, [sp, #\loc\()]
 .endm
-.macro save loc, a        // slothy:no-unfold
+.macro save loc, a        // @slothy:no-unfold
         str \a, [sp, #\loc\()]
 .endm
-.macro push_stack // slothy:no-unfold
+.macro push_stack // @slothy:no-unfold
         save_gprs
         save_vregs
         sub sp, sp, #STACK_SIZE
 .endm
 
-.macro pop_stack // slothy:no-unfold
+.macro pop_stack // @slothy:no-unfold
         add sp, sp, #STACK_SIZE
         restore_vregs
         restore_gprs
 .endm
+
+// For comparability reasons, the output range for the coefficients of this
+// invNTT code is supposed to match the implementation from PQClean on commit
+// ee71d2c823982bfcf54686f3cf1d666f396dc9aa. After the invNTT, the coefficients
+// are canonically reduced. The ordering of the coefficients is canonical, also
+// matching PQClean.
 
 .data
 .p2align 4
@@ -313,10 +313,14 @@ _intt_dilithium_1234_5678:
 
         .p2align 2
 layer5678_start:
-        ldr qform_data0, [inp, #(16*0)]
-        ldr qform_data1, [inp, #(16*1)]
-        ldr qform_data2, [inp, #(16*2)]
-        ldr qform_data3, [inp, #(16*3)]
+        // manual_ld4
+        // ldr_vo data0, inp, (16*0)
+        // ldr_vo data1, inp, (16*1)
+        // ldr_vo data2, inp, (16*2)
+        // ldr_vo data3, inp, (16*3)
+        // transpose4 data
+
+        ld4 {data0.4S, data1.4S, data2.4S, data3.4S}, [inp]
 
         load_next_roots_78 root0, root0_tw, root1, root1_tw, root2, root2_tw, r_ptr0
 
@@ -335,8 +339,8 @@ layer5678_start:
         gs_butterfly data0, data2, root1, 0, 1
         gs_butterfly data1, data3, root1, 0, 1
 
-        montg_reduce data0
-        montg_reduce data1
+        barrett_reduce_single data0
+        barrett_reduce_single data1
 
         str qform_data0, [inp], #(16*4)
         str qform_data1, [inp, #(-16*4 +  1*16)]
@@ -461,16 +465,19 @@ layer1234_start:
         str qform_data14, [in, #(14*(512/8))]
         str qform_data15, [in, #(15*(512/8))]
 
-        mul_ninv data8, data9, data10, data11, data12, data13, data14, data15, data0, data1, data2, data3, data4, data5, data6, data7
+        // Scale half the coeffs by 1/n; for the other half, the scaling has
+        // been merged into the multiplication with the twiddle factor on the
+        // last layer.
+        mul_ninv data0, data1, data2, data3, data4, data5, data6, data7, data0, data1, data2, data3, data4, data5, data6, data7
 
-        canonical_reduce data8,  modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data9,  modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data10, modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data11, modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data12, modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data13, modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data14, modulus_half, neg_modulus_half, t2, t3
-        canonical_reduce data15, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data0, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data1, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data2, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data3, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data4, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data5, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data6, modulus_half, neg_modulus_half, t2, t3
+        canonical_reduce data7, modulus_half, neg_modulus_half, t2, t3
 
         str qform_data8, [in], #(16)
         str qform_data9, [in, #(-16 + 1*(512/8))]

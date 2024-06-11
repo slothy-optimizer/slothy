@@ -34,6 +34,7 @@ from enum import Enum
 from slothy.targets.aarch64.aarch64_neon import *
 
 issue_rate = 4
+llvm_mca_target="neoverse-n1"
 
 class ExecutionUnit(Enum):
     """Enumeration of execution units in approximative Neoverse-N1 SLOTHY model"""
@@ -86,17 +87,29 @@ execution_units = {
     (Ldp_X, Ldr_X,
      Str_X, Stp_X,
      Ldr_Q, Str_Q)            : ExecutionUnit.LSU(),
+    # TODO: The following would be more accurate, but does not
+    #       necessarily lead to better results, while making the
+    #       optimization slower. Investigate...
+    #
+    # Ldr_Q)            : ExecutionUnit.LSU(),
+    # Str_Q : [[ExecutionUnit.VEC0, ExecutionUnit.LSU0],
+    #          [ExecutionUnit.VEC0, ExecutionUnit.LSU1],
+    #          [ExecutionUnit.VEC1, ExecutionUnit.LSU0],
+    #          [ExecutionUnit.VEC1, ExecutionUnit.LSU1]],
     (vuzp1, vuzp2, vzip1,
      Vrev, uaddlp)           : ExecutionUnit.V(),
     (vmov)                    : ExecutionUnit.V(),
     VecToGprMov               : ExecutionUnit.V(),
+    Transpose                 : ExecutionUnit.V(),
     (vmovi)                   : ExecutionUnit.V(),
     (vand, vadd)              : ExecutionUnit.V(),
     (vxtn)                    : ExecutionUnit.V(),
-    (vshl, vshl_d, vshli, vshrn) : ExecutionUnit.V1(),
+    (vuxtl, vshl, vshl_d,
+     vshli, vshrn)            : ExecutionUnit.V1(),
     vusra                     : ExecutionUnit.V1(),
     AESInstruction            : ExecutionUnit.V0(),
-    (vmul, vmlal, vmull)      : ExecutionUnit.V0(),
+    (vmul, Vmlal, vmull,
+     vmull2)                  : ExecutionUnit.V0(),
     AArch64NeonLogical        : ExecutionUnit.V(),
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
@@ -122,14 +135,16 @@ inverse_throughput = {
     VecToGprMov                : 1,
     (vand, vadd)               : 1,
     (vmov)                     : 1,
+    Transpose                  : 1,
     AESInstruction             : 1,
     AArch64NeonLogical         : 1,
     (vmovi)                    : 1,
     (vxtn)                     : 1,
-    (vshl, vshl_d, vshli, vshrn) : 1,
+    (vuxtl, vshl, vshl_d,
+     vshli, vshrn)             : 1,
     (vmul)                     : 2,
     vusra                      : 1,
-    (vmlal, vmull)             : 1,
+    (Vmlal, vmull, vmull2)     : 1,
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,
@@ -156,13 +171,15 @@ default_latencies = {
     (vxtn)                    : 2,
     AESInstruction            : 2,
     AArch64NeonLogical        : 2,
+    Transpose                 : 2,
     (vand, vadd)              : 2,
     (vmov)                    : 2, # ???
     (vmovi)                   : 2,
     (vmul)                    : 5,
     vusra                     : 4, # TODO: Add fwd path
-    (vmlal, vmull)            : 4, # TODO: Add fwd path
-    (vshl, vshl_d, vshli, vshrn) : 2,
+    (Vmlal, vmull, vmull2)    : 4, # TODO: Add fwd path
+    (vuxtl, vshl, vshl_d,
+     vshli, vshrn)            : 2,
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,

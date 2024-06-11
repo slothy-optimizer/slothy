@@ -87,7 +87,7 @@ def add_st_hazard(slothy):
     def is_vec_st_st_pair(inst_a, inst_b):
         return inst_a.inst.is_vector_store() and inst_b.inst.is_vector_store()
 
-    for t0, t1 in slothy.get_inst_pairs(is_vec_st_st_pair):
+    for t0, t1 in slothy.get_inst_pairs(cond=is_vec_st_st_pair):
         if t0.is_locked and t1.is_locked:
             continue
         slothy._Add( t0.cycle_start_var != t1.cycle_start_var + 1 )
@@ -113,11 +113,13 @@ execution_units = {
         Ldr_Q,
         Str_Q,
         q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
-        vmull, vmlal, vushr, vusra
+        vmull, vmull2, vmlal, vushr, vusra
     ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
     St4 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
             ExecutionUnit.SCALAR_STORE] + ExecutionUnit.SCALAR()],
+    Ld4: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD]
+          + ExecutionUnit.SCALAR()],
 
     # non-q-form vector instructions
     ( umov_d, mov_d01, mov_b00,
@@ -136,6 +138,9 @@ execution_units = {
     is_qform_form_of(trn2) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_qform_form_of(trn2) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn2) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+
+    is_qform_form_of(cmge): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(cmge): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
 
     is_qform_form_of(vzip1) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vzip1) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
@@ -158,38 +163,42 @@ execution_units = {
     is_qform_form_of(vshl) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vshl) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
 
-    (x_stp_with_imm_sp, w_stp_with_imm_sp, x_str_sp_imm, Str_X) : ExecutionUnit.SCALAR_STORE,
-    (x_ldr_stack_imm, ldr_const, ldr_sxtw_wform, Ldr_X) : ExecutionUnit.SCALAR_LOAD,
+    (Stp_X, w_stp_with_imm_sp, x_str_sp_imm, Str_X) : ExecutionUnit.SCALAR_STORE,
+    (x_ldr_stack_imm, ldr_const, ldr_sxtw_wform, Ldr_X, Ldp_X) : ExecutionUnit.SCALAR_LOAD,
     (umull_wform, mul_wform, umaddl_wform ): ExecutionUnit.SCALAR_MUL(),
     ( lsr, bic, bfi, add, add_imm, add_sp_imm, add2, add_lsr, add_lsl,
-      and_imm, nop, Vins, tst_wform, movk_imm, sub, mov,
-      subs_wform, asr_wform, and_imm_wform, lsr_wform, eor_wform) : ExecutionUnit.SCALAR(),
+      adcs_to_zero, adcs_zero_r_to_zero, adcs_zero2, cmn,
+      and_imm, nop, Vins, tst_wform, movk_imm, sub, sbcs_zero_to_zero, cmp_xzr2,
+      mov, ngc_zero, subs_wform, asr_wform, and_imm_wform, lsr_wform, eor_wform) : ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
     ( vadd, vsub, vmov,
       vmul, vmul_lane, vmls, vmls_lane,
-      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull,
+      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull, vmull2,
       vmlal,
       vsrshr, umov_d ) : 1,
-    (trn2, trn1) : 1,
+    (trn2, trn1, ASimdCompare): 1,
     ( Ldr_Q ) : 2,
     ( Str_Q ) : 1,
     ( tst_wform ) : 1,
     ( nop, Vins, Ldr_X, Str_X ) : 1,
+    Ldp_X : 2,
     St4 : 5,
+    Ld4 : 9,
     (fcsel_dform) : 1,
     (VecToGprMov, Mov_xtov_d) : 1,
     (movk_imm, mov) : 1,
     (d_stp_stack_with_inc, d_str_stack_with_inc) : 1,
-    (x_stp_with_imm_sp, w_stp_with_imm_sp, x_str_sp_imm) : 1,
+    (Stp_X, w_stp_with_imm_sp, x_str_sp_imm) : 1,
     (x_ldr_stack_imm, ldr_const) : 1,
     (ldr_sxtw_wform) : 3,
     (lsr, lsr_wform) : 1,
     (umull_wform, mul_wform, umaddl_wform) : 1,
-    (and_twoarg, and_imm, and_imm_wform, ) : 1,
-    (add, add_imm, add2, add_lsr, add_lsl, add_sp_imm) : 1,
-    (sub, subs_wform, asr_wform) : 1,
+    (and_twoarg, and_imm, and_imm_wform) : 1,
+    (add, add_imm, add2, add_lsr, add_lsl, add_sp_imm, adcs_to_zero, adcs_zero2,
+     adcs_zero_r_to_zero, cmn) : 1,
+    (cmp_xzr2, sub, subs_wform, asr_wform, sbcs_zero_to_zero, ngc_zero) : 1,
     (bfi) : 1,
     (vshl, vshl, vushr) : 1,
     (vusra) : 1,
@@ -209,28 +218,33 @@ default_latencies = {
     is_qform_form_of([vadd, vsub]) : 3,
     is_dform_form_of([vadd, vsub]) : 2,
 
-    ( trn1, trn2) : 2,
+    (trn1, trn2, ASimdCompare): 2,
     ( vsrshr ) : 3,
     ( vmul, vmul_lane, vmls, vmls_lane,
-      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull,
+      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull, vmull2,
       vmlal) : 4,
     ( Ldr_Q, Str_Q ) : 4,
     St4 : 5,
+    # TODO: Add distinction between Q/D and B/H vs. D/S
+    Ld4 : 11,
     ( Str_X, Ldr_X ) : 4,
+    Ldp_X : 4,
     ( Vins, umov_d ) : 2,
     ( tst_wform) : 1,
     (fcsel_dform) : 2,
     (VecToGprMov, Mov_xtov_d) : 2,
     (movk_imm, mov) : 1,
     (d_stp_stack_with_inc, d_str_stack_with_inc) : 1,
-    (x_stp_with_imm_sp, w_stp_with_imm_sp, x_str_sp_imm) : 1,
+    (Stp_X, w_stp_with_imm_sp, x_str_sp_imm) : 1,
     (x_ldr_stack_imm, ldr_const) : 3,
     (ldr_sxtw_wform) : 5,
     (lsr, lsr_wform) : 1,
     (umull_wform, mul_wform, umaddl_wform) : 3,
     (and_imm, and_imm_wform) : 1,
     (add2, add_lsr, add_lsl, add_sp_imm) : 2,
-    (add, add_imm, sub, subs_wform, asr_wform) : 1,
+    (add, add_imm, adcs_to_zero, adcs_zero_r_to_zero, adcs_zero2, cmn,
+     sub, subs_wform, asr_wform, sbcs_zero_to_zero, cmp_xzr2,
+     ngc_zero) : 1,
     (bfi) : 2,
     (vshl, vushr) : 2,
     (vusra) : 3,
