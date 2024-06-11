@@ -26,6 +26,15 @@
 // Needed to provide ASM_LOAD directive
 #include <hal_env.h>
 
+// NOTE
+// We use a lot of trivial macros to simplify the parsing burden for Slothy
+// The macros are not unfolded by Slothy and thus interpreted as instructions,
+// which are easier to parse due to e.g. the lack of size specifiers and simpler
+// syntax for pre and post increment for loads and stores.
+//
+// Eventually, NeLight should include a proper parser for AArch64,
+// but for initial investigations, the below is enough.
+
 .macro vsub d,a,b
         sub \d\().4s, \a\().4s, \b\().4s
 .endm
@@ -130,11 +139,11 @@
 .endm
 
 .macro load_next_roots_78 root0, root0_tw, root1, root1_tw, root2, root2_tw, r_ptr1
-        ldr qform_\root0, [   \r_ptr1], #(6*16)
+        ldr qform_\root0,    [\r_ptr1], #(6*16)
         ldr qform_\root0_tw, [\r_ptr1, #(-6*16 + 1*16)]
-        ldr qform_\root1, [   \r_ptr1, #(-6*16 + 2*16)]
+        ldr qform_\root1,    [\r_ptr1, #(-6*16 + 2*16)]
         ldr qform_\root1_tw, [\r_ptr1, #(-6*16 + 3*16)]
-        ldr qform_\root2, [   \r_ptr1, #(-6*16 + 4*16)]
+        ldr qform_\root2,    [\r_ptr1, #(-6*16 + 4*16)]
         ldr qform_\root2_tw, [\r_ptr1, #(-6*16 + 5*16)]
 .endm
 
@@ -313,12 +322,6 @@ _intt_dilithium_1234_5678:
 
         .p2align 2
 layer5678_start:
-        // manual_ld4
-        // ldr_vo data0, inp, (16*0)
-        // ldr_vo data1, inp, (16*1)
-        // ldr_vo data2, inp, (16*2)
-        // ldr_vo data3, inp, (16*3)
-        // transpose4 data
 
         ld4 {data0.4S, data1.4S, data2.4S, data3.4S}, [inp]
 
@@ -390,7 +393,7 @@ layer5678_start:
 
         .p2align 2
 layer1234_start:
-        ldr qform_data0, [in, #0]
+        ldr qform_data0, [in]
         ldr qform_data1, [in, #(1*(512/8))]
         ldr qform_data2, [in, #(2*(512/8))]
         ldr qform_data3, [in, #(3*(512/8))]
@@ -456,8 +459,8 @@ layer1234_start:
         canonical_reduce data14, modulus_half, neg_modulus_half, t2, t3
         canonical_reduce data15, modulus_half, neg_modulus_half, t2, t3
 
-        str qform_data8, [in, # (8*(512/8))]
-        str qform_data9, [in, # (9*(512/8))]
+        str qform_data8, [in,  #(8*(512/8))]
+        str qform_data9, [in,  #(9*(512/8))]
         str qform_data10, [in, #(10*(512/8))]
         str qform_data11, [in, #(11*(512/8))]
         str qform_data12, [in, #(12*(512/8))]
@@ -479,14 +482,14 @@ layer1234_start:
         canonical_reduce data6, modulus_half, neg_modulus_half, t2, t3
         canonical_reduce data7, modulus_half, neg_modulus_half, t2, t3
 
-        str qform_data8, [in], #(16)
-        str qform_data9, [in, #(-16 + 1*(512/8))]
-        str qform_data10, [in, #(-16 + 2*(512/8))]
-        str qform_data11, [in, #(-16 + 3*(512/8))]
-        str qform_data12, [in, #(-16 + 4*(512/8))]
-        str qform_data13, [in, #(-16 + 5*(512/8))]
-        str qform_data14, [in, #(-16 + 6*(512/8))]
-        str qform_data15, [in, #(-16 + 7*(512/8))]
+        str qform_data0, [in], #(16)
+        str qform_data1, [in, #(-16 + 1*(512/8))]
+        str qform_data2, [in, #(-16 + 2*(512/8))]
+        str qform_data3, [in, #(-16 + 3*(512/8))]
+        str qform_data4, [in, #(-16 + 4*(512/8))]
+        str qform_data5, [in, #(-16 + 5*(512/8))]
+        str qform_data6, [in, #(-16 + 6*(512/8))]
+        str qform_data7, [in, #(-16 + 7*(512/8))]
 
 // layer1234_end:
         subs count, count, #1
