@@ -1431,9 +1431,9 @@ class ExampleDilithium(Example):
         slothy.config.constraints.allow_reordering = True
         slothy.config.constraints.allow_renaming = True
         slothy.config.constraints.functional_only = False
-        slothy.config.outputs = ["r0", "r10", "r5", "r6", "r7", "r8", "r4", "r11", "r12", "r14" ]
+        slothy.config.outputs = ["r0", "r10"]
         slothy.config.inputs_are_outputs = True
-        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.constraints.stalls_first_attempt = 7
         slothy.optimize(start="layer123_start", end="layer123_end")
 #############################################################################################
 
