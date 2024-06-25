@@ -1413,11 +1413,35 @@ class fft_floatingpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
+
+class ExampleDilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"dilithium5_ntt"
+        infile = name
+        funcname = "pqcrystals_dilithium_ntt"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.constraints.allow_reordering = True
+        slothy.config.constraints.allow_renaming = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.outputs = ["r0", "r10", "r5", "r6", "r7", "r8", "r4", "r11", "r12", "r14" ]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize(start="layer123_start", end="layer123_end")
 #############################################################################################
 
 
 def main():
-    examples = [ Example0(),
+    examples = [ ExampleDilithium(),
+
+                 Example0(),
                  Example1(),
                  Example2(),
                  Example3(),
