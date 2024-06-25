@@ -367,7 +367,7 @@ class Instruction:
     # TODO Fill in instructions
     def is_load(self):
         """Indicates if an instruction is a load instruction"""
-        return self._is_instance_of([ ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback ])
+        return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback ])
     def is_store(self):
         """Indicates if an instruction is a store instruction"""
         return self._is_instance_of([ str_with_imm, str_with_imm_stack, str_with_postinc ])
@@ -777,8 +777,8 @@ class Armv7mFPInstruction(Armv7mInstruction): # pylint: disable=missing-docstrin
 
 # FP
 class vmov_gpr(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "vmov <Rd>, <Ra>"
-    inputs = ["Ra"]
+    pattern = "vmov<width> <Rd>, <Sa>"
+    inputs = ["Sa"]
     outputs = ["Rd"]
 
 # Addition
@@ -917,7 +917,18 @@ class rors_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-nam
     in_outs = ["Rd"]
     modifiesFlags = True
 
-# Load 
+class ldr(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldr<width> <Rd>, [<Ra>]"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
 class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra"]

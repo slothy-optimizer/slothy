@@ -57,11 +57,13 @@ def get_min_max_objective(slothy):
 
 execution_units = {
     (
+        ldr,
         ldr_with_imm,
         ldr_with_imm_stack,
         ldr_with_inc_writeback,
         str_with_imm,
-        str_with_imm_stack
+        str_with_imm_stack,
+        str_with_postinc
     ): [ExecutionUnit.LSU],
     (
         adds,
@@ -80,15 +82,18 @@ execution_units = {
     (Armv7mShiftedArithmetic): [ExecutionUnit.ALU_SHIFT],
     (Armv7mShiftedLogical): [ExecutionUnit.ALU_SHIFT],
     (mul, smull, smlal): [ExecutionUnit.MAC],
+    (vmov_gpr): [ExecutionUnit.FPU],
 }
 
 inverse_throughput = {
     (
+        ldr,
         ldr_with_imm,
         ldr_with_imm_stack,
         ldr_with_inc_writeback,
         str_with_imm,
         str_with_imm_stack,
+        str_with_postinc,
         adds,
         add,
         add_short,
@@ -108,13 +113,16 @@ inverse_throughput = {
         bic_shifted,
         ror, ror_short, rors_short,
         cmp, cmp_imm,
+        vmov_gpr,
     ): 1
 }
 
 default_latencies = {
     (
+        ldr,
         str_with_imm,
         str_with_imm_stack,
+        str_with_postinc,
         adds,
         add,
         add_short,
@@ -131,6 +139,7 @@ default_latencies = {
         bic_shifted,
         ror, ror_short, rors_short,
         cmp, cmp_imm,
+        vmov_gpr,
     ): 1,
     (
         mul,
