@@ -119,7 +119,6 @@ inverse_throughput = {
 
 default_latencies = {
     (
-        ldr,
         str_with_imm,
         str_with_imm_stack,
         str_with_postinc,
@@ -146,6 +145,7 @@ default_latencies = {
         smull,
         smlal,
         # TODO: Verify load latency
+        ldr,
         ldr_with_imm,
         ldr_with_imm_stack,
         ldr_with_inc_writeback,
