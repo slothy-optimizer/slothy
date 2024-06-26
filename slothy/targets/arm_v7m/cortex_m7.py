@@ -21,15 +21,21 @@ llvm_mca_target = "cortex-m7"
 class ExecutionUnit(Enum):
     """Enumeration of execution units in Cortex-M7 model"""
 
-    LSU = 0
+    STORE = 0
     ALU0 = 1
     ALU1 = 2
     ALU_SHIFT = 3
     MAC = 4
     FPU = 5
+    LOAD0 = 6
+    LOAD1 = 7
 
     def __repr__(self):
         return self.name
+    def ALU(): # pylint: disable=invalid-name
+        return [ExecutionUnit.ALU0, ExecutionUnit.ALU1]
+    def LOAD(): # pylint: disable=invalid-name
+        return [ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]
 
 
 # Opaque function called by SLOTHY to add further microarchitecture-
@@ -60,11 +66,12 @@ execution_units = {
         ldr,
         ldr_with_imm,
         ldr_with_imm_stack,
-        ldr_with_inc_writeback,
+        ldr_with_inc_writeback): ExecutionUnit.LOAD(),
+    (
         str_with_imm,
         str_with_imm_stack,
         str_with_postinc
-    ): [ExecutionUnit.LSU],
+    ): [ExecutionUnit.STORE],
     (
         adds,
         add,
@@ -78,7 +85,7 @@ execution_units = {
         bic, bics,
         ror, ror_short, rors_short,
         cmp, cmp_imm,
-    ): [ExecutionUnit.ALU0, ExecutionUnit.ALU1],
+    ): ExecutionUnit.ALU(),
     (Armv7mShiftedArithmetic): [ExecutionUnit.ALU_SHIFT],
     (Armv7mShiftedLogical): [ExecutionUnit.ALU_SHIFT],
     (mul, smull, smlal): [ExecutionUnit.MAC],
