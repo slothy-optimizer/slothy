@@ -206,16 +206,19 @@ class ExampleKeccak(Example):
         # slothy.config.constraints.allow_renaming = False
         # slothy.config.constraints.functional_only = True
         slothy.config.variable_size = True
-        slothy.config.outputs = ["flags"]
+        slothy.config.outputs = ["flags", "r2", "r10", "r11", "r12", 'hint_sp\\()\\mDi0']
         slothy.config.reserved_regs = ["sp", "r13"]
         slothy.config.locked_registers = ["sp", "r13"]
 
-        slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_preprocess_naive_interleaving = True
-        slothy.config.split_heuristic_factor = 25
-        slothy.config.split_heuristic_repeat = 2
-        slothy.config.split_heuristic_optimize_seam = 4
-        slothy.config.split_heuristic_stepsize = 0.05
+        slothy.config.with_llvm_mca = True
+        slothy.config.llvm_mca_full = True
+
+        # slothy.config.split_heuristic = True
+        # slothy.config.split_heuristic_preprocess_naive_interleaving = True
+        # slothy.config.split_heuristic_factor = 25
+        # slothy.config.split_heuristic_repeat = 2
+        # slothy.config.split_heuristic_optimize_seam = 4
+        # slothy.config.split_heuristic_stepsize = 0.05
 
         slothy.optimize(start="slothy_start", end="slothy_end")
 
@@ -1582,7 +1585,7 @@ def main():
                  fft_fixedpoint_radix4(),
                  
                   ExampleDummy(),
-                  ExampleKeccak(var="old")
+                  ExampleKeccak(var="part")
                  ]
 
     all_example_names = [e.name for e in examples]
