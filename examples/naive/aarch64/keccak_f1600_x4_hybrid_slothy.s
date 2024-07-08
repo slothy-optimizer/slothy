@@ -248,20 +248,20 @@ round_constants:
 .endm
 
 .macro rax1_m1 d s0 s1
-   add vtmp.2d, \s1\().2d, \s1\().2d 
-   sri vtmp.2d, \s1\().2d, #63       
-   eor \d\().16b, vtmp.16b, \s0\().16b 
+   add vtmp.2d, \s1\().2d, \s1\().2d
+   sri vtmp.2d, \s1\().2d, #63
+   eor \d\().16b, vtmp.16b, \s0\().16b
 .endm
 
 .macro xar_m1 d s0 s1 imm
-   eor vtmp.16b, \s0\().16b, \s1\().16b 
-   shl \d\().2d, vtmp.2d, #(64-\imm)    
-   sri \d\().2d, vtmp.2d, #(\imm)       
+   eor vtmp.16b, \s0\().16b, \s1\().16b
+   shl \d\().2d, vtmp.2d, #(64-\imm)
+   sri \d\().2d, vtmp.2d, #(\imm)
 .endm
 
 .macro bcax_m1 d s0 s1 s2
-    bic vtmp.16b, \s1\().16b, \s2\().16b 
-    eor \d\().16b, vtmp.16b, \s0\().16b  
+    bic vtmp.16b, \s1\().16b, \s2\().16b
+    eor \d\().16b, vtmp.16b, \s0\().16b
 .endm
 
 
@@ -452,476 +452,633 @@ round_constants:
 .endm
 
 .macro hybrid_round_initial
-   eor sC0, sAma, sAsa                              SEP       eor3_m1 C0, vAba, vAga, vAka
-   eor sC1, sAme, sAse                              SEP
-   eor sC2, sAmi, sAsi                              SEP
-   eor sC3, sAmo, sAso                              SEP       eor3_m1 C0, C0, vAma,  vAsa
-   eor sC4, sAmu, sAsu                              SEP
-   eor sC0, sAka, sC0                               SEP
-   eor sC1, sAke, sC1                               SEP       eor3_m1 C1, vAbe, vAge, vAke
-   eor sC2, sAki, sC2                               SEP
-   eor sC3, sAko, sC3                               SEP
-   eor sC4, sAku, sC4                               SEP       eor3_m1 C1, C1, vAme,  vAse
-   eor sC0, sAga, sC0                               SEP
-   eor sC1, sAge, sC1                               SEP
-   eor sC2, sAgi, sC2                               SEP       eor3_m1 C2, vAbi, vAgi, vAki
-   eor sC3, sAgo, sC3                               SEP
-   eor sC4, sAgu, sC4                               SEP
-   eor sC0, s_Aba, sC0                              SEP       eor3_m1 C2, C2, vAmi,  vAsi
-   eor sC1, sAbe, sC1                               SEP
-   eor sC2, sAbi, sC2                               SEP
-   eor sC3, sAbo, sC3                               SEP       eor3_m1 C3, vAbo, vAgo, vAko
-   eor sC4, sAbu, sC4                               SEP
-                                                    SEP
-   eor sE1, sC0, sC2, ROR #63                       SEP       eor3_m1 C3, C3, vAmo,  vAso
-   eor sE3, sC2, sC4, ROR #63                       SEP
-   eor sE0, sC4, sC1, ROR #63                       SEP
-   eor sE2, sC1, sC3, ROR #63                       SEP       eor3_m1 C4, vAbu, vAgu, vAku
-   eor sE4, sC3, sC0, ROR #63                       SEP
-                                                    SEP
-   eor s_Aba_, s_Aba, sE0                           SEP       eor3_m1 C4, C4, vAmu,  vAsu
-   eor sAsa_, sAbi, sE2                             SEP
-   eor sAbi_, sAki, sE2                             SEP
-   eor sAki_, sAko, sE3                             SEP
-   eor sAko_, sAmu, sE4                             SEP       rax1_m1 E1, C0, C2
-   eor sAmu_, sAso, sE3                             SEP
-   eor sAso_, sAma, sE0                             SEP
-   eor sAka_, sAbe, sE1                             SEP       rax1_m1 E3, C2, C4
-   eor sAse_, sAgo, sE3                             SEP
-   eor sAgo_, sAme, sE1                             SEP
-   eor sAke_, sAgi, sE2                             SEP       rax1_m1 E0, C4, C1
-   eor sAgi_, sAka, sE0                             SEP
-   eor sAga_, sAbo, sE3                             SEP
-   eor sAbo_, sAmo, sE3                             SEP       rax1_m1 E2, C1, C3
-   eor sAmo_, sAmi, sE2                             SEP
-   eor sAmi_, sAke, sE1                             SEP
-   eor sAge_, sAgu, sE4                             SEP       rax1_m1 E4, C3, C0
-   eor sAgu_, sAsi, sE2                             SEP
-   eor sAsi_, sAku, sE4                             SEP
-   eor sAku_, sAsa, sE0                             SEP
-   eor sAma_, sAbu, sE4                             SEP       eor vAba_.16b, vAba.16b, E0.16b
-   eor sAbu_, sAsu, sE4                             SEP
-   eor sAsu_, sAse, sE1                             SEP
-   eor sAme_, sAga, sE0                             SEP       xar_m1 vAsa_, vAbi, E2, 2
-   eor sAbe_, sAge, sE1                             SEP
-                                                    SEP
-   load_constant_ptr                                SEP       xar_m1 vAbi_, vAki, E2, 21
-                                                    SEP
-   bic tmp, sAgi_, sAge_, ROR #47                   SEP
-   eor sAga, tmp,  sAga_, ROR #39                   SEP       xar_m1 vAki_, vAko, E3, 39
-   bic tmp, sAgo_, sAgi_, ROR #42                   SEP
-   eor sAge, tmp,  sAge_, ROR #25                   SEP
-   bic tmp, sAgu_, sAgo_, ROR #16                   SEP       xar_m1 vAko_, vAmu, E4, 56
-   eor sAgi, tmp,  sAgi_, ROR #58                   SEP
-   bic tmp, sAga_, sAgu_, ROR #31                   SEP
-   eor sAgo, tmp,  sAgo_, ROR #47                   SEP       xar_m1 vAmu_, vAso, E3, 8
-   bic tmp, sAge_, sAga_, ROR #56                   SEP
-   eor sAgu, tmp,  sAgu_, ROR #23                   SEP
-   bic tmp, sAki_, sAke_, ROR #19                   SEP       xar_m1 vAso_, vAma, E0, 23
-   eor sAka, tmp,  sAka_, ROR #24                   SEP
-   bic tmp, sAko_, sAki_, ROR #47                   SEP
-   eor sAke, tmp,  sAke_, ROR #2                    SEP       xar_m1 vAka_, vAbe, E1, 63
-   bic tmp, sAku_, sAko_, ROR #10                   SEP
-   eor sAki, tmp,  sAki_, ROR #57                   SEP
-   bic tmp, sAka_, sAku_, ROR #47                   SEP       xar_m1 vAse_, vAgo, E3, 9
-   eor sAko, tmp,  sAko_, ROR #57                   SEP
-   bic tmp, sAke_, sAka_, ROR #5                    SEP
-   eor sAku, tmp,  sAku_, ROR #52                   SEP       xar_m1 vAgo_, vAme, E1, 19
-   bic tmp, sAmi_, sAme_, ROR #38                   SEP
-   eor sAma, tmp,  sAma_, ROR #47                   SEP
-   bic tmp, sAmo_, sAmi_, ROR #5                    SEP       xar_m1 vAke_, vAgi, E2, 58
-   eor sAme, tmp,  sAme_, ROR #43                   SEP
-   bic tmp, sAmu_, sAmo_, ROR #41                   SEP
-   eor sAmi, tmp,  sAmi_, ROR #46                   SEP       xar_m1 vAgi_, vAka, E0, 61
-                                                    SEP
-   ldr cur_const, [const_addr]                      SEP
-   mov count, #1                                    SEP       xar_m1 vAga_, vAbo, E3, 36
-                                                    SEP
-   bic tmp, sAma_, sAmu_, ROR #35                   SEP
-   eor sAmo, tmp,  sAmo_, ROR #12                   SEP       xar_m1 vAbo_, vAmo, E3, 43
-   bic tmp, sAme_, sAma_, ROR #9                    SEP
-   eor sAmu, tmp,  sAmu_, ROR #44                   SEP
-   bic tmp, sAsi_, sAse_, ROR #48                   SEP       xar_m1 vAmo_, vAmi, E2, 49
-   eor sAsa, tmp,  sAsa_, ROR #41                   SEP
-   bic tmp, sAso_, sAsi_, ROR #2                    SEP
-   eor sAse, tmp,  sAse_, ROR #50                   SEP       xar_m1 vAmi_, vAke, E1, 54
-   bic tmp, sAsu_, sAso_, ROR #25                   SEP
-   eor sAsi, tmp,  sAsi_, ROR #27                   SEP
-   bic tmp, sAsa_, sAsu_, ROR #60                   SEP       xar_m1 vAge_, vAgu, E4, 44
-   eor sAso, tmp,  sAso_, ROR #21                   SEP
-   bic tmp, sAse_, sAsa_, ROR #57                   SEP
-   eor sAsu, tmp,  sAsu_, ROR #53                   SEP       xar_m1 vAgu_, vAsi, E2, 3
-   bic tmp, sAbi_, sAbe_, ROR #63                   SEP
-   eor s_Aba, s_Aba_, tmp,  ROR #21                 SEP
-   bic tmp, sAbo_, sAbi_, ROR #42                   SEP       xar_m1 vAsi_, vAku, E4, 25
-   eor sAbe, tmp,  sAbe_, ROR #41                   SEP
-   bic tmp, sAbu_, sAbo_, ROR #57                   SEP
-   eor sAbi, tmp,  sAbi_, ROR #35                   SEP       xar_m1 vAku_, vAsa, E0, 46
-   bic tmp, s_Aba_, sAbu_, ROR #50                  SEP
-   eor sAbo, tmp,  sAbo_, ROR #43                   SEP
-   bic tmp, sAbe_, s_Aba_, ROR #44                  SEP       xar_m1 vAma_, vAbu, E4, 37
-   eor sAbu, tmp,  sAbu_, ROR #30                   SEP
-                                                    SEP
-   eor s_Aba, s_Aba, cur_const                      SEP       xar_m1 vAbu_, vAsu, E4, 50
-                                                    SEP
-   save count, STACK_OFFSET_COUNT                   SEP
-                                                    SEP       xar_m1 vAsu_, vAse, E1, 62
-   eor sC0, sAka, sAsa, ROR #50                     SEP
-   eor sC1, sAse, sAge, ROR #60                     SEP
-   eor sC2, sAmi, sAgi, ROR #59                     SEP       xar_m1 vAme_, vAga, E0, 28
-   eor sC3, sAgo, sAso, ROR #30                     SEP
-   eor sC4, sAbu, sAsu, ROR #53                     SEP
-   eor sC0, sAma, sC0, ROR #49                      SEP       xar_m1 vAbe_, vAge, E1, 20
-   eor sC1, sAbe, sC1, ROR #44                      SEP
-   eor sC2, sAki, sC2, ROR #26                      SEP       restore sE1, STACK_OFFSET_CONST
-   eor sC3, sAmo, sC3, ROR #63                      SEP
-   eor sC4, sAmu, sC4, ROR #56                      SEP
-   eor sC0, sAga, sC0, ROR #57                      SEP       ld1r {v28.2d}, [sE1], #8
-   eor sC1, sAme, sC1, ROR #58                      SEP
-   eor sC2, sAbi, sC2, ROR #60                      SEP
-   eor sC3, sAko, sC3, ROR #38                      SEP       save sE1, STACK_OFFSET_CONST
-   eor sC4, sAgu, sC4, ROR #48                      SEP
-   eor sC0, s_Aba, sC0, ROR #61                     SEP       bcax_m1 vAga, vAga_, vAgi_, vAge_
-   eor sC1, sAke, sC1, ROR #57                      SEP
-   eor sC2, sAsi, sC2, ROR #52                      SEP
-   eor sC3, sAbo, sC3, ROR #63                      SEP       bcax_m1 vAge, vAge_, vAgo_, vAgi_
-   eor sC4, sAku, sC4, ROR #50                      SEP
-   ror sC1, sC1, 56                                 SEP
-   ror sC4, sC4, 58                                 SEP       bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
-   ror sC2, sC2, 62                                 SEP
-                                                    SEP
-   eor sE1, sC0, sC2, ROR #63                       SEP       bcax_m1 vAgo, vAgo_, vAga_, vAgu_
-   eor sE3, sC2, sC4, ROR #63                       SEP
-   eor sE0, sC4, sC1, ROR #63                       SEP
-   eor sE2, sC1, sC3, ROR #63                       SEP       bcax_m1 vAgu, vAgu_, vAge_, vAga_
-   eor sE4, sC3, sC0, ROR #63                       SEP
-                                                    SEP
-   eor s_Aba_, sE0, s_Aba                           SEP       bcax_m1 vAka, vAka_, vAki_, vAke_
-   eor sAsa_, sE2, sAbi, ROR #50                    SEP
-   eor sAbi_, sE2, sAki, ROR #46                    SEP
-   eor sAki_, sE3, sAko, ROR #63                    SEP       bcax_m1 vAke, vAke_, vAko_, vAki_
-   eor sAko_, sE4, sAmu, ROR #28                    SEP
-   eor sAmu_, sE3, sAso, ROR #2                     SEP
-   eor sAso_, sE0, sAma, ROR #54                    SEP       bcax_m1 vAki, vAki_, vAku_, vAko_
-   eor sAka_, sE1, sAbe, ROR #43                    SEP
-   eor sAse_, sE3, sAgo, ROR #36                    SEP
-   eor sAgo_, sE1, sAme, ROR #49                    SEP       bcax_m1 vAko, vAko_, vAka_, vAku_
-   eor sAke_, sE2, sAgi, ROR #3                     SEP
-   eor sAgi_, sE0, sAka, ROR #39                    SEP
-   eor sAga_, sE3, sAbo                             SEP       bcax_m1 vAku, vAku_, vAke_, vAka_
-   eor sAbo_, sE3, sAmo, ROR #37                    SEP
-   eor sAmo_, sE2, sAmi, ROR #8                     SEP
-   eor sAmi_, sE1, sAke, ROR #56                    SEP       bcax_m1 vAma, vAma_, vAmi_, vAme_
-   eor sAge_, sE4, sAgu, ROR #44                    SEP
-   eor sAgu_, sE2, sAsi, ROR #62                    SEP
-   eor sAsi_, sE4, sAku, ROR #58                    SEP       bcax_m1 vAme, vAme_, vAmo_, vAmi_
-   eor sAku_, sE0, sAsa, ROR #25                    SEP
-   eor sAma_, sE4, sAbu, ROR #20                    SEP
-   eor sAbu_, sE4, sAsu, ROR #9                     SEP       bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
-   eor sAsu_, sE1, sAse, ROR #23                    SEP
-   eor sAme_, sE0, sAga, ROR #61                    SEP
-   eor sAbe_, sE1, sAge, ROR #19                    SEP       bcax_m1 vAmo, vAmo_, vAma_, vAmu_
-                                                    SEP
-   load_constant_ptr                                SEP
-   restore count, STACK_OFFSET_COUNT                SEP       bcax_m1 vAmu, vAmu_, vAme_, vAma_
-                                                    SEP
-   bic tmp, sAgi_, sAge_, ROR #47                   SEP
-   eor sAga, tmp,  sAga_, ROR #39                   SEP       bcax_m1 vAsa, vAsa_, vAsi_, vAse_
-   bic tmp, sAgo_, sAgi_, ROR #42                   SEP
-   eor sAge, tmp,  sAge_, ROR #25                   SEP
-   bic tmp, sAgu_, sAgo_, ROR #16                   SEP       bcax_m1 vAse, vAse_, vAso_, vAsi_
-   eor sAgi, tmp,  sAgi_, ROR #58                   SEP
-   bic tmp, sAga_, sAgu_, ROR #31                   SEP
-   eor sAgo, tmp,  sAgo_, ROR #47                   SEP       bcax_m1 vAsi, vAsi_, vAsu_, vAso_
-   bic tmp, sAge_, sAga_, ROR #56                   SEP
-   eor sAgu, tmp,  sAgu_, ROR #23                   SEP
-   bic tmp, sAki_, sAke_, ROR #19                   SEP       bcax_m1 vAso, vAso_, vAsa_, vAsu_
-   eor sAka, tmp,  sAka_, ROR #24                   SEP
-   bic tmp, sAko_, sAki_, ROR #47                   SEP
-   eor sAke, tmp,  sAke_, ROR #2                    SEP       bcax_m1 vAsu, vAsu_, vAse_, vAsa_
-   bic tmp, sAku_, sAko_, ROR #10                   SEP
-   eor sAki, tmp,  sAki_, ROR #57                   SEP
-   bic tmp, sAka_, sAku_, ROR #47                   SEP       bcax_m1 vAba, vAba_, vAbi_, vAbe_
-   eor sAko, tmp,  sAko_, ROR #57                   SEP
-   bic tmp, sAke_, sAka_, ROR #5                    SEP
-   eor sAku, tmp,  sAku_, ROR #52                   SEP       bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
-   bic tmp, sAmi_, sAme_, ROR #38                   SEP
-   eor sAma, tmp,  sAma_, ROR #47                   SEP
-   bic tmp, sAmo_, sAmi_, ROR #5                    SEP       bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
-   eor sAme, tmp,  sAme_, ROR #43                   SEP
-   bic tmp, sAmu_, sAmo_, ROR #41                   SEP
-   eor sAmi, tmp,  sAmi_, ROR #46                   SEP       bcax_m1 vAbo, vAbo_, vAba_, vAbu_
-   bic tmp, sAma_, sAmu_, ROR #35                   SEP
-                                                    SEP
-   ldr cur_const, [const_addr, count, UXTW #3]      SEP       bcax_m1 vAbu, vAbu_, vAbe_, vAba_
-                                                    SEP
-   eor sAmo, tmp,  sAmo_, ROR #12                   SEP
-   bic tmp, sAme_, sAma_, ROR #9                    SEP
-   eor sAmu, tmp,  sAmu_, ROR #44                   SEP       eor vAba.16b, vAba.16b, v28.16b
-   bic tmp, sAsi_, sAse_, ROR #48                   SEP
-   eor sAsa, tmp,  sAsa_, ROR #41                   SEP
-   bic tmp, sAso_, sAsi_, ROR #2                    SEP
-   eor sAse, tmp,  sAse_, ROR #50                   SEP
-   bic tmp, sAsu_, sAso_, ROR #25                   SEP
-   eor sAsi, tmp,  sAsi_, ROR #27                   SEP
-   bic tmp, sAsa_, sAsu_, ROR #60                   SEP
-   eor sAso, tmp,  sAso_, ROR #21                   SEP
-   bic tmp, sAse_, sAsa_, ROR #57                   SEP
-   eor sAsu, tmp,  sAsu_, ROR #53                   SEP
-   bic tmp, sAbi_, sAbe_, ROR #63                   SEP
-   eor s_Aba, s_Aba_, tmp,  ROR #21                 SEP
-   bic tmp, sAbo_, sAbi_, ROR #42                   SEP
-   eor sAbe, tmp,  sAbe_, ROR #41                   SEP
-   bic tmp, sAbu_, sAbo_, ROR #57                   SEP
-   eor sAbi, tmp,  sAbi_, ROR #35                   SEP
-   bic tmp, s_Aba_, sAbu_, ROR #50                  SEP
-   eor sAbo, tmp,  sAbo_, ROR #43                   SEP
-   bic tmp, sAbe_, s_Aba_, ROR #44                  SEP
-   eor sAbu, tmp,  sAbu_, ROR #30                   SEP
-                                                    SEP
-   add count, count, #1                             SEP
-                                                    SEP
-   eor s_Aba, s_Aba, cur_const                      SEP
-                                                    SEP
+    scalar_round_initial
+    vector_round_initial
+.endm
+
+.macro scalar_round_initial
+   eor sC0, sAma, sAsa
+   eor sC1, sAme, sAse
+   eor sC2, sAmi, sAsi
+   eor sC3, sAmo, sAso
+   eor sC4, sAmu, sAsu
+   eor sC0, sAka, sC0
+   eor sC1, sAke, sC1
+   eor sC2, sAki, sC2
+   eor sC3, sAko, sC3
+   eor sC4, sAku, sC4
+   eor sC0, sAga, sC0
+   eor sC1, sAge, sC1
+   eor sC2, sAgi, sC2
+   eor sC3, sAgo, sC3
+   eor sC4, sAgu, sC4
+   eor sC0, s_Aba, sC0
+   eor sC1, sAbe, sC1
+   eor sC2, sAbi, sC2
+   eor sC3, sAbo, sC3
+   eor sC4, sAbu, sC4
+
+   eor sE1, sC0, sC2, ROR #63
+   eor sE3, sC2, sC4, ROR #63
+   eor sE0, sC4, sC1, ROR #63
+   eor sE2, sC1, sC3, ROR #63
+   eor sE4, sC3, sC0, ROR #63
+
+   eor s_Aba_, s_Aba, sE0
+   eor sAsa_, sAbi, sE2
+   eor sAbi_, sAki, sE2
+   eor sAki_, sAko, sE3
+   eor sAko_, sAmu, sE4
+   eor sAmu_, sAso, sE3
+   eor sAso_, sAma, sE0
+   eor sAka_, sAbe, sE1
+   eor sAse_, sAgo, sE3
+   eor sAgo_, sAme, sE1
+   eor sAke_, sAgi, sE2
+   eor sAgi_, sAka, sE0
+   eor sAga_, sAbo, sE3
+   eor sAbo_, sAmo, sE3
+   eor sAmo_, sAmi, sE2
+   eor sAmi_, sAke, sE1
+   eor sAge_, sAgu, sE4
+   eor sAgu_, sAsi, sE2
+   eor sAsi_, sAku, sE4
+   eor sAku_, sAsa, sE0
+   eor sAma_, sAbu, sE4
+   eor sAbu_, sAsu, sE4
+   eor sAsu_, sAse, sE1
+   eor sAme_, sAga, sE0
+   eor sAbe_, sAge, sE1
+
+   load_constant_ptr
+
+   bic tmp, sAgi_, sAge_, ROR #47
+   eor sAga, tmp,  sAga_, ROR #39
+   bic tmp, sAgo_, sAgi_, ROR #42
+   eor sAge, tmp,  sAge_, ROR #25
+   bic tmp, sAgu_, sAgo_, ROR #16
+   eor sAgi, tmp,  sAgi_, ROR #58
+   bic tmp, sAga_, sAgu_, ROR #31
+   eor sAgo, tmp,  sAgo_, ROR #47
+   bic tmp, sAge_, sAga_, ROR #56
+   eor sAgu, tmp,  sAgu_, ROR #23
+   bic tmp, sAki_, sAke_, ROR #19
+   eor sAka, tmp,  sAka_, ROR #24
+   bic tmp, sAko_, sAki_, ROR #47
+   eor sAke, tmp,  sAke_, ROR #2
+   bic tmp, sAku_, sAko_, ROR #10
+   eor sAki, tmp,  sAki_, ROR #57
+   bic tmp, sAka_, sAku_, ROR #47
+   eor sAko, tmp,  sAko_, ROR #57
+   bic tmp, sAke_, sAka_, ROR #5
+   eor sAku, tmp,  sAku_, ROR #52
+   bic tmp, sAmi_, sAme_, ROR #38
+   eor sAma, tmp,  sAma_, ROR #47
+   bic tmp, sAmo_, sAmi_, ROR #5
+   eor sAme, tmp,  sAme_, ROR #43
+   bic tmp, sAmu_, sAmo_, ROR #41
+   eor sAmi, tmp,  sAmi_, ROR #46
+
+   ldr cur_const, [const_addr]
+   mov count, #1
+
+   bic tmp, sAma_, sAmu_, ROR #35
+   eor sAmo, tmp,  sAmo_, ROR #12
+   bic tmp, sAme_, sAma_, ROR #9
+   eor sAmu, tmp,  sAmu_, ROR #44
+   bic tmp, sAsi_, sAse_, ROR #48
+   eor sAsa, tmp,  sAsa_, ROR #41
+   bic tmp, sAso_, sAsi_, ROR #2
+   eor sAse, tmp,  sAse_, ROR #50
+   bic tmp, sAsu_, sAso_, ROR #25
+   eor sAsi, tmp,  sAsi_, ROR #27
+   bic tmp, sAsa_, sAsu_, ROR #60
+   eor sAso, tmp,  sAso_, ROR #21
+   bic tmp, sAse_, sAsa_, ROR #57
+   eor sAsu, tmp,  sAsu_, ROR #53
+   bic tmp, sAbi_, sAbe_, ROR #63
+   eor s_Aba, s_Aba_, tmp,  ROR #21
+   bic tmp, sAbo_, sAbi_, ROR #42
+   eor sAbe, tmp,  sAbe_, ROR #41
+   bic tmp, sAbu_, sAbo_, ROR #57
+   eor sAbi, tmp,  sAbi_, ROR #35
+   bic tmp, s_Aba_, sAbu_, ROR #50
+   eor sAbo, tmp,  sAbo_, ROR #43
+   bic tmp, sAbe_, s_Aba_, ROR #44
+   eor sAbu, tmp,  sAbu_, ROR #30
+
+   eor s_Aba, s_Aba, cur_const
+
+   save count, STACK_OFFSET_COUNT
+
+   eor sC0, sAka, sAsa, ROR #50
+   eor sC1, sAse, sAge, ROR #60
+   eor sC2, sAmi, sAgi, ROR #59
+   eor sC3, sAgo, sAso, ROR #30
+   eor sC4, sAbu, sAsu, ROR #53
+   eor sC0, sAma, sC0, ROR #49
+   eor sC1, sAbe, sC1, ROR #44
+   eor sC2, sAki, sC2, ROR #26
+   eor sC3, sAmo, sC3, ROR #63
+   eor sC4, sAmu, sC4, ROR #56
+   eor sC0, sAga, sC0, ROR #57
+   eor sC1, sAme, sC1, ROR #58
+   eor sC2, sAbi, sC2, ROR #60
+   eor sC3, sAko, sC3, ROR #38
+   eor sC4, sAgu, sC4, ROR #48
+   eor sC0, s_Aba, sC0, ROR #61
+   eor sC1, sAke, sC1, ROR #57
+   eor sC2, sAsi, sC2, ROR #52
+   eor sC3, sAbo, sC3, ROR #63
+   eor sC4, sAku, sC4, ROR #50
+   ror sC1, sC1, 56
+   ror sC4, sC4, 58
+   ror sC2, sC2, 62
+
+   eor sE1, sC0, sC2, ROR #63
+   eor sE3, sC2, sC4, ROR #63
+   eor sE0, sC4, sC1, ROR #63
+   eor sE2, sC1, sC3, ROR #63
+   eor sE4, sC3, sC0, ROR #63
+
+   eor s_Aba_, sE0, s_Aba
+   eor sAsa_, sE2, sAbi, ROR #50
+   eor sAbi_, sE2, sAki, ROR #46
+   eor sAki_, sE3, sAko, ROR #63
+   eor sAko_, sE4, sAmu, ROR #28
+   eor sAmu_, sE3, sAso, ROR #2
+   eor sAso_, sE0, sAma, ROR #54
+   eor sAka_, sE1, sAbe, ROR #43
+   eor sAse_, sE3, sAgo, ROR #36
+   eor sAgo_, sE1, sAme, ROR #49
+   eor sAke_, sE2, sAgi, ROR #3
+   eor sAgi_, sE0, sAka, ROR #39
+   eor sAga_, sE3, sAbo
+   eor sAbo_, sE3, sAmo, ROR #37
+   eor sAmo_, sE2, sAmi, ROR #8
+   eor sAmi_, sE1, sAke, ROR #56
+   eor sAge_, sE4, sAgu, ROR #44
+   eor sAgu_, sE2, sAsi, ROR #62
+   eor sAsi_, sE4, sAku, ROR #58
+   eor sAku_, sE0, sAsa, ROR #25
+   eor sAma_, sE4, sAbu, ROR #20
+   eor sAbu_, sE4, sAsu, ROR #9
+   eor sAsu_, sE1, sAse, ROR #23
+   eor sAme_, sE0, sAga, ROR #61
+   eor sAbe_, sE1, sAge, ROR #19
+
+   load_constant_ptr
+   restore count, STACK_OFFSET_COUNT
+
+   bic tmp, sAgi_, sAge_, ROR #47
+   eor sAga, tmp,  sAga_, ROR #39
+   bic tmp, sAgo_, sAgi_, ROR #42
+   eor sAge, tmp,  sAge_, ROR #25
+   bic tmp, sAgu_, sAgo_, ROR #16
+   eor sAgi, tmp,  sAgi_, ROR #58
+   bic tmp, sAga_, sAgu_, ROR #31
+   eor sAgo, tmp,  sAgo_, ROR #47
+   bic tmp, sAge_, sAga_, ROR #56
+   eor sAgu, tmp,  sAgu_, ROR #23
+   bic tmp, sAki_, sAke_, ROR #19
+   eor sAka, tmp,  sAka_, ROR #24
+   bic tmp, sAko_, sAki_, ROR #47
+   eor sAke, tmp,  sAke_, ROR #2
+   bic tmp, sAku_, sAko_, ROR #10
+   eor sAki, tmp,  sAki_, ROR #57
+   bic tmp, sAka_, sAku_, ROR #47
+   eor sAko, tmp,  sAko_, ROR #57
+   bic tmp, sAke_, sAka_, ROR #5
+   eor sAku, tmp,  sAku_, ROR #52
+   bic tmp, sAmi_, sAme_, ROR #38
+   eor sAma, tmp,  sAma_, ROR #47
+   bic tmp, sAmo_, sAmi_, ROR #5
+   eor sAme, tmp,  sAme_, ROR #43
+   bic tmp, sAmu_, sAmo_, ROR #41
+   eor sAmi, tmp,  sAmi_, ROR #46
+   bic tmp, sAma_, sAmu_, ROR #35
+
+   ldr cur_const, [const_addr, count, UXTW #3]
+
+   eor sAmo, tmp,  sAmo_, ROR #12
+   bic tmp, sAme_, sAma_, ROR #9
+   eor sAmu, tmp,  sAmu_, ROR #44
+   bic tmp, sAsi_, sAse_, ROR #48
+   eor sAsa, tmp,  sAsa_, ROR #41
+   bic tmp, sAso_, sAsi_, ROR #2
+   eor sAse, tmp,  sAse_, ROR #50
+   bic tmp, sAsu_, sAso_, ROR #25
+   eor sAsi, tmp,  sAsi_, ROR #27
+   bic tmp, sAsa_, sAsu_, ROR #60
+   eor sAso, tmp,  sAso_, ROR #21
+   bic tmp, sAse_, sAsa_, ROR #57
+   eor sAsu, tmp,  sAsu_, ROR #53
+   bic tmp, sAbi_, sAbe_, ROR #63
+   eor s_Aba, s_Aba_, tmp,  ROR #21
+   bic tmp, sAbo_, sAbi_, ROR #42
+   eor sAbe, tmp,  sAbe_, ROR #41
+   bic tmp, sAbu_, sAbo_, ROR #57
+   eor sAbi, tmp,  sAbi_, ROR #35
+   bic tmp, s_Aba_, sAbu_, ROR #50
+   eor sAbo, tmp,  sAbo_, ROR #43
+   bic tmp, sAbe_, s_Aba_, ROR #44
+   eor sAbu, tmp,  sAbu_, ROR #30
+
+   add count, count, #1
+
+   eor s_Aba, s_Aba, cur_const
+
+.endm
+
+
+.macro vector_round_initial
+       eor3_m1 C0, vAba, vAga, vAka
+       eor3_m1 C0, C0, vAma,  vAsa
+       eor3_m1 C1, vAbe, vAge, vAke
+       eor3_m1 C1, C1, vAme,  vAse
+       eor3_m1 C2, vAbi, vAgi, vAki
+       eor3_m1 C2, C2, vAmi,  vAsi
+       eor3_m1 C3, vAbo, vAgo, vAko
+       eor3_m1 C3, C3, vAmo,  vAso
+       eor3_m1 C4, vAbu, vAgu, vAku
+       eor3_m1 C4, C4, vAmu,  vAsu
+       rax1_m1 E1, C0, C2
+       rax1_m1 E3, C2, C4
+       rax1_m1 E0, C4, C1
+       rax1_m1 E2, C1, C3
+       rax1_m1 E4, C3, C0
+       eor vAba_.16b, vAba.16b, E0.16b
+       xar_m1 vAsa_, vAbi, E2, 2
+       xar_m1 vAbi_, vAki, E2, 21
+       xar_m1 vAki_, vAko, E3, 39
+       xar_m1 vAko_, vAmu, E4, 56
+       xar_m1 vAmu_, vAso, E3, 8
+       xar_m1 vAso_, vAma, E0, 23
+       xar_m1 vAka_, vAbe, E1, 63
+       xar_m1 vAse_, vAgo, E3, 9
+       xar_m1 vAgo_, vAme, E1, 19
+       xar_m1 vAke_, vAgi, E2, 58
+       xar_m1 vAgi_, vAka, E0, 61
+       xar_m1 vAga_, vAbo, E3, 36
+       xar_m1 vAbo_, vAmo, E3, 43
+       xar_m1 vAmo_, vAmi, E2, 49
+       xar_m1 vAmi_, vAke, E1, 54
+       xar_m1 vAge_, vAgu, E4, 44
+       xar_m1 vAgu_, vAsi, E2, 3
+       xar_m1 vAsi_, vAku, E4, 25
+       xar_m1 vAku_, vAsa, E0, 46
+       xar_m1 vAma_, vAbu, E4, 37
+       xar_m1 vAbu_, vAsu, E4, 50
+       xar_m1 vAsu_, vAse, E1, 62
+       xar_m1 vAme_, vAga, E0, 28
+       xar_m1 vAbe_, vAge, E1, 20
+       restore sE1, STACK_OFFSET_CONST
+       ld1r {v28.2d}, [sE1], #8
+       save sE1, STACK_OFFSET_CONST
+       bcax_m1 vAga, vAga_, vAgi_, vAge_
+       bcax_m1 vAge, vAge_, vAgo_, vAgi_
+       bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
+       bcax_m1 vAgo, vAgo_, vAga_, vAgu_
+       bcax_m1 vAgu, vAgu_, vAge_, vAga_
+       bcax_m1 vAka, vAka_, vAki_, vAke_
+       bcax_m1 vAke, vAke_, vAko_, vAki_
+       bcax_m1 vAki, vAki_, vAku_, vAko_
+       bcax_m1 vAko, vAko_, vAka_, vAku_
+       bcax_m1 vAku, vAku_, vAke_, vAka_
+       bcax_m1 vAma, vAma_, vAmi_, vAme_
+       bcax_m1 vAme, vAme_, vAmo_, vAmi_
+       bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
+       bcax_m1 vAmo, vAmo_, vAma_, vAmu_
+       bcax_m1 vAmu, vAmu_, vAme_, vAma_
+       bcax_m1 vAsa, vAsa_, vAsi_, vAse_
+       bcax_m1 vAse, vAse_, vAso_, vAsi_
+       bcax_m1 vAsi, vAsi_, vAsu_, vAso_
+       bcax_m1 vAso, vAso_, vAsa_, vAsu_
+       bcax_m1 vAsu, vAsu_, vAse_, vAsa_
+       bcax_m1 vAba, vAba_, vAbi_, vAbe_
+       bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
+       bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
+       bcax_m1 vAbo, vAbo_, vAba_, vAbu_
+       bcax_m1 vAbu, vAbu_, vAbe_, vAba_
+       eor vAba.16b, vAba.16b, v28.16b
 .endm
 
 .macro  hybrid_round_noninitial
-    save count, STACK_OFFSET_COUNT                  SEP       eor3_m1 C0, vAba, vAga, vAka
-                                                    SEP
-    eor sC0, sAka, sAsa, ROR #50                    SEP
-    eor sC1, sAse, sAge, ROR #60                    SEP       eor3_m1 C0, C0, vAma,  vAsa
-    eor sC2, sAmi, sAgi, ROR #59                    SEP
-    eor sC3, sAgo, sAso, ROR #30                    SEP
-    eor sC4, sAbu, sAsu, ROR #53                    SEP       eor3_m1 C1, vAbe, vAge, vAke
-    eor sC0, sAma, sC0, ROR #49                     SEP
-    eor sC1, sAbe, sC1, ROR #44                     SEP
-    eor sC2, sAki, sC2, ROR #26                     SEP       eor3_m1 C1, C1, vAme,  vAse
-    eor sC3, sAmo, sC3, ROR #63                     SEP
-    eor sC4, sAmu, sC4, ROR #56                     SEP
-    eor sC0, sAga, sC0, ROR #57                     SEP       eor3_m1 C2, vAbi, vAgi, vAki
-    eor sC1, sAme, sC1, ROR #58                     SEP
-    eor sC2, sAbi, sC2, ROR #60                     SEP
-    eor sC3, sAko, sC3, ROR #38                     SEP       eor3_m1 C2, C2, vAmi,  vAsi
-    eor sC4, sAgu, sC4, ROR #48                     SEP
-    eor sC0, s_Aba, sC0, ROR #61                    SEP
-    eor sC1, sAke, sC1, ROR #57                     SEP       eor3_m1 C3, vAbo, vAgo, vAko
-    eor sC2, sAsi, sC2, ROR #52                     SEP
-    eor sC3, sAbo, sC3, ROR #63                     SEP
-    eor sC4, sAku, sC4, ROR #50                     SEP       eor3_m1 C3, C3, vAmo,  vAso
-    ror sC1, sC1, 56                                SEP
-    ror sC4, sC4, 58                                SEP
-    ror sC2, sC2, 62                                SEP       eor3_m1 C4, vAbu, vAgu, vAku
-                                                    SEP
-    eor sE1, sC0, sC2, ROR #63                      SEP
-    eor sE3, sC2, sC4, ROR #63                      SEP       eor3_m1 C4, C4, vAmu,  vAsu
-    eor sE0, sC4, sC1, ROR #63                      SEP
-    eor sE2, sC1, sC3, ROR #63                      SEP
-    eor sE4, sC3, sC0, ROR #63                      SEP
-                                                    SEP       rax1_m1 E1, C0, C2
-    eor s_Aba_, sE0, s_Aba                          SEP
-    eor sAsa_, sE2, sAbi, ROR #50                   SEP
-    eor sAbi_, sE2, sAki, ROR #46                   SEP       rax1_m1 E3, C2, C4
-    eor sAki_, sE3, sAko, ROR #63                   SEP
-    eor sAko_, sE4, sAmu, ROR #28                   SEP
-    eor sAmu_, sE3, sAso, ROR #2                    SEP       rax1_m1 E0, C4, C1
-    eor sAso_, sE0, sAma, ROR #54                   SEP
-    eor sAka_, sE1, sAbe, ROR #43                   SEP
-    eor sAse_, sE3, sAgo, ROR #36                   SEP       rax1_m1 E2, C1, C3
-    eor sAgo_, sE1, sAme, ROR #49                   SEP
-    eor sAke_, sE2, sAgi, ROR #3                    SEP
-    eor sAgi_, sE0, sAka, ROR #39                   SEP       rax1_m1 E4, C3, C0
-    eor sAga_, sE3, sAbo                            SEP
-    eor sAbo_, sE3, sAmo, ROR #37                   SEP
-    eor sAmo_, sE2, sAmi, ROR #8                    SEP
-    eor sAmi_, sE1, sAke, ROR #56                   SEP       eor vAba_.16b, vAba.16b, E0.16b
-    eor sAge_, sE4, sAgu, ROR #44                   SEP
-    eor sAgu_, sE2, sAsi, ROR #62                   SEP
-    eor sAsi_, sE4, sAku, ROR #58                   SEP       xar_m1 vAsa_, vAbi, E2, 2
-    eor sAku_, sE0, sAsa, ROR #25                   SEP
-    eor sAma_, sE4, sAbu, ROR #20                   SEP
-    eor sAbu_, sE4, sAsu, ROR #9                    SEP       xar_m1 vAbi_, vAki, E2, 21
-    eor sAsu_, sE1, sAse, ROR #23                   SEP
-    eor sAme_, sE0, sAga, ROR #61                   SEP
-    eor sAbe_, sE1, sAge, ROR #19                   SEP       xar_m1 vAki_, vAko, E3, 39
-                                                    SEP
-    load_constant_ptr                               SEP
-    restore count, STACK_OFFSET_COUNT               SEP       xar_m1 vAko_, vAmu, E4, 56
-                                                    SEP
-    bic tmp, sAgi_, sAge_, ROR #47                  SEP
-    eor sAga, tmp,  sAga_, ROR #39                  SEP       xar_m1 vAmu_, vAso, E3, 8
-    bic tmp, sAgo_, sAgi_, ROR #42                  SEP
-    eor sAge, tmp,  sAge_, ROR #25                  SEP
-    bic tmp, sAgu_, sAgo_, ROR #16                  SEP       xar_m1 vAso_, vAma, E0, 23
-    eor sAgi, tmp,  sAgi_, ROR #58                  SEP
-    bic tmp, sAga_, sAgu_, ROR #31                  SEP
-    eor sAgo, tmp,  sAgo_, ROR #47                  SEP       xar_m1 vAka_, vAbe, E1, 63
-    bic tmp, sAge_, sAga_, ROR #56                  SEP
-    eor sAgu, tmp,  sAgu_, ROR #23                  SEP
-    bic tmp, sAki_, sAke_, ROR #19                  SEP       xar_m1 vAse_, vAgo, E3, 9
-    eor sAka, tmp,  sAka_, ROR #24                  SEP
-    bic tmp, sAko_, sAki_, ROR #47                  SEP
-    eor sAke, tmp,  sAke_, ROR #2                   SEP       xar_m1 vAgo_, vAme, E1, 19
-    bic tmp, sAku_, sAko_, ROR #10                  SEP
-    eor sAki, tmp,  sAki_, ROR #57                  SEP
-    bic tmp, sAka_, sAku_, ROR #47                  SEP       xar_m1 vAke_, vAgi, E2, 58
-    eor sAko, tmp,  sAko_, ROR #57                  SEP
-    bic tmp, sAke_, sAka_, ROR #5                   SEP
-    eor sAku, tmp,  sAku_, ROR #52                  SEP       xar_m1 vAgi_, vAka, E0, 61
-    bic tmp, sAmi_, sAme_, ROR #38                  SEP
-    eor sAma, tmp,  sAma_, ROR #47                  SEP
-    bic tmp, sAmo_, sAmi_, ROR #5                   SEP       xar_m1 vAga_, vAbo, E3, 36
-    eor sAme, tmp,  sAme_, ROR #43                  SEP
-    bic tmp, sAmu_, sAmo_, ROR #41                  SEP
-    eor sAmi, tmp,  sAmi_, ROR #46                  SEP       xar_m1 vAbo_, vAmo, E3, 43
-    bic tmp, sAma_, sAmu_, ROR #35                  SEP
-                                                    SEP
-    ldr cur_const, [const_addr, count, UXTW #3]     SEP       xar_m1 vAmo_, vAmi, E2, 49
-    add count, count, #1                            SEP
-                                                    SEP
-    eor sAmo, tmp,  sAmo_, ROR #12                  SEP       xar_m1 vAmi_, vAke, E1, 54
-    bic tmp, sAme_, sAma_, ROR #9                   SEP
-    eor sAmu, tmp,  sAmu_, ROR #44                  SEP
-    bic tmp, sAsi_, sAse_, ROR #48                  SEP       xar_m1 vAge_, vAgu, E4, 44
-    eor sAsa, tmp,  sAsa_, ROR #41                  SEP
-    bic tmp, sAso_, sAsi_, ROR #2                   SEP
-    eor sAse, tmp,  sAse_, ROR #50                  SEP       xar_m1 vAgu_, vAsi, E2, 3
-    bic tmp, sAsu_, sAso_, ROR #25                  SEP
-    eor sAsi, tmp,  sAsi_, ROR #27                  SEP
-    bic tmp, sAsa_, sAsu_, ROR #60                  SEP       xar_m1 vAsi_, vAku, E4, 25
-    eor sAso, tmp,  sAso_, ROR #21                  SEP
-    bic tmp, sAse_, sAsa_, ROR #57                  SEP
-    eor sAsu, tmp,  sAsu_, ROR #53                  SEP       xar_m1 vAku_, vAsa, E0, 46
-    bic tmp, sAbi_, sAbe_, ROR #63                  SEP
-    eor s_Aba, s_Aba_, tmp,  ROR #21                SEP
-    bic tmp, sAbo_, sAbi_, ROR #42                  SEP       xar_m1 vAma_, vAbu, E4, 37
-    eor sAbe, tmp,  sAbe_, ROR #41                  SEP
-    bic tmp, sAbu_, sAbo_, ROR #57                  SEP
-    eor sAbi, tmp,  sAbi_, ROR #35                  SEP       xar_m1 vAbu_, vAsu, E4, 50
-    bic tmp, s_Aba_, sAbu_, ROR #50                 SEP
-    eor sAbo, tmp,  sAbo_, ROR #43                  SEP
-    bic tmp, sAbe_, s_Aba_, ROR #44                 SEP       xar_m1 vAsu_, vAse, E1, 62
-    eor sAbu, tmp,  sAbu_, ROR #30                  SEP
-                                                    SEP
-    eor s_Aba, s_Aba, cur_const                     SEP       xar_m1 vAme_, vAga, E0, 28
-    save count, STACK_OFFSET_COUNT                  SEP
-                                                    SEP
-    eor sC0, sAka, sAsa, ROR #50                    SEP       xar_m1 vAbe_, vAge, E1, 20
-    eor sC1, sAse, sAge, ROR #60                    SEP
-    eor sC2, sAmi, sAgi, ROR #59                    SEP
-    eor sC3, sAgo, sAso, ROR #30                    SEP
-    eor sC4, sAbu, sAsu, ROR #53                    SEP       restore sE1, STACK_OFFSET_CONST
-    eor sC0, sAma, sC0, ROR #49                     SEP
-    eor sC1, sAbe, sC1, ROR #44                     SEP
-    eor sC2, sAki, sC2, ROR #26                     SEP       ld1r {v28.2d}, [sE1], #8
-    eor sC3, sAmo, sC3, ROR #63                     SEP
-    eor sC4, sAmu, sC4, ROR #56                     SEP
-    eor sC0, sAga, sC0, ROR #57                     SEP       save sE1, STACK_OFFSET_CONST
-    eor sC1, sAme, sC1, ROR #58                     SEP
-    eor sC2, sAbi, sC2, ROR #60                     SEP
-    eor sC3, sAko, sC3, ROR #38                     SEP
-    eor sC4, sAgu, sC4, ROR #48                     SEP       bcax_m1 vAga, vAga_, vAgi_, vAge_
-    eor sC0, s_Aba, sC0, ROR #61                    SEP
-    eor sC1, sAke, sC1, ROR #57                     SEP
-    eor sC2, sAsi, sC2, ROR #52                     SEP       bcax_m1 vAge, vAge_, vAgo_, vAgi_
-    eor sC3, sAbo, sC3, ROR #63                     SEP
-    eor sC4, sAku, sC4, ROR #50                     SEP
-    ror sC1, sC1, 56                                SEP       bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
-    ror sC4, sC4, 58                                SEP
-    ror sC2, sC2, 62                                SEP
-                                                    SEP       bcax_m1 vAgo, vAgo_, vAga_, vAgu_
-    eor sE1, sC0, sC2, ROR #63                      SEP
-    eor sE3, sC2, sC4, ROR #63                      SEP
-    eor sE0, sC4, sC1, ROR #63                      SEP       bcax_m1 vAgu, vAgu_, vAge_, vAga_
-    eor sE2, sC1, sC3, ROR #63                      SEP
-    eor sE4, sC3, sC0, ROR #63                      SEP
-                                                    SEP       bcax_m1 vAka, vAka_, vAki_, vAke_
-    eor s_Aba_, sE0, s_Aba                          SEP
-    eor sAsa_, sE2, sAbi, ROR #50                   SEP
-    eor sAbi_, sE2, sAki, ROR #46                   SEP       bcax_m1 vAke, vAke_, vAko_, vAki_
-    eor sAki_, sE3, sAko, ROR #63                   SEP
-    eor sAko_, sE4, sAmu, ROR #28                   SEP
-    eor sAmu_, sE3, sAso, ROR #2                    SEP       bcax_m1 vAki, vAki_, vAku_, vAko_
-    eor sAso_, sE0, sAma, ROR #54                   SEP
-    eor sAka_, sE1, sAbe, ROR #43                   SEP
-    eor sAse_, sE3, sAgo, ROR #36                   SEP       bcax_m1 vAko, vAko_, vAka_, vAku_
-    eor sAgo_, sE1, sAme, ROR #49                   SEP
-    eor sAke_, sE2, sAgi, ROR #3                    SEP
-    eor sAgi_, sE0, sAka, ROR #39                   SEP       bcax_m1 vAku, vAku_, vAke_, vAka_
-    eor sAga_, sE3, sAbo                            SEP
-    eor sAbo_, sE3, sAmo, ROR #37                   SEP
-    eor sAmo_, sE2, sAmi, ROR #8                    SEP       bcax_m1 vAma, vAma_, vAmi_, vAme_
-    eor sAmi_, sE1, sAke, ROR #56                   SEP
-    eor sAge_, sE4, sAgu, ROR #44                   SEP
-    eor sAgu_, sE2, sAsi, ROR #62                   SEP       bcax_m1 vAme, vAme_, vAmo_, vAmi_
-    eor sAsi_, sE4, sAku, ROR #58                   SEP
-    eor sAku_, sE0, sAsa, ROR #25                   SEP
-    eor sAma_, sE4, sAbu, ROR #20                   SEP       bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
-    eor sAbu_, sE4, sAsu, ROR #9                    SEP
-    eor sAsu_, sE1, sAse, ROR #23                   SEP
-    eor sAme_, sE0, sAga, ROR #61                   SEP       bcax_m1 vAmo, vAmo_, vAma_, vAmu_
-    eor sAbe_, sE1, sAge, ROR #19                   SEP
-                                                    SEP
-    load_constant_ptr                               SEP       bcax_m1 vAmu, vAmu_, vAme_, vAma_
-    restore count, STACK_OFFSET_COUNT               SEP
-                                                    SEP
-    bic tmp, sAgi_, sAge_, ROR #47                  SEP       bcax_m1 vAsa, vAsa_, vAsi_, vAse_
-    eor sAga, tmp,  sAga_, ROR #39                  SEP
-    bic tmp, sAgo_, sAgi_, ROR #42                  SEP
-    eor sAge, tmp,  sAge_, ROR #25                  SEP       bcax_m1 vAse, vAse_, vAso_, vAsi_
-    bic tmp, sAgu_, sAgo_, ROR #16                  SEP
-    eor sAgi, tmp,  sAgi_, ROR #58                  SEP
-    bic tmp, sAga_, sAgu_, ROR #31                  SEP       bcax_m1 vAsi, vAsi_, vAsu_, vAso_
-    eor sAgo, tmp,  sAgo_, ROR #47                  SEP
-    bic tmp, sAge_, sAga_, ROR #56                  SEP
-    eor sAgu, tmp,  sAgu_, ROR #23                  SEP       bcax_m1 vAso, vAso_, vAsa_, vAsu_
-    bic tmp, sAki_, sAke_, ROR #19                  SEP
-    eor sAka, tmp,  sAka_, ROR #24                  SEP
-    bic tmp, sAko_, sAki_, ROR #47                  SEP       bcax_m1 vAsu, vAsu_, vAse_, vAsa_
-    eor sAke, tmp,  sAke_, ROR #2                   SEP
-    bic tmp, sAku_, sAko_, ROR #10                  SEP
-    eor sAki, tmp,  sAki_, ROR #57                  SEP       bcax_m1 vAba, vAba_, vAbi_, vAbe_
-    bic tmp, sAka_, sAku_, ROR #47                  SEP
-    eor sAko, tmp,  sAko_, ROR #57                  SEP
-    bic tmp, sAke_, sAka_, ROR #5                   SEP       bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
-    eor sAku, tmp,  sAku_, ROR #52                  SEP
-    bic tmp, sAmi_, sAme_, ROR #38                  SEP
-    eor sAma, tmp,  sAma_, ROR #47                  SEP       bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
-    bic tmp, sAmo_, sAmi_, ROR #5                   SEP
-    eor sAme, tmp,  sAme_, ROR #43                  SEP
-    bic tmp, sAmu_, sAmo_, ROR #41                  SEP       bcax_m1 vAbo, vAbo_, vAba_, vAbu_
-    eor sAmi, tmp,  sAmi_, ROR #46                  SEP
-    bic tmp, sAma_, sAmu_, ROR #35                  SEP
-                                                    SEP       bcax_m1 vAbu, vAbu_, vAbe_, vAba_
-    ldr cur_const, [const_addr, count, UXTW #3]     SEP
-    add count, count, #1                            SEP
-                                                    SEP       eor vAba.16b, vAba.16b, v28.16b
-    eor sAmo, tmp,  sAmo_, ROR #12                  SEP
-    bic tmp, sAme_, sAma_, ROR #9                   SEP
-    eor sAmu, tmp,  sAmu_, ROR #44                  SEP
-    bic tmp, sAsi_, sAse_, ROR #48                  SEP
-    eor sAsa, tmp,  sAsa_, ROR #41                  SEP
-    bic tmp, sAso_, sAsi_, ROR #2                   SEP
-    eor sAse, tmp,  sAse_, ROR #50                  SEP
-    bic tmp, sAsu_, sAso_, ROR #25                  SEP
-    eor sAsi, tmp,  sAsi_, ROR #27                  SEP
-    bic tmp, sAsa_, sAsu_, ROR #60                  SEP
-    eor sAso, tmp,  sAso_, ROR #21                  SEP
-    bic tmp, sAse_, sAsa_, ROR #57                  SEP
-    eor sAsu, tmp,  sAsu_, ROR #53                  SEP
-    bic tmp, sAbi_, sAbe_, ROR #63                  SEP
-    eor s_Aba, s_Aba_, tmp,  ROR #21                SEP
-    bic tmp, sAbo_, sAbi_, ROR #42                  SEP
-    eor sAbe, tmp,  sAbe_, ROR #41                  SEP
-    bic tmp, sAbu_, sAbo_, ROR #57                  SEP
-    eor sAbi, tmp,  sAbi_, ROR #35                  SEP
-    bic tmp, s_Aba_, sAbu_, ROR #50                 SEP
-    eor sAbo, tmp,  sAbo_, ROR #43                  SEP
-    bic tmp, sAbe_, s_Aba_, ROR #44                 SEP
-    eor sAbu, tmp,  sAbu_, ROR #30                  SEP
-                                                    SEP
-    eor s_Aba, s_Aba, cur_const                     SEP
+    scalar_round_noninitial
+    vector_round_noninitial
+.endm
+
+.macro  scalar_round_noninitial
+    save count, STACK_OFFSET_COUNT                  
+                                                    
+    eor sC0, sAka, sAsa, ROR #50                    
+    eor sC1, sAse, sAge, ROR #60                    
+    eor sC2, sAmi, sAgi, ROR #59                    
+    eor sC3, sAgo, sAso, ROR #30                    
+    eor sC4, sAbu, sAsu, ROR #53                    
+    eor sC0, sAma, sC0, ROR #49                     
+    eor sC1, sAbe, sC1, ROR #44                     
+    eor sC2, sAki, sC2, ROR #26                     
+    eor sC3, sAmo, sC3, ROR #63                     
+    eor sC4, sAmu, sC4, ROR #56                     
+    eor sC0, sAga, sC0, ROR #57                     
+    eor sC1, sAme, sC1, ROR #58                     
+    eor sC2, sAbi, sC2, ROR #60                     
+    eor sC3, sAko, sC3, ROR #38                     
+    eor sC4, sAgu, sC4, ROR #48                     
+    eor sC0, s_Aba, sC0, ROR #61                    
+    eor sC1, sAke, sC1, ROR #57                     
+    eor sC2, sAsi, sC2, ROR #52                     
+    eor sC3, sAbo, sC3, ROR #63                     
+    eor sC4, sAku, sC4, ROR #50                     
+    ror sC1, sC1, 56                                
+    ror sC4, sC4, 58                                
+    ror sC2, sC2, 62                                
+                                                    
+    eor sE1, sC0, sC2, ROR #63                      
+    eor sE3, sC2, sC4, ROR #63                      
+    eor sE0, sC4, sC1, ROR #63                      
+    eor sE2, sC1, sC3, ROR #63                      
+    eor sE4, sC3, sC0, ROR #63                      
+                                                    
+    eor s_Aba_, sE0, s_Aba                          
+    eor sAsa_, sE2, sAbi, ROR #50                   
+    eor sAbi_, sE2, sAki, ROR #46                   
+    eor sAki_, sE3, sAko, ROR #63                   
+    eor sAko_, sE4, sAmu, ROR #28                   
+    eor sAmu_, sE3, sAso, ROR #2                    
+    eor sAso_, sE0, sAma, ROR #54                   
+    eor sAka_, sE1, sAbe, ROR #43                   
+    eor sAse_, sE3, sAgo, ROR #36                   
+    eor sAgo_, sE1, sAme, ROR #49                   
+    eor sAke_, sE2, sAgi, ROR #3                    
+    eor sAgi_, sE0, sAka, ROR #39                   
+    eor sAga_, sE3, sAbo                            
+    eor sAbo_, sE3, sAmo, ROR #37                   
+    eor sAmo_, sE2, sAmi, ROR #8                    
+    eor sAmi_, sE1, sAke, ROR #56                   
+    eor sAge_, sE4, sAgu, ROR #44                   
+    eor sAgu_, sE2, sAsi, ROR #62                   
+    eor sAsi_, sE4, sAku, ROR #58                   
+    eor sAku_, sE0, sAsa, ROR #25                   
+    eor sAma_, sE4, sAbu, ROR #20                   
+    eor sAbu_, sE4, sAsu, ROR #9                    
+    eor sAsu_, sE1, sAse, ROR #23                   
+    eor sAme_, sE0, sAga, ROR #61                   
+    eor sAbe_, sE1, sAge, ROR #19                   
+                                                    
+    load_constant_ptr                               
+    restore count, STACK_OFFSET_COUNT               
+                                                    
+    bic tmp, sAgi_, sAge_, ROR #47                  
+    eor sAga, tmp,  sAga_, ROR #39                  
+    bic tmp, sAgo_, sAgi_, ROR #42                  
+    eor sAge, tmp,  sAge_, ROR #25                  
+    bic tmp, sAgu_, sAgo_, ROR #16                  
+    eor sAgi, tmp,  sAgi_, ROR #58                  
+    bic tmp, sAga_, sAgu_, ROR #31                  
+    eor sAgo, tmp,  sAgo_, ROR #47                  
+    bic tmp, sAge_, sAga_, ROR #56                  
+    eor sAgu, tmp,  sAgu_, ROR #23                  
+    bic tmp, sAki_, sAke_, ROR #19                  
+    eor sAka, tmp,  sAka_, ROR #24                  
+    bic tmp, sAko_, sAki_, ROR #47                  
+    eor sAke, tmp,  sAke_, ROR #2                   
+    bic tmp, sAku_, sAko_, ROR #10                  
+    eor sAki, tmp,  sAki_, ROR #57                  
+    bic tmp, sAka_, sAku_, ROR #47                  
+    eor sAko, tmp,  sAko_, ROR #57                  
+    bic tmp, sAke_, sAka_, ROR #5                   
+    eor sAku, tmp,  sAku_, ROR #52                  
+    bic tmp, sAmi_, sAme_, ROR #38                  
+    eor sAma, tmp,  sAma_, ROR #47                  
+    bic tmp, sAmo_, sAmi_, ROR #5                   
+    eor sAme, tmp,  sAme_, ROR #43                  
+    bic tmp, sAmu_, sAmo_, ROR #41                  
+    eor sAmi, tmp,  sAmi_, ROR #46                  
+    bic tmp, sAma_, sAmu_, ROR #35                  
+                                                    
+    ldr cur_const, [const_addr, count, UXTW #3]     
+    add count, count, #1                            
+                                                    
+    eor sAmo, tmp,  sAmo_, ROR #12                  
+    bic tmp, sAme_, sAma_, ROR #9                   
+    eor sAmu, tmp,  sAmu_, ROR #44                  
+    bic tmp, sAsi_, sAse_, ROR #48                  
+    eor sAsa, tmp,  sAsa_, ROR #41                  
+    bic tmp, sAso_, sAsi_, ROR #2                   
+    eor sAse, tmp,  sAse_, ROR #50                  
+    bic tmp, sAsu_, sAso_, ROR #25                  
+    eor sAsi, tmp,  sAsi_, ROR #27                  
+    bic tmp, sAsa_, sAsu_, ROR #60                  
+    eor sAso, tmp,  sAso_, ROR #21                  
+    bic tmp, sAse_, sAsa_, ROR #57                  
+    eor sAsu, tmp,  sAsu_, ROR #53                  
+    bic tmp, sAbi_, sAbe_, ROR #63                  
+    eor s_Aba, s_Aba_, tmp,  ROR #21                
+    bic tmp, sAbo_, sAbi_, ROR #42                  
+    eor sAbe, tmp,  sAbe_, ROR #41                  
+    bic tmp, sAbu_, sAbo_, ROR #57                  
+    eor sAbi, tmp,  sAbi_, ROR #35                  
+    bic tmp, s_Aba_, sAbu_, ROR #50                 
+    eor sAbo, tmp,  sAbo_, ROR #43                  
+    bic tmp, sAbe_, s_Aba_, ROR #44                 
+    eor sAbu, tmp,  sAbu_, ROR #30                  
+                                                    
+    eor s_Aba, s_Aba, cur_const                     
+    save count, STACK_OFFSET_COUNT                  
+                                                    
+    eor sC0, sAka, sAsa, ROR #50                    
+    eor sC1, sAse, sAge, ROR #60                    
+    eor sC2, sAmi, sAgi, ROR #59                    
+    eor sC3, sAgo, sAso, ROR #30                    
+    eor sC4, sAbu, sAsu, ROR #53                    
+    eor sC0, sAma, sC0, ROR #49                     
+    eor sC1, sAbe, sC1, ROR #44                     
+    eor sC2, sAki, sC2, ROR #26                     
+    eor sC3, sAmo, sC3, ROR #63                     
+    eor sC4, sAmu, sC4, ROR #56                     
+    eor sC0, sAga, sC0, ROR #57                     
+    eor sC1, sAme, sC1, ROR #58                     
+    eor sC2, sAbi, sC2, ROR #60                     
+    eor sC3, sAko, sC3, ROR #38                     
+    eor sC4, sAgu, sC4, ROR #48                     
+    eor sC0, s_Aba, sC0, ROR #61                    
+    eor sC1, sAke, sC1, ROR #57                     
+    eor sC2, sAsi, sC2, ROR #52                     
+    eor sC3, sAbo, sC3, ROR #63                     
+    eor sC4, sAku, sC4, ROR #50                     
+    ror sC1, sC1, 56                                
+    ror sC4, sC4, 58                                
+    ror sC2, sC2, 62                                
+                                                    
+    eor sE1, sC0, sC2, ROR #63                      
+    eor sE3, sC2, sC4, ROR #63                      
+    eor sE0, sC4, sC1, ROR #63                      
+    eor sE2, sC1, sC3, ROR #63                      
+    eor sE4, sC3, sC0, ROR #63                      
+                                                    
+    eor s_Aba_, sE0, s_Aba                          
+    eor sAsa_, sE2, sAbi, ROR #50                   
+    eor sAbi_, sE2, sAki, ROR #46                   
+    eor sAki_, sE3, sAko, ROR #63                   
+    eor sAko_, sE4, sAmu, ROR #28                   
+    eor sAmu_, sE3, sAso, ROR #2                    
+    eor sAso_, sE0, sAma, ROR #54                   
+    eor sAka_, sE1, sAbe, ROR #43                   
+    eor sAse_, sE3, sAgo, ROR #36                   
+    eor sAgo_, sE1, sAme, ROR #49                   
+    eor sAke_, sE2, sAgi, ROR #3                    
+    eor sAgi_, sE0, sAka, ROR #39                   
+    eor sAga_, sE3, sAbo                            
+    eor sAbo_, sE3, sAmo, ROR #37                   
+    eor sAmo_, sE2, sAmi, ROR #8                    
+    eor sAmi_, sE1, sAke, ROR #56                   
+    eor sAge_, sE4, sAgu, ROR #44                   
+    eor sAgu_, sE2, sAsi, ROR #62                   
+    eor sAsi_, sE4, sAku, ROR #58                   
+    eor sAku_, sE0, sAsa, ROR #25                   
+    eor sAma_, sE4, sAbu, ROR #20                   
+    eor sAbu_, sE4, sAsu, ROR #9                    
+    eor sAsu_, sE1, sAse, ROR #23                   
+    eor sAme_, sE0, sAga, ROR #61                   
+    eor sAbe_, sE1, sAge, ROR #19                   
+                                                    
+    load_constant_ptr                               
+    restore count, STACK_OFFSET_COUNT               
+                                                    
+    bic tmp, sAgi_, sAge_, ROR #47                  
+    eor sAga, tmp,  sAga_, ROR #39                  
+    bic tmp, sAgo_, sAgi_, ROR #42                  
+    eor sAge, tmp,  sAge_, ROR #25                  
+    bic tmp, sAgu_, sAgo_, ROR #16                  
+    eor sAgi, tmp,  sAgi_, ROR #58                  
+    bic tmp, sAga_, sAgu_, ROR #31                  
+    eor sAgo, tmp,  sAgo_, ROR #47                  
+    bic tmp, sAge_, sAga_, ROR #56                  
+    eor sAgu, tmp,  sAgu_, ROR #23                  
+    bic tmp, sAki_, sAke_, ROR #19                  
+    eor sAka, tmp,  sAka_, ROR #24                  
+    bic tmp, sAko_, sAki_, ROR #47                  
+    eor sAke, tmp,  sAke_, ROR #2                   
+    bic tmp, sAku_, sAko_, ROR #10                  
+    eor sAki, tmp,  sAki_, ROR #57                  
+    bic tmp, sAka_, sAku_, ROR #47                  
+    eor sAko, tmp,  sAko_, ROR #57                  
+    bic tmp, sAke_, sAka_, ROR #5                   
+    eor sAku, tmp,  sAku_, ROR #52                  
+    bic tmp, sAmi_, sAme_, ROR #38                  
+    eor sAma, tmp,  sAma_, ROR #47                  
+    bic tmp, sAmo_, sAmi_, ROR #5                   
+    eor sAme, tmp,  sAme_, ROR #43                  
+    bic tmp, sAmu_, sAmo_, ROR #41                  
+    eor sAmi, tmp,  sAmi_, ROR #46                  
+    bic tmp, sAma_, sAmu_, ROR #35                  
+                                                    
+    ldr cur_const, [const_addr, count, UXTW #3]     
+    add count, count, #1                            
+                                                    
+    eor sAmo, tmp,  sAmo_, ROR #12                  
+    bic tmp, sAme_, sAma_, ROR #9                   
+    eor sAmu, tmp,  sAmu_, ROR #44                  
+    bic tmp, sAsi_, sAse_, ROR #48                  
+    eor sAsa, tmp,  sAsa_, ROR #41                  
+    bic tmp, sAso_, sAsi_, ROR #2                   
+    eor sAse, tmp,  sAse_, ROR #50                  
+    bic tmp, sAsu_, sAso_, ROR #25                  
+    eor sAsi, tmp,  sAsi_, ROR #27                  
+    bic tmp, sAsa_, sAsu_, ROR #60                  
+    eor sAso, tmp,  sAso_, ROR #21                  
+    bic tmp, sAse_, sAsa_, ROR #57                  
+    eor sAsu, tmp,  sAsu_, ROR #53                  
+    bic tmp, sAbi_, sAbe_, ROR #63                  
+    eor s_Aba, s_Aba_, tmp,  ROR #21                
+    bic tmp, sAbo_, sAbi_, ROR #42                  
+    eor sAbe, tmp,  sAbe_, ROR #41                  
+    bic tmp, sAbu_, sAbo_, ROR #57                  
+    eor sAbi, tmp,  sAbi_, ROR #35                  
+    bic tmp, s_Aba_, sAbu_, ROR #50                 
+    eor sAbo, tmp,  sAbo_, ROR #43                  
+    bic tmp, sAbe_, s_Aba_, ROR #44                 
+    eor sAbu, tmp,  sAbu_, ROR #30                  
+                                                    
+    eor s_Aba, s_Aba, cur_const                     
 
 .endm
+
+
+.macro  vector_round_noninitial
+       eor3_m1 C0, vAba, vAga, vAka
+       eor3_m1 C0, C0, vAma,  vAsa
+       eor3_m1 C1, vAbe, vAge, vAke
+       eor3_m1 C1, C1, vAme,  vAse
+       eor3_m1 C2, vAbi, vAgi, vAki
+       eor3_m1 C2, C2, vAmi,  vAsi
+       eor3_m1 C3, vAbo, vAgo, vAko
+       eor3_m1 C3, C3, vAmo,  vAso
+       eor3_m1 C4, vAbu, vAgu, vAku
+       eor3_m1 C4, C4, vAmu,  vAsu
+       rax1_m1 E1, C0, C2
+       rax1_m1 E3, C2, C4
+       rax1_m1 E0, C4, C1
+       rax1_m1 E2, C1, C3
+       rax1_m1 E4, C3, C0
+       eor vAba_.16b, vAba.16b, E0.16b
+       xar_m1 vAsa_, vAbi, E2, 2
+       xar_m1 vAbi_, vAki, E2, 21
+       xar_m1 vAki_, vAko, E3, 39
+       xar_m1 vAko_, vAmu, E4, 56
+       xar_m1 vAmu_, vAso, E3, 8
+       xar_m1 vAso_, vAma, E0, 23
+       xar_m1 vAka_, vAbe, E1, 63
+       xar_m1 vAse_, vAgo, E3, 9
+       xar_m1 vAgo_, vAme, E1, 19
+       xar_m1 vAke_, vAgi, E2, 58
+       xar_m1 vAgi_, vAka, E0, 61
+       xar_m1 vAga_, vAbo, E3, 36
+       xar_m1 vAbo_, vAmo, E3, 43
+       xar_m1 vAmo_, vAmi, E2, 49
+       xar_m1 vAmi_, vAke, E1, 54
+       xar_m1 vAge_, vAgu, E4, 44
+       xar_m1 vAgu_, vAsi, E2, 3
+       xar_m1 vAsi_, vAku, E4, 25
+       xar_m1 vAku_, vAsa, E0, 46
+       xar_m1 vAma_, vAbu, E4, 37
+       xar_m1 vAbu_, vAsu, E4, 50
+       xar_m1 vAsu_, vAse, E1, 62
+       xar_m1 vAme_, vAga, E0, 28
+       xar_m1 vAbe_, vAge, E1, 20
+       restore sE1, STACK_OFFSET_CONST
+       ld1r {v28.2d}, [sE1], #8
+       save sE1, STACK_OFFSET_CONST
+       bcax_m1 vAga, vAga_, vAgi_, vAge_
+       bcax_m1 vAge, vAge_, vAgo_, vAgi_
+       bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
+       bcax_m1 vAgo, vAgo_, vAga_, vAgu_
+       bcax_m1 vAgu, vAgu_, vAge_, vAga_
+       bcax_m1 vAka, vAka_, vAki_, vAke_
+       bcax_m1 vAke, vAke_, vAko_, vAki_
+       bcax_m1 vAki, vAki_, vAku_, vAko_
+       bcax_m1 vAko, vAko_, vAka_, vAku_
+       bcax_m1 vAku, vAku_, vAke_, vAka_
+       bcax_m1 vAma, vAma_, vAmi_, vAme_
+       bcax_m1 vAme, vAme_, vAmo_, vAmi_
+       bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
+       bcax_m1 vAmo, vAmo_, vAma_, vAmu_
+       bcax_m1 vAmu, vAmu_, vAme_, vAma_
+       bcax_m1 vAsa, vAsa_, vAsi_, vAse_
+       bcax_m1 vAse, vAse_, vAso_, vAsi_
+       bcax_m1 vAsi, vAsi_, vAsu_, vAso_
+       bcax_m1 vAso, vAso_, vAsa_, vAsu_
+       bcax_m1 vAsu, vAsu_, vAse_, vAsa_
+       bcax_m1 vAba, vAba_, vAbi_, vAbe_
+       bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
+       bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
+       bcax_m1 vAbo, vAbo_, vAba_, vAbu_
+       bcax_m1 vAbu, vAbu_, vAbe_, vAba_
+       eor vAba.16b, vAba.16b, v28.16b
+.endm
+
 
 .macro final_rotate
     ror sAga, sAga,#(64-3)
