@@ -789,7 +789,7 @@ class AsmMacro():
         for arg in self.args:
             arg_regexps.append(rf"\s*(?P<{arg}>[^,]+)\s*")
 
-        macro_regexp_txt += ','.join(arg_regexps)
+        macro_regexp_txt += '(,|\s)'.join(arg_regexps)
         macro_regexp = re.compile(macro_regexp_txt)
 
         output = []
@@ -875,7 +875,7 @@ class AsmMacro():
                 if cur.tags.get("no-unfold", None) is not None:
                     continue
 
-                current_args = [ a.strip() for a in p.group("args").split(',') ]
+                current_args = [ a.strip() for a in re.split(r'\s|\,', p.group("args")) if a.strip() != ""]
                 current_macro = p.group("name")
                 current_body = []
 
