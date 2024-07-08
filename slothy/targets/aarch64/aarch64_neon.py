@@ -850,8 +850,7 @@ class asm_load(Instruction): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = Instruction.build(cls, src, mnemonic="asm_load",
-                               arg_types_out=[RegisterType.GPR],
-                               arg_types_in=[])
+                               arg_types_out=[RegisterType.GPR])
         obj.increment = None
         return obj
 
