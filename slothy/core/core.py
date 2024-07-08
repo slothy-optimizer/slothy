@@ -3135,6 +3135,9 @@ class SlothyBase(LockAttributes):
         self._model.cp_model  = cp_model.CpModel()
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
+        self._model.cp_solver.parameters.num_workers = 16
+        self._model.cp_solver.parameters.cp_model_probing_level=0
+        self._model.cp_solver.parameters.linearization_level=0
 
     def _NewIntVar(self, minval, maxval, name=""): # pylint:disable=invalid-name
         r = self._model.cp_model.NewIntVar(minval,maxval, name)
