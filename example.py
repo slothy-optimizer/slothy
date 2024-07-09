@@ -1355,6 +1355,29 @@ class fft_floatingpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
+class neon_keccak_x4(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "keccak_f1600_x4_hybrid_slothy"
+        infile = "keccak_f1600_x4_hybrid_slothy"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        # TODO: check of all of these are need for all code parts
+        slothy.config.reserved_regs = ["x0", "x26", "x27", "x29", "sp"]
+        slothy.config.outputs = ["x27"]
+        slothy.config.reserved_regs += self.target_reserved
+
+        slothy.optimize(start="initial", end="end_initial")
+        slothy.optimize(start="initial2", end="end_initial2")
+        slothy.optimize(start="loop_0", end="end_loop_0")
+        slothy.optimize(start="loop_1", end="end_loop_1")
 #############################################################################################
 
 
@@ -1497,6 +1520,8 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
+                 # Keccak
+                neon_keccak_x4(),
                  ]
 
     all_example_names = [e.name for e in examples]

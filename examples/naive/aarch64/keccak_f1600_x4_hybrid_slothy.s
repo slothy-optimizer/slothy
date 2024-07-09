@@ -22,14 +22,16 @@
  * SOFTWARE.
  *
  */
+#include <hal_env.h>
 
 //
 // Author: Hanno Becker <hanno.becker@arm.com>
 // Author: Matthias Kannwischer <matthias@kannwischer.eu>
 //
 
-#include "macros.s"
-
+.macro asm_load dst, addr // @slothy:no-unfold
+    ASM_LOAD(\dst, \addr)
+.endm
 
 /********************** CONSTANTS *************************/
     .data
@@ -241,7 +243,6 @@ round_constants:
 
 /* Macros using v8.4-A SHA-3 instructions */
 
-
 .macro eor3_m1 d s0 s1 s2
 	eor \d\().16b, \s0\().16b, \s1\().16b
 	eor \d\().16b, \d\().16b,  \s2\().16b
@@ -263,7 +264,6 @@ round_constants:
     bic vtmp.16b, \s1\().16b, \s2\().16b
     eor \d\().16b, vtmp.16b, \s0\().16b
 .endm
-
 
 .macro load_input_vector num idx
     ldr vAbaq, [input_addr, #(16*(\num*0+\idx))]
@@ -432,23 +432,15 @@ round_constants:
 .endm
 
 .macro xor_rol dst, src1, src0, imm
-    eor \dst, \src0, \src1, ROR  #(64-\imm)
+    eor \dst, \src0, \src1, ror  #(64-\imm)
 .endm
 
 .macro bic_rol dst, src1, src0, imm
-    bic \dst, \src0, \src1, ROR  #(64-\imm)
+    bic \dst, \src0, \src1, ror  #(64-\imm)
 .endm
 
 .macro rotate dst, src, imm
     ror \dst, \src, #(64-\imm)
-.endm
-
-.macro save reg, offset
-    str \reg, [sp, #\offset]
-.endm
-
-.macro restore reg, offset
-    ldr \reg, [sp, #\offset]
 .endm
 
 .macro hybrid_round_initial
@@ -478,11 +470,11 @@ round_constants:
    eor sC3, sAbo, sC3
    eor sC4, sAbu, sC4
 
-   eor sE1, sC0, sC2, ROR #63
-   eor sE3, sC2, sC4, ROR #63
-   eor sE0, sC4, sC1, ROR #63
-   eor sE2, sC1, sC3, ROR #63
-   eor sE4, sC3, sC0, ROR #63
+   eor sE1, sC0, sC2, ror #63
+   eor sE3, sC2, sC4, ror #63
+   eor sE0, sC4, sC1, ror #63
+   eor sE2, sC1, sC3, ror #63
+   eor sE4, sC3, sC0, ror #63
 
    eor s_Aba_, s_Aba, sE0
    eor sAsa_, sAbi, sE2
@@ -510,257 +502,254 @@ round_constants:
    eor sAme_, sAga, sE0
    eor sAbe_, sAge, sE1
 
-   load_constant_ptr
+   asm_load const_addr, round_constants
 
-   bic tmp, sAgi_, sAge_, ROR #47
-   eor sAga, tmp,  sAga_, ROR #39
-   bic tmp, sAgo_, sAgi_, ROR #42
-   eor sAge, tmp,  sAge_, ROR #25
-   bic tmp, sAgu_, sAgo_, ROR #16
-   eor sAgi, tmp,  sAgi_, ROR #58
-   bic tmp, sAga_, sAgu_, ROR #31
-   eor sAgo, tmp,  sAgo_, ROR #47
-   bic tmp, sAge_, sAga_, ROR #56
-   eor sAgu, tmp,  sAgu_, ROR #23
-   bic tmp, sAki_, sAke_, ROR #19
-   eor sAka, tmp,  sAka_, ROR #24
-   bic tmp, sAko_, sAki_, ROR #47
-   eor sAke, tmp,  sAke_, ROR #2
-   bic tmp, sAku_, sAko_, ROR #10
-   eor sAki, tmp,  sAki_, ROR #57
-   bic tmp, sAka_, sAku_, ROR #47
-   eor sAko, tmp,  sAko_, ROR #57
-   bic tmp, sAke_, sAka_, ROR #5
-   eor sAku, tmp,  sAku_, ROR #52
-   bic tmp, sAmi_, sAme_, ROR #38
-   eor sAma, tmp,  sAma_, ROR #47
-   bic tmp, sAmo_, sAmi_, ROR #5
-   eor sAme, tmp,  sAme_, ROR #43
-   bic tmp, sAmu_, sAmo_, ROR #41
-   eor sAmi, tmp,  sAmi_, ROR #46
+   bic tmp, sAgi_, sAge_, ror #47
+   eor sAga, tmp,  sAga_, ror #39
+   bic tmp, sAgo_, sAgi_, ror #42
+   eor sAge, tmp,  sAge_, ror #25
+   bic tmp, sAgu_, sAgo_, ror #16
+   eor sAgi, tmp,  sAgi_, ror #58
+   bic tmp, sAga_, sAgu_, ror #31
+   eor sAgo, tmp,  sAgo_, ror #47
+   bic tmp, sAge_, sAga_, ror #56
+   eor sAgu, tmp,  sAgu_, ror #23
+   bic tmp, sAki_, sAke_, ror #19
+   eor sAka, tmp,  sAka_, ror #24
+   bic tmp, sAko_, sAki_, ror #47
+   eor sAke, tmp,  sAke_, ror #2
+   bic tmp, sAku_, sAko_, ror #10
+   eor sAki, tmp,  sAki_, ror #57
+   bic tmp, sAka_, sAku_, ror #47
+   eor sAko, tmp,  sAko_, ror #57
+   bic tmp, sAke_, sAka_, ror #5
+   eor sAku, tmp,  sAku_, ror #52
+   bic tmp, sAmi_, sAme_, ror #38
+   eor sAma, tmp,  sAma_, ror #47
+   bic tmp, sAmo_, sAmi_, ror #5
+   eor sAme, tmp,  sAme_, ror #43
+   bic tmp, sAmu_, sAmo_, ror #41
+   eor sAmi, tmp,  sAmi_, ror #46
 
    ldr cur_const, [const_addr]
    mov count, #1
 
-   bic tmp, sAma_, sAmu_, ROR #35
-   eor sAmo, tmp,  sAmo_, ROR #12
-   bic tmp, sAme_, sAma_, ROR #9
-   eor sAmu, tmp,  sAmu_, ROR #44
-   bic tmp, sAsi_, sAse_, ROR #48
-   eor sAsa, tmp,  sAsa_, ROR #41
-   bic tmp, sAso_, sAsi_, ROR #2
-   eor sAse, tmp,  sAse_, ROR #50
-   bic tmp, sAsu_, sAso_, ROR #25
-   eor sAsi, tmp,  sAsi_, ROR #27
-   bic tmp, sAsa_, sAsu_, ROR #60
-   eor sAso, tmp,  sAso_, ROR #21
-   bic tmp, sAse_, sAsa_, ROR #57
-   eor sAsu, tmp,  sAsu_, ROR #53
-   bic tmp, sAbi_, sAbe_, ROR #63
-   eor s_Aba, s_Aba_, tmp,  ROR #21
-   bic tmp, sAbo_, sAbi_, ROR #42
-   eor sAbe, tmp,  sAbe_, ROR #41
-   bic tmp, sAbu_, sAbo_, ROR #57
-   eor sAbi, tmp,  sAbi_, ROR #35
-   bic tmp, s_Aba_, sAbu_, ROR #50
-   eor sAbo, tmp,  sAbo_, ROR #43
-   bic tmp, sAbe_, s_Aba_, ROR #44
-   eor sAbu, tmp,  sAbu_, ROR #30
+   bic tmp, sAma_, sAmu_, ror #35
+   eor sAmo, tmp,  sAmo_, ror #12
+   bic tmp, sAme_, sAma_, ror #9
+   eor sAmu, tmp,  sAmu_, ror #44
+   bic tmp, sAsi_, sAse_, ror #48
+   eor sAsa, tmp,  sAsa_, ror #41
+   bic tmp, sAso_, sAsi_, ror #2
+   eor sAse, tmp,  sAse_, ror #50
+   bic tmp, sAsu_, sAso_, ror #25
+   eor sAsi, tmp,  sAsi_, ror #27
+   bic tmp, sAsa_, sAsu_, ror #60
+   eor sAso, tmp,  sAso_, ror #21
+   bic tmp, sAse_, sAsa_, ror #57
+   eor sAsu, tmp,  sAsu_, ror #53
+   bic tmp, sAbi_, sAbe_, ror #63
+   eor s_Aba, s_Aba_, tmp,  ror #21
+   bic tmp, sAbo_, sAbi_, ror #42
+   eor sAbe, tmp,  sAbe_, ror #41
+   bic tmp, sAbu_, sAbo_, ror #57
+   eor sAbi, tmp,  sAbi_, ror #35
+   bic tmp, s_Aba_, sAbu_, ror #50
+   eor sAbo, tmp,  sAbo_, ror #43
+   bic tmp, sAbe_, s_Aba_, ror #44
+   eor sAbu, tmp,  sAbu_, ror #30
 
    eor s_Aba, s_Aba, cur_const
 
-   save count, STACK_OFFSET_COUNT
+   str count, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
 
-   eor sC0, sAka, sAsa, ROR #50
-   eor sC1, sAse, sAge, ROR #60
-   eor sC2, sAmi, sAgi, ROR #59
-   eor sC3, sAgo, sAso, ROR #30
-   eor sC4, sAbu, sAsu, ROR #53
-   eor sC0, sAma, sC0, ROR #49
-   eor sC1, sAbe, sC1, ROR #44
-   eor sC2, sAki, sC2, ROR #26
-   eor sC3, sAmo, sC3, ROR #63
-   eor sC4, sAmu, sC4, ROR #56
-   eor sC0, sAga, sC0, ROR #57
-   eor sC1, sAme, sC1, ROR #58
-   eor sC2, sAbi, sC2, ROR #60
-   eor sC3, sAko, sC3, ROR #38
-   eor sC4, sAgu, sC4, ROR #48
-   eor sC0, s_Aba, sC0, ROR #61
-   eor sC1, sAke, sC1, ROR #57
-   eor sC2, sAsi, sC2, ROR #52
-   eor sC3, sAbo, sC3, ROR #63
-   eor sC4, sAku, sC4, ROR #50
-   ror sC1, sC1, 56
-   ror sC4, sC4, 58
-   ror sC2, sC2, 62
+   eor sC0, sAka, sAsa, ror #50
+   eor sC1, sAse, sAge, ror #60
+   eor sC2, sAmi, sAgi, ror #59
+   eor sC3, sAgo, sAso, ror #30
+   eor sC4, sAbu, sAsu, ror #53
+   eor sC0, sAma, sC0, ror #49
+   eor sC1, sAbe, sC1, ror #44
+   eor sC2, sAki, sC2, ror #26
+   eor sC3, sAmo, sC3, ror #63
+   eor sC4, sAmu, sC4, ror #56
+   eor sC0, sAga, sC0, ror #57
+   eor sC1, sAme, sC1, ror #58
+   eor sC2, sAbi, sC2, ror #60
+   eor sC3, sAko, sC3, ror #38
+   eor sC4, sAgu, sC4, ror #48
+   eor sC0, s_Aba, sC0, ror #61
+   eor sC1, sAke, sC1, ror #57
+   eor sC2, sAsi, sC2, ror #52
+   eor sC3, sAbo, sC3, ror #63
+   eor sC4, sAku, sC4, ror #50
+   ror sC1, sC1, #56
+   ror sC4, sC4, #58
+   ror sC2, sC2, #62
 
-   eor sE1, sC0, sC2, ROR #63
-   eor sE3, sC2, sC4, ROR #63
-   eor sE0, sC4, sC1, ROR #63
-   eor sE2, sC1, sC3, ROR #63
-   eor sE4, sC3, sC0, ROR #63
+   eor sE1, sC0, sC2, ror #63
+   eor sE3, sC2, sC4, ror #63
+   eor sE0, sC4, sC1, ror #63
+   eor sE2, sC1, sC3, ror #63
+   eor sE4, sC3, sC0, ror #63
 
    eor s_Aba_, sE0, s_Aba
-   eor sAsa_, sE2, sAbi, ROR #50
-   eor sAbi_, sE2, sAki, ROR #46
-   eor sAki_, sE3, sAko, ROR #63
-   eor sAko_, sE4, sAmu, ROR #28
-   eor sAmu_, sE3, sAso, ROR #2
-   eor sAso_, sE0, sAma, ROR #54
-   eor sAka_, sE1, sAbe, ROR #43
-   eor sAse_, sE3, sAgo, ROR #36
-   eor sAgo_, sE1, sAme, ROR #49
-   eor sAke_, sE2, sAgi, ROR #3
-   eor sAgi_, sE0, sAka, ROR #39
+   eor sAsa_, sE2, sAbi, ror #50
+   eor sAbi_, sE2, sAki, ror #46
+   eor sAki_, sE3, sAko, ror #63
+   eor sAko_, sE4, sAmu, ror #28
+   eor sAmu_, sE3, sAso, ror #2
+   eor sAso_, sE0, sAma, ror #54
+   eor sAka_, sE1, sAbe, ror #43
+   eor sAse_, sE3, sAgo, ror #36
+   eor sAgo_, sE1, sAme, ror #49
+   eor sAke_, sE2, sAgi, ror #3
+   eor sAgi_, sE0, sAka, ror #39
    eor sAga_, sE3, sAbo
-   eor sAbo_, sE3, sAmo, ROR #37
-   eor sAmo_, sE2, sAmi, ROR #8
-   eor sAmi_, sE1, sAke, ROR #56
-   eor sAge_, sE4, sAgu, ROR #44
-   eor sAgu_, sE2, sAsi, ROR #62
-   eor sAsi_, sE4, sAku, ROR #58
-   eor sAku_, sE0, sAsa, ROR #25
-   eor sAma_, sE4, sAbu, ROR #20
-   eor sAbu_, sE4, sAsu, ROR #9
-   eor sAsu_, sE1, sAse, ROR #23
-   eor sAme_, sE0, sAga, ROR #61
-   eor sAbe_, sE1, sAge, ROR #19
+   eor sAbo_, sE3, sAmo, ror #37
+   eor sAmo_, sE2, sAmi, ror #8
+   eor sAmi_, sE1, sAke, ror #56
+   eor sAge_, sE4, sAgu, ror #44
+   eor sAgu_, sE2, sAsi, ror #62
+   eor sAsi_, sE4, sAku, ror #58
+   eor sAku_, sE0, sAsa, ror #25
+   eor sAma_, sE4, sAbu, ror #20
+   eor sAbu_, sE4, sAsu, ror #9
+   eor sAsu_, sE1, sAse, ror #23
+   eor sAme_, sE0, sAga, ror #61
+   eor sAbe_, sE1, sAge, ror #19
 
-   load_constant_ptr
-   restore count, STACK_OFFSET_COUNT
+   asm_load const_addr, round_constants
+   ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
 
-   bic tmp, sAgi_, sAge_, ROR #47
-   eor sAga, tmp,  sAga_, ROR #39
-   bic tmp, sAgo_, sAgi_, ROR #42
-   eor sAge, tmp,  sAge_, ROR #25
-   bic tmp, sAgu_, sAgo_, ROR #16
-   eor sAgi, tmp,  sAgi_, ROR #58
-   bic tmp, sAga_, sAgu_, ROR #31
-   eor sAgo, tmp,  sAgo_, ROR #47
-   bic tmp, sAge_, sAga_, ROR #56
-   eor sAgu, tmp,  sAgu_, ROR #23
-   bic tmp, sAki_, sAke_, ROR #19
-   eor sAka, tmp,  sAka_, ROR #24
-   bic tmp, sAko_, sAki_, ROR #47
-   eor sAke, tmp,  sAke_, ROR #2
-   bic tmp, sAku_, sAko_, ROR #10
-   eor sAki, tmp,  sAki_, ROR #57
-   bic tmp, sAka_, sAku_, ROR #47
-   eor sAko, tmp,  sAko_, ROR #57
-   bic tmp, sAke_, sAka_, ROR #5
-   eor sAku, tmp,  sAku_, ROR #52
-   bic tmp, sAmi_, sAme_, ROR #38
-   eor sAma, tmp,  sAma_, ROR #47
-   bic tmp, sAmo_, sAmi_, ROR #5
-   eor sAme, tmp,  sAme_, ROR #43
-   bic tmp, sAmu_, sAmo_, ROR #41
-   eor sAmi, tmp,  sAmi_, ROR #46
-   bic tmp, sAma_, sAmu_, ROR #35
+   bic tmp, sAgi_, sAge_, ror #47
+   eor sAga, tmp,  sAga_, ror #39
+   bic tmp, sAgo_, sAgi_, ror #42
+   eor sAge, tmp,  sAge_, ror #25
+   bic tmp, sAgu_, sAgo_, ror #16
+   eor sAgi, tmp,  sAgi_, ror #58
+   bic tmp, sAga_, sAgu_, ror #31
+   eor sAgo, tmp,  sAgo_, ror #47
+   bic tmp, sAge_, sAga_, ror #56
+   eor sAgu, tmp,  sAgu_, ror #23
+   bic tmp, sAki_, sAke_, ror #19
+   eor sAka, tmp,  sAka_, ror #24
+   bic tmp, sAko_, sAki_, ror #47
+   eor sAke, tmp,  sAke_, ror #2
+   bic tmp, sAku_, sAko_, ror #10
+   eor sAki, tmp,  sAki_, ror #57
+   bic tmp, sAka_, sAku_, ror #47
+   eor sAko, tmp,  sAko_, ror #57
+   bic tmp, sAke_, sAka_, ror #5
+   eor sAku, tmp,  sAku_, ror #52
+   bic tmp, sAmi_, sAme_, ror #38
+   eor sAma, tmp,  sAma_, ror #47
+   bic tmp, sAmo_, sAmi_, ror #5
+   eor sAme, tmp,  sAme_, ror #43
+   bic tmp, sAmu_, sAmo_, ror #41
+   eor sAmi, tmp,  sAmi_, ror #46
+   bic tmp, sAma_, sAmu_, ror #35
 
    ldr cur_const, [const_addr, count, UXTW #3]
 
-   eor sAmo, tmp,  sAmo_, ROR #12
-   bic tmp, sAme_, sAma_, ROR #9
-   eor sAmu, tmp,  sAmu_, ROR #44
-   bic tmp, sAsi_, sAse_, ROR #48
-   eor sAsa, tmp,  sAsa_, ROR #41
-   bic tmp, sAso_, sAsi_, ROR #2
-   eor sAse, tmp,  sAse_, ROR #50
-   bic tmp, sAsu_, sAso_, ROR #25
-   eor sAsi, tmp,  sAsi_, ROR #27
-   bic tmp, sAsa_, sAsu_, ROR #60
-   eor sAso, tmp,  sAso_, ROR #21
-   bic tmp, sAse_, sAsa_, ROR #57
-   eor sAsu, tmp,  sAsu_, ROR #53
-   bic tmp, sAbi_, sAbe_, ROR #63
-   eor s_Aba, s_Aba_, tmp,  ROR #21
-   bic tmp, sAbo_, sAbi_, ROR #42
-   eor sAbe, tmp,  sAbe_, ROR #41
-   bic tmp, sAbu_, sAbo_, ROR #57
-   eor sAbi, tmp,  sAbi_, ROR #35
-   bic tmp, s_Aba_, sAbu_, ROR #50
-   eor sAbo, tmp,  sAbo_, ROR #43
-   bic tmp, sAbe_, s_Aba_, ROR #44
-   eor sAbu, tmp,  sAbu_, ROR #30
-
+   eor sAmo, tmp,  sAmo_, ror #12
+   bic tmp, sAme_, sAma_, ror #9
+   eor sAmu, tmp,  sAmu_, ror #44
+   bic tmp, sAsi_, sAse_, ror #48
+   eor sAsa, tmp,  sAsa_, ror #41
+   bic tmp, sAso_, sAsi_, ror #2
+   eor sAse, tmp,  sAse_, ror #50
+   bic tmp, sAsu_, sAso_, ror #25
+   eor sAsi, tmp,  sAsi_, ror #27
+   bic tmp, sAsa_, sAsu_, ror #60
+   eor sAso, tmp,  sAso_, ror #21
+   bic tmp, sAse_, sAsa_, ror #57
+   eor sAsu, tmp,  sAsu_, ror #53
+   bic tmp, sAbi_, sAbe_, ror #63
+   eor s_Aba, s_Aba_, tmp,  ror #21
+   bic tmp, sAbo_, sAbi_, ror #42
+   eor sAbe, tmp,  sAbe_, ror #41
+   bic tmp, sAbu_, sAbo_, ror #57
+   eor sAbi, tmp,  sAbi_, ror #35
+   bic tmp, s_Aba_, sAbu_, ror #50
+   eor sAbo, tmp,  sAbo_, ror #43
+   bic tmp, sAbe_, s_Aba_, ror #44
+   eor sAbu, tmp,  sAbu_, ror #30
    add count, count, #1
-
    eor s_Aba, s_Aba, cur_const
-
 .endm
 
 
 .macro vector_round_initial
-       eor3_m1 C0, vAba, vAga, vAka
-       eor3_m1 C0, C0, vAma,  vAsa
-       eor3_m1 C1, vAbe, vAge, vAke
-       eor3_m1 C1, C1, vAme,  vAse
-       eor3_m1 C2, vAbi, vAgi, vAki
-       eor3_m1 C2, C2, vAmi,  vAsi
-       eor3_m1 C3, vAbo, vAgo, vAko
-       eor3_m1 C3, C3, vAmo,  vAso
-       eor3_m1 C4, vAbu, vAgu, vAku
-       eor3_m1 C4, C4, vAmu,  vAsu
-       rax1_m1 E1, C0, C2
-       rax1_m1 E3, C2, C4
-       rax1_m1 E0, C4, C1
-       rax1_m1 E2, C1, C3
-       rax1_m1 E4, C3, C0
-       eor vAba_.16b, vAba.16b, E0.16b
-       xar_m1 vAsa_, vAbi, E2, 2
-       xar_m1 vAbi_, vAki, E2, 21
-       xar_m1 vAki_, vAko, E3, 39
-       xar_m1 vAko_, vAmu, E4, 56
-       xar_m1 vAmu_, vAso, E3, 8
-       xar_m1 vAso_, vAma, E0, 23
-       xar_m1 vAka_, vAbe, E1, 63
-       xar_m1 vAse_, vAgo, E3, 9
-       xar_m1 vAgo_, vAme, E1, 19
-       xar_m1 vAke_, vAgi, E2, 58
-       xar_m1 vAgi_, vAka, E0, 61
-       xar_m1 vAga_, vAbo, E3, 36
-       xar_m1 vAbo_, vAmo, E3, 43
-       xar_m1 vAmo_, vAmi, E2, 49
-       xar_m1 vAmi_, vAke, E1, 54
-       xar_m1 vAge_, vAgu, E4, 44
-       xar_m1 vAgu_, vAsi, E2, 3
-       xar_m1 vAsi_, vAku, E4, 25
-       xar_m1 vAku_, vAsa, E0, 46
-       xar_m1 vAma_, vAbu, E4, 37
-       xar_m1 vAbu_, vAsu, E4, 50
-       xar_m1 vAsu_, vAse, E1, 62
-       xar_m1 vAme_, vAga, E0, 28
-       xar_m1 vAbe_, vAge, E1, 20
-       restore sE1, STACK_OFFSET_CONST
-       ld1r {v28.2d}, [sE1], #8
-       save sE1, STACK_OFFSET_CONST
-       bcax_m1 vAga, vAga_, vAgi_, vAge_
-       bcax_m1 vAge, vAge_, vAgo_, vAgi_
-       bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
-       bcax_m1 vAgo, vAgo_, vAga_, vAgu_
-       bcax_m1 vAgu, vAgu_, vAge_, vAga_
-       bcax_m1 vAka, vAka_, vAki_, vAke_
-       bcax_m1 vAke, vAke_, vAko_, vAki_
-       bcax_m1 vAki, vAki_, vAku_, vAko_
-       bcax_m1 vAko, vAko_, vAka_, vAku_
-       bcax_m1 vAku, vAku_, vAke_, vAka_
-       bcax_m1 vAma, vAma_, vAmi_, vAme_
-       bcax_m1 vAme, vAme_, vAmo_, vAmi_
-       bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
-       bcax_m1 vAmo, vAmo_, vAma_, vAmu_
-       bcax_m1 vAmu, vAmu_, vAme_, vAma_
-       bcax_m1 vAsa, vAsa_, vAsi_, vAse_
-       bcax_m1 vAse, vAse_, vAso_, vAsi_
-       bcax_m1 vAsi, vAsi_, vAsu_, vAso_
-       bcax_m1 vAso, vAso_, vAsa_, vAsu_
-       bcax_m1 vAsu, vAsu_, vAse_, vAsa_
-       bcax_m1 vAba, vAba_, vAbi_, vAbe_
-       bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
-       bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
-       bcax_m1 vAbo, vAbo_, vAba_, vAbu_
-       bcax_m1 vAbu, vAbu_, vAbe_, vAba_
-       eor vAba.16b, vAba.16b, v28.16b
+   eor3_m1 C0, vAba, vAga, vAka
+   eor3_m1 C0, C0, vAma,  vAsa
+   eor3_m1 C1, vAbe, vAge, vAke
+   eor3_m1 C1, C1, vAme,  vAse
+   eor3_m1 C2, vAbi, vAgi, vAki
+   eor3_m1 C2, C2, vAmi,  vAsi
+   eor3_m1 C3, vAbo, vAgo, vAko
+   eor3_m1 C3, C3, vAmo,  vAso
+   eor3_m1 C4, vAbu, vAgu, vAku
+   eor3_m1 C4, C4, vAmu,  vAsu
+   rax1_m1 E1, C0, C2
+   rax1_m1 E3, C2, C4
+   rax1_m1 E0, C4, C1
+   rax1_m1 E2, C1, C3
+   rax1_m1 E4, C3, C0
+   eor vAba_.16b, vAba.16b, E0.16b
+   xar_m1 vAsa_, vAbi, E2, 2
+   xar_m1 vAbi_, vAki, E2, 21
+   xar_m1 vAki_, vAko, E3, 39
+   xar_m1 vAko_, vAmu, E4, 56
+   xar_m1 vAmu_, vAso, E3, 8
+   xar_m1 vAso_, vAma, E0, 23
+   xar_m1 vAka_, vAbe, E1, 63
+   xar_m1 vAse_, vAgo, E3, 9
+   xar_m1 vAgo_, vAme, E1, 19
+   xar_m1 vAke_, vAgi, E2, 58
+   xar_m1 vAgi_, vAka, E0, 61
+   xar_m1 vAga_, vAbo, E3, 36
+   xar_m1 vAbo_, vAmo, E3, 43
+   xar_m1 vAmo_, vAmi, E2, 49
+   xar_m1 vAmi_, vAke, E1, 54
+   xar_m1 vAge_, vAgu, E4, 44
+   xar_m1 vAgu_, vAsi, E2, 3
+   xar_m1 vAsi_, vAku, E4, 25
+   xar_m1 vAku_, vAsa, E0, 46
+   xar_m1 vAma_, vAbu, E4, 37
+   xar_m1 vAbu_, vAsu, E4, 50
+   xar_m1 vAsu_, vAse, E1, 62
+   xar_m1 vAme_, vAga, E0, 28
+   xar_m1 vAbe_, vAge, E1, 20
+   ldr sE1, [sp, #STACK_OFFSET_CONST] // @slothy:reads=STACK_OFFSET_CONST
+   ld1r {v28.2d}, [sE1], #8
+   str sE1, [sp, #STACK_OFFSET_CONST] // @slothy:writes=STACK_OFFSET_CONST
+   bcax_m1 vAga, vAga_, vAgi_, vAge_
+   bcax_m1 vAge, vAge_, vAgo_, vAgi_
+   bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
+   bcax_m1 vAgo, vAgo_, vAga_, vAgu_
+   bcax_m1 vAgu, vAgu_, vAge_, vAga_
+   bcax_m1 vAka, vAka_, vAki_, vAke_
+   bcax_m1 vAke, vAke_, vAko_, vAki_
+   bcax_m1 vAki, vAki_, vAku_, vAko_
+   bcax_m1 vAko, vAko_, vAka_, vAku_
+   bcax_m1 vAku, vAku_, vAke_, vAka_
+   bcax_m1 vAma, vAma_, vAmi_, vAme_
+   bcax_m1 vAme, vAme_, vAmo_, vAmi_
+   bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
+   bcax_m1 vAmo, vAmo_, vAma_, vAmu_
+   bcax_m1 vAmu, vAmu_, vAme_, vAma_
+   bcax_m1 vAsa, vAsa_, vAsi_, vAse_
+   bcax_m1 vAse, vAse_, vAso_, vAsi_
+   bcax_m1 vAsi, vAsi_, vAsu_, vAso_
+   bcax_m1 vAso, vAso_, vAsa_, vAsu_
+   bcax_m1 vAsu, vAsu_, vAse_, vAsa_
+   bcax_m1 vAba, vAba_, vAbi_, vAbe_
+   bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
+   bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
+   bcax_m1 vAbo, vAbo_, vAba_, vAbu_
+   bcax_m1 vAbu, vAbu_, vAbe_, vAba_
+   eor vAba.16b, vAba.16b, v28.16b
 .endm
 
 .macro  hybrid_round_noninitial
@@ -769,314 +758,314 @@ round_constants:
 .endm
 
 .macro  scalar_round_noninitial
-    save count, STACK_OFFSET_COUNT                  
-                                                    
-    eor sC0, sAka, sAsa, ROR #50                    
-    eor sC1, sAse, sAge, ROR #60                    
-    eor sC2, sAmi, sAgi, ROR #59                    
-    eor sC3, sAgo, sAso, ROR #30                    
-    eor sC4, sAbu, sAsu, ROR #53                    
-    eor sC0, sAma, sC0, ROR #49                     
-    eor sC1, sAbe, sC1, ROR #44                     
-    eor sC2, sAki, sC2, ROR #26                     
-    eor sC3, sAmo, sC3, ROR #63                     
-    eor sC4, sAmu, sC4, ROR #56                     
-    eor sC0, sAga, sC0, ROR #57                     
-    eor sC1, sAme, sC1, ROR #58                     
-    eor sC2, sAbi, sC2, ROR #60                     
-    eor sC3, sAko, sC3, ROR #38                     
-    eor sC4, sAgu, sC4, ROR #48                     
-    eor sC0, s_Aba, sC0, ROR #61                    
-    eor sC1, sAke, sC1, ROR #57                     
-    eor sC2, sAsi, sC2, ROR #52                     
-    eor sC3, sAbo, sC3, ROR #63                     
-    eor sC4, sAku, sC4, ROR #50                     
-    ror sC1, sC1, 56                                
-    ror sC4, sC4, 58                                
-    ror sC2, sC2, 62                                
-                                                    
-    eor sE1, sC0, sC2, ROR #63                      
-    eor sE3, sC2, sC4, ROR #63                      
-    eor sE0, sC4, sC1, ROR #63                      
-    eor sE2, sC1, sC3, ROR #63                      
-    eor sE4, sC3, sC0, ROR #63                      
-                                                    
-    eor s_Aba_, sE0, s_Aba                          
-    eor sAsa_, sE2, sAbi, ROR #50                   
-    eor sAbi_, sE2, sAki, ROR #46                   
-    eor sAki_, sE3, sAko, ROR #63                   
-    eor sAko_, sE4, sAmu, ROR #28                   
-    eor sAmu_, sE3, sAso, ROR #2                    
-    eor sAso_, sE0, sAma, ROR #54                   
-    eor sAka_, sE1, sAbe, ROR #43                   
-    eor sAse_, sE3, sAgo, ROR #36                   
-    eor sAgo_, sE1, sAme, ROR #49                   
-    eor sAke_, sE2, sAgi, ROR #3                    
-    eor sAgi_, sE0, sAka, ROR #39                   
-    eor sAga_, sE3, sAbo                            
-    eor sAbo_, sE3, sAmo, ROR #37                   
-    eor sAmo_, sE2, sAmi, ROR #8                    
-    eor sAmi_, sE1, sAke, ROR #56                   
-    eor sAge_, sE4, sAgu, ROR #44                   
-    eor sAgu_, sE2, sAsi, ROR #62                   
-    eor sAsi_, sE4, sAku, ROR #58                   
-    eor sAku_, sE0, sAsa, ROR #25                   
-    eor sAma_, sE4, sAbu, ROR #20                   
-    eor sAbu_, sE4, sAsu, ROR #9                    
-    eor sAsu_, sE1, sAse, ROR #23                   
-    eor sAme_, sE0, sAga, ROR #61                   
-    eor sAbe_, sE1, sAge, ROR #19                   
-                                                    
-    load_constant_ptr                               
-    restore count, STACK_OFFSET_COUNT               
-                                                    
-    bic tmp, sAgi_, sAge_, ROR #47                  
-    eor sAga, tmp,  sAga_, ROR #39                  
-    bic tmp, sAgo_, sAgi_, ROR #42                  
-    eor sAge, tmp,  sAge_, ROR #25                  
-    bic tmp, sAgu_, sAgo_, ROR #16                  
-    eor sAgi, tmp,  sAgi_, ROR #58                  
-    bic tmp, sAga_, sAgu_, ROR #31                  
-    eor sAgo, tmp,  sAgo_, ROR #47                  
-    bic tmp, sAge_, sAga_, ROR #56                  
-    eor sAgu, tmp,  sAgu_, ROR #23                  
-    bic tmp, sAki_, sAke_, ROR #19                  
-    eor sAka, tmp,  sAka_, ROR #24                  
-    bic tmp, sAko_, sAki_, ROR #47                  
-    eor sAke, tmp,  sAke_, ROR #2                   
-    bic tmp, sAku_, sAko_, ROR #10                  
-    eor sAki, tmp,  sAki_, ROR #57                  
-    bic tmp, sAka_, sAku_, ROR #47                  
-    eor sAko, tmp,  sAko_, ROR #57                  
-    bic tmp, sAke_, sAka_, ROR #5                   
-    eor sAku, tmp,  sAku_, ROR #52                  
-    bic tmp, sAmi_, sAme_, ROR #38                  
-    eor sAma, tmp,  sAma_, ROR #47                  
-    bic tmp, sAmo_, sAmi_, ROR #5                   
-    eor sAme, tmp,  sAme_, ROR #43                  
-    bic tmp, sAmu_, sAmo_, ROR #41                  
-    eor sAmi, tmp,  sAmi_, ROR #46                  
-    bic tmp, sAma_, sAmu_, ROR #35                  
-                                                    
-    ldr cur_const, [const_addr, count, UXTW #3]     
-    add count, count, #1                            
-                                                    
-    eor sAmo, tmp,  sAmo_, ROR #12                  
-    bic tmp, sAme_, sAma_, ROR #9                   
-    eor sAmu, tmp,  sAmu_, ROR #44                  
-    bic tmp, sAsi_, sAse_, ROR #48                  
-    eor sAsa, tmp,  sAsa_, ROR #41                  
-    bic tmp, sAso_, sAsi_, ROR #2                   
-    eor sAse, tmp,  sAse_, ROR #50                  
-    bic tmp, sAsu_, sAso_, ROR #25                  
-    eor sAsi, tmp,  sAsi_, ROR #27                  
-    bic tmp, sAsa_, sAsu_, ROR #60                  
-    eor sAso, tmp,  sAso_, ROR #21                  
-    bic tmp, sAse_, sAsa_, ROR #57                  
-    eor sAsu, tmp,  sAsu_, ROR #53                  
-    bic tmp, sAbi_, sAbe_, ROR #63                  
-    eor s_Aba, s_Aba_, tmp,  ROR #21                
-    bic tmp, sAbo_, sAbi_, ROR #42                  
-    eor sAbe, tmp,  sAbe_, ROR #41                  
-    bic tmp, sAbu_, sAbo_, ROR #57                  
-    eor sAbi, tmp,  sAbi_, ROR #35                  
-    bic tmp, s_Aba_, sAbu_, ROR #50                 
-    eor sAbo, tmp,  sAbo_, ROR #43                  
-    bic tmp, sAbe_, s_Aba_, ROR #44                 
-    eor sAbu, tmp,  sAbu_, ROR #30                  
-                                                    
-    eor s_Aba, s_Aba, cur_const                     
-    save count, STACK_OFFSET_COUNT                  
-                                                    
-    eor sC0, sAka, sAsa, ROR #50                    
-    eor sC1, sAse, sAge, ROR #60                    
-    eor sC2, sAmi, sAgi, ROR #59                    
-    eor sC3, sAgo, sAso, ROR #30                    
-    eor sC4, sAbu, sAsu, ROR #53                    
-    eor sC0, sAma, sC0, ROR #49                     
-    eor sC1, sAbe, sC1, ROR #44                     
-    eor sC2, sAki, sC2, ROR #26                     
-    eor sC3, sAmo, sC3, ROR #63                     
-    eor sC4, sAmu, sC4, ROR #56                     
-    eor sC0, sAga, sC0, ROR #57                     
-    eor sC1, sAme, sC1, ROR #58                     
-    eor sC2, sAbi, sC2, ROR #60                     
-    eor sC3, sAko, sC3, ROR #38                     
-    eor sC4, sAgu, sC4, ROR #48                     
-    eor sC0, s_Aba, sC0, ROR #61                    
-    eor sC1, sAke, sC1, ROR #57                     
-    eor sC2, sAsi, sC2, ROR #52                     
-    eor sC3, sAbo, sC3, ROR #63                     
-    eor sC4, sAku, sC4, ROR #50                     
-    ror sC1, sC1, 56                                
-    ror sC4, sC4, 58                                
-    ror sC2, sC2, 62                                
-                                                    
-    eor sE1, sC0, sC2, ROR #63                      
-    eor sE3, sC2, sC4, ROR #63                      
-    eor sE0, sC4, sC1, ROR #63                      
-    eor sE2, sC1, sC3, ROR #63                      
-    eor sE4, sC3, sC0, ROR #63                      
-                                                    
-    eor s_Aba_, sE0, s_Aba                          
-    eor sAsa_, sE2, sAbi, ROR #50                   
-    eor sAbi_, sE2, sAki, ROR #46                   
-    eor sAki_, sE3, sAko, ROR #63                   
-    eor sAko_, sE4, sAmu, ROR #28                   
-    eor sAmu_, sE3, sAso, ROR #2                    
-    eor sAso_, sE0, sAma, ROR #54                   
-    eor sAka_, sE1, sAbe, ROR #43                   
-    eor sAse_, sE3, sAgo, ROR #36                   
-    eor sAgo_, sE1, sAme, ROR #49                   
-    eor sAke_, sE2, sAgi, ROR #3                    
-    eor sAgi_, sE0, sAka, ROR #39                   
-    eor sAga_, sE3, sAbo                            
-    eor sAbo_, sE3, sAmo, ROR #37                   
-    eor sAmo_, sE2, sAmi, ROR #8                    
-    eor sAmi_, sE1, sAke, ROR #56                   
-    eor sAge_, sE4, sAgu, ROR #44                   
-    eor sAgu_, sE2, sAsi, ROR #62                   
-    eor sAsi_, sE4, sAku, ROR #58                   
-    eor sAku_, sE0, sAsa, ROR #25                   
-    eor sAma_, sE4, sAbu, ROR #20                   
-    eor sAbu_, sE4, sAsu, ROR #9                    
-    eor sAsu_, sE1, sAse, ROR #23                   
-    eor sAme_, sE0, sAga, ROR #61                   
-    eor sAbe_, sE1, sAge, ROR #19                   
-                                                    
-    load_constant_ptr                               
-    restore count, STACK_OFFSET_COUNT               
-                                                    
-    bic tmp, sAgi_, sAge_, ROR #47                  
-    eor sAga, tmp,  sAga_, ROR #39                  
-    bic tmp, sAgo_, sAgi_, ROR #42                  
-    eor sAge, tmp,  sAge_, ROR #25                  
-    bic tmp, sAgu_, sAgo_, ROR #16                  
-    eor sAgi, tmp,  sAgi_, ROR #58                  
-    bic tmp, sAga_, sAgu_, ROR #31                  
-    eor sAgo, tmp,  sAgo_, ROR #47                  
-    bic tmp, sAge_, sAga_, ROR #56                  
-    eor sAgu, tmp,  sAgu_, ROR #23                  
-    bic tmp, sAki_, sAke_, ROR #19                  
-    eor sAka, tmp,  sAka_, ROR #24                  
-    bic tmp, sAko_, sAki_, ROR #47                  
-    eor sAke, tmp,  sAke_, ROR #2                   
-    bic tmp, sAku_, sAko_, ROR #10                  
-    eor sAki, tmp,  sAki_, ROR #57                  
-    bic tmp, sAka_, sAku_, ROR #47                  
-    eor sAko, tmp,  sAko_, ROR #57                  
-    bic tmp, sAke_, sAka_, ROR #5                   
-    eor sAku, tmp,  sAku_, ROR #52                  
-    bic tmp, sAmi_, sAme_, ROR #38                  
-    eor sAma, tmp,  sAma_, ROR #47                  
-    bic tmp, sAmo_, sAmi_, ROR #5                   
-    eor sAme, tmp,  sAme_, ROR #43                  
-    bic tmp, sAmu_, sAmo_, ROR #41                  
-    eor sAmi, tmp,  sAmi_, ROR #46                  
-    bic tmp, sAma_, sAmu_, ROR #35                  
-                                                    
-    ldr cur_const, [const_addr, count, UXTW #3]     
-    add count, count, #1                            
-                                                    
-    eor sAmo, tmp,  sAmo_, ROR #12                  
-    bic tmp, sAme_, sAma_, ROR #9                   
-    eor sAmu, tmp,  sAmu_, ROR #44                  
-    bic tmp, sAsi_, sAse_, ROR #48                  
-    eor sAsa, tmp,  sAsa_, ROR #41                  
-    bic tmp, sAso_, sAsi_, ROR #2                   
-    eor sAse, tmp,  sAse_, ROR #50                  
-    bic tmp, sAsu_, sAso_, ROR #25                  
-    eor sAsi, tmp,  sAsi_, ROR #27                  
-    bic tmp, sAsa_, sAsu_, ROR #60                  
-    eor sAso, tmp,  sAso_, ROR #21                  
-    bic tmp, sAse_, sAsa_, ROR #57                  
-    eor sAsu, tmp,  sAsu_, ROR #53                  
-    bic tmp, sAbi_, sAbe_, ROR #63                  
-    eor s_Aba, s_Aba_, tmp,  ROR #21                
-    bic tmp, sAbo_, sAbi_, ROR #42                  
-    eor sAbe, tmp,  sAbe_, ROR #41                  
-    bic tmp, sAbu_, sAbo_, ROR #57                  
-    eor sAbi, tmp,  sAbi_, ROR #35                  
-    bic tmp, s_Aba_, sAbu_, ROR #50                 
-    eor sAbo, tmp,  sAbo_, ROR #43                  
-    bic tmp, sAbe_, s_Aba_, ROR #44                 
-    eor sAbu, tmp,  sAbu_, ROR #30                  
-                                                    
-    eor s_Aba, s_Aba, cur_const                     
+    str count, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
+
+    eor sC0, sAka, sAsa, ror #50
+    eor sC1, sAse, sAge, ror #60
+    eor sC2, sAmi, sAgi, ror #59
+    eor sC3, sAgo, sAso, ror #30
+    eor sC4, sAbu, sAsu, ror #53
+    eor sC0, sAma, sC0, ror #49
+    eor sC1, sAbe, sC1, ror #44
+    eor sC2, sAki, sC2, ror #26
+    eor sC3, sAmo, sC3, ror #63
+    eor sC4, sAmu, sC4, ror #56
+    eor sC0, sAga, sC0, ror #57
+    eor sC1, sAme, sC1, ror #58
+    eor sC2, sAbi, sC2, ror #60
+    eor sC3, sAko, sC3, ror #38
+    eor sC4, sAgu, sC4, ror #48
+    eor sC0, s_Aba, sC0, ror #61
+    eor sC1, sAke, sC1, ror #57
+    eor sC2, sAsi, sC2, ror #52
+    eor sC3, sAbo, sC3, ror #63
+    eor sC4, sAku, sC4, ror #50
+    ror sC1, sC1, #56
+    ror sC4, sC4, #58
+    ror sC2, sC2, #62
+
+    eor sE1, sC0, sC2, ror #63
+    eor sE3, sC2, sC4, ror #63
+    eor sE0, sC4, sC1, ror #63
+    eor sE2, sC1, sC3, ror #63
+    eor sE4, sC3, sC0, ror #63
+
+    eor s_Aba_, sE0, s_Aba
+    eor sAsa_, sE2, sAbi, ror #50
+    eor sAbi_, sE2, sAki, ror #46
+    eor sAki_, sE3, sAko, ror #63
+    eor sAko_, sE4, sAmu, ror #28
+    eor sAmu_, sE3, sAso, ror #2
+    eor sAso_, sE0, sAma, ror #54
+    eor sAka_, sE1, sAbe, ror #43
+    eor sAse_, sE3, sAgo, ror #36
+    eor sAgo_, sE1, sAme, ror #49
+    eor sAke_, sE2, sAgi, ror #3
+    eor sAgi_, sE0, sAka, ror #39
+    eor sAga_, sE3, sAbo
+    eor sAbo_, sE3, sAmo, ror #37
+    eor sAmo_, sE2, sAmi, ror #8
+    eor sAmi_, sE1, sAke, ror #56
+    eor sAge_, sE4, sAgu, ror #44
+    eor sAgu_, sE2, sAsi, ror #62
+    eor sAsi_, sE4, sAku, ror #58
+    eor sAku_, sE0, sAsa, ror #25
+    eor sAma_, sE4, sAbu, ror #20
+    eor sAbu_, sE4, sAsu, ror #9
+    eor sAsu_, sE1, sAse, ror #23
+    eor sAme_, sE0, sAga, ror #61
+    eor sAbe_, sE1, sAge, ror #19
+
+    asm_load const_addr, round_constants
+    ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
+
+    bic tmp, sAgi_, sAge_, ror #47
+    eor sAga, tmp,  sAga_, ror #39
+    bic tmp, sAgo_, sAgi_, ror #42
+    eor sAge, tmp,  sAge_, ror #25
+    bic tmp, sAgu_, sAgo_, ror #16
+    eor sAgi, tmp,  sAgi_, ror #58
+    bic tmp, sAga_, sAgu_, ror #31
+    eor sAgo, tmp,  sAgo_, ror #47
+    bic tmp, sAge_, sAga_, ror #56
+    eor sAgu, tmp,  sAgu_, ror #23
+    bic tmp, sAki_, sAke_, ror #19
+    eor sAka, tmp,  sAka_, ror #24
+    bic tmp, sAko_, sAki_, ror #47
+    eor sAke, tmp,  sAke_, ror #2
+    bic tmp, sAku_, sAko_, ror #10
+    eor sAki, tmp,  sAki_, ror #57
+    bic tmp, sAka_, sAku_, ror #47
+    eor sAko, tmp,  sAko_, ror #57
+    bic tmp, sAke_, sAka_, ror #5
+    eor sAku, tmp,  sAku_, ror #52
+    bic tmp, sAmi_, sAme_, ror #38
+    eor sAma, tmp,  sAma_, ror #47
+    bic tmp, sAmo_, sAmi_, ror #5
+    eor sAme, tmp,  sAme_, ror #43
+    bic tmp, sAmu_, sAmo_, ror #41
+    eor sAmi, tmp,  sAmi_, ror #46
+    bic tmp, sAma_, sAmu_, ror #35
+
+    ldr cur_const, [const_addr, count, UXTW #3]
+    add count, count, #1
+
+    eor sAmo, tmp,  sAmo_, ror #12
+    bic tmp, sAme_, sAma_, ror #9
+    eor sAmu, tmp,  sAmu_, ror #44
+    bic tmp, sAsi_, sAse_, ror #48
+    eor sAsa, tmp,  sAsa_, ror #41
+    bic tmp, sAso_, sAsi_, ror #2
+    eor sAse, tmp,  sAse_, ror #50
+    bic tmp, sAsu_, sAso_, ror #25
+    eor sAsi, tmp,  sAsi_, ror #27
+    bic tmp, sAsa_, sAsu_, ror #60
+    eor sAso, tmp,  sAso_, ror #21
+    bic tmp, sAse_, sAsa_, ror #57
+    eor sAsu, tmp,  sAsu_, ror #53
+    bic tmp, sAbi_, sAbe_, ror #63
+    eor s_Aba, s_Aba_, tmp,  ror #21
+    bic tmp, sAbo_, sAbi_, ror #42
+    eor sAbe, tmp,  sAbe_, ror #41
+    bic tmp, sAbu_, sAbo_, ror #57
+    eor sAbi, tmp,  sAbi_, ror #35
+    bic tmp, s_Aba_, sAbu_, ror #50
+    eor sAbo, tmp,  sAbo_, ror #43
+    bic tmp, sAbe_, s_Aba_, ror #44
+    eor sAbu, tmp,  sAbu_, ror #30
+
+    eor s_Aba, s_Aba, cur_const
+    str count, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
+
+    eor sC0, sAka, sAsa, ror #50
+    eor sC1, sAse, sAge, ror #60
+    eor sC2, sAmi, sAgi, ror #59
+    eor sC3, sAgo, sAso, ror #30
+    eor sC4, sAbu, sAsu, ror #53
+    eor sC0, sAma, sC0, ror #49
+    eor sC1, sAbe, sC1, ror #44
+    eor sC2, sAki, sC2, ror #26
+    eor sC3, sAmo, sC3, ror #63
+    eor sC4, sAmu, sC4, ror #56
+    eor sC0, sAga, sC0, ror #57
+    eor sC1, sAme, sC1, ror #58
+    eor sC2, sAbi, sC2, ror #60
+    eor sC3, sAko, sC3, ror #38
+    eor sC4, sAgu, sC4, ror #48
+    eor sC0, s_Aba, sC0, ror #61
+    eor sC1, sAke, sC1, ror #57
+    eor sC2, sAsi, sC2, ror #52
+    eor sC3, sAbo, sC3, ror #63
+    eor sC4, sAku, sC4, ror #50
+    ror sC1, sC1, #56
+    ror sC4, sC4, #58
+    ror sC2, sC2, #62
+
+    eor sE1, sC0, sC2, ror #63
+    eor sE3, sC2, sC4, ror #63
+    eor sE0, sC4, sC1, ror #63
+    eor sE2, sC1, sC3, ror #63
+    eor sE4, sC3, sC0, ror #63
+
+    eor s_Aba_, sE0, s_Aba
+    eor sAsa_, sE2, sAbi, ror #50
+    eor sAbi_, sE2, sAki, ror #46
+    eor sAki_, sE3, sAko, ror #63
+    eor sAko_, sE4, sAmu, ror #28
+    eor sAmu_, sE3, sAso, ror #2
+    eor sAso_, sE0, sAma, ror #54
+    eor sAka_, sE1, sAbe, ror #43
+    eor sAse_, sE3, sAgo, ror #36
+    eor sAgo_, sE1, sAme, ror #49
+    eor sAke_, sE2, sAgi, ror #3
+    eor sAgi_, sE0, sAka, ror #39
+    eor sAga_, sE3, sAbo
+    eor sAbo_, sE3, sAmo, ror #37
+    eor sAmo_, sE2, sAmi, ror #8
+    eor sAmi_, sE1, sAke, ror #56
+    eor sAge_, sE4, sAgu, ror #44
+    eor sAgu_, sE2, sAsi, ror #62
+    eor sAsi_, sE4, sAku, ror #58
+    eor sAku_, sE0, sAsa, ror #25
+    eor sAma_, sE4, sAbu, ror #20
+    eor sAbu_, sE4, sAsu, ror #9
+    eor sAsu_, sE1, sAse, ror #23
+    eor sAme_, sE0, sAga, ror #61
+    eor sAbe_, sE1, sAge, ror #19
+
+    asm_load const_addr, round_constants
+    ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
+
+    bic tmp, sAgi_, sAge_, ror #47
+    eor sAga, tmp,  sAga_, ror #39
+    bic tmp, sAgo_, sAgi_, ror #42
+    eor sAge, tmp,  sAge_, ror #25
+    bic tmp, sAgu_, sAgo_, ror #16
+    eor sAgi, tmp,  sAgi_, ror #58
+    bic tmp, sAga_, sAgu_, ror #31
+    eor sAgo, tmp,  sAgo_, ror #47
+    bic tmp, sAge_, sAga_, ror #56
+    eor sAgu, tmp,  sAgu_, ror #23
+    bic tmp, sAki_, sAke_, ror #19
+    eor sAka, tmp,  sAka_, ror #24
+    bic tmp, sAko_, sAki_, ror #47
+    eor sAke, tmp,  sAke_, ror #2
+    bic tmp, sAku_, sAko_, ror #10
+    eor sAki, tmp,  sAki_, ror #57
+    bic tmp, sAka_, sAku_, ror #47
+    eor sAko, tmp,  sAko_, ror #57
+    bic tmp, sAke_, sAka_, ror #5
+    eor sAku, tmp,  sAku_, ror #52
+    bic tmp, sAmi_, sAme_, ror #38
+    eor sAma, tmp,  sAma_, ror #47
+    bic tmp, sAmo_, sAmi_, ror #5
+    eor sAme, tmp,  sAme_, ror #43
+    bic tmp, sAmu_, sAmo_, ror #41
+    eor sAmi, tmp,  sAmi_, ror #46
+    bic tmp, sAma_, sAmu_, ror #35
+
+    ldr cur_const, [const_addr, count, UXTW #3]
+    add count, count, #1
+
+    eor sAmo, tmp,  sAmo_, ror #12
+    bic tmp, sAme_, sAma_, ror #9
+    eor sAmu, tmp,  sAmu_, ror #44
+    bic tmp, sAsi_, sAse_, ror #48
+    eor sAsa, tmp,  sAsa_, ror #41
+    bic tmp, sAso_, sAsi_, ror #2
+    eor sAse, tmp,  sAse_, ror #50
+    bic tmp, sAsu_, sAso_, ror #25
+    eor sAsi, tmp,  sAsi_, ror #27
+    bic tmp, sAsa_, sAsu_, ror #60
+    eor sAso, tmp,  sAso_, ror #21
+    bic tmp, sAse_, sAsa_, ror #57
+    eor sAsu, tmp,  sAsu_, ror #53
+    bic tmp, sAbi_, sAbe_, ror #63
+    eor s_Aba, s_Aba_, tmp,  ror #21
+    bic tmp, sAbo_, sAbi_, ror #42
+    eor sAbe, tmp,  sAbe_, ror #41
+    bic tmp, sAbu_, sAbo_, ror #57
+    eor sAbi, tmp,  sAbi_, ror #35
+    bic tmp, s_Aba_, sAbu_, ror #50
+    eor sAbo, tmp,  sAbo_, ror #43
+    bic tmp, sAbe_, s_Aba_, ror #44
+    eor sAbu, tmp,  sAbu_, ror #30
+
+    eor s_Aba, s_Aba, cur_const
 
 .endm
 
 
 .macro  vector_round_noninitial
-       eor3_m1 C0, vAba, vAga, vAka
-       eor3_m1 C0, C0, vAma,  vAsa
-       eor3_m1 C1, vAbe, vAge, vAke
-       eor3_m1 C1, C1, vAme,  vAse
-       eor3_m1 C2, vAbi, vAgi, vAki
-       eor3_m1 C2, C2, vAmi,  vAsi
-       eor3_m1 C3, vAbo, vAgo, vAko
-       eor3_m1 C3, C3, vAmo,  vAso
-       eor3_m1 C4, vAbu, vAgu, vAku
-       eor3_m1 C4, C4, vAmu,  vAsu
-       rax1_m1 E1, C0, C2
-       rax1_m1 E3, C2, C4
-       rax1_m1 E0, C4, C1
-       rax1_m1 E2, C1, C3
-       rax1_m1 E4, C3, C0
-       eor vAba_.16b, vAba.16b, E0.16b
-       xar_m1 vAsa_, vAbi, E2, 2
-       xar_m1 vAbi_, vAki, E2, 21
-       xar_m1 vAki_, vAko, E3, 39
-       xar_m1 vAko_, vAmu, E4, 56
-       xar_m1 vAmu_, vAso, E3, 8
-       xar_m1 vAso_, vAma, E0, 23
-       xar_m1 vAka_, vAbe, E1, 63
-       xar_m1 vAse_, vAgo, E3, 9
-       xar_m1 vAgo_, vAme, E1, 19
-       xar_m1 vAke_, vAgi, E2, 58
-       xar_m1 vAgi_, vAka, E0, 61
-       xar_m1 vAga_, vAbo, E3, 36
-       xar_m1 vAbo_, vAmo, E3, 43
-       xar_m1 vAmo_, vAmi, E2, 49
-       xar_m1 vAmi_, vAke, E1, 54
-       xar_m1 vAge_, vAgu, E4, 44
-       xar_m1 vAgu_, vAsi, E2, 3
-       xar_m1 vAsi_, vAku, E4, 25
-       xar_m1 vAku_, vAsa, E0, 46
-       xar_m1 vAma_, vAbu, E4, 37
-       xar_m1 vAbu_, vAsu, E4, 50
-       xar_m1 vAsu_, vAse, E1, 62
-       xar_m1 vAme_, vAga, E0, 28
-       xar_m1 vAbe_, vAge, E1, 20
-       restore sE1, STACK_OFFSET_CONST
-       ld1r {v28.2d}, [sE1], #8
-       save sE1, STACK_OFFSET_CONST
-       bcax_m1 vAga, vAga_, vAgi_, vAge_
-       bcax_m1 vAge, vAge_, vAgo_, vAgi_
-       bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
-       bcax_m1 vAgo, vAgo_, vAga_, vAgu_
-       bcax_m1 vAgu, vAgu_, vAge_, vAga_
-       bcax_m1 vAka, vAka_, vAki_, vAke_
-       bcax_m1 vAke, vAke_, vAko_, vAki_
-       bcax_m1 vAki, vAki_, vAku_, vAko_
-       bcax_m1 vAko, vAko_, vAka_, vAku_
-       bcax_m1 vAku, vAku_, vAke_, vAka_
-       bcax_m1 vAma, vAma_, vAmi_, vAme_
-       bcax_m1 vAme, vAme_, vAmo_, vAmi_
-       bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
-       bcax_m1 vAmo, vAmo_, vAma_, vAmu_
-       bcax_m1 vAmu, vAmu_, vAme_, vAma_
-       bcax_m1 vAsa, vAsa_, vAsi_, vAse_
-       bcax_m1 vAse, vAse_, vAso_, vAsi_
-       bcax_m1 vAsi, vAsi_, vAsu_, vAso_
-       bcax_m1 vAso, vAso_, vAsa_, vAsu_
-       bcax_m1 vAsu, vAsu_, vAse_, vAsa_
-       bcax_m1 vAba, vAba_, vAbi_, vAbe_
-       bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
-       bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
-       bcax_m1 vAbo, vAbo_, vAba_, vAbu_
-       bcax_m1 vAbu, vAbu_, vAbe_, vAba_
-       eor vAba.16b, vAba.16b, v28.16b
+   eor3_m1 C0, vAba, vAga, vAka
+   eor3_m1 C0, C0, vAma,  vAsa
+   eor3_m1 C1, vAbe, vAge, vAke
+   eor3_m1 C1, C1, vAme,  vAse
+   eor3_m1 C2, vAbi, vAgi, vAki
+   eor3_m1 C2, C2, vAmi,  vAsi
+   eor3_m1 C3, vAbo, vAgo, vAko
+   eor3_m1 C3, C3, vAmo,  vAso
+   eor3_m1 C4, vAbu, vAgu, vAku
+   eor3_m1 C4, C4, vAmu,  vAsu
+   rax1_m1 E1, C0, C2
+   rax1_m1 E3, C2, C4
+   rax1_m1 E0, C4, C1
+   rax1_m1 E2, C1, C3
+   rax1_m1 E4, C3, C0
+   eor vAba_.16b, vAba.16b, E0.16b
+   xar_m1 vAsa_, vAbi, E2, 2
+   xar_m1 vAbi_, vAki, E2, 21
+   xar_m1 vAki_, vAko, E3, 39
+   xar_m1 vAko_, vAmu, E4, 56
+   xar_m1 vAmu_, vAso, E3, 8
+   xar_m1 vAso_, vAma, E0, 23
+   xar_m1 vAka_, vAbe, E1, 63
+   xar_m1 vAse_, vAgo, E3, 9
+   xar_m1 vAgo_, vAme, E1, 19
+   xar_m1 vAke_, vAgi, E2, 58
+   xar_m1 vAgi_, vAka, E0, 61
+   xar_m1 vAga_, vAbo, E3, 36
+   xar_m1 vAbo_, vAmo, E3, 43
+   xar_m1 vAmo_, vAmi, E2, 49
+   xar_m1 vAmi_, vAke, E1, 54
+   xar_m1 vAge_, vAgu, E4, 44
+   xar_m1 vAgu_, vAsi, E2, 3
+   xar_m1 vAsi_, vAku, E4, 25
+   xar_m1 vAku_, vAsa, E0, 46
+   xar_m1 vAma_, vAbu, E4, 37
+   xar_m1 vAbu_, vAsu, E4, 50
+   xar_m1 vAsu_, vAse, E1, 62
+   xar_m1 vAme_, vAga, E0, 28
+   xar_m1 vAbe_, vAge, E1, 20
+   ldr sE1, [sp, #STACK_OFFSET_CONST] // @slothy:reads=STACK_OFFSET_CONST
+   ld1r {v28.2d}, [sE1], #8
+   str sE1, [sp, #STACK_OFFSET_CONST] // @slothy:writes=STACK_OFFSET_CONST
+   bcax_m1 vAga, vAga_, vAgi_, vAge_
+   bcax_m1 vAge, vAge_, vAgo_, vAgi_
+   bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
+   bcax_m1 vAgo, vAgo_, vAga_, vAgu_
+   bcax_m1 vAgu, vAgu_, vAge_, vAga_
+   bcax_m1 vAka, vAka_, vAki_, vAke_
+   bcax_m1 vAke, vAke_, vAko_, vAki_
+   bcax_m1 vAki, vAki_, vAku_, vAko_
+   bcax_m1 vAko, vAko_, vAka_, vAku_
+   bcax_m1 vAku, vAku_, vAke_, vAka_
+   bcax_m1 vAma, vAma_, vAmi_, vAme_
+   bcax_m1 vAme, vAme_, vAmo_, vAmi_
+   bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
+   bcax_m1 vAmo, vAmo_, vAma_, vAmu_
+   bcax_m1 vAmu, vAmu_, vAme_, vAma_
+   bcax_m1 vAsa, vAsa_, vAsi_, vAse_
+   bcax_m1 vAse, vAse_, vAso_, vAsi_
+   bcax_m1 vAsi, vAsi_, vAsu_, vAso_
+   bcax_m1 vAso, vAso_, vAsa_, vAsu_
+   bcax_m1 vAsu, vAsu_, vAse_, vAsa_
+   bcax_m1 vAba, vAba_, vAbi_, vAbe_
+   bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
+   bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
+   bcax_m1 vAbo, vAbo_, vAba_, vAbu_
+   bcax_m1 vAbu, vAbu_, vAbe_, vAba_
+   eor vAba.16b, vAba.16b, v28.16b
 .endm
 
 
@@ -1118,33 +1107,39 @@ _keccak_f1600_x4_hybrid_slothy:
     alloc_stack
     save_gprs
     save_vregs
-    save input_addr, STACK_OFFSET_INPUT
+    str input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:writes=STACK_OFFSET_INPUT
 
-     load_input_vector 2,1
+    load_input_vector 2,1
 
-     load_constant_ptr
-     save const_addr, STACK_OFFSET_CONST
+    asm_load const_addr, round_constants
+    str const_addr, [sp, #STACK_OFFSET_CONST] // @slothy:writes=STACK_OFFSET_CONST
 
-     // First scalar Keccak computation alongside first half of SIMD computation
-     load_input_scalar 4,0
-     hybrid_round_initial
+    // First scalar Keccak computation alongside first half of SIMD computation
+    load_input_scalar 4,0
+ initial:
+    hybrid_round_initial
+ end_initial:
  loop_0:
      hybrid_round_noninitial
+ end_loop_0:
      cmp count, #(KECCAK_F1600_ROUNDS-1)
      ble loop_0
      final_rotate
-     restore input_addr, STACK_OFFSET_INPUT
+     ldr input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:reads=STACK_OFFSET_INPUT
      store_input_scalar 4,0
 
      // Second scalar Keccak computation alongsie second half of SIMD computation
      load_input_scalar 4,1
+ initial2:
      hybrid_round_initial
+ end_initial2:
  loop_1:
      hybrid_round_noninitial
+ end_loop_1:
      cmp count, #(KECCAK_F1600_ROUNDS-1)
      ble loop_1
      final_rotate
-     restore input_addr, STACK_OFFSET_INPUT
+     ldr input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:reads=STACK_OFFSET_INPUT
      store_input_scalar 4, 1
 
      store_input_vector 2,1
