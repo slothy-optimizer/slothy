@@ -771,7 +771,34 @@ class Heuristics():
         res.output_renamings = { s:s for s in outputs }
         res.valid = True
         res.selfcheck(log.getChild("split_heuristic_full"))
+        
+        # Estimate performance of final code
+        conf2 = conf.copy()
+        conf2.constraints.allow_renaming = False
+        conf2.constraints.allow_reordering = False
+        conf2.variable_size = True
+        stall_res = Heuristics.optimize_binsearch(res.code,
+            logger.getChild("split_estimtate_perf"), conf2)
+        if stall_res.success is False:
+            log.error("Stall-estimate for final code after split heuristic failed -- should not happen? Maybe increase timeout? Just returning the result without stall-estimate.")
+        else:
+            res2 = Result(conf2)
+            res2.orig_code = orig_body
+            res2.code = res.code_raw
+            res2.codesize_with_bubbles = stall_res.codesize_with_bubbles
+            res2.success = True
+            # Compose actual code reordering from split heuristic with bubble-introducing (order-preserving) map
+            res2.reordering_with_bubbles = { i: stall_res.reordering_with_bubbles[
+                res.reordering_with_bubbles[i]] for i in range(res.codesize) }
+            res2.input_renamings = { s:s for s in inputs }
+            res2.output_renamings = { s:s for s in outputs }
+            res2.valid = True
+            res2.selfcheck(log.getChild("split_heuristic_full_with_stalls"))
+
+            res = res2
+
         return res
+
 
     @staticmethod
     def _split(body, logger, conf):
