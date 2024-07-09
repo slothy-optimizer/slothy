@@ -1374,6 +1374,10 @@ class neon_keccak_x4(Example):
         slothy.config.outputs = ["x27"]
         slothy.config.reserved_regs += self.target_reserved
 
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_repeat = 0
+        slothy.config.split_heuristic_preprocess_naive_interleaving = True
+
         slothy.optimize(start="initial", end="end_initial")
         slothy.optimize(start="initial2", end="end_initial2")
         slothy.optimize(start="loop_0", end="end_loop_0")
