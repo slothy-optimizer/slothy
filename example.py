@@ -1365,14 +1365,16 @@ class neon_keccak_x4(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target, timeout=30)
 
     def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         # TODO: check of all of these are need for all code parts
-        slothy.config.reserved_regs = ["x0", "x26", "x27", "x29", "sp"]
+        slothy.config.reserved_regs = ["sp"]
         slothy.config.outputs = ["x27"]
         slothy.config.reserved_regs += self.target_reserved
+        slothy.config.constraints.stalls_first_attempt = 8
+        slothy.config.variable_size = True
 
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_repeat = 0
@@ -1380,6 +1382,16 @@ class neon_keccak_x4(Example):
 
         slothy.optimize(start="initial", end="end_initial")
         slothy.optimize(start="initial2", end="end_initial2")
+        slothy.optimize(start="loop_0", end="end_loop_0")
+        slothy.optimize(start="loop_1", end="end_loop_1")
+
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 7
+        slothy.config.split_heuristic_stepsize = 0.2
+        slothy.config.split_heuristic_repeat = 1
+        slothy.optimize(start="initial", end="end_initial")
+        slothy.optimize(start="initial2", end="end_initial2")
+        slothy.config.split_heuristic_repeat = 1
         slothy.optimize(start="loop_0", end="end_loop_0")
         slothy.optimize(start="loop_1", end="end_loop_1")
 #############################################################################################

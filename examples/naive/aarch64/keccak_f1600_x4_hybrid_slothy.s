@@ -29,8 +29,8 @@
 // Author: Matthias Kannwischer <matthias@kannwischer.eu>
 //
 
-.macro asm_load dst, addr // @slothy:no-unfold
-    ASM_LOAD(\dst, \addr)
+.macro asm_load dst // @slothy:no-unfold
+    ASM_LOAD(\dst, round_constants)
 .endm
 
 /********************** CONSTANTS *************************/
@@ -502,7 +502,7 @@ round_constants:
    eor sAme_, sAga, sE0
    eor sAbe_, sAge, sE1
 
-   asm_load const_addr, round_constants
+   asm_load const_addr
 
    bic tmp, sAgi_, sAge_, ror #47
    eor sAga, tmp,  sAga_, ror #39
@@ -619,7 +619,7 @@ round_constants:
    eor sAme_, sE0, sAga, ror #61
    eor sAbe_, sE1, sAge, ror #19
 
-   asm_load const_addr, round_constants
+   asm_load const_addr
    ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
 
    bic tmp, sAgi_, sAge_, ror #47
@@ -816,7 +816,7 @@ round_constants:
     eor sAme_, sE0, sAga, ror #61
     eor sAbe_, sE1, sAge, ror #19
 
-    asm_load const_addr, round_constants
+    asm_load const_addr
     ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
 
     bic tmp, sAgi_, sAge_, ror #47
@@ -933,7 +933,7 @@ round_constants:
     eor sAme_, sE0, sAga, ror #61
     eor sAbe_, sE1, sAge, ror #19
 
-    asm_load const_addr, round_constants
+    asm_load const_addr
     ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
 
     bic tmp, sAgi_, sAge_, ror #47
@@ -1111,7 +1111,7 @@ _keccak_f1600_x4_hybrid_slothy:
 
     load_input_vector 2,1
 
-    asm_load const_addr, round_constants
+    asm_load const_addr
     str const_addr, [sp, #STACK_OFFSET_CONST] // @slothy:writes=STACK_OFFSET_CONST
 
     // First scalar Keccak computation alongside first half of SIMD computation
