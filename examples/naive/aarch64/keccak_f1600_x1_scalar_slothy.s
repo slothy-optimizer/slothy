@@ -156,14 +156,6 @@ round_constants:
     add sp, sp, #(STACK_SIZE)
 .endm
 
-.macro save reg, offset
-    str \reg, [sp, #\offset]
-.endm
-
-.macro restore reg, offset
-    ldr \reg, [sp, #\offset]
-.endm
-
 .macro save_gprs
     stp x19, x20, [sp, #(STACK_BASE_GPRS + 16*0)]
     stp x21, x22, [sp, #(STACK_BASE_GPRS + 16*1)]
@@ -210,7 +202,7 @@ round_constants:
     eor C2, Agi, C2
     ldp Abi, Abo, [input_addr, #(1*8*2)]
     eor C3, Ago, C3
-    save input_addr, STACK_OFFSET_INPUT
+    str input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:writes=STACK_OFFSET_INPUT
     eor C4, Agu, C4
     eor C0, Aba, C0
     eor C1, Abe, C1
@@ -311,7 +303,7 @@ round_constants:
     eor Abu, tmp0,  Abu_, ror #30
 
     eor Aba, Aba, cur_const
-    save count, STACK_OFFSET_COUNT
+    str count, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
 
 .endm
 
@@ -375,7 +367,7 @@ round_constants:
     eor Abe_, E1, Age, ror #19
 
     load_constant_ptr_stack
-    restore count, STACK_OFFSET_COUNT
+    ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
 
     bic tmp0, Agi_, Age_, ror #47
     bic tmp1, Ago_, Agi_, ror #42
@@ -421,7 +413,7 @@ round_constants:
     eor Aso, tmp0,  Aso_, ror #21
     bic tmp0, Abi_, Abe_, ror #63
     add count, count, #1
-    save count, STACK_OFFSET_COUNT
+    str count, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
     eor Asu, tmp1,  Asu_, ror #53
     bic tmp1, Abo_, Abi_, ror #42
     eor Aba, Aba_, tmp0,  ror #21
@@ -439,7 +431,8 @@ round_constants:
 
 .macro final_rotate_store
     ror Aga, Aga,#(64-3)
-    restore input_addr, STACK_OFFSET_INPUT
+    ldr input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:reads=STACK_OFFSET_INPUT
+    
     ror Abu, Abu,#(64-44)
     ror Aka, Aka,#(64-25)
     ror Ake, Ake,#(64-8)

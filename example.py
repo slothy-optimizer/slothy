@@ -1411,6 +1411,11 @@ class neon_keccak_x1(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 1.8
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.outputs = ["x27"]
+
         slothy.optimize(start="loop", end="end_loop")
 
 #############################################################################################
