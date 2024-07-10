@@ -973,10 +973,8 @@ class Config(NestedPrint, LockAttributes):
             self._allow_renaming = val
         @functional_only.setter
         def functional_only(self,val):
-            if not val:
-                return
-            self._model_latencies = False
-            self._model_functional_units = False
+            self._model_latencies = val is False
+            self._model_functional_units = val is False
 
     class Hints(NestedPrint, LockAttributes):
         """Subconfiguration for solver hints"""
