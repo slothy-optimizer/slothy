@@ -83,7 +83,7 @@ class SourceLine:
         return s
 
     def _strip_comments(self):
-        self._comments = list(map(str.strip, self._comments))
+        self._comments = list(map(str.lstrip, self._comments))
 
     def _trim_comments(self):
         self._strip_comments()
