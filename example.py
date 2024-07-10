@@ -1394,6 +1394,25 @@ class neon_keccak_x4(Example):
         slothy.config.split_heuristic_repeat = 1
         slothy.optimize(start="loop_0", end="end_loop_0")
         slothy.optimize(start="loop_1", end="end_loop_1")
+
+class neon_keccak_x1(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "keccak_f1600_x1_scalar_slothy"
+        infile = "keccak_f1600_x1_scalar_slothy"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target, timeout=600)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        slothy.optimize(start="loop", end="end_loop")
+
 #############################################################################################
 
 
@@ -1538,6 +1557,7 @@ def main():
                  fft_fixedpoint_radix4(),
                  # Keccak
                 neon_keccak_x4(),
+                neon_keccak_x1(),
                  ]
 
     all_example_names = [e.name for e in examples]
