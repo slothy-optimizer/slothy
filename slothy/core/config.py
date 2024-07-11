@@ -582,6 +582,15 @@ class Config(NestedPrint, LockAttributes):
         return self._split_heuristic_preprocess_naive_interleaving_by_latency
 
     @property
+    def split_heuristic_estimate_performance(self):
+        """After applying the split heuristic, run SLOTHY again on the entire code to estimate the
+           performance and display un-used issue slots in the output."""
+        if not self.split_heuristic:
+            raise InvalidConfig("Did you forget to set config.split_heuristic=True? Shouldn't"    \
+                "read config.split_heuristic_estimate_performance otherwise.")
+        return self._split_heuristic_estimate_performance
+
+    @property
     def flexible_lifetime_start(self):
         """Internal property indicating whether the lifetime interval of a register
         should be allowed to extend _before_ the instructions which uses it."""
@@ -1063,6 +1072,7 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_repeat = 1
         self._split_heuristic_preprocess_naive_interleaving = False
         self._split_heuristic_preprocess_naive_interleaving_by_latency = False
+        self._split_heuristic_estimate_performance = True
 
         self._compiler_binary = "gcc"
         self._compiler_include_paths = None
@@ -1247,15 +1257,12 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_preprocess_naive_interleaving.setter
     def split_heuristic_preprocess_naive_interleaving(self, val):
         self._split_heuristic_preprocess_naive_interleaving = val
-    @split_heuristic_preprocess_naive_interleaving.setter
-    def split_heuristic_preprocess_naive_interleaving(self, val):
-        self._split_heuristic_preprocess_naive_interleaving = val
     @split_heuristic_preprocess_naive_interleaving_by_latency.setter
     def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
         self._split_heuristic_preprocess_naive_interleaving_by_latency = val
-    @split_heuristic_preprocess_naive_interleaving_by_latency.setter
-    def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
-        self._split_heuristic_preprocess_naive_interleaving_by_latency = val
+    @split_heuristic_estimate_performance.setter
+    def split_heuristic_estimate_performance(self, val):
+        self._split_heuristic_estimate_performance = val
     @split_heuristic_repeat.setter
     def split_heuristic_repeat(self, val):
         self._split_heuristic_repeat = val
