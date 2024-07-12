@@ -33,5 +33,6 @@ slothy.config.split_heuristic = True
 slothy.config.split_heuristic_stepsize = 0.05
 slothy.config.split_heuristic_factor = 10
 slothy.config.split_heuristic_repeat = 2
+slothy.config.split_heuristic_estimate_performance = False
 slothy.optimize(start="mainloop", end="end_label")
 slothy.write_source_to_file("opt/X25519-AArch64-simple_opt.s")

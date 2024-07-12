@@ -898,6 +898,7 @@ slothy.config.split_heuristic = True
 slothy.config.split_heuristic_stepsize = 0.05
 slothy.config.split_heuristic_factor = 10
 slothy.config.split_heuristic_repeat = 2
+slothy.config.split_heuristic_estimate_performance = False
 slothy.optimize(start="mainloop", end="end_label")
 slothy.write_source_to_file("opt/X25519-AArch64-simple_opt.s")
 ```
@@ -908,6 +909,8 @@ It has three main parameters:
 - `split_heuristic_factor` : Determines the size of each split. In this case, 10 means that we will be optimizing 10% of the original code at a time.
 - `split_heuristic_stepsize` : Controls the degree of overlapping of the sliding window. Setting it to 0.05 means the sliding window moves by 5% every time. We will start with optimizing the first 10% ([0,0.1]) of the code, then [0.05,0.15], [0.1,0.20], ...
 - `split_heuristic_repeat`: The number of times the optimization should be repeated.
+- `split_heuristic_estimate_performance`: After running the split heuristic, don't attempt to estimate the stalls in the
+  final code (that tends to be quite slow).
 
 You will notice in the example above, that there is another call to `slothy.optimize()` prior to that.
 This is needed as the input implementation is using symbolic register names which is a feature unrelated to the splitting heuristic that we want to demonstrate here.
