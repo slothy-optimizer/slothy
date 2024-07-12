@@ -490,8 +490,12 @@ class Slothy:
         if self.config.sw_pipelining.unknown_iteration_count:
             optimized_code += indented(self.arch.Branch.unconditional(loop_lbl_end))
             for i in range(1, num_exceptional):
+                exceptional = i * body
+                c2 = c.copy()
+                c2.sw_pipelining.enabled = False
+                res = Heuristics.linear(exceptional, logger.getChild(f"exceptional_{i}"), c2)
                 optimized_code += [SourceLine(f"{loop_lbl_iter(i)}:")]
-                optimized_code += i * indented(body)
+                optimized_code += indented(res.code)
                 optimized_code += [SourceLine(f"{loop_lbl_iter(i)}_end:")]
                 if i != num_exceptional - 1:
                     optimized_code += indented(self.arch.Branch.unconditional(loop_lbl_end))

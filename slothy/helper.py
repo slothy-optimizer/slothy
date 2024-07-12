@@ -37,7 +37,7 @@ class SourceLine:
             return
         s = list(self._raw.split("//"))
         self._raw = s[0]
-        self._comments += map(str.strip, s[1:])
+        self._comments += map(str.lstrip, s[1:])
         self._trim_comments()
 
     def _extract_indentation_from_text(self):
