@@ -174,41 +174,32 @@ round_constants:
     ldp x29, x30, [sp, #(STACK_BASE_GPRS + 16*5)]
 .endm
 
+.macro eor5 dst, src0, src1, src2, src3, src4
+    eor \dst, \src0, \src1
+    eor \dst, \dst,  \src2
+    eor \dst, \dst,  \src3
+    eor \dst, \dst,  \src4
+.endm
+
+
+
+.macro addparity prty, dst0, src0, dst1, src1, dst2, src2, dst3, src3, dst4, src4
+    eor \dst0, \src0, \prty
+    eor \dst1, \src1, \prty
+    eor \dst2, \src2, \prty
+    eor \dst3, \src3, \prty
+    eor \dst4, \src4, \prty
+.endm
+
+
+
+
 .macro keccak_f1600_round_initial
-    ldp Aku, Ama, [input_addr, #(1*8*14)]
-    ldp Asa, Ase, [input_addr, #(1*8*20)]
-    eor C0, Ama, Asa
-    ldp Ame, Ami, [input_addr, #(1*8*16)]
-    eor C1, Ame, Ase
-    ldp Asi, Aso, [input_addr, #(1*8*22)]
-    eor C2, Ami, Asi
-    ldp Amo, Amu, [input_addr, #(1*8*18)]
-    eor C3, Amo, Aso
-    ldr Asu,      [input_addr, #(1*8*24)]
-    eor C4, Amu, Asu
-    ldp Aka, Ake, [input_addr, #(1*8*10)]
-    eor C0, Aka, C0
-    eor C1, Ake, C1
-    ldp Aki, Ako, [input_addr, #(1*8*12)]
-    eor C2, Aki, C2
-    ldp Abu, Aga, [input_addr, #(1*8*4)]
-    eor C3, Ako, C3
-    eor C4, Aku, C4
-    ldp Age, Agi, [input_addr, #(1*8*6)]
-    eor C0, Aga, C0
-    ldp Ago, Agu, [input_addr, #(1*8*8)]
-    eor C1, Age, C1
-    ldp Aba, Abe, [input_addr, #(1*8*0)]
-    eor C2, Agi, C2
-    ldp Abi, Abo, [input_addr, #(1*8*2)]
-    eor C3, Ago, C3
-    str input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:writes=STACK_OFFSET_INPUT
-    eor C4, Agu, C4
-    eor C0, Aba, C0
-    eor C1, Abe, C1
-    eor C2, Abi, C2
-    eor C3, Abo, C3
-    eor C4, Abu, C4
+    eor5 C0, Ama, Asa, Aba, Aga, Aka
+    eor5 C1, Ame, Ase, Abe, Age, Ake
+    eor5 C2, Ami, Asi, Abi, Agi, Aki
+    eor5 C3, Amo, Aso, Abo, Ago, Ako
+    eor5 C4, Amu, Asu, Abu, Agu, Aku
 
     eor E1, C0, C2, ror #63
     eor E3, C2, C4, ror #63
@@ -307,29 +298,27 @@ round_constants:
 
 .endm
 
+.macro eor5ror dst, src0, src1, rot1, src2, rot2, src3, rot3, src4, rot4
+    eor \dst, \src0, \src1, ror \rot1
+    eor \dst, \dst,  \src2, ror \rot2
+    eor \dst, \dst,  \src3, ror \rot3
+    eor \dst, \dst,  \src4, ror \rot4
+.endm
+
+.macro addparityror prty, dst0, src0, rot0, dst1, src1, rot1, dst2, src2, rot2, dst3, src3, rot3, dst4, src4, rot4
+    eor \dst0, \prty, \src0, ror \rot0
+    eor \dst1, \prty, \src1, ror \rot1
+    eor \dst2, \prty, \src2, ror \rot2
+    eor \dst3, \prty, \src3, ror \rot3
+    eor \dst4, \prty, \src4, ror \rot4
+.endm
 
 .macro keccak_f1600_round_noninitial
-
-    eor C2, Asi, Abi, ror #52
-    eor C0, Aba, Aga, ror #61
-    eor C4, Aku, Agu, ror #50
-    eor C1, Ake, Ame, ror #57
-    eor C3, Abo, Ako, ror #63
-    eor C2, C2, Aki, ror #48
-    eor C0, C0, Ama, ror #54
-    eor C4, C4, Amu, ror #34
-    eor C1, C1, Abe, ror #51
-    eor C3, C3, Amo, ror #37
-    eor C2, C2, Ami, ror #10
-    eor C0, C0, Aka, ror #39
-    eor C4, C4, Abu, ror #26
-    eor C1, C1, Ase, ror #31
-    eor C3, C3, Ago, ror #36
-    eor C2, C2, Agi, ror #5
-    eor C0, C0, Asa, ror #25
-    eor C4, C4, Asu, ror #15
-    eor C1, C1, Age, ror #27
-    eor C3, C3, Aso, ror #2
+    eor5ror C0, Aba, Aga, #61, Ama, #54, Aka, #39, Asa, #25
+    eor5ror C1, Ake, Ame, #57, Abe, #51, Ase, #31, Age, #27
+    eor5ror C2, Asi, Abi, #52, Aki, #48, Ami, #10, Agi, #5
+    eor5ror C3, Abo, Ako, #63, Amo, #37, Ago, #36, Aso, #2
+    eor5ror C4, Aku, Agu, #50, Amu, #34, Abu, #26, Asu, #15
 
     eor E1, C0, C2, ror #61
     ror C2, C2, #62
@@ -340,134 +329,130 @@ round_constants:
     eor E2, C1, C3, ror #63
     eor E4, C3, C0, ror #63
 
-    eor Aba_, E0, Aba
-    eor Asa_, E2, Abi, ror #50
-    eor Abi_, E2, Aki, ror #46
-    eor Aki_, E3, Ako, ror #63
-    eor Ako_, E4, Amu, ror #28
-    eor Amu_, E3, Aso, ror #2
-    eor Aso_, E0, Ama, ror #54
-    eor Aka_, E1, Abe, ror #43
-    eor Ase_, E3, Ago, ror #36
-    eor Ago_, E1, Ame, ror #49
-    eor Ake_, E2, Agi, ror #3
-    eor Agi_, E0, Aka, ror #39
-    eor Aga_, E3, Abo
-    eor Abo_, E3, Amo, ror #37
-    eor Amo_, E2, Ami, ror #8
-    eor Ami_, E1, Ake, ror #56
-    eor Age_, E4, Agu, ror #44
-    eor Agu_, E2, Asi, ror #62
-    eor Asi_, E4, Aku, ror #58
-    eor Aku_, E0, Asa, ror #25
-    eor Ama_, E4, Abu, ror #20
-    eor Abu_, E4, Asu, ror #9
-    eor Asu_, E1, Ase, ror #23
-    eor Ame_, E0, Aga, ror #61
-    eor Abe_, E1, Age, ror #19
+    addparityror E0, X<Bba>, Aba, #0,  X<Bso>, Ama, #54, X<Bgi>, Aka, #39, X<Bku>, Asa, #25, X<Bme>, Aga, #61
+    addparityror E1, X<Bka>, Abe, #43, X<Bgo>, Ame, #49, X<Bmi>, Ake, #56, X<Bsu>, Ase, #23, X<Bbe>, Age, #19
+    addparityror E2, X<Bsa>, Abi, #50, X<Bbi>, Aki, #46, X<Bke>, Agi, #3,  X<Bmo>, Ami, #8,  X<Bgu>, Asi, #62
+    addparityror E3, X<Bki>, Ako, #63, X<Bmu>, Aso, #2,  X<Bse>, Ago, #36, X<Bga>, Abo, #0,  X<Bbo>, Amo, #37
+    addparityror E4, X<Bko>, Amu, #28, X<Bge>, Agu, #44, X<Bsi>, Aku, #58, X<Bma>, Abu, #20, X<Bbu>, Asu, #9
 
     load_constant_ptr_stack
     ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
 
-    bic tmp0, Agi_, Age_, ror #47
-    bic tmp1, Ago_, Agi_, ror #42
-    eor Aga, tmp0,  Aga_, ror #39
-    bic tmp0, Agu_, Ago_, ror #16
-    eor Age, tmp1,  Age_, ror #25
-    bic tmp1, Aga_, Agu_, ror #31
-    eor Agi, tmp0,  Agi_, ror #58
-    bic tmp0, Age_, Aga_, ror #56
-    eor Ago, tmp1,  Ago_, ror #47
-    bic tmp1, Aki_, Ake_, ror #19
-    eor Agu, tmp0,  Agu_, ror #23
-    bic tmp0, Ako_, Aki_, ror #47
-    eor Aka, tmp1,  Aka_, ror #24
-    bic tmp1, Aku_, Ako_, ror #10
-    eor Ake, tmp0,  Ake_, ror #2
-    bic tmp0, Aka_, Aku_, ror #47
-    eor Aki, tmp1,  Aki_, ror #57
-    bic tmp1, Ake_, Aka_, ror #5
-    eor Ako, tmp0,  Ako_, ror #57
-    bic tmp0, Ami_, Ame_, ror #38
-    eor Aku, tmp1,  Aku_, ror #52
-    bic tmp1, Amo_, Ami_, ror #5
-    eor Ama, tmp0,  Ama_, ror #47
-    bic tmp0, Amu_, Amo_, ror #41
-    eor Ame, tmp1,  Ame_, ror #43
-    bic tmp1, Ama_, Amu_, ror #35
-    eor Ami, tmp0,  Ami_, ror #46
-    bic tmp0, Ame_, Ama_, ror #9
+    bic tmp0, X<Bgi>, X<Bge>, ror #47
+    bic tmp1, X<Bgo>, X<Bgi>, ror #42
+    eor Aga, tmp0,  X<Bga>, ror #39
+    bic tmp0, X<Bgu>, X<Bgo>, ror #16
+    eor Age, tmp1,  X<Bge>, ror #25
+    bic tmp1, X<Bga>, X<Bgu>, ror #31
+    eor Agi, tmp0,  X<Bgi>, ror #58
+    bic tmp0, X<Bge>, X<Bga>, ror #56
+    eor Ago, tmp1,  X<Bgo>, ror #47
+    bic tmp1, X<Bki>, X<Bke>, ror #19
+    eor Agu, tmp0,  X<Bgu>, ror #23
+    bic tmp0, X<Bko>, X<Bki>, ror #47
+    eor Aka, tmp1,  X<Bka>, ror #24
+    bic tmp1, X<Bku>, X<Bko>, ror #10
+    eor Ake, tmp0,  X<Bke>, ror #2
+    bic tmp0, X<Bka>, X<Bku>, ror #47
+    eor Aki, tmp1,  X<Bki>, ror #57
+    bic tmp1, X<Bke>, X<Bka>, ror #5
+    eor Ako, tmp0,  X<Bko>, ror #57
+    bic tmp0, X<Bmi>, X<Bme>, ror #38
+    eor Aku, tmp1,  X<Bku>, ror #52
+    bic tmp1, X<Bmo>, X<Bmi>, ror #5
+    eor Ama, tmp0,  X<Bma>, ror #47
+    bic tmp0, X<Bmu>, X<Bmo>, ror #41
+    eor Ame, tmp1,  X<Bme>, ror #43
+    bic tmp1, X<Bma>, X<Bmu>, ror #35
+    eor Ami, tmp0,  X<Bmi>, ror #46
+    bic tmp0, X<Bme>, X<Bma>, ror #9
 
     ldr cur_const, [const_addr, count, UXTW #3]
 
-    eor Amo, tmp1,  Amo_, ror #12
-    bic tmp1, Asi_, Ase_, ror #48
-    eor Amu, tmp0,  Amu_, ror #44
-    bic tmp0, Aso_, Asi_, ror #2
-    eor Asa, tmp1,  Asa_, ror #41
-    bic tmp1, Asu_, Aso_, ror #25
-    eor Ase, tmp0,  Ase_, ror #50
-    bic tmp0, Asa_, Asu_, ror #60
-    eor Asi, tmp1,  Asi_, ror #27
-    bic tmp1, Ase_, Asa_, ror #57
-    eor Aso, tmp0,  Aso_, ror #21
-    bic tmp0, Abi_, Abe_, ror #63
+    eor Amo, tmp1,  X<Bmo>, ror #12
+    bic tmp1, X<Bsi>, X<Bse>, ror #48
+    eor Amu, tmp0,  X<Bmu>, ror #44
+    bic tmp0, X<Bso>, X<Bsi>, ror #2
+    eor Asa, tmp1,  X<Bsa>, ror #41
+    bic tmp1, X<Bsu>, X<Bso>, ror #25
+    eor Ase, tmp0,  X<Bse>, ror #50
+    bic tmp0, X<Bsa>, X<Bsu>, ror #60
+    eor Asi, tmp1,  X<Bsi>, ror #27
+    bic tmp1, X<Bse>, X<Bsa>, ror #57
+    eor Aso, tmp0,  X<Bso>, ror #21
+    bic tmp0, X<Bbi>, X<Bbe>, ror #63
     add count, count, #1
     str count, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
-    eor Asu, tmp1,  Asu_, ror #53
-    bic tmp1, Abo_, Abi_, ror #42
-    eor Aba, Aba_, tmp0,  ror #21
-    bic tmp0, Abu_, Abo_, ror #57
-    eor Abe, tmp1,  Abe_, ror #41
-    bic tmp1, Aba_, Abu_, ror #50
-    eor Abi, tmp0,  Abi_, ror #35
-    bic tmp0, Abe_, Aba_, ror #44
-    eor Abo, tmp1,  Abo_, ror #43
-    eor Abu, tmp0,  Abu_, ror #30
+    eor Asu, tmp1,  X<Bsu>, ror #53
+    bic tmp1, X<Bbo>, X<Bbi>, ror #42
+    eor Aba, X<Bba>, tmp0,  ror #21
+    bic tmp0, X<Bbu>, X<Bbo>, ror #57
+    eor Abe, tmp1,  X<Bbe>, ror #41
+    bic tmp1, X<Bba>, X<Bbu>, ror #50
+    eor Abi, tmp0,  X<Bbi>, ror #35
+    bic tmp0, X<Bbe>, X<Bba>, ror #44
 
+    eor Abo, tmp1,  X<Bbo>, ror #43
+    eor Abu, tmp0,  X<Bbu>, ror #30
     eor Aba, Aba, cur_const
-
 .endm
 
-.macro final_rotate_store
-    ror Aga, Aga,#(64-3)
-    ldr input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:reads=STACK_OFFSET_INPUT
-    
-    ror Abu, Abu,#(64-44)
-    ror Aka, Aka,#(64-25)
-    ror Ake, Ake,#(64-8)
-    stp Abu, Aga, [input_addr, #(1*8*4)]
-    ror Ama, Ama,#(64-10)
-    ror Aku, Aku,#(64-6)
-    stp Aka, Ake, [input_addr, #(1*8*10)]
-    ror Asa, Asa,#(64-39)
-    ror Ase, Ase,#(64-41)
-    stp Aku, Ama, [input_addr, #(1*8*14)]
-    ror Abe, Abe,#(64-21)
-    ror Age, Age,#(64-45)
-    stp Asa, Ase, [input_addr, #(1*8*20)]
-    ror Agi, Agi,#(64-61)
+.macro load_state
+    ldp Aba, Abe, [input_addr, #(1*8*0)]
+    ldp Abi, Abo, [input_addr, #(1*8*2)]
+    ldp Abu, Aga, [input_addr, #(1*8*4)]
+    ldp Age, Agi, [input_addr, #(1*8*6)]
+    ldp Ago, Agu, [input_addr, #(1*8*8)]
+    ldp Aka, Ake, [input_addr, #(1*8*10)]
+    ldp Aki, Ako, [input_addr, #(1*8*12)]
+    ldp Aku, Ama, [input_addr, #(1*8*14)]
+    ldp Ame, Ami, [input_addr, #(1*8*16)]
+    ldp Amo, Amu, [input_addr, #(1*8*18)]
+    ldp Asa, Ase, [input_addr, #(1*8*20)]
+    ldp Asi, Aso, [input_addr, #(1*8*22)]
+    ldr Asu,      [input_addr, #(1*8*24)]
+.endm
+
+.macro store_state
     stp Aba, Abe, [input_addr, #(1*8*0)]
-    ror Ame, Ame,#(64-15)
-    ror Ami, Ami,#(64-56)
-    stp Age, Agi, [input_addr, #(1*8*6)]
-    ror Abi, Abi,#(64-14)
-    ror Aki, Aki,#(64-18)
-    stp Ame, Ami, [input_addr, #(1*8*16)]
-    ror Ako, Ako,#(64-1)
     stp Abi, Abo, [input_addr, #(1*8*2)]
-    ror Asi, Asi,#(64-2)
-    ror Aso, Aso,#(64-62)
+    stp Abu, Aga, [input_addr, #(1*8*4)]
+    stp Age, Agi, [input_addr, #(1*8*6)]
+    stp Ago, Agu, [input_addr, #(1*8*8)]
+    stp Aka, Ake, [input_addr, #(1*8*10)]
     stp Aki, Ako, [input_addr, #(1*8*12)]
+    stp Aku, Ama, [input_addr, #(1*8*14)]
+    stp Ame, Ami, [input_addr, #(1*8*16)]
+    stp Amo, Amu, [input_addr, #(1*8*18)]
+    stp Asa, Ase, [input_addr, #(1*8*20)]
+    stp Asi, Aso, [input_addr, #(1*8*22)]
+    str Asu,      [input_addr, #(1*8*24)]
+.endm
+
+.macro final_rotate
+    ror Abe, Abe,#(64-21)
+    ror Abi, Abi,#(64-14)
+    ror Abu, Abu,#(64-44)
+    ror Aga, Aga,#(64-3)
+    ror Age, Age,#(64-45)
+    ror Agi, Agi,#(64-61)
     ror Ago, Ago,#(64-28)
     ror Agu, Agu,#(64-20)
-    stp Asi, Aso, [input_addr, #(1*8*22)]
+    ror Aka, Aka,#(64-25)
+    ror Ake, Ake,#(64-8)
+    ror Aki, Aki,#(64-18)
+    ror Ako, Ako,#(64-1)
+    ror Aku, Aku,#(64-6)
+    ror Ama, Ama,#(64-10)
+    ror Ame, Ame,#(64-15)
+    ror Ami, Ami,#(64-56)
     ror Amo, Amo,#(64-27)
     ror Amu, Amu,#(64-36)
-    stp Ago, Agu, [input_addr, #(1*8*8)]
+    ror Asa, Asa,#(64-39)
+    ror Ase, Ase,#(64-41)
+    ror Asi, Asi,#(64-2)
+    ror Aso, Aso,#(64-62)
     ror Asu, Asu,#(64-55)
-    stp Amo, Amu, [input_addr, #(1*8*18)]
-    str Asu,      [input_addr, #(1*8*24)]
 .endm
 
 #define KECCAK_F1600_ROUNDS 24
@@ -485,14 +470,20 @@ _keccak_f1600_x1_scalar_slothy:
     alloc_stack
     save_gprs
 
+initial:
+    load_state
+    str input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:writes=STACK_OFFSET_INPUT
     keccak_f1600_round_initial
 loop:
     keccak_f1600_round_noninitial
 end_loop:
     cmp count, #(KECCAK_F1600_ROUNDS-1)
     ble loop
-
-    final_rotate_store
+final:
+    final_rotate
+    ldr input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:reads=STACK_OFFSET_INPUT
+    store_state
+end_final:
     restore_gprs
     free_stack
     ret
