@@ -1405,13 +1405,13 @@ class neon_keccak_x1(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target, timeout=7200)
+        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
 
     def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.visualize_expected_performance = True
-        slothy.config.timeout = 7200
+        slothy.config.timeout = 3600*24
 
         slothy.config.outputs = ["x27"]
         slothy.config.constraints.functional_only = True
