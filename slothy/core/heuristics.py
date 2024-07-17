@@ -128,10 +128,14 @@ class Heuristics():
             The Result object for the succceeding optimization with the smallest
             number of stalls.
         """
-        if conf.variable_size:
-            return Heuristics.optimize_binsearch_internal(source, logger, conf, **kwargs)
+        flexible = not conf.constraints.functional_only
 
-        return Heuristics.optimize_binsearch_external(source, logger, conf, **kwargs)
+        if conf.variable_size:
+            return Heuristics.optimize_binsearch_internal(source, logger, conf,
+                                                          flexible=flexible, **kwargs)
+
+        return Heuristics.optimize_binsearch_external(source, logger, conf,
+                                                      flexible=flexible, **kwargs)
 
     @staticmethod
     def _log_reoptimization_failure(log):
@@ -201,7 +205,7 @@ class Heuristics():
         return core.result
 
     @staticmethod
-    def optimize_binsearch_internal(source, logger, conf, **kwargs):
+    def optimize_binsearch_internal(source, logger, conf, flexible=True, **kwargs):
         """Internally optimize for minimum number of stalls, and potentially a secondary objective.
 
         This finds the minimum number of stalls for which a one-shot SLOTHY optimization succeeds.
@@ -213,10 +217,20 @@ class Heuristics():
             logger: The logger to be used.
             conf: The configuration to apply. This is fixed for all one-shot SLOTHY
                 runs invoked by this call, except for variation of stall count.
+            flexible: Indicates whether the number of stalls should be minimized
+                through a binary search, or whether a single one-shot SLOTHY optimization
+                for a fixed number of stalls (encoded in the configuration) should be
+                conducted.
 
         Returns:
             A Result object representing the final optimization result.
         """
+
+        if not flexible:
+            core = SlothyBase(conf.arch, conf.target, logger=logger,config=conf)
+            if not core.optimize(source):
+                raise SlothyException("Optimization failed")
+            return core.result
 
         logger.info("Perform internal binary search for minimal number of stalls...")
 
