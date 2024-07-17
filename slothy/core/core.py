@@ -1231,7 +1231,6 @@ class Result(LockAttributes):
         self._kernel_input_output = None
         self._pre_core_post_dict = None
         self._codesize_with_bubbles = None
-        self._register_used = None
         self._optimization_wall_time = None
         self._optimization_user_time = None
 
@@ -2201,7 +2200,7 @@ class SlothyBase(LockAttributes):
         if self.config.constraints.minimize_register_usage is not None:
             ty = self.config.constraints.minimize_register_usage
             regs = self.arch.RegisterType.list_registers(ty)
-            self._register_used = { reg : self._NewBoolVar(f"reg_used[{reg}]") for reg in regs }
+            self._model._register_used = { reg : self._NewBoolVar(f"reg_used[{reg}]") for reg in regs }
 
         # Create variables for register renaming
 
@@ -2506,9 +2505,9 @@ class SlothyBase(LockAttributes):
             for reg in self.arch.RegisterType.list_registers(ty):
                 arr = self._model.register_usage_vars.get(reg,[])
                 if len(arr) > 0:
-                    self._model.AddMaxEquality(self._register_used[reg], arr)
+                    self._AddMaxEquality(self._model._register_used[reg], arr)
                 else:
-                    self._Add(self._register_used[reg] is False)
+                    self._Add(self._model._register_used[reg] == False)
 
         # Ensure that outputs are unambiguous
         for t in self._get_nodes(allnodes=True):
@@ -3064,8 +3063,6 @@ class SlothyBase(LockAttributes):
         name = None
         printer = None
 
-        # We only support objectives of the form: Maximize/Minimize the sum of a set of variables.
-
         # If the number of stalls is variable, its minimization is our objective
         if force_objective is False and self.config.variable_size:
             name = "minimize cycles"
@@ -3090,8 +3087,8 @@ class SlothyBase(LockAttributes):
                 maxlist = [ t.program_start_var for t in self._get_nodes() ]
                 name = "move stalls to top"
             elif self.config.constraints.minimize_register_usage is not None:
-                # Minimize the number of registers used
-                minlist = list(self._register_used.values())
+                minlist = list(self._model._register_used.values())
+                name = "minimize number of registers used"
             elif self.config.constraints.minimize_use_of_extra_registers is not None:
                 ty = self.config.constraints.minimize_use_of_extra_registers
                 minlist = []
@@ -3169,6 +3166,8 @@ class SlothyBase(LockAttributes):
         return self._model.cp_model.AddHint(var,val)
     def _AddNoOverlap(self,interval_list): # pylint:disable=invalid-name
         return self._model.cp_model.AddNoOverlap(interval_list)
+    def _AddMaxEquality(self,varlist,var): # pylint:disable=invalid-name
+        return self._model.cp_model.AddMaxEquality(varlist, var)
 
     def _export_model(self):
         if self.config.log_model is None:
