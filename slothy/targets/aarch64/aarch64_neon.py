@@ -1665,10 +1665,30 @@ class neg(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-n
     inputs = ["Xa"]
     outputs = ["Xd"]
 
+class negs(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "negs <Xd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    modifiesFlags=True
+
 class ngc_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "ngc <Xd>, xzr"
     inputs = []
     outputs = ["Xd"]
+    dependsOnFlags=True
+
+class ngcs(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ngcs <Xd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
+
+class ngcs_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ngcs <Xd>, xzr"
+    inputs = []
+    outputs = ["Xd"]
+    modifiesFlags=True
     dependsOnFlags=True
 
 class adds(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
@@ -1717,6 +1737,13 @@ class sbcs_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,inv
     pattern = "sbcs <Xd>, <Xa>, xzr"
     inputs = ["Xa"]
     outputs = ["Xd"]
+    modifiesFlags=True
+    dependsOnFlags=True
+
+class sbcs_to_zero(AArch64BasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "sbcs xzr, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = []
     modifiesFlags=True
     dependsOnFlags=True
 
@@ -1980,6 +2007,12 @@ class csel_xzr_ne(AArch64ConditionalSelect): # pylint: disable=missing-docstring
     outputs = ["Xd"]
     dependsOnFlags=True
 
+class csel_xzr2_ne(AArch64ConditionalSelect): # pylint: disable=missing-docstring,invalid-name
+    pattern = "csel <Xd>, xzr, <Xe>, <flag>"
+    inputs = ["Xe"]
+    outputs = ["Xd"]
+    dependsOnFlags=True
+
 class csel_ne(AArch64ConditionalSelect): # pylint: disable=missing-docstring,invalid-name
     pattern = "csel <Xd>, <Xe>, <Xf>, <flag>"
     inputs = ["Xe", "Xf"]
@@ -2123,6 +2156,11 @@ class tst_imm_xform(Tst): # pylint: disable=missing-docstring,invalid-name
 class tst_xform(Tst): # pylint: disable=missing-docstring,invalid-name
     pattern = "tst <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
+    modifiesFlags=True
+
+class cmp(Tst): # pylint: disable=missing-docstring,invalid-name
+    pattern = "cmp <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
     modifiesFlags=True
 
 class cmp_xzr(Tst): # pylint: disable=missing-docstring,invalid-name

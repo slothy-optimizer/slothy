@@ -121,6 +121,7 @@ execution_units = {
     Tst                       : ExecutionUnit.I(),
     AArch64ShiftedArithmetic  : ExecutionUnit.M(),
     Fmov                      : ExecutionUnit.M(),
+    umull_wform               : ExecutionUnit.M(),
     (AArch64HighMultiply,
      AArch64Multiply) : ExecutionUnit.M(),
     vdup                     : ExecutionUnit.M(),
@@ -158,6 +159,7 @@ inverse_throughput = {
     (AArch64HighMultiply)      : 4,
     (AArch64Multiply)          : 3,
     (vdup)                     : 1,
+    umull_wform                : 1,
 }
 
 default_latencies = {
@@ -193,6 +195,7 @@ default_latencies = {
     AArch64HighMultiply       : 5,
     AArch64Multiply           : 4,
     (vdup)                    : 3,
+    umull_wform               : 2,
 }
 
 def get_latency(src, out_idx, dst):
