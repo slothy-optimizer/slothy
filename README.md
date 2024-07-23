@@ -48,15 +48,21 @@ Have a look at the [SLOTHY tutorial](tutorial/README.md) for a hands-on and exam
 
 ## Real world uses
 
-* [Arm EndpointAI](https://github.com/ARM-software/EndpointAI): SLOTHY-optimized code has been deployed to the CMSIS DSP Library for the radix-4 CFFT routines as part
-  of the Arm EndpointAI project in [this
-  commit](https://github.com/ARM-software/EndpointAI/commit/817bb57d8a4a604538a04627851f5e9adb5f08fc).
-
 * [AWS libcrypto (AWS-LC)](https://github.com/aws/aws-lc): SLOTHY-optimized X25519 code based on our un-interleaved form of the [original code by Emil
   Lenngren](https://github.com/Emill/X25519-AArch64) has been [formally verified and
   included](https://github.com/awslabs/s2n-bignum/pull/108) in
-  [s2n-bignum](https://github.com/awslabs/s2n-bignum/) and [merged](https://github.com/aws/aws-lc/pull/1469) into
-  AWS-LC.
+  [s2n-bignum](https://github.com/awslabs/s2n-bignum/) (the bignum component of AWS-LC) and [merged](https://github.com/aws/aws-lc/pull/1469) into
+  AWS-LC. This was the topic of a [Real World Crypto 2024
+  talk](https://iacr.org/submit/files/slides/2024/rwc/rwc2024/38/slides.pdf).
+
+* [s2n-bignum](https://github.com/awslabs/s2n-bignum/) routinely employs SLOTHY for finding
+further highly optimized ECC implementations (e.g., [P256](https://github.com/awslabs/s2n-bignum/pull/118),
+[P384](https://github.com/awslabs/s2n-bignum/pull/122), [P521](https://github.com/awslabs/s2n-bignum/pull/130) and
+verifies them through automated equivalence-checking in [HOL-Light](https://hol-light.github.io/).
+
+* [Arm EndpointAI](https://github.com/ARM-software/EndpointAI): SLOTHY-optimized code has been deployed to the CMSIS DSP Library for the radix-4 CFFT routines as part
+  of the Arm EndpointAI project in [this
+  commit](https://github.com/ARM-software/EndpointAI/commit/817bb57d8a4a604538a04627851f5e9adb5f08fc).
 
 ## Installation
 
