@@ -219,8 +219,8 @@ class SourceLine:
                 t, v = tv
                 if v is True:
                     return f"// @slothy:{t}"
-                if isinstance(v, list):
-                    return f"// @slothy:{t}=[{','.join(v)}]"
+#                if isinstance(v, list):
+#                    return f"// @slothy:{t}=[{','.join(v)}]"
                 return f"// @slothy:{t}={v}"
             additional += list(map(print_tag_value, self._tags.items()))
 
