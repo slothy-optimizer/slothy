@@ -559,6 +559,10 @@ class Result(LockAttributes):
         return { v : k for k,v in self.reordering.items() }
 
     @property
+    def fixlen(self):
+        return (max(map(len, self.code_raw), default=0) + 8)
+
+    @property
     def code_raw(self):
         """Optimized code, without annotations"""
         return self._code
@@ -568,7 +572,7 @@ class Result(LockAttributes):
         assert SourceLine.is_source(code)
         ri = self.periodic_reordering_with_bubbles_inv
 
-        fixlen = max(map(len, code), default=0) + 8
+        fixlen = self.fixlen
         for l in code:
             l.set_length(fixlen)
 
@@ -648,9 +652,35 @@ class Result(LockAttributes):
                 vis = d * cc + c + d * (cycles - cc - 1)
                 yield s.copy().set_length(fixlen).set_comment(vis)
 
+        def gen_visualized_code_with_old():
+            orig_code = self._orig_code
+            cs = self.codesize_with_bubbles
+            if cs == 0:
+                return
+
+            old_code = []
+            old_maxlen = 0
+            for i in range(self.codesize_with_bubbles):
+                p = ri.get(i, None)
+                if p is None:
+                    old_code.append(None)
+                    continue
+                t = orig_code[p].text
+                old_code.append(t)
+                old_maxlen = max(old_maxlen, len(t))
+
+            for i in range(self.codesize_with_bubbles):
+                p = ri.get(i, None)
+                if p is None:
+                    continue
+                s = code[self.periodic_reordering[p]]
+                yield s.copy().set_length(fixlen).set_comment(f"{old_code[i]:{old_maxlen + 8}s}")
+
         def gen_visualized_code():
             if self.config.visualize_expected_performance is True:
                 yield from gen_visualized_code_perf()
+            elif self.config.visualize_show_old_code is True:
+                yield from gen_visualized_code_with_old()
             else:
                 yield from gen_visualized_code_perm()
 

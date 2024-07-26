@@ -1099,6 +1099,7 @@ class Config(NestedPrint, LockAttributes):
         self.indentation = 8
         self.visualize_reordering = True
         self.visualize_expected_performance = True
+        self.visualize_show_old_code = False
 
         self.placeholder_char = '.'
         self.early_char = 'e'
