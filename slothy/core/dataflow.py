@@ -690,7 +690,16 @@ class DataFlowGraph:
             for d in t.describe():
                 log_func(d)
 
-    def ssa(self):
+    def update_inputs(self):
+        """After change to output registers of some nodes, update all
+        dependent nodes"""
+        for t in self.nodes_all:
+            for i, v in enumerate(t.src_in):
+                t.inst.args_in[i] = v.reduce().name()
+            for i,v in enumerate(t.src_in_out):
+                t.inst.args_in_out[i] = v.reduce().name()
+
+    def ssa(self, filter_func=None):
         """Transform data flow graph into single static assignment (SSA) form."""
         # Go through non-virtual instruction nodes and assign unique names to
         # output registers which are not global outputs.
@@ -710,21 +719,20 @@ class DataFlowGraph:
                 continue
             no_ssa.append((producer.src, producer.idx))
 
-        for t in self.nodes:
+        for (idx, t) in enumerate(self.nodes):
             for (i,c) in enumerate(t.inst.args_out):
                 if c in self.config._locked_registers or (t,i) in no_ssa:
                     continue
+                if filter_func is not None and filter_func(t, i) is False:
+                    continue
                 t.inst.args_out[i] = get_fresh_reg()
 
-        # Update input and in-out register names
-        for t in self.nodes_all:
-            for i, v in enumerate(t.src_in):
-                t.inst.args_in[i] = v.reduce().name()
-            for i,v in enumerate(t.src_in_out):
-                t.inst.args_in_out[i] = v.reduce().name()
+        # Propagate change in register allocation to all dependent nodes
+        self.update_inputs()
 
     def _build_graph(self):
         self.reg_state = {}
+        self.spilled_reg_state = {}
         self._typing_dict = {}
         self._nodes_all = []
 
@@ -766,6 +774,15 @@ class DataFlowGraph:
         # Add the single valid candidate parsing to the CFG
         self._add_node(valid_candidates[0])
 
+    def _process_restore_instruction(self, reg, loc):
+        assert loc in self.spilled_reg_state.keys()
+        self.reg_state[reg] = self.spilled_reg_state.pop(loc)
+
+    def _process_spill_instruction(self, reg, loc):
+        assert loc not in self.spilled_reg_state.keys()
+        assert reg in self.reg_state.keys()
+        self.spilled_reg_state[loc] = self.reg_state.pop(reg)
+
     def _add_node(self, s):
         """Add a node to the data flow graph
 
@@ -776,7 +793,24 @@ class DataFlowGraph:
         """
 
         if not isinstance(s, VirtualInstruction):
+            # Check if the instruction is tagged as a spill or restore instruction
+            # Those instructions are not inserted into the DFG but merely interpreted
+            # as redirections
+            if s.source_line.tags.get("is_spill", False) is True:
+                self.logger.debug("Handling spill instruction: %s", s)
+                reg = s.args_in[0]
+                loc = s.args_out[0]
+                self._process_spill_instruction(reg, loc)
+                return
+            if s.source_line.tags.get("is_restore", False) is True:
+                self.logger.debug("Handling spill instruction: %s", s)
+                loc = s.args_in[0]
+                reg = s.args_out[0]
+                self._process_restore_instruction(reg, loc)
+                return
+
             self.logger.debug("Adding instruction to CFG: %s", s)
+
         elif isinstance(s, VirtualInputInstruction):
             self.logger.debug("Adding virtual instruction for input %s", s.orig_reg)
         elif isinstance(s, VirtualOutputInstruction):
