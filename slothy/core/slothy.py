@@ -135,6 +135,7 @@ class Slothy:
     def rename_function(self, old_funcname, new_funcname):
         """Rename a function in the current source code"""
         self.source = AsmHelper.rename_function(self.source, old_funcname, new_funcname)
+        self.source = AsmHelper.rename_function(self.source, "_" + old_funcname, "_" + new_funcname)
 
     @staticmethod
     def _dump(name, s, logger, err=False):
