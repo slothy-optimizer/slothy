@@ -793,24 +793,26 @@ class Result(LockAttributes):
         log.propagate = False
         log.addHandler(defer_handler)
 
+        exception = None
         try:
-            retry = not self.selfcheck(log)
-            exception = None
+            success = self.selfcheck(log)
         except SlothySelfCheckException as e:
             exception = e
 
         log.propagate = True
         log.removeHandler(defer_handler)
 
-        if exception and self.config.sw_pipelining.enabled:
+        if exception is not None and self.config.sw_pipelining.enabled:
             retry = True
-        elif exception:
+        elif exception is not None:
             # We don't expect a failure if there are no cross-iteration dependencies
             defer_handler.forward(log)
-            raise e
+            raise exception
+        else:
+            retry = False
 
-        if not retry:
-            # On success, show the log output
+        if retry is False:
+            # Show the log output
             defer_handler.forward(log)
         else:
             log.info("Selfcheck failed! This sometimes happens in the presence "\
