@@ -1055,7 +1055,14 @@ class DeferHandler(logging.Handler):
     def emit(self, record):
         self._records.append(record)
     def forward(self, logger):
-        """Send all captured records to the given logger"""
+        """Send all captured records to the given logger."""
         for r in self._records:
             logger.handle(r)
-        self._records = []
+    def forward_to_file(self, log_label, filename, lvl=logging.DEBUG):
+        """Store all captured records in a file."""
+        l = logging.getLogger(log_label)
+        l.setLevel(lvl)
+        h = logging.FileHandler(filename)
+        h.setLevel(lvl)
+        l.addHandler(h)
+        self.forward(l)

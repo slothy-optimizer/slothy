@@ -806,6 +806,8 @@ class Result(LockAttributes):
             retry = True
         elif exception is not None:
             # We don't expect a failure if there are no cross-iteration dependencies
+            if self.config.selfcheck_failure_logfile is not None:
+                defer_handler.forward_to_file("selfcheck", self.config.selfcheck_failure_logfile)
             defer_handler.forward(log)
             raise exception
         else:
@@ -823,6 +825,8 @@ class Result(LockAttributes):
                 self.selfcheck(log.getChild("after_fixup"))
             except SlothySelfCheckException as e:
                 log.error("Here is the output of the original selfcheck before fixup")
+                if self.config.selfcheck_failure_logfile is not None:
+                    defer_handler.forward_to_file("selfcheck", self.config.selfcheck_failure_logfile)
                 defer_handler.forward(log)
                 raise e
 
