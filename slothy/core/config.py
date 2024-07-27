@@ -141,6 +141,14 @@ class Config(NestedPrint, LockAttributes):
         return self._selfcheck
 
     @property
+    def selfcheck_failure_logfile(self):
+        """The filename for the log of a failing selfcheck.
+
+        This is printed in the terminal as well, but difficult to analyze for its
+        sheer size."""
+        return self._selfcheck_failure_logfile
+
+    @property
     def allow_useless_instructions(self):
         """Indicates whether SLOTHY should abort upon encountering unused instructions.
 
@@ -1058,6 +1066,7 @@ class Config(NestedPrint, LockAttributes):
         self._reserved_regs_are_locked = True
 
         self._selfcheck = True
+        self._selfcheck_failure_logfile = None
         self._allow_useless_instructions = False
 
         self._split_heuristic = False
@@ -1167,6 +1176,9 @@ class Config(NestedPrint, LockAttributes):
     @selfcheck.setter
     def selfcheck(self,val):
         self._selfcheck = val
+    @selfcheck_failure_logfile.setter
+    def selfcheck_failure_logfile(self,val):
+        self._selfcheck_failure_logfile = val
     @allow_useless_instructions.setter
     def allow_useless_instructions(self,val):
         self._allow_useless_instructions = val
