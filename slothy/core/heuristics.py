@@ -258,7 +258,8 @@ class Heuristics():
 
         logger.info(f"Minimum number of stalls: {min_stalls}")
 
-        if conf.has_objective is False:
+        # Spill minimization is integrated into the stall minimization objective
+        if conf.has_objective is False or conf.constraints.minimize_spills is True:
             return core.result
 
         logger.info("Optimize again with minimal number of %d stalls, with objective...",
