@@ -88,7 +88,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False, log_model=False, log_model_dir="models", dry_run=False, silent=False, timeout=0):
+    def run(self, debug=False, log_model=False, log_model_dir="models", dry_run=False, silent=False, timeout=0, debug_logfile=None):
 
         if dry_run is True:
             annotation = " (dry run only)"
@@ -115,7 +115,12 @@ class Example():
             h_verbose.addFilter(lambda r: r.levelno < logging.INFO)
             handlers.append(h_verbose)
 
-        if debug is True:
+        if debug_logfile is not None:
+            h_file = logging.FileHandler(debug_logfile)
+            h_file.setLevel(logging.DEBUG)
+            handlers.append(h_file)
+
+        if debug is True or debug_logfile is not None:
             base_level = logging.DEBUG
         else:
             base_level = logging.INFO
@@ -1508,6 +1513,7 @@ def main():
     parser.add_argument("--silent", default=False, action="store_true")
     parser.add_argument("--iterations", type=int, default=1)
     parser.add_argument("--timeout", type=int, default=0)
+    parser.add_argument("--debug-logfile", type=str, default=None)
     parser.add_argument("--log-model", default=False, action="store_true")
     parser.add_argument("--log-model-dir", type=str, default="models")
 
@@ -1532,6 +1538,7 @@ def main():
         for _ in range(iterations):
             run_example(e, debug=args.debug, dry_run=args.dry_run,
                         silent=args.silent, log_model=args.log_model,
+                        debug_logfile=args.debug_logfile,
                         log_model_dir=args.log_model_dir, timeout=args.timeout)
 
 if __name__ == "__main__":
