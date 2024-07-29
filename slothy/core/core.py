@@ -427,10 +427,13 @@ class Result(LockAttributes):
 
     @property
     def reordering_with_bubbles(self):
-        """The reordering permutation linking original and optimized source code.
-           The output ordering includes 'bubbles' reflecting where SLOTHY thinks
-           that the target microarchitecture would stall."""
+        """The reordering map linking original and optimized source code.
 
+           The output ordering includes 'bubbles' reflecting where SLOTHY thinks
+           that the target microarchitecture would stall.
+
+           This is a map from [0,...,codesize) to [0,...,codesize_with_bubbles).
+        """
         # TODO: Clarify how early and late instructions are treated in the case
         # of software pipelining
         return self._reordering_with_bubbles
