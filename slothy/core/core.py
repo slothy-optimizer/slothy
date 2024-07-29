@@ -3201,6 +3201,8 @@ class SlothyBase(LockAttributes):
         return self._model.cp_model.AddNoOverlap(lst)
     def _AddExactlyOne(self,lst): # pylint:disable=invalid-name
         return self._model.cp_model.AddExactlyOne(lst)
+    def _AddMultiplicationEquality(self,lst,res): # pylint:disable=invalid-name
+        return self._model.cp_model.AddMultiplicationEquality(res,lst)
     def _AddImplication(self,a,b): # pylint:disable=invalid-name
         return self._model.cp_model.AddImplication(a,b)
     def _AddAtLeastOne(self,lst): # pylint:disable=invalid-name
