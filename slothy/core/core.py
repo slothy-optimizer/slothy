@@ -1667,7 +1667,7 @@ class SlothyBase(LockAttributes):
         This callback counts the solutions found so far, and aborts the search when the solution
         is sufficiently close to the optimum."""
         def __init__(self, logger, objective_description, max_solutions=32, is_good_enough=None,
-                     printer=None):
+                     printer=None, variables=None):
             cp_model.CpSolverSolutionCallback.__init__(self)
             self.__solution_count = 0
             self.__logger = logger
@@ -1675,6 +1675,7 @@ class SlothyBase(LockAttributes):
             self.__is_good_enough = is_good_enough
             self.__printer = printer
             self.__objective_desc = objective_description
+            self.variables = variables
         def on_solution_callback(self):
             """Triggered when OR-Tools finds a solution to the current constraint problem"""
             self.__solution_count += 1
@@ -1683,8 +1684,13 @@ class SlothyBase(LockAttributes):
                 bound = self.BestObjectiveBound()
                 time = self.WallTime()
                 if self.__printer is not None:
-                    cur_str = self.__printer(cur)
-                    bound_str = self.__printer(bound)
+                    if self.variables is not None:
+                        variables = { k: self.Value(v) for k, v in self.variables.items() }
+                        cur_str = self.__printer(cur, variables)
+                        bound_str = self.__printer(bound, {})
+                    else:
+                        cur_str = self.__printer(cur)
+                        bound_str = self.__printer(bound)
                 else:
                     cur_str = str(cur)
                     bound_str = str(bound)
@@ -3101,6 +3107,7 @@ class SlothyBase(LockAttributes):
         maxlist = []
         name = None
         printer = None
+        objective_vars = None
 
         # If the number of stalls is variable, its minimization is our objective
         if force_objective is False and self.config.variable_size:
@@ -3142,6 +3149,7 @@ class SlothyBase(LockAttributes):
                     maxlist = lst
 
         self._model.objective_printer = printer
+        self._model.objective_vars = objective_vars
 
         if name is not None:
             assert not (len(minlist) > 0 and len(maxlist) > 0)
@@ -3258,7 +3266,8 @@ class SlothyBase(LockAttributes):
         solution_cb = SlothyBase.CpSatSolutionCb(self.logger,self._model.objective_name,
                                                  self.config.max_solutions,
                                                  is_good_enough=is_good_enough,
-                                                 printer=self._model.objective_printer)
+                                                 printer=self._model.objective_printer,
+                                                 variables=self._model.objective_vars)
         self._model.cp_model.status = self._model.cp_solver.Solve(self._model.cp_model, solution_cb)
 
         status_str = self._model.cp_solver.StatusName(self._model.cp_model.status)
