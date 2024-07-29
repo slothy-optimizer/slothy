@@ -188,7 +188,7 @@ class Heuristics():
         c.ignore_objective = True
         min_stalls, core = Heuristics._optimize_binsearch_core(source, logger, c, **kwargs)
 
-        if not conf.has_objective:
+        if conf.has_objective is False:
             return core.result
 
         logger.info("Optimize again with minimal number of %d stalls, with objective...",
@@ -258,7 +258,7 @@ class Heuristics():
 
         logger.info(f"Minimum number of stalls: {min_stalls}")
 
-        if not conf.has_objective:
+        if conf.has_objective is False:
             return core.result
 
         logger.info("Optimize again with minimal number of %d stalls, with objective...",
