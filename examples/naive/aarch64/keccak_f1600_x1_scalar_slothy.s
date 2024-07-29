@@ -63,8 +63,6 @@ round_constants:
 
     input_addr     .req x0
     const_addr     .req x26
-    cur_const      .req x26
-    count          .req w27
 
     /* Mapping of Kecck-f1600 state to scalar registers
      * at the beginning and end of each round. */
@@ -81,7 +79,7 @@ round_constants:
     Aka     .req x3
     Ake     .req x8
     Aki     .req x13
-    Ako     .req x18
+    Ako     .req x28
     Aku     .req x23
     Ama     .req x4
     Ame     .req x9
@@ -94,59 +92,57 @@ round_constants:
     Aso     .req x20
     Asu     .req x25
 
-    /* A_[y,2*x+3*y] = rot(A[x,y]) */
-    Aba_ .req x30
-    Abe_ .req x28
-    Abi_ .req x11
-    Abo_ .req x16
-    Abu_ .req x21
-    Aga_ .req x3
-    Age_ .req x8
-    Agi_ .req x12
-    Ago_ .req x17
-    Agu_ .req x22
-    Aka_ .req x4
-    Ake_ .req x9
-    Aki_ .req x13
-    Ako_ .req x18
-    Aku_ .req x23
-    Ama_ .req x5
-    Ame_ .req x10
-    Ami_ .req x14
-    Amo_ .req x19
-    Amu_ .req x24
-    Asa_ .req x1
-    Ase_ .req x6
-    Asi_ .req x15
-    Aso_ .req x20
-    Asu_ .req x25
-
-    /* C[x] = A[x,0] xor A[x,1] xor A[x,2] xor A[x,3] xor A[x,4],   for x in 0..4 */
-    /* E[x] = C[x-1] xor rot(C[x+1],1), for x in 0..4 */
-    C0 .req x30
-    E0 .req x29
-    C1 .req x26
-    E1 .req x0
-    C2 .req x27
-    E2 .req x26
-    C3 .req x28
-    E3 .req x27
-    C4 .req x29
-    E4 .req x28
-
-    tmp .req x0
-
-
-    tmp0 .req x0
-    tmp1 .req x29
-
 /************************ MACROS ****************************/
 
-#define STACK_SIZE (16*6 + 3*8 + 8) // GPRs (16*6), count (8), const (8), input (8), padding (8)
+#define STACK_LOCS 40
+
+#define STACK_SIZE (16*6 + 3*8 + 8 + (STACK_LOCS) * 8) // GPRs (16*6), count (8), const (8), input (8), padding (8)
 #define STACK_BASE_GPRS (3*8+8)
 #define STACK_OFFSET_INPUT (0*8)
 #define STACK_OFFSET_CONST (1*8)
 #define STACK_OFFSET_COUNT (2*8)
+
+#define STACK_OFFSET_LOCS (16*6 + 4*8)
+#define STACK_LOC_0 ((STACK_OFFSET_LOCS) + 0*8)
+#define STACK_LOC_1 ((STACK_OFFSET_LOCS) + 1*8)
+#define STACK_LOC_2 ((STACK_OFFSET_LOCS) + 2*8)
+#define STACK_LOC_3 ((STACK_OFFSET_LOCS) + 3*8)
+#define STACK_LOC_4 ((STACK_OFFSET_LOCS) + 4*8)
+#define STACK_LOC_5 ((STACK_OFFSET_LOCS) + 5*8)
+#define STACK_LOC_6 ((STACK_OFFSET_LOCS) + 6*8)
+#define STACK_LOC_7 ((STACK_OFFSET_LOCS) + 7*8)
+#define STACK_LOC_8 ((STACK_OFFSET_LOCS) + 8*8)
+#define STACK_LOC_9 ((STACK_OFFSET_LOCS) + 9*8)
+#define STACK_LOC_10 ((STACK_OFFSET_LOCS) + 10*8)
+#define STACK_LOC_11 ((STACK_OFFSET_LOCS) + 11*8)
+#define STACK_LOC_12 ((STACK_OFFSET_LOCS) + 12*8)
+#define STACK_LOC_13 ((STACK_OFFSET_LOCS) + 13*8)
+#define STACK_LOC_14 ((STACK_OFFSET_LOCS) + 14*8)
+#define STACK_LOC_15 ((STACK_OFFSET_LOCS) + 15*8)
+#define STACK_LOC_16 ((STACK_OFFSET_LOCS) + 16*8)
+#define STACK_LOC_17 ((STACK_OFFSET_LOCS) + 17*8)
+#define STACK_LOC_18 ((STACK_OFFSET_LOCS) + 18*8)
+#define STACK_LOC_19 ((STACK_OFFSET_LOCS) + 19*8)
+#define STACK_LOC_20 ((STACK_OFFSET_LOCS) + 20*8)
+#define STACK_LOC_21 ((STACK_OFFSET_LOCS) + 21*8)
+#define STACK_LOC_22 ((STACK_OFFSET_LOCS) + 22*8)
+#define STACK_LOC_23 ((STACK_OFFSET_LOCS) + 23*8)
+#define STACK_LOC_24 ((STACK_OFFSET_LOCS) + 24*8)
+#define STACK_LOC_25 ((STACK_OFFSET_LOCS) + 25*8)
+#define STACK_LOC_26 ((STACK_OFFSET_LOCS) + 26*8)
+#define STACK_LOC_27 ((STACK_OFFSET_LOCS) + 27*8)
+#define STACK_LOC_28 ((STACK_OFFSET_LOCS) + 28*8)
+#define STACK_LOC_29 ((STACK_OFFSET_LOCS) + 29*8)
+#define STACK_LOC_30 ((STACK_OFFSET_LOCS) + 30*8)
+#define STACK_LOC_31 ((STACK_OFFSET_LOCS) + 31*8)
+#define STACK_LOC_32 ((STACK_OFFSET_LOCS) + 32*8)
+#define STACK_LOC_33 ((STACK_OFFSET_LOCS) + 33*8)
+#define STACK_LOC_34 ((STACK_OFFSET_LOCS) + 34*8)
+#define STACK_LOC_35 ((STACK_OFFSET_LOCS) + 35*8)
+#define STACK_LOC_36 ((STACK_OFFSET_LOCS) + 36*8)
+#define STACK_LOC_37 ((STACK_OFFSET_LOCS) + 37*8)
+#define STACK_LOC_38 ((STACK_OFFSET_LOCS) + 38*8)
+#define STACK_LOC_39 ((STACK_OFFSET_LOCS) + 39*8)
 
 .macro alloc_stack
     sub sp, sp, #(STACK_SIZE)
@@ -181,220 +177,186 @@ round_constants:
     eor \dst, \dst,  \src4
 .endm
 
-
-
-.macro addparity prty, dst0, src0, dst1, src1, dst2, src2, dst3, src3, dst4, src4
-    eor \dst0, \src0, \prty
-    eor \dst1, \src1, \prty
-    eor \dst2, \src2, \prty
-    eor \dst3, \src3, \prty
-    eor \dst4, \src4, \prty
+.macro  chi_step_ror out, a, b, c, r1, r2
+    bic X<tmp>, \b\(), \c\(), ror #\r1
+    eor \out\(), X<tmp>, \a\(), ror #\r2
 .endm
 
-
-
+.macro  chi_step_ror2 out, a, b, c, r1, r2
+    bic X<tmp>, \b\(), \c\(), ror #\r1
+    eor \out\(), \a\(), X<tmp>, ror #\r2
+.endm
 
 .macro keccak_f1600_round_initial
-    eor5 C0, Ama, Asa, Aba, Aga, Aka
-    eor5 C1, Ame, Ase, Abe, Age, Ake
-    eor5 C2, Ami, Asi, Abi, Agi, Aki
-    eor5 C3, Amo, Aso, Abo, Ago, Ako
-    eor5 C4, Amu, Asu, Abu, Agu, Aku
+    eor5 X<C0>, Ama, Asa, Aba, Aga, Aka
+    eor5 X<C1>, Ame, Ase, Abe, Age, Ake
+    eor5 X<C2>, Ami, Asi, Abi, Agi, Aki
+    eor5 X<C3>, Amo, Aso, Abo, Ago, Ako
+    eor5 X<C4>, Amu, Asu, Abu, Agu, Aku
 
-    eor E1, C0, C2, ror #63
-    eor E3, C2, C4, ror #63
-    eor E0, C4, C1, ror #63
-    eor E2, C1, C3, ror #63
-    eor E4, C3, C0, ror #63
+    eor X<E1>, X<C0>, X<C2>, ror #63
+    eor X<E3>, X<C2>, X<C4>, ror #63
+    eor X<E0>, X<C4>, X<C1>, ror #63
+    eor X<E2>, X<C1>, X<C3>, ror #63
+    eor X<E4>, X<C3>, X<C0>, ror #63
 
-    eor Aba_, Aba, E0
-    eor Asa_, Abi, E2
-    eor Abi_, Aki, E2
-    eor Aki_, Ako, E3
-    eor Ako_, Amu, E4
-    eor Amu_, Aso, E3
-    eor Aso_, Ama, E0
-    eor Aka_, Abe, E1
-    eor Ase_, Ago, E3
-    eor Ago_, Ame, E1
-    eor Ake_, Agi, E2
-    eor Agi_, Aka, E0
-    eor Aga_, Abo, E3
-    eor Abo_, Amo, E3
-    eor Amo_, Ami, E2
-    eor Ami_, Ake, E1
-    eor Age_, Agu, E4
-    eor Agu_, Asi, E2
-    eor Asi_, Aku, E4
-    eor Aku_, Asa, E0
-    eor Ama_, Abu, E4
-    eor Abu_, Asu, E4
-    eor Asu_, Ase, E1
-    eor Ame_, Aga, E0
-    eor Abe_, Age, E1
+    eor X<Bba>, Aba, X<E0>
+    eor X<Bsa>, Abi, X<E2>
+    eor X<Bbi>, Aki, X<E2>
+    eor X<Bki>, Ako, X<E3>
+    eor X<Bko>, Amu, X<E4>
+    eor X<Bmu>, Aso, X<E3>
+    eor X<Bso>, Ama, X<E0>
+    eor X<Bka>, Abe, X<E1>
+    eor X<Bse>, Ago, X<E3>
+    eor X<Bgo>, Ame, X<E1>
+    eor X<Bke>, Agi, X<E2>
+    eor X<Bgi>, Aka, X<E0>
+    eor X<Bga>, Abo, X<E3>
+    eor X<Bbo>, Amo, X<E3>
+    eor X<Bmo>, Ami, X<E2>
+    eor X<Bmi>, Ake, X<E1>
+    eor X<Bge>, Agu, X<E4>
+    eor X<Bgu>, Asi, X<E2>
+    eor X<Bsi>, Aku, X<E4>
+    eor X<Bku>, Asa, X<E0>
+    eor X<Bma>, Abu, X<E4>
+    eor X<Bbu>, Asu, X<E4>
+    eor X<Bsu>, Ase, X<E1>
+    eor X<Bme>, Aga, X<E0>
+    eor X<Bbe>, Age, X<E1>
 
-    load_constant_ptr
+    ldr X<caddr>, [sp, #STACK_OFFSET_CONST]
+    ldr X<cur_const>, [X<caddr>]
+    mov X<count>, #1
+    str X<count>, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
 
-    bic tmp0, Agi_, Age_, ror #47
-    bic tmp1, Ago_, Agi_, ror #42
-    eor Aga, tmp0,  Aga_, ror #39
-    bic tmp0, Agu_, Ago_, ror #16
-    eor Age, tmp1,  Age_, ror #25
-    bic tmp1, Aga_, Agu_, ror #31
-    eor Agi, tmp0,  Agi_, ror #58
-    bic tmp0, Age_, Aga_, ror #56
-    eor Ago, tmp1,  Ago_, ror #47
-    bic tmp1, Aki_, Ake_, ror #19
-    eor Agu, tmp0,  Agu_, ror #23
-    bic tmp0, Ako_, Aki_, ror #47
-    eor Aka, tmp1,  Aka_, ror #24
-    bic tmp1, Aku_, Ako_, ror #10
-    eor Ake, tmp0,  Ake_, ror #2
-    bic tmp0, Aka_, Aku_, ror #47
-    eor Aki, tmp1,  Aki_, ror #57
-    bic tmp1, Ake_, Aka_, ror #5
-    eor Ako, tmp0,  Ako_, ror #57
-    bic tmp0, Ami_, Ame_, ror #38
-    eor Aku, tmp1,  Aku_, ror #52
-    bic tmp1, Amo_, Ami_, ror #5
-    eor Ama, tmp0,  Ama_, ror #47
-    bic tmp0, Amu_, Amo_, ror #41
-    eor Ame, tmp1,  Ame_, ror #43
-    bic tmp1, Ama_, Amu_, ror #35
-    eor Ami, tmp0,  Ami_, ror #46
-    bic tmp0, Ame_, Ama_, ror #9
+    chi_step_ror Aga, X<Bga>, X<Bgi>, X<Bge>, 47, 39
+    chi_step_ror Age, X<Bge>, X<Bgo>, X<Bgi>, 42, 25
+    chi_step_ror Agi, X<Bgi>, X<Bgu>, X<Bgo>, 16, 58
+    chi_step_ror Ago, X<Bgo>, X<Bga>, X<Bgu>, 31, 47
+    chi_step_ror Agu, X<Bgu>, X<Bge>, X<Bga>, 56, 23
+    chi_step_ror Aka, X<Bka>, X<Bki>, X<Bke>, 19, 24
+    chi_step_ror Ake, X<Bke>, X<Bko>, X<Bki>, 47, 2
+    chi_step_ror Aki, X<Bki>, X<Bku>, X<Bko>, 10, 57
+    chi_step_ror Ako, X<Bko>, X<Bka>, X<Bku>, 47, 57
+    chi_step_ror Aku, X<Bku>, X<Bke>, X<Bka>, 5,  52
+    chi_step_ror Ama, X<Bma>, X<Bmi>, X<Bme>, 38, 47
+    chi_step_ror Ame, X<Bme>, X<Bmo>, X<Bmi>, 5,  43
+    chi_step_ror Ami, X<Bmi>, X<Bmu>, X<Bmo>, 41, 46
+    chi_step_ror Amo, X<Bmo>, X<Bma>, X<Bmu>, 35, 12
+    chi_step_ror Amu, X<Bmu>, X<Bme>, X<Bma>, 9,  44
+    chi_step_ror Asa, X<Bsa>, X<Bsi>, X<Bse>, 48, 41
+    chi_step_ror Ase, X<Bse>, X<Bso>, X<Bsi>, 2,  50
+    chi_step_ror Asi, X<Bsi>, X<Bsu>, X<Bso>, 25, 27
+    chi_step_ror Aso, X<Bso>, X<Bsa>, X<Bsu>, 60, 21
+    chi_step_ror Asu, X<Bsu>, X<Bse>, X<Bsa>, 57, 53
+    chi_step_ror2 Aba, X<Bba>, X<Bbi>, X<Bbe>, 63, 21
+    chi_step_ror Abe, X<Bbe>, X<Bbo>, X<Bbi>, 42, 41
+    chi_step_ror Abi, X<Bbi>, X<Bbu>, X<Bbo>, 57, 35
+    chi_step_ror Abo, X<Bbo>, X<Bba>, X<Bbu>, 50, 43
+    chi_step_ror Abu, X<Bbu>, X<Bbe>, X<Bba>, 44, 30
 
-    str const_addr, [sp, #(STACK_OFFSET_CONST)]
-    ldr cur_const, [const_addr]
+    eor Aba, Aba, X<cur_const>
 
-    eor Amo, tmp1,  Amo_, ror #12
-    bic tmp1, Asi_, Ase_, ror #48
-    eor Amu, tmp0,  Amu_, ror #44
-    bic tmp0, Aso_, Asi_, ror #2
-    eor Asa, tmp1,  Asa_, ror #41
-    bic tmp1, Asu_, Aso_, ror #25
-    eor Ase, tmp0,  Ase_, ror #50
-    bic tmp0, Asa_, Asu_, ror #60
-    eor Asi, tmp1,  Asi_, ror #27
-    bic tmp1, Ase_, Asa_, ror #57
-    eor Aso, tmp0,  Aso_, ror #21
-
-    mov count, #1
-
-    bic tmp0, Abi_, Abe_, ror #63
-    eor Asu, tmp1,  Asu_, ror #53
-    bic tmp1, Abo_, Abi_, ror #42
-    eor Aba, Aba_, tmp0,  ror #21
-    bic tmp0, Abu_, Abo_, ror #57
-    eor Abe, tmp1,  Abe_, ror #41
-    bic tmp1, Aba_, Abu_, ror #50
-    eor Abi, tmp0,  Abi_, ror #35
-    bic tmp0, Abe_, Aba_, ror #44
-    eor Abo, tmp1,  Abo_, ror #43
-    eor Abu, tmp0,  Abu_, ror #30
-
-    eor Aba, Aba, cur_const
-    str count, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
-
-.endm
-
-.macro eor5ror dst, src0, src1, rot1, src2, rot2, src3, rot3, src4, rot4
-    eor \dst, \src0, \src1, ror \rot1
-    eor \dst, \dst,  \src2, ror \rot2
-    eor \dst, \dst,  \src3, ror \rot3
-    eor \dst, \dst,  \src4, ror \rot4
-.endm
-
-.macro addparityror prty, dst0, src0, rot0, dst1, src1, rot1, dst2, src2, rot2, dst3, src3, rot3, dst4, src4, rot4
-    eor \dst0, \prty, \src0, ror \rot0
-    eor \dst1, \prty, \src1, ror \rot1
-    eor \dst2, \prty, \src2, ror \rot2
-    eor \dst3, \prty, \src3, ror \rot3
-    eor \dst4, \prty, \src4, ror \rot4
 .endm
 
 .macro keccak_f1600_round_noninitial
-    eor5ror C0, Aba, Aga, #61, Ama, #54, Aka, #39, Asa, #25
-    eor5ror C1, Ake, Ame, #57, Abe, #51, Ase, #31, Age, #27
-    eor5ror C2, Asi, Abi, #52, Aki, #48, Ami, #10, Agi, #5
-    eor5ror C3, Abo, Ako, #63, Amo, #37, Ago, #36, Aso, #2
-    eor5ror C4, Aku, Agu, #50, Amu, #34, Abu, #26, Asu, #15
 
-    eor E1, C0, C2, ror #61
-    ror C2, C2, #62
-    eor E3, C2, C4, ror #57
-    ror C4, C4, #58
-    eor E0, C4, C1, ror #55
-    ror C1, C1, #56
-    eor E2, C1, C3, ror #63
-    eor E4, C3, C0, ror #63
+    eor X<C0>, Aba,   Aga, ror #61
+    eor X<C0>, X<C0>, Ama, ror #54
+    eor X<C0>, X<C0>, Aka, ror #39
+    eor X<C0>, X<C0>, Asa, ror #25
 
-    addparityror E0, X<Bba>, Aba, #0,  X<Bso>, Ama, #54, X<Bgi>, Aka, #39, X<Bku>, Asa, #25, X<Bme>, Aga, #61
-    addparityror E1, X<Bka>, Abe, #43, X<Bgo>, Ame, #49, X<Bmi>, Ake, #56, X<Bsu>, Ase, #23, X<Bbe>, Age, #19
-    addparityror E2, X<Bsa>, Abi, #50, X<Bbi>, Aki, #46, X<Bke>, Agi, #3,  X<Bmo>, Ami, #8,  X<Bgu>, Asi, #62
-    addparityror E3, X<Bki>, Ako, #63, X<Bmu>, Aso, #2,  X<Bse>, Ago, #36, X<Bga>, Abo, #0,  X<Bbo>, Amo, #37
-    addparityror E4, X<Bko>, Amu, #28, X<Bge>, Agu, #44, X<Bsi>, Aku, #58, X<Bma>, Abu, #20, X<Bbu>, Asu, #9
+    eor X<C1>, Ake,   Ame, ror #57
+    eor X<C1>, X<C1>, Abe, ror #51
+    eor X<C1>, X<C1>, Ase, ror #31
+    eor X<C1>, X<C1>, Age, ror #27
 
-    load_constant_ptr_stack
-    ldr count, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
+    eor X<C2>, Asi,   Abi, ror #52
+    eor X<C2>, X<C2>, Aki, ror #48
+    eor X<C2>, X<C2>, Ami, ror #10
+    eor X<C2>, X<C2>, Agi, ror #5
 
-    bic tmp0, X<Bgi>, X<Bge>, ror #47
-    bic tmp1, X<Bgo>, X<Bgi>, ror #42
-    eor Aga, tmp0,  X<Bga>, ror #39
-    bic tmp0, X<Bgu>, X<Bgo>, ror #16
-    eor Age, tmp1,  X<Bge>, ror #25
-    bic tmp1, X<Bga>, X<Bgu>, ror #31
-    eor Agi, tmp0,  X<Bgi>, ror #58
-    bic tmp0, X<Bge>, X<Bga>, ror #56
-    eor Ago, tmp1,  X<Bgo>, ror #47
-    bic tmp1, X<Bki>, X<Bke>, ror #19
-    eor Agu, tmp0,  X<Bgu>, ror #23
-    bic tmp0, X<Bko>, X<Bki>, ror #47
-    eor Aka, tmp1,  X<Bka>, ror #24
-    bic tmp1, X<Bku>, X<Bko>, ror #10
-    eor Ake, tmp0,  X<Bke>, ror #2
-    bic tmp0, X<Bka>, X<Bku>, ror #47
-    eor Aki, tmp1,  X<Bki>, ror #57
-    bic tmp1, X<Bke>, X<Bka>, ror #5
-    eor Ako, tmp0,  X<Bko>, ror #57
-    bic tmp0, X<Bmi>, X<Bme>, ror #38
-    eor Aku, tmp1,  X<Bku>, ror #52
-    bic tmp1, X<Bmo>, X<Bmi>, ror #5
-    eor Ama, tmp0,  X<Bma>, ror #47
-    bic tmp0, X<Bmu>, X<Bmo>, ror #41
-    eor Ame, tmp1,  X<Bme>, ror #43
-    bic tmp1, X<Bma>, X<Bmu>, ror #35
-    eor Ami, tmp0,  X<Bmi>, ror #46
-    bic tmp0, X<Bme>, X<Bma>, ror #9
+    eor X<C3>, Abo,   Ako, ror #63
+    eor X<C3>, X<C3>, Amo, ror #37
+    eor X<C3>, X<C3>, Ago, ror #36
+    eor X<C3>, X<C3>, Aso, ror #2
 
-    ldr cur_const, [const_addr, count, UXTW #3]
+    eor X<C4>, Aku,   Agu, ror #50
+    eor X<C4>, X<C4>, Amu, ror #34
+    eor X<C4>, X<C4>, Abu, ror #26
+    eor X<C4>, X<C4>, Asu, ror #15
 
-    eor Amo, tmp1,  X<Bmo>, ror #12
-    bic tmp1, X<Bsi>, X<Bse>, ror #48
-    eor Amu, tmp0,  X<Bmu>, ror #44
-    bic tmp0, X<Bso>, X<Bsi>, ror #2
-    eor Asa, tmp1,  X<Bsa>, ror #41
-    bic tmp1, X<Bsu>, X<Bso>, ror #25
-    eor Ase, tmp0,  X<Bse>, ror #50
-    bic tmp0, X<Bsa>, X<Bsu>, ror #60
-    eor Asi, tmp1,  X<Bsi>, ror #27
-    bic tmp1, X<Bse>, X<Bsa>, ror #57
-    eor Aso, tmp0,  X<Bso>, ror #21
-    bic tmp0, X<Bbi>, X<Bbe>, ror #63
-    add count, count, #1
-    str count, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
-    eor Asu, tmp1,  X<Bsu>, ror #53
-    bic tmp1, X<Bbo>, X<Bbi>, ror #42
-    eor Aba, X<Bba>, tmp0,  ror #21
-    bic tmp0, X<Bbu>, X<Bbo>, ror #57
-    eor Abe, tmp1,  X<Bbe>, ror #41
-    bic tmp1, X<Bba>, X<Bbu>, ror #50
-    eor Abi, tmp0,  X<Bbi>, ror #35
-    bic tmp0, X<Bbe>, X<Bba>, ror #44
+    eor X<E1>, X<C0>, X<C2>, ror #61
+    ror X<C2>, X<C2>, #62
+    eor X<E3>, X<C2>, X<C4>, ror #57
+    ror X<C4>, X<C4>, #58
+    eor X<E0>, X<C4>, X<C1>, ror #55
+    ror X<C1>, X<C1>, #56
+    eor X<E2>, X<C1>, X<C3>, ror #63
+    eor X<E4>, X<C3>, X<C0>, ror #63
 
-    eor Abo, tmp1,  X<Bbo>, ror #43
-    eor Abu, tmp0,  X<Bbu>, ror #30
-    eor Aba, Aba, cur_const
+    eor X<Bba>, X<E0>, Aba
+    eor X<Bsa>, X<E2>, Abi, ror #50
+    eor X<Bbi>, X<E2>, Aki, ror #46
+    eor X<Bki>, X<E3>, Ako, ror #63
+    eor X<Bko>, X<E4>, Amu, ror #28
+    eor X<Bmu>, X<E3>, Aso, ror #2
+    eor X<Bso>, X<E0>, Ama, ror #54
+    eor X<Bka>, X<E1>, Abe, ror #43
+    eor X<Bse>, X<E3>, Ago, ror #36
+    eor X<Bgo>, X<E1>, Ame, ror #49
+    eor X<Bke>, X<E2>, Agi, ror #3
+    eor X<Bgi>, X<E0>, Aka, ror #39
+    eor X<Bga>, X<E3>, Abo
+    eor X<Bbo>, X<E3>, Amo, ror #37
+    eor X<Bmo>, X<E2>, Ami, ror #8
+    eor X<Bmi>, X<E1>, Ake, ror #56
+    eor X<Bge>, X<E4>, Agu, ror #44
+    eor X<Bgu>, X<E2>, Asi, ror #62
+    eor X<Bsi>, X<E4>, Aku, ror #58
+    eor X<Bku>, X<E0>, Asa, ror #25
+    eor X<Bma>, X<E4>, Abu, ror #20
+    eor X<Bbu>, X<E4>, Asu, ror #9
+    eor X<Bsu>, X<E1>, Ase, ror #23
+    eor X<Bme>, X<E0>, Aga, ror #61
+    eor X<Bbe>, X<E1>, Age, ror #19
+
+    ldr X<caddr>, [sp, #STACK_OFFSET_CONST]
+    ldr X<count>, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
+    ldr X<cur_const>, [X<caddr>, W<count>, UXTW #3]
+    add X<count>, X<count>, #1
+    cmp X<count>, #(KECCAK_F1600_ROUNDS-1)
+    str X<count>, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
+
+    chi_step_ror Aga, X<Bga>, X<Bgi>, X<Bge>, 47, 39
+    chi_step_ror Age, X<Bge>, X<Bgo>, X<Bgi>, 42, 25
+    chi_step_ror Agi, X<Bgi>, X<Bgu>, X<Bgo>, 16, 58
+    chi_step_ror Ago, X<Bgo>, X<Bga>, X<Bgu>, 31, 47
+    chi_step_ror Agu, X<Bgu>, X<Bge>, X<Bga>, 56, 23
+    chi_step_ror Aka, X<Bka>, X<Bki>, X<Bke>, 19, 24
+    chi_step_ror Ake, X<Bke>, X<Bko>, X<Bki>, 47, 2
+    chi_step_ror Aki, X<Bki>, X<Bku>, X<Bko>, 10, 57
+    chi_step_ror Ako, X<Bko>, X<Bka>, X<Bku>, 47, 57
+    chi_step_ror Aku, X<Bku>, X<Bke>, X<Bka>, 5,  52
+    chi_step_ror Ama, X<Bma>, X<Bmi>, X<Bme>, 38, 47
+    chi_step_ror Ame, X<Bme>, X<Bmo>, X<Bmi>, 5,  43
+    chi_step_ror Ami, X<Bmi>, X<Bmu>, X<Bmo>, 41, 46
+    chi_step_ror Amo, X<Bmo>, X<Bma>, X<Bmu>, 35, 12
+    chi_step_ror Amu, X<Bmu>, X<Bme>, X<Bma>, 9,  44
+    chi_step_ror Asa, X<Bsa>, X<Bsi>, X<Bse>, 48, 41
+    chi_step_ror Ase, X<Bse>, X<Bso>, X<Bsi>, 2,  50
+    chi_step_ror Asi, X<Bsi>, X<Bsu>, X<Bso>, 25, 27
+    chi_step_ror Aso, X<Bso>, X<Bsa>, X<Bsu>, 60, 21
+    chi_step_ror Asu, X<Bsu>, X<Bse>, X<Bsa>, 57, 53
+    chi_step_ror2 Aba, X<Bba>, X<Bbi>, X<Bbe>, 63, 21
+    chi_step_ror Abe, X<Bbe>, X<Bbo>, X<Bbi>, 42, 41
+    chi_step_ror Abi, X<Bbi>, X<Bbu>, X<Bbo>, 57, 35
+    chi_step_ror Abo, X<Bbo>, X<Bba>, X<Bbu>, 50, 43
+    chi_step_ror Abu, X<Bbu>, X<Bbe>, X<Bba>, 44, 30
+
+    eor Aba, Aba, X<cur_const>
 .endm
 
 .macro load_state
@@ -462,28 +424,32 @@ round_constants:
 .global keccak_f1600_x1_scalar_slothy
 .global _keccak_f1600_x1_scalar_slothy
 
-.macro load_constant_ptr_stack
-    ldr const_addr, [sp, #(STACK_OFFSET_CONST)]
-.endm
 keccak_f1600_x1_scalar_slothy:
 _keccak_f1600_x1_scalar_slothy:
     alloc_stack
     save_gprs
 
 initial:
+    load_constant_ptr
+    str const_addr, [sp, #STACK_OFFSET_CONST]
     load_state
     str input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:writes=STACK_OFFSET_INPUT
-    keccak_f1600_round_initial
+
+initial_round_start:
+   keccak_f1600_round_initial
+initial_round_end:
+
 loop:
     keccak_f1600_round_noninitial
 end_loop:
-    cmp count, #(KECCAK_F1600_ROUNDS-1)
     ble loop
+
 final:
     final_rotate
     ldr input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:reads=STACK_OFFSET_INPUT
     store_state
 end_final:
+
     restore_gprs
     free_stack
     ret
