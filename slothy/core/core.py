@@ -602,6 +602,9 @@ class Result(LockAttributes):
             width = max(self.codesize, block_size + 5)
             blocks = math.ceil(width/block_size)
 
+            def gen_vis(p, c):
+                return d * p + c + d * (width - p - 1)
+
             legend0 = center_str_fixlen('original position', width - 1, '-') + '>'
             legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(blocks)])
             legend2 = (('|' + '-' * (block_size - 1))) * (blocks - 1)
@@ -611,20 +614,19 @@ class Result(LockAttributes):
             yield SourceLine("").set_comment(legend2).set_length(fixlen)
             for i in range(self.codesize_with_bubbles):
                 p = ri.get(i, None)
+                if p is not None:
+                    c = core_char
+                    if self.is_pre(p):
+                        c = early_char
+                    elif self.is_post(p):
+                        c = late_char
+                    s = code[self.periodic_reordering[p]]
+                    yield s.copy().set_length(fixlen).set_comment(gen_vis(p, c))
                 if p is None:
                     gap_str = "gap"
                     yield SourceLine("")    \
                         .set_comment(f"{gap_str:{fixlen-4}s}") \
                         .add_comment(d * width)
-                    continue
-                s = code[self.periodic_reordering[p]]
-                c = core_char
-                if self.is_pre(p):
-                    c = early_char
-                elif self.is_post(p):
-                    c = late_char
-                vis = d * p + c + d * (width - p - 1)
-                yield s.copy().set_length(fixlen).set_comment(vis)
 
         def gen_visualized_code_perf():
             cs = self.codesize_with_bubbles
@@ -633,6 +635,9 @@ class Result(LockAttributes):
             block_size = 25
             cycles = max(self.cycles, block_size + 5)
             cycle_blocks = math.ceil(cycles/block_size)
+
+            def gen_vis(cc, c):
+                return d * cc + c + d * (cycles - cc - 1)
 
             legend0 = center_str_fixlen('cycle (expected)', cycles - 1, '-') + '>'
             legend1 = ''.join([str(i*block_size).ljust(block_size) for i in range(cycle_blocks)])
@@ -643,17 +648,15 @@ class Result(LockAttributes):
             yield SourceLine("").set_comment(legend2).set_length(fixlen)
             for i in range(cs):
                 p = ri.get(i, None)
-                if p is None:
-                    continue
-                s = code[self.periodic_reordering[p]]
-                c = core_char
-                if self.is_pre(p):
-                    c = early_char
-                elif self.is_post(p):
-                    c = late_char
                 cc = i // self.config.target.issue_rate
-                vis = d * cc + c + d * (cycles - cc - 1)
-                yield s.copy().set_length(fixlen).set_comment(vis)
+                if p is not None:
+                    c = core_char
+                    if self.is_pre(p):
+                        c = early_char
+                    elif self.is_post(p):
+                        c = late_char
+                    s = code[self.periodic_reordering[p]]
+                    yield s.copy().set_length(fixlen).set_comment(gen_vis(cc, c))
 
         def gen_visualized_code_with_old():
             orig_code = self._orig_code
@@ -674,10 +677,9 @@ class Result(LockAttributes):
 
             for i in range(self.codesize_with_bubbles):
                 p = ri.get(i, None)
-                if p is None:
-                    continue
-                s = code[self.periodic_reordering[p]]
-                yield s.copy().set_length(fixlen).set_comment(f"{old_code[i]:{old_maxlen + 8}s}")
+                if p is not None:
+                    s = code[self.periodic_reordering[p]]
+                    yield s.copy().set_length(fixlen).set_comment(f"{old_code[i]:{old_maxlen + 8}s}")
 
         def gen_visualized_code():
             if self.config.visualize_expected_performance is True:
