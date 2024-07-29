@@ -2210,16 +2210,12 @@ class SlothyBase(LockAttributes):
         for t in self._get_nodes(allnodes=True):
             # When we optimize for longest register lifetimes, we allow the starting time of the
             # usage interval to be smaller than the program order position of the instruction.
-            if self.config.flexible_lifetime_start:
-                t.out_lifetime_start = [
-                    make_start_var(f"{t.varname()}_out_{i}_lifetime_start")
-                        for i in range(t.inst.num_out) ]
-                t.inout_lifetime_start = [
-                    make_start_var(f"{t.varname()}_inout_{i}_lifetime_start")
-                        for i in range(t.inst.num_in_out) ]
-            else:
-                t.out_lifetime_start = [ t.program_start_var for _ in range(t.inst.num_out) ]
-                t.inout_lifetime_start = [ t.program_start_var for _ in range(t.inst.num_in_out) ]
+            t.out_lifetime_start = [
+                make_start_var(f"{t.varname()}_out_{i}_lifetime_start")
+                    for i in range(t.inst.num_out) ]
+            t.inout_lifetime_start = [
+                make_start_var(f"{t.varname()}_inout_{i}_lifetime_start")
+                    for i in range(t.inst.num_in_out) ]
 
             t.out_lifetime_end        = [ make_var(f"{t.varname()}_out_{i}_lifetime_end")
                                           for i in range(t.inst.num_out) ]
@@ -2474,11 +2470,8 @@ class SlothyBase(LockAttributes):
                 # Make sure the output argument is considered 'used' for at least
                 # one instruction. Otherwise, instructions producing outputs that
                 # are never used would be able to overwrite life registers.
-                self._Add( end_var > t.program_start_var )
-
-                # cf add_variables_dependencies()
-                if self.config.flexible_lifetime_start:
-                    self._Add(start_var <= t.program_start_var)
+                self._Add(end_var > t.program_start_var)
+                self._Add(start_var == t.program_start_var)
 
         _add_basic_constraints(t.out_lifetime_start, t.out_lifetime_end)
         _add_basic_constraints(t.inout_lifetime_start, t.inout_lifetime_end)

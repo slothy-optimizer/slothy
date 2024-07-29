@@ -599,14 +599,6 @@ class Config(NestedPrint, LockAttributes):
         return self._split_heuristic_estimate_performance
 
     @property
-    def flexible_lifetime_start(self):
-        """Internal property indicating whether the lifetime interval of a register
-        should be allowed to extend _before_ the instructions which uses it."""
-        return \
-            self.constraints.maximize_register_lifetimes or \
-            (self.sw_pipelining.enabled and self.sw_pipelining.allow_post)
-
-    @property
     def split_heuristic_repeat(self):
         """If split_heuristic is enabled, the number of times the splitting heuristic
         should be repeated.
