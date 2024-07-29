@@ -1395,29 +1395,38 @@ class neon_keccak_x4(Example):
         slothy.optimize(start="loop_0", end="end_loop_0")
         slothy.optimize(start="loop_1", end="end_loop_1")
 
-class neon_keccak_x1(Example):
+class neon_keccak_x1_no_symbolic(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
-        name = "keccak_f1600_x1_scalar_slothy"
+        name = "keccak_f1600_x1_scalar_slothy_no_symbolic"
         infile = "keccak_f1600_x1_scalar_slothy"
+        outfile = "keccak_f1600_x1_scalar_no_symbolic"
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        name += f"_{target_label_dict[target]}"
-
-        super().__init__(infile, name, outfile=name, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, outfile=outfile, rename=True, arch=arch, target=target)
 
     def core(self, slothy):
-        slothy.config.inputs_are_outputs = True
-        slothy.config.variable_size = True
-        slothy.config.visualize_expected_performance = True
-        slothy.config.timeout = 3600*24
+        slothy.config.reserved_regs = ["x18", "sp"]
 
-        slothy.config.outputs = ["x27"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = False
+        slothy.config.visualize_expected_performance = False
+        slothy.config.timeout = 3600
+
+        slothy.config.selfcheck_failure_logfile = "selfcheck_fail.log"
+
+        slothy.config.outputs = ["flags"]
+        slothy.config.constraints.stalls_first_attempt = 0
+        slothy.config.ignore_objective = True
+        slothy.config.constraints.minimize_spills = True
         slothy.config.constraints.functional_only = True
-        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.constraints.allow_spills = True
+        slothy.config.visualize_expected_performance = True
+#        slothy.config.visualize_show_old_code = True
 
         slothy.optimize(start="loop", end="end_loop")
+
+        slothy.config.outputs = ["hint_STACK_OFFSET_COUNT"]
+        slothy.optimize(start="initial_round_start", end="initial_round_end")
 
 #############################################################################################
 
@@ -1563,7 +1572,7 @@ def main():
                  fft_fixedpoint_radix4(),
                  # Keccak
                 neon_keccak_x4(),
-                neon_keccak_x1(),
+                 neon_keccak_x1_no_symbolic(),
                  ]
 
     all_example_names = [e.name for e in examples]
