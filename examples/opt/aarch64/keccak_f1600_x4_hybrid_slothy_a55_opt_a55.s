@@ -1098,7 +1098,7 @@ round_constants:
 #define KECCAK_F1600_ROUNDS 24
 
 .global keccak_f1600_x4_hybrid_slothy_opt_a55
-.global _keccak_f1600_x4_hybrid_slothy
+.global _keccak_f1600_x4_hybrid_slothy_opt_a55
 .text
 .align 4
 

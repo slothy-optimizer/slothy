@@ -478,7 +478,7 @@ round_constants:
 .text
 .balign 16
 .global keccak_f1600_x1_scalar_slothy_opt_a55
-.global _keccak_f1600_x1_scalar_slothy
+.global _keccak_f1600_x1_scalar_slothy_opt_a55
 
 .macro load_constant_ptr_stack
     ldr const_addr, [sp, #(STACK_OFFSET_CONST)]
