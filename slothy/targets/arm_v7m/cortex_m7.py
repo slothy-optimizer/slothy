@@ -12,6 +12,7 @@ WARNING: The data in this module is approximate and may contain errors.
 ########################################################################################
 
 from enum import Enum
+from itertools import product
 from slothy.targets.arm_v7m.arch_v7m import *
 
 issue_rate = 2
@@ -24,16 +25,19 @@ class ExecutionUnit(Enum):
     STORE = 0
     ALU0 = 1
     ALU1 = 2
-    ALU_SHIFT = 3
-    MAC = 4
-    FPU = 5
-    LOAD0 = 6
-    LOAD1 = 7
+    SHIFT0 = 3
+    SHIFT1 = 4
+    MAC = 5
+    FPU = 6
+    LOAD0 = 7
+    LOAD1 = 8
 
     def __repr__(self):
         return self.name
     def ALU(): # pylint: disable=invalid-name
         return [ExecutionUnit.ALU0, ExecutionUnit.ALU1]
+    def SHIFT(): # pylint: disable=invalid-name
+        return [ExecutionUnit.SHIFT0, ExecutionUnit.SHIFT1]
     def LOAD(): # pylint: disable=invalid-name
         return [ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]
 
@@ -83,11 +87,11 @@ execution_units = {
         log_or,
         eor, eors, eors_short,
         bic, bics,
-        ror, ror_short, rors_short,
         cmp, cmp_imm,
     ): ExecutionUnit.ALU(),
-    (Armv7mShiftedArithmetic): [ExecutionUnit.ALU_SHIFT],
-    (Armv7mShiftedLogical): [ExecutionUnit.ALU_SHIFT],
+    (ror, ror_short, rors_short): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0]],
+    (Armv7mShiftedArithmetic): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SHIFT0]))),
+    (Armv7mShiftedLogical): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SHIFT0]))),
     (mul, smull, smlal): [ExecutionUnit.MAC],
     (vmov_gpr): [ExecutionUnit.FPU],
 }
@@ -98,9 +102,6 @@ inverse_throughput = {
         ldr_with_imm,
         ldr_with_imm_stack,
         ldr_with_inc_writeback,
-        str_with_imm,
-        str_with_imm_stack,
-        str_with_postinc,
         adds,
         add,
         add_short,
@@ -121,14 +122,14 @@ inverse_throughput = {
         ror, ror_short, rors_short,
         cmp, cmp_imm,
         vmov_gpr,
-    ): 1
+    ): 1,
+    (str_with_imm,
+        str_with_imm_stack,
+        str_with_postinc): 2
 }
 
 default_latencies = {
     (
-        str_with_imm,
-        str_with_imm_stack,
-        str_with_postinc,
         adds,
         add,
         add_short,
@@ -140,7 +141,6 @@ default_latencies = {
         log_and,
         log_or,
         eor, eors, eors_short,
-        eor_shifted,
         bic, bics,
         bic_shifted,
         ror, ror_short, rors_short,
@@ -152,10 +152,14 @@ default_latencies = {
         smull,
         smlal,
         # TODO: Verify load latency
+        str_with_imm,
+        str_with_imm_stack,
+        str_with_postinc,
         ldr,
         ldr_with_imm,
         ldr_with_imm_stack,
         ldr_with_inc_writeback,
+        eor_shifted
     ): 2,
 }
 
