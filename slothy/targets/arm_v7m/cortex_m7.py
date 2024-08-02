@@ -173,7 +173,7 @@ def get_latency(src, out_idx, dst):
     latency = lookup_multidict(default_latencies, src)
 
     if instclass_src in [ldr_with_imm, ldr_with_imm_stack, ldr_with_inc_writeback] and \
-    sum([issubclass(instclass_dst, pc) for pc in [eor, eors, eors_short]]) and \
+    sum([issubclass(instclass_dst, pc) for pc in [Armv7mBasicArithmetic, Armv7mLogical]]) and \
        src.args_out[0] in dst.args_in:
         return (1, lambda t_src,t_dst: t_dst.cycle_start_var == t_src.cycle_start_var + 1)
     
