@@ -734,8 +734,6 @@ slothy_start:
 	xorrol      r12, r5, r6
 	eors.w      lr, r4, r3
 
-    xorrol      r12, r5, r6
-	eors.w      lr, r4, r3
 	KeccakThetaRhoPiChi r5, Aka1, r8,  2, r6, Ame1, r11, 23, r7, Asi1, r2, 31, r3, Abo0, r9, 14, r4, Agu0, r12, 10
 slothy_end:
 	add		sp, #mSize
