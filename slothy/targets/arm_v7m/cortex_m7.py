@@ -181,7 +181,7 @@ def get_latency(src, out_idx, dst):
     # Shifted operand needs to be available one cycle early
     if sum([issubclass(instclass_dst, pc) for pc in [Armv7mShiftedLogical, Armv7mShiftedArithmetic]]) and \
        dst.args_in[1] in src.args_out:
-        return 2
+        return latency + 1
 
     # Multiply accumulate chain latency is 1
     if instclass_src in [smlal] and instclass_dst in [smlal] and \
