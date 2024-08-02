@@ -764,6 +764,8 @@ class Armv7mBasicArithmetic(Armv7mInstruction): # pylint: disable=missing-docstr
     pass
 class Armv7mShiftedArithmetic(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+class Armv7mMultiplication(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
+    pass
 class Armv7mLogical(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
 class Armv7mShiftedLogical(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -835,17 +837,17 @@ class sub_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,
     in_outs = ["Ra"]
 
 # Multiplication
-class mul(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+class mul(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "mul<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
-class smull(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+class smull(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smull<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rc","Rd"]
     outputs = ["Ra", "Rb"]
 
-class smlal(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+class smlal(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlal<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rc","Rd"]
     in_outs = ["Ra", "Rb"]

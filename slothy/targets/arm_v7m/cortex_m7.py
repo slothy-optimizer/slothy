@@ -145,7 +145,6 @@ default_latencies = {
         bic_shifted,
         ror, ror_short, rors_short,
         cmp, cmp_imm,
-        vmov_gpr,
     ): 1,
     (
         mul,
@@ -161,6 +160,7 @@ default_latencies = {
         ldr_with_inc_writeback,
         eor_shifted
     ): 2,
+    (vmov_gpr): 3
 }
 
 
