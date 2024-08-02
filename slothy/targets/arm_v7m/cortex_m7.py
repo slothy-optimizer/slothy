@@ -172,6 +172,7 @@ def get_latency(src, out_idx, dst):
 
     latency = lookup_multidict(default_latencies, src)
 
+    # Load latency is 1 cycle if the destination is an arithmetic/logical instruction
     if instclass_src in [ldr_with_imm, ldr_with_imm_stack, ldr_with_inc_writeback] and \
     sum([issubclass(instclass_dst, pc) for pc in [Armv7mBasicArithmetic, Armv7mLogical]]) and \
        src.args_out[0] in dst.args_in:
@@ -181,6 +182,11 @@ def get_latency(src, out_idx, dst):
     if sum([issubclass(instclass_dst, pc) for pc in [Armv7mShiftedLogical, Armv7mShiftedArithmetic]]) and \
        dst.args_in[1] in src.args_out:
         return 2
+
+    # Multiply accumulate chain latency is 1
+    if instclass_src in [smlal] and instclass_dst in [smlal] and \
+            src.args_in_out[0] == dst.args_in_out[0]:
+        return 1
 
     return latency
 
