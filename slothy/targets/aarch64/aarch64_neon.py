@@ -63,6 +63,11 @@ class RegisterType(Enum):
 
     @cache
     @staticmethod
+    def spillable(reg_type):
+        return reg_type in [RegisterType.GPR, RegisterType.NEON]
+
+    @cache
+    @staticmethod
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
 
@@ -3024,6 +3029,15 @@ class cmge(ASimdCompare): # pylint: disable=missing-docstring,invalid-name
     pattern = "cmge <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
+
+
+class Stack:
+    def spill(reg, loc):
+        # TODO: Use store instruction
+        return f"str {reg}, [sp, #STACK_LOC_{loc}]"
+    def restore(reg, loc):
+        # TODO: Use load instruction
+        return  f"ldr {reg}, [sp, #STACK_LOC_{loc}]"
 
 # In a pair of vins writing both 64-bit lanes of a vector, mark the
 # target vector as output rather than input/output. This enables further

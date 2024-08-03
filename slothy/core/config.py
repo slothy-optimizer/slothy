@@ -452,11 +452,12 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def has_objective(self):
-        """Indicates whether a secondary objective (beyond minimization of stalls)
+        """Indicates whether a different objective than minimization of stalls
         has been registered."""
         objectives = sum([self.sw_pipelining.enabled and
                           self.sw_pipelining.minimize_overlapping is True,
                           self.constraints.maximize_register_lifetimes is True,
+                          self.constraints.minimize_spills is True,
                           self.constraints.move_stalls_to_top is True,
                           self.constraints.move_stalls_to_bottom is True,
                           self.constraints.minimize_register_usage is not None,
@@ -897,6 +898,27 @@ class Config(NestedPrint, LockAttributes):
             return self._allow_renaming
 
         @property
+        def allow_spills(self):
+            """Allow Slothy to introduce stack spills
+
+            When this option is enabled, Slothy will consider the introduction
+            of stack spills to reduce register pressure.
+
+            This option should only be disabled if it is known that the input
+            assembly suffers from high register pressure. For example, this can
+            be the case for symbolic input assembly."""
+            return self._allow_spills
+
+        @property
+        def minimize_spills(self):
+            """Minimize number of stack spills
+
+            When this option is enabled, the Slothy will pass minimization of
+            stack spills as the optimization objective to the solver.
+            """
+            return self._minimize_spills
+
+        @property
         def max_displacement(self):
             """The maximum relative displacement of an instruction.
 
@@ -926,7 +948,7 @@ class Config(NestedPrint, LockAttributes):
             self._max_displacement = 1.0
 
             self.maximize_register_lifetimes = False
-
+            self.minimize_spills = False
             self.move_stalls_to_top = False
             self.move_stalls_to_bottom = False
             self.minimize_register_usage = None
@@ -944,6 +966,7 @@ class Config(NestedPrint, LockAttributes):
             self._model_functional_units = True
             self._allow_reordering = True
             self._allow_renaming = True
+            self._allow_spills = False
 
             self.lock()
 
@@ -980,6 +1003,12 @@ class Config(NestedPrint, LockAttributes):
         @allow_renaming.setter
         def allow_renaming(self,val):
             self._allow_renaming = val
+        @allow_spills.setter
+        def allow_spills(self,val):
+            self._allow_spills = val
+        @minimize_spills.setter
+        def minimize_spills(self,val):
+            self._minimize_spills = val
         @functional_only.setter
         def functional_only(self,val):
             self._model_latencies = val is False
