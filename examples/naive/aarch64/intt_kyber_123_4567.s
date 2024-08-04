@@ -35,21 +35,6 @@
 // Eventually, NeLight should include a proper parser for AArch64,
 // but for initial investigations, the below is enough.
 
-.macro ldr_vo vec, base, offset
-       ldr qform_\vec, [\base, #\offset]
-.endm
-
-.macro ldr_vi vec, base, inc
-        ldr qform_\vec, [\base], #\inc
-.endm
-
-.macro str_vo vec, base, offset
-        str qform_\vec, [\base, #\offset]
-.endm
-.macro str_vi vec, base, inc
-        str qform_\vec, [\base], #\inc
-.endm
-
 .macro vqrdmulh d,a,b
         sqrdmulh \d\().8h, \a\().8h, \b\().8h
 .endm
@@ -104,21 +89,21 @@
 .endm
 
 .macro load_roots_123
-        ldr_vi root0, r_ptr0, 32
-        ldr_vo root1, r_ptr0, -16
+        ldr qform_root0, [r_ptr0], #32
+        ldr qform_root1, [r_ptr0, #-16]
 .endm
 
 .macro load_next_roots_45
-        ldr_vi root0, r_ptr0, 16
+        ldr qform_root0, [r_ptr0], #16
 .endm
 
 .macro load_next_roots_67
-        ldr_vi root0,    r_ptr1, (6*16)
-        ldr_vo root0_tw, r_ptr1, (-6*16 + 1*16)
-        ldr_vo root1,    r_ptr1, (-6*16 + 2*16)
-        ldr_vo root1_tw, r_ptr1, (-6*16 + 3*16)
-        ldr_vo root2,    r_ptr1, (-6*16 + 4*16)
-        ldr_vo root2_tw, r_ptr1, (-6*16 + 5*16)
+        ldr qform_root0,    [r_ptr1], #(6*16)
+        ldr qform_root0_tw, [r_ptr1, #(-6*16 + 1*16)]
+        ldr qform_root1,    [r_ptr1, #(-6*16 + 2*16)]
+        ldr qform_root1_tw, [r_ptr1, #(-6*16 + 3*16)]
+        ldr qform_root2,    [r_ptr1, #(-6*16 + 4*16)]
+        ldr qform_root2_tw, [r_ptr1, #(-6*16 + 5*16)]
 .endm
 
 .macro transpose4 data
@@ -355,10 +340,10 @@ _intt_kyber_123_4567:
 
         .p2align 2
 layer4567_start:
-        ldr_vo data0, inp, (16*0)
-        ldr_vo data1, inp, (16*1)
-        ldr_vo data2, inp, (16*2)
-        ldr_vo data3, inp, (16*3)
+        ldr qform_data0, [inp, #(16*0)]
+        ldr qform_data1, [inp, #(16*1)]
+        ldr qform_data2, [inp, #(16*2)]
+        ldr qform_data3, [inp, #(16*3)]
 
         transpose4 data // manual ld4
 
@@ -388,10 +373,10 @@ layer4567_start:
         gs_butterfly data0, data2, root0, 0, 1
         gs_butterfly data1, data3, root0, 0, 1
 
-        str_vi data0, inp, (64)
-        str_vo data1, inp, (-64 + 16*1)
-        str_vo data2, inp, (-64 + 16*2)
-        str_vo data3, inp, (-64 + 16*3)
+        str qform_data0, [inp], #(64)
+        str qform_data1, [inp, #(-64 + 16*1)]
+        str qform_data2, [inp, #(-64 + 16*2)]
+        str qform_data3, [inp, #(-64 + 16*3)]
 
         subs count, count, #1
         cbnz count, layer4567_start
@@ -414,14 +399,14 @@ layer4567_start:
 
 layer123_start:
 
-        ldr_vo data0, in, 0
-        ldr_vo data1, in, (1*(512/8))
-        ldr_vo data2, in, (2*(512/8))
-        ldr_vo data3, in, (3*(512/8))
-        ldr_vo data4, in, (4*(512/8))
-        ldr_vo data5, in, (5*(512/8))
-        ldr_vo data6, in, (6*(512/8))
-        ldr_vo data7, in, (7*(512/8))
+        ldr qform_data0, [in, #0]
+        ldr qform_data1, [in, #(1*(512/8))]
+        ldr qform_data2, [in, #(2*(512/8))]
+        ldr qform_data3, [in, #(3*(512/8))]
+        ldr qform_data4, [in, #(4*(512/8))]
+        ldr qform_data5, [in, #(5*(512/8))]
+        ldr qform_data6, [in, #(6*(512/8))]
+        ldr qform_data7, [in, #(7*(512/8))]
 
         gs_butterfly data0, data1, root0, 6, 7
         gs_butterfly data2, data3, root1, 0, 1
@@ -438,20 +423,20 @@ layer123_start:
         gs_butterfly data2, data6, root0, 0, 1
         gs_butterfly data3, data7, root0, 0, 1
 
-        str_vo data4, in, (4*(512/8))
-        str_vo data5, in, (5*(512/8))
-        str_vo data6, in, (6*(512/8))
-        str_vo data7, in, (7*(512/8))
+        str qform_data4, [in, #(4*(512/8))]
+        str qform_data5, [in, #(5*(512/8))]
+        str qform_data6, [in, #(6*(512/8))]
+        str qform_data7, [in, #(7*(512/8))]
 
         // Scale half the coeffs by 1/n; for the other half, the scaling has
         // been merged into the multiplication with the twiddle factor on the
         // last layer.
         mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
 
-        str_vi data0, in, (16)
-        str_vo data1, in, (-16 + 1*(512/8))
-        str_vo data2, in, (-16 + 2*(512/8))
-        str_vo data3, in, (-16 + 3*(512/8))
+        str qform_data0, [in], #(16)
+        str qform_data1, [in, #(-16 + 1*(512/8))]
+        str qform_data2, [in, #(-16 + 2*(512/8))]
+        str qform_data3, [in, #(-16 + 3*(512/8))]
 
 
         subs count, count, #1
