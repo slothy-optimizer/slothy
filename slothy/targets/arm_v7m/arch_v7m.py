@@ -868,6 +868,11 @@ class eor(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
+class eor_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "eor<width> <Rd>, <Ra>"
+    inputs = ["Ra"]
+    in_outs = ["Rd"]
+
 class eors(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "eors<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
