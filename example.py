@@ -206,21 +206,26 @@ class ExampleKeccak(Example):
         # slothy.config.constraints.allow_renaming = False
         # slothy.config.constraints.functional_only = True
         slothy.config.variable_size = True
-        slothy.config.outputs = ["flags", "r2", "r10", "r11", "r12", 'hint_sp\\()\\mDi0']
+        # slothy.config.constraints.stalls_first_attempt = 4
+        # slothy.config.constraints.stalls_minimum_attempt = 4
+
+        slothy.config.outputs = ["flags", "hint_spEga0", "hint_spEge0", "hint_spEgi0", "hint_spEgo0", "hint_spEgu0", "hint_spEka1", "hint_spEke1", "hint_spEki1", "hint_spEko1", "hint_spEku1", "hint_spEma0", "hint_spEme0", "hint_spEmi0", "hint_spEmo0", "hint_spEmu0", "hint_spEsa1", "hint_spEse1", "hint_spEsi1", "hint_spEso1", "hint_spEsu1", "hint_spEbe0", "hint_spEbi0", "hint_spEbo0", "hint_spEbu0", "hint_spEba0", "hint_spEga1", "hint_spEge1", "hint_spEgi1", "hint_spEgo1", "hint_spEgu1", "hint_spEka0", "hint_spEke0", "hint_spEki0", "hint_spEko0", "hint_spEku0", "hint_spEma1", "hint_spEme1", "hint_spEmi1", "hint_spEmo1", "hint_spEmu1", "hint_spEsa0", "hint_spEse0", "hint_spEsi0", "hint_spEso0", "hint_spEsu0", "hint_spEbe1", "hint_spEbi1", "hint_spEbo1", "hint_spEbu1", "hint_spEba1"]
         slothy.config.reserved_regs = ["sp", "r13"]
         slothy.config.locked_registers = ["sp", "r13"]
 
         slothy.config.with_llvm_mca = True
         slothy.config.llvm_mca_full = True
 
-        # slothy.config.split_heuristic = True
-        # slothy.config.split_heuristic_preprocess_naive_interleaving = True
-        # slothy.config.split_heuristic_factor = 25
-        # slothy.config.split_heuristic_repeat = 2
-        # slothy.config.split_heuristic_optimize_seam = 4
-        # slothy.config.split_heuristic_stepsize = 0.05
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_preprocess_naive_interleaving = True
+        slothy.config.split_heuristic_factor = 8
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_optimize_seam = 4
+        slothy.config.split_heuristic_stepsize = 0.05
 
-        slothy.optimize(start="slothy_start", end="slothy_end")
+        slothy.optimize(start="slothy_start_round0", end="slothy_end_round0")
+        slothy.config.outputs = ["flags", "hint_r0Aba0", "hint_r0Aba1", "hint_r0Abe0", "hint_r0Abe1", "hint_r0Abi0", "hint_r0Abi1", "hint_r0Abo0", "hint_r0Abo1", "hint_r0Abu0", "hint_r0Abu1", "hint_r0Aga0", "hint_r0Aga1", "hint_r0Age0", "hint_r0Age1", "hint_r0Agi0", "hint_r0Agi1", "hint_r0Ago0", "hint_r0Ago1", "hint_r0Agu0", "hint_r0Agu1", "hint_r0Aka0", "hint_r0Aka1", "hint_r0Ake0", "hint_r0Ake1", "hint_r0Aki0", "hint_r0Aki1", "hint_r0Ako0", "hint_r0Ako1", "hint_r0Aku0", "hint_r0Aku1", "hint_r0Ama0", "hint_r0Ama1", "hint_r0Ame0", "hint_r0Ame1", "hint_r0Ami0", "hint_r0Ami1", "hint_r0Amo0", "hint_r0Amo1", "hint_r0Amu0", "hint_r0Amu1", "hint_r0Asa0", "hint_r0Asa1", "hint_r0Ase0", "hint_r0Ase1", "hint_r0Asi0", "hint_r0Asi1", "hint_r0Aso0", "hint_r0Aso1", "hint_r0Asu0", "hint_r0Asu1"]
+        slothy.optimize(start="slothy_start_round1", end="slothy_end_round1")
 
 
 class Example0(Example):
@@ -1587,7 +1592,7 @@ def main():
                  fft_fixedpoint_radix4(),
                  
                   ExampleDummy(),
-                  ExampleKeccak(var="part")
+                  ExampleKeccak(var="m7")
                  ]
 
     all_example_names = [e.name for e in examples]
