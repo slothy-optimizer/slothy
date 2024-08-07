@@ -31,7 +31,10 @@ import sys
 
 from slothy import Slothy, Config
 
+import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
+import slothy.targets.arm_v7m.cortex_m4 as Target_CortexM4
+import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
@@ -43,6 +46,8 @@ import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_i
 
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
+                     Target_CortexM4: "m4",
+                     Target_CortexM7: "m7",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85",
                      Target_AppleM1_firestorm: "m1_firestorm",
@@ -76,6 +81,8 @@ class Example():
         subfolder = ""
         if self.arch == AArch64_Neon:
             subfolder = "aarch64/"
+        elif self.arch == Arch_Armv7M:
+            subfolder = "armv7m/"
         self.infile_full = f"examples/naive/{subfolder}{self.infile}.s"
         self.outfile_full = f"examples/opt/{subfolder}{self.outfile}.s"
         self.name = name
@@ -161,6 +168,65 @@ class Example():
 
         if dry_run is False:
             slothy.write_source_to_file(self.outfile_full)
+
+class ExampleDummy(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"dummy"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize(start="slothy_start", end="slothy_end")
+
+class ExampleKeccak(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"keccakf1600"
+        infile = name
+        funcname = "KeccakF1600_StatePermute"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+            funcname += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, funcname=funcname, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        # slothy.config.constraints.allow_reordering = False
+        # slothy.config.constraints.allow_renaming = False
+        # slothy.config.constraints.functional_only = True
+        slothy.config.variable_size = True
+        # slothy.config.constraints.stalls_first_attempt = 4
+        # slothy.config.constraints.stalls_minimum_attempt = 4
+
+        slothy.config.outputs = ["flags", "hint_spEga0", "hint_spEge0", "hint_spEgi0", "hint_spEgo0", "hint_spEgu0", "hint_spEka1", "hint_spEke1", "hint_spEki1", "hint_spEko1", "hint_spEku1", "hint_spEma0", "hint_spEme0", "hint_spEmi0", "hint_spEmo0", "hint_spEmu0", "hint_spEsa1", "hint_spEse1", "hint_spEsi1", "hint_spEso1", "hint_spEsu1", "hint_spEbe0", "hint_spEbi0", "hint_spEbo0", "hint_spEbu0", "hint_spEba0", "hint_spEga1", "hint_spEge1", "hint_spEgi1", "hint_spEgo1", "hint_spEgu1", "hint_spEka0", "hint_spEke0", "hint_spEki0", "hint_spEko0", "hint_spEku0", "hint_spEma1", "hint_spEme1", "hint_spEmi1", "hint_spEmo1", "hint_spEmu1", "hint_spEsa0", "hint_spEse0", "hint_spEsi0", "hint_spEso0", "hint_spEsu0", "hint_spEbe1", "hint_spEbi1", "hint_spEbo1", "hint_spEbu1", "hint_spEba1"]
+        slothy.config.reserved_regs = ["sp", "r13"]
+        slothy.config.locked_registers = ["sp", "r13"]
+
+        slothy.config.with_llvm_mca = True
+        slothy.config.llvm_mca_full = True
+
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_preprocess_naive_interleaving = True
+        slothy.config.split_heuristic_factor = 8
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_optimize_seam = 4
+        slothy.config.split_heuristic_stepsize = 0.05
+
+        slothy.optimize(start="slothy_start_round0", end="slothy_end_round0")
+        slothy.config.outputs = ["flags", "hint_r0Aba0", "hint_r0Aba1", "hint_r0Abe0", "hint_r0Abe1", "hint_r0Abi0", "hint_r0Abi1", "hint_r0Abo0", "hint_r0Abo1", "hint_r0Abu0", "hint_r0Abu1", "hint_r0Aga0", "hint_r0Aga1", "hint_r0Age0", "hint_r0Age1", "hint_r0Agi0", "hint_r0Agi1", "hint_r0Ago0", "hint_r0Ago1", "hint_r0Agu0", "hint_r0Agu1", "hint_r0Aka0", "hint_r0Aka1", "hint_r0Ake0", "hint_r0Ake1", "hint_r0Aki0", "hint_r0Aki1", "hint_r0Ako0", "hint_r0Ako1", "hint_r0Aku0", "hint_r0Aku1", "hint_r0Ama0", "hint_r0Ama1", "hint_r0Ame0", "hint_r0Ame1", "hint_r0Ami0", "hint_r0Ami1", "hint_r0Amo0", "hint_r0Amo1", "hint_r0Amu0", "hint_r0Amu1", "hint_r0Asa0", "hint_r0Asa1", "hint_r0Ase0", "hint_r0Ase1", "hint_r0Asi0", "hint_r0Asi1", "hint_r0Aso0", "hint_r0Aso1", "hint_r0Asu0", "hint_r0Asu1"]
+        slothy.optimize(start="slothy_start_round1", end="slothy_end_round1")
+
 
 class Example0(Example):
     def __init__(self):
@@ -1355,11 +1421,38 @@ class fft_floatingpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
+
+class ExampleDilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"dilithium5_ntt"
+        infile = name
+        funcname = "pqcrystals_dilithium_ntt"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.constraints.allow_reordering = True
+        slothy.config.constraints.allow_renaming = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.outputs = ["r0", "r10"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.with_llvm_mca = True
+        slothy.config.llvm_mca_full = True
+        slothy.config.constraints.stalls_first_attempt = 3
+        slothy.optimize(start="layer123_start", end="layer123_end")
+        slothy.rename_function("pqcrystals_dilithium_invntt_tomont", "pqcrystals_dilithium_invntt_tomont2")
 #############################################################################################
 
 
 def main():
-    examples = [ Example0(),
+    examples = [ ExampleDilithium(),
+
+                 Example0(),
                  Example1(),
                  Example2(),
                  Example3(),
@@ -1497,6 +1590,9 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
+                 
+                  ExampleDummy(),
+                  ExampleKeccak(var="m7")
                  ]
 
     all_example_names = [e.name for e in examples]
