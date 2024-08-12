@@ -207,7 +207,7 @@ roots:
 .text
 
         .global ntt_kyber_123_4567_scalar_load_store_opt_m1_icestorm
-        .global _ntt_kyber_123_4567_scalar_load_store
+        .global _ntt_kyber_123_4567_scalar_load_store_opt_m1_icestorm
 
 .p2align 4
 const_addr:       .short 3329

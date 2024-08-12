@@ -201,7 +201,7 @@ roots:
 .text
 
         .global ntt_kyber_123_4567_scalar_store_opt_m1_firestorm
-        .global _ntt_kyber_123_4567_scalar_store
+        .global _ntt_kyber_123_4567_scalar_store_opt_m1_firestorm
 
 .p2align 4
 const_addr:       .short 3329

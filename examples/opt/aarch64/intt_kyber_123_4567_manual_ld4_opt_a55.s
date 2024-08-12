@@ -196,7 +196,7 @@ roots:
 .text
 
         .global intt_kyber_123_4567_manual_ld4_opt_a55
-        .global _intt_kyber_123_4567_manual_ld4
+        .global _intt_kyber_123_4567_manual_ld4_opt_a55
 
 .p2align 4
 const_addr:       .short 3329

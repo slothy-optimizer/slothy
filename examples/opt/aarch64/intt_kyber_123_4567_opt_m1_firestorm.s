@@ -196,7 +196,7 @@ roots:
 .text
 
         .global intt_kyber_123_4567_opt_m1_firestorm
-        .global _intt_kyber_123_4567
+        .global _intt_kyber_123_4567_opt_m1_firestorm
 
 .p2align 4
 const_addr:       .short 3329
