@@ -181,7 +181,7 @@ roots:
 .text
 
         .global ntt_dilithium_1234_5678_manual_st4_opt_m1_firestorm
-        .global _ntt_dilithium_1234_5678_manual_st4
+        .global _ntt_dilithium_1234_5678_manual_st4_opt_m1_firestorm
 
 .p2align 4
 modulus_addr:   .quad -8380417

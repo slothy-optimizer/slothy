@@ -230,7 +230,7 @@ roots:
 .text
 
         .global intt_dilithium_1234_5678_opt_a72
-        .global _intt_dilithium_1234_5678
+        .global _intt_dilithium_1234_5678_opt_a72
 
 .p2align 4
 modulus_addr:   .quad 8380417

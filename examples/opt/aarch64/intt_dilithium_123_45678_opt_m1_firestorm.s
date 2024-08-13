@@ -244,7 +244,7 @@ roots:
 .text
 
         .global intt_dilithium_123_45678_opt_m1_firestorm
-        .global _intt_dilithium_123_45678
+        .global _intt_dilithium_123_45678_opt_m1_firestorm
 
 .p2align 4
 const_addr:   .word 8380417
