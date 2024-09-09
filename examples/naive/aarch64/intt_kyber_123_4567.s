@@ -26,67 +26,27 @@
 // Needed to provide ASM_LOAD directive
 #include <hal_env.h>
 
-// NOTE
-// We use a lot of trivial macros to simplify the parsing burden for Slothy
-// The macros are not unfolded by Slothy and thus interpreted as instructions,
-// which are easier to parse due to e.g. the lack of size specifiers and simpler
-// syntax for pre and post increment for loads and stores.
-//
-// Eventually, NeLight should include a proper parser for AArch64,
-// but for initial investigations, the below is enough.
-
-.macro ldr_vo vec, base, offset
-       ldr qform_\vec, [\base, #\offset]
-.endm
-
-.macro ldr_vi vec, base, inc
-        ldr qform_\vec, [\base], #\inc
-.endm
-
-.macro str_vo vec, base, offset
-        str qform_\vec, [\base, #\offset]
-.endm
-.macro str_vi vec, base, inc
-        str qform_\vec, [\base], #\inc
-.endm
-
-.macro vqrdmulh d,a,b
-        sqrdmulh \d\().8h, \a\().8h, \b\().8h
-.endm
-.macro vmlsq d,a,b,i
-        mls \d\().8h, \a\().8h, \b\().h[\i]
-.endm
-.macro vqrdmulhq d,a,b,i
-        sqrdmulh \d\().8h, \a\().8h, \b\().h[\i]
-.endm
-.macro vqdmulhq d,a,b,i
-        sqdmulh \d\().8h, \a\().8h, \b\().h[\i]
-.endm
-.macro vmulq d,a,b,i
-        mul \d\().8h, \a\().8h, \b\().h[\i]
-.endm
-
 .macro mulmodq dst, src, const, idx0, idx1
-        vqrdmulhq   t2,  \src, \const, \idx1
-        vmulq       \dst,  \src, \const, \idx0
-        vmlsq       \dst,  t2, consts, 0
+        sqrdmulh t2.8h,      \src\().8h, \const\().h[\idx1\()]
+        mul      \dst\().8h, \src\().8h, \const\().h[\idx0\()]
+        mls      \dst\().8h, t2.8h,      consts.h[0]
 .endm
 
 .macro mulmod dst, src, const, const_twisted
-        vqrdmulh   t2,  \src, \const_twisted
-        mul        \dst\().8h,  \src\().8h, \const\().8h
-        vmlsq      \dst,  t2, consts, 0
+        sqrdmulh t2.8h,      \src\().8h, \const_twisted\().8h
+        mul      \dst\().8h, \src\().8h, \const\().8h
+        mls      \dst\().8h, t2.8h,      consts.h[0]
 .endm
 
 .macro gs_butterfly a, b, root, idx0, idx1
-        sub     tmp.8h,    \a\().8h, \b\().8h
-        add     \a\().8h,    \a\().8h, \b\().8h
+        sub tmp.8h,   \a\().8h, \b\().8h
+        add \a\().8h, \a\().8h, \b\().8h
         mulmodq  \b, tmp, \root, \idx0, \idx1
 .endm
 
 .macro gs_butterfly_v a, b, root, root_twisted
-        sub    tmp.8h,    \a\().8h, \b\().8h
-        add    \a\().8h,    \a\().8h, \b\().8h
+        sub tmp.8h,   \a\().8h, \b\().8h
+        add \a\().8h, \a\().8h, \b\().8h
         mulmod  \b, tmp, \root, \root_twisted
 .endm
 
@@ -98,27 +58,27 @@
 .endm
 
 .macro barrett_reduce a
-        vqdmulhq t0, \a, consts, 1
-        srshr    t0.8h, t0.8h, #11
-        vmlsq    \a, t0, consts, 0
+        sqdmulh t0.8h,    \a\().8h, consts.h[1]
+        srshr   t0.8h,    t0.8h,    #11
+        mls     \a\().8h, t0.8h,    consts.h[0]
 .endm
 
 .macro load_roots_123
-        ldr_vi root0, r_ptr0, 32
-        ldr_vo root1, r_ptr0, -16
+        ldr q_root0, [r_ptr0], #32
+        ldr q_root1, [r_ptr0, #-16]
 .endm
 
 .macro load_next_roots_45
-        ldr_vi root0, r_ptr0, 16
+        ldr q_root0, [r_ptr0], #16
 .endm
 
 .macro load_next_roots_67
-        ldr_vi root0,    r_ptr1, (6*16)
-        ldr_vo root0_tw, r_ptr1, (-6*16 + 1*16)
-        ldr_vo root1,    r_ptr1, (-6*16 + 2*16)
-        ldr_vo root1_tw, r_ptr1, (-6*16 + 3*16)
-        ldr_vo root2,    r_ptr1, (-6*16 + 4*16)
-        ldr_vo root2_tw, r_ptr1, (-6*16 + 5*16)
+        ldr q_root0,    [r_ptr1], #(6*16)
+        ldr q_root0_tw, [r_ptr1, #(-6*16 + 1*16)]
+        ldr q_root1,    [r_ptr1, #(-6*16 + 2*16)]
+        ldr q_root1_tw, [r_ptr1, #(-6*16 + 3*16)]
+        ldr q_root2,    [r_ptr1, #(-6*16 + 4*16)]
+        ldr q_root2_tw, [r_ptr1, #(-6*16 + 5*16)]
 .endm
 
 .macro transpose4 data
@@ -140,7 +100,7 @@
         trn2 \data_out\()3.4s, \data_in\()2.4s, \data_in\()3.4s
 .endm
 
-.macro save_gprs // @slothy:no-unfold
+.macro save_gprs
         sub sp, sp, #(16*6)
         stp x19, x20, [sp, #16*0]
         stp x19, x20, [sp, #16*0]
@@ -151,7 +111,7 @@
         str x29, [sp, #16*5]
 .endm
 
-.macro restore_gprs // @slothy:no-unfold
+.macro restore_gprs
         ldp x19, x20, [sp, #16*0]
         ldp x21, x22, [sp, #16*1]
         ldp x23, x24, [sp, #16*2]
@@ -161,7 +121,7 @@
         add sp, sp, #(16*6)
 .endm
 
-.macro save_vregs // @slothy:no-unfold
+.macro save_vregs
         sub sp, sp, #(16*4)
         stp  d8,  d9, [sp, #16*0]
         stp d10, d11, [sp, #16*1]
@@ -169,7 +129,7 @@
         stp d14, d15, [sp, #16*3]
 .endm
 
-.macro restore_vregs // @slothy:no-unfold
+.macro restore_vregs
         ldp  d8,  d9, [sp, #16*0]
         ldp d10, d11, [sp, #16*1]
         ldp d12, d13, [sp, #16*2]
@@ -177,23 +137,12 @@
         add sp, sp, #(16*4)
 .endm
 
-#define STACK_SIZE 16
-#define STACK0 0
-
-.macro restore a, loc     // @slothy:no-unfold
-        ldr \a, [sp, #\loc\()]
-.endm
-.macro save loc, a        // @slothy:no-unfold
-        str \a, [sp, #\loc\()]
-.endm
-.macro push_stack // @slothy:no-unfold
+.macro push_stack
         save_gprs
         save_vregs
-        sub sp, sp, #STACK_SIZE
 .endm
 
-.macro pop_stack // @slothy:no-unfold
-        add sp, sp, #STACK_SIZE
+.macro pop_stack
         restore_vregs
         restore_gprs
 .endm
@@ -250,39 +199,6 @@ _intt_kyber_123_4567:
         r_ptr1  .req x4
         xtmp    .req x5
 
-        qform_v0  .req q0
-        qform_v1  .req q1
-        qform_v2  .req q2
-        qform_v3  .req q3
-        qform_v4  .req q4
-        qform_v5  .req q5
-        qform_v6  .req q6
-        qform_v7  .req q7
-        qform_v8  .req q8
-        qform_v9  .req q9
-        qform_v10 .req q10
-        qform_v11 .req q11
-        qform_v12 .req q12
-        qform_v13 .req q13
-        qform_v14 .req q14
-        qform_v15 .req q15
-        qform_v16 .req q16
-        qform_v17 .req q17
-        qform_v18 .req q18
-        qform_v19 .req q19
-        qform_v20 .req q20
-        qform_v21 .req q21
-        qform_v22 .req q22
-        qform_v23 .req q23
-        qform_v24 .req q24
-        qform_v25 .req q25
-        qform_v26 .req q26
-        qform_v27 .req q27
-        qform_v28 .req q28
-        qform_v29 .req q29
-        qform_v30 .req q30
-        qform_v31 .req q31
-
         data0  .req v8
         data1  .req v9
         data2  .req v10
@@ -292,32 +208,14 @@ _intt_kyber_123_4567:
         data6  .req v14
         data7  .req v15
 
-        x_00 .req x10
-        x_01 .req x11
-        x_10 .req x12
-        x_11 .req x13
-        x_20 .req x14
-        x_21 .req x15
-        x_30 .req x16
-        x_31 .req x17
-
-        xt_00 .req x_00
-        xt_01 .req x_20
-        xt_10 .req x_10
-        xt_11 .req x_30
-        xt_20 .req x_01
-        xt_21 .req x_21
-        xt_30 .req x_11
-        xt_31 .req x_31
-
-        qform_data0  .req q8
-        qform_data1  .req q9
-        qform_data2  .req q10
-        qform_data3  .req q11
-        qform_data4  .req q12
-        qform_data5  .req q13
-        qform_data6  .req q14
-        qform_data7  .req q15
+        q_data0  .req q8
+        q_data1  .req q9
+        q_data2  .req q10
+        q_data3  .req q11
+        q_data4  .req q12
+        q_data5  .req q13
+        q_data6  .req q14
+        q_data7  .req q15
 
         root0    .req v0
         root1    .req v1
@@ -326,15 +224,15 @@ _intt_kyber_123_4567:
         root1_tw .req v5
         root2_tw .req v6
 
-        consts         .req v7
-        qform_consts   .req q7
+        consts     .req v7
+        q_consts   .req q7
 
-        qform_root0    .req q0
-        qform_root1    .req q1
-        qform_root2    .req q2
-        qform_root0_tw .req q4
-        qform_root1_tw .req q5
-        qform_root2_tw .req q6
+        q_root0    .req q0
+        q_root1    .req q1
+        q_root2    .req q2
+        q_root0_tw .req q4
+        q_root1_tw .req q5
+        q_root2_tw .req q6
 
         tmp .req v24
         t0  .req v25
@@ -348,17 +246,15 @@ _intt_kyber_123_4567:
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
 
-        save STACK0, in
-
         mov inp, in
         mov count, #8
 
         .p2align 2
 layer4567_start:
-        ldr_vo data0, inp, (16*0)
-        ldr_vo data1, inp, (16*1)
-        ldr_vo data2, inp, (16*2)
-        ldr_vo data3, inp, (16*3)
+        ldr q_data0, [inp, #(16*0)]
+        ldr q_data1, [inp, #(16*1)]
+        ldr q_data2, [inp, #(16*2)]
+        ldr q_data3, [inp, #(16*3)]
 
         transpose4 data // manual ld4
 
@@ -372,7 +268,7 @@ layer4567_start:
         gs_butterfly_v data1, data3, root0, root0_tw
 
         transpose4 data
-        
+
         load_next_roots_45
 
         // Layer 5
@@ -388,10 +284,10 @@ layer4567_start:
         gs_butterfly data0, data2, root0, 0, 1
         gs_butterfly data1, data3, root0, 0, 1
 
-        str_vi data0, inp, (64)
-        str_vo data1, inp, (-64 + 16*1)
-        str_vo data2, inp, (-64 + 16*2)
-        str_vo data3, inp, (-64 + 16*3)
+        str q_data0, [inp], #(64)
+        str q_data1, [inp, #(-64 + 16*1)]
+        str q_data2, [inp, #(-64 + 16*2)]
+        str q_data3, [inp, #(-64 + 16*3)]
 
         subs count, count, #1
         cbnz count, layer4567_start
@@ -414,14 +310,14 @@ layer4567_start:
 
 layer123_start:
 
-        ldr_vo data0, in, 0
-        ldr_vo data1, in, (1*(512/8))
-        ldr_vo data2, in, (2*(512/8))
-        ldr_vo data3, in, (3*(512/8))
-        ldr_vo data4, in, (4*(512/8))
-        ldr_vo data5, in, (5*(512/8))
-        ldr_vo data6, in, (6*(512/8))
-        ldr_vo data7, in, (7*(512/8))
+        ldr q_data0, [in, #0]
+        ldr q_data1, [in, #(1*(512/8))]
+        ldr q_data2, [in, #(2*(512/8))]
+        ldr q_data3, [in, #(3*(512/8))]
+        ldr q_data4, [in, #(4*(512/8))]
+        ldr q_data5, [in, #(5*(512/8))]
+        ldr q_data6, [in, #(6*(512/8))]
+        ldr q_data7, [in, #(7*(512/8))]
 
         gs_butterfly data0, data1, root0, 6, 7
         gs_butterfly data2, data3, root1, 0, 1
@@ -438,24 +334,23 @@ layer123_start:
         gs_butterfly data2, data6, root0, 0, 1
         gs_butterfly data3, data7, root0, 0, 1
 
-        str_vo data4, in, (4*(512/8))
-        str_vo data5, in, (5*(512/8))
-        str_vo data6, in, (6*(512/8))
-        str_vo data7, in, (7*(512/8))
+        str q_data4, [in, #(4*(512/8))]
+        str q_data5, [in, #(5*(512/8))]
+        str q_data6, [in, #(6*(512/8))]
+        str q_data7, [in, #(7*(512/8))]
 
         // Scale half the coeffs by 1/n; for the other half, the scaling has
         // been merged into the multiplication with the twiddle factor on the
         // last layer.
         mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
 
-        str_vi data0, in, (16)
-        str_vo data1, in, (-16 + 1*(512/8))
-        str_vo data2, in, (-16 + 2*(512/8))
-        str_vo data3, in, (-16 + 3*(512/8))
-
+        str q_data0, [in], #(16)
+        str q_data1, [in, #(-16 + 1*(512/8))]
+        str q_data2, [in, #(-16 + 2*(512/8))]
+        str q_data3, [in, #(-16 + 3*(512/8))]
 
         subs count, count, #1
         cbnz count, layer123_start
 
-       pop_stack
-       ret
+        pop_stack
+        ret
