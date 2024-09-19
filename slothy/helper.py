@@ -304,7 +304,12 @@ class SourceLine:
     def read_multiline(s, reduce=True):
         """Parse multi-line string or array of strings into list of SourceLine instances"""
         if isinstance(s, str):
+            # Retain newline termination
+            terminated_by_newline = (len(s) > 0 and s[-1] == '\n')
             s = s.splitlines()
+            if terminated_by_newline:
+                s.append("")
+
         return SourceLine.merge_escaped_lines([ SourceLine(l, reduce=reduce) for l in s ])
 
     @staticmethod
