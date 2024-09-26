@@ -113,7 +113,7 @@ execution_units = {
         Ldr_Q,
         Str_Q,
         q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
-        vmull, vmull2, vmlal, vushr, vusra
+        Vmull, Vmlal, vushr, vusra
     ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
     St4 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
@@ -175,8 +175,7 @@ execution_units = {
 inverse_throughput = {
     ( vadd, vsub, vmov,
       vmul, vmul_lane, vmls, vmls_lane,
-      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull, vmull2,
-      vmlal,
+      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, Vmull, Vmlal,
       vsrshr, umov_d ) : 1,
     (trn2, trn1, ASimdCompare): 1,
     ( Ldr_Q ) : 2,
@@ -221,8 +220,7 @@ default_latencies = {
     (trn1, trn2, ASimdCompare): 2,
     ( vsrshr ) : 3,
     ( vmul, vmul_lane, vmls, vmls_lane,
-      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, vmull, vmull2,
-      vmlal) : 4,
+      vqrdmulh, vqrdmulh_lane, vqdmulh_lane, Vmull, Vmlal) : 4,
     ( Ldr_Q, Str_Q ) : 4,
     St4 : 5,
     # TODO: Add distinction between Q/D and B/H vs. D/S

@@ -112,10 +112,11 @@ execution_units = {
      vmla, vmla_lane,
      vmls, vmls_lane,
      vqrdmulh, vqrdmulh_lane,
-     vqdmulh_lane)
+     vqdmulh_lane,
+     Vmlal, Vmull)
     : [ExecutionUnit.ASIMD0],
 
-    (vadd, vsub,
+    (vadd, vsub, Vzip,
      trn1, trn2, ASimdCompare )
     : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
@@ -146,6 +147,9 @@ inverse_throughput = {
      vqdmulh_lane)
     : 2,
 
+    (Vmull, Vmlal): 1,
+    Vzip : 1,
+
     (vadd, vsub,
      trn1, trn2, ASimdCompare)
     : 1,
@@ -175,7 +179,9 @@ default_latencies = {
      vqdmulh_lane)
     : 5,
 
-    (vadd, vsub,
+    (Vmull, Vmlal): 1,
+
+    (vadd, vsub,Vzip,
      trn1, trn2, ASimdCompare )
     : 3, # Approximation -- not necessary to get it exactly right, as mentioned above
 
@@ -209,6 +215,16 @@ def get_latency(src, out_idx, dst):
     # Fast mla->mla forwarding
     if instclass_src in [vmla, vmla_lane, vmls, vmls_lane] and \
        instclass_dst in [vmla, vmla_lane, vmls, vmls_lane] and \
+       src.args_in_out[0] == dst.args_in_out[0]:
+        return 1
+    # Fast mull->mlal forwarding
+    if instclass_src in all_subclass_leaves(Vmull) and \
+       instclass_dst in all_subclass_leaves(Vmlal) and \
+       src.args_out[0] == dst.args_in_out[0]:
+        return 1
+    # Fast mlal->mlal forwarding
+    if instclass_src in all_subclass_leaves(Vmlal) and \
+       instclass_dst in all_subclass_leaves(Vmlal) and \
        src.args_in_out[0] == dst.args_in_out[0]:
         return 1
 
