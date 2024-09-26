@@ -2231,22 +2231,25 @@ class vbic(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vzip1(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class Vzip(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pass
+
+class vzip1(Vzip): # pylint: disable=missing-docstring,invalid-name
     pattern = "zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vzip2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vzip2(Vzip): # pylint: disable=missing-docstring,invalid-name
     pattern = "zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vuzp1(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vuzp1(Vzip): # pylint: disable=missing-docstring,invalid-name
     pattern = "uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vuzp2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vuzp2(Vzip): # pylint: disable=missing-docstring,invalid-name
     pattern = "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2434,13 +2437,26 @@ class vdup(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Xa"]
     outputs = ["Vd"]
 
-class vmull(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class Vmull(AArch64Instruction):
+    pass
+
+class vmull(Vmull): # pylint: disable=missing-docstring,invalid-name
     pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vmull2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vmull2(Vmull): # pylint: disable=missing-docstring,invalid-name
     pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+class vsmull(Vmull): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+class vsmull2(Vmull): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
