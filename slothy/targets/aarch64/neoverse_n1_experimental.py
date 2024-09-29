@@ -96,20 +96,21 @@ execution_units = {
     #          [ExecutionUnit.VEC0, ExecutionUnit.LSU1],
     #          [ExecutionUnit.VEC1, ExecutionUnit.LSU0],
     #          [ExecutionUnit.VEC1, ExecutionUnit.LSU1]],
-    (vuzp1, vuzp2, vzip1,
-     Vrev, uaddlp)           : ExecutionUnit.V(),
+    # TODO: As above, this should somehow occupy both V and L
+    St4                       : ExecutionUnit.V(),
+    (Vzip, Vrev, uaddlp)      : ExecutionUnit.V(),
     (vmov)                    : ExecutionUnit.V(),
     VecToGprMov               : ExecutionUnit.V(),
     Transpose                 : ExecutionUnit.V(),
     (vmovi)                   : ExecutionUnit.V(),
-    (vand, vadd)              : ExecutionUnit.V(),
+    (vand, vadd, vsub)        : ExecutionUnit.V(),
     (vxtn)                    : ExecutionUnit.V(),
     (vuxtl, vshl, vshl_d,
-     vshli, vshrn)            : ExecutionUnit.V1(),
+     vshli, vsrshr, vshrn)    : ExecutionUnit.V1(),
     vusra                     : ExecutionUnit.V1(),
     AESInstruction            : ExecutionUnit.V0(),
-    (vmul, Vmlal, vmull,
-     vmull2)                  : ExecutionUnit.V0(),
+    (Vmul, Vmla, Vqdmulh,
+     Vmull, Vmlal)            : ExecutionUnit.V0(),
     AArch64NeonLogical        : ExecutionUnit.V(),
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
@@ -131,10 +132,10 @@ inverse_throughput = {
     (Ldr_X, Str_X,
      Ldr_Q, Str_Q)             : 1,
     (Ldp_X, Stp_X)             : 2,
-    (vuzp1, vuzp2, vzip1,
-     uaddlp, Vrev)            : 1,
+    St4                        : 6, # TODO: Really??
+    (Vzip, uaddlp, Vrev)       : 1,
     VecToGprMov                : 1,
-    (vand, vadd)               : 1,
+    (vand, vadd, vsub)         : 1,
     (vmov)                     : 1,
     Transpose                  : 1,
     AESInstruction             : 1,
@@ -142,10 +143,10 @@ inverse_throughput = {
     (vmovi)                    : 1,
     (vxtn)                     : 1,
     (vuxtl, vshl, vshl_d,
-     vshli, vshrn)             : 1,
-    (vmul)                     : 2,
+     vshli, vsrshr, vshrn)     : 1,
+    (Vmul, Vmla, Vqdmulh)      : 2,
     vusra                      : 1,
-    (Vmlal, vmull, vmull2)     : 1,
+    (Vmull, Vmlal)             : 1,
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,
@@ -167,21 +168,22 @@ default_latencies = {
      Ldr_X,
      Ldr_Q)                   : 4,
     (Stp_X, Str_X, Str_Q)     : 2,
-    (vuzp1, vuzp2, vzip1,
-     Vrev, uaddlp)           : 2,
+    St4                       : 4,
+    (Vzip, Vrev, uaddlp)      : 2,
     VecToGprMov               : 2,
     (vxtn)                    : 2,
     AESInstruction            : 2,
     AArch64NeonLogical        : 2,
     Transpose                 : 2,
-    (vand, vadd)              : 2,
+    (vand, vadd, vsub)        : 2,
     (vmov)                    : 2, # ???
     (vmovi)                   : 2,
-    (vmul)                    : 5,
+    (Vmul, Vmla, Vqdmulh)     : 5,
     vusra                     : 4, # TODO: Add fwd path
-    (Vmlal, vmull, vmull2)    : 4, # TODO: Add fwd path
+    (Vmull, Vmlal)            : 4,
     (vuxtl, vshl, vshl_d,
      vshli, vshrn)            : 2,
+    (vsrshr)                  : 4,
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,
@@ -201,9 +203,32 @@ default_latencies = {
 def get_latency(src, out_idx, dst):
     _ = out_idx # out_idx unused
 
-    _ = find_class(src)
-    _ = find_class(dst)
+    instclass_src = find_class(src)
+    instclass_dst = find_class(dst)
+
     latency = lookup_multidict(default_latencies, src)
+
+    # Fast mul->mla forwarding
+    if instclass_src in [vmul, vmul_lane] and \
+       instclass_dst in [vmla, vmla_lane, vmls, vmls_lane] and \
+       src.args_out[0] == dst.args_in_out[0]:
+        return 2
+    # Fast mla->mla forwarding
+    if instclass_src in [vmla, vmla_lane, vmls, vmls_lane] and \
+       instclass_dst in [vmla, vmla_lane, vmls, vmls_lane] and \
+       src.args_in_out[0] == dst.args_in_out[0]:
+        return 2
+    # Fast mull->mlal forwarding
+    if instclass_src in all_subclass_leaves(Vmull) and \
+       instclass_dst in all_subclass_leaves(Vmlal) and \
+       src.args_out[0] == dst.args_in_out[0]:
+        return 1
+    # Fast mlal->mlal forwarding
+    if instclass_src in all_subclass_leaves(Vmlal) and \
+       instclass_dst in all_subclass_leaves(Vmlal) and \
+       src.args_in_out[0] == dst.args_in_out[0]:
+        return 1
+
     return latency
 
 def get_units(src):

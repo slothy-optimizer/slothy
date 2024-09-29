@@ -133,7 +133,7 @@ execution_units = {
 
     vsrshr : [ExecutionUnit.ASIMD1],
 
-    St4 : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    (St4, St2) : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
     Ld4 : [[ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
            [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]]
@@ -166,6 +166,7 @@ inverse_throughput = {
 
     vsrshr : 1,
 
+    St2 : 4,
     St4 : 8,
     Ld4 : 4
 }
@@ -195,6 +196,7 @@ default_latencies = {
     (add, add_imm, add_lsl, add_lsr) : 2,
 
     vsrshr : 3, # approx
+    St2 : 4,
     St4 : 8,
     Ld4 : 4
 }
