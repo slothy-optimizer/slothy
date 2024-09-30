@@ -155,9 +155,12 @@ class Example():
 
         self.core(slothy, *self.extra_args)
 
-        if self.rename:
-            slothy.rename_function(
-                self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        if self.rename is not False:
+            if self.rename is True:
+                slothy.rename_function(
+                    self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+            elif isinstance(self.rename, str):
+                slothy.rename_function(self.funcname, self.rename)
 
         if dry_run is False:
             slothy.write_source_to_file(self.outfile_full)
@@ -1088,7 +1091,7 @@ class intt_dilithium_123_45678(Example):
         slothy.config.constraints.stalls_first_attempt = 110
         slothy.optimize_loop("layer123_start")
 
-        
+
 
 
 class ntt_dilithium_123(Example):
@@ -1211,7 +1214,7 @@ class intt_dilithium_1234_5678(Example):
         slothy.optimize_loop("layer5678_start")
 
         slothy.config = conf.copy()
-        
+
         if self.timeout is not None:
             slothy.config.timeout = self.timeout // 12
 
@@ -1228,7 +1231,7 @@ class intt_dilithium_1234_5678(Example):
         slothy.config.split_heuristic_stepsize = 0.1
         slothy.config.constraints.stalls_first_attempt = 14
         slothy.optimize_loop("layer1234_start")
-            
+
 
 class ntt_dilithium_1234(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
@@ -1430,6 +1433,40 @@ class neon_keccak_x1_no_symbolic(Example):
         slothy.config.outputs = ["hint_STACK_OFFSET_COUNT"]
         slothy.optimize(start="initial_round_start", end="initial_round_end")
 
+class neon_keccak_x4_no_symbolic(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "keccak_f1600_x4_hybrid_slothy_no_symbolic"
+        infile = "keccak_f1600_x4_hybrid_slothy_symbolic"
+        outfile = "keccak_f1600_x4_hybrid_no_symbolic"
+
+        super().__init__(infile, name, outfile=outfile, rename="keccak_f1600_x4_hybrid_no_symbolic", arch=arch, target=target)
+
+    def core(self, slothy):
+        slothy.config.reserved_regs = ["x18", "sp"]
+
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.visualize_expected_performance = False
+        slothy.config.timeout = 10800
+
+        slothy.config.selfcheck_failure_logfile = "selfcheck_fail.log"
+
+        slothy.config.outputs = ["flags"]
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.config.ignore_objective = True
+#        slothy.config.constraints.minimize_spills = True
+        slothy.config.constraints.functional_only = True
+#        slothy.config.constraints.allow_reordering = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.constraints.allow_spills = True
+#        slothy.config.constraints.minimize_spills = True
+        slothy.config.visualize_expected_performance = True
+#        slothy.config.visualize_show_old_code = True
+
+        slothy.optimize(start="loop", end="loop_end")
+        slothy.config.outputs = ["hint_STACK_OFFSET_COUNT"]
+        slothy.optimize(start="initial", end="loop")
+
 class neon_keccak_x1_scalar_opt(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "keccak_f1600_x1_scalar_opt"
@@ -1607,6 +1644,7 @@ def main():
                  neon_keccak_x4(),
                  neon_keccak_x1_no_symbolic(),
                  neon_keccak_x1_scalar_opt(),
+                 neon_keccak_x4_no_symbolic(),
                  ]
 
     all_example_names = [e.name for e in examples]
