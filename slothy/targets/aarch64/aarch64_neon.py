@@ -64,7 +64,7 @@ class RegisterType(Enum):
     @cache
     @staticmethod
     def spillable(reg_type):
-        return reg_type in [RegisterType.GPR, RegisterType.NEON]
+        return reg_type in [RegisterType.GPR] # For now, only GPRs
 
     @cache
     @staticmethod
