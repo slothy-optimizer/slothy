@@ -2651,7 +2651,7 @@ class SlothyBase(LockAttributes):
                 continue
 
             for (ty, v) in list(zip(t.inst.arg_types_out, t.out_spill_vars)) + \
-                           list(zip(t.inst.arg_types_in_out, t.out_spill_vars)):
+                           list(zip(t.inst.arg_types_in_out, t.in_out_spill_vars)):
                 if self.arch.RegisterType.spillable(ty) is False:
                     self._Add(v == False)
 
