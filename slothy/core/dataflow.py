@@ -602,7 +602,9 @@ class DataFlowGraph:
         useless_nodes = filter(outputs_unused, self.nodes)
         t = next(useless_nodes, None)
         if t is not None:
-            if not self.config.allow_useless_instructions:
+            ignore_useless_output = t.inst.source_line.tags.get("ignore_useless_output", False)
+            if not self.config.allow_useless_instructions and \
+               ignore_useless_output is False:
                 self._dump_instructions("Source code", error=True)
                 self.logger.error(f"The result registers {t.inst.args_out + t.inst.args_in_out} "
                                   f"of instruction {t.id}:[{t.inst}] are neither used "
@@ -614,7 +616,11 @@ class DataFlowGraph:
             self.logger.warning(f"The result registers {t.inst.args_out + t.inst.args_in_out} "
                               f"of instruction {t.id}:[{t.inst}] are neither used "
                               "nor declared as global outputs.")
-            self.logger.warning("Ignoring this as requested by `config.allow_useless_instructions`!")
+
+            if self.config.allow_useless_instructions is True:
+                self.logger.warning("Ignoring this as requested by `config.allow_useless_instructions`!")
+            elif ignore_useless_output is True:
+                self.logger.warning("Ignoring this as requested by instruction tag 'ignore_useless_outputs'!")
 
     def _parse_line(self, l):
         assert SourceLine.is_source_line(l)
