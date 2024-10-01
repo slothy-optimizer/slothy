@@ -24,6 +24,8 @@
  */
 #include <hal_env.h>
 
+#define KECCAK_F1600_ROUNDS 24
+
 //
 // Author: Hanno Becker <hanno.becker@arm.com>
 // Author: Matthias Kannwischer <matthias@kannwischer.eu>
@@ -180,7 +182,7 @@ round_constants:
     sAka     .req x3
     sAke     .req x8
     sAki     .req x13
-    sAko     .req x18
+    sAko     .req x28
     sAku     .req x23
     sAma     .req x4
     sAme     .req x9
@@ -193,49 +195,25 @@ round_constants:
     sAso     .req x20
     sAsu     .req x25
 
-    /* sA_[y,2*x+3*y] = rot(A[x,y]) */
-    sAba_ .req x0
-    sAbe_ .req x28
-    sAbi_ .req x11
-    sAbo_ .req x16
-    sAbu_ .req x21
-    sAga_ .req x3
-    sAge_ .req x8
-    sAgi_ .req x12
-    sAgo_ .req x17
-    sAgu_ .req x22
-    sAka_ .req x4
-    sAke_ .req x9
-    sAki_ .req x13
-    sAko_ .req x18
-    sAku_ .req x23
-    sAma_ .req x5
-    sAme_ .req x10
-    sAmi_ .req x14
-    sAmo_ .req x19
-    sAmu_ .req x24
-    sAsa_ .req x1
-    sAse_ .req x6
-    sAsi_ .req x15
-    sAso_ .req x20
-    sAsu_ .req x25
-
-    /* sC[x] = sA[x,0] xor sA[x,1] xor sA[x,2] xor sA[x,3] xor sA[x,4],   for x in 0..4 */
-    /* sE[x] = sC[x-1] xor rot(C[x+1],1), for x in 0..4 */
-    sC0 .req x0
-    sE0 .req x29
-    sC1 .req x26
-    sE1 .req x30
-    sC2 .req x27
-    sE2 .req x26
-    sC3 .req x28
-    sE3 .req x27
-    sC4 .req x29
-    sE4 .req x28
-
     tmp .req x30
 
 /************************ MACROS ****************************/
+
+.macro eor3_m0 d s0 s1 s2
+    eor3 \d\().16b, \s0\().16b, \s1\().16b, \s2\().16b
+.endm
+
+.macro rax1_m0 d s0 s1
+    rax1 \d\().2d, \s0\().2d, \s1\().2d
+.endm
+
+.macro xar_m0 d s0 s1 imm
+    xar \d\().2d, \s0\().2d, \s1\().2d, #\imm
+.endm
+
+.macro bcax_m0 d s0 s1 s2
+    bcax \d\().16b, \s0\().16b, \s1\().16b, \s2\().16b
+.endm
 
 .macro eor3_m1 d s0 s1 s2
    eor \d\().16b, \s0\().16b, \s1\().16b
@@ -482,15 +460,7 @@ round_constants:
     eor \out\(), \a\(), X<tmp>, ror #\r2
 .endm
 
-.macro hybrid_round_initial
-    scalar_round_initial
-    scalar_round_noninitial
-    vector_round
-    vector_round
-.endm
-
 .macro scalar_round_initial
-
     eor5 X<sC0>, sAma, sAsa, sAba, sAga, sAka
     eor5 X<sC1>, sAme, sAse, sAbe, sAge, sAke
     eor5 X<sC2>, sAmi, sAsi, sAbi, sAgi, sAki
@@ -564,74 +534,74 @@ round_constants:
 .endm
 
 .macro vector_round
-   eor3_m1 C0, vAba, vAga, vAka
+   eor3_m0 C0, vAba, vAga, vAka
    eor3_m1 C0, C0, vAma,  vAsa
-   eor3_m1 C1, vAbe, vAge, vAke
+   eor3_m0 C1, vAbe, vAge, vAke
    eor3_m1 C1, C1, vAme,  vAse
-   eor3_m1 C2, vAbi, vAgi, vAki
+   eor3_m0 C2, vAbi, vAgi, vAki
    eor3_m1 C2, C2, vAmi,  vAsi
-   eor3_m1 C3, vAbo, vAgo, vAko
+   eor3_m0 C3, vAbo, vAgo, vAko
    eor3_m1 C3, C3, vAmo,  vAso
-   eor3_m1 C4, vAbu, vAgu, vAku
+   eor3_m0 C4, vAbu, vAgu, vAku
    eor3_m1 C4, C4, vAmu,  vAsu
-   rax1_m1 E1, C0, C2
+   rax1_m0 E1, C0, C2
    rax1_m1 E3, C2, C4
-   rax1_m1 E0, C4, C1
+   rax1_m0 E0, C4, C1
    rax1_m1 E2, C1, C3
-   rax1_m1 E4, C3, C0
+   rax1_m0 E4, C3, C0
    eor vAba_.16b, vAba.16b, E0.16b
    xar_m1 vAsa_, vAbi, E2, 2
-   xar_m1 vAbi_, vAki, E2, 21
+   xar_m0 vAbi_, vAki, E2, 21
    xar_m1 vAki_, vAko, E3, 39
-   xar_m1 vAko_, vAmu, E4, 56
+   xar_m0 vAko_, vAmu, E4, 56
    xar_m1 vAmu_, vAso, E3, 8
-   xar_m1 vAso_, vAma, E0, 23
+   xar_m0 vAso_, vAma, E0, 23
    xar_m1 vAka_, vAbe, E1, 63
-   xar_m1 vAse_, vAgo, E3, 9
+   xar_m0 vAse_, vAgo, E3, 9
    xar_m1 vAgo_, vAme, E1, 19
-   xar_m1 vAke_, vAgi, E2, 58
+   xar_m0 vAke_, vAgi, E2, 58
    xar_m1 vAgi_, vAka, E0, 61
-   xar_m1 vAga_, vAbo, E3, 36
+   xar_m0 vAga_, vAbo, E3, 36
    xar_m1 vAbo_, vAmo, E3, 43
-   xar_m1 vAmo_, vAmi, E2, 49
+   xar_m0 vAmo_, vAmi, E2, 49
    xar_m1 vAmi_, vAke, E1, 54
-   xar_m1 vAge_, vAgu, E4, 44
+   xar_m0 vAge_, vAgu, E4, 44
    xar_m1 vAgu_, vAsi, E2, 3
-   xar_m1 vAsi_, vAku, E4, 25
+   xar_m0 vAsi_, vAku, E4, 25
    xar_m1 vAku_, vAsa, E0, 46
-   xar_m1 vAma_, vAbu, E4, 37
+   xar_m0 vAma_, vAbu, E4, 37
    xar_m1 vAbu_, vAsu, E4, 50
-   xar_m1 vAsu_, vAse, E1, 62
+   xar_m0 vAsu_, vAse, E1, 62
    xar_m1 vAme_, vAga, E0, 28
-   xar_m1 vAbe_, vAge, E1, 20
-   ldr sE1, [sp, #STACK_OFFSET_CONST_VECTOR] // @slothy:reads=STACK_OFFSET_CONST_VECTOR
-   ld1r {v28.2d}, [sE1], #8
-   str sE1, [sp, #STACK_OFFSET_CONST_VECTOR] // @slothy:writes=STACK_OFFSET_CONST_VECTOR
+   xar_m0 vAbe_, vAge, E1, 20
+   ldr tmp, [sp, #STACK_OFFSET_CONST_VECTOR] // @slothy:reads=STACK_OFFSET_CONST_VECTOR
+   ld1r {v28.2d}, [tmp], #8
+   str tmp, [sp, #STACK_OFFSET_CONST_VECTOR] // @slothy:writes=STACK_OFFSET_CONST_VECTOR
    bcax_m1 vAga, vAga_, vAgi_, vAge_
-   bcax_m1 vAge, vAge_, vAgo_, vAgi_
+   bcax_m0 vAge, vAge_, vAgo_, vAgi_
    bcax_m1 vAgi, vAgi_, vAgu_, vAgo_
-   bcax_m1 vAgo, vAgo_, vAga_, vAgu_
+   bcax_m0 vAgo, vAgo_, vAga_, vAgu_
    bcax_m1 vAgu, vAgu_, vAge_, vAga_
-   bcax_m1 vAka, vAka_, vAki_, vAke_
+   bcax_m0 vAka, vAka_, vAki_, vAke_
    bcax_m1 vAke, vAke_, vAko_, vAki_
-   bcax_m1 vAki, vAki_, vAku_, vAko_
+   bcax_m0 vAki, vAki_, vAku_, vAko_
    bcax_m1 vAko, vAko_, vAka_, vAku_
    bcax_m1 vAku, vAku_, vAke_, vAka_
-   bcax_m1 vAma, vAma_, vAmi_, vAme_
+   bcax_m0 vAma, vAma_, vAmi_, vAme_
    bcax_m1 vAme, vAme_, vAmo_, vAmi_
-   bcax_m1 vAmi, vAmi_, vAmu_, vAmo_
+   bcax_m0 vAmi, vAmi_, vAmu_, vAmo_
    bcax_m1 vAmo, vAmo_, vAma_, vAmu_
-   bcax_m1 vAmu, vAmu_, vAme_, vAma_
+   bcax_m0 vAmu, vAmu_, vAme_, vAma_
    bcax_m1 vAsa, vAsa_, vAsi_, vAse_
-   bcax_m1 vAse, vAse_, vAso_, vAsi_
+   bcax_m0 vAse, vAse_, vAso_, vAsi_
    bcax_m1 vAsi, vAsi_, vAsu_, vAso_
-   bcax_m1 vAso, vAso_, vAsa_, vAsu_
+   bcax_m0 vAso, vAso_, vAsa_, vAsu_
    bcax_m1 vAsu, vAsu_, vAse_, vAsa_
-   bcax_m1 vAba, vAba_, vAbi_, vAbe_
+   bcax_m0 vAba, vAba_, vAbi_, vAbe_
    bcax_m1 vAbe, vAbe_, vAbo_, vAbi_
-   bcax_m1 vAbi, vAbi_, vAbu_, vAbo_
+   bcax_m0 vAbi, vAbi_, vAbu_, vAbo_
    bcax_m1 vAbo, vAbo_, vAba_, vAbu_
-   bcax_m1 vAbu, vAbu_, vAbe_, vAba_
+   bcax_m0 vAbu, vAbu_, vAbe_, vAba_
    eor vAba.16b, vAba.16b, v28.16b
 .endm
 
@@ -759,15 +729,13 @@ round_constants:
     ror sAsu, sAsu,#(64-55)
 .endm
 
-#define KECCAK_F1600_ROUNDS 24
-
-.global keccak_f1600_x4_hybrid_slothy_symbolic
-.global _keccak_f1600_x4_hybrid_slothy_symbolic
+.global keccak_f1600_x4_v8a_v84a_hybrid_slothy_symbolic
+.global _keccak_f1600_x4_v8a_v84a_hybrid_slothy_symbolic
 .text
 .align 4
 
-keccak_f1600_x4_hybrid_slothy_symbolic:
-_keccak_f1600_x4_hybrid_slothy_symbolic:
+keccak_f1600_x4_v8a_v84a_hybrid_slothy_symbolic:
+_keccak_f1600_x4_v8a_v84a_hybrid_slothy_symbolic:
     alloc_stack
     save_gprs
     save_vregs
@@ -784,15 +752,15 @@ _keccak_f1600_x4_hybrid_slothy_symbolic:
     load_input_scalar 4,0 // First scalar input
 
  initial:
-    scalar_round_initial
-    scalar_round_noninitial
-    vector_round
+    scalar_round_initial    // @slothy:interleaving_class=0
+    scalar_round_noninitial // @slothy:interleaving_class=0
+    vector_round            // @slothy:interleaving_class=1
  loop:
-    scalar_round_noninitial
-    scalar_round_noninitial
-    vector_round
+    scalar_round_noninitial // @slothy:interleaving_class=0
+    scalar_round_noninitial // @slothy:interleaving_class=0
+    vector_round            // @slothy:interleaving_class=1
  loop_end:
-    ble loop_0
+    ble loop
     final_scalar_rotate
 
     // Read outer loop flag: We repeat the above twice

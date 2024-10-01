@@ -2564,7 +2564,7 @@ _keccak_f1600_x4_hybrid_no_symbolic:
 
         loop_end:
 
-    ble loop_0
+    ble loop
     final_scalar_rotate
 
     // Read outer loop flag: We repeat the above twice
