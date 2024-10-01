@@ -344,6 +344,7 @@ class Config:
         self._allow_useless_instructions = None
         self._locked_registers = None
         self._load_slothy_config(slothy_config)
+
         for k,v in kwargs.items():
             setattr(self,k,v)
 
@@ -357,6 +358,7 @@ class Config:
         self._outputs = self._slothy_config.outputs
         self._inputs_are_outputs = self._slothy_config.inputs_are_outputs
         self._allow_useless_instructions = self._slothy_config.allow_useless_instructions
+        self._absorb_spills = self._slothy_config.absorb_spills
 
 class DataFlowGraphException(Exception):
     """An exception triggered during parsing a data flow graph"""
@@ -802,13 +804,15 @@ class DataFlowGraph:
             # Check if the instruction is tagged as a spill or restore instruction
             # Those instructions are not inserted into the DFG but merely interpreted
             # as redirections
-            if s.source_line.tags.get("is_spill", False) is True:
+            if self.config._absorb_spills is True and \
+               s.source_line.tags.get("is_spill", False) is True:
                 self.logger.debug("Handling spill instruction: %s", s)
                 reg = s.args_in[0]
                 loc = s.args_out[0]
                 self._process_spill_instruction(reg, loc)
                 return
-            if s.source_line.tags.get("is_restore", False) is True:
+            if self.config._absorb_spills is True and \
+               s.source_line.tags.get("is_restore", False) is True:
                 self.logger.debug("Handling spill instruction: %s", s)
                 loc = s.args_in[0]
                 reg = s.args_out[0]
