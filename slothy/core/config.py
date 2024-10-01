@@ -469,6 +469,10 @@ class Config(NestedPrint, LockAttributes):
         return objectives == 1
 
     @property
+    def absorb_spills(self):
+        return self._absorb_spills
+
+    @property
     def split_heuristic(self):
         """Trade-off between runtime and optimality: Split each code block
         to be optimized into a fixed number of subchunks and optimize them
@@ -1090,6 +1094,8 @@ class Config(NestedPrint, LockAttributes):
         self._selfcheck_failure_logfile = None
         self._allow_useless_instructions = False
 
+        self._absorb_spills = True
+
         self._split_heuristic = False
         self._split_heuristic_region = [0.0,1.0]
         self._split_heuristic_chunks = False
@@ -1261,6 +1267,9 @@ class Config(NestedPrint, LockAttributes):
     @objective_precision.setter
     def objective_precision(self, val):
         self._objective_precision = val
+    @absorb_spills.setter
+    def absorb_spills(self, val):
+        self._absorb_spills = val
     @split_heuristic.setter
     def split_heuristic(self, val):
         self._split_heuristic = val
