@@ -619,6 +619,18 @@ class Config(NestedPrint, LockAttributes):
                             "Shouldn't read config.split_heuristic_repeat otherwise.")
         return self._split_heuristic_repeat
 
+    @property
+    def split_heuristic_preprocess_naive_interleaving_strategy(self):
+        """Strategy for naive interleaving preprocessing step
+
+        Supported values are:
+          - "depth": Always pick the instruction with the lower possible
+                             depth in the DFG first.
+          - "alternate": Try to evenly alternate between instructions tagged with
+                         "interleaving_class=0/1".
+        """
+        return self._split_heuristic_preprocess_naive_interleaving_strategy
+
     def copy(self):
         """Make a deep copy of the configuration"""
         # Temporarily unset references to Arch and Target for deepcopy
@@ -1108,6 +1120,7 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_repeat = 1
         self._split_heuristic_preprocess_naive_interleaving = False
         self._split_heuristic_preprocess_naive_interleaving_by_latency = False
+        self._split_heuristic_preprocess_naive_interleaving_strategy = "depth"
         self._split_heuristic_estimate_performance = True
 
         self._compiler_binary = "gcc"
@@ -1303,6 +1316,9 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_preprocess_naive_interleaving_by_latency.setter
     def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
         self._split_heuristic_preprocess_naive_interleaving_by_latency = val
+    @split_heuristic_preprocess_naive_interleaving_strategy.setter
+    def split_heuristic_preprocess_naive_interleaving_strategy(self, val):
+        self._split_heuristic_preprocess_naive_interleaving_strategy = val
     @split_heuristic_estimate_performance.setter
     def split_heuristic_estimate_performance(self, val):
         self._split_heuristic_estimate_performance = val
