@@ -1436,9 +1436,6 @@ class ExampleDilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.constraints.allow_reordering = True
-        slothy.config.constraints.allow_renaming = True
-        slothy.config.constraints.functional_only = False
         slothy.config.outputs = ["r0", "r10"]
         slothy.config.inputs_are_outputs = True
         slothy.config.with_llvm_mca = True
