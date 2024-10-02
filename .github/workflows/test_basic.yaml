@@ -16,6 +16,8 @@ jobs:
     - name: Install python dependencies
       run: |
         python -m pip install -r requirements.txt
+    - name: Install llvm
+      run: sudo apt-get install -y llvm-14
     - name: Run examples
       run: |
         python3 example.py --dry-run
