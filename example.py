@@ -1448,9 +1448,42 @@ class ExampleDilithium(Example):
         slothy.rename_function("pqcrystals_dilithium_invntt_tomont", "pqcrystals_dilithium_invntt_tomont2")
 #############################################################################################
 
+class ExampleKyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"kyber_ntt"
+        infile = name
+        funcname = "ntt_fast"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.constraints.allow_reordering = True
+        slothy.config.constraints.allow_renaming = True
+        slothy.config.constraints.functional_only = True
+        slothy.config.outputs = ["r0", "r14"]
+        slothy.config.inputs_are_outputs = True
+
+        # TODO: need to add uArch models for
+        # vmov_gpr2
+        # movw_imm
+        # uadd16
+        # usub16
+        # smulwb
+        # smulwt
+        # smlabt
+        # pkhtb
+        # ldrd_with_postinc
+        slothy.optimize(start="layer1234_start", end="layer1234_end")
+        slothy.optimize(start="layer567_start", end="layer567_end")
 
 def main():
     examples = [ ExampleDilithium(),
+                 ExampleKyber(),
 
                  Example0(),
                  Example1(),

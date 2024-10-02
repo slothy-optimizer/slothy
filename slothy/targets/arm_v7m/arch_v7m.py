@@ -783,8 +783,17 @@ class vmov_gpr(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid
     inputs = ["Sa"]
     outputs = ["Rd"]
 
-# Addition
+class vmov_gpr2(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "vmov<width> <Sd>, <Ra>"
+    inputs = ["Ra"]
+    outputs = ["Sd"]
 
+# movs
+class movw_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "movw <Rd>, <imm>"
+    outputs = ["Rd"]
+
+# Addition
 class add(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "add<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
@@ -815,8 +824,12 @@ class adds(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-n
     outputs = ["Rd"]
     modifiesFlags=True
 
-# Subtraction
+class uadd16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "uadd16<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
 
+# Subtraction
 class sub(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sub<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
@@ -836,10 +849,30 @@ class sub_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,
     pattern = "sub<width> <Ra>, <imm>"
     in_outs = ["Ra"]
 
+class usub16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "usub16<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
+
 # Multiplication
 class mul(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "mul<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
+
+class smulwb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smulwb<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
+
+class smulwt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smulwt<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
+
+class smlabt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smlabt<width> <Rd>, <Ra>, <Rb>, <Rc>"
+    inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
 
 class smull(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
@@ -924,6 +957,12 @@ class rors_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-nam
     in_outs = ["Rd"]
     modifiesFlags = True
 
+class pkhtb(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "pkhtb<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
+    inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
+
+# Load
 class ldr(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>]"
     inputs = ["Ra"]
@@ -964,6 +1003,18 @@ class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstri
     pattern = "ldr<width> <Rd>, [<Ra>], <imm>"
     in_outs = ["Ra"]
     outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+class ldrd_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>], <imm>"
+    in_outs = ["Rc"]
+    outputs = ["Ra", "Rb"]
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
