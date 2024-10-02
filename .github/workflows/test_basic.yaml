@@ -15,7 +15,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install python dependencies
       run: |
-        python -m pip install -r requirements.txt
+        python3 -m venv venv
+        ./venv/bin/python3 -m pip install -r requirements.txt
+        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
     - name: Install llvm
       run: sudo apt-get install -y llvm-14
     - name: Run examples
@@ -32,7 +34,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install python dependencies
       run: |
-        python -m pip install -r requirements.txt
+        python3 -m venv venv
+        ./venv/bin/python3 -m pip install -r requirements.txt
+        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
     - name: Run tutorial
       run: |
         (cd tutorial && ./tutorial_all.sh)
@@ -47,7 +51,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install python dependencies
       run: |
-        python -m pip install -r requirements.txt
+        python3 -m venv venv
+        ./venv/bin/python3 -m pip install -r requirements.txt
+        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
     - name: Run examples
       run: |
         python3 example.py --examples simple0,simple1,simple0_loop,simple1_loop
@@ -62,7 +68,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install python dependencies
       run: |
-        python -m pip install -r requirements.txt
+        python3 -m venv venv
+        ./venv/bin/python3 -m pip install -r requirements.txt
+        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
     - name: Run examples
       run: |
         python3 example.py --examples ntt_kyber_1_23_45_67_m55,ntt_dilithium_12_34_56_78_m55 --timeout=300
@@ -77,7 +85,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install python dependencies
       run: |
-        python -m pip install -r requirements.txt
+        python3 -m venv venv
+        ./venv/bin/python3 -m pip install -r requirements.txt
+        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
     - name: Run examples
       run: |
         python3 example.py --examples ntt_kyber_123_4567_a55,ntt_dilithium_123_45678_a55 --timeout=300
@@ -92,7 +102,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install python dependencies
       run: |
-        python -m pip install -r requirements.txt
+        python3 -m venv venv
+        ./venv/bin/python3 -m pip install -r requirements.txt
+        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
     - name: Run examples
       run: |
         (cd paper/scripts && NO_LOG=Y ./slothy_sqmag.sh)
@@ -107,7 +119,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install python dependencies
       run: |
-        python -m pip install -r requirements.txt
+        python3 -m venv venv
+        ./venv/bin/python3 -m pip install -r requirements.txt
+        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
     - name: Run examples
       run: |
         (cd paper/scripts && NO_LOG=Y ./slothy_fft.sh)

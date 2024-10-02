@@ -190,8 +190,7 @@ def _main():
                 v0, v0i = split_numeric_suffix(v0)
                 v1, v1i = split_numeric_suffix(v1)
                 if v0 != v1:
-                    logger.debug("Invalid range expression %s -- ignore", v)
-                    return [v]
+                    raise CmdLineException(f"Invalid range expression {v}")
                 # Ranges are inclusive
                 res = [f"{v0}{i}" for i in range(int(v0i), int(v1i)+1)]
                 logger.debug("Decoded range entry %s to %s", v, res)

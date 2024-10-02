@@ -417,9 +417,7 @@ class Heuristics():
         dfg = DFG(body, logger.getChild("dfg"), DFGConfig(conf.copy()), parsing_cb=True)
         insts = [dfg.nodes[i] for i in range(l)]
 
-        if use_latency_depth is False:
-            depths = [dfg.nodes_by_id[i].depth for i in range(l) ]
-        else:
+        if use_latency_depth is True:
             # Calculate latency-depth of instruction nodes
             nodes_by_depth = dfg.nodes.copy()
             nodes_by_depth.sort(key=lambda t: t.depth)
@@ -434,7 +432,16 @@ class Heuristics():
                 t.latency_depth = max(map(lambda tp, t=t: tp.src.latency_depth +
                                           get_latency(tp, t), srcs),
                                       default=0)
-            depths = [dfg.nodes_by_id[i].latency_depth for i in range(l) ]
+
+        def get_depth(t):
+            if use_latency_depth is False:
+                pre_depth = t.depth
+            else:
+                pre_depth = t.latency_depth
+            scale = float(t.inst.source_line.tags.get("naive_interleaving_scale",1.0))
+            return int(pre_depth * scale)
+
+        depths = [get_depth(dfg.nodes_by_id[i]) for i in range(l) ]
 
         inputs = dfg.inputs.copy()
         outputs = conf.outputs.copy()
@@ -448,6 +455,17 @@ class Heuristics():
 
         joint_prev_inputs = {}
         joint_prev_outputs = {}
+
+        strategy = conf.split_heuristic_preprocess_naive_interleaving_strategy
+
+        def get_interleaving_class(j):
+            return int(insts[j].inst.source_line.tags.get("interleaving_class", 0))
+
+        if strategy == "alternate":
+            # Compute target ratio between code classes
+            sz_0 = max(len(list(filter(lambda j: get_interleaving_class(j) == 0, range(l)))), 1)
+            sz_1 = max(len(list(filter(lambda j: get_interleaving_class(j) == 1, range(l)))), 1)
+            target_ratio = sz_0 / sz_1
 
         for i in range(l):
             cur_joint_prev_inputs = set()
@@ -477,50 +495,31 @@ class Heuristics():
 
             def pick_candidate(candidate_idxs):
 
-                strategy = "minimal_depth"
-
-                if strategy == "minimal_depth":
+                if strategy == "depth":
                     candidate_depths = list(map(lambda j: depths[j], candidate_idxs))
                     logger.debug("Candidate %s: %s", depth_str, candidate_depths)
                     choice_idx = candidate_idxs[candidate_depths.index(min(candidate_depths))]
 
                 else:
-                    assert strategy == "alternate_functional_units"
-                    def flatten_units(units):
-                        res = []
-                        for u in units:
-                            if isinstance(u,list):
-                                res += u
-                            else:
-                                res.append(u)
-                        return res
-                    def units_disjoint(a,b):
-                        if a is None or b is None:
-                            return True
-                        a = flatten_units(a)
-                        b = flatten_units(b)
-                        return len([x for x in a if x in b]) == 0
-                    def units_different(a,b):
-                        return a != b
+                    assert strategy == "alternate"
 
-                    disjoint_unit_idxs = [ i for i in candidate_idxs
-                        if units_disjoint(conf.target.get_units(insts[i].inst), last_unit) ]
-                    other_unit_idxs = [ i for i in candidate_idxs
-                        if units_different(conf.target.get_units(insts[i].inst), last_unit) ]
+                    sz_0 = max(len(list(filter(lambda j: get_interleaving_class(j) == 0, range(i)))), 1)
+                    sz_1 = max(len(list(filter(lambda j: get_interleaving_class(j) == 1, range(i)))), 1)
 
-                    if len(disjoint_unit_idxs) > 0:
-                        choice_idx = random.choice(disjoint_unit_idxs)
-                        last_unit = conf.target.get_units(insts[choice_idx].inst)
-                    elif len(other_unit_idxs) > 0:
-                        choice_idx = random.choice(other_unit_idxs)
-                        last_unit = conf.target.get_units(insts[choice_idx].inst)
+                    candidates_0 = filter(lambda j: get_interleaving_class(j) == 0, candidate_idxs)
+                    candidates_1 = filter(lambda j: get_interleaving_class(j) == 1, candidate_idxs)
+
+                    current_ratio = sz_0 / sz_1
+
+                    c0 = next(candidates_0, None)
+                    c1 = next(candidates_1, None)
+
+                    if current_ratio > target_ratio and c1 is not None:
+                        choice_idx = c1
+                    elif c0 is not None:
+                        choice_idx = c0
                     else:
-                        candidate_depths = list(map(lambda j: depths[j], candidate_idxs))
-                        logger.debug(f"Candidate {depth_str}s: {candidate_depths}")
-                        min_depth = min(candidate_depths)
-                        refined_candidates = [ candidate_idxs[i]
-                            for i,d in enumerate(candidate_depths) if d == min_depth ]
-                        choice_idx = random.choice(refined_candidates)
+                        choice_idx = candidate_idxs[0]
 
                 return choice_idx
 
@@ -786,7 +785,7 @@ class Heuristics():
         res.output_renamings = { s:s for s in outputs }
         res.valid = True
         res.selfcheck(log.getChild("split_heuristic_full"))
-        
+
         # Estimate performance of final code
         if conf.split_heuristic_estimate_performance:
             conf2 = conf.copy()

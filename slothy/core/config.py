@@ -469,6 +469,10 @@ class Config(NestedPrint, LockAttributes):
         return objectives == 1
 
     @property
+    def absorb_spills(self):
+        return self._absorb_spills
+
+    @property
     def split_heuristic(self):
         """Trade-off between runtime and optimality: Split each code block
         to be optimized into a fixed number of subchunks and optimize them
@@ -614,6 +618,18 @@ class Config(NestedPrint, LockAttributes):
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
                             "Shouldn't read config.split_heuristic_repeat otherwise.")
         return self._split_heuristic_repeat
+
+    @property
+    def split_heuristic_preprocess_naive_interleaving_strategy(self):
+        """Strategy for naive interleaving preprocessing step
+
+        Supported values are:
+          - "depth": Always pick the instruction with the lower possible
+                             depth in the DFG first.
+          - "alternate": Try to evenly alternate between instructions tagged with
+                         "interleaving_class=0/1".
+        """
+        return self._split_heuristic_preprocess_naive_interleaving_strategy
 
     def copy(self):
         """Make a deep copy of the configuration"""
@@ -1090,6 +1106,8 @@ class Config(NestedPrint, LockAttributes):
         self._selfcheck_failure_logfile = None
         self._allow_useless_instructions = False
 
+        self._absorb_spills = True
+
         self._split_heuristic = False
         self._split_heuristic_region = [0.0,1.0]
         self._split_heuristic_chunks = False
@@ -1102,6 +1120,7 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic_repeat = 1
         self._split_heuristic_preprocess_naive_interleaving = False
         self._split_heuristic_preprocess_naive_interleaving_by_latency = False
+        self._split_heuristic_preprocess_naive_interleaving_strategy = "depth"
         self._split_heuristic_estimate_performance = True
 
         self._compiler_binary = "gcc"
@@ -1261,6 +1280,9 @@ class Config(NestedPrint, LockAttributes):
     @objective_precision.setter
     def objective_precision(self, val):
         self._objective_precision = val
+    @absorb_spills.setter
+    def absorb_spills(self, val):
+        self._absorb_spills = val
     @split_heuristic.setter
     def split_heuristic(self, val):
         self._split_heuristic = val
@@ -1294,6 +1316,9 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_preprocess_naive_interleaving_by_latency.setter
     def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
         self._split_heuristic_preprocess_naive_interleaving_by_latency = val
+    @split_heuristic_preprocess_naive_interleaving_strategy.setter
+    def split_heuristic_preprocess_naive_interleaving_strategy(self, val):
+        self._split_heuristic_preprocess_naive_interleaving_strategy = val
     @split_heuristic_estimate_performance.setter
     def split_heuristic_estimate_performance(self, val):
         self._split_heuristic_estimate_performance = val

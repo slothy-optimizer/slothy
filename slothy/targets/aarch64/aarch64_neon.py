@@ -2231,22 +2231,25 @@ class vbic(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vzip1(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class Vzip(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pass
+
+class vzip1(Vzip): # pylint: disable=missing-docstring,invalid-name
     pattern = "zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vzip2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vzip2(Vzip): # pylint: disable=missing-docstring,invalid-name
     pattern = "zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vuzp1(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vuzp1(Vzip): # pylint: disable=missing-docstring,invalid-name
     pattern = "uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vuzp2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vuzp2(Vzip): # pylint: disable=missing-docstring,invalid-name
     pattern = "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2256,12 +2259,15 @@ class vuxtl(AArch64Instruction): # pylint: disable=missing-docstring,invalid-nam
     inputs = ["Va"]
     outputs = ["Vd"]
 
-class vqrdmulh(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class Vqdmulh(AArch64Instruction):
+    pass
+
+class vqrdmulh(Vqdmulh): # pylint: disable=missing-docstring,invalid-name
     pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vqrdmulh_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vqrdmulh_lane(Vqdmulh): # pylint: disable=missing-docstring,invalid-name
     pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2273,7 +2279,7 @@ class vqrdmulh_lane(AArch64Instruction): # pylint: disable=missing-docstring,inv
                                           [ f"v{i}" for i in range(0,16) ]]
         return obj
 
-class vqdmulh_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vqdmulh_lane(Vqdmulh): # pylint: disable=missing-docstring,invalid-name
     pattern = "sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2377,12 +2383,15 @@ class vext(AArch64NeonLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vmul(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class Vmul(AArch64Instruction):
+    pass
+
+class vmul(Vmul): # pylint: disable=missing-docstring,invalid-name
     pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vmul_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vmul_lane(Vmul): # pylint: disable=missing-docstring,invalid-name
     pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2395,12 +2404,15 @@ class vmul_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid
 
         return obj
 
-class vmla(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class Vmla(AArch64Instruction):
+    pass
+
+class vmla(Vmla): # pylint: disable=missing-docstring,invalid-name
     pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs=["Vd"]
 
-class vmla_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vmla_lane(Vmla): # pylint: disable=missing-docstring,invalid-name
     pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs=["Vd"]
@@ -2412,12 +2424,12 @@ class vmla_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid
                                           [ f"v{i}" for i in range(0,16) ]]
         return obj
 
-class vmls(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vmls(Vmla): # pylint: disable=missing-docstring,invalid-name
     pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
-class vmls_lane(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vmls_lane(Vmla): # pylint: disable=missing-docstring,invalid-name
     pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs=["Vd"]
@@ -2434,13 +2446,26 @@ class vdup(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Xa"]
     outputs = ["Vd"]
 
-class vmull(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class Vmull(AArch64Instruction):
+    pass
+
+class vmull(Vmull): # pylint: disable=missing-docstring,invalid-name
     pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-class vmull2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vmull2(Vmull): # pylint: disable=missing-docstring,invalid-name
     pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+class vsmull(Vmull): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+class vsmull2(Vmull): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
