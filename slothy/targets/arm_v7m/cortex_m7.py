@@ -51,12 +51,6 @@ class ExecutionUnit(Enum):
 def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
-    add_slot_constraints(slothy)
-    # TODO: verify this works as intended
-    for t in slothy._model.tree.nodes:
-        if isinstance(t.inst, vmov_gpr):
-            slothy._Add( t.cycle_start_var != 0 )
-            print("Add vmov constr")
 
 
 def add_slot_constraints(slothy):
