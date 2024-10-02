@@ -19,7 +19,7 @@ jobs:
         ./venv/bin/python3 -m pip install -r requirements.txt
         echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
     - name: Install llvm
-      run: sudo apt-get install -y llvm-14
+      run: sudo apt-get install -y llvm
     - name: Run examples
       run: |
         python3 example.py --dry-run
