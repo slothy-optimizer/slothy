@@ -841,6 +841,11 @@ class uadd16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid
     pattern = "uadd16<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+    
+class sadd16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "sadd16<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
 
 # Subtraction
 class sub(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
@@ -869,6 +874,11 @@ class subs_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring
 
 class usub16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "usub16<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
+    
+class ssub16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ssub16<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
@@ -910,6 +920,11 @@ class smultb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-
 
 class smlabt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlabt<width> <Rd>, <Ra>, <Rb>, <Rc>"
+    inputs = ["Ra","Rb", "Rc"]
+    outputs = ["Rd"]
+    
+class smlatt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smlatt<width> <Rd>, <Ra>, <Rb>, <Rc>"
     inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
 
@@ -1027,6 +1042,11 @@ class pkhtb(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     outputs = ["Rd"]
 
 class pkhbt(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "pkhbt<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
+
+class pkhbt_shifted(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "pkhbt<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
