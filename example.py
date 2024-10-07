@@ -1483,6 +1483,31 @@ class ExampleKyber(Example):
         # ldrd_with_postinc
         slothy.optimize(start="layer1234_start", end="layer1234_end")
         slothy.optimize(start="layer567_start", end="layer567_end")
+        
+class intt_dilithium_123_456_78(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "intt_dilithium_123_456_78"
+        infile = name
+        funcname = "pqcrystals_dilithium_invntt_tomont"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "r10"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.optimize(start="layer123_start", end="layer123_end")
+        slothy.optimize(start="layer456_first_start", end="layer456_first_end")
+        slothy.optimize(start="layer456_start", end="layer456_end")
+        
+        slothy.config.outputs = ["r14", "r4"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="layer78_start", end="layer78_end")
 
 def main():
     examples = [ ExampleDilithium(),
@@ -1626,11 +1651,13 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
+                 # M7
+                 ExampleDummy(),
+                 ExampleKeccak(var="old"),
+                 ExampleKeccak(var="m7"),
+                 ExampleKeccak(var="part"),
                  
-                  ExampleDummy(),
-                  ExampleKeccak(var="old"),
-                  ExampleKeccak(var="m7"),
-                  ExampleKeccak(var="part")
+                 intt_dilithium_123_456_78()
                  ]
 
     all_example_names = [e.name for e in examples]

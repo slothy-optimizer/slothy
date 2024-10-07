@@ -1036,6 +1036,18 @@ class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-d
         return obj
 
 # Store
+
+class str_no_off(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "str<width> <Rd>, [<Ra>]"
+    inputs = ["Ra", "Rd"]
+    outputs = []
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.addr = obj.args_in[0]
+        return obj
+
 class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra", "Rd"]
