@@ -1547,6 +1547,85 @@ class pointwise_acc_montgomery_dilithium(Example):
 
         slothy.optimize(start="pointwise_montgomery_acc_start", end="pointwise_montgomery_acc_end")
 
+class fnt_257_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "fnt_257_dilithium"
+        infile = name
+        funcname = "__asm_fnt_257"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.optimize(start="_fnt_0_1_2_start", end="_fnt_0_1_2_end")
+        slothy.optimize(start="_fnt_3_4_5_6_start", end="_fnt_3_4_5_6_end")
+        slothy.optimize(start="_fnt_to_16_bit_start", end="_fnt_to_16_bit_end")
+        
+class ifnt_257_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "ifnt_257_dilithium"
+        infile = name
+        funcname = "__asm_ifnt_257"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "s1", "r12"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.optimize(start="_ifnt_7_6_5_4_start", end="_ifnt_7_6_5_4_end")
+        slothy.optimize(start="_ifnt_0_1_2_start", end="_ifnt_0_1_2_end")
+        
+class basemul_257_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_257_dilithium"
+        infile = name
+        funcname = "__asm_point_mul_257_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.optimize(start="_point_mul_16_loop_start", end="_point_mul_16_loop_end")
+        
+class basemul_257_asymmetric_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_257_asymmetric_dilithium"
+        infile = name
+        funcname = "__asm_asymmetric_mul_257_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.optimize(start="_asymmetric_mul_16_loop_start", end="_asymmetric_mul_16_loop_end")
+
 def main():
     examples = [ ExampleDilithium(),
                  ExampleKyber(),
@@ -1697,7 +1776,11 @@ def main():
                  
                  intt_dilithium_123_456_78(),
                  pointwise_montgomery_dilithium(),
-                 pointwise_acc_montgomery_dilithium()
+                 pointwise_acc_montgomery_dilithium(),
+                 fnt_257_dilithium(),
+                 ifnt_257_dilithium(),
+                 basemul_257_dilithium(),
+                 basemul_257_asymmetric_dilithium()
                  ]
 
     all_example_names = [e.name for e in examples]
