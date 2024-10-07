@@ -1425,10 +1425,10 @@ class fft_floatingpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
-
-class ExampleDilithium(Example):
+#############################################################################################        
+class ntt_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
-        name = f"dilithium5_ntt"
+        name = f"ntt_dilithium"
         infile = name
         funcname = "pqcrystals_dilithium_ntt"
 
@@ -1449,10 +1449,9 @@ class ExampleDilithium(Example):
         slothy.config.variable_size = True
 
         slothy.optimize(start="layer123_start", end="layer123_end")
-        # slothy.optimize(start="layer456_start", end="layer456_end")
-        # slothy.optimize(start="layer78_start", end="layer78_end")
-        slothy.rename_function("pqcrystals_dilithium_invntt_tomont", "pqcrystals_dilithium_invntt_tomont2")
-#############################################################################################        
+        slothy.optimize(start="layer456_start", end="layer456_end")
+        slothy.optimize(start="layer78_start", end="layer78_end")
+
 class intt_dilithium_123_456_78(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "intt_dilithium_123_456_78"
@@ -1966,8 +1965,7 @@ class fromplant_kyber(Example):
         slothy.optimize(start="asm_fromplant_loop_start", end="asm_fromplant_loop_end")
 
 def main():
-    examples = [ ExampleDilithium(),
-
+    examples = [ 
                  Example0(),
                  Example1(),
                  Example2(),
@@ -2112,6 +2110,7 @@ def main():
                  ExampleKeccak(var="m7"),
                  ExampleKeccak(var="part"),
                  
+                 ntt_dilithium(),
                  intt_dilithium_123_456_78(),
                  pointwise_montgomery_dilithium(),
                  pointwise_acc_montgomery_dilithium(),
