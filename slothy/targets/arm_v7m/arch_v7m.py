@@ -848,6 +848,11 @@ class sub_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,inva
 class sub_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sub<width> <Ra>, <imm>"
     in_outs = ["Ra"]
+    
+class subs_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "subs<width> <Ra>, <imm>"
+    in_outs = ["Ra"]
+    modifiesFlags = True
 
 class usub16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "usub16<width> <Rd>, <Ra>, <Rb>"
