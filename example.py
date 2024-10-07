@@ -1452,38 +1452,7 @@ class ExampleDilithium(Example):
         # slothy.optimize(start="layer456_start", end="layer456_end")
         # slothy.optimize(start="layer78_start", end="layer78_end")
         slothy.rename_function("pqcrystals_dilithium_invntt_tomont", "pqcrystals_dilithium_invntt_tomont2")
-#############################################################################################
-
-class ExampleKyber(Example):
-    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
-        name = f"kyber_ntt"
-        infile = name
-        funcname = "ntt_fast"
-
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        name += f"_{target_label_dict[target]}"
-
-        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
-
-    def core(self, slothy):
-        slothy.config.outputs = ["r0", "r14"]
-        slothy.config.inputs_are_outputs = True
-
-        # TODO: need to add uArch models for
-        # vmov_gpr2
-        # movw_imm
-        # uadd16
-        # usub16
-        # smulwb
-        # smulwt
-        # smlabt
-        # pkhtb
-        # ldrd_with_postinc
-        slothy.optimize(start="layer1234_start", end="layer1234_end")
-        slothy.optimize(start="layer567_start", end="layer567_end")
-        
+#############################################################################################        
 class intt_dilithium_123_456_78(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "intt_dilithium_123_456_78"
@@ -1759,10 +1728,119 @@ class caddq_dilithium(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="caddq_start", end="caddq_end")
+        
+class ntt_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"ntt_kyber"
+        infile = name
+        funcname = "ntt_fast"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r0", "r14"]
+        slothy.config.inputs_are_outputs = True
+
+        # TODO: need to add uArch models for
+        # vmov_gpr2
+        # movw_imm
+        # uadd16
+        # usub16
+        # smulwb
+        # smulwt
+        # smlabt
+        # pkhtb
+        # ldrd_with_postinc
+        slothy.optimize(start="layer1234_start", end="layer1234_end")
+        slothy.optimize(start="layer567_start", end="layer567_end")
+        
+class intt_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "intt_kyber"
+        infile = name
+        funcname = "invntt_fast"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "s8"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="layer1234_loop_start", end="layer1234_loop_end")
+        
+        slothy.config.outputs = ["r14", "r0", "r10"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="layer567_first_start", end="layer567_first_end")
+        
+        slothy.config.outputs = ["r14", "s14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="layer567_loop_start", end="layer567_loop_end")
+        
+class basemul_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_16_32_kyber"
+        infile = name
+        funcname = "basemul_asm_opt_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="basemul_asm_opt_16_32_loop_start", end="basemul_asm_opt_16_32_loop_end")
+        
+class basemul_acc_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_32_32_kyber"
+        infile = name
+        funcname = "basemul_asm_acc_opt_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="basemul_asm_opt_32_32_loop_start", end="basemul_asm_opt_32_32_loop_end")
+        
+class basemul_acc_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_32_16_kyber"
+        infile = name
+        funcname = "basemul_asm_acc_opt_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="basemul_asm_acc_opt_32_16_loop_start", end="basemul_asm_acc_opt_32_16_loop_end")
 
 def main():
     examples = [ ExampleDilithium(),
-                 ExampleKyber(),
 
                  Example0(),
                  Example1(),
@@ -1922,6 +2000,12 @@ def main():
                  reduce32_dilithium(),
                  reduce32_central_dilithium(),
                  caddq_dilithium(),
+                 
+                 ntt_kyber(),
+                 intt_kyber(),
+                 basemul_16_32_kyber(),
+                 basemul_acc_32_32_kyber(),
+                 basemul_acc_32_16_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]

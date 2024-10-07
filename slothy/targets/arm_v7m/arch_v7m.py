@@ -805,6 +805,10 @@ class vmov_gpr2_dual(Armv7mFPInstruction): # pylint: disable=missing-docstring,i
 class movw_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "movw <Rd>, <imm>"
     outputs = ["Rd"]
+    
+class movt_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "movt <Rd>, <imm>"
+    in_outs = ["Rd"]
 
 # Addition
 class add(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
@@ -937,6 +941,16 @@ class smlal(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-n
     pattern = "smlal<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rc","Rd"]
     in_outs = ["Ra", "Rb"]
+
+class smlad(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smlad<width> <Ra>, <Rb>, <Rc>, <Rd>"
+    inputs = ["Rb", "Rc","Rd"]
+    outputs = ["Ra"]
+    
+class smladx(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smladx<width> <Ra>, <Rb>, <Rc>, <Rd>"
+    inputs = ["Rb", "Rc","Rd"]
+    outputs = ["Ra"]
 
 class smmulr(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smmulr<width> <Ra>, <Rb>, <Rc>"
