@@ -964,6 +964,11 @@ class log_and(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "and<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
+    
+class log_and_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "and<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
 
 class log_or(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "orr<width> <Rd>, <Ra>, <Rb>"

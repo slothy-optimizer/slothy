@@ -1741,6 +1741,24 @@ class reduce32_central_dilithium(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="reduce32_central_start", end="reduce32_central_end")
+        
+class caddq_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "caddq_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_asm_caddq"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="caddq_start", end="caddq_end")
 
 def main():
     examples = [ ExampleDilithium(),
@@ -1903,6 +1921,7 @@ def main():
                  pointwise_769_asymmetric_dilithium(),
                  reduce32_dilithium(),
                  reduce32_central_dilithium(),
+                 caddq_dilithium(),
                  ]
 
     all_example_names = [e.name for e in examples]
