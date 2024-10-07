@@ -1839,6 +1839,60 @@ class basemul_acc_32_16_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="basemul_asm_acc_opt_32_16_loop_start", end="basemul_asm_acc_opt_32_16_loop_end")
 
+class frombytes_mul_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_16_32_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="frombytes_mul_asm_16_32_loop_start", end="frombytes_mul_asm_16_32_loop_end")
+        
+class frombytes_mul_acc_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_32_32_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="frombytes_mul_asm_acc_32_32_loop_start", end="frombytes_mul_asm_acc_32_32_loop_end")
+        
+class frombytes_mul_acc_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_32_16_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "s2"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="frombytes_mul_asm_acc_32_16_loop_start", end="frombytes_mul_asm_acc_32_16_loop_end")
+
 def main():
     examples = [ ExampleDilithium(),
 
@@ -2006,6 +2060,9 @@ def main():
                  basemul_16_32_kyber(),
                  basemul_acc_32_32_kyber(),
                  basemul_acc_32_16_kyber(),
+                 frombytes_mul_16_32_kyber(),
+                 frombytes_mul_acc_32_32_kyber(),
+                 frombytes_mul_acc_32_16_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]

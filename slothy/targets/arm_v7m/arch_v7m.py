@@ -921,9 +921,19 @@ class smultb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-
     pattern = "smultb<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+    
+class smultt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smultt<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
 
 class smlabt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlabt<width> <Rd>, <Ra>, <Rb>, <Rc>"
+    inputs = ["Ra","Rb", "Rc"]
+    outputs = ["Rd"]
+    
+class smlabb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smlabb<width> <Rd>, <Ra>, <Rb>, <Rc>"
     inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
     
@@ -988,6 +998,11 @@ class log_or(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "orr<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
+    
+class log_or_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "orr<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
 
 class eor(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "eor<width> <Rd>, <Ra>, <Rb>"
@@ -1034,6 +1049,11 @@ class bics(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
 class bic_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "bic<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
+
+class ubfx_imm(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ubfx<width> <Rd>, <Ra>, <imm0>, <imm1>"
+    inputs = ["Ra"]
     outputs = ["Rd"]
 
 class ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
@@ -1101,6 +1121,30 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
         obj.addr = obj.args_in[0]
         return obj
 
+class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldrb<width> <Rd>, [<Ra>, <imm>]"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+    
+class ldrh_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldrh<width> <Rd>, [<Ra>, <imm>]"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
 class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [sp, <imm>]"
     inputs = []
@@ -1115,6 +1159,18 @@ class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docst
 
 class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>], <imm>"
+    in_outs = ["Ra"]
+    outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+    
+class ldrh_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldrh<width> <Rd>, [<Ra>], <imm>"
     in_outs = ["Ra"]
     outputs = ["Rd"]
     @classmethod
