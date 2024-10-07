@@ -1928,6 +1928,42 @@ class sub_kyber(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="pointwise_sub_loop_start", end="pointwise_sub_loop_end")
+        
+class barrett_reduce_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "barrett_reduce_kyber"
+        infile = name
+        funcname = "asm_barrett_reduce"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r9"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="asm_barrett_reduce_loop_start", end="asm_barrett_reduce_loop_end")
+        
+class fromplant_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "fromplant_kyber"
+        infile = name
+        funcname = "asm_fromplant"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r9"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="asm_fromplant_loop_start", end="asm_fromplant_loop_end")
 
 def main():
     examples = [ ExampleDilithium(),
@@ -2100,7 +2136,9 @@ def main():
                  frombytes_mul_acc_32_32_kyber(),
                  frombytes_mul_acc_32_16_kyber(),
                  add_kyber(),
-                 sub_kyber()
+                 sub_kyber(),
+                 barrett_reduce_kyber(),
+                 fromplant_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]

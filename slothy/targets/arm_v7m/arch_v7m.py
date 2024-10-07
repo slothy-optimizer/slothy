@@ -926,6 +926,11 @@ class smultt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-
     pattern = "smultt<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+    
+class smulbb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smulbb<width> <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra","Rb"]
+    outputs = ["Rd"]
 
 class smlabt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlabt<width> <Rd>, <Ra>, <Rb>, <Rc>"
@@ -1075,6 +1080,11 @@ class lsl(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra"]
     outputs = ["Rd"]
 
+class asr(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "asr<width> <Rd>, <Ra>, <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+
 class asrs(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "asrs<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
@@ -1203,6 +1213,16 @@ class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-d
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in_out[0]
+        return obj
+
+class ldm_interval(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldm<width> <Ra>, <range>"
+    in_outs = ["Ra"]
+    outputs = []
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.outputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
         return obj
 
 class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
