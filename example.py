@@ -1706,6 +1706,42 @@ class pointwise_769_asymmetric_dilithium(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="_asymmetric_mul_16_loop_start", end="_asymmetric_mul_16_loop_end")
 
+class reduce32_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "reduce32_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_asm_reduce32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="reduce32_start", end="reduce32_end")
+        
+class reduce32_central_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "reduce32_central_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_small_asm_reduce32_central"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="reduce32_central_start", end="reduce32_central_end")
+
 def main():
     examples = [ ExampleDilithium(),
                  ExampleKyber(),
@@ -1864,7 +1900,9 @@ def main():
                  ntt_769_dilithium(),
                  intt_769_dilithium(),
                  pointwise_769_dilithium(),
-                 pointwise_769_asymmetric_dilithium()
+                 pointwise_769_asymmetric_dilithium(),
+                 reduce32_dilithium(),
+                 reduce32_central_dilithium(),
                  ]
 
     all_example_names = [e.name for e in examples]

@@ -1036,6 +1036,12 @@ class lsl(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra"]
     outputs = ["Rd"]
 
+class asrs(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+    pattern = "asrs<width> <Rd>, <Ra>, <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    modifiesFlags = True
+
 class pkhtb(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "pkhtb<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
