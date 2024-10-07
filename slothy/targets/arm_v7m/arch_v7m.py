@@ -1232,6 +1232,7 @@ class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
         obj.outputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
         return obj
 
@@ -1242,6 +1243,7 @@ class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=miss
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
         obj.outputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
         return obj
 # Store
@@ -1324,6 +1326,7 @@ class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
         obj.inputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
         return obj
 # Other
