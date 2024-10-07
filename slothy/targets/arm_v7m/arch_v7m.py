@@ -1205,6 +1205,16 @@ class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-d
         obj.addr = obj.args_in_out[0]
         return obj
 
+class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldm<width> <Ra>!, <range>"
+    in_outs = ["Ra"]
+    outputs = []
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.outputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        return obj
+
 class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vldm<width> <Ra>!, <range>"
     in_outs = ["Ra"]
@@ -1287,6 +1297,15 @@ class strh_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docst
         obj.addr = obj.args_in_out[0]
         return obj
 
+class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "stm<width> <Ra>!, <range>"
+    in_outs = ["Ra"]
+    outputs = []
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.inputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        return obj
 # Other
 class cmp(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "cmp<width> <Ra>, <Rb>"
