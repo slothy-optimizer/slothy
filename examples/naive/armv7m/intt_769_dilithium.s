@@ -37,7 +37,7 @@
 	smulwt \a,   \twiddle, \a
 	smlabt \tmp, \tmp, \q, \qa
 	smlabt \a, \a, \q, \qa
-	pkhtb \a, \a, \tmp, asr#16
+	pkhtb \a, \a, \tmp, asr #16
 .endm
 
 .macro doublebutterfly_plant a0, a1, twiddle, tmp, q, qa
@@ -45,7 +45,7 @@
 	smulwt \a1, \twiddle, \a1
 	smlabt \tmp, \tmp, \q, \qa
 	smlabt \a1, \a1, \q, \qa
-	pkhtb \tmp, \a1, \tmp, asr#16
+	pkhtb \tmp, \a1, \tmp, asr #16
 	usub16 \a1, \a0, \tmp
 	uadd16 \a0, \a0, \tmp
 .endm
@@ -105,7 +105,7 @@
 	smulwt \c2,  \twiddle1, \c2
 	smlabt \tmp, \tmp, \q, \qa
 	smlabt \c2, \c2, \q, \qa
-	pkhtb \tmp, \c2, \tmp, asr#16
+	pkhtb \tmp, \c2, \tmp, asr #16
 	ssub16.w \c6, \tmp2, \tmp 
 	sadd16.w \c2, \tmp2, \tmp
 	//c6, c2: 4.5q

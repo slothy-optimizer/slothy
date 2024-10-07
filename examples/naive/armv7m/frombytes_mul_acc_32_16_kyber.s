@@ -20,7 +20,7 @@
   smladx \res0, \poly0, \poly1, \res0
   plant_red \q, \qa, \qinv, \res0
 
-  pkhtb \res0, \res0, \tmp, asr#16
+  pkhtb \res0, \res0, \tmp, asr #16
   str \res0, [\rptr], #4
 
   neg \zeta, \zeta
@@ -38,7 +38,7 @@
   smladx \res0, \poly0, \poly3, \res0
   plant_red \q, \qa, \qinv, \res0
 
-  pkhtb \res0, \res0, \tmp, asr#16
+  pkhtb \res0, \res0, \tmp, asr #16
   str \res0, [\rptr], #4
 .endm 
 

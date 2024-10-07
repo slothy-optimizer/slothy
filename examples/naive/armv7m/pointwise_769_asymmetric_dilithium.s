@@ -52,7 +52,7 @@ small_asymmetric_mul_asm_769:
     smuadx r5, r4, r5
     plant_red r12, r14, r11, r5
 
-    pkhtb r5, r5, r6, asr#16
+    pkhtb r5, r5, r6, asr #16
     str.w r5, [r0], #width
 
 	smuad r6, r7, r9
@@ -60,7 +60,7 @@ small_asymmetric_mul_asm_769:
     smuadx r8, r7, r8
     plant_red r12, r14, r11, r8
 
-    pkhtb r8, r8, r6, asr#16
+    pkhtb r8, r8, r6, asr #16
     str.w r8, [r0], #width
     _asymmetric_mul_16_loop_end:
     cmp.w r0, r10

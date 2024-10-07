@@ -57,7 +57,7 @@ basemul_asm_acc_opt_32_16:
     smladx res1, poly0, poly1, res1
     plant_red q, qa, qinv, res1
 
-    pkhtb res0, res1, res0, asr#16
+    pkhtb res0, res1, res0, asr #16
     str res0, [rptr], #4
 
     ldr poly0, [aptr], #4
@@ -72,7 +72,7 @@ basemul_asm_acc_opt_32_16:
     smladx res1, poly0, poly1, res1
     plant_red q, qa, qinv, res1
 
-    pkhtb res0, res1, res0, asr#16
+    pkhtb res0, res1, res0, asr #16
     str res0, [rptr], #4
 
     subs.w loop, #1
