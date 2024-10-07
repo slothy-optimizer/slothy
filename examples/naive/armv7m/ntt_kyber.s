@@ -36,7 +36,7 @@
 	smulwt \a, \plantconst, \a
 	smlabt \tmp, \tmp, \q, \qa
 	smlabt \a, \a, \q, \qa
-	pkhtb \a, \a, \tmp, asr#16
+	pkhtb \a, \a, \tmp, asr #16
 .endm
 
 .macro doublebarrett a, tmp, tmp2, q, barrettconst
@@ -46,7 +46,7 @@
   asr \tmp2, \tmp2, #26
   smulbb \tmp, \tmp, \q
   smulbb \tmp2, \tmp2, \q
-  pkhbt \tmp, \tmp, \tmp2, lsl#16
+  pkhbt \tmp, \tmp, \tmp2, lsl #16
   usub16 \a, \a, \tmp
 .endm
 
@@ -63,7 +63,7 @@
 	smulwt \a,   \twiddle, \a
 	smlabt \tmp, \tmp, \q, \qa
 	smlabt \a, \a, \q, \qa
-	pkhtb \a, \a, \tmp, asr#16
+	pkhtb \a, \a, \tmp, asr #16
 .endm
 
 .macro doublebutterfly_plant a0, a1, twiddle, tmp, q, qa
@@ -71,7 +71,7 @@
 	smulwt \a1, \twiddle, \a1
 	smlabt \tmp, \tmp, \q, \qa
 	smlabt \a1, \a1, \q, \qa
-	pkhtb \tmp, \a1, \tmp, asr#16
+	pkhtb \tmp, \a1, \tmp, asr #16
 	usub16 \a1, \a0, \tmp
 	uadd16 \a0, \a0, \tmp
 .endm
