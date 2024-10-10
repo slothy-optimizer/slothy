@@ -11,7 +11,7 @@
 .type pqcrystals_dilithium_asm_caddq, %function
 .align 2
 pqcrystals_dilithium_asm_caddq:
-    push {r4-r10}
+    push {r4-r11}
 
     movw r12,#:lower16:8380417
     movt r12,#:upper16:8380417
@@ -49,6 +49,5 @@ pqcrystals_dilithium_asm_caddq:
     caddq_end:
         bne.w 1b
 
-    pop {r4-r10}
+    pop {r4-r11}
     bx lr
-.size pqcrystals_dilithium_asm_caddq, .-pqcrystals_dilithium_asm_caddq

@@ -11,7 +11,7 @@
 .type pqcrystals_dilithium_asm_reduce32, %function
 .align 2
 pqcrystals_dilithium_asm_reduce32:
-    push {r4-r10}
+    push {r4-r11, r14}
 
     movw r12,#:lower16:8380417
     movt r12,#:upper16:8380417
@@ -48,6 +48,5 @@ pqcrystals_dilithium_asm_reduce32:
     reduce32_end:
         bne.w 1b
 
-    pop {r4-r10}
+    pop {r4-r11, r14}
     bx lr
-.size pqcrystals_dilithium_asm_reduce32, .-pqcrystals_dilithium_asm_reduce32

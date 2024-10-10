@@ -269,8 +269,6 @@ layer123_end:
     cmp.w ptr_p, temp_l
     bne 1b
   
-  pop {R4-R11, PC}
-
   sub ptr_p, #32*4
 
   // stage 4 - 6  
@@ -320,7 +318,8 @@ layer456_end:
     vmov ptr_zeta, s0
     //stage 7 and 8
     add cntr, ptr_p, #1024 // 64 iterations
-    1:
+
+    layer78_loop:
 layer78_start:
       ldr.w zeta1, [ptr_zeta, #4]  //z128,..., z254
       ldr.w zeta2, [ptr_zeta, #8]  //z129,..., z255
@@ -338,7 +337,7 @@ layer78_start:
       str pol0, [ptr_p], #16
 layer78_end:
       cmp.w cntr, ptr_p
-      bne.w 1b
+      bne.w layer78_loop
 
     //restore registers
     pop {R4-R11, PC}

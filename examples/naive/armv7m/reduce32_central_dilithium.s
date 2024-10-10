@@ -53,5 +53,3 @@ pqcrystals_dilithium_small_asm_reduce32_central:
         bne.w 1b
 
     pop {r4-r12, pc}
-
-.size pqcrystals_dilithium_small_asm_reduce32_central, .-pqcrystals_dilithium_small_asm_reduce32_central
