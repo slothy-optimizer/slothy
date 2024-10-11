@@ -367,12 +367,11 @@ class Slothy:
         """Run fusion callbacks on loop body"""
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
-        pre , body, post, _, other_data = \
+        pre , body, post, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl)
-        (loop_cnt, _, _) = other_data
+        loop_cnt = other_data['cnt']
         indentation = AsmHelper.find_indentation(body)
 
-        loop = self.arch.Loop(lbl_start=loop_lbl)
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
             SourceLine.apply_indentation(self._fusion_core(pre, body, logger), indentation) + \
             SourceLine.read_multiline(loop.end(other_data))
@@ -398,9 +397,9 @@ class Slothy:
 
         logger = self.logger.getChild(loop_lbl)
 
-        early, body, late, _, other_data = \
+        early, body, late, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl)
-        (loop_cnt, _, _) = other_data
+        loop_cnt = other_data['cnt']
 
         # Check if the body has a dominant indentation
         indentation = AsmHelper.find_indentation(body)
@@ -464,7 +463,6 @@ class Slothy:
             for i in range(1, num_exceptional):
                 optimized_code += indented(self.arch.Branch.if_equal(loop_cnt, i, loop_lbl_iter(i)))
 
-        loop = self.arch.Loop(lbl_start=loop_lbl)
         optimized_code += indented(preamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:
