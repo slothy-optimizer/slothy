@@ -11,6 +11,11 @@
 *
 * @date     September 2022
 ******************************************************************************/
+.syntax unified
+.cpu cortex-m4
+.thumb
+
+
 .macro load a, a0, a1, a2, a3, mem0, mem1, mem2, mem3
   ldr.w \a0, [\a, \mem0]
   ldr.w \a1, [\a, \mem1]

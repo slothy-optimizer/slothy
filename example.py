@@ -1787,6 +1787,11 @@ class intt_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
+
+        slothy.config.variable_size = True
+        # TODO: optimize without functional_only
+        slothy.config.constraints.functional_only = True
+         
         slothy.config.outputs = ["r14", "s8"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="layer1234_loop_start", end="layer1234_loop_end")
@@ -1921,6 +1926,7 @@ class add_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
+        slothy.config.variable_size = True
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="pointwise_add_loop_start", end="pointwise_add_loop_end")
