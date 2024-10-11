@@ -1217,34 +1217,70 @@ class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-d
 
 class ldm_interval(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldm<width> <Ra>, <range>"
-    in_outs = ["Ra"]
+    inputs = ["Ra"]
     outputs = []
+
+    def write(self):
+        reg_from = self.args_out[0]
+        reg_to = self.args_out[-1]
+        self.range = f"{{{reg_from}-{reg_to}}}"
+        return super().write()
+
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
-        obj.outputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
+        obj.args_out =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        obj.num_out = len(obj.args_out)
+        obj.arg_types_out = [RegisterType.GPR] * obj.num_out
+        obj.args_out_restrictions    = [[ f"r{i+j}"  for j in range(0, 14-obj.num_out)] for i in range(0, obj.num_out) ]
+        obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"r{i+j}" for i in range(0, obj.num_out)] for j in range(0, 14-obj.num_out) ] )]
         return obj
 
 class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldm<width> <Ra>!, <range>"
     in_outs = ["Ra"]
     outputs = []
+
+    def write(self):
+        reg_from = self.args_out[0]
+        reg_to = self.args_out[-1]
+        self.range = f"{{{reg_from}-{reg_to}}}"
+        return super().write()
+
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
-        obj.outputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        obj.args_out =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        obj.num_out = len(obj.args_out)
+        obj.arg_types_out = [RegisterType.GPR] * obj.num_out
+        obj.args_out_restrictions    = [[ f"r{i+j}"  for j in range(0, 14-obj.num_out)] for i in range(0, obj.num_out) ]
+        obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"r{i+j}" for i in range(0, obj.num_out)] for j in range(0, 14-obj.num_out) ] )]
         return obj
 
 class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vldm<width> <Ra>!, <range>"
     in_outs = ["Ra"]
     outputs = []
+    def write(self):
+        reg_from = self.args_out[0]
+        reg_to = self.args_out[-1]
+        self.range = f"{{{reg_from}-{reg_to}}}"
+        return super().write()
+
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
-        obj.outputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        obj.args_out =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        obj.num_out = len(obj.args_out)
+        obj.arg_types_out = [RegisterType.GPR] * obj.num_out
+        obj.args_out_restrictions    = [[ f"r{i+j}"  for j in range(0, 14-obj.num_out)] for i in range(0, obj.num_out) ]
+        obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"r{i+j}" for i in range(0, obj.num_out)] for j in range(0, 14-obj.num_out) ] )]
         return obj
 # Store
 
@@ -1323,11 +1359,22 @@ class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
     pattern = "stm<width> <Ra>!, <range>"
     in_outs = ["Ra"]
     outputs = []
+
+    def write(self):
+        reg_from = self.args_in[0]
+        reg_to = self.args_in[-1]
+        self.range = f"{{{reg_from}-{reg_to}}}"
+        return super().write()
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
-        obj.inputs += [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        obj.args_in =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        obj.num_in = len(obj.args_in)
+        obj.arg_types_in = [RegisterType.GPR] * obj.num_in
+        obj.args_in_restrictions    = [[ f"r{i+j}"  for j in range(0, 14-obj.num_in)] for i in range(0, obj.num_in) ]
+        obj.args_in_combinations = [ ( list(range(0, obj.num_in)), [ [ f"r{i+j}" for i in range(0, obj.num_in)] for j in range(0, 14-obj.num_in) ] )]
         return obj
 # Other
 class cmp(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
