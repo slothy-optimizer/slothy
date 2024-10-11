@@ -1757,22 +1757,22 @@ class ntt_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r0", "r14"]
+        slothy.config.outputs = ["r14", "s23"]
+        slothy.config.reserved_regs = ["r1", "r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
         slothy.config.inputs_are_outputs = True
-
-        # TODO: need to add uArch models for
-        # vmov_gpr2
-        # movw_imm
-        # uadd16
-        # usub16
-        # smulwb
-        # smulwt
-        # smlabt
-        # pkhtb
-        # ldrd_with_postinc
-        slothy.optimize(start="layer1234_start", end="layer1234_end")
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 4
         slothy.optimize(start="layer567_start", end="layer567_end")
         
+        # TODO: try having heuristic
+        slothy.config.constraints.stalls_first_attempt = 0
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.15
+        # TODO: run with more repeats
+        slothy.config.split_heuristic_repeat = 1
+        slothy.optimize(start="layer1234_start", end="layer1234_end")
+
 class intt_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "intt_kyber"

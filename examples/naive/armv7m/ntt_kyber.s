@@ -11,8 +11,6 @@
 *
 * @date     September 2022
 ******************************************************************************/
-#include "macros.i"
-
 .syntax unified
 .cpu cortex-m4
 .thumb
@@ -301,9 +299,10 @@ ntt_fast:
 		str.w poly2, [poly, #2*distance/4]
 		str.w poly3, [poly, #3*distance/4]
 		str.w poly0, [poly], #strincr
-
+	
 	vmov tmp, s13
 	layer567_end:
+	
 	cmp.w poly, tmp
 	bne.w 2b
 	vpop.w {s16-s24}
