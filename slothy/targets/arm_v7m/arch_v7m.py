@@ -1279,8 +1279,8 @@ class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=miss
         obj.args_out =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
         obj.num_out = len(obj.args_out)
         obj.arg_types_out = [RegisterType.GPR] * obj.num_out
-        obj.args_out_restrictions    = [[ f"r{i+j}"  for j in range(0, 14-obj.num_out)] for i in range(0, obj.num_out) ]
-        obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"r{i+j}" for i in range(0, obj.num_out)] for j in range(0, 14-obj.num_out) ] )]
+        obj.args_out_restrictions    = [[ f"s{i+j}"  for j in range(0, 14-obj.num_out)] for i in range(0, obj.num_out) ]
+        obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"s{i+j}" for i in range(0, obj.num_out)] for j in range(0, 14-obj.num_out) ] )]
         return obj
 # Store
 
