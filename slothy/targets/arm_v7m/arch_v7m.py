@@ -94,7 +94,7 @@ class RegisterType(Enum):
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
         # r13 is the stack pointer
-        return set(["flags", "r13", "lr"] + RegisterType.list_registers(RegisterType.HINT))
+        return set(["flags", "r13"] + RegisterType.list_registers(RegisterType.HINT))
 
     @staticmethod
     def default_aliases():

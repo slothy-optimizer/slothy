@@ -1965,6 +1965,8 @@ class barrett_reduce_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r9"]
         slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 64
         slothy.optimize(start="asm_barrett_reduce_loop_start", end="asm_barrett_reduce_loop_end")
         
 class fromplant_kyber(Example):
@@ -1983,6 +1985,10 @@ class fromplant_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r9"]
         slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 64
+        # TODO: get to work without functional only
+        slothy.config.constraints.functional_only = True
         slothy.optimize(start="asm_fromplant_loop_start", end="asm_fromplant_loop_end")
 
 def main():

@@ -92,4 +92,3 @@ frombytes_mul_asm_acc_32_32:
     bne.w 1b
 
 pop {r4-r11, pc}
-.size frombytes_mul_asm_acc_32_32, . - frombytes_mul_asm_acc_32_32

@@ -1,3 +1,7 @@
+.syntax unified
+.cpu cortex-m4
+.thumb
+
 // q locate in the top half of the register
 .macro plant_red q, qa, qinv, tmp
 	mul \tmp, \tmp, \qinv     
@@ -107,4 +111,3 @@ frombytes_mul_asm_acc_32_16:
     bne.w 1b
 
 pop {r4-r11, pc}
-.size frombytes_mul_asm_acc_32_16, . - frombytes_mul_asm_acc_32_16
