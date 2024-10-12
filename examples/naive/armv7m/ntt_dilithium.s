@@ -318,7 +318,7 @@ layer456_end:
     add cntr, ptr_p, #1024 // 64 iterations
 
     layer78_loop:
-// layer78_start:
+layer78_start:
       ldr.w zeta1, [ptr_zeta, #4]  //z128,..., z254
       ldr.w zeta2, [ptr_zeta, #8]  //z129,..., z255
       ldr zeta0, [ptr_zeta], #12  //z64, ..., z127
@@ -333,7 +333,7 @@ layer456_end:
       str.w pol2, [ptr_p, #8]
       str.w pol3, [ptr_p, #12]
       str pol0, [ptr_p], #16
-// layer78_end:
+layer78_end:
       cmp.w cntr, ptr_p
       bne.w layer78_loop
 
