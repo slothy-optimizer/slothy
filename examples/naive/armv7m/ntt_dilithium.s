@@ -282,7 +282,6 @@ layer123_end:
     vldm ptr_zeta!, {s2-s8}
     vmov s0, ptr_zeta
     2:
-      .rept 2
 layer456_start:
       ldr.w pol0, [ptr_p]
       ldr.w pol1, [ptr_p, #1*distance/4]
@@ -304,7 +303,6 @@ layer456_start:
       str.w pol7, [ptr_p, #7*distance/4]
       str pol0, [ptr_p], #4
 layer456_end:
-      .endr
       vmov temp_l, s10
       cmp.w ptr_p, temp_l
       bne 2b
@@ -320,7 +318,7 @@ layer456_end:
     add cntr, ptr_p, #1024 // 64 iterations
 
     layer78_loop:
-layer78_start:
+// layer78_start:
       ldr.w zeta1, [ptr_zeta, #4]  //z128,..., z254
       ldr.w zeta2, [ptr_zeta, #8]  //z129,..., z255
       ldr zeta0, [ptr_zeta], #12  //z64, ..., z127
@@ -335,7 +333,7 @@ layer78_start:
       str.w pol2, [ptr_p, #8]
       str.w pol3, [ptr_p, #12]
       str pol0, [ptr_p], #16
-layer78_end:
+// layer78_end:
       cmp.w cntr, ptr_p
       bne.w layer78_loop
 
