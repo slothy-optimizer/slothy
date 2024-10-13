@@ -5,6 +5,7 @@ import math
 from enum import Enum
 from functools import cache
 
+from slothy.helper import SourceLine
 from sympy import simplify
 
 llvm_mca_arch = "arm"  # TODO
@@ -1395,6 +1396,73 @@ class cmp_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invali
     pattern = "cmp<width> <Ra>, <imm>"
     inputs = ["Ra"]
     modifiesFlags=True
+    
+def ldm_interval_splitting_cb():
+    def core(inst,t,log=None):
+
+        ptr = inst.args_in[0]
+        regs = inst.args_out
+        width = inst.width
+        
+        ldrs = []
+        offset = 0
+        for r in regs:
+            ldr = Armv7mInstruction.build(
+                ldr_with_imm, {"width": width, "Rd": r, "Ra": ptr, "imm": f"#{offset}"})
+            ldrs.append(ldr)
+            offset += 4
+
+            ldr_src = SourceLine(ldr.write()).\
+                add_tags(inst.source_line.tags).\
+                add_comments(inst.source_line.comments)
+            ldr.source_line = ldr_src
+
+        if log is not None:
+            log(f"ldm splitting: {t.inst}; {[ldr for ldr in ldrs]}")
+
+        t.changed = True
+        t.inst = ldrs
+        return True
+
+    return core
+
+ldm_interval.global_fusion_cb  = ldm_interval_splitting_cb()
+
+def stm_interval_inc_writeback_splitting_cb():
+    def core(inst,t,log=None):
+
+        ptr = inst.args_in_out[0]
+        regs = inst.args_in
+        width = inst.width
+        
+        strs = []
+        offset = (len(regs) - 1) * 4
+        for r in regs[:0:-1]:
+            store = Armv7mInstruction.build(
+                str_with_imm, {"width": width, "Rd": r, "Ra": ptr, "imm": f"#{offset}"})
+            strs.append(store)
+            offset -= 4
+        # Final store includes increment
+        store = Armv7mInstruction.build(
+                str_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
+        strs.append(store)
+
+        for store in strs:
+            store_src = SourceLine(store.write()).\
+                add_tags(inst.source_line.tags).\
+                add_comments(inst.source_line.comments)
+            store.source_line = store_src
+
+        if log is not None:
+            log(f"ldm splitting: {t.inst}; {[ldr for ldr in strs]}")
+
+        t.changed = True
+        t.inst = strs
+        return True
+
+    return core
+
+stm_interval_inc_writeback.global_fusion_cb  = stm_interval_inc_writeback_splitting_cb()
 
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
