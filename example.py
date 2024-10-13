@@ -1810,8 +1810,9 @@ class intt_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="layer1234_loop_start", end="layer1234_loop_end")
         
-        slothy.config.outputs = ["r14", "r0", "r10"]
+        slothy.config.outputs = ["r14", "r0", "r10", "s0", "s2"]
         slothy.config.inputs_are_outputs = True
+        slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
         slothy.optimize(start="layer567_first_start", end="layer567_first_end")
         
         slothy.config.outputs = ["r14", "s14"]

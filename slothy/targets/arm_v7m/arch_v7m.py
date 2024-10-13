@@ -1500,6 +1500,42 @@ def ldm_interval_inc_writeback_splitting_cb():
 
 ldm_interval_inc_writeback.global_fusion_cb  = ldm_interval_inc_writeback_splitting_cb()
 
+def vldm_interval_inc_writeback_splitting_cb():
+    def core(inst,t,log=None):
+
+        ptr = inst.args_in_out[0]
+        regs = inst.args_out
+        width = inst.width
+        
+        ldrs = []
+        offset = 0
+        for r in regs:
+            ldr = Armv7mInstruction.build(
+                vldr_with_imm, {"width": width, "Sd": r, "Ra": ptr, "imm": f"#{offset}"})
+            ldrs.append(ldr)
+            offset += 4
+        
+        add_ptr = Armv7mInstruction.build(
+                add_imm, {"width": width, "Rd": ptr, "Ra": ptr, "imm": f"#{offset}"})
+        ldrs.append(add_ptr)
+
+        for ldr in ldrs:
+            ldr_src = SourceLine(ldr.write()).\
+                add_tags(inst.source_line.tags).\
+                add_comments(inst.source_line.comments)
+            ldr.source_line = ldr_src
+
+        if log is not None:
+            log(f"ldm! splitting: {t.inst}; {[ldr for ldr in ldrs]}")
+
+        t.changed = True
+        t.inst = ldrs
+        return True
+
+    return core
+
+vldm_interval_inc_writeback.global_fusion_cb  = vldm_interval_inc_writeback_splitting_cb()
+
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
 def all_subclass_leaves(c):
