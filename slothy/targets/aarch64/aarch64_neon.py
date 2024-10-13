@@ -44,6 +44,7 @@ import math
 from enum import Enum
 from functools import cache
 
+from slothy.helper import SourceLine
 from sympy import simplify
 
 llvm_mca_arch = "aarch64"
@@ -3230,7 +3231,50 @@ def eor3_fusion_cb():
 
     return core
 
-veor.global_fusion_cb  = eor3_fusion_cb()
+# TODO: Test only...
+# veor.global_fusion_cb  = eor3_fusion_cb()
+
+def eor3_splitting_cb():
+    def core(inst,t,log=None):
+
+        d = inst.args_out[0]
+        a = inst.args_in[0]
+        b = inst.args_in[1]
+        c = inst.args_in[2]
+
+        # Check if we can use the output as a temporary
+        if d in [a,b,c]:
+            return False
+
+        eor0 = AArch64Instruction.build(veor, { "Vd": d, "Va" : a, "Vb" : b,
+                                                "datatype0":"16b",
+                                                "datatype1":"16b",
+                                                "datatype2":"16b" })
+        eor1 = AArch64Instruction.build(veor, { "Vd": d, "Va" : d, "Vb" : c,
+                                                "datatype0":"16b",
+                                                "datatype1":"16b",
+                                                "datatype2":"16b" })
+
+        eor0_src = SourceLine(eor0.write()).\
+            add_tags(inst.source_line.tags).\
+            add_comments(inst.source_line.comments)
+        eor1_src = SourceLine(eor1.write()).\
+            add_tags(inst.source_line.tags).\
+            add_comments(inst.source_line.comments)
+
+        eor0.source_line = eor0_src
+        eor1.source_line = eor1_src
+
+        if log is not None:
+            log(f"EOR3 splitting: {t.inst}; {eor0} + {eor1}")
+
+        t.changed = True
+        t.inst = [eor0, eor1]
+        return True
+
+    return core
+
+veor3.global_fusion_cb  = eor3_splitting_cb()
 
 def iter_aarch64_instructions():
     yield from all_subclass_leaves(Instruction)
