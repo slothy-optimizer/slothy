@@ -581,7 +581,9 @@ class AArch64Example0(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.config.constraints.stalls_first_attempt=32
-        slothy.optimize()
+        slothy.config.selfcheck = False
+        slothy.config.allow_useless_instructions = True
+        slothy.fusion_region("start", "end", ssa=False)
 
 class AArch64Example0Equ(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
@@ -639,6 +641,21 @@ class AArch64Example2(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("start")
 
+class AArch64Split0(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_split0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.fusion_region("start", "end", ssa=False)
 class Armv7mExample0(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "armv7m_simple0"
@@ -1533,6 +1550,8 @@ def main():
                  AArch64Example2(),
                  AArch64Example2(target=Target_CortexA72),
                  AArch64IfElse(),
+
+                 AArch64Split0(),
 
                 # Armv7m examples
                  Armv7mExample0(),
