@@ -1945,6 +1945,7 @@ class add_kyber(Example):
         slothy.config.variable_size = True
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
+        slothy.fusion_region(start="pointwise_add_loop_start", end="pointwise_add_loop_end", ssa=False)
         slothy.optimize(start="pointwise_add_loop_start", end="pointwise_add_loop_end")
         
 class sub_kyber(Example):
