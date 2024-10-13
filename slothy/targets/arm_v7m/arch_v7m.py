@@ -1454,7 +1454,7 @@ def stm_interval_inc_writeback_splitting_cb():
             store.source_line = store_src
 
         if log is not None:
-            log(f"ldm splitting: {t.inst}; {[ldr for ldr in strs]}")
+            log(f"stm! splitting: {t.inst}; {[store for store in strs]}")
 
         t.changed = True
         t.inst = strs
