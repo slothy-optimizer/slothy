@@ -1637,6 +1637,7 @@ class ntt_769_dilithium(Example):
         slothy.config.outputs = ["r14", "s13"]
 
         slothy.config.inputs_are_outputs = True
+        slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
         slothy.optimize(start="layer567_start", end="layer567_end")
         
 class intt_769_dilithium(Example):
@@ -1660,6 +1661,7 @@ class intt_769_dilithium(Example):
         
         slothy.config.outputs = ["r14", "s14"]
         slothy.config.inputs_are_outputs = True
+        slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
         slothy.optimize(start="layer567_start", end="layer567_end")
 
 class pointwise_769_dilithium(Example):
@@ -1776,6 +1778,7 @@ class ntt_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 4
+        slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
         slothy.optimize(start="layer567_start", end="layer567_end")
         
         # TODO: try having heuristic
@@ -1817,6 +1820,7 @@ class intt_kyber(Example):
         
         slothy.config.outputs = ["r14", "s14"]
         slothy.config.inputs_are_outputs = True
+        slothy.fusion_region(start="layer567_loop_start", end="layer567_loop_end", ssa=False)
         slothy.optimize(start="layer567_loop_start", end="layer567_loop_end")
         
 class basemul_16_32_kyber(Example):

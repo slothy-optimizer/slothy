@@ -1560,6 +1560,43 @@ def vldm_interval_inc_writeback_splitting_cb():
 
 vldm_interval_inc_writeback.global_fusion_cb  = vldm_interval_inc_writeback_splitting_cb()
 
+def ldrd_postinc_splitting_cb():
+    def core(inst,t,log=None):
+
+        ptr = inst.args_in_out[0]
+        regs = inst.args_out
+        width = inst.width
+        
+        ldrs = []
+
+        ldr = Armv7mInstruction.build(
+            ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": "#4"})
+        ldrs.append(ldr)
+        # Final load includes increment
+        ldr = Armv7mInstruction.build(
+                ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": "#8"})
+        ldr.increment = 8
+        ldr.pre_index = None
+        ldr.addr = ptr
+        ldrs.append(ldr)
+
+        for ldr in ldrs:
+            ldr_src = SourceLine(ldr.write()).\
+                add_tags(inst.source_line.tags).\
+                add_comments(inst.source_line.comments)
+            ldr.source_line = ldr_src
+
+        if log is not None:
+            log(f"ldrd splitting: {t.inst}; {[ldr for ldr in ldrs]}")
+
+        t.changed = True
+        t.inst = ldrs
+        return True
+
+    return core
+
+ldrd_with_postinc.global_fusion_cb  = ldrd_postinc_splitting_cb()
+
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
 def all_subclass_leaves(c):
