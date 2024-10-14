@@ -1266,6 +1266,30 @@ class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
         obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"r{i+j}" for i in range(0, obj.num_out)] for j in range(0, num_regs-obj.num_out) ] )]
         return obj
 
+class vldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "vldr<width> <Sd>, [<Ra>, <imm>]"
+    inputs = ["Ra"]
+    outputs = ["Sd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+    
+class vldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "vldr<width> <Sd>, [<Ra>], <imm>"
+    in_outs = ["Ra"]
+    outputs = ["Sd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
 class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vldm<width> <Ra>!, <range>"
     in_outs = ["Ra"]
