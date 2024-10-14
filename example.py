@@ -1561,6 +1561,7 @@ class fnt_257_dilithium(Example):
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
+        slothy.fusion_region(start="_fnt_3_4_5_6_start", end="_fnt_3_4_5_6_end", ssa=False)
         slothy.optimize(start="_fnt_3_4_5_6_start", end="_fnt_3_4_5_6_end")
         
         slothy.config.split_heuristic = False
