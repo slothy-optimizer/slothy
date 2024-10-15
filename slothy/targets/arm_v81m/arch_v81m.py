@@ -112,7 +112,18 @@ class RegisterType(Enum):
         return set(["r14"])
 
 class LeLoop(Loop):
-
+    """
+    Loop ending in a le instruction.
+    
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               le <cnt>, loop_lbl
+    ```
+    
+    where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl_start="1", lbl_end="2"):
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
