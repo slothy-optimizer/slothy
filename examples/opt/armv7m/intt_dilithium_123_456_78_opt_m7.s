@@ -1,3 +1,8 @@
+.syntax unified
+.cpu cortex-m4
+.thumb
+
+
 // 3
 .macro montgomery_mul_32 a, b, Qprime, Q, tmp, tmp2
     smull \tmp, \a, \a, \b
