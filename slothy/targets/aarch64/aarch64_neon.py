@@ -43,9 +43,11 @@ import re
 import math
 from enum import Enum
 from functools import cache
-from abc import ABC, abstractmethod
 
 from sympy import simplify
+
+from slothy.targets.common import *
+from slothy.helper import Loop
 
 llvm_mca_arch = "aarch64"
 
@@ -169,99 +171,15 @@ class Branch:
         """Emit unconditional branch"""
         yield f"b {lbl}"
 
-class Loop(ABC):
-    def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr"):
-        self.lbl_start = lbl_start
-        self.lbl_end   = lbl_end
-        self.loop_init = loop_init
-
-    @abstractmethod
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None):
-        """Emit starting instruction(s) and jump label for loop"""
-        # TODO: Use different type of fixup for cmp vs. subs loops
-        pass
-
-    @abstractmethod
-    def end(self, other, indentation=0):
-        """Emit compare-and-branch at the end of the loop"""
-        pass
-    
-    def _extract(self, source, lbl):
-        """Locate a loop with start label `lbl` in `source`.```
-
-        """
-        assert isinstance(source, list)
-        
-        additional_data = None
-
-        pre  = []
-        body = []
-        post = []
-        loop_lbl_regexp_txt = self.lbl_regex
-        loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
-
-        # TODO: Allow other forms of looping
-        # end_regex shall contain group cnt as the counter variable
-        loop_end_regexp_txt = self.end_regex
-        loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
-        lines = iter(source)
-        l = None
-        keep = False
-        state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop
-        loop_end_ctr = 0
-        while True:
-            if not keep:
-                l = next(lines, None)
-            keep = False
-            if l is None:
-                break
-            l_str = l.text
-            assert isinstance(l, str) is False
-            if state == 0:
-                p = loop_lbl_regexp.match(l_str)
-                if p is not None and p.group("label") == lbl:
-                    l = l.copy().set_text(p.group("remainder"))
-                    keep = True
-                    state = 1
-                else:
-                    pre.append(l)
-                continue
-            if state == 1:
-                p = loop_end_regexp[loop_end_ctr].match(l_str)
-                if p is not None:
-                    if additional_data is None:
-                        additional_data = p.groupdict()
-                    loop_end_ctr += 1
-                    if loop_end_ctr == len(loop_end_regexp):
-                        state = 2
-                    continue
-                body.append(l)
-                continue
-            if state == 2:
-                post.append(l)
-                continue
-        if state < 2:
-            raise FatalParsingException(f"Couldn't identify loop {lbl}")
-        return pre, body, post, lbl, additional_data
-
-    @staticmethod 
-    def extract(source, lbl):
-        for loop_type in Loop.__subclasses__():
-            try:
-                l = loop_type(lbl)
-                return l._extract(source, lbl) + (l,)
-            except FatalParsingException:
-                logging.debug("Parsing loop type '%s'failed", loop_type)
-                pass
-                
-        raise FatalParsingException(f"Couldn't identify loop {lbl}")
 
 class SubsLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+        # The group naming in the regex should be consistent; give same group
+        # names to the same registers
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*(?P<imm>#1)",
-                               rf"^\s*(cbnz|bnz|bne)\s+(?P<reg0>\w+),\s*{lbl}")
+                               rf"^\s*(cbnz|bnz|bne)\s+(?P<cnt>\w+),\s*{lbl}")
     
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -285,14 +203,6 @@ class SubsLoop(Loop):
         yield f"{indent}sub {other['cnt']}, {other['reg1']}, {other['imm']}"
         yield f"{indent}cbnz {other['cnt']}, {lbl_start}"
 
-class FatalParsingException(Exception):
-    """A fatal error happened during instruction parsing"""
-
-class UnknownInstruction(Exception):
-    """The parent instruction class for the given object could not be found"""
-
-class UnknownRegister(Exception):
-    """The register could not be found"""
 
 class Instruction:
 
