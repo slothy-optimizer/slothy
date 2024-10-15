@@ -1111,11 +1111,11 @@ class Loop(ABC):
         pass
     
     def _extract(self, source, lbl):
-        """Locate a loop with start label `lbl` in `source`.```
-
-        """
+        """Locate a loop with start label `lbl` in `source`.```"""
         assert isinstance(source, list)
         
+        # additional_data will be assigned according to the capture groups from
+        # loop_end_regexp. 
         additional_data = {}
 
         pre  = []
@@ -1173,6 +1173,9 @@ class Loop(ABC):
         for loop_type in Loop.__subclasses__():
             try:
                 l = loop_type(lbl)
+                # concatenate the extracted loop with an instance of the
+                # identified loop_type, (l,) creates a tuple with one element to
+                # merge with the tuple retuned by _extract
                 return l._extract(source, lbl) + (l,)
             except FatalParsingException:
                 logging.debug("Parsing loop type '%s'failed", loop_type)

@@ -174,6 +174,18 @@ class Branch:
 
 
 class SubsLoop(Loop):
+    """
+    Loop ending in a flag setting subtraction and a branch.
+    
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               sub[s] <cnt>, <cnt>, #1
+               (cbnz|bnz|bne) <cnt>, loop_lbl
+    ```
+    where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         # The group naming in the regex should be consistent; give same group
@@ -201,7 +213,7 @@ class SubsLoop(Loop):
         if lbl_start.isdigit():
             lbl_start += "b"
 
-        yield f"{indent}sub {other['cnt']}, {other['reg1']}, {other['imm']}"
+        yield f"{indent}sub {other['cnt']}, {other['cnt']}, {other['imm']}"
         yield f"{indent}cbnz {other['cnt']}, {lbl_start}"
 
 
