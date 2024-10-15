@@ -293,6 +293,39 @@ class AArch64LoopSubs(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.optimize_loop("start")
+        
+class Armv7mLoopSubs(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_subs"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize_loop("start")
+
+class Armv7mLoopCmp(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_cmp"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.outputs = ["r6"]
+        slothy.optimize_loop("start")
 
 class CRT(Example):
     def __init__(self):
@@ -2106,6 +2139,8 @@ def main():
                 # Loop examples
                  AArch64LoopSubs(),
                  LoopLe(),
+                 Armv7mLoopSubs(),
+                 Armv7mLoopCmp(),
 
                  CRT(),
 
