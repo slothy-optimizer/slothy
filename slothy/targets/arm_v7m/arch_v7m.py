@@ -801,6 +801,14 @@ class vmov_gpr2_dual(Armv7mFPInstruction): # pylint: disable=missing-docstring,i
     pattern = "vmov<width> <Sd1>, <Sd2>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Sd1", "Sd2"]
+    
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.args_out_combinations = [
+                ( [0,1], [ [ f"s{i}", f"s{i+1}" ] for i in range(0,len(RegisterType.list_registers(RegisterType.FPR))) ] )
+            ]
+        return obj
 
 # movs
 class movw_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
