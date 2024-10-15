@@ -2107,10 +2107,6 @@ def main():
                  AArch64LoopSubs(),
                  LoopLe(),
 
-                # Loop examples
-                 AArch64LoopSubs(),
-                 LoopLe(),
-
                  CRT(),
 
                  ntt_n256_l6_s32("bar"),
