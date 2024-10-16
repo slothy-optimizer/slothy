@@ -1081,6 +1081,7 @@ class Loop(ABC):
         self.lbl_start = lbl_start
         self.lbl_end   = lbl_end
         self.loop_init = loop_init
+        self.additional_data = {}
 
     @abstractmethod
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None):
@@ -1098,7 +1099,6 @@ class Loop(ABC):
         
         # additional_data will be assigned according to the capture groups from
         # loop_end_regexp. 
-        additional_data = {}
 
         pre  = []
         body = []
@@ -1136,7 +1136,7 @@ class Loop(ABC):
                 p = loop_end_regexp[loop_end_ctr].match(l_str)
                 if p is not None:
                     # collect all named groups
-                    additional_data = additional_data | p.groupdict()
+                    self.additional_data = self.additional_data | p.groupdict()
                     loop_end_ctr += 1
                     if loop_end_ctr == len(loop_end_regexp):
                         state = 2
@@ -1148,7 +1148,7 @@ class Loop(ABC):
                 continue
         if state < 2:
             raise FatalParsingException(f"Couldn't identify loop {lbl}")
-        return pre, body, post, lbl, additional_data
+        return pre, body, post, lbl, self.additional_data
 
     @staticmethod 
     def extract(source, lbl):
