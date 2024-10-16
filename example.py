@@ -1906,8 +1906,6 @@ class ntt_kyber_symbolic(Example):
         slothy.config.outputs = ["r14", "s23"]
         slothy.config.reserved_regs = ["r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
         slothy.config.inputs_are_outputs = True
-        oldTimeout = slothy.config.timeout
-        
 
         # Step 1: find minimum number of stack spills in first loop
         slothy.config.objective_lower_bound = 7
@@ -1919,7 +1917,6 @@ class ntt_kyber_symbolic(Example):
         slothy.config.constraints.functional_only = False
         slothy.config.constraints.allow_spills = False
         slothy.config.constraints.allow_reordering = True
-        slothy.config.timeout = oldTimeout
 
         # Step 2: optimize second loop
         slothy.config.variable_size = True
