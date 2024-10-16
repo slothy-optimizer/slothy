@@ -26,6 +26,11 @@ class RegisterType(Enum):
 
     @cache
     @staticmethod
+    def spillable(reg_type):
+        return reg_type in [RegisterType.GPR]
+
+    @cache
+    @staticmethod
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
 
@@ -1383,6 +1388,14 @@ class cmp_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invali
     pattern = "cmp<width> <Ra>, <imm>"
     inputs = ["Ra"]
     modifiesFlags=True
+
+
+class Stack:
+    def spill(reg, loc):
+        return f"str {reg}, [sp, #STACK_LOC_{loc}]"
+    def restore(reg, loc):
+        return  f"ldr {reg}, [sp, #STACK_LOC_{loc}]"
+
     
 def ldm_interval_splitting_cb():
     def core(inst,t,log=None):

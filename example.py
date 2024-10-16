@@ -1889,6 +1889,58 @@ class ntt_kyber(Example):
         slothy.config.split_heuristic_repeat = 1
         slothy.optimize(start="layer1234_start", end="layer1234_end")
 
+class ntt_kyber_symbolic(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"ntt_kyber_symbolic"
+        infile = name
+        funcname = "ntt_fast_symbolic"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "s23"]
+        slothy.config.reserved_regs = ["r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        oldTimeout = slothy.config.timeout
+        
+
+        # Step 1: find minimum number of stack spills in first loop
+        slothy.config.timeout = 300
+        slothy.config.constraints.functional_only = True
+        slothy.config.constraints.allow_spills = True
+        slothy.config.constraints.minimize_spills = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.optimize(start="layer1234_start", end="layer1234_end")
+        slothy.config.constraints.functional_only = False
+        slothy.config.constraints.allow_spills = False
+        slothy.config.constraints.allow_reordering = True
+        slothy.config.timeout = oldTimeout
+
+        # Step 2: optimize second loop
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
+        slothy.optimize(start="layer567_start", end="layer567_end")
+        
+
+        # Step 3: optimize first loop
+        # TODO: try having heuristic
+        slothy.config.constraints.stalls_first_attempt = 0
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.15
+        ## TODO: run with more repeats
+        slothy.config.split_heuristic_repeat = 1
+        slothy.optimize(start="layer1234_start", end="layer1234_end")
+
+
+
 class intt_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "intt_kyber"
@@ -2261,6 +2313,8 @@ def main():
                  intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
                  # Dilithium invNTT
                  # Cortex-M55
+
+                 ntt_kyber_l345_symbolic(),
                  intt_dilithium_12_34_56_78(),
 
                  # Fast Fourier Transform (FFT)
@@ -2291,6 +2345,7 @@ def main():
                  caddq_dilithium(),
                  
                  ntt_kyber(),
+                 ntt_kyber_symbolic(),
                  intt_kyber(),
                  basemul_16_32_kyber(),
                  basemul_acc_32_32_kyber(),
