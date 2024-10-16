@@ -3392,11 +3392,19 @@ class SlothyBase(LockAttributes):
                 if cur - bound <= self.config.constraints.stalls_precision:
                     self.logger.info("Closer than %d stalls to theoretical optimum... stop", prec)
                     return True
+                if self.config.objective_lower_bound is not None and \
+                   cur <= self.config.objective_lower_bound:
+                    self.logger.info("Reached user-defined objective_lower_bound ... stop", prec)
+                    return True
             elif self._model.objective_name != "no objective":
                 prec = self.config.objective_precision
                 if bound > 0 and abs(1 - (cur / bound)) < prec:
                     self.logger.info("Closer than %d%% to theoretical optimum... stop",
                                         int(prec*100))
+                    return True
+                if self.config.objective_lower_bound is not None and \
+                   cur <= self.config.objective_lower_bound:
+                    self.logger.info("Reached user-defined objective_lower_bound ... stop", prec)
                     return True
             return False
 

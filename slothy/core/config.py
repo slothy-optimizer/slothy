@@ -451,6 +451,11 @@ class Config(NestedPrint, LockAttributes):
         return self._objective_precision
 
     @property
+    def objective_lower_bound(self):
+        """A lower bound for the objective at which to stop the search."""
+        return self._objective_lower_bound
+
+    @property
     def has_objective(self):
         """Indicates whether a different objective than minimization of stalls
         has been registered."""
@@ -1143,6 +1148,7 @@ class Config(NestedPrint, LockAttributes):
         self._retry_timeout = None
         self._ignore_objective = False
         self._objective_precision = 0
+        self._objective_lower_bound = None
 
         # Visualization
         self.indentation = 8
@@ -1280,6 +1286,9 @@ class Config(NestedPrint, LockAttributes):
     @objective_precision.setter
     def objective_precision(self, val):
         self._objective_precision = val
+    @objective_lower_bound.setter
+    def objective_lower_bound(self, val):
+        self._objective_lower_bound = val
     @absorb_spills.setter
     def absorb_spills(self, val):
         self._absorb_spills = val
