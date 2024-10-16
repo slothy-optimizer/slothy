@@ -1910,7 +1910,7 @@ class ntt_kyber_symbolic(Example):
         
 
         # Step 1: find minimum number of stack spills in first loop
-        slothy.config.timeout = 300
+        slothy.config.objective_lower_bound = 7
         slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_spills = True
         slothy.config.constraints.minimize_spills = True
