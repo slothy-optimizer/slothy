@@ -3394,7 +3394,7 @@ class SlothyBase(LockAttributes):
                     return True
                 if self.config.objective_lower_bound is not None and \
                    cur <= self.config.objective_lower_bound:
-                    self.logger.info("Reached user-defined objective_lower_bound ... stop", prec)
+                    self.logger.info("Reached user-defined objective_lower_bound ... stop")
                     return True
             elif self._model.objective_name != "no objective":
                 prec = self.config.objective_precision
@@ -3404,7 +3404,7 @@ class SlothyBase(LockAttributes):
                     return True
                 if self.config.objective_lower_bound is not None and \
                    cur <= self.config.objective_lower_bound:
-                    self.logger.info("Reached user-defined objective_lower_bound ... stop", prec)
+                    self.logger.info("Reached user-defined objective_lower_bound ... stop")
                     return True
             return False
 
