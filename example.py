@@ -1906,8 +1906,6 @@ class ntt_kyber_symbolic(Example):
         slothy.config.outputs = ["r14", "s23"]
         slothy.config.reserved_regs = ["r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
         slothy.config.inputs_are_outputs = True
-        slothy.config.variable_size = True
-
         oldTimeout = slothy.config.timeout
         
 
@@ -1924,6 +1922,7 @@ class ntt_kyber_symbolic(Example):
         slothy.config.timeout = oldTimeout
 
         # Step 2: optimize second loop
+        slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 4
         slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
         slothy.optimize(start="layer567_start", end="layer567_end")
