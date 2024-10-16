@@ -2313,7 +2313,6 @@ def main():
                  # Dilithium invNTT
                  # Cortex-M55
 
-                 ntt_kyber_l345_symbolic(),
                  intt_dilithium_12_34_56_78(),
 
                  # Fast Fourier Transform (FFT)
