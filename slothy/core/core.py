@@ -3256,7 +3256,7 @@ class SlothyBase(LockAttributes):
                 name = "minimize iteration overlapping"
             elif self.config.constraints.minimize_spills:
                 name = "minimize spills"
-                minlist = [self._model.spill_vars]
+                minlist = self._model.spill_vars
             elif self.config.constraints.maximize_register_lifetimes:
                 name = "maximize register lifetimes"
                 maxlist = [ v for t in self._get_nodes(allnodes=True)
