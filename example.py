@@ -1577,8 +1577,9 @@ class pointwise_montgomery_dilithium(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14", "r12"]
         slothy.config.inputs_are_outputs = True
-
-        slothy.optimize(start="pointwise_montgomery_start", end="pointwise_montgomery_end")
+        slothy.config.sw_pipelining.enabled = True
+        
+        slothy.optimize_loop("1")
 
 class pointwise_acc_montgomery_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1594,10 +1595,11 @@ class pointwise_acc_montgomery_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.outputs = ["r12"]
         slothy.config.inputs_are_outputs = True
-
-        slothy.optimize(start="pointwise_montgomery_acc_start", end="pointwise_montgomery_acc_end")
+        slothy.config.sw_pipelining.enabled = True
+        
+        slothy.optimize_loop("1")
 
 class fnt_257_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1675,10 +1677,11 @@ class basemul_257_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.outputs = ["r12", "r14"]
         slothy.config.inputs_are_outputs = True
 
-        slothy.optimize(start="_point_mul_16_loop_start", end="_point_mul_16_loop_end")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("_point_mul_16_loop")
         
 class basemul_257_asymmetric_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1697,7 +1700,8 @@ class basemul_257_asymmetric_dilithium(Example):
         slothy.config.outputs = ["r14", "r12"]
         slothy.config.inputs_are_outputs = True
 
-        slothy.optimize(start="_asymmetric_mul_16_loop_start", end="_asymmetric_mul_16_loop_end")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("_asymmetric_mul_16_loop")
 
 class ntt_769_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1779,7 +1783,8 @@ class pointwise_769_dilithium(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14", "r3"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="_point_mul_16_loop_start", end="_point_mul_16_loop_end")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("_point_mul_16_loop")
         
 class pointwise_769_asymmetric_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1795,12 +1800,11 @@ class pointwise_769_asymmetric_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14", "r10"]
+        slothy.config.outputs = ["r10"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="_asymmetric_mul_16_loop_start", end="_asymmetric_mul_16_loop_end")
-        # TODO: SW pipelining needs manual fixup of loop counter!
-        # slothy.config.sw_pipelining.enabled = True
-        # slothy.optimize_loop("_asymmetric_mul_16_loop")
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("_asymmetric_mul_16_loop")
 
 class reduce32_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
