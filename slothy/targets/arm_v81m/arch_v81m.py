@@ -130,7 +130,7 @@ class LeLoop(Loop):
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (rf"^\s*le\s+((?P<cnt>\w+)|r14)\s*,\s*{lbl_start}",)
 
-    def start(self,reg,indentation=0, fixup=0, unroll=1, jump_if_empty=None):
+    def start(self,reg,indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, postamble_code=None):
         assert reg == "lr"
         indent = ' ' * indentation
         if unroll > 1:
