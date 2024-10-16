@@ -392,7 +392,7 @@ class Slothy:
 
         assert SourceLine.is_source(self.source)
 
-    def optimize_loop(self, loop_lbl, postamble_label=None, cnt_iter_factor=1):
+    def optimize_loop(self, loop_lbl, postamble_label=None):
         """Optimize the loop starting at a given label"""
 
         logger = self.logger.getChild(loop_lbl)
@@ -475,9 +475,11 @@ class Slothy:
         optimized_code += SourceLine.read_multiline(loop.start(
             loop_cnt,
             indentation=self.config.indentation,
-            fixup=num_exceptional * cnt_iter_factor,
+            fixup=num_exceptional,
             unroll=self.config.sw_pipelining.unroll,
-            jump_if_empty=jump_if_empty))
+            jump_if_empty=jump_if_empty,
+            preamble_code=preamble_code,
+            postamble_code=postamble_code))
         optimized_code += indented(kernel_code)
         optimized_code += SourceLine.read_multiline(loop.end(other_data,
             indentation=self.config.indentation))
