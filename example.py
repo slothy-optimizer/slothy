@@ -1907,14 +1907,16 @@ class ntt_kyber_symbolic(Example):
         slothy.config.reserved_regs = ["r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
         slothy.config.inputs_are_outputs = True
 
+        orig_functional_only = slothy.config.constraints.functional_only
+
         # Step 1: find minimum number of stack spills in first loop
-        slothy.config.objective_lower_bound = 7
+        slothy.config.objective_lower_bound = 8
         slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_spills = True
         slothy.config.constraints.minimize_spills = True
         slothy.config.constraints.allow_reordering = False
         slothy.optimize(start="layer1234_start", end="layer1234_end")
-        slothy.config.constraints.functional_only = False
+        slothy.config.constraints.functional_only = orig_functional_only
         slothy.config.constraints.allow_spills = False
         slothy.config.constraints.allow_reordering = True
 
