@@ -1634,7 +1634,7 @@ class fnt_257_dilithium(Example):
         slothy.config.split_heuristic_factor = 6
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
-        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_repeat = 2
         slothy.config.outputs = ["s25", "s27"]
         slothy.fusion_loop("_fnt_3_4_5_6", ssa=False)
         slothy.optimize_loop("_fnt_3_4_5_6")
@@ -1741,7 +1741,7 @@ class ntt_769_dilithium(Example):
         slothy.config.split_heuristic_factor = 6
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
-        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_repeat = 2
         slothy.optimize_loop("layer1234_loop")
         slothy.config.outputs = ["r14", "s13"]
 
@@ -1771,7 +1771,7 @@ class intt_769_dilithium(Example):
         slothy.config.split_heuristic_factor = 6
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
-        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_repeat = 2
         slothy.config.sw_pipelining.enabled = True
         # TODO: Fix output declarations! Renaming breaks code!
         slothy.config.outputs = ["r14", "s8"]
@@ -2000,7 +2000,7 @@ class intt_kyber(Example):
         slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
         slothy.optimize(start="layer567_first_start", end="layer567_first_end")
 
-        slothy.config.split_heuristic = False
+        slothy.config.split_heuristic_factor = 2
         slothy.config.outputs = ["r14", "s14"]
         slothy.config.inputs_are_outputs = True
         slothy.config.constraints.stalls_first_attempt = 16
