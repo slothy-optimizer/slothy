@@ -19,7 +19,6 @@ __asm_point_mul_257_16:
 
     add.w r12, r14, #64*width
     _point_mul_16_loop:
-    _point_mul_16_loop_start:
 
     ldr.w r7, [r1, #2*width]
     ldr.w r8, [r1, #3*width]
@@ -54,7 +53,6 @@ __asm_point_mul_257_16:
     str.w r8, [r0, #1*width]
     str.w r7, [r0], #2*width
 
-    _point_mul_16_loop_end:
     cmp.w r14, r12
     bne.w _point_mul_16_loop
 
