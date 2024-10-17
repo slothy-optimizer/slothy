@@ -230,8 +230,8 @@ pqcrystals_dilithium_invntt_tomont:
   sub ptr_p, #32*strincr
 
   // stage 4 - 6  
-  .equ distance, 128
-  .equ strincr, 256
+  .equ distance2, 128
+  .equ strincr2, 256
   
   // iteration 0
   movw temp_l, #4
@@ -244,27 +244,27 @@ pqcrystals_dilithium_invntt_tomont:
 
   2:
   layer456_first_start:
-    ldr.w pol4, [ptr_p, #4*distance/4]
-    ldr.w pol1, [ptr_p, #5*distance/4]
-    ldr.w pol6, [ptr_p, #6*distance/4]
-    ldr.w pol3, [ptr_p, #7*distance/4]
+    ldr.w pol4, [ptr_p, #4*distance2/4]
+    ldr.w pol1, [ptr_p, #5*distance2/4]
+    ldr.w pol6, [ptr_p, #6*distance2/4]
+    ldr.w pol3, [ptr_p, #7*distance2/4]
     _3_layer_inv_butterfly_light_fast_first pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, s2, s3, s4, s5, s6, s7, s8, zeta, qinv, q, temp_h, temp_l
     
     ldr.w pol0, [ptr_p]
-    ldr.w pol1, [ptr_p, #1*distance/4]
-    ldr.w pol2, [ptr_p, #2*distance/4]
-    ldr.w pol3, [ptr_p, #3*distance/4]
+    ldr.w pol1, [ptr_p, #1*distance2/4]
+    ldr.w pol2, [ptr_p, #2*distance2/4]
+    ldr.w pol3, [ptr_p, #3*distance2/4]
     _3_layer_inv_butterfly_light_fast_second pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, s2, s3, s4, s5, s6, s7, s8, zeta, qinv, q, temp_h, temp_l
 
-    str.w pol1, [ptr_p, #1*distance/4]
-    str.w pol2, [ptr_p, #2*distance/4]
-    str.w pol3, [ptr_p, #3*distance/4]
-    str.w pol4, [ptr_p, #4*distance/4]
-    str.w pol5, [ptr_p, #5*distance/4]
-    str.w pol6, [ptr_p, #6*distance/4]
-    str.w pol7, [ptr_p, #7*distance/4]
+    str.w pol1, [ptr_p, #1*distance2/4]
+    str.w pol2, [ptr_p, #2*distance2/4]
+    str.w pol3, [ptr_p, #3*distance2/4]
+    str.w pol4, [ptr_p, #4*distance2/4]
+    str.w pol5, [ptr_p, #5*distance2/4]
+    str.w pol6, [ptr_p, #6*distance2/4]
+    str.w pol7, [ptr_p, #7*distance2/4]
     str.w pol0, [ptr_p]
-    add.w ptr_p, #strincr
+    add.w ptr_p, #strincr2
 
     vmov temp_l, s10
   layer456_first_end:
@@ -277,7 +277,7 @@ pqcrystals_dilithium_invntt_tomont:
   add.w temp_l, ptr_p, #7*4 // 7 iterations
   vmov s9, temp_l
   1:
-    add.w temp_l, ptr_p, #4*strincr // 4 iterations
+    add.w temp_l, ptr_p, #4*strincr2 // 4 iterations
     vmov s10, temp_l
 
 	  vmov ptr_zeta, s0
@@ -286,31 +286,31 @@ pqcrystals_dilithium_invntt_tomont:
     2:
     layer456_start:     
 	    ldr.w pol0, [ptr_p]
-	    ldr.w pol1, [ptr_p, #1*distance/4]
-	    ldr.w pol2, [ptr_p, #2*distance/4]
-	    ldr.w pol3, [ptr_p, #3*distance/4]
-	    ldr.w pol4, [ptr_p, #4*distance/4]
-	    ldr.w pol5, [ptr_p, #5*distance/4]
-	    ldr.w pol6, [ptr_p, #6*distance/4]
-	    ldr.w pol7, [ptr_p, #7*distance/4]
+	    ldr.w pol1, [ptr_p, #1*distance2/4]
+	    ldr.w pol2, [ptr_p, #2*distance2/4]
+	    ldr.w pol3, [ptr_p, #3*distance2/4]
+	    ldr.w pol4, [ptr_p, #4*distance2/4]
+	    ldr.w pol5, [ptr_p, #5*distance2/4]
+	    ldr.w pol6, [ptr_p, #6*distance2/4]
+	    ldr.w pol7, [ptr_p, #7*distance2/4]
 
 	    _3_layer_inv_CT_32 pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, s2, s3, s4, s5, s6, s7, s8, zeta, qinv, q, temp_h, temp_l
 
-	    str.w pol1, [ptr_p, #1*distance/4]
-	    str.w pol2, [ptr_p, #2*distance/4]
-	    str.w pol3, [ptr_p, #3*distance/4]
-	    str.w pol4, [ptr_p, #4*distance/4]
-	    str.w pol5, [ptr_p, #5*distance/4]
-	    str.w pol6, [ptr_p, #6*distance/4]
-	    str.w pol7, [ptr_p, #7*distance/4]
+	    str.w pol1, [ptr_p, #1*distance2/4]
+	    str.w pol2, [ptr_p, #2*distance2/4]
+	    str.w pol3, [ptr_p, #3*distance2/4]
+	    str.w pol4, [ptr_p, #4*distance2/4]
+	    str.w pol5, [ptr_p, #5*distance2/4]
+	    str.w pol6, [ptr_p, #6*distance2/4]
+	    str.w pol7, [ptr_p, #7*distance2/4]
 	    str.w pol0, [ptr_p]
-	    add.w ptr_p, #strincr
+	    add.w ptr_p, #strincr2
 
       vmov temp_l, s10
     layer456_end:
       cmp.w ptr_p, temp_l
     bne 2b
-    sub.w ptr_p, #4*strincr-4
+    sub.w ptr_p, #4*strincr2-4
 
     vmov temp_l, s9
     cmp.w temp_l, ptr_p
@@ -320,9 +320,9 @@ pqcrystals_dilithium_invntt_tomont:
   vmov ptr_zeta, s0
   
   //stage 7 and 8
-  .equ strincr, 4
+  .equ strincr3, 4
 
-  add.w cntr, ptr_p, #64*strincr // 64 iterations 
+  add.w cntr, ptr_p, #64*strincr3 // 64 iterations 
   vmov s9, cntr
   1:
   layer78_start:
@@ -348,7 +348,7 @@ pqcrystals_dilithium_invntt_tomont:
     str.w pol1, [ptr_p, #256]
     str.w pol2, [ptr_p, #512]
     str.w pol3, [ptr_p, #768]
-    str pol0, [ptr_p], #strincr
+    str pol0, [ptr_p], #strincr3
 
     vmov cntr, s9
   layer78_end:

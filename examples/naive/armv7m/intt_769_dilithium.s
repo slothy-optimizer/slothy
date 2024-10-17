@@ -303,13 +303,13 @@ small_invntt_asm_769:
 
 	### LAYER 3+2+1
 
-	.equ distance, distance*16
-	.equ strincr, 4
+	.equ distance2, distance*16
+	.equ strincr2, 4
 
 	// ITER 0
 	vmov s6, poly
-	load poly, poly0, poly1, poly2, poly3, #0, #distance/4, #2*distance/4, #3*distance/4
-	load poly, poly4, poly5, poly6, poly7, #distance, #5*distance/4, #6*distance/4, #7*distance/4
+	load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
+	load poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
 
 	vldm twiddle_ptr!, {s0-s5}
 	movw qa, #24608
@@ -320,21 +320,21 @@ small_invntt_asm_769:
 	_3_layer_double_inv_twist_16_plant poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, twiddle1, twiddle2, twiddle_ptr, q, qa, tmp
 	
 	vmov poly, s6
-	store poly, poly4, poly5, poly6, poly7, #distance, #5*distance/4, #6*distance/4, #7*distance/4
-	str.w poly1, [poly, #distance/4]
-	str.w poly2, [poly, #2*distance/4]
-	str.w poly3, [poly, #3*distance/4]
+	store poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
+	str.w poly1, [poly, #distance2/4]
+	str.w poly2, [poly, #2*distance2/4]
+	str.w poly3, [poly, #3*distance2/4]
 	str.w poly0, [poly], #4
 
 	// ITER 1-15
-	add.w tmp, poly, #strincr*3*(5)
+	add.w tmp, poly, #strincr2*3*(5)
 	vmov s14, tmp
 	2:
     layer567_start:
 		vmov s6, poly
 		// polys upto 5.5q
-		load poly, poly0, poly1, poly2, poly3, #0, #distance/4, #2*distance/4, #3*distance/4
-		load poly, poly4, poly5, poly6, poly7, #distance, #5*distance/4, #6*distance/4, #7*distance/4
+		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
+		load poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
 		
 		movw qa, #24608
 		_3_layer_double_inv_CT_16_plant poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, twiddle1, twiddle2, twiddle_ptr, q, qa, tmp
@@ -343,10 +343,10 @@ small_invntt_asm_769:
 		_3_layer_double_inv_twist_16_plant poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, twiddle1, twiddle2, twiddle_ptr, q, qa, tmp
 
 		vmov poly, s6
-		store poly, poly4, poly5, poly6, poly7, #distance, #5*distance/4, #6*distance/4, #7*distance/4
-		str.w poly1, [poly, #distance/4]
-		str.w poly2, [poly, #2*distance/4]
-		str.w poly3, [poly, #3*distance/4]
+		store poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
+		str.w poly1, [poly, #distance2/4]
+		str.w poly2, [poly, #2*distance2/4]
+		str.w poly3, [poly, #3*distance2/4]
 		str.w poly0, [poly], #4
 
 	vmov tmp, s14

@@ -272,7 +272,7 @@ layer123_end:
   sub ptr_p, #32*4
 
   // stage 4 - 6  
-  .equ distance, 64
+  .equ distance2, 64
   add.w temp_l, ptr_p, #8*112+8*4*4 // 8 iterations
   vmov s9, temp_l
   1:
@@ -284,23 +284,23 @@ layer123_end:
     2:
 layer456_start:
       ldr.w pol0, [ptr_p]
-      ldr.w pol1, [ptr_p, #1*distance/4]
-      ldr.w pol2, [ptr_p, #2*distance/4]
-      ldr.w pol3, [ptr_p, #3*distance/4]
-      ldr.w pol4, [ptr_p, #4*distance/4]
-      ldr.w pol5, [ptr_p, #5*distance/4]
-      ldr.w pol6, [ptr_p, #6*distance/4]
-      ldr.w pol7, [ptr_p, #7*distance/4]
+      ldr.w pol1, [ptr_p, #1*distance2/4]
+      ldr.w pol2, [ptr_p, #2*distance2/4]
+      ldr.w pol3, [ptr_p, #3*distance2/4]
+      ldr.w pol4, [ptr_p, #4*distance2/4]
+      ldr.w pol5, [ptr_p, #5*distance2/4]
+      ldr.w pol6, [ptr_p, #6*distance2/4]
+      ldr.w pol7, [ptr_p, #7*distance2/4]
 
       _3_layer_CT_32 pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, s2, s3, s4, s5, s6, s7, s8, zeta, qinv, q, temp_h, temp_l
       
-      str.w pol1, [ptr_p, #1*distance/4]
-      str.w pol2, [ptr_p, #2*distance/4]
-      str.w pol3, [ptr_p, #3*distance/4]
-      str.w pol4, [ptr_p, #4*distance/4]
-      str.w pol5, [ptr_p, #5*distance/4]
-      str.w pol6, [ptr_p, #6*distance/4]
-      str.w pol7, [ptr_p, #7*distance/4]
+      str.w pol1, [ptr_p, #1*distance2/4]
+      str.w pol2, [ptr_p, #2*distance2/4]
+      str.w pol3, [ptr_p, #3*distance2/4]
+      str.w pol4, [ptr_p, #4*distance2/4]
+      str.w pol5, [ptr_p, #5*distance2/4]
+      str.w pol6, [ptr_p, #6*distance2/4]
+      str.w pol7, [ptr_p, #7*distance2/4]
       str pol0, [ptr_p], #4
 layer456_end:
       vmov temp_l, s10
