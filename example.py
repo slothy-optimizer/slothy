@@ -293,7 +293,7 @@ class AArch64LoopSubs(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.optimize_loop("start")
-        
+
 class Armv7mLoopSubs(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_subs"
@@ -1503,7 +1503,7 @@ class fft_floatingpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
-#############################################################################################        
+#############################################################################################
 class ntt_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"ntt_dilithium"
@@ -1527,10 +1527,10 @@ class ntt_dilithium(Example):
         slothy.config.outputs = ["r0", "r10"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="layer123_start", end="layer123_end")
-        
+
         slothy.config.outputs = ["r0", "s0", "s10", "s9"]
         slothy.optimize(start="layer456_start", end="layer456_end")
-        
+
         slothy.config.outputs = ["r0", "r4"]  # r4 is cntr
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="layer78_start", end="layer78_end")
@@ -1556,11 +1556,11 @@ class intt_dilithium_123_456_78(Example):
         slothy.optimize(start="layer123_start", end="layer123_end")
         slothy.optimize(start="layer456_first_start", end="layer456_first_end")
         slothy.optimize(start="layer456_start", end="layer456_end")
-        
+
         slothy.config.outputs = ["r14", "r4"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="layer78_start", end="layer78_end")
-        
+
 class pointwise_montgomery_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "pointwise_montgomery_dilithium"
@@ -1578,7 +1578,7 @@ class pointwise_montgomery_dilithium(Example):
         slothy.config.outputs = ["r14", "r12"]
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
-        
+
         slothy.optimize_loop("1")
 
 class pointwise_acc_montgomery_dilithium(Example):
@@ -1598,7 +1598,7 @@ class pointwise_acc_montgomery_dilithium(Example):
         slothy.config.outputs = ["r12"]
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
-        
+
         slothy.optimize_loop("1")
 
 class fnt_257_dilithium(Example):
@@ -1619,7 +1619,7 @@ class fnt_257_dilithium(Example):
         slothy.config.inputs_are_outputs = True
 
         slothy.optimize(start="_fnt_0_1_2_start", end="_fnt_0_1_2_end")
-        
+
         # TODO: try havling heuristic
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.split_heuristic = True
@@ -1629,10 +1629,10 @@ class fnt_257_dilithium(Example):
         slothy.config.split_heuristic_repeat = 1
         slothy.fusion_region(start="_fnt_3_4_5_6_start", end="_fnt_3_4_5_6_end", ssa=False)
         slothy.optimize(start="_fnt_3_4_5_6_start", end="_fnt_3_4_5_6_end")
-        
+
         slothy.config.split_heuristic = False
         slothy.optimize(start="_fnt_to_16_bit_start", end="_fnt_to_16_bit_end")
-        
+
 class ifnt_257_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "ifnt_257_dilithium"
@@ -1657,12 +1657,12 @@ class ifnt_257_dilithium(Example):
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
         slothy.optimize(start="_ifnt_7_6_5_4_start", end="_ifnt_7_6_5_4_end")
-        
+
         slothy.config.outputs = ["r14", "r1", "s1"]
         slothy.config.inputs_are_outputs = True
         slothy.config.split_heuristic = False
         slothy.optimize(start="_ifnt_0_1_2_start", end="_ifnt_0_1_2_end")
-        
+
 class basemul_257_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "basemul_257_dilithium"
@@ -1682,7 +1682,7 @@ class basemul_257_dilithium(Example):
 
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("_point_mul_16_loop")
-        
+
 class basemul_257_asymmetric_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "basemul_257_asymmetric_dilithium"
@@ -1734,7 +1734,7 @@ class ntt_769_dilithium(Example):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
         slothy.optimize(start="layer567_start", end="layer567_end")
-        
+
 class intt_769_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "intt_769_dilithium"
@@ -1756,12 +1756,12 @@ class intt_769_dilithium(Example):
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
-        
+
         # TODO: Fix output declarations! Renaming breaks code!
         slothy.config.outputs = ["r14", "s8"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="layer1234_start", end="layer1234_end")
-        
+
         slothy.config.outputs = ["r14", "s14"]
         slothy.config.inputs_are_outputs = True
         slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
@@ -1785,7 +1785,7 @@ class pointwise_769_dilithium(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("_point_mul_16_loop")
-        
+
 class pointwise_769_asymmetric_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "pointwise_769_asymmetric_dilithium"
@@ -1825,7 +1825,7 @@ class reduce32_dilithium(Example):
         slothy.config.llvm_mca_full = True
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="reduce32_start", end="reduce32_end")
-        
+
 class reduce32_central_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "reduce32_central_dilithium"
@@ -1843,7 +1843,7 @@ class reduce32_central_dilithium(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="reduce32_central_start", end="reduce32_central_end")
-        
+
 class caddq_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "caddq_dilithium"
@@ -1861,7 +1861,7 @@ class caddq_dilithium(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="caddq_start", end="caddq_end")
-        
+
 class ntt_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"ntt_kyber"
@@ -1883,7 +1883,7 @@ class ntt_kyber(Example):
         slothy.config.constraints.stalls_first_attempt = 4
         slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
         slothy.optimize(start="layer567_start", end="layer567_end")
-        
+
         # TODO: try having heuristic
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.split_heuristic = True
@@ -1924,13 +1924,14 @@ class ntt_kyber_symbolic(Example):
         slothy.config.constraints.functional_only = orig_functional_only
         slothy.config.constraints.allow_spills = False
         slothy.config.constraints.allow_reordering = orig_allow_reordering
+        slothy.config.absorb_spills = False
 
         # Step 2: optimize second loop
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 4
         slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
         slothy.optimize(start="layer567_start", end="layer567_end")
-        
+
 
         # Step 3: optimize first loop
         # TODO: try having heuristic
@@ -1962,7 +1963,7 @@ class intt_kyber(Example):
         slothy.config.variable_size = True
         # TODO: optimize without functional_only
         slothy.config.constraints.functional_only = True
-         
+
         # TODO: try havling heuristic
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.split_heuristic = True
@@ -1973,19 +1974,19 @@ class intt_kyber(Example):
         slothy.config.outputs = ["r14", "s8"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="layer1234_loop_start", end="layer1234_loop_end")
-        
+
         slothy.config.outputs = ["r14", "r0", "r10", "s0", "s2"]
         slothy.config.inputs_are_outputs = True
         slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
         slothy.optimize(start="layer567_first_start", end="layer567_first_end")
-        
+
         slothy.config.split_heuristic = False
         slothy.config.outputs = ["r14", "s14"]
         slothy.config.inputs_are_outputs = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.fusion_region(start="layer567_loop_start", end="layer567_loop_end", ssa=False)
         slothy.optimize(start="layer567_loop_start", end="layer567_loop_end")
-        
+
 class basemul_16_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "basemul_16_32_kyber"
@@ -2003,7 +2004,7 @@ class basemul_16_32_kyber(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="basemul_asm_opt_16_32_loop_start", end="basemul_asm_opt_16_32_loop_end")
-        
+
 class basemul_acc_32_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "basemul_acc_32_32_kyber"
@@ -2021,7 +2022,7 @@ class basemul_acc_32_32_kyber(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="basemul_asm_opt_32_32_loop_start", end="basemul_asm_opt_32_32_loop_end")
-        
+
 class basemul_acc_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "basemul_acc_32_16_kyber"
@@ -2057,7 +2058,7 @@ class frombytes_mul_16_32_kyber(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="frombytes_mul_asm_16_32_loop_start", end="frombytes_mul_asm_16_32_loop_end")
-        
+
 class frombytes_mul_acc_32_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "frombytes_mul_acc_32_32_kyber"
@@ -2075,7 +2076,7 @@ class frombytes_mul_acc_32_32_kyber(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="frombytes_mul_asm_acc_32_32_loop_start", end="frombytes_mul_asm_acc_32_32_loop_end")
-        
+
 class frombytes_mul_acc_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "frombytes_mul_acc_32_16_kyber"
@@ -2093,7 +2094,7 @@ class frombytes_mul_acc_32_16_kyber(Example):
         slothy.config.outputs = ["r14", "s2"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="frombytes_mul_asm_acc_32_16_loop_start", end="frombytes_mul_asm_acc_32_16_loop_end")
-        
+
 class add_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "add_kyber"
@@ -2113,7 +2114,7 @@ class add_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.fusion_region(start="pointwise_add_loop_start", end="pointwise_add_loop_end", ssa=False)
         slothy.optimize(start="pointwise_add_loop_start", end="pointwise_add_loop_end")
-        
+
 class sub_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "sub_kyber"
@@ -2131,7 +2132,7 @@ class sub_kyber(Example):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="pointwise_sub_loop_start", end="pointwise_sub_loop_end")
-        
+
 class barrett_reduce_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "barrett_reduce_kyber"
@@ -2152,7 +2153,7 @@ class barrett_reduce_kyber(Example):
         slothy.config.constraints.stalls_first_attempt = 64
         slothy.fusion_region(start="asm_barrett_reduce_loop_start", end="asm_barrett_reduce_loop_end", ssa=False)
         slothy.optimize(start="asm_barrett_reduce_loop_start", end="asm_barrett_reduce_loop_end")
-        
+
 class fromplant_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "fromplant_kyber"
@@ -2176,7 +2177,7 @@ class fromplant_kyber(Example):
         slothy.optimize(start="asm_fromplant_loop_start", end="asm_fromplant_loop_end")
 
 def main():
-    examples = [ 
+    examples = [
                  Example0(),
                  Example1(),
                  Example2(),
@@ -2329,7 +2330,7 @@ def main():
                  ExampleKeccak(var="old"),
                  ExampleKeccak(var="m7"),
                  ExampleKeccak(var="part"),
-                 
+
                  ntt_dilithium(),
                  intt_dilithium_123_456_78(),
                  pointwise_montgomery_dilithium(),
@@ -2345,7 +2346,7 @@ def main():
                  reduce32_dilithium(),
                  reduce32_central_dilithium(),
                  caddq_dilithium(),
-                 
+
                  ntt_kyber(),
                  ntt_kyber_symbolic(),
                  intt_kyber(),
