@@ -2125,7 +2125,7 @@ class frombytes_mul_acc_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14", "s2"]
+        slothy.config.outputs = ["r14", "s2", "r3"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         # TODO: this did not terminate for me yet
