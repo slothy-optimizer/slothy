@@ -18,6 +18,7 @@ WARNING: The data in this module is approximate and may contain errors.
 from enum import Enum
 from itertools import product
 from slothy.targets.arm_v7m.arch_v7m import *
+import re
 
 issue_rate = 2
 llvm_mca_target = "cortex-m7"
@@ -54,14 +55,15 @@ def add_further_constraints(slothy):
         return
     # add_slot_constraints(slothy)
     # add_st_hazard(slothy)
+    add_load_bank_conflict(slothy)
 
-
+# TODO: this seems incorrect
 def add_slot_constraints(slothy):
     slothy.restrict_slots_for_instructions_by_class(
         [str_with_imm, str_with_imm_stack, str_with_postinc, strh_with_imm,
          strh_with_postinc, stm_interval_inc_writeback, str_no_off, str], [1])
 
-
+# TODO: this seems incorrect
 def add_st_hazard(slothy):
     def is_st_ld_pair(inst_a, inst_b):
         return (isinstance(inst_a.inst, ldr_with_imm) or isinstance(inst_a.inst, ldr_with_imm_stack)) \
@@ -71,6 +73,32 @@ def add_st_hazard(slothy):
         if t0.is_locked and t1.is_locked:
             continue
         slothy._Add(t0.cycle_start_var != t1.cycle_start_var + 1)
+
+
+def add_load_bank_conflict(slothy):
+    def is_ldr_pair(inst_a, inst_b):
+        return inst_a.inst.is_ldr() and inst_b.inst.is_ldr()
+
+    def evaluate_immediate(string_expr):
+        if string_expr is None:
+            return 0
+        if re.fullmatch(r"[*+\-0-9 ]+", string_expr):
+            return int(eval(string_expr))
+        else:
+            raise Exception(f"could not parse {string_expr}")
+
+    # The Cortex-M7 has two memory banks
+    # If two loads use the same memory bank, they cannot dual issue
+    # There are no constraints which load can go to which issue slot
+    # Approximiation: Only look at immediates, i.e., assume all pointers are aligned to 8 bytes
+    for t0, t1 in slothy.get_inst_pairs(cond=is_ldr_pair):
+        if t0 == t1:
+            continue
+        imm0 = evaluate_immediate(t0.inst.immediate)
+        imm1 = evaluate_immediate(t1.inst.immediate)
+        if (imm0 % 8) // 4 == (imm1 % 8) // 4:
+            slothy._Add(t0.cycle_start_var != t1.cycle_start_var)
+
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
@@ -258,7 +286,7 @@ def get_latency(src, out_idx, dst):
     sum([issubclass(instclass_dst, pc) for pc in [Armv7mBasicArithmetic, Armv7mLogical]]) and \
        src.args_out[0] in dst.args_in:
         return (1, lambda t_src,t_dst: t_dst.cycle_start_var == t_src.cycle_start_var + 1)
-    
+
     # Shifted operand needs to be available one cycle early
     if sum([issubclass(instclass_dst, pc) for pc in [Armv7mShiftedLogical, Armv7mShiftedArithmetic]]) and \
        dst.args_in[1] in src.args_out:

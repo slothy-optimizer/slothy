@@ -2154,6 +2154,28 @@ class barrett_reduce_kyber(Example):
         slothy.fusion_region(start="asm_barrett_reduce_loop_start", end="asm_barrett_reduce_loop_end", ssa=False)
         slothy.optimize(start="asm_barrett_reduce_loop_start", end="asm_barrett_reduce_loop_end")
 
+
+
+class ldr_test(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "ldr_test"
+        infile = name
+
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r1", "r2", "r3", "r4", "r5", "r6", 'r7', "r8"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.optimize(start="start", end="end")
+
+
 class fromplant_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "fromplant_kyber"
@@ -2178,6 +2200,7 @@ class fromplant_kyber(Example):
 
 def main():
     examples = [
+                 ldr_test(),
                  Example0(),
                  Example1(),
                  Example2(),

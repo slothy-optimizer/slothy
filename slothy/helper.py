@@ -593,9 +593,14 @@ class AsmHelper():
 class AsmAllocation():
     """Helper for tracking register aliases via .req and .unreq"""
 
+    # TODO: This is conceptionally different and should be
+    # handled in its own class.
+    _REGEXP_EQU_TXT = r"\s*\.equ\s+(?P<key>\w+)\s*,\s*(?P<val>\w+)"
+
     _REGEXP_REQ_TXT = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
     _REGEXP_UNREQ_TXT = r"\s*\.unreq\s+(?P<alias>\w+)"
 
+    _REGEXP_EQU   = re.compile(_REGEXP_EQU_TXT)
     _REGEXP_REQ   = re.compile(_REGEXP_REQ_TXT)
     _REGEXP_UNREQ = re.compile(_REGEXP_UNREQ_TXT)
 
@@ -628,6 +633,12 @@ class AsmAllocation():
             alias = p.group("alias")
             reg = p.group("reg")
             return alias, reg
+
+        p = AsmAllocation._REGEXP_EQU.match(line.text)
+        if p is not None:
+            key = p.group("key")
+            val = p.group("val")
+            return key, val
 
         return None
 
@@ -687,7 +698,7 @@ class AsmAllocation():
     def unfold_all_aliases(aliases, src):
         """Unfold aliases in assembly source"""
         def _apply_single_alias_to_line(alias_from, alias_to, src):
-            return re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\1{alias_to}\\2", src)
+            return re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\g<1>{alias_to}\\2", src)
         def _apply_multiple_aliases_to_line(line):
             for (alias_from, alias_to) in aliases.items():
                 line = _apply_single_alias_to_line(alias_from, alias_to, line)
@@ -917,7 +928,7 @@ class AsmMacro():
         with open(filename,"r",encoding="utf-8") as f:
             res = AsmMacro.extract(f.read().splitlines())
         return res
-    
+
 
 class AsmIfElse():
     _REGEXP_IF_TXT = r"\s*\.if\s+(?P<cond>.*)"
@@ -927,7 +938,7 @@ class AsmIfElse():
     _REGEXP_IF    = re.compile(_REGEXP_IF_TXT)
     _REGEXP_ELSE  = re.compile(_REGEXP_ELSE_TXT)
     _REGEXP_ENDIF = re.compile(_REGEXP_ENDIF_TXT)
-    
+
     @staticmethod
     def check_if(line):
         """Check if an assembly line is a .req directive. Return the pair
@@ -938,11 +949,11 @@ class AsmIfElse():
         if p is not None:
             return p.group("cond")
         return None
-    
+
     @staticmethod
     def is_if(line):
         return AsmIfElse.check_if(line) is not None
-    
+
     @staticmethod
     def check_else(line):
         """Check if an assembly line is a .req directive. Return the pair
@@ -953,11 +964,11 @@ class AsmIfElse():
         if p is not None:
             return True
         return None
-    
+
     @staticmethod
     def is_else(line):
         return AsmIfElse.check_else(line) is not None
-    
+
     @staticmethod
     def check_endif(line):
         """Check if an assembly line is a .req directive. Return the pair
@@ -972,7 +983,7 @@ class AsmIfElse():
     @staticmethod
     def is_endif(line):
         return AsmIfElse.check_endif(line) is not None
-    
+
     @staticmethod
     def evaluate_condition(condition):
         """Evaluates the condition string and returns True or False."""
@@ -982,7 +993,7 @@ class AsmIfElse():
         except Exception as e:
             print(f"Error evaluating condition '{condition}': {e}")
             return False
-    
+
     @staticmethod
     def process_instructions(instructions):
         """Processes a list of instructions with conditional statements."""
@@ -1007,7 +1018,7 @@ class AsmIfElse():
                 if skip_stack:
                     skip_stack.pop()  # Exit the current .if block
                 continue  # Skip adding the .endif line to output
-            
+
             # Determine if the current line should be skipped
             if skip_stack and True in skip_stack:
                 continue  # Skip lines when inside a false .if block
@@ -1192,13 +1203,13 @@ class Loop(ABC):
     def end(self, other, indentation=0):
         """Emit compare-and-branch at the end of the loop"""
         pass
-    
+
     def _extract(self, source, lbl):
         """Locate a loop with start label `lbl` in `source`.```"""
         assert isinstance(source, list)
-        
+
         # additional_data will be assigned according to the capture groups from
-        # loop_end_regexp. 
+        # loop_end_regexp.
 
         pre  = []
         body = []
@@ -1250,7 +1261,7 @@ class Loop(ABC):
             raise FatalParsingException(f"Couldn't identify loop {lbl}")
         return pre, body, post, lbl, self.additional_data
 
-    @staticmethod 
+    @staticmethod
     def extract(source, lbl):
         for loop_type in Loop.__subclasses__():
             try:
@@ -1262,5 +1273,5 @@ class Loop(ABC):
             except FatalParsingException:
                 logging.debug("Parsing loop type '%s'failed", loop_type)
                 pass
-                
+
         raise FatalParsingException(f"Couldn't identify loop {lbl}")

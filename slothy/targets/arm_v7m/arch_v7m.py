@@ -337,7 +337,9 @@ class Instruction:
                 return True
         return False
 
-    # TODO Fill in instructions
+    def is_ldr(self):
+         return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback])
+
     def is_load(self):
         """Indicates if an instruction is a load instruction"""
         return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback, ldm_interval, ldm_interval_inc_writeback ])
