@@ -1527,18 +1527,19 @@ class ntt_dilithium(Example):
         slothy.config.constraints.stalls_first_attempt = 3
 
         slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
 
-        slothy.config.outputs = ["r0", "r10"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="layer123_start", end="layer123_end")
-
-        slothy.config.outputs = ["r0", "s0", "s10", "s9"]
-        slothy.optimize(start="layer456_start", end="layer456_end")
+        slothy.config.outputs = ["r0", "r10"]
+        slothy.optimize_loop("layer123_loop")
+        slothy.config.allow_useless_instructions = False
+        
+        slothy.config.outputs = ["r0", "s0", "s10", "s9", "r10"]
+        slothy.optimize_loop("layer456_loop")
 
         slothy.config.outputs = ["r0", "r4"]  # r4 is cntr
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="layer78_start", end="layer78_end")
-        # slothy.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer78_loop")
 
 class intt_dilithium_123_456_78(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1556,14 +1557,15 @@ class intt_dilithium_123_456_78(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14", "r10"]
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
-        slothy.optimize(start="layer123_start", end="layer123_end")
-        slothy.optimize(start="layer456_first_start", end="layer456_first_end")
-        slothy.optimize(start="layer456_start", end="layer456_end")
+        slothy.optimize_loop("layer123_loop")
+        slothy.optimize_loop("layer456_first_loop")
+        slothy.optimize_loop("layer456_loop")
 
         slothy.config.outputs = ["r14", "r4"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="layer78_start", end="layer78_end")
+        slothy.optimize_loop("layer78_loop")
 
 class pointwise_montgomery_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1621,21 +1623,25 @@ class fnt_257_dilithium(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14", "r12"]
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
-        slothy.optimize(start="_fnt_0_1_2_start", end="_fnt_0_1_2_end")
+        slothy.optimize_loop("_fnt_0_1_2")
 
         # TODO: try havling heuristic
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.split_heuristic = True
+        slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic_factor = 6
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
-        slothy.fusion_region(start="_fnt_3_4_5_6_start", end="_fnt_3_4_5_6_end", ssa=False)
-        slothy.optimize(start="_fnt_3_4_5_6_start", end="_fnt_3_4_5_6_end")
+        slothy.config.outputs = ["s25", "s27"]
+        slothy.fusion_loop("_fnt_3_4_5_6", ssa=False)
+        slothy.optimize_loop("_fnt_3_4_5_6")
 
         slothy.config.split_heuristic = False
-        slothy.optimize(start="_fnt_to_16_bit_start", end="_fnt_to_16_bit_end")
+        slothy.config.sw_pipelining.halving_heuristic = False
+        slothy.optimize_loop("_fnt_to_16_bit")
 
 class ifnt_257_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1653,19 +1659,22 @@ class ifnt_257_dilithium(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14", "s1", "r12"]
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
         # TODO: try havling heuristic
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.split_heuristic = True
+        slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic_factor = 6
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
-        slothy.optimize(start="_ifnt_7_6_5_4_start", end="_ifnt_7_6_5_4_end")
+        slothy.fusion_loop("_ifnt_7_6_5_4", ssa=False)
+        slothy.optimize_loop("_ifnt_7_6_5_4")
 
         slothy.config.outputs = ["r14", "r1", "s1"]
         slothy.config.inputs_are_outputs = True
         slothy.config.split_heuristic = False
-        slothy.optimize(start="_ifnt_0_1_2_start", end="_ifnt_0_1_2_end")
+        slothy.optimize_loop("_ifnt_0_1_2")
 
 class basemul_257_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1724,20 +1733,22 @@ class ntt_769_dilithium(Example):
         # TODO: Fix output declarations! Renaming breaks code!
         slothy.config.outputs = ["r14", "s24"]
         slothy.config.inputs_are_outputs = True
-        # TODO: try havling heuristic
+        slothy.config.sw_pipelining.enabled = True
+
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.split_heuristic = True
+        slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic_factor = 6
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
-        slothy.optimize(start="layer1234_start", end="layer1234_end")
+        slothy.optimize_loop("layer1234_loop")
         slothy.config.outputs = ["r14", "s13"]
 
         slothy.config.inputs_are_outputs = True
         slothy.config.constraints.stalls_first_attempt = 32
-        slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
-        slothy.optimize(start="layer567_start", end="layer567_end")
+        slothy.fusion_loop("layer567_loop", ssa=False)
+        slothy.optimize_loop("layer567_loop")
 
 class intt_769_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1756,20 +1767,21 @@ class intt_769_dilithium(Example):
         # TODO: try havling heuristic
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.split_heuristic = True
+        slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic_factor = 6
         slothy.config.split_heuristic_stepsize = 0.15
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
-
+        slothy.config.sw_pipelining.enabled = True
         # TODO: Fix output declarations! Renaming breaks code!
         slothy.config.outputs = ["r14", "s8"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="layer1234_start", end="layer1234_end")
+        slothy.optimize_loop("layer1234_loop")
 
         slothy.config.outputs = ["r14", "s14"]
         slothy.config.inputs_are_outputs = True
-        slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
-        slothy.optimize(start="layer567_start", end="layer567_end")
+        slothy.fusion_loop("layer567_loop", ssa=False)
+        slothy.optimize_loop("layer567_loop")
 
 class pointwise_769_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1824,11 +1836,13 @@ class reduce32_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r10", "flags"]
+        slothy.config.outputs = ["r10"]
         slothy.config.with_llvm_mca = True
         slothy.config.llvm_mca_full = True
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="reduce32_start", end="reduce32_end")
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("1")
 
 class reduce32_central_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1844,9 +1858,10 @@ class reduce32_central_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14"]
+        slothy.config.outputs = ["r12"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="reduce32_central_start", end="reduce32_central_end")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("1")
 
 class caddq_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1862,9 +1877,10 @@ class caddq_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14"]
+        slothy.config.outputs = ["r10"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="caddq_start", end="caddq_end")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("1")
 
 class ntt_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):

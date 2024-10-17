@@ -139,7 +139,6 @@ __asm_fnt_257:
 
     add.w r12, r0, #32*width
     _fnt_0_1_2:
-    _fnt_0_1_2_start:
         ldrstrvec ldr.w, r0, r4, r5, r6, r7, r8, r9, r10, r11, #(32*0*width), #(32*1*width), #(32*2*width), #(32*3*width), #(32*4*width), #(32*5*width), #(32*6*width), #(32*7*width)
 
         FNT_CT_butterfly  r4,  r8, 4
@@ -158,7 +157,6 @@ __asm_fnt_257:
         FNT_CT_butterfly  r10, r11, 7
 
         ldrstrvecjump str.w, r0, r4, r5, r6, r7, r8, r9, r10, r11, #(32*1*width), #(32*2*width), #(32*3*width), #(32*4*width), #(32*5*width), #(32*6*width), #(32*7*width), #width
-    _fnt_0_1_2_end:
         cmp.w r0, r12
         bne.w _fnt_0_1_2
 
@@ -167,7 +165,6 @@ __asm_fnt_257:
     add.w r12, r0, #256*width
     vmov.w s25, r12
     _fnt_3_4_5_6:
-    _fnt_3_4_5_6_start:
         vmov r1, s27
         vldm.w r1!, {s2-s16}
         vmov s27, r1
@@ -268,7 +265,6 @@ __asm_fnt_257:
         add.w r0, #((32-2)*width)
 
     vmov.w r12, s25
-    _fnt_3_4_5_6_end:
     cmp.w r0, r12
     bne.w _fnt_3_4_5_6
 
@@ -276,7 +272,6 @@ __asm_fnt_257:
     sub.w r0, r0, #256*width
     mov.w r1, r0
     _fnt_to_16_bit:
-    _fnt_to_16_bit_start:
         ldr.w r3, [r0, #1*width]
         ldr.w r4, [r0, #2*width]
         ldr.w r5, [r0, #3*width]
@@ -293,7 +288,6 @@ __asm_fnt_257:
         strh.w r8, [r1, #6*2]
         strh.w r9, [r1, #7*2]
         strh.w r2, [r1], #8*2
-    _fnt_to_16_bit_end:
         cmp.w r0, r12
         bne.w _fnt_to_16_bit
 

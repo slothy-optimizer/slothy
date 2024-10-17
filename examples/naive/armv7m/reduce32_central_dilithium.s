@@ -20,7 +20,6 @@ pqcrystals_dilithium_small_asm_reduce32_central:
 
     movw r12, #32
     1:
-    reduce32_central_start:
         ldr.w r1, [r0]
         ldr.w r2, [r0, #1*4]
         ldr.w r3, [r0, #2*4]
@@ -49,7 +48,6 @@ pqcrystals_dilithium_small_asm_reduce32_central:
         str.w r8, [r0, #7*4]
         str r1, [r0], #8*4
         subs r12, #1
-    reduce32_central_end:
         bne.w 1b
 
     pop {r4-r12, pc}

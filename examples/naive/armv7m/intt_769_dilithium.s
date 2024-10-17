@@ -184,8 +184,7 @@ small_invntt_asm_769:
 
 	add.w tmp, poly, #8*strincr
 	vmov s8, tmp
-	1:
-    layer1234_start:
+    layer1234_loop:
 		vmov s23, poly
 		// load a1, a3, ..., a15
 		load poly, poly0, poly1, poly2, poly3, #offset, #distance/4+offset, #2*distance/4+offset, #3*distance/4+offset
@@ -294,10 +293,9 @@ small_invntt_asm_769:
 		str.w tmp, [poly], #strincr // increase 2*8*4 = 64 (2 * 8 loads of 4 bytes each)
 		//0,2,4,6: < 1.5q
 	vmov tmp, s8
-    layer1234_end:
 
 	cmp.w poly, tmp
-	bne.w 1b
+	bne.w layer1234_loop
 
 	sub.w poly, #8*strincr  
 
@@ -329,8 +327,7 @@ small_invntt_asm_769:
 	// ITER 1-15
 	add.w tmp, poly, #strincr2*3*(5)
 	vmov s14, tmp
-	2:
-    layer567_start:
+    layer567_loop:
 		vmov s6, poly
 		// polys upto 5.5q
 		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
@@ -350,9 +347,8 @@ small_invntt_asm_769:
 		str.w poly0, [poly], #4
 
 	vmov tmp, s14
-    layer567_end:
 	cmp.w poly, tmp
-	bne.w 2b
+	bne.w layer567_loop
 
 	vpop.w {s16-s23}
 	pop {r4-r11, pc}

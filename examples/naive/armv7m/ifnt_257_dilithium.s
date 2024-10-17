@@ -92,7 +92,6 @@ __asm_ifnt_257:
     add.w r12, r0, #256*width
     vmov.w s1, r12
     _ifnt_7_6_5_4:
-    _ifnt_7_6_5_4_start:
 
         vldm.w r1!, {s2-s16}
 
@@ -316,7 +315,6 @@ __asm_ifnt_257:
 // ================
 
     vmov.w r12, s1
-    _ifnt_7_6_5_4_end:
     cmp.w r0, r12
     bne.w _ifnt_7_6_5_4
 
@@ -326,7 +324,6 @@ __asm_ifnt_257:
 
     add.w r1, r0, #32*width
     _ifnt_0_1_2:
-_ifnt_0_1_2_start:
     ldrstrvec ldr.w, r0, r4, r5, r6, r7, r8, r9, r10, r11, #(32*0*width), #(32*1*width), #(32*2*width), #(32*3*width), #(32*4*width), #(32*5*width), #(32*6*width), #(32*7*width)
 
     addSub4 r4, r5, r6, r7, r8, r9, r10, r11
@@ -362,7 +359,6 @@ _ifnt_0_1_2_start:
     barrett_32 r11, r2, r3, r12
 
     ldrstrvecjump str.w, r0, r4, r5, r6, r7, r8, r9, r10, r11, #(32*1*width), #(32*2*width), #(32*3*width), #(32*4*width), #(32*5*width), #(32*6*width), #(32*7*width), #width
-_ifnt_0_1_2_end:
     
     cmp.w r0, r1
     bne.w _ifnt_0_1_2

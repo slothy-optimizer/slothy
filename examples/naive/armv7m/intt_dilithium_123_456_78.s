@@ -200,8 +200,8 @@ pqcrystals_dilithium_invntt_tomont:
   
   add.w temp_l, ptr_p, #32*strincr // 32 iterations
   vmov s9, temp_l
-  1:
-  layer123_start:
+  layer123_loop:
+
     ldr.w pol4, [ptr_p, #4*distance/4]
     ldr.w pol1, [ptr_p, #5*distance/4]
     ldr.w pol6, [ptr_p, #6*distance/4]
@@ -223,9 +223,8 @@ pqcrystals_dilithium_invntt_tomont:
     str.w pol7, [ptr_p, #7*distance/4]
     str.w pol0, [ptr_p], #strincr
     vmov temp_l, s9
-  layer123_end:
     cmp.w ptr_p, temp_l
-  bne.w 1b
+  bne.w layer123_loop
   
   sub ptr_p, #32*strincr
 
@@ -242,8 +241,7 @@ pqcrystals_dilithium_invntt_tomont:
   vldm ptr_zeta!, {s2-s8}
   vmov s0, ptr_zeta
 
-  2:
-  layer456_first_start:
+  layer456_first_loop:
     ldr.w pol4, [ptr_p, #4*distance2/4]
     ldr.w pol1, [ptr_p, #5*distance2/4]
     ldr.w pol6, [ptr_p, #6*distance2/4]
@@ -267,9 +265,8 @@ pqcrystals_dilithium_invntt_tomont:
     add.w ptr_p, #strincr2
 
     vmov temp_l, s10
-  layer456_first_end:
     cmp.w temp_l, ptr_p
-  bne.w 2b
+  bne.w layer456_first_loop
 
   sub.w ptr_p, #4*256-4
 
@@ -283,8 +280,7 @@ pqcrystals_dilithium_invntt_tomont:
 	  vmov ptr_zeta, s0
     vldm ptr_zeta!, {s2-s8}
     vmov s0, ptr_zeta
-    2:
-    layer456_start:     
+    layer456_loop:
 	    ldr.w pol0, [ptr_p]
 	    ldr.w pol1, [ptr_p, #1*distance2/4]
 	    ldr.w pol2, [ptr_p, #2*distance2/4]
@@ -307,9 +303,8 @@ pqcrystals_dilithium_invntt_tomont:
 	    add.w ptr_p, #strincr2
 
       vmov temp_l, s10
-    layer456_end:
       cmp.w ptr_p, temp_l
-    bne 2b
+    bne layer456_loop
     sub.w ptr_p, #4*strincr2-4
 
     vmov temp_l, s9
@@ -324,8 +319,7 @@ pqcrystals_dilithium_invntt_tomont:
 
   add.w cntr, ptr_p, #64*strincr3 // 64 iterations 
   vmov s9, cntr
-  1:
-  layer78_start:
+  layer78_loop:
     ldr.w zeta1, [ptr_zeta, #4]
     ldr.w zeta2, [ptr_zeta, #8]
     ldr zeta0, [ptr_zeta], #12
@@ -351,9 +345,8 @@ pqcrystals_dilithium_invntt_tomont:
     str pol0, [ptr_p], #strincr3
 
     vmov cntr, s9
-  layer78_end:
     cmp.w cntr, ptr_p
-    bne.w 1b
+    bne.w layer78_loop
 
     //restore registers
     pop {R4-R11, PC}

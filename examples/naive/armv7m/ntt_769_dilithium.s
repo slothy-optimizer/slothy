@@ -145,8 +145,7 @@ small_ntt_asm_769:
 	// s23: poly addr
 	// s24: tmp  
 	vmov s24, tmp  
-	1:
-    layer1234_start:
+	layer1234_loop:
 		// load a1, a3, ..., a15
 		vmov s23, poly
 		load poly, poly0, poly1, poly2, poly3, #offset, #distance/4+offset, #2*distance/4+offset, #3*distance/4+offset
@@ -253,9 +252,8 @@ small_ntt_asm_769:
 		str.w tmp, [poly], #4
 
 	vmov tmp, s24
-    layer1234_end:
 	cmp.w poly, tmp
-	bne.w 1b
+	bne.w layer1234_loop
 
 	sub.w poly, #8*strincr
 
@@ -266,8 +264,7 @@ small_ntt_asm_769:
 
 	add.w tmp, poly, #strincr2*16
 	vmov s13, tmp
-	2:
-    layer567_start:
+    layer567_loop:
 		vmov s23, poly
 		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
 		load poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
@@ -283,8 +280,7 @@ small_ntt_asm_769:
 		str.w poly0, [poly], #strincr2
 
 	vmov tmp, s13
-    layer567_end:
 	cmp.w poly, tmp
-	bne.w 2b
+	bne.w layer567_loop
 	vpop.w {s16-s24}
 	pop {r4-r11, pc}

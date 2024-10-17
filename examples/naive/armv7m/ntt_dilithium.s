@@ -243,8 +243,7 @@ pqcrystals_dilithium_ntt:
   
   add.w temp_l, ptr_p, #32*strincr // 32 iterations
   vmov s9, temp_l
-  1:
-layer123_start:
+  layer123_loop:
     ldr.w pol0, [ptr_p]
     ldr.w pol1, [ptr_p, #1*distance/4]
     ldr.w pol2, [ptr_p, #2*distance/4]
@@ -265,9 +264,9 @@ layer123_start:
     str.w pol7, [ptr_p, #7*distance/4]
     str pol0, [ptr_p], #strincr
     vmov temp_l, s9
-layer123_end:
+
     cmp.w ptr_p, temp_l
-    bne 1b
+    bne layer123_loop
   
   sub ptr_p, #32*4
 
@@ -281,8 +280,7 @@ layer123_end:
     vmov ptr_zeta, s0
     vldm ptr_zeta!, {s2-s8}
     vmov s0, ptr_zeta
-    2:
-layer456_start:
+    layer456_loop:
       ldr.w pol0, [ptr_p]
       ldr.w pol1, [ptr_p, #1*distance2/4]
       ldr.w pol2, [ptr_p, #2*distance2/4]
@@ -302,10 +300,9 @@ layer456_start:
       str.w pol6, [ptr_p, #6*distance2/4]
       str.w pol7, [ptr_p, #7*distance2/4]
       str pol0, [ptr_p], #4
-layer456_end:
       vmov temp_l, s10
       cmp.w ptr_p, temp_l
-      bne 2b
+      bne layer456_loop
 
     add.w ptr_p, #112
     vmov temp_l, s9
@@ -318,7 +315,6 @@ layer456_end:
     add cntr, ptr_p, #1024 // 64 iterations
 
     layer78_loop:
-layer78_start:
       ldr.w zeta1, [ptr_zeta, #4]  //z128,..., z254
       ldr.w zeta2, [ptr_zeta, #8]  //z129,..., z255
       ldr zeta0, [ptr_zeta], #12  //z64, ..., z127
@@ -333,7 +329,6 @@ layer78_start:
       str.w pol2, [ptr_p, #8]
       str.w pol3, [ptr_p, #12]
       str pol0, [ptr_p], #16
-layer78_end:
       cmp.w cntr, ptr_p
       bne.w layer78_loop
 

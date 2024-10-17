@@ -17,7 +17,6 @@ pqcrystals_dilithium_asm_reduce32:
     movt r12,#:upper16:8380417
     movw r10, #32
     1:
-    reduce32_start:
         ldr.w r1, [r0]
         ldr.w r2, [r0, #1*4]
         ldr.w r3, [r0, #2*4]
@@ -45,7 +44,6 @@ pqcrystals_dilithium_asm_reduce32:
         str.w r8, [r0, #7*4]
         str r1, [r0], #8*4
         subs r10, #1
-    reduce32_end:
         bne.w 1b
 
     pop {r4-r11, r14}

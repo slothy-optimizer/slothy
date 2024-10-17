@@ -131,6 +131,51 @@ class Branch:
         yield f"b {lbl}"
 
 
+class VmovCmpLoop(Loop):
+    def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
+        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+        self.lbl = lbl
+        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.end_regex = (r"^\s*vmov(?:\.w)?\s+(?P<end>\w+),\s*(?P<endf>\w+)",
+                          r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
+                               rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
+    
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, postamble_code=None):
+        """Emit starting instruction(s) and jump label for loop"""
+        indent = ' ' * indentation
+        if unroll > 1:
+            assert unroll in [1,2,4,8,16,32]
+            yield f"{indent}lsr {self.additional_data['end']}, {self.additional_data['end']}, #{int(math.log2(unroll))}"
+    
+        # Check whether instructions modifying the loop count moved to
+        # pre/postamble and adjust the fixup based on that.
+        if postamble_code is not None:
+            new_fixup = 0
+            for l in postamble_code:
+                if l.text == "":
+                    continue
+                inst = Instruction.parser(l)
+                if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
+                    new_fixup = new_fixup + simplify(inst[0].increment)
+            fixup = new_fixup
+
+        if fixup != 0:
+            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup}"
+        if jump_if_empty is not None:
+            yield f"cbz {loop_cnt}, {jump_if_empty}"
+        yield f"{self.lbl}:"
+    
+    def end(self, other, indentation=0):
+        """Emit compare-and-branch at the end of the loop"""
+        indent = ' ' * indentation
+        lbl_start = self.lbl
+        if lbl_start.isdigit():
+            lbl_start += "b"
+        
+        yield f'{indent}vmov {other["end"]}, {other["endf"]}'
+        yield f'{indent}cmp {other["cnt"]}, {other["end"]}'
+        yield f'{indent}bne {self.lbl}'
+
 class CmpLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
@@ -147,14 +192,16 @@ class CmpLoop(Loop):
     
         # Check whether instructions modifying the loop count moved to
         # pre/postamble and adjust the fixup based on that.
-        new_fixup = 0
-        for l in postamble_code:
-            if l.text == "":
-                continue
-            inst = Instruction.parser(l)
-            if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
-                new_fixup = new_fixup + simplify(inst[0].increment)
-        fixup = new_fixup
+        if postamble_code is not None:
+            new_fixup = 0
+            for l in postamble_code:
+                if l.text == "":
+                    continue
+                inst = Instruction.parser(l)
+                if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
+                    new_fixup = new_fixup + simplify(inst[0].increment)
+            fixup = new_fixup
+
         if fixup != 0:
             yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup}"
         if jump_if_empty is not None:
@@ -170,7 +217,7 @@ class CmpLoop(Loop):
         
         yield f'{indent}cmp {other["cnt"]}, {other["end"]}'
         yield f'{indent}bne {lbl_start}'
-        
+
 class SubsLoop(Loop):
     def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)

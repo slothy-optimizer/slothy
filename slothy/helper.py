@@ -1210,10 +1210,10 @@ class Loop(ABC):
 
         # additional_data will be assigned according to the capture groups from
         # loop_end_regexp.
-
         pre  = []
         body = []
         post = []
+        loop_end_candidates = []
         loop_lbl_regexp_txt = self.lbl_regex
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
 
@@ -1249,12 +1249,19 @@ class Loop(ABC):
                     # collect all named groups
                     self.additional_data = self.additional_data | p.groupdict()
                     loop_end_ctr += 1
+                    loop_end_candidates.append(l)
                     if loop_end_ctr == len(loop_end_regexp):
                         state = 2
                     continue
+                elif loop_end_ctr > 0 and l_str != "":
+                    body += loop_end_candidates
+                    self.additional_data = {}
+                    loop_end_ctr = 0
+                    loop_end_candidates = []
                 body.append(l)
                 continue
             if state == 2:
+                loop_end_candidates = []
                 post.append(l)
                 continue
         if state < 2:
