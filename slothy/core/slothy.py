@@ -375,7 +375,7 @@ class Slothy:
         indentation = AsmHelper.find_indentation(body)
 
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
-            SourceLine.apply_indentation(self._fusion_core(pre, body, late, logger, **kwargs), indentation) + \
+            SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
             SourceLine.read_multiline(loop.end(other_data))
 
         self.source = pre + body_ssa + post
