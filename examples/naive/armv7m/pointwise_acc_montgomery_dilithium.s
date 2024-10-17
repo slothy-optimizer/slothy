@@ -37,7 +37,6 @@ pqcrystals_dilithium_asm_pointwise_acc_montgomery:
     // 85x3 = 255 coefficients
     movw ctr, #85
     1:
-    pointwise_montgomery_acc_start:
         ldr.w pa1, [a_ptr, #4]
         ldr.w pa2, [a_ptr, #8]
         ldr pa0, [a_ptr], #12
@@ -59,7 +58,6 @@ pqcrystals_dilithium_asm_pointwise_acc_montgomery:
         add.w pa1, pa1, pb2
         str pa1, [c_ptr, #-4]
     subs ctr, #1
-    pointwise_montgomery_acc_end:
     bne.w 1b
 
     // final coefficient

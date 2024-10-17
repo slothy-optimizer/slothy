@@ -39,7 +39,6 @@ small_asymmetric_mul_asm_769:
     .equ width, 4
     add.w r10, r0, #256*2
     _asymmetric_mul_16_loop:
-    _asymmetric_mul_16_loop_start:
     ldr.w r7, [r1, #width]
     ldr.w r4, [r1], #2*width
     ldr.w r8, [r2, #width]
@@ -62,7 +61,6 @@ small_asymmetric_mul_asm_769:
 
     pkhtb r8, r8, r6, asr #16
     str.w r8, [r0], #width
-    _asymmetric_mul_16_loop_end:
     cmp.w r0, r10
     bne.w _asymmetric_mul_16_loop
 

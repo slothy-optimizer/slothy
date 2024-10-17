@@ -17,7 +17,6 @@ __asm_asymmetric_mul_257_16:
 
     add.w r12, r0, #256*width
     _asymmetric_mul_16_loop:
-    _asymmetric_mul_16_loop_start:
 
     ldr.w r7, [r1, #width]
     ldr.w r4, [r1], #2*width
@@ -37,8 +36,6 @@ __asm_asymmetric_mul_257_16:
 
     str.w r11, [r0, #width]
     str.w r10, [r0], #2*width
-
-    _asymmetric_mul_16_loop_end:
 
     cmp.w r0, r12
     bne.w _asymmetric_mul_16_loop
