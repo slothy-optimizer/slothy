@@ -98,14 +98,12 @@ frombytes_mul_asm_acc_32_16:
   
   add ctr, tmp, #64*4*4
   1:
-  frombytes_mul_asm_acc_32_16_loop_start:
     ldr.w zeta, [zetaptr], #4
     deserialize aptr, tmp, tmp2, tmp3, t0, t1
     vmov s2, zetaptr
     vmov rptr_tmp, s1
     doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, tmp3, t0, t1, tmp, tmp2, q, qa, qinv
     vmov s1, rptr_tmp
-  frombytes_mul_asm_acc_32_16_loop_end:
     cmp.w rptr_tmp, ctr
     vmov zetaptr, s2
     bne.w 1b

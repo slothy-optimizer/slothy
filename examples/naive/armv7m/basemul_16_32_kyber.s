@@ -32,7 +32,6 @@ basemul_asm_opt_16_32:
 
   movw loop, #64
   1:
-  basemul_asm_opt_16_32_loop_start:
     ldr poly0, [aptr], #4
     ldr poly1, [bptr], #4
     ldr poly2, [aptr], #4
@@ -55,7 +54,6 @@ basemul_asm_opt_16_32:
     str tmp2, [rptr_tmp], #4
 
     subs.w loop, #1
-  basemul_asm_opt_16_32_loop_end:
   bne.w 1b
 
   pop {r4-r11, pc}

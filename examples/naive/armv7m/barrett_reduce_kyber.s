@@ -53,7 +53,6 @@ asm_barrett_reduce:
 
 	movw loop, #16
 	1:
-    asm_barrett_reduce_loop_start:
 		ldm poly, {poly0-poly7}
 
 		doublebarrett poly0, tmp, tmp2, q, barrettconst
@@ -68,7 +67,6 @@ asm_barrett_reduce:
 		stm poly!, {poly0-poly7}
 
 	subs.w loop, #1
-    asm_barrett_reduce_loop_end:
 	bne.w 1b
 
 	.unreq poly        

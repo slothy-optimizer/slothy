@@ -54,7 +54,6 @@ asm_fromplant:
 	movt plantconst, #38900
 	movw loop, #16
 	1:
-    asm_fromplant_loop_start:
 		ldm poly, {poly0-poly7}
 
 		doubleplant poly0, tmp, q, qa, plantconst
@@ -69,7 +68,6 @@ asm_fromplant:
 		stm poly!, {poly0-poly7}
 
 	subs.w loop, #1
-    asm_fromplant_loop_end:
 	bne.w 1b
 
 	.unreq poly        

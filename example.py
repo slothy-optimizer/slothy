@@ -1884,7 +1884,7 @@ class ntt_kyber(Example):
         slothy.config.reserved_regs = ["r1", "r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.config.constraints.stalls_first_attempt = 16
         slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
         slothy.optimize(start="layer567_start", end="layer567_end")
 
@@ -1931,17 +1931,17 @@ class ntt_kyber_symbolic(Example):
         slothy.config.absorb_spills = False
 
         # Step 2: optimize second loop
-        slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 4
-        slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
-        slothy.optimize(start="layer567_start", end="layer567_end")
+        #slothy.config.variable_size = True
+        #slothy.config.constraints.stalls_first_attempt = 4
+        #slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
+        #slothy.optimize(start="layer567_start", end="layer567_end")
 
 
         # Step 3: optimize first loop
         # TODO: try having heuristic
         slothy.config.constraints.stalls_first_attempt = 0
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_factor = 10
         slothy.config.split_heuristic_stepsize = 0.15
         ## TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
@@ -2007,7 +2007,10 @@ class basemul_16_32_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="basemul_asm_opt_16_32_loop_start", end="basemul_asm_opt_16_32_loop_end")
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.optimize_loop("1")
 
 class basemul_acc_32_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2025,7 +2028,10 @@ class basemul_acc_32_32_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="basemul_asm_opt_32_32_loop_start", end="basemul_asm_opt_32_32_loop_end")
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.optimize_loop("1")
 
 class basemul_acc_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2043,7 +2049,10 @@ class basemul_acc_32_16_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="basemul_asm_acc_opt_32_16_loop_start", end="basemul_asm_acc_opt_32_16_loop_end")
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.optimize_loop("1")
 
 class frombytes_mul_16_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2061,7 +2070,9 @@ class frombytes_mul_16_32_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="frombytes_mul_asm_16_32_loop_start", end="frombytes_mul_asm_16_32_loop_end")
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("1")
 
 class frombytes_mul_acc_32_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2079,7 +2090,10 @@ class frombytes_mul_acc_32_32_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="frombytes_mul_asm_acc_32_32_loop_start", end="frombytes_mul_asm_acc_32_32_loop_end")
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 8
+        slothy.optimize_loop("1")
 
 class frombytes_mul_acc_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2097,7 +2111,10 @@ class frombytes_mul_acc_32_16_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14", "s2"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="frombytes_mul_asm_acc_32_16_loop_start", end="frombytes_mul_asm_acc_32_16_loop_end")
+        slothy.config.variable_size = True
+        # TODO: this did not terminate for me yet
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("1")
 
 class add_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2113,11 +2130,15 @@ class add_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.variable_size = True
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
-        slothy.fusion_region(start="pointwise_add_loop_start", end="pointwise_add_loop_end", ssa=False)
-        slothy.optimize(start="pointwise_add_loop_start", end="pointwise_add_loop_end")
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+        slothy.config.sw_pipelining.enabled = False
+        slothy.fusion_region(start="pointwise_add_final_start", end="pointwise_add_final_end", ssa=False)
+        slothy.optimize(start="pointwise_add_final_start", end="pointwise_add_final_end")
 
 class sub_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2135,7 +2156,14 @@ class sub_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
-        slothy.optimize(start="pointwise_sub_loop_start", end="pointwise_sub_loop_end")
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+
+        slothy.config.sw_pipelining.enabled = False
+        slothy.fusion_region(start="pointwise_sub_final_start", end="pointwise_sub_final_end", ssa=False)
+        slothy.optimize(start="pointwise_sub_final_start", end="pointwise_sub_final_end")
 
 class barrett_reduce_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2154,9 +2182,10 @@ class barrett_reduce_kyber(Example):
         slothy.config.outputs = ["r9"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 64
-        slothy.fusion_region(start="asm_barrett_reduce_loop_start", end="asm_barrett_reduce_loop_end", ssa=False)
-        slothy.optimize(start="asm_barrett_reduce_loop_start", end="asm_barrett_reduce_loop_end")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 43
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
 
 
 
@@ -2196,11 +2225,9 @@ class fromplant_kyber(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r9"]
         slothy.config.inputs_are_outputs = True
-        slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 8
-
-        slothy.fusion_region(start="asm_fromplant_loop_start", end="asm_fromplant_loop_end", ssa=False)
-        slothy.optimize(start="asm_fromplant_loop_start", end="asm_fromplant_loop_end")
+        slothy.config.sw_pipelining.enabled = True
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
 
 def main():
     examples = [

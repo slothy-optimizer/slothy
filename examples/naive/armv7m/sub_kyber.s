@@ -10,7 +10,6 @@ pointwise_sub:
 
   movw r14, #25
   1:
-  pointwise_sub_loop_start:
     ldm r1!, {r3-r7}
     ldm r2!, {r8-r12}
     usub16 r3, r3, r8
@@ -21,13 +20,14 @@ pointwise_sub:
     stm r0!, {r3-r7}
 
     subs.w r14, #1
-  pointwise_sub_loop_end:
   bne.w 1b
 
+  pointwise_sub_final_start:
   ldm r1!, {r3-r5}
   ldm r2!, {r8-r10}
   usub16 r3, r3, r8
   usub16 r4, r4, r9
   usub16 r5, r5, r10
   stm r0!, {r3-r5}
+  pointwise_sub_final_end:
   pop {r4-r11, pc}
