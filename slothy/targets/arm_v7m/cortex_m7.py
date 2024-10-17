@@ -82,11 +82,11 @@ def add_load_bank_conflict(slothy):
     def evaluate_immediate(string_expr):
         if string_expr is None:
             return 0
-        if re.fullmatch(r"[*+\-0-9 ]+", string_expr):
+        if re.fullmatch(r"[*+\-/0-9 ()]+", string_expr):
+            # TODO: use something safer here
             return int(eval(string_expr))
         else:
             raise Exception(f"could not parse {string_expr}")
-
     # The Cortex-M7 has two memory banks
     # If two loads use the same memory bank, they cannot dual issue
     # There are no constraints which load can go to which issue slot
@@ -94,6 +94,7 @@ def add_load_bank_conflict(slothy):
     for t0, t1 in slothy.get_inst_pairs(cond=is_ldr_pair):
         if t0 == t1:
             continue
+
         imm0 = evaluate_immediate(t0.inst.immediate)
         imm1 = evaluate_immediate(t1.inst.immediate)
         if (imm0 % 8) // 4 == (imm1 % 8) // 4:
