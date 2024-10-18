@@ -595,7 +595,7 @@ class AsmAllocation():
 
     # TODO: This is conceptionally different and should be
     # handled in its own class.
-    _REGEXP_EQU_TXT = r"\s*\.equ\s+(?P<key>\w+)\s*,\s*(?P<val>\w+)"
+    _REGEXP_EQU_TXT = r"\s*\.equ\s+(?P<key>[A-Za-z0-9\_]+)\s*,\s*(?P<val>[A-Za-z0-9()*/+-]+)"
 
     _REGEXP_REQ_TXT = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
     _REGEXP_UNREQ_TXT = r"\s*\.unreq\s+(?P<alias>\w+)"
