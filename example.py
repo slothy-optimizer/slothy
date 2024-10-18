@@ -1963,6 +1963,7 @@ class ntt_kyber_symbolic(Example):
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic_factor = 2
         slothy.config.split_heuristic_repeat = 1
+        slothy.fusion_loop("2",ssa=False)
         slothy.optimize_loop("2")
 
 
