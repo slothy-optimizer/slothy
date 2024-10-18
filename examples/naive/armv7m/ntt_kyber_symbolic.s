@@ -167,7 +167,6 @@ ntt_fast_symbolic:
 	// s24: tmp
 	vmov s24, tmp
 	1:
-layer1234_start:
 		// load a1, a3, ..., a15
 		// vmov s23, poly
 		load poly, R<poly1>, R<poly3>, R<poly5>, R<poly7>, #offset, #distance/4+offset, #2*distance/4+offset, #3*distance/4+offset
@@ -257,7 +256,6 @@ layer1234_start:
 		str.w R<poly0out>, [poly], #4
 
 	vmov tmp, s24
-	layer1234_end:
 	cmp.w poly, tmp
 	bne.w 1b
 
@@ -283,7 +281,6 @@ layer1234_start:
 	add.w tmp, poly, #strincr2*16
 	vmov s13, tmp
 	2:
-	layer567_start:
 		vmov s23, poly
 		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
 		load poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
@@ -299,8 +296,6 @@ layer1234_start:
 		str.w poly0, [poly], #strincr2
 
 	vmov tmp, s13
-	layer567_end:
-
 	cmp.w poly, tmp
 	bne.w 2b
 

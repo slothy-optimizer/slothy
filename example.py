@@ -1930,38 +1930,41 @@ class ntt_kyber_symbolic(Example):
         slothy.config.outputs = ["r14", "s23"]
         slothy.config.reserved_regs = ["r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
         slothy.config.inputs_are_outputs = True
-
+        slothy.config.variable_size = True
         orig_functional_only = slothy.config.constraints.functional_only
         orig_allow_reordering = slothy.config.constraints.allow_reordering
 
         # Step 1: find minimum number of stack spills in first loop
-        slothy.config.objective_lower_bound = 8
-        slothy.config.constraints.functional_only = True
-        slothy.config.constraints.allow_spills = True
-        slothy.config.constraints.minimize_spills = True
-        slothy.config.constraints.allow_reordering = False
-        slothy.optimize(start="layer1234_start", end="layer1234_end")
-        slothy.config.constraints.functional_only = orig_functional_only
-        slothy.config.constraints.allow_spills = False
-        slothy.config.constraints.allow_reordering = orig_allow_reordering
-        slothy.config.absorb_spills = False
+        # slothy.config.objective_lower_bound = 8
+        # slothy.config.constraints.functional_only = True
+        # slothy.config.constraints.allow_spills = True
+        # slothy.config.constraints.minimize_spills = True
+        # slothy.config.constraints.allow_reordering = False
+        # slothy.optimize_loop("1")
+        # slothy.config.constraints.functional_only = orig_functional_only
+        # slothy.config.constraints.allow_spills = False
+        # slothy.config.constraints.allow_reordering = orig_allow_reordering
+        # slothy.config.absorb_spills = False
 
-        # Step 2: optimize second loop
-        #slothy.config.variable_size = True
-        #slothy.config.constraints.stalls_first_attempt = 4
-        #slothy.fusion_region(start="layer567_start", end="layer567_end", ssa=False)
-        #slothy.optimize(start="layer567_start", end="layer567_end")
+        # # Step 2: optimize first loop
+        # # # TODO: use a small factor and larger repeat
+        # slothy.config.constraints.stalls_first_attempt = 0
+        # slothy.config.sw_pipelining.halving_heuristic = True
+        # slothy.config.split_heuristic = True
+        # slothy.config.split_heuristic_factor = 4
+        # slothy.config.split_heuristic_stepsize = 0.15
+        # slothy.config.split_heuristic_repeat = 1
+        # slothy.optimize("1")
 
-
-        # Step 3: optimize first loop
-        # TODO: try having heuristic
-        slothy.config.constraints.stalls_first_attempt = 0
+        # Step 3: optimize second loop
+        # TODO: use a small factor and larger repeat
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 10
-        slothy.config.split_heuristic_stepsize = 0.15
-        ## TODO: run with more repeats
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic_factor = 2
         slothy.config.split_heuristic_repeat = 1
-        slothy.optimize(start="layer1234_start", end="layer1234_end")
+        slothy.optimize_loop("2")
+
 
 
 
