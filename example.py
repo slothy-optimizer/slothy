@@ -1918,7 +1918,7 @@ class ntt_kyber(Example):
         slothy.config.split_heuristic_factor = 4
         slothy.config.split_heuristic_stepsize = 0.15
         slothy.config.split_heuristic_repeat = 1
-        slothy.optimize("1")
+        slothy.optimize_loop("1")
 
 class ntt_kyber_symbolic(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1961,7 +1961,7 @@ class ntt_kyber_symbolic(Example):
         slothy.config.split_heuristic_factor = 4
         slothy.config.split_heuristic_stepsize = 0.15
         slothy.config.split_heuristic_repeat = 1
-        slothy.optimize("1")
+        slothy.optimize_loop("1")
 
         # Step 3: optimize second loop
         # TODO: use a small factor and larger repeat
