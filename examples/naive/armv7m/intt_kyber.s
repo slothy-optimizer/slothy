@@ -198,7 +198,6 @@ invntt_fast:
 	add.w tmp, poly, #8*strincr
 	vmov s8, tmp
 	1:
-    layer1234_loop_start:
 		vmov s23, poly
 		// load a1, a3, ..., a15
 		load poly, poly0, poly1, poly2, poly3, #offset, #distance/4+offset, #2*distance/4+offset, #3*distance/4+offset
@@ -307,7 +306,6 @@ invntt_fast:
 		str.w tmp, [poly], #strincr // increase 2*8*4 = 64 (2 * 8 loads of 4 bytes each)
 		//0,2,4,6: < 1.5q
 	vmov tmp, s8
-    layer1234_loop_end:
 	cmp.w poly, tmp
 	bne.w 1b
 
@@ -346,7 +344,6 @@ invntt_fast:
 	add.w tmp, poly, #strincr2*3*(5)
 	vmov s14, tmp
 	2:
-        layer567_loop_start:
 		vmov s6, poly
 		// polys upto 5.5q
 		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
@@ -366,7 +363,6 @@ invntt_fast:
 		str.w poly0, [poly], #4
 
 	vmov tmp, s14
-    layer567_loop_end:
 	cmp.w poly, tmp
 	bne.w 2b
 
