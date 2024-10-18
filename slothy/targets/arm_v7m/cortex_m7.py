@@ -55,7 +55,7 @@ def add_further_constraints(slothy):
         return
     # add_slot_constraints(slothy)
     # add_st_hazard(slothy)
-    add_load_bank_conflict(slothy)
+    #add_load_bank_conflict(slothy)
 
 # TODO: this seems incorrect
 def add_slot_constraints(slothy):
@@ -75,30 +75,6 @@ def add_st_hazard(slothy):
         slothy._Add(t0.cycle_start_var != t1.cycle_start_var + 1)
 
 
-def add_load_bank_conflict(slothy):
-    def is_ldr_pair(inst_a, inst_b):
-        return inst_a.inst.is_ldr() and inst_b.inst.is_ldr()
-
-    def evaluate_immediate(string_expr):
-        if string_expr is None:
-            return 0
-        if re.fullmatch(r"[*+\-/0-9 ()]+", string_expr):
-            # TODO: use something safer here
-            return int(eval(string_expr))
-        else:
-            raise Exception(f"could not parse {string_expr}")
-    # The Cortex-M7 has two memory banks
-    # If two loads use the same memory bank, they cannot dual issue
-    # There are no constraints which load can go to which issue slot
-    # Approximiation: Only look at immediates, i.e., assume all pointers are aligned to 8 bytes
-    for t0, t1 in slothy.get_inst_pairs(cond=is_ldr_pair):
-        if t0 == t1:
-            continue
-
-        imm0 = evaluate_immediate(t0.inst.immediate)
-        imm1 = evaluate_immediate(t1.inst.immediate)
-        if (imm0 % 8) // 4 == (imm1 % 8) // 4:
-            slothy._Add(t0.cycle_start_var != t1.cycle_start_var)
 
 
 # Opaque function called by SLOTHY to add further microarchitecture-
@@ -312,10 +288,33 @@ def get_latency(src, out_idx, dst):
 
 def get_units(src):
     units = lookup_multidict(execution_units, src)
+
+
+    def evaluate_immediate(string_expr):
+        if string_expr is None:
+            return 0
+        if re.fullmatch(r"[*+\-/0-9 ()]+", string_expr):
+            # TODO: use something safer here
+            return int(eval(string_expr))
+        else:
+            raise Exception(f"could not parse {string_expr}")
+
+
+    # The Cortex-M7 has two memory banks
+    # If two loads use the same memory bank, they cannot dual issue
+    # There are no constraints which load can go to which issue slot
+    # Approximiation: Only look at immediates, i.e., assume all pointers are aligned to 8 bytes
+    if src.is_ldr():
+        imm = evaluate_immediate(src.immediate)
+
+        if (imm % 8) // 4 == 0:
+            return [ExecutionUnit.LOAD0]
+        else:
+            return [ExecutionUnit.LOAD1]
+
     if isinstance(units, list):
         return units
     return [units]
-
 
 def get_inverse_throughput(src):
     itp = lookup_multidict(inverse_throughput, src)
