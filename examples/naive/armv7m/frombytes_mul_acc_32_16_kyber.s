@@ -4,7 +4,7 @@
 
 // q locate in the top half of the register
 .macro plant_red q, qa, qinv, tmp
-	mul \tmp, \tmp, \qinv     
+	mul \tmp, \tmp, \qinv
 	//tmp*qinv mod 2^2n/ 2^n; in high half
 	smlatt \tmp, \tmp, \q, \qa
 	// result in high half
@@ -13,11 +13,11 @@
 .macro doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, poly0, poly1, poly3, res0, tmp, q, qa, qinv
   ldr \poly0, [\bptr], #4
   ldr \res0, [\rptr_tmp], #4
-  
-  smulwt \tmp, \zeta, \poly1 
-	smlabt \tmp, \tmp, \q, \qa  
+
+  smulwt \tmp, \zeta, \poly1
+	smlabt \tmp, \tmp, \q, \qa
 	smlatt \tmp, \poly0, \tmp, \res0
-	smlabb \tmp, \poly0, \poly1, \tmp 
+	smlabb \tmp, \poly0, \poly1, \tmp
   plant_red \q, \qa, \qinv, \tmp
 
   ldr \res0, [\rptr_tmp], #4
@@ -31,11 +31,11 @@
 
   ldr \poly0, [\bptr], #4
   ldr \res0, [\rptr_tmp], #4
-  
-  smulwt \tmp, \zeta, \poly3 
-	smlabt \tmp, \tmp, \q, \qa  
+
+  smulwt \tmp, \zeta, \poly3
+	smlabt \tmp, \tmp, \q, \qa
 	smlatt \tmp, \poly0, \tmp, \res0
-	smlabb \tmp, \poly0, \poly3, \tmp 
+	smlabb \tmp, \poly0, \poly3, \tmp
   plant_red \q, \qa, \qinv, \tmp
 
   ldr \res0, [\rptr_tmp], #4
@@ -44,14 +44,14 @@
 
   pkhtb \res0, \res0, \tmp, asr #16
   str \res0, [\rptr], #4
-.endm 
+.endm
 
 // reduce 2 registers
 .macro deserialize aptr, tmp, tmp2, tmp3, t0, t1
 	ldrb.w \tmp, [\aptr, #2]
 	ldrh.w \tmp2, [\aptr, #3]
 	ldrb.w \tmp3, [\aptr, #5]
-	ldrh.w \t0, [\aptr], #6
+	ldrh.w \t0, [\aptr], #6  // @slothy:core=True
 
 	ubfx.w \t1, \t0, #12, #4
 	ubfx.w \t0, \t0, #0, #12
@@ -88,24 +88,25 @@ frombytes_mul_asm_acc_32_16:
   rptr_tmp .req r3
 
   movw qa, #26632
-	movt  q, #3329  
+	movt  q, #3329
 	### qinv=0x6ba8f301
 	movw qinv, #62209
 	movt qinv, #27560
 
   ldr.w tmp, [sp, #9*4] // load rptr_tmp from stack
   vmov s1, tmp
-  
+  vmov s2, zetaptr
   add ctr, tmp, #64*4*4
   1:
-    ldr.w zeta, [zetaptr], #4
+    vmov zetaptr, s2
+    ldr.w zeta, [zetaptr], #4 // @slothy:core=True
     deserialize aptr, tmp, tmp2, tmp3, t0, t1
     vmov s2, zetaptr
     vmov rptr_tmp, s1
     doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, tmp3, t0, t1, tmp, tmp2, q, qa, qinv
     vmov s1, rptr_tmp
+
     cmp.w rptr_tmp, ctr
-    vmov zetaptr, s2
     bne.w 1b
 
 pop {r4-r11, pc}

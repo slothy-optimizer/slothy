@@ -2098,9 +2098,11 @@ class basemul_acc_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
+
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
+
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
