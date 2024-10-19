@@ -149,6 +149,36 @@ class Config(NestedPrint, LockAttributes):
         return self._selfcheck_failure_logfile
 
     @property
+    def unsafe_address_offset_fixup(self):
+        """Whether address offset fixup is enabled
+
+        Address offset fixup is a feature which leverages commutativity relations
+        such as
+
+        ```
+           ldr X, [A], #immA;
+           str Y, [A, #immB]
+        ==
+           str Y, [A, #(immB+immA)]
+           ldr X, [A], #immA
+        ```
+
+        to achieve greater instruction scheduling flexibility in SLOTHY.
+
+        SAFETY:
+        When you enable this feature, you MUST ensure that registers which are
+        used for addresses are not used in any other instruction than load and
+        stores. OTHERWISE, THE USE OF THIS FEATURE IS UNSOUND (you may see ldr/
+        str instructions with increment reordered with instructions depending
+        on the address register).
+
+        Note: The user-imposed safety constraint is not a necessity -- in principle,
+        SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
+        It just hasn't been implemented yet.
+        """
+        return self._unsafe_address_offset_fixup
+
+    @property
     def allow_useless_instructions(self):
         """Indicates whether SLOTHY should abort upon encountering unused instructions.
 
@@ -1120,6 +1150,11 @@ class Config(NestedPrint, LockAttributes):
         self._selfcheck_failure_logfile = None
         self._allow_useless_instructions = False
 
+        # TODO: This should be False by default, but this is a breaking
+        # change that requires a lot of examples (where it _is_ safe to
+        # apply address offset fixup) to be changed.
+        self._unsafe_address_offset_fixup = True
+
         self._absorb_spills = True
 
         self._split_heuristic = False
@@ -1237,6 +1272,9 @@ class Config(NestedPrint, LockAttributes):
     @allow_useless_instructions.setter
     def allow_useless_instructions(self,val):
         self._allow_useless_instructions = val
+    @unsafe_address_offset_fixup.setter
+    def unsafe_address_offset_fixup(self,val):
+        self._unsafe_address_offset_fixup = val
     @locked_registers.setter
     def locked_registers(self,val):
         self._locked_registers = val
