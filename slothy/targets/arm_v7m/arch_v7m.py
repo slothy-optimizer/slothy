@@ -163,6 +163,7 @@ class VmovCmpLoop(Loop):
         logging.debug(f"Loop counter {loop_cnt} is incremented by {inc_per_iter} per iteration")
         # Check whether instructions modifying the loop count moved to
         # pre/postamble and adjust the fixup based on that.
+        new_fixup = 0
         if postamble_code is not None:
             new_fixup = 0
             for l in postamble_code:
@@ -229,6 +230,7 @@ class CmpLoop(Loop):
     
         # Check whether instructions modifying the loop count moved to
         # pre/postamble and adjust the fixup based on that.
+        new_fixup = 0
         if postamble_code is not None:
             new_fixup = 0
             for l in postamble_code:
