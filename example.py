@@ -1777,22 +1777,26 @@ class intt_769_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: try havling heuristic
-        slothy.config.constraints.stalls_first_attempt = 0
-        slothy.config.split_heuristic = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.split_heuristic_factor = 6
-        slothy.config.split_heuristic_stepsize = 0.15
-        # TODO: run with more repeats
-        slothy.config.split_heuristic_repeat = 2
-        slothy.config.sw_pipelining.enabled = True
-        # TODO: Fix output declarations! Renaming breaks code!
-        slothy.config.outputs = ["r14", "s8"]
+        slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+
+        slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
+
+        slothy.config.split_heuristic_factor = 2
+        slothy.config.split_heuristic_stepsize = 0.4
+        slothy.config.split_heuristic_repeat = 1
+
+        # slothy.config.outputs = ["s8"]
         slothy.optimize_loop("layer1234_loop")
 
-        slothy.config.outputs = ["r14", "s14"]
-        slothy.config.inputs_are_outputs = True
+        # TODO: need to optimize first teration of that looop
+
+        # slothy.config.outputs = ["s14"]
         slothy.fusion_loop("layer567_loop", ssa=False)
         slothy.optimize_loop("layer567_loop")
 
