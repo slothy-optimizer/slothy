@@ -2121,6 +2121,9 @@ class frombytes_mul_16_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
         # TODO: work on this
         slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_reordering = False
@@ -2147,6 +2150,8 @@ class frombytes_mul_acc_32_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
 
         # TODO: work on this
         slothy.config.constraints.functional_only = True
