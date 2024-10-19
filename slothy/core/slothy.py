@@ -470,7 +470,7 @@ class Slothy:
             preamble_code=preamble_code,
             body_code=kernel_code,
             postamble_code=postamble_code,
-            loop_cnt_reg=c.register_aliases[loop_cnt]))
+            register_aliases=c.register_aliases))
         optimized_code += indented(kernel_code)
         optimized_code += SourceLine.read_multiline(loop.end(other_data,
             indentation=self.config.indentation))

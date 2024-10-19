@@ -140,7 +140,7 @@ class VmovCmpLoop(Loop):
                           r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
                                rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
     
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, loop_cnt_reg=None):
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:
@@ -150,6 +150,10 @@ class VmovCmpLoop(Loop):
         # Find out by how much the loop counter is modified in one iteration
         inc_per_iter = 0
         if body_code is not None:
+            try:
+                loop_cnt_reg = register_aliases[loop_cnt]
+            except KeyError:
+                loop_cnt_reg = loop_cnt
             for l in body_code:
                 if l.text == "":
                     continue
@@ -201,7 +205,7 @@ class CmpLoop(Loop):
         self.end_regex = (r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
                                rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
     
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, loop_cnt_reg=None):
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:
@@ -211,6 +215,10 @@ class CmpLoop(Loop):
         # Find out by how much the loop counter is modified in one iteration
         inc_per_iter = 0
         if body_code is not None:
+            try:
+                loop_cnt_reg = register_aliases[loop_cnt]
+            except KeyError:
+                loop_cnt_reg = loop_cnt
             for l in body_code:
                 if l.text == "":
                     continue
@@ -257,7 +265,7 @@ class SubsLoop(Loop):
         self.end_regex = (r"^\s*sub[s]?(?:\.w)?\s+(?P<cnt>\w+),(?:\s*(?P<reg1>\w+),)?\s*(?P<imm>#1)",
                                rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl_start}")
 
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None):
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:
