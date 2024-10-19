@@ -1597,7 +1597,7 @@ vldm_interval_inc_writeback.global_fusion_cb  = vldm_interval_inc_writeback_spli
 def ldrd_postinc_splitting_cb():
     def core(inst,t,log=None):
 
-        ptr = inst.args_in_out[0]
+        ptr = inst.args_in[0]
         regs = inst.args_out
         width = inst.width
         
