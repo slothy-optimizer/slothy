@@ -51,7 +51,7 @@
 	ldrb.w \tmp, [\aptr, #2]
 	ldrh.w \tmp2, [\aptr, #3]
 	ldrb.w \tmp3, [\aptr, #5]
-	ldrh.w \t0, [\aptr], #6  // @slothy:core=True
+	ldrh.w \t0, [\aptr], #6
 
 	ubfx.w \t1, \t0, #12, #4
 	ubfx.w \t0, \t0, #0, #12
@@ -88,7 +88,7 @@ frombytes_mul_asm_acc_32_16:
   rptr_tmp .req r3
 
   movw qa, #26632
-	movt  q, #3329
+	movt  q, #3329  
 	### qinv=0x6ba8f301
 	movw qinv, #62209
 	movt qinv, #27560
@@ -99,12 +99,17 @@ frombytes_mul_asm_acc_32_16:
   add ctr, tmp, #64*4*4
   1:
     vmov zetaptr, s2
-    ldr.w zeta, [zetaptr], #4 // @slothy:core=True
+    ldr.w zeta, [zetaptr], #4
     deserialize aptr, tmp, tmp2, tmp3, t0, t1
     vmov s2, zetaptr
     vmov rptr_tmp, s1
     doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, tmp3, t0, t1, tmp, tmp2, q, qa, qinv
     vmov s1, rptr_tmp
+
+
+    // To stop SLOTHY from thinking this is a vmov+cmp loop
+    // TODO: find another solution
+    movw zeta, #0
 
     cmp.w rptr_tmp, ctr
     bne.w 1b

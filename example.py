@@ -2121,9 +2121,14 @@ class frombytes_mul_16_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14"]
-        slothy.config.inputs_are_outputs = True
-        slothy.config.variable_size = True
+        # TODO: work on this
+        slothy.config.constraints.functional_only = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.constraints.allow_renaming = False
+        slothy.config.allow_useless_instructions = True
+
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
+
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
@@ -2142,9 +2147,15 @@ class frombytes_mul_acc_32_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14"]
-        slothy.config.inputs_are_outputs = True
-        slothy.config.variable_size = True
+
+        # TODO: work on this
+        slothy.config.constraints.functional_only = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.constraints.allow_renaming = False
+        slothy.config.allow_useless_instructions = True
+
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
+
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
@@ -2163,11 +2174,19 @@ class frombytes_mul_acc_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14", "s2", "r3"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 16
+
+        # TODO: work on this
+        slothy.config.constraints.functional_only = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.constraints.allow_renaming = False
+        slothy.config.allow_useless_instructions = True
+
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
+
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
 
 class add_kyber(Example):
