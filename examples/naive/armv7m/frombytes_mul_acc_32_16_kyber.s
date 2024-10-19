@@ -96,19 +96,16 @@ frombytes_mul_asm_acc_32_16:
   ldr.w tmp, [sp, #9*4] // load rptr_tmp from stack
   vmov s1, tmp
   
-  vmov rptr_tmp, s1
-  vmov s2, zetaptr
-
   add ctr, tmp, #64*4*4
   1:
-    vmov s1, rptr_tmp
-    vmov zetaptr, s2
     ldr.w zeta, [zetaptr], #4
     deserialize aptr, tmp, tmp2, tmp3, t0, t1
     vmov s2, zetaptr
     vmov rptr_tmp, s1
     doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, tmp3, t0, t1, tmp, tmp2, q, qa, qinv
+    vmov s1, rptr_tmp
     cmp.w rptr_tmp, ctr
+    vmov zetaptr, s2
     bne.w 1b
 
 pop {r4-r11, pc}
