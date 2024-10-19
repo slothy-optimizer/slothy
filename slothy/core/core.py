@@ -2763,6 +2763,8 @@ class SlothyBase(LockAttributes):
             for r in self.config.sw_pipelining.boundary_reserved_regs:
                 if r not in alloc.keys():
                     continue
+                if producer.src.is_virtual is True or consumer.is_virtual is True:
+                    continue
                 self._Add(alloc[r] == False).OnlyEnforceIf(producer.src.pre_var, consumer.pre_var.Not())
 
         if self.config.sw_pipelining.pre_before_post:
