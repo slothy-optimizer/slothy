@@ -1638,7 +1638,7 @@ def vldm_interval_inc_writeback_splitting_cb():
         for r in regs:
             ldr = Armv7mInstruction.build(
                 vldr_with_imm, {"width": width, "Sd": r, "Ra": ptr, "imm": f"#{offset}"})
-            idr.pre_index = offset
+            ldr.pre_index = offset
             ldrs.append(ldr)
             offset += 4
         
