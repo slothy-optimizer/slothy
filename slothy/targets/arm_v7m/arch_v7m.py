@@ -385,14 +385,33 @@ class Instruction:
         return False
 
     def is_ldr(self):
-         return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback])
+         return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback,])
 
     def is_load(self):
         """Indicates if an instruction is a load instruction"""
-        return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback, ldm_interval, ldm_interval_inc_writeback ])
+        return self._is_instance_of([ ldr, 
+                                      ldr_with_imm,
+                                      ldrb_with_imm,
+                                      ldrh_with_imm,
+                                      ldr_with_imm_stack,
+                                      ldr_with_postinc,
+                                      ldrh_with_postinc,
+                                      ldrd_with_postinc,
+                                      ldr_with_inc_writeback,
+                                      ldm_interval,
+                                      ldm_interval_inc_writeback,
+                                      vldr_with_imm,
+                                      vldr_with_postinc,
+                                      vldm_interval_inc_writeback])
     def is_store(self):
         """Indicates if an instruction is a store instruction"""
-        return self._is_instance_of([ str_with_imm, str_with_imm_stack, str_with_postinc, stm_interval_inc_writeback, str_no_off, strh_with_imm, strh_with_postinc ])
+        return self._is_instance_of([ str_no_off,
+                                      strh_with_imm,
+                                      str_with_imm,
+                                      str_with_imm_stack,
+                                      str_with_postinc,
+                                      strh_with_postinc,
+                                      stm_interval_inc_writeback])
     def is_load_store_instruction(self):
         """Indicates if an instruction is a load or store instruction"""
         return self.is_load() or self.is_store()
