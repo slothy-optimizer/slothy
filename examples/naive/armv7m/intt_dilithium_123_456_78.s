@@ -265,7 +265,7 @@ pqcrystals_dilithium_invntt_tomont:
     //add.w ptr_p, #strincr2
 
     vmov temp_l, s10
-    cmp.w temp_l, ptr_p
+    cmp.w ptr_p, temp_l
   bne.w layer456_first_loop
 
   sub.w ptr_p, #4*256-4
@@ -308,7 +308,7 @@ pqcrystals_dilithium_invntt_tomont:
     sub.w ptr_p, #4*strincr2-4
 
     vmov temp_l, s9
-    cmp.w temp_l, ptr_p
+    cmp.w ptr_p, temp_l
   bne 1b
   
   sub ptr_p, #8*4
