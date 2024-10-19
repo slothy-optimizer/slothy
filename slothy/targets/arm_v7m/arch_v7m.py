@@ -1160,6 +1160,10 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
         obj.addr = obj.args_in[0]
         return obj
 
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrb<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra"]
@@ -1171,6 +1175,10 @@ class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
     
 class ldrh_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrh<width> <Rd>, [<Ra>, <imm>]"
@@ -1184,6 +1192,10 @@ class ldrh_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
         obj.addr = obj.args_in[0]
         return obj
 
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [sp, <imm>]"
     inputs = []
@@ -1195,6 +1207,10 @@ class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docst
         obj.pre_index = obj.immediate
         obj.addr = "sp"
         return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
 
 class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>], <imm>"
@@ -1306,6 +1322,11 @@ class vldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
         obj.addr = obj.args_in[0]
         return obj
     
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
 class vldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vldr<width> <Sd>, [<Ra>], <imm>"
     inputs = ["Ra"]
@@ -1366,6 +1387,10 @@ class strh_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring
         obj.addr = obj.args_in[0]
         return obj
 
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra", "Rd"]
@@ -1378,6 +1403,10 @@ class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,
         obj.addr = obj.args_in[0]
         return obj
 
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [sp, <imm>]"
     inputs = ["Rd"]
@@ -1389,6 +1418,10 @@ class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docs
         obj.pre_index = obj.immediate
         obj.addr = "sp"
         return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
 
 class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>], <imm>"
