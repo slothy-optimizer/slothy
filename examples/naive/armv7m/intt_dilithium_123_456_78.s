@@ -342,10 +342,10 @@ pqcrystals_dilithium_invntt_tomont:
     str.w pol1, [ptr_p, #256]
     str.w pol2, [ptr_p, #512]
     str.w pol3, [ptr_p, #768]
-    str pol0, [ptr_p], #strincr3
+    str pol0, [ptr_p], #strincr3 // @slothy:core
 
     vmov cntr, s9
-    cmp.w cntr, ptr_p
+    cmp.w ptr_p, cntr
     bne.w layer78_loop
 
     //restore registers

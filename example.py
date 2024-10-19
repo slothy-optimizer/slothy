@@ -1529,7 +1529,7 @@ class ntt_dilithium(Example):
         slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.minimize_overlapping = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = True
         slothy.config.sw_pipelining.optimize_postamble = True
         slothy.config.sw_pipelining.allow_pre = True
@@ -1561,15 +1561,22 @@ class intt_dilithium_123_456_78(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14", "r10"]
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = True
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r10"]
+        slothy.config.sw_pipelining.optimize_preamble = True
+        slothy.config.sw_pipelining.optimize_postamble = True
+        slothy.config.sw_pipelining.allow_pre = True
 
         slothy.optimize_loop("layer123_loop")
         slothy.optimize_loop("layer456_first_loop")
         slothy.optimize_loop("layer456_loop")
 
-        slothy.config.outputs = ["r14", "r4"]
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r4"]
+        slothy.config.outputs = []
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer78_loop")
 
@@ -1914,13 +1921,13 @@ class ntt_kyber(Example):
         slothy.fusion_loop("2", ssa=False)
         slothy.optimize_loop("2")
 
-    
+
         # Step 2: Optimize first loop
         # TODO: use a small factor and larger repeat
         slothy.config.split_heuristic = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
-    
+
         slothy.config.split_heuristic_factor = 4
         slothy.config.split_heuristic_stepsize = 0.15
         slothy.config.split_heuristic_repeat = 1
