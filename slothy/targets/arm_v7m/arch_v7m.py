@@ -140,13 +140,23 @@ class VmovCmpLoop(Loop):
                           r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
                                rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
     
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, postamble_code=None):
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, loop_cnt_reg=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:
             assert unroll in [1,2,4,8,16,32]
             yield f"{indent}lsr {self.additional_data['end']}, {self.additional_data['end']}, #{int(math.log2(unroll))}"
-    
+
+        # Find out by how much the loop counter is modified in one iteration
+        inc_per_iter = 0
+        if body_code is not None:
+            for l in body_code:
+                if l.text == "":
+                    continue
+                inst = Instruction.parser(l)
+                if loop_cnt_reg.lower() == inst[0].addr and inst[0].increment is not None:
+                    inc_per_iter = inc_per_iter + simplify(inst[0].increment)
+        logging.debug(f"Loop counter {loop_cnt} is incremented by {inc_per_iter} per iteration")
         # Check whether instructions modifying the loop count moved to
         # pre/postamble and adjust the fixup based on that.
         if postamble_code is not None:
@@ -157,10 +167,18 @@ class VmovCmpLoop(Loop):
                 inst = Instruction.parser(l)
                 if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
                     new_fixup = new_fixup + simplify(inst[0].increment)
-            fixup = new_fixup
 
+        if new_fixup != 0 or fixup != 0:
+            yield f"{indent}push {{{self.additional_data['end']}}}"
+            yield f"{indent}vmov {self.additional_data['end']}, {self.additional_data['endf']}"
+        
+        if new_fixup != 0:
+            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
         if fixup != 0:
-            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup}"
+            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
+        if new_fixup != 0 or fixup != 0:
+            yield f"{indent}vmov {self.additional_data['endf']}, {self.additional_data['end']}"
+            yield f"{indent}pop {{{self.additional_data['end']}}}"
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl}:"
@@ -183,12 +201,23 @@ class CmpLoop(Loop):
         self.end_regex = (r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
                                rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
     
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, postamble_code=None):
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, loop_cnt_reg=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:
             assert unroll in [1,2,4,8,16,32]
             yield f"{indent}lsr {self.additional_data['end']}, {self.additional_data['end']}, #{int(math.log2(unroll))}"
+    
+        # Find out by how much the loop counter is modified in one iteration
+        inc_per_iter = 0
+        if body_code is not None:
+            for l in body_code:
+                if l.text == "":
+                    continue
+                inst = Instruction.parser(l)
+                if loop_cnt_reg.lower() == inst[0].addr and inst[0].increment is not None:
+                    inc_per_iter = inc_per_iter + simplify(inst[0].increment)
+        logging.debug(f"Loop counter {loop_cnt} is incremented by {inc_per_iter} per iteration")
     
         # Check whether instructions modifying the loop count moved to
         # pre/postamble and adjust the fixup based on that.
@@ -200,10 +229,13 @@ class CmpLoop(Loop):
                 inst = Instruction.parser(l)
                 if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
                     new_fixup = new_fixup + simplify(inst[0].increment)
-            fixup = new_fixup
 
+        if new_fixup != 0:
+            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
+        
         if fixup != 0:
-            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup}"
+            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
+        
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl_start}:"
@@ -225,7 +257,7 @@ class SubsLoop(Loop):
         self.end_regex = (r"^\s*sub[s]?(?:\.w)?\s+(?P<cnt>\w+),(?:\s*(?P<reg1>\w+),)?\s*(?P<imm>#1)",
                                rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl_start}")
 
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, postamble_code=None):
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:

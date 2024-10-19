@@ -468,7 +468,9 @@ class Slothy:
             unroll=self.config.sw_pipelining.unroll,
             jump_if_empty=jump_if_empty,
             preamble_code=preamble_code,
-            postamble_code=postamble_code))
+            body_code=kernel_code,
+            postamble_code=postamble_code,
+            loop_cnt_reg=c.register_aliases[loop_cnt]))
         optimized_code += indented(kernel_code)
         optimized_code += SourceLine.read_multiline(loop.end(other_data,
             indentation=self.config.indentation))
