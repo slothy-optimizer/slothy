@@ -1522,21 +1522,27 @@ class ntt_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.with_llvm_mca = True
-        slothy.config.llvm_mca_full = True
-        slothy.config.constraints.stalls_first_attempt = 3
+        # slothy.config.with_llvm_mca = True
+        # slothy.config.llvm_mca_full = True
+        slothy.config.constraints.stalls_first_attempt = 16
 
         slothy.config.variable_size = True
-        slothy.config.sw_pipelining.enabled = True
-
         slothy.config.inputs_are_outputs = True
-        slothy.config.outputs = ["r0", "r10"]
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = True
+        slothy.config.sw_pipelining.optimize_preamble = True
+        slothy.config.sw_pipelining.optimize_postamble = True
+        slothy.config.sw_pipelining.allow_pre = True
+
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r10"]
+
+        slothy.config.outputs = ["r0"]
         slothy.optimize_loop("layer123_loop")
-        slothy.config.allow_useless_instructions = False
-        
-        slothy.config.outputs = ["r0", "s0", "s10", "s9", "r10"]
+
+        slothy.config.outputs = ["r0", "s0", "s10", "s9"]
         slothy.optimize_loop("layer456_loop")
 
+        slothy.config.sw_pipelining.boundary_reserved_regs = []
         slothy.config.outputs = ["r0", "r4"]  # r4 is cntr
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer78_loop")

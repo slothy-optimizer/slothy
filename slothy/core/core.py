@@ -2757,6 +2757,14 @@ class SlothyBase(LockAttributes):
                     # pylint:disable=singleton-comparison
                     self._Add(t.pre_var == False)
 
+        # Forbid emerging dependencies across the loop boundary if the
+        # loop boundary (that SLOTHY pretends does not exist) uses temporary registers
+        for (consumer,producer, _, _, _, _, alloc) in self._iter_dependencies_with_lifetime():
+            for r in self.config.sw_pipelining.boundary_reserved_regs:
+                if r not in alloc.keys():
+                    continue
+                self._Add(alloc[r] == False).OnlyEnforceIf(producer.src.pre_var, consumer.pre_var.Not())
+
         if self.config.sw_pipelining.pre_before_post:
             for t, s in [(t,s) for t in self._get_nodes(low=True) \
                                for s in self._get_nodes(low=True) ]:

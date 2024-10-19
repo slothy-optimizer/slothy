@@ -1198,50 +1198,50 @@ class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docst
 
 class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>], <imm>"
-    in_outs = ["Ra"]
+    inputs = [ "Ra" ]
     outputs = ["Rd"]
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in_out[0]
+        obj.addr = obj.args_in[0]
         return obj
     
 class ldrh_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrh<width> <Rd>, [<Ra>], <imm>"
-    in_outs = ["Ra"]
+    inputs = [ "Ra" ]
     outputs = ["Rd"]
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in_out[0]
+        obj.addr = obj.args_in[0]
         return obj
 
 class ldrd_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>], <imm>"
-    in_outs = ["Rc"]
+    inputs = [ "Rc" ]
     outputs = ["Ra", "Rb"]
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in_out[0]
+        obj.addr = obj.args_in[0]
         return obj
 
 class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>, <imm>]!"
-    in_outs = ["Ra"]
+    inputs = [ "Ra" ]
     outputs = ["Rd"]
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in_out[0]
+        obj.addr = obj.args_in[0]
         return obj
 
 class ldm_interval(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1308,14 +1308,14 @@ class vldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
     
 class vldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vldr<width> <Sd>, [<Ra>], <imm>"
-    in_outs = ["Ra"]
+    inputs = ["Ra"]
     outputs = ["Sd"]
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in_out[0]
+        obj.addr = obj.args_in[0]
         return obj
 
 class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1392,26 +1392,24 @@ class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docs
 
 class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>], <imm>"
-    inputs = ["Rd"]
-    in_outs = ["Ra"]
+    inputs = ["Rd", "Ra"]
     @classmethod
     def make(cls, src):
         obj = Armv7mStoreInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in_out[0]
+        obj.addr = obj.args_in[1]
         return obj
 
 class strh_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "strh<width> <Rd>, [<Ra>], <imm>"
-    inputs = ["Rd"]
-    in_outs = ["Ra"]
+    inputs = ["Rd", "Ra"]
     @classmethod
     def make(cls, src):
         obj = Armv7mStoreInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in_out[0]
+        obj.addr = obj.args_in[1]
         return obj
 
 class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name

@@ -691,6 +691,11 @@ class Config(NestedPrint, LockAttributes):
             return self._minimize_overlapping
 
         @property
+        def boundary_reserved_regs(self):
+            """Temporary registers used by the loop boundary (but otherwise need not be kept)"""
+            return self._boundary_reserved_regs
+
+        @property
         def optimize_preamble(self):
             """Perform a separate optimization pass for the loop preamble."""
             return self._optimize_preamble
@@ -757,6 +762,7 @@ class Config(NestedPrint, LockAttributes):
             self.allow_post = False
             self.unknown_iteration_count = False
             self.minimize_overlapping = True
+            self.boundary_reserved_regs = []
             self.optimize_preamble = True
             self.optimize_postamble = True
             self.max_overlapping = None
@@ -789,6 +795,9 @@ class Config(NestedPrint, LockAttributes):
         @minimize_overlapping.setter
         def minimize_overlapping(self,val):
             self._minimize_overlapping = val
+        @boundary_reserved_regs.setter
+        def boundary_reserved_regs(self,val):
+            self._boundary_reserved_regs = val
         @optimize_preamble.setter
         def optimize_preamble(self,val):
             self._optimize_preamble = val
