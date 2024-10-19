@@ -1144,9 +1144,15 @@ class ldr(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-na
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = None
-        obj.pre_index = None
+        obj.pre_index = 0
         obj.addr = obj.args_in[0]
         return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = ldr_with_imm.pattern
+        return super().write()
 
 class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>, <imm>]"
@@ -1372,8 +1378,15 @@ class str_no_off(Armv7mStoreInstruction): # pylint: disable=missing-docstring,in
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = None
+        obj.pre_index = 0
         obj.addr = obj.args_in[0]
         return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = str_with_imm.pattern
+        return super().write()
 
 class strh_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "strh<width> <Rd>, [<Ra>, <imm>]"
