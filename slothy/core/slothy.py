@@ -409,7 +409,7 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Optimizing loop %s (%d instructions) ...",
-            loop_lbl, len(body))
+            loop_lbl, len(list(filter(None, body))))
 
         if self.config.with_llvm_mca_before is True:
             orig_stats = self._make_llvm_mca_stats(early, body, late, "ORIGINAL", indentation)
