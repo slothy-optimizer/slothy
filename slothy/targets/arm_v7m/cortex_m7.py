@@ -19,6 +19,7 @@ from enum import Enum
 from itertools import product
 from slothy.targets.arm_v7m.arch_v7m import *
 import re
+from sympy import simplify
 
 issue_rate = 2
 llvm_mca_target = "cortex-m7"
@@ -293,12 +294,8 @@ def get_units(src):
     def evaluate_immediate(string_expr):
         if string_expr is None:
             return 0
-        if re.fullmatch(r"[*+\-/0-9 ()]+", string_expr):
-            # TODO: use something safer here
-            return int(eval(string_expr))
-        else:
-            raise Exception(f"could not parse {string_expr}")
-
+        string_expr = str(string_expr)
+        return int(simplify(string_expr))
 
     # The Cortex-M7 has two memory banks
     # If two loads use the same memory bank, they cannot dual issue
