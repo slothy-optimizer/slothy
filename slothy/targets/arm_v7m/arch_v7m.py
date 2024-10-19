@@ -1532,6 +1532,7 @@ def ldm_interval_splitting_cb():
         for r in regs:
             ldr = Armv7mInstruction.build(
                 ldr_with_imm, {"width": width, "Rd": r, "Ra": ptr, "imm": f"#{offset}"})
+            ldr.pre_index = offset
             ldrs.append(ldr)
             offset += 4
 
@@ -1563,6 +1564,7 @@ def stm_interval_inc_writeback_splitting_cb():
         for r in regs[:0:-1]:
             store = Armv7mInstruction.build(
                 str_with_imm, {"width": width, "Rd": r, "Ra": ptr, "imm": f"#{offset}"})
+            store.pre_index = offset
             strs.append(store)
             offset -= 4
         # Final store includes increment
@@ -1599,6 +1601,7 @@ def ldm_interval_inc_writeback_splitting_cb():
         for r in regs[:0:-1]:
             ldr = Armv7mInstruction.build(
                 ldr_with_imm, {"width": width, "Rd": r, "Ra": ptr, "imm": f"#{offset}"})
+            ldr.pre_index = offset
             ldrs.append(ldr)
             offset -= 4
         # Final load includes increment
@@ -1635,6 +1638,7 @@ def vldm_interval_inc_writeback_splitting_cb():
         for r in regs:
             ldr = Armv7mInstruction.build(
                 vldr_with_imm, {"width": width, "Sd": r, "Ra": ptr, "imm": f"#{offset}"})
+            idr.pre_index = offset
             ldrs.append(ldr)
             offset += 4
         
@@ -1670,6 +1674,7 @@ def ldrd_postinc_splitting_cb():
 
         ldr = Armv7mInstruction.build(
             ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": "#4"})
+        ldr.pre_index = 4
         ldrs.append(ldr)
         # Final load includes increment
         ldr = Armv7mInstruction.build(
