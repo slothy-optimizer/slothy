@@ -1934,7 +1934,7 @@ class ntt_kyber_symbolic(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        slothy.config.outputs = ["r14", "s23"]
+        slothy.config.outputs = ["s23"]
         slothy.config.reserved_regs = ["r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
@@ -1947,6 +1947,7 @@ class ntt_kyber_symbolic(Example):
         slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_spills = True
         slothy.config.constraints.minimize_spills = True
+        # TODO: it would be much better if we could allow re-ordering; but that seems out of reach for SLOTHY right now
         slothy.config.constraints.allow_reordering = False
         slothy.optimize_loop("1")
         slothy.config.constraints.functional_only = orig_functional_only

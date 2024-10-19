@@ -165,7 +165,6 @@ ntt_fast_symbolic:
 	add tmp, poly, #strincr*8
 	// s23: poly addr
 	// s24: tmp
-	vmov s24, tmp
 	1:
 		// load a1, a3, ..., a15
 		// vmov s23, poly
@@ -255,7 +254,6 @@ ntt_fast_symbolic:
 		str.w R<poly1out>, [poly, #offset]
 		str.w R<poly0out>, [poly], #4
 
-	vmov tmp, s24
 	cmp.w poly, tmp
 	bne.w 1b
 
