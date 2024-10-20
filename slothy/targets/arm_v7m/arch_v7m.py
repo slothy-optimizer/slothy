@@ -367,12 +367,14 @@ class Instruction:
         # Check if the source line is tagged as reading/writing from memory
         def add_memory_write(tag):
             self.num_out += 1
+            self.pattern_outputs.append((hint_register_name(tag), RegisterType.HINT))
             self.args_out_restrictions.append(None)
             self.args_out.append(hint_register_name(tag))
             self.arg_types_out.append(RegisterType.HINT)
 
         def add_memory_read(tag):
             self.num_in += 1
+            self.pattern_inputs.append((hint_register_name(tag), RegisterType.HINT))
             self.args_in_restrictions.append(None)
             self.args_in.append(hint_register_name(tag))
             self.arg_types_in.append(RegisterType.HINT)
@@ -734,7 +736,7 @@ class Armv7mInstruction(Instruction):
 
     @staticmethod
     def _instantiate_pattern(s, ty, arg, out):
-        if ty == RegisterType.FLAGS:
+        if ty == RegisterType.FLAGS or ty == RegisterType.HINT:
             return out
         rep = Armv7mInstruction._build_pattern_replacement(s, ty, arg)
         res = out.replace(f"<{s}>", rep)
