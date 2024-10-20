@@ -440,6 +440,7 @@ class Instruction:
                                       ldr_with_imm_stack,
                                       ldr_with_postinc,
                                       ldrh_with_postinc,
+                                      ldrd_imm,
                                       ldrd_with_postinc,
                                       ldr_with_inc_writeback,
                                       ldm_interval,
@@ -1305,6 +1306,20 @@ class ldrh_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
         obj.addr = obj.args_in_out[0]
         return obj
 
+
+class ldrd_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>, <imm>]"
+    in_outs = [ "Rc" ]
+    outputs = ["Ra", "Rb"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
 class ldrd_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>], <imm>"
     in_outs = [ "Rc" ]
@@ -1746,6 +1761,46 @@ def ldrd_postinc_splitting_cb():
     return core
 
 ldrd_with_postinc.global_fusion_cb  = ldrd_postinc_splitting_cb()
+
+
+
+def ldrd_imm_splitting_cb():
+    def core(inst,t,log=None):
+
+        ptr = inst.args_in_out[0]
+        regs = inst.args_out
+        width = inst.width
+
+        ldrs = []
+
+        ldr = Armv7mInstruction.build(
+            ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": "#4"})
+        ldr.pre_index = 4
+        ldrs.append(ldr)
+        # Final load includes increment
+        ldr = Armv7mInstruction.build(
+                ldr_with_imm, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": "#0"})
+        ldr.pre_index = 0
+        ldr.addr = ptr
+        ldrs.append(ldr)
+
+        for ldr in ldrs:
+            ldr_src = SourceLine(ldr.write()).\
+                add_tags(inst.source_line.tags).\
+                add_comments(inst.source_line.comments)
+            ldr.source_line = ldr_src
+
+        if log is not None:
+            log(f"ldrd splitting: {t.inst}; {[ldr for ldr in ldrs]}")
+
+        t.changed = True
+        t.inst = ldrs
+        return True
+
+    return core
+
+
+ldrd_imm.global_fusion_cb = ldrd_imm_splitting_cb()
 
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
