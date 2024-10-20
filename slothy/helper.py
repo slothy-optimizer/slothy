@@ -698,10 +698,17 @@ class AsmAllocation():
     def unfold_all_aliases(aliases, src):
         """Unfold aliases in assembly source"""
         def _apply_single_alias_to_line(alias_from, alias_to, src):
-            return re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\g<1>{alias_to}\\2", src)
+            res = re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\g<1>{alias_to}\\2", src)
+            return res
         def _apply_multiple_aliases_to_line(line):
-            for (alias_from, alias_to) in aliases.items():
-                line = _apply_single_alias_to_line(alias_from, alias_to, line)
+            do_again = True
+            while do_again:
+                do_again = False
+                for (alias_from, alias_to) in aliases.items():
+                    line_new = _apply_single_alias_to_line(alias_from, alias_to, line)
+                    if line_new != line:
+                        do_again = True
+                    line = line_new
             return line
         res = []
         for line in src:
