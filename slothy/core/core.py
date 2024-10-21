@@ -650,7 +650,7 @@ class Result(LockAttributes):
                     yield from gen_restore(reg, loc, gen_vis(0, d))
                 for (reg, loc) in spills:
                     yield from gen_spill(reg, loc, gen_vis(0, d))
-                if p is None and len(s) == 0 and len(r) == 0:
+                if p is None and len(spills) == 0 and len(restores) == 0:
                     gap_str = "gap"
                     yield SourceLine("")    \
                         .set_comment(f"{gap_str:{fixlen-4}s}") \
