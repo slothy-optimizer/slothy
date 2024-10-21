@@ -1682,13 +1682,12 @@ class ifnt_257_dilithium(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14", "s1", "r12"]
         slothy.config.inputs_are_outputs = True
-        slothy.config.sw_pipelining.enabled = True
-        # TODO: try havling heuristic
-        slothy.config.constraints.stalls_first_attempt = 0
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 4
         slothy.config.split_heuristic = True
-        slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic_factor = 6
         slothy.config.split_heuristic_stepsize = 0.15
+        slothy.config.objective_precision = 0.07
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 1
         slothy.fusion_loop("_ifnt_7_6_5_4", ssa=False)
