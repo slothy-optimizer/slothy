@@ -2997,13 +2997,10 @@ class cmge(ASimdCompare): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-
-class Stack:
+class Spill:
     def spill(reg, loc):
-        # TODO: Use store instruction
         return f"str {reg}, [sp, #STACK_LOC_{loc}]"
     def restore(reg, loc):
-        # TODO: Use load instruction
         return  f"ldr {reg}, [sp, #STACK_LOC_{loc}]"
 
 # In a pair of vins writing both 64-bit lanes of a vector, mark the

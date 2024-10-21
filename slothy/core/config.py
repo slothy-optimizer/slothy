@@ -970,6 +970,19 @@ class Config(NestedPrint, LockAttributes):
             return self._allow_spills
 
         @property
+        def spill_type(self):
+            """The type of spills to generate
+
+            This is usually spilling to the stack, but other options may exist.
+            For example, on Armv7-M microcontrollers it can be useful to spill
+            from the GPR file to the FPR file.
+
+            The type of this configuration option is architecture dependent.
+            You should consult the `Spill` class in the target architecture
+            model to understand the options."""
+            return self._spill_type
+
+        @property
         def minimize_spills(self):
             """Minimize number of stack spills
 
@@ -1027,6 +1040,7 @@ class Config(NestedPrint, LockAttributes):
             self._allow_reordering = True
             self._allow_renaming = True
             self._allow_spills = False
+            self._spill_type = None
 
             self.lock()
 
@@ -1066,6 +1080,9 @@ class Config(NestedPrint, LockAttributes):
         @allow_spills.setter
         def allow_spills(self,val):
             self._allow_spills = val
+        @spill_type.setter
+        def spill_type(self,val):
+            self._spill_type = val
         @minimize_spills.setter
         def minimize_spills(self,val):
             self._minimize_spills = val
