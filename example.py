@@ -2066,35 +2066,35 @@ class intt_kyber(Example):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
+        slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
+        slothy.config.timeout = 300
 
         # Step 1: optimize first loop
         slothy.config.split_heuristic = True
-        slothy.config.sw_pipelining.enabled = True
         slothy.config.split_heuristic_factor = 4
         slothy.config.split_heuristic_stepsize = 0.15
-        slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic_repeat = 1
         slothy.config.outputs = ["r14", "s8"]
         slothy.optimize_loop("1")
 
         # Step 2: optimize the start of the second loop
-        slothy.config.sw_pipelining.enabled = False
-        slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 2
-        slothy.config.split_heuristic_stepsize = 0.3
+        slothy.config.split_heuristic_factor = 2.5
+        slothy.config.split_heuristic_stepsize = 0.2
         slothy.config.outputs = ["r14", "r0", "r10", "s0", "s2"]
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize(start="layer567_first_start", end="layer567_first_end")
 
         # Step 3: optimize the start of the second loop
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 2
-        slothy.config.split_heuristic_stepsize = 0.3
+        slothy.config.split_heuristic_factor = 3
+        slothy.config.split_heuristic_stepsize = 0.2
         slothy.config.outputs = ["r14", "s14"]
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("2", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize_loop("2")
 
 class basemul_16_32_kyber(Example):
