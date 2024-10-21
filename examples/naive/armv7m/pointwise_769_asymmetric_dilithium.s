@@ -52,15 +52,15 @@ small_asymmetric_mul_asm_769:
     plant_red r12, r14, r11, r5
 
     pkhtb r5, r5, r6, asr #16
-    str.w r5, [r0], #(2*width) // @slothy:core=True
+    str.w r5, [r0], #width
 
-    smuad r6, r7, r9
+	smuad r6, r7, r9
     plant_red r12, r14, r11, r6
     smuadx r8, r7, r8
     plant_red r12, r14, r11, r8
 
     pkhtb r8, r8, r6, asr #16
-    str.w r8, [r0, #-width]
+    str.w r8, [r0], #width
     cmp.w r0, r10
     bne.w _asymmetric_mul_16_loop
 
