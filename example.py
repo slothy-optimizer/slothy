@@ -2179,9 +2179,6 @@ class frombytes_mul_16_32_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
-        # TODO: work on this
-        slothy.config.constraints.allow_reordering = True
-
         r = slothy.config.reserved_regs
         r.add("r14")
         slothy.config.reserved_regs = r
@@ -2236,14 +2233,11 @@ class frombytes_mul_acc_32_16_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
-        # TODO: work on this
-        slothy.config.constraints.functional_only = True
-        slothy.config.constraints.allow_reordering = False
-        slothy.config.constraints.allow_renaming = False
-        slothy.config.allow_useless_instructions = True
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
 
-        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
-
+        slothy.config.unsafe_address_offset_fixup = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
