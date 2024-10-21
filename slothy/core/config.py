@@ -1204,7 +1204,7 @@ class Config(NestedPrint, LockAttributes):
         self._llvm_mca_issue_width_overwrite = False
         self._with_llvm_mca_before = False
         self._with_llvm_mca_after = False
-        self._max_solutions = 64
+        self._max_solutions = 128
         self._timeout = None
         self._retry_timeout = None
         self._ignore_objective = False
