@@ -197,7 +197,7 @@ class VmovCmpLoop(Loop):
 
         yield f'{indent}vmov {other["end"]}, {other["endf"]}'
         yield f'{indent}cmp {other["cnt"]}, {other["end"]}'
-        yield f'{indent}bne {self.lbl}'
+        yield f'{indent}bne {lbl_start}'
 
 class CmpLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
