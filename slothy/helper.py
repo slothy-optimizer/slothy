@@ -783,6 +783,9 @@ class AsmMacro():
             return a
 
         def apply_arg(l, arg, val):
+            # This function is also called on the values of tags, which may not be strings.
+            if isinstance(l, str) is False:
+                return l
             l = re.sub(f"\\\\{arg}\\\\\\(\\)", val, l)
             l = re.sub(f"\\\\{arg}(\\W|$)",val + "\\1", l)
             l = l.replace("\\()\\()", "\\()")
