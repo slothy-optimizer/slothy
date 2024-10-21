@@ -11,7 +11,7 @@
     \ldrstr \c1, [\target, \mem1]
     \ldrstr \c2, [\target, \mem2]
     \ldrstr \c3, [\target, \mem3]
-    \ldrstr \c0, [\target], \jump
+    \ldrstr \c0, [\target], \jump // @slothy:core
 .endm
 
 // 8

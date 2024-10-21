@@ -1648,8 +1648,14 @@ class fnt_257_dilithium(Example):
         slothy.config.reserved_regs = r
 
         slothy.config.constraints.stalls_first_attempt = 8
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r12"]
+        slothy.config.timeout = 600
         slothy.optimize_loop("_fnt_0_1_2")
-
+        
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.timeout = 300
+        
         slothy.config.constraints.stalls_first_attempt = 8
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 8
