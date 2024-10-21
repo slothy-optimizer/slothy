@@ -1833,6 +1833,7 @@ class intt_769_dilithium(Example):
         slothy.config.split_heuristic = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.unsafe_address_offset_fixup = False
 
         slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
         slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
@@ -1842,6 +1843,7 @@ class intt_769_dilithium(Example):
         slothy.config.split_heuristic_repeat = 1
 
         # slothy.config.outputs = ["s8"]
+        slothy.fusion_loop("layer1234_loop", ssa=False)
         slothy.optimize_loop("layer1234_loop")
 
         # TODO: need to optimize first teration of that looop
