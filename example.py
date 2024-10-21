@@ -1,3 +1,4 @@
+
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
@@ -1732,7 +1733,10 @@ class basemul_257_asymmetric_dilithium(Example):
 class ntt_769_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "ntt_769_dilithium"
+        # infile = "ntt_769_dilithium_symbolic"
+        # outfile = "ntt_769_dilithium"
         infile = name
+        outfile = name
         funcname = "small_ntt_asm_769"
 
         if var != "":
@@ -1740,27 +1744,67 @@ class ntt_769_dilithium(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+        super().__init__(infile, name, rename=True, arch=arch, target=target, outfile=outfile, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: Fix output declarations! Renaming breaks code!
-        slothy.config.outputs = ["r14", "s24"]
-        slothy.config.inputs_are_outputs = True
-        slothy.config.sw_pipelining.enabled = True
 
-        slothy.config.constraints.stalls_first_attempt = 0
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["r14"]
+
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r.add("r1") # twiddle_ptr # TODO: Stash that into the FPR instead
+        slothy.config.reserved_regs = r
+
+        ### TODO
+        # - Experiment with lower split factors
+        # - Try to get stable performance: It currently varies a lot with each run
+        # - Spill r1 (twiddle_ptr) to the FPR to that L1234 has more scheduling room.
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.variable_size = True
         slothy.config.split_heuristic = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.split_heuristic_factor = 6
+        slothy.config.constraints.stalls_precision = 2
+        slothy.config.timeout = 120 # Not more than 2min per step
+        slothy.config.split_heuristic_factor = 1
+        slothy.config.visualize_expected_performance = False
+        slothy.config.split_heuristic_factor = 8
         slothy.config.split_heuristic_stepsize = 0.15
-        # TODO: run with more repeats
-        slothy.config.split_heuristic_repeat = 2
         slothy.optimize_loop("layer1234_loop")
-        slothy.config.outputs = ["r14", "s13"]
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer1234_loop")
 
+        slothy.config.outputs = ["r14"]
+        slothy.config.constraints.functional_only = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.allow_reordering = False
         slothy.config.inputs_are_outputs = True
-        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.split_heuristic = False
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.config.constraints.allow_spills = True
+        slothy.config.constraints.spill_type = { 'spill_to_vreg': 24 }
+        slothy.config.constraints.minimize_spills = True
+        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
         slothy.fusion_loop("layer567_loop", ssa=False)
+        slothy.optimize_loop("layer567_loop")
+
+        slothy.config.split_heuristic_optimize_seam = 0
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_factor = 2.5
+        slothy.config.split_heuristic_stepsize = 0.25
+        slothy.config.constraints.allow_spills = False
+        slothy.config.absorb_spills = False
+        slothy.config.constraints.stalls_precision = 2
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.constraints.allow_reordering = True
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize_loop("layer567_loop")
+
+        slothy.config.split_heuristic_optimize_seam = 6
         slothy.optimize_loop("layer567_loop")
 
 class intt_769_dilithium(Example):
