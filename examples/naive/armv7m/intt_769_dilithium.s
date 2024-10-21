@@ -305,6 +305,7 @@ small_invntt_asm_769:
 	.equ strincr2, 4
 
 	// ITER 0
+	layer567_first_start:
 	vmov s6, poly
 	load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
 	load poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
@@ -323,6 +324,7 @@ small_invntt_asm_769:
 	str.w poly2, [poly, #2*distance2/4]
 	str.w poly3, [poly, #3*distance2/4]
 	str.w poly0, [poly], #4
+	layer567_first_end:
 
 	// ITER 1-15
 	add.w tmp, poly, #strincr2*3*(5)

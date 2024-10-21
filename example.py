@@ -1840,29 +1840,37 @@ class intt_769_dilithium(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.split_heuristic = True
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-
 
         slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
-        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
 
-        slothy.config.split_heuristic_factor = 2
-        slothy.config.split_heuristic_stepsize = 0.4
+        slothy.config.split_heuristic_factor = 8
+        slothy.config.split_heuristic_stepsize = 0.1
         slothy.config.split_heuristic_repeat = 1
 
-        # slothy.config.outputs = ["s8"]
         slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("layer1234_loop", ssa=False)
         slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize_loop("layer1234_loop")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer1234_loop")
 
-        # TODO: need to optimize first teration of that looop
+        slothy.config.split_heuristic_factor = 4
 
-        # slothy.config.outputs = ["s14"]
+        # Optimize first iteration that has been separated from the loop
+        # TODO: Do we further need to limit renaming because of the following
+        # loop using registers set in this region?
+        
+        slothy.config.outputs = ["s0", "s2"]
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize(start="layer567_first_start", end="layer567_first_end")
+
         slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("layer567_loop", ssa=False)
         slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("layer567_loop")
+        slothy.config.split_heuristic_optimize_seam = 6
         slothy.optimize_loop("layer567_loop")
 
 class pointwise_769_dilithium(Example):
