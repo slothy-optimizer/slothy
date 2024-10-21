@@ -135,7 +135,7 @@ execution_units = {
     ): ExecutionUnit.ALU(),
     (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0]],
     (Armv7mShiftedArithmetic): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SHIFT0]))),
-    (Armv7mShiftedLogical): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SHIFT0]))),
+    (Armv7mShiftedLogical, log_or_shifted): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SHIFT0]))),
     (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
      smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
     (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
