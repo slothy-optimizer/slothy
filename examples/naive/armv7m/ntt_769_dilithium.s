@@ -109,7 +109,7 @@
 .align 2
 small_ntt_asm_769:
 	push {r4-r11, r14}
-	vpush.w {s16-s25}
+	vpush.w {s16-s27}
 	poly         .req r0
 	twiddle_ptr  .req r1
 	poly0        .req r2
@@ -268,14 +268,14 @@ small_ntt_asm_769:
 	vmov s13, tmp
         vmov twiddle_ptr, s25
     layer567_loop:
-		vmov s23, poly
+		vmov s23, poly // @slothy:is_spill
 		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
 		load poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
 
 		movw qa, #24608
 		_3_layer_double_CT_16_plant poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, twiddle1, twiddle2, twiddle_ptr, q, qa, tmp
 
-		vmov poly, s23
+		vmov poly, s23 // @slothy:is_restore
 		store poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
 		str.w poly1, [poly, #distance2/4]
 		str.w poly2, [poly, #2*distance2/4]
@@ -285,5 +285,5 @@ small_ntt_asm_769:
 	vmov tmp, s13
 	cmp.w poly, tmp
 	bne.w layer567_loop
-	vpop.w {s16-s25}
+	vpop.w {s16-s27}
 	pop {r4-r11, pc}

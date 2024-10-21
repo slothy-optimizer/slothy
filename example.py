@@ -1775,16 +1775,22 @@ class ntt_769_dilithium(Example):
 
         slothy.config.outputs = ["r14"]
 
+        slothy.config.absorb_spills = True
         slothy.config.unsafe_address_offset_fixup = False
-        slothy.fusion_loop("layer567_loop", ssa=False)
+        slothy.fusion_loop("layer567_loop", ssa=True)
 
+        slothy.config.outputs = ["r14"]
         slothy.config.constraints.functional_only = True
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.config.constraints.allow_reordering = False
         slothy.config.inputs_are_outputs = True
-        slothy.config.variable_size = False
-        slothy.config.constraints.maximize_register_lifetimes = True
         slothy.config.split_heuristic = False
-        slothy.config.timeout = 30
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.config.constraints.allow_spills = True
+        slothy.config.absorb_spills = True
+        slothy.config.constraints.spill_type = { 'spill_to_vreg': 26 }
+        slothy.config.constraints.minimize_spills = True
+        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
         slothy.optimize_loop("layer567_loop")
 
         slothy.config.timeout = 120
@@ -1796,6 +1802,7 @@ class ntt_769_dilithium(Example):
         slothy.config.split_heuristic_factor = 2.5
         slothy.config.split_heuristic_stepsize = 0.25
         slothy.config.constraints.allow_spills = False
+        slothy.config.constraints.minimize_spills = False
         slothy.config.absorb_spills = False
         slothy.config.constraints.stalls_precision = 2
         slothy.config.unsafe_address_offset_fixup = True
