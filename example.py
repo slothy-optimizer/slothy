@@ -2173,12 +2173,11 @@ class frombytes_mul_16_32_kyber(Example):
         slothy.config.variable_size = True
 
         # TODO: work on this
-        slothy.config.constraints.functional_only = True
-        slothy.config.constraints.allow_reordering = False
-        slothy.config.constraints.allow_renaming = False
-        slothy.config.allow_useless_instructions = True
+        slothy.config.constraints.allow_reordering = True
 
-        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16

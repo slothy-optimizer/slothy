@@ -3,28 +3,28 @@
 .thumb
 
 .macro doublebasemul_frombytes_asm_16_32 rptr_tmp, bptr, zeta, poly0, poly2, poly1, poly3, tmp, q, qa, qinv
-  ldr \poly0, [\bptr], #4
-  ldr \poly2, [\bptr], #4
+  ldr \poly0, [\bptr], #8
+  ldr \poly2, [\bptr, #-4]
 
-  smulwt \tmp, \zeta, \poly1 
-	smlabt \tmp, \tmp, \q, \qa  
-	smultt \tmp, \poly0, \tmp  
-	smlabb \tmp, \poly0, \poly1, \tmp 
-  str \tmp, [\rptr_tmp], #4
+  smulwt \tmp, \zeta, \poly1
+	smlabt \tmp, \tmp, \q, \qa
+	smultt \tmp, \poly0, \tmp
+	smlabb \tmp, \poly0, \poly1, \tmp
+  str \tmp, [\rptr_tmp], #16
 
   smuadx \tmp, \poly0, \poly1
-  str \tmp, [\rptr_tmp], #4
+  str \tmp, [\rptr_tmp, #-12]
 
   neg \zeta, \zeta
 
-  smulwt \tmp, \zeta, \poly3 
-	smlabt \tmp, \tmp, \q, \qa  
-	smultt \tmp, \poly2, \tmp  
-	smlabb \tmp, \poly2, \poly3, \tmp 
-  str \tmp, [\rptr_tmp], #4
+  smulwt \tmp, \zeta, \poly3
+	smlabt \tmp, \tmp, \q, \qa
+	smultt \tmp, \poly2, \tmp
+	smlabb \tmp, \poly2, \poly3, \tmp
+  str \tmp, [\rptr_tmp, #-8]
 
   smuadx \tmp, \poly2, \poly3
-  str \tmp, [\rptr_tmp], #4
+  str \tmp, [\rptr_tmp, #-4] // @slothy:core
 .endm
 
 // reduce 2 registers
@@ -68,7 +68,7 @@ frombytes_mul_asm_16_32:
 	ctr      .req r14
 
   movw qa, #26632
-	movt  q, #3329  
+	movt  q, #3329
 	### qinv=0x6ba8f301
 	movw qinv, #62209
 	movt qinv, #27560
