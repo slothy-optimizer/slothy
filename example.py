@@ -1637,25 +1637,34 @@ class fnt_257_dilithium(Example):
     def core(self, slothy):
         slothy.config.outputs = ["r14", "r12"]
         slothy.config.inputs_are_outputs = True
-        slothy.config.sw_pipelining.enabled = True
+        slothy.config.visualize_expected_performance = False
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.variable_size = True
+        
+        func_args = {"r1", "r2", "r3"}
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r = r.union(func_args)
+        slothy.config.reserved_regs = r
 
+        slothy.config.constraints.stalls_first_attempt = 8
         slothy.optimize_loop("_fnt_0_1_2")
 
-        # TODO: try havling heuristic
-        slothy.config.constraints.stalls_first_attempt = 0
+        slothy.config.constraints.stalls_first_attempt = 8
         slothy.config.split_heuristic = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.split_heuristic_factor = 6
-        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.config.split_heuristic_factor = 8
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.timeout = 180 # Not more than 2min per step
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 2
         slothy.config.outputs = ["s25", "s27"]
         slothy.fusion_loop("_fnt_3_4_5_6", ssa=False)
         slothy.optimize_loop("_fnt_3_4_5_6")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("_fnt_3_4_5_6")
 
-        slothy.config.split_heuristic = False
-        slothy.config.sw_pipelining.halving_heuristic = False
-        slothy.optimize_loop("_fnt_to_16_bit")
+        # Due dependencies in the memory between loads and stores, skip this for now
+        # slothy.optimize_loop("_fnt_to_16_bit")
 
 class ifnt_257_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
