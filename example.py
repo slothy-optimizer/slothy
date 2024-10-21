@@ -1833,7 +1833,7 @@ class intt_769_dilithium(Example):
         slothy.config.split_heuristic = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.unsafe_address_offset_fixup = False
+
 
         slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
         slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
@@ -1843,13 +1843,17 @@ class intt_769_dilithium(Example):
         slothy.config.split_heuristic_repeat = 1
 
         # slothy.config.outputs = ["s8"]
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("layer1234_loop", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize_loop("layer1234_loop")
 
         # TODO: need to optimize first teration of that looop
 
         # slothy.config.outputs = ["s14"]
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("layer567_loop", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize_loop("layer567_loop")
 
 class pointwise_769_dilithium(Example):
@@ -1955,7 +1959,9 @@ class ntt_kyber(Example):
 
         # Step 1: Optimize second loop
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("2", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize_loop("2")
 
 
