@@ -1733,8 +1733,6 @@ class basemul_257_asymmetric_dilithium(Example):
 class ntt_769_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "ntt_769_dilithium"
-        # infile = "ntt_769_dilithium_symbolic"
-        # outfile = "ntt_769_dilithium"
         infile = name
         outfile = name
         funcname = "small_ntt_asm_769"
@@ -1751,16 +1749,15 @@ class ntt_769_dilithium(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.outputs = ["r14"]
+        slothy.config.constraints.stalls_first_attempt = 32
 
         r = slothy.config.reserved_regs
         r = r.union(f"s{i}" for i in range(30)) # reserve FPR
-        r.add("r1") # twiddle_ptr # TODO: Stash that into the FPR instead
         slothy.config.reserved_regs = r
 
         ### TODO
         # - Experiment with lower split factors
         # - Try to get stable performance: It currently varies a lot with each run
-        # - Spill r1 (twiddle_ptr) to the FPR to that L1234 has more scheduling room.
 
         slothy.config.unsafe_address_offset_fixup = False
         slothy.config.constraints.stalls_first_attempt = 16
@@ -1777,19 +1774,22 @@ class ntt_769_dilithium(Example):
         slothy.optimize_loop("layer1234_loop")
 
         slothy.config.outputs = ["r14"]
-        slothy.config.constraints.functional_only = True
+
         slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("layer567_loop", ssa=False)
+
+        slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_reordering = False
         slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = False
+        slothy.config.constraints.maximize_register_lifetimes = True
         slothy.config.split_heuristic = False
-        slothy.config.constraints.stalls_first_attempt = 64
-        slothy.config.constraints.allow_spills = True
-        slothy.config.constraints.spill_type = { 'spill_to_vreg': 24 }
-        slothy.config.constraints.minimize_spills = True
-        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
-        slothy.fusion_loop("layer567_loop", ssa=False)
+        slothy.config.timeout = 30
         slothy.optimize_loop("layer567_loop")
 
+        slothy.config.timeout = 120
+        slothy.config.constraints.maximize_register_lifetimes = False
+        slothy.config.variable_size = True
         slothy.config.split_heuristic_optimize_seam = 0
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_repeat = 1
@@ -1801,7 +1801,6 @@ class ntt_769_dilithium(Example):
         slothy.config.unsafe_address_offset_fixup = True
         slothy.config.constraints.functional_only = False
         slothy.config.constraints.allow_reordering = True
-        slothy.config.allow_useless_instructions = True
         slothy.optimize_loop("layer567_loop")
 
         slothy.config.split_heuristic_optimize_seam = 6

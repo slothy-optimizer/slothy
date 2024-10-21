@@ -109,7 +109,7 @@
 .align 2
 small_ntt_asm_769:
 	push {r4-r11, r14}
-	vpush.w {s16-s24}
+	vpush.w {s16-s25}
 	poly         .req r0
 	twiddle_ptr  .req r1
 	poly0        .req r2
@@ -140,17 +140,19 @@ small_ntt_asm_769:
 	// pre-load 15 twiddle factors to 15 FPU registers
 	// s0-s7 used to temporary store 16 16-bit polys.
 	vldm twiddle_ptr!, {s8-s22}
- 
+
 	add tmp, poly, #strincr*8
 	// s23: poly addr
-	// s24: tmp  
-	vmov s24, tmp  
+	// s24: tmp
+        // s25: twiddle_ptr
+	vmov s24, tmp
+        vmov s25, twiddle_ptr
 	layer1234_loop:
 		// load a1, a3, ..., a15
 		vmov s23, poly
 		load poly, poly0, poly1, poly2, poly3, #offset, #distance/4+offset, #2*distance/4+offset, #3*distance/4+offset
 		load poly, poly4, poly5, poly6, poly7, #distance+offset, #5*distance/4+offset, #6*distance/4+offset, #7*distance/4+offset
-		
+
 		movw qa, #24608
 
 		// 8-NTT on a1, a3, ..., a15
@@ -158,23 +160,23 @@ small_ntt_asm_769:
 
 		// s15, s16, s17, s18, s19, s20, s21, s22 left
 		// multiply coeffs by layer 8 twiddles for later use
-		vmov twiddle1, s15 
-		vmov twiddle2, s16 
+		vmov twiddle1, s15
+		vmov twiddle2, s16
 		mul_twiddle_plant poly0, twiddle1, tmp, q, qa
 		mul_twiddle_plant poly1, twiddle2, tmp, q, qa
 
-		vmov twiddle1, s17 
-		vmov twiddle2, s18 
+		vmov twiddle1, s17
+		vmov twiddle2, s18
 		mul_twiddle_plant poly2, twiddle1, tmp, q, qa
 		mul_twiddle_plant poly3, twiddle2, tmp, q, qa
 
-		vmov twiddle1, s19 
-		vmov twiddle2, s20 
+		vmov twiddle1, s19
+		vmov twiddle2, s20
 		mul_twiddle_plant poly4, twiddle1, tmp, q, qa
 		mul_twiddle_plant poly5, twiddle2, tmp, q, qa
 
-		vmov twiddle1, s21 
-		vmov twiddle2, s22 
+		vmov twiddle1, s21
+		vmov twiddle2, s22
 		mul_twiddle_plant poly6, twiddle1, tmp, q, qa
 		mul_twiddle_plant poly7, twiddle2, tmp, q, qa
 
@@ -188,16 +190,16 @@ small_ntt_asm_769:
 		vmov s7, poly7 // a15
 
 		vmov poly, s23
-	
+
 		// load a0, a2, ..., a14
 		load poly, poly0, poly1, poly2, poly3, #0, #distance/4, #2*distance/4, #3*distance/4
 		load poly, poly4, poly5, poly6, poly7, #distance, #5*distance/4, #6*distance/4, #7*distance/4
-		
+
 		movw qa, #24608
 		// 8-NTT on a0, a2, ..., a14
 		_3_layer_double_CT_16_plant_fp poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, s8, s9, s10, s11, s12, s13, s14, twiddle1, twiddle2, q, qa, tmp
 
-		
+
 		// layer 4 - 1
 		// addsub: (a2, a6, a10, a14), (a3, a7, a11, a15)
 		vmov poly, s23
@@ -212,20 +214,20 @@ small_ntt_asm_769:
 		usub16 poly3, poly3, twiddle1
 		str.w tmp, [poly, #3*distance/4]
 		str.w poly3, [poly, #3*distance/4+offset]
-		
+
 		vmov twiddle1, s5 // load a11
 		uadd16 tmp, poly5, twiddle1
 		usub16 poly5, poly5, twiddle1
 		str.w tmp, [poly, #5*distance/4]
 		str.w poly5, [poly, #5*distance/4+offset]
-		
+
 		vmov twiddle1, s7 // load a15
 		uadd16 tmp, poly7, twiddle1
 		usub16 poly7, poly7, twiddle1
 		str.w tmp, [poly, #7*distance/4]
 		str.w poly7, [poly, #7*distance/4+offset]
-		
-		// layer 4 - 2    
+
+		// layer 4 - 2
 		// addsub: (a0, a4, a8, a12), (a1, a5, a9, a13)
 		vmov poly3, s2 // load a5
 		uadd16 tmp, poly2, poly3
@@ -244,7 +246,7 @@ small_ntt_asm_769:
 		usub16 twiddle1, poly6, poly7
 		str.w tmp, [poly, #6*distance/4]
 		str.w twiddle1, [poly, #6*distance/4+offset]
-		
+
 		vmov poly1, s0 // load a1
 		uadd16 tmp, poly0, poly1
 		usub16 twiddle1, poly0, poly1
@@ -264,14 +266,15 @@ small_ntt_asm_769:
 
 	add.w tmp, poly, #strincr2*16
 	vmov s13, tmp
+        vmov twiddle_ptr, s25
     layer567_loop:
 		vmov s23, poly
 		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
 		load poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
-		
+
 		movw qa, #24608
 		_3_layer_double_CT_16_plant poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, twiddle1, twiddle2, twiddle_ptr, q, qa, tmp
-		
+
 		vmov poly, s23
 		store poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
 		str.w poly1, [poly, #distance2/4]
@@ -282,5 +285,5 @@ small_ntt_asm_769:
 	vmov tmp, s13
 	cmp.w poly, tmp
 	bne.w layer567_loop
-	vpop.w {s16-s24}
+	vpop.w {s16-s25}
 	pop {r4-r11, pc}
