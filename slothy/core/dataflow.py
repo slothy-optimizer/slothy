@@ -111,6 +111,7 @@ class VirtualInstruction:
         self.args_out_combinations = None
         self.args_in_out_combinations = None
         self.args_in_combinations = None
+        self.args_inout_out_different = None
         self.args_in_out_different = None
         self.args_in_inout_different = None
 
@@ -606,6 +607,10 @@ class DataFlowGraph:
             t.inst.args_in.append(addr)
             t.inst.arg_types_in.append(t.inst.arg_types_in_out[idx])
             t.inst.args_in_restrictions.append(t.inst.args_in_out_restrictions[idx])
+
+            t.inst.args_in_out_different = t.inst.args_inout_out_different
+            t.inst.args_inout_out_different = None
+
             # TODO: Architecture-model-specific code does not belong here.
             if hasattr(t.inst, 'pattern_inputs'):
                 t.inst.pattern_inputs.append(t.inst.pattern_in_outs[idx])

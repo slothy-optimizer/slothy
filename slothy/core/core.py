@@ -2684,6 +2684,9 @@ class SlothyBase(LockAttributes):
             self._force_allocation_restriction_many(t.inst.args_in_out_restrictions,
                 t.alloc_in_out_var)
             # Enforce exclusivity of arguments
+            self._forbid_renaming_collision_many( t.inst.args_inout_out_different,
+                                            t.alloc_out_var,
+                                            t.alloc_in_out_var )
             self._forbid_renaming_collision_many( t.inst.args_in_out_different,
                                             t.alloc_out_var,
                                             t.alloc_in_var )

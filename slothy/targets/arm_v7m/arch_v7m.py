@@ -326,6 +326,7 @@ class Instruction:
         self.args_in_combinations = None
         self.args_in_out_combinations = None
         self.args_in_out_different = None
+        self.args_inout_out_different = None
         self.args_in_inout_different = None
 
         self.arg_types_in     = arg_types_in
@@ -1210,6 +1211,7 @@ class ldr(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-na
         obj.increment = None
         obj.pre_index = 0
         obj.addr = obj.args_in[0]
+        obj.args_in_out_different = [(0,0)] # Can't have Rd==Ra
         return obj
 
     def write(self):
@@ -1228,6 +1230,7 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
+        obj.args_in_out_different = [(0,0)] # Can't have Rd==Ra
         return obj
 
     def write(self):
@@ -1243,6 +1246,7 @@ class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
+        obj.args_in_out_different = [(0,0)] # Can't have Rd==Ra
         obj.addr = obj.args_in[0]
         return obj
 
@@ -1259,6 +1263,7 @@ class ldrh_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
+        obj.args_in_out_different = [(0,0)] # Can't have Rd==Ra
         obj.addr = obj.args_in[0]
         return obj
 
@@ -1291,6 +1296,7 @@ class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstri
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
+        obj.args_inout_out_different = [(0,0)] # Can't have Rd==Ra
         obj.addr = obj.args_in_out[0]
         return obj
 
@@ -1302,6 +1308,7 @@ class ldrh_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
         obj.increment = obj.immediate
+        obj.args_inout_out_different = [(0,0)] # Can't have Rd==Ra
         obj.pre_index = None
         obj.addr = obj.args_in_out[0]
         return obj

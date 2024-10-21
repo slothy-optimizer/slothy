@@ -241,6 +241,7 @@ class Instruction:
 
         self.args_out_combinations = None
         self.args_in_combinations = None
+        self.args_inout_out_different = None
         self.args_in_out_combinations = None
         self.args_in_out_different = None
         self.args_in_inout_different = None
