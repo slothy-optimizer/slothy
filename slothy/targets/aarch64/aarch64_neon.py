@@ -176,7 +176,7 @@ class Branch:
 class SubsLoop(Loop):
     """
     Loop ending in a flag setting subtraction and a branch.
-    
+
     Example:
     ```
            loop_lbl:
@@ -193,7 +193,7 @@ class SubsLoop(Loop):
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*(?P<imm>#1)",
                                rf"^\s*(cbnz|bnz|bne)\s+(?P<cnt>\w+),\s*{lbl}")
-    
+
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
