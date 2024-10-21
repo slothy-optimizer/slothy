@@ -10,7 +10,7 @@
 	smlabt \tmp, \tmp, \q, \qa
 	smultt \tmp, \poly0, \tmp
 	smlabb \tmp, \poly0, \poly1, \tmp
-  str \tmp, [\rptr_tmp], #16
+  str \tmp, [\rptr_tmp], #16 // @slothy:core
 
   smuadx \tmp, \poly0, \poly1
   str \tmp, [\rptr_tmp, #-12]
@@ -24,7 +24,7 @@
   str \tmp, [\rptr_tmp, #-8]
 
   smuadx \tmp, \poly2, \poly3
-  str \tmp, [\rptr_tmp, #-4] // @slothy:core
+  str \tmp, [\rptr_tmp, #-4]
 .endm
 
 // reduce 2 registers
