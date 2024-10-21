@@ -103,8 +103,7 @@ execution_units = {
         vldr_with_imm, vldr_with_postinc  # TODO: also FPU?
         ): ExecutionUnit.LOAD(),
     (
-        ldrd_with_postinc,
-        ldrd_imm,
+        Ldrd,
         ldm_interval,
         ldm_interval_inc_writeback,
         vldm_interval_inc_writeback): [ExecutionUnit.LOAD()],
@@ -150,8 +149,7 @@ inverse_throughput = {
         ldr_with_imm_stack,
         ldr_with_inc_writeback,
         ldr_with_postinc,
-        ldrd_with_postinc,
-        ldrd_imm,
+        Ldrd,
         ldrb_with_imm,
         ldrh_with_imm,
         ldrh_with_postinc,
@@ -247,7 +245,7 @@ default_latencies = {
         ldrh_with_postinc,
         eor_shifted
     ): 2,
-    (ldrd_with_postinc, ldrd_imm): 3,
+    (Ldrd): 3,
     (vmov_gpr2, vmov_gpr2_dual): 3,
     (vmov_gpr): 1
 }

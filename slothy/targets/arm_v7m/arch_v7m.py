@@ -1306,8 +1306,10 @@ class ldrh_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
         obj.addr = obj.args_in_out[0]
         return obj
 
+class Ldrd(Armv7mLoadInstruction):
+    pass
 
-class ldrd_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+class ldrd_imm(Ldrd): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>, <imm>]"
     in_outs = [ "Rc" ]
     outputs = ["Ra", "Rb"]
@@ -1319,8 +1321,7 @@ class ldrd_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,inval
         obj.addr = obj.args_in_out[0]
         return obj
 
-
-class ldrd_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+class ldrd_with_postinc(Ldrd): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>], <imm>"
     in_outs = [ "Rc" ]
     outputs = ["Ra", "Rb"]
@@ -1774,13 +1775,13 @@ def ldrd_imm_splitting_cb():
         ldrs = []
 
         ldr = Armv7mInstruction.build(
-            ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": "#4"})
-        ldr.pre_index = 4
+            ldr_with_imm, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": inst.pre_index })
+        ldr.pre_index = inst.pre_index
         ldrs.append(ldr)
         # Final load includes increment
         ldr = Armv7mInstruction.build(
-                ldr_with_imm, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": "#0"})
-        ldr.pre_index = 0
+                ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": f"{inst.pre_index}+4"})
+        ldr.pre_index = f"{inst.pre_index}+4"
         ldr.addr = ptr
         ldrs.append(ldr)
 
