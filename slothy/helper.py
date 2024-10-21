@@ -258,8 +258,8 @@ class SourceLine:
         if len(s) == 0:
             return
         fun(f"Dump: {name}")
-        for l in s:
-            fun(f"> {l.to_string()}")
+        for (i,l) in enumerate(s):
+            fun(f"[{i}]> {l.to_string()}")
 
     def set_text(self, s):
         """Set the text of the source line
