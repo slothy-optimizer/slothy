@@ -2274,19 +2274,19 @@ class SlothyBase(LockAttributes):
                     self._model.intervals_for_unit[unit].append(t.exec)
             else:
                 t.unique_unit = False
-                t.exec_unit_choices = {}
+                t.exec_unit_choices = []
                 for unit_choices in units:
                     if not isinstance(unit_choices, list):
                         unit_choices = [unit_choices]
+                    unit_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{unit_choices}")
+                    t.exec_unit_choices.append(unit_var)
                     for unit in unit_choices:
-                        unit_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{unit}")
-                        t.exec_unit_choices[unit] = unit_var
-                        t.exec = self._NewOptionalIntervalVar(t.cycle_start_var,
+                        interval = self._NewOptionalIntervalVar(t.cycle_start_var,
                                                             cycles_unit_occupied,
                                                             t.cycle_end_var,
                                                             unit_var,
                                                             f"{t.varname}_usage_{unit}")
-                        self._model.intervals_for_unit[unit].append(t.exec)
+                        self._model.intervals_for_unit[unit].append(interval)
 
     # ================================================================
     #                  VARIABLES (Dependency tracking)               #
@@ -3048,7 +3048,7 @@ class SlothyBase(LockAttributes):
         for t in self._get_nodes():
             if t.exec_unit_choices is None:
                 continue
-            self._AddExactlyOne(t.exec_unit_choices.values())
+            self._AddExactlyOne(t.exec_unit_choices)
 
     # ==============================================================#
     #                      CONSTRAINT (Code size)                   #
