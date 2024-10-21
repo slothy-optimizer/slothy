@@ -775,6 +775,8 @@ class AsmMacro():
             return a
 
         def apply_arg(l, arg, val):
+            if isinstance(l, str) is False:
+                return l
             l = re.sub(f"\\\\{arg}\\\\\(\)", val, l)
             l = re.sub(f"\\\\{arg}(\\W|$)",val + "\\1", l)
             l = l.replace("\\()\\()", "\\()")
