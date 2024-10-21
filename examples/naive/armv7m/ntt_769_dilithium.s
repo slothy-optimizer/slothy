@@ -63,21 +63,21 @@
 
 .macro _3_layer_double_CT_16_plant c0, c1, c2, c3, c4, c5, c6, c7, twiddle1, twiddle2, twiddle_ptr, q, qa, tmp
 	// layer 3
-	ldr.w \twiddle1, [\twiddle_ptr], #4
+	ldr.w \twiddle1, [\twiddle_ptr], #28
 	two_doublebutterfly_plant \c0, \c4, \c1, \c5, \twiddle1, \twiddle1, \tmp, \q, \qa
 	two_doublebutterfly_plant \c2, \c6, \c3, \c7, \twiddle1, \twiddle1, \tmp, \q, \qa
 
 	// layer 2
-	ldrd \twiddle1, \twiddle2, [\twiddle_ptr], #8
+	ldrd \twiddle1, \twiddle2, [\twiddle_ptr, #-24]
 	two_doublebutterfly_plant \c0, \c2, \c1, \c3, \twiddle1, \twiddle1, \tmp, \q, \qa
 
 	two_doublebutterfly_plant \c4, \c6, \c5, \c7, \twiddle2, \twiddle2, \tmp, \q, \qa
 
 	// layer 1
-	ldrd \twiddle1, \twiddle2, [\twiddle_ptr], #8
+	ldrd \twiddle1, \twiddle2, [\twiddle_ptr, #-16]
 	two_doublebutterfly_plant \c0, \c1, \c2, \c3, \twiddle1, \twiddle2, \tmp, \q, \qa
 
-	ldrd \twiddle1, \twiddle2, [\twiddle_ptr], #8
+	ldrd \twiddle1, \twiddle2, [\twiddle_ptr, #-8]
 	two_doublebutterfly_plant \c4, \c5, \c6, \c7, \twiddle1, \twiddle2, \tmp, \q, \qa
 .endm
 
