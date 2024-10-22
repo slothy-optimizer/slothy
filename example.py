@@ -2369,7 +2369,7 @@ class fromplant_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.constraints.stalls_first_attempt = 4
         slothy.fusion_loop("1", ssa=False)
         slothy.optimize_loop("1")
 
