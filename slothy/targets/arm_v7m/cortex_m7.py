@@ -119,9 +119,8 @@ execution_units = {
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
-    ): [ExecutionUnit.STORE],
-    (
-        stm_interval_inc_writeback): [ExecutionUnit.STORE],
+        stm_interval_inc_writeback
+    ): [[ExecutionUnit.STORE, ExecutionUnit.MAC]],
     (
         movw_imm,
         movt_imm,
@@ -138,14 +137,14 @@ execution_units = {
         bic, bics,
         cmp, cmp_imm,
     ): ExecutionUnit.ALU(),
-    (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0]],
-    (Armv7mShiftedArithmetic): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SHIFT0]))),
-    (Armv7mShiftedLogical, log_or_shifted): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SHIFT0]))),
+    (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0], [ExecutionUnit.ALU1, ExecutionUnit.SHIFT1]],
     (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
      smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
     (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
     (uadd16, sadd16, usub16, ssub16): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))),
-    (pkhbt, pkhtb, pkhbt_shifted, ubfx_imm): [list(p) + [ExecutionUnit.SIMD] for p in product(ExecutionUnit.ALU(), [ExecutionUnit.SHIFT1])]
+    (pkhbt, pkhtb, pkhbt_shifted, ubfx_imm): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0, ExecutionUnit.SIMD]],
+    (Armv7mShiftedArithmetic): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0]],
+    (Armv7mShiftedLogical): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0]],
 }
 inverse_throughput = {
     (
@@ -271,8 +270,11 @@ def get_latency(src, out_idx, dst):
         return (1, lambda t_src,t_dst: t_dst.cycle_start_var == t_src.cycle_start_var + 1)
 
     # Shifted operand needs to be available one cycle early
-    if sum([issubclass(instclass_dst, pc) for pc in [Armv7mShiftedLogical, Armv7mShiftedArithmetic]]) and \
-       dst.args_in[1] in src.args_out:
+    # TODO: verify how this applies to ubfx with imm
+    if sum([issubclass(instclass_dst, pc) for pc in [Armv7mShiftedLogical, Armv7mShiftedArithmetic, pkhbt, pkhtb, pkhbt_shifted]]) and \
+       dst.args_in[1] in src.args_out or \
+            sum([issubclass(instclass_dst, pc) for pc in [ubfx_imm]]) and \
+            dst.args_in[0] in src.args_out:
         return latency + 1
 
     # Multiply accumulate chain latency is 1
