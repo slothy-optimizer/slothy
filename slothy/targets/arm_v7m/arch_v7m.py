@@ -1185,7 +1185,7 @@ class asrs(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     outputs = ["Rd"]
     modifiesFlags = True
 
-class pkhtb(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+class pkhtb(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "pkhtb<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
@@ -1195,7 +1195,7 @@ class pkhbt(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
-class pkhbt_shifted(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
+class pkhbt_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "pkhbt<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]

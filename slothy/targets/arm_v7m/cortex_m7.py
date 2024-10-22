@@ -56,7 +56,12 @@ def add_further_constraints(slothy):
         return
     # add_slot_constraints(slothy)
     # add_st_hazard(slothy)
-    #add_load_bank_conflict(slothy)
+
+    add_dsp_slot_constraint(slothy)
+
+def add_dsp_mul_slot_constraint(slothy):
+    slothy.restrict_slots_for_instructions_by_class(
+        [pkhbt, pkhtb, pkhbt_shifted], [0])
 
 # TODO: this seems incorrect
 def add_slot_constraints(slothy):
