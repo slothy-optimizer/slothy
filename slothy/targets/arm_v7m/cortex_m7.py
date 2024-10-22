@@ -57,7 +57,7 @@ def add_further_constraints(slothy):
     # add_slot_constraints(slothy)
     # add_st_hazard(slothy)
 
-    add_dsp_slot_constraint(slothy)
+    add_dsp_mul_slot_constraint(slothy)
 
 def add_dsp_mul_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
