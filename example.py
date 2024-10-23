@@ -2779,7 +2779,7 @@ def main():
                  barrett_reduce_kyber(),
                  fromplant_kyber(),
 
-                basemul_kyber(),
+                 basemul_kyber(),
                  basemul_acc_kyber(),
                  frombytes_mul_kyber(),
                  frombytes_mul_acc_kyber(),
