@@ -263,6 +263,21 @@ def get_latency(src, out_idx, dst):
 
     latency = lookup_multidict(default_latencies, src)
 
+    # Forwarding path to MAC instructions
+    if instclass_dst in [mla, mls, smlabb, smlabt, smlatt] and src.args_out[0] == dst.args_in[2]:
+        latency =  latency - 1
+
+    if instclass_dst in [smlal] and \
+            (src.args_out[0] == dst.args_in_out[0] or src.args_out[0] == dst.args_in_out[1]):
+        latency = latency - 1
+
+    # Multiply accumulate chain latency is 1
+    if instclass_src in [smlal] and instclass_dst in [smlal] and \
+            src.args_in_out[0] == dst.args_in_out[0] and \
+            src.args_in_out[1] == dst.args_in_out[1]:
+        return 1
+
+
     # Load latency is 1 cycle if the destination is an arithmetic/logical instruction
     if instclass_src in [ldr_with_imm, ldr_with_imm_stack, ldr_with_inc_writeback] and \
     sum([issubclass(instclass_dst, pc) for pc in [Armv7mBasicArithmetic, Armv7mLogical]]) and \
@@ -277,10 +292,6 @@ def get_latency(src, out_idx, dst):
             dst.args_in[0] in src.args_out:
         return latency + 1
 
-    # Multiply accumulate chain latency is 1
-    if instclass_src in [smlal] and instclass_dst in [smlal] and \
-            src.args_in_out[0] == dst.args_in_out[0]:
-        return 1
 
     # Load and store multiples take a long time to complete
     if instclass_src in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
