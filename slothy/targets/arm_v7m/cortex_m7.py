@@ -61,7 +61,7 @@ def add_further_constraints(slothy):
 
 def add_dsp_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
-        [pkhbt, pkhtb, pkhbt_shifted], [0])
+        [pkhbt, pkhtb, pkhbt_shifted, ubfx_imm, uadd16, usub16, sadd16, ssub16], [0])
 
 # TODO: this seems incorrect
 def add_slot_constraints(slothy):
