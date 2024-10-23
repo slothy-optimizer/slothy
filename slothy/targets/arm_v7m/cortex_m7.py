@@ -187,14 +187,16 @@ inverse_throughput = {
         cmp, cmp_imm,
         vmov_gpr,
         vmov_gpr2, vmov_gpr2_dual,  # verify for dual
-        pkhbt, pkhtb, pkhbt_shifted, ubfx_imm
-    ): 1,
-    (str_with_imm,
+        pkhbt, pkhtb, pkhbt_shifted, ubfx_imm,
+        str_with_imm,
         str_with_imm_stack,
         str_with_postinc,
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
+
+    ): 1,
+    (
         stm_interval_inc_writeback,  # actually not, just placeholder
         vmov_gpr2_dual): 2
 }
