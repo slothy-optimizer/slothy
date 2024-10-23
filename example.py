@@ -2173,7 +2173,9 @@ class basemul_acc_32_16_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
-        slothy.config.sw_pipelining.boundary_reserved_regs = ["r14"]
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
