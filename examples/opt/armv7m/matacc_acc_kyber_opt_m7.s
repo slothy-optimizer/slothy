@@ -95,11 +95,12 @@
     2:
 .endm
 
-.macro doublebasemul_asm rptr, aptr, bptr, zetaptr, poly0, poly1, poly2, poly3, q, qa, qinv, tmp, tmp2, zeta
+// res replace poly2
+.macro doublebasemul_asm_acc rptr, aptr, bptr, zetaptr, poly0, poly1, res, poly3, q, qa, qinv, tmp, tmp2, zeta
     ldr.w \poly0, [\aptr], #4
     ldr.w \poly1, [\bptr]
-    ldr.w \poly2, [\aptr], #4
     ldr.w \poly3, [\bptr, #4]
+    ldr.w \res, [\rptr]
     ldr.w \zeta, [\zetaptr], #4
 
     // basemul(r->coeffs + 4 * i, a->coeffs + 4 * i, b->coeffs + 4 * i, zetas[64 + i]);
@@ -117,28 +118,32 @@
     plant_red_b \q, \qa, \qinv, \tmp2
     // r[1] in upper half of tmp2
     pkhtb \tmp, \tmp2, \tmp, asr#16
-    str \tmp, [\rptr], #4
+    uadd16 \res, \res, \tmp
+    str \res, [\rptr], #4
 
     neg \zeta, \zeta
 
+    ldr.w \res, [\rptr]
+    ldr \poly0, [\aptr], #4
     // basemul(r->coeffs + 4 * i + 2, a->coeffs + 4 * i + 2, b->coeffs + 4 * i + 2, - zetas[64 + i]);
     smulwt \tmp, \zeta, \poly3
     smlabb \tmp, \tmp, \q, \qa
-    smultt \tmp, \poly2, \tmp
-    smlabb \tmp, \poly2, \poly3, \tmp
+    smultt \tmp, \poly0, \tmp
+    smlabb \tmp, \poly0, \poly3, \tmp
     plant_red_b \q, \qa, \qinv, \tmp
     // r[0] in upper half of tmp
 
-    smuadx \tmp2, \poly2, \poly3
+    smuadx \tmp2, \poly0, \poly3
     plant_red_b \q, \qa, \qinv, \tmp2
     // r[1] in upper half of tmp2
     pkhtb \tmp, \tmp2, \tmp, asr#16
-    str \tmp, [\rptr], #4
+    uadd16 \res, \res, \tmp
+    str \res, [\rptr], #4
 .endm
 
 // void matacc_asm(int16_t *r, const int16_t *b, int16_t c[4], unsigned char buf[XOF_BLOCKBYTES+2], const int32_t zetas[64], xof_state *state)
-.global matacc_asm_acc_opt_m7_opt_m7
-.type matacc_asm_acc_opt_m7_opt_m7, %function
+.global matacc_asm_acc_opt_m7
+.type matacc_asm_acc_opt_m7, %function
 .align 2
 matacc_asm_acc_opt_m7:
  push {r0-r11, r14}
@@ -190,4 +195,3 @@ matacc_asm_acc_opt_m7:
  blt.w 1b
 
  pop {r0-r11, pc}
-.size matacc_asm_acc, . - matacc_asm_acc

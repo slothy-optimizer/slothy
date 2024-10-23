@@ -2389,7 +2389,7 @@ class basemul_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class basemul_acc_kyber(Example):
@@ -2406,7 +2406,7 @@ class basemul_acc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class frombytes_mul_kyber(Example):
@@ -2423,7 +2423,7 @@ class frombytes_mul_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class frombytes_mul_acc_kyber(Example):
@@ -2440,7 +2440,7 @@ class frombytes_mul_acc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class matacc_kyber(Example):
@@ -2457,8 +2457,7 @@ class matacc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class matacc_acc_kyber(Example):
@@ -2475,8 +2474,7 @@ class matacc_acc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 
@@ -2494,8 +2492,7 @@ class matacc_asm_opt_16_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class matacc_asm_opt_32_32_kyber(Example):
@@ -2512,8 +2509,7 @@ class matacc_asm_opt_32_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class matacc_asm_opt_32_16_kyber(Example):
@@ -2530,8 +2526,7 @@ class matacc_asm_opt_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class matacc_asm_cache_16_32_kyber(Example):
@@ -2548,8 +2543,7 @@ class matacc_asm_cache_16_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 class matacc_asm_cache_32_32_kyber(Example):
@@ -2566,8 +2560,7 @@ class matacc_asm_cache_32_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
         
 class matacc_asm_cache_32_16_kyber(Example):
@@ -2584,8 +2577,7 @@ class matacc_asm_cache_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        # TODO: do actual opt
         slothy.write_source_to_file(self.outfile_full)
 
 def main():

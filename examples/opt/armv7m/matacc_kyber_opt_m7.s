@@ -138,8 +138,8 @@
 
 
 // void matacc_asm(int16_t *r, const int16_t *b, int16_t c[4], unsigned char buf[XOF_BLOCKBYTES+2], const int32_t zetas[64], xof_state *state)
-.global matacc_asm_opt_m7_opt_m7
-.type matacc_asm_opt_m7_opt_m7, %function
+.global matacc_asm_opt_m7
+.type matacc_asm_opt_m7, %function
 .align 2
 matacc_asm_opt_m7:
  push {r0-r11, r14}
