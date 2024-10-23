@@ -10,8 +10,8 @@
  // result in high half
 .endm
 
-.global basemul_asm_opt_m7_opt_m7
-.type basemul_asm_opt_m7_opt_m7, %function
+.global basemul_asm_opt_m7
+.type basemul_asm_opt_m7, %function
 .align 2
 basemul_asm_opt_m7:
  push {r4-r11, lr}

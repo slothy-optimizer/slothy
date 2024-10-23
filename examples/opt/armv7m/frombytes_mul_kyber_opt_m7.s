@@ -66,8 +66,8 @@
 
 
 // void frombytes_mul_asm(int16_t *r, const int16_t *b, const unsigned char *a, const int32_t zetas[64])
-.global frombytes_mul_asm_opt_m7_opt_m7
-.type frombytes_mul_asm_opt_m7_opt_m7, %function
+.global frombytes_mul_asm_opt_m7
+.type frombytes_mul_asm_opt_m7, %function
 .align 2
 frombytes_mul_asm_opt_m7:
  push {r4-r11, r14}

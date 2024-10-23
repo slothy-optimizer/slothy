@@ -2390,7 +2390,6 @@ class basemul_kyber(Example):
 
     def core(self, slothy):
         # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
         slothy.write_source_to_file(self.outfile_full)
 
 class basemul_acc_kyber(Example):
@@ -2408,7 +2407,6 @@ class basemul_acc_kyber(Example):
 
     def core(self, slothy):
         # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
         slothy.write_source_to_file(self.outfile_full)
 
 class frombytes_mul_kyber(Example):
@@ -2426,14 +2424,13 @@ class frombytes_mul_kyber(Example):
 
     def core(self, slothy):
         # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
         slothy.write_source_to_file(self.outfile_full)
 
 class frombytes_mul_acc_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "frombytes_mul_acc_kyber"
         infile = name
-        funcname = "frombytes_mul_acc_asm"
+        funcname = "frombytes_mul_asm_acc"
 
         if var != "":
             name += f"_{var}"
@@ -2444,7 +2441,6 @@ class frombytes_mul_acc_kyber(Example):
 
     def core(self, slothy):
         # TODO: to actual opt
-        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
         slothy.write_source_to_file(self.outfile_full)
 
 class matacc_kyber(Example):

@@ -11,8 +11,8 @@
 .endm
 
 // -0.5p~0.5p
-.global basemul_asm_acc_opt_m7_opt_m7
-.type basemul_asm_acc_opt_m7_opt_m7, %function
+.global basemul_asm_acc_opt_m7
+.type basemul_asm_acc_opt_m7, %function
 .align 2
 basemul_asm_acc_opt_m7:
  push {r4-r11, lr}
