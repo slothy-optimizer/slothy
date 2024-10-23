@@ -2545,7 +2545,9 @@ def main():
                  caddq_dilithium(),
 
                  ntt_kyber(),
-                 ntt_kyber_symbolic(),
+                 # temporarily disable
+                 # TODO: re-enable
+                 # ntt_kyber_symbolic(),
                  intt_kyber(),
                  basemul_16_32_kyber(),
                  basemul_acc_32_32_kyber(),
