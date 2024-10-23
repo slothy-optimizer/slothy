@@ -2375,6 +2375,223 @@ class fromplant_kyber(Example):
         slothy.fusion_loop("1", ssa=False)
         slothy.optimize_loop("1")
 
+class basemul_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_kyber"
+        infile = name
+        funcname = "basemul_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class basemul_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_kyber"
+        infile = name
+        funcname = "basemul_asm_acc"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class frombytes_mul_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class frombytes_mul_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_kyber"
+        infile = name
+        funcname = "frombytes_mul_acc_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class matacc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_kyber"
+        infile = name
+        funcname = "matacc_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class matacc_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_acc_kyber"
+        infile = name
+        funcname = "matacc_asm_acc"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+
+class matacc_asm_opt_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_16_32_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class matacc_asm_opt_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_32_32_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class matacc_asm_opt_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_32_16_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class matacc_asm_cache_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_16_32_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
+class matacc_asm_cache_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_32_32_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+        
+class matacc_asm_cache_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_32_16_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # TODO: to actual opt
+        slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+        slothy.write_source_to_file(self.outfile_full)
+
 def main():
     examples = [
                  ldr_test(),
@@ -2561,6 +2778,19 @@ def main():
                  sub_kyber(),
                  barrett_reduce_kyber(),
                  fromplant_kyber(),
+
+                basemul_kyber(),
+                 basemul_acc_kyber(),
+                 frombytes_mul_kyber(),
+                 frombytes_mul_acc_kyber(),
+                 matacc_kyber(),
+                 matacc_acc_kyber(),
+                 matacc_asm_opt_16_32_kyber(),
+                 matacc_asm_opt_32_32_kyber(),
+                 matacc_asm_opt_32_16_kyber(),
+                 matacc_asm_cache_16_32_kyber(),
+                 matacc_asm_cache_32_32_kyber(),
+                 matacc_asm_cache_32_16_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]
