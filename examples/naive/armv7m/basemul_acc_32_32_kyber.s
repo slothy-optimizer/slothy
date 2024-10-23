@@ -32,31 +32,31 @@ basemul_asm_acc_opt_32_32:
 
   movw loop, #64
   1:
-    ldr poly0, [aptr], #4
-    ldr poly1, [bptr], #4
+    ldr poly0, [aptr], #8
+    ldr poly1, [bptr], #8
     ldr.w res0, [rptr_tmp]
-    ldr tmp2, [aprimeptr], #4
+    ldr tmp2, [aprimeptr], #8
     ldr.w res1, [rptr_tmp, #4]
 
     // (poly0_t * zeta) * poly1_t + poly0_b * poly0_t + res
     smlad tmp2, tmp2, poly1, res0
-    str tmp2, [rptr_tmp], #4
+    str tmp2, [rptr_tmp], #16
 
     // poly1_t * poly0_b + poly1_b * poly0_t + res
     smladx tmp, poly0, poly1, res1
-    str tmp, [rptr_tmp], #4
+    str tmp, [rptr_tmp, #-12]
 
-    ldr poly0, [aptr], #4
-    ldr poly1, [bptr], #4
-    ldr.w res0, [rptr_tmp]
-    ldr tmp2, [aprimeptr], #4
-    ldr.w res1, [rptr_tmp, #4]
+    ldr poly0, [aptr, #-4]
+    ldr poly1, [bptr, #-4]
+    ldr.w res0, [rptr_tmp, #-8]
+    ldr tmp2, [aprimeptr, #-4]
+    ldr.w res1, [rptr_tmp, #-4]
     
     smlad tmp2, tmp2, poly1, res0
-    str tmp2, [rptr_tmp], #4
+    str tmp2, [rptr_tmp, #-8]
 
     smladx tmp, poly0, poly1, res1
-    str tmp, [rptr_tmp], #4
+    str tmp, [rptr_tmp, #-4]
 
     subs.w loop, #1
   bne.w 1b
