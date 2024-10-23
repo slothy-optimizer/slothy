@@ -225,6 +225,12 @@ default_latencies = {
         vldr_with_imm, vldr_with_postinc,  # according to Jan
         # actually not, just placeholder
         ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback,
+        str_with_imm,
+        str_with_imm_stack,
+        str_with_postinc,
+        str_no_off,
+        strh_with_imm,
+        strh_with_postinc,
     ): 1,
     (
         mul, mul_short,
@@ -232,12 +238,6 @@ default_latencies = {
         smlal,
         mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr,
         # TODO: Verify load latency
-        str_with_imm,
-        str_with_imm_stack,
-        str_with_postinc,
-        str_no_off,
-        strh_with_imm,
-        strh_with_postinc,
         stm_interval_inc_writeback,  # actually not, just placeholder
         ldr,
         ldr_with_imm,
