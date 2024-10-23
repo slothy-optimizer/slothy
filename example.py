@@ -1980,30 +1980,74 @@ class ntt_kyber(Example):
 
     def core(self, slothy):
         slothy.config.outputs = ["r14", "s23"]
-        slothy.config.reserved_regs = ["r1", "r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
+        
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r.add("r1")
+        slothy.config.reserved_regs = r
+
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.constraints.stalls_first_attempt = 32
 
 
-        # Step 1: Optimize second loop
-        slothy.config.sw_pipelining.enabled = True
+        ### TODO
+        # - Experiment with lower split factors
+        # - Try to get stable performance: It currently varies a lot with each run
+
         slothy.config.unsafe_address_offset_fixup = False
-        slothy.fusion_loop("2", ssa=False)
-        slothy.config.unsafe_address_offset_fixup = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic = True
+        slothy.config.constraints.stalls_precision = 1
+        slothy.config.timeout = 360 # Not more than 2min per step
+        slothy.config.split_heuristic_factor = 1
+        slothy.config.visualize_expected_performance = False
+        slothy.config.split_heuristic_factor = 6
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.optimize_loop("1")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("1")
+
+        slothy.config.outputs = ["r14"]
+
+        slothy.config.absorb_spills = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("2", ssa=True)
+
+        slothy.config.outputs = ["r14"]
+        slothy.config.constraints.functional_only = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.inputs_are_outputs = True
+        slothy.config.split_heuristic = False
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.config.constraints.allow_spills = True
+        slothy.config.absorb_spills = True
+        slothy.config.constraints.spill_type = { 'spill_to_vreg': 26 }
+        slothy.config.constraints.minimize_spills = True
+        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
         slothy.optimize_loop("2")
 
-
-        # Step 2: Optimize first loop
-        # TODO: use a small factor and larger repeat
+        slothy.config.timeout = 360
+        slothy.config.constraints.maximize_register_lifetimes = False
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic_optimize_seam = 0
         slothy.config.split_heuristic = True
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-
-        slothy.config.split_heuristic_factor = 4
-        slothy.config.split_heuristic_stepsize = 0.15
         slothy.config.split_heuristic_repeat = 1
-        slothy.optimize_loop("1")
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.25
+        slothy.config.constraints.allow_spills = False
+        slothy.config.constraints.minimize_spills = False
+        slothy.config.absorb_spills = False
+        slothy.config.constraints.stalls_precision = 1
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.constraints.allow_reordering = True
+        slothy.optimize_loop("2")
+
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("2")
 
 class ntt_kyber_symbolic(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
