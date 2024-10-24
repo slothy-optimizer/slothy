@@ -40,7 +40,7 @@ basemul_asm:
 
 	movw loop, #64
 	1:
-	vmov.w s0,loop
+	vmov.w s0, loop
 	movw qa, #26632
 			
 	ldrd poly0, poly2, [aptr], #8
@@ -63,7 +63,7 @@ basemul_asm:
 	smuadx tmp2, poly0, poly1 
 	plant_red q, qa, qinv, tmp2
 	// r[1] in upper half of tmp2
-	pkhtb tmp, tmp2, tmp, asr#16
+	pkhtb tmp, tmp2, tmp, asr #16
 	str tmp, [rptr], #4
 
 	neg zeta, zeta
@@ -79,10 +79,10 @@ basemul_asm:
 	smuadx tmp2, poly2, poly3 
 	plant_red q, qa, qinv, tmp2
 	// r[1] in upper half of tmp2
-	pkhtb tmp, tmp2, tmp, asr#16
+	pkhtb tmp, tmp2, tmp, asr #16
 	str tmp, [rptr], #4
 		
-	vmov.w loop,s0
+	vmov.w loop, s0
 	subs.w loop, #1
 	bne.w 1b
     pop {r4-r11, pc}

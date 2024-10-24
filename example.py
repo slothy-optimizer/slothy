@@ -2433,8 +2433,15 @@ class basemul_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: do actual opt
-        slothy.write_source_to_file(self.outfile_full)
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.fusion_loop("1", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("1")
 
 class basemul_acc_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2450,8 +2457,15 @@ class basemul_acc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: do actual opt
-        slothy.write_source_to_file(self.outfile_full)
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.fusion_loop("1", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("1")
 
 class frombytes_mul_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
