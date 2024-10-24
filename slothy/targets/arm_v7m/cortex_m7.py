@@ -55,7 +55,7 @@ def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
     # add_slot_constraints(slothy)
-    # add_st_hazard(slothy)
+    add_st_hazard(slothy)
 
     add_dsp_slot_constraint(slothy)
 
@@ -69,18 +69,34 @@ def add_slot_constraints(slothy):
         [str_with_imm, str_with_imm_stack, str_with_postinc, strh_with_imm,
          strh_with_postinc, stm_interval_inc_writeback, str_no_off, str], [1])
 
-# TODO: this seems incorrect
+
 def add_st_hazard(slothy):
     def is_st_ld_pair(inst_a, inst_b):
         return (isinstance(inst_a.inst, ldr_with_imm) or isinstance(inst_a.inst, ldr_with_imm_stack)) \
             and (isinstance(inst_b.inst, str_with_imm) or isinstance(inst_b.inst, str_with_imm_stack))
 
-    for t0, t1 in slothy.get_inst_pairs(cond=is_st_ld_pair):
-        if t0.is_locked and t1.is_locked:
+    def evaluate_immediate(string_expr):
+        if string_expr is None:
+            return 0
+        string_expr = str(string_expr)
+        return int(simplify(string_expr))
+
+    for t_load, t_store in slothy.get_inst_pairs(cond=is_st_ld_pair):
+        print(t_load, t_store)
+        if t_load.is_locked and t_store.is_locked:
             continue
-        slothy._Add(t0.cycle_start_var != t1.cycle_start_var + 1)
 
+        ldr_imm = evaluate_immediate(t_load.inst.immediate)
+        str_imm = evaluate_immediate(t_store.inst.immediate)
 
+        if abs(ldr_imm - str_imm) >= 8:
+            continue
+
+        ldr_before_str = slothy._NewBoolVar("")
+        ldr_after_str = slothy._NewBoolVar("")
+        slothy._AddExactlyOne([ldr_before_str, ldr_after_str])
+        slothy._Add(t_load.program_start_var < t_store.program_start_var).OnlyEnforceIf(ldr_before_str)
+        slothy._Add(t_load.program_start_var >= t_store.program_start_var + 8).OnlyEnforceIf(ldr_after_str)
 
 
 # Opaque function called by SLOTHY to add further microarchitecture-
