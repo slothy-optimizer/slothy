@@ -149,6 +149,36 @@ class Config(NestedPrint, LockAttributes):
         return self._selfcheck_failure_logfile
 
     @property
+    def unsafe_address_offset_fixup(self):
+        """Whether address offset fixup is enabled
+
+        Address offset fixup is a feature which leverages commutativity relations
+        such as
+
+        ```
+           ldr X, [A], #immA;
+           str Y, [A, #immB]
+        ==
+           str Y, [A, #(immB+immA)]
+           ldr X, [A], #immA
+        ```
+
+        to achieve greater instruction scheduling flexibility in SLOTHY.
+
+        SAFETY:
+        When you enable this feature, you MUST ensure that registers which are
+        used for addresses are not used in any other instruction than load and
+        stores. OTHERWISE, THE USE OF THIS FEATURE IS UNSOUND (you may see ldr/
+        str instructions with increment reordered with instructions depending
+        on the address register).
+
+        Note: The user-imposed safety constraint is not a necessity -- in principle,
+        SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
+        It just hasn't been implemented yet.
+        """
+        return self._unsafe_address_offset_fixup
+
+    @property
     def allow_useless_instructions(self):
         """Indicates whether SLOTHY should abort upon encountering unused instructions.
 
@@ -691,6 +721,11 @@ class Config(NestedPrint, LockAttributes):
             return self._minimize_overlapping
 
         @property
+        def boundary_reserved_regs(self):
+            """Temporary registers used by the loop boundary (but otherwise need not be kept)"""
+            return self._boundary_reserved_regs
+
+        @property
         def optimize_preamble(self):
             """Perform a separate optimization pass for the loop preamble."""
             return self._optimize_preamble
@@ -757,6 +792,7 @@ class Config(NestedPrint, LockAttributes):
             self.allow_post = False
             self.unknown_iteration_count = False
             self.minimize_overlapping = True
+            self.boundary_reserved_regs = []
             self.optimize_preamble = True
             self.optimize_postamble = True
             self.max_overlapping = None
@@ -789,6 +825,9 @@ class Config(NestedPrint, LockAttributes):
         @minimize_overlapping.setter
         def minimize_overlapping(self,val):
             self._minimize_overlapping = val
+        @boundary_reserved_regs.setter
+        def boundary_reserved_regs(self,val):
+            self._boundary_reserved_regs = val
         @optimize_preamble.setter
         def optimize_preamble(self,val):
             self._optimize_preamble = val
@@ -931,6 +970,19 @@ class Config(NestedPrint, LockAttributes):
             return self._allow_spills
 
         @property
+        def spill_type(self):
+            """The type of spills to generate
+
+            This is usually spilling to the stack, but other options may exist.
+            For example, on Armv7-M microcontrollers it can be useful to spill
+            from the GPR file to the FPR file.
+
+            The type of this configuration option is architecture dependent.
+            You should consult the `Spill` class in the target architecture
+            model to understand the options."""
+            return self._spill_type
+
+        @property
         def minimize_spills(self):
             """Minimize number of stack spills
 
@@ -988,6 +1040,7 @@ class Config(NestedPrint, LockAttributes):
             self._allow_reordering = True
             self._allow_renaming = True
             self._allow_spills = False
+            self._spill_type = None
 
             self.lock()
 
@@ -1027,6 +1080,9 @@ class Config(NestedPrint, LockAttributes):
         @allow_spills.setter
         def allow_spills(self,val):
             self._allow_spills = val
+        @spill_type.setter
+        def spill_type(self,val):
+            self._spill_type = val
         @minimize_spills.setter
         def minimize_spills(self,val):
             self._minimize_spills = val
@@ -1111,6 +1167,11 @@ class Config(NestedPrint, LockAttributes):
         self._selfcheck_failure_logfile = None
         self._allow_useless_instructions = False
 
+        # TODO: This should be False by default, but this is a breaking
+        # change that requires a lot of examples (where it _is_ safe to
+        # apply address offset fixup) to be changed.
+        self._unsafe_address_offset_fixup = True
+
         self._absorb_spills = True
 
         self._split_heuristic = False
@@ -1143,7 +1204,7 @@ class Config(NestedPrint, LockAttributes):
         self._llvm_mca_issue_width_overwrite = False
         self._with_llvm_mca_before = False
         self._with_llvm_mca_after = False
-        self._max_solutions = 64
+        self._max_solutions = 128
         self._timeout = None
         self._retry_timeout = None
         self._ignore_objective = False
@@ -1228,6 +1289,9 @@ class Config(NestedPrint, LockAttributes):
     @allow_useless_instructions.setter
     def allow_useless_instructions(self,val):
         self._allow_useless_instructions = val
+    @unsafe_address_offset_fixup.setter
+    def unsafe_address_offset_fixup(self,val):
+        self._unsafe_address_offset_fixup = val
     @locked_registers.setter
     def locked_registers(self,val):
         self._locked_registers = val
