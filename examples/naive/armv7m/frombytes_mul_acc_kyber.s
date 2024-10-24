@@ -12,7 +12,7 @@
 
 .macro doublebasemul_frombytes_asm_acc rptr, bptr, zeta, poly0, poly1, poly3, res0, tmp, tmp2, q, qa, qinv
 
-	ldr \poly0, [\bptr], #4
+	ldr \poly0, [\bptr], #8
 	
 	ldr \res0, [\rptr]
 	smulwt \tmp, \zeta, \poly1 
@@ -30,14 +30,14 @@
 	plant_red \q, \qa, \qinv, \tmp2
 
 	// r[1] in upper half of tmp2
-	pkhtb \tmp, \tmp2, \tmp, asr#16
+	pkhtb \tmp, \tmp2, \tmp, asr #16
 	uadd16 \res0, \res0, \tmp
-	str \res0, [\rptr], #4
+	str \res0, [\rptr], #8 // @slothy:core=True
 
 	neg \zeta, \zeta
 	
-	ldr \poly0, [\bptr], #4
-	ldr \res0, [\rptr]
+	ldr \poly0, [\bptr, #-4]
+	ldr \res0, [\rptr, #-4]
 
 	smulwt \tmp, \zeta, \poly3 
 	smlabt \tmp, \tmp, \q, \qa  
@@ -49,9 +49,9 @@
 	smuadx \tmp2, \poly0, \poly3 
 	plant_red \q, \qa, \qinv, \tmp2
 	// r[1] in upper half of tmp2
-	pkhtb \tmp, \tmp2, \tmp, asr#16
+	pkhtb \tmp, \tmp2, \tmp, asr #16
 	uadd16 \res0, \res0, \tmp
-	str \res0, [\rptr], #4
+	str \res0, [\rptr, #-4]
 .endm
 
 // reduce 2 registers
@@ -101,10 +101,10 @@ frombytes_mul_asm_acc:
 	movt qinv, #27560
 
 	add ctr, rptr, #64*4*2
+	vmov s0, ctr
 	1:
 		ldr.w zeta, [zetaptr], #4
 		deserialize aptr, tmp, tmp2, tmp3, t0, t1
-		vmov s0, ctr
 		doublebasemul_frombytes_asm_acc rptr, bptr, zeta, tmp3, t0, t1, ctr, tmp, tmp2, q, qa, qinv
 		vmov ctr, s0
 	cmp.w rptr, ctr

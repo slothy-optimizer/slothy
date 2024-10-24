@@ -11,7 +11,7 @@
 .endm
 
 .macro doublebasemul_frombytes_asm rptr, bptr, zeta, poly0, poly1, poly3, tmp, tmp2, q, qa, qinv
-	ldr.w \poly0, [\bptr], #4
+	ldr.w \poly0, [\bptr], #8
 
 	smulwt \tmp, \zeta, \poly1 
 	smlabt \tmp, \tmp, \q, \qa  
@@ -25,12 +25,12 @@
 	plant_red \q, \qa, \qinv, \tmp2
 
 	// r[1] in upper half of tmp2
-	pkhtb \tmp, \tmp2, \tmp, asr#16
-	str \tmp, [rptr], #4
+	pkhtb \tmp, \tmp2, \tmp, asr #16
+	str \tmp, [rptr], #8  // @slothy:core=True
 
 	neg \zeta, \zeta
 
-	ldr.w \poly0, [\bptr], #4
+	ldr.w \poly0, [\bptr, #-4]
 	//basemul(r->coeffs + 4 * i + 2, a->coeffs + 4 * i + 2, b->coeffs + 4 * i + 2, - zetas[64 + i]);
 	smulwt \tmp, \zeta, \poly3 
 	smlabt \tmp, \tmp, \q, \qa  
@@ -42,8 +42,8 @@
 	smuadx \tmp2, \poly0, \poly3 
 	plant_red \q, \qa, \qinv, \tmp2
 	// r[1] in upper half of tmp2
-	pkhtb \tmp, \tmp2, \tmp, asr#16
-	str \tmp, [rptr], #4
+	pkhtb \tmp, \tmp2, \tmp, asr #16
+	str \tmp, [rptr, #-4]
 .endm
 
 // reduce 2 registers
