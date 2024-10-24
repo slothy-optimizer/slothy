@@ -80,7 +80,6 @@ def add_st_hazard(slothy):
         return int(simplify(string_expr))
 
     for t_load, t_store in slothy.get_inst_pairs(cond=is_st_ld_pair):
-        print(t_load, t_store)
         if t_load.is_locked and t_store.is_locked:
             continue
 
@@ -292,10 +291,6 @@ def get_latency(src, out_idx, dst):
             src.args_in_out[0] == dst.args_in_out[0] and \
             src.args_in_out[1] == dst.args_in_out[1]:
         return 1
-
-
-    if issubclass(instclass_dst, Armv7mLogical) and src.args_out[0] == dst.args_in[1]:
-        latency =  latency + 1
 
     # Load latency is 1 cycle if the destination is an arithmetic/logical instruction
     if instclass_src in [ldr_with_imm, ldr_with_imm_stack, ldr_with_inc_writeback] and \
