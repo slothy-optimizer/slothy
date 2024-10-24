@@ -740,7 +740,7 @@ KeccakF1600_StatePermute_part:
 	xorrol      r10, r3, r4
 	xor5        r6,  Aba1, Aga1, Aka1, Ama1, Asa1
 	eors.w      r11, r6, r5
-.rept 10
+
 slothy_start:
 	xor5        r4,  Abo1, Ago1, Ako1, Amo1, Aso1
 	xorrol      r5, lr, r4
@@ -752,7 +752,7 @@ slothy_start:
 	eors.w      lr, r4, r3
 	KeccakThetaRhoPiChi r5, Aka1, r8,  2, r6, Ame1, r11, 23, r7, Asi1, r2, 31, r3, Abo0, r9, 14, r4, Agu0, r12, 10
 slothy_end:
-.endr
+
 	add		sp, #mSize
 	pop		{ r4 - r12, pc }
 
