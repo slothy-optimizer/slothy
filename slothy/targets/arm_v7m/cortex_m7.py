@@ -31,8 +31,6 @@ class ExecutionUnit(Enum):
     STORE = 0
     ALU0 = 1
     ALU1 = 2
-    SHIFT0 = 3
-    SHIFT1 = 4
     MAC = 5
     FPU = 6
     LOAD0 = 7
@@ -153,14 +151,14 @@ execution_units = {
         bic, bics,
         cmp, cmp_imm,
     ): ExecutionUnit.ALU(),
-    (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0], [ExecutionUnit.ALU1, ExecutionUnit.SHIFT1]],
+    (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0], [ExecutionUnit.ALU1]],
     (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
      smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
     (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
     (uadd16, sadd16, usub16, ssub16): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))),
-    (pkhbt, pkhtb, pkhbt_shifted, ubfx_imm): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0, ExecutionUnit.SIMD]],
-    (Armv7mShiftedArithmetic): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0]],
-    (Armv7mShiftedLogical): [[ExecutionUnit.ALU0, ExecutionUnit.SHIFT0]],
+    (pkhbt, pkhtb, pkhbt_shifted, ubfx_imm): [[ExecutionUnit.ALU0, ExecutionUnit.SIMD]],
+    (Armv7mShiftedArithmetic): [[ExecutionUnit.ALU0]],
+    (Armv7mShiftedLogical): [[ExecutionUnit.ALU0]],
 }
 inverse_throughput = {
     (
