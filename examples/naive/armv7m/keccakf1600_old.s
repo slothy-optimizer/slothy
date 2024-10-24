@@ -715,6 +715,7 @@ KeccakF1600_StatePermute_RoundConstantsWithTerminator:
 @
 .align 8
 .global   KeccakF1600_StatePermute_old
+.type KeccakF1600_StatePermute_old,%function
 KeccakF1600_StatePermute_old:
 	adr		r1, KeccakF1600_StatePermute_RoundConstantsWithTerminator
 	push	{ r4 - r12, lr }
