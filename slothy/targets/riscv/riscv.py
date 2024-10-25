@@ -888,25 +888,151 @@ class RISCVInstruction(Instruction):  # NOT done
 #         return obj
 
 
-############################
-#                          #
-# Some scalar instructions #
-#                          #
-############################
 
-class lsr_wform(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "lsr <Wd>, <Wa>, <Wb>"
-    inputs = ["Wa", "Wb"]
-    outputs = ["Wd"]
+###########################################
+# Integer Register-Immediate Instructions #
+###########################################
 
+##########
+# I-Type #
+##########
 class RISCVBasicArithmetic(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
 
-class subs_imm(RISCVBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "subs <Xd>, <Xa>, <imm>"
+class addi(RISCVInstruction):
+    """
+    Add immediate
+
+    Adds the sign-extended 12-bit immediate to register rs1. Arithmetic overflow is ignored and the result is simply the
+    low XLEN bits of the result. ADDI rd, rs1, 0 is used to implement the MV rd, rs1 assembler pseudo-instruction.
+    """
+
+    pattern = "addi <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
-    modifiesFlags = True
+
+class slti(RISCVInstruction):
+    """
+    Set less than immediate
+    
+    Place the value 1 in register Xd if register Xa is less than the signextended immediate when both are treated as
+    signed numbers, else 0 is written to rd.
+    """
+
+    pattern = "slti <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class andi(RISCVInstruction):
+    """
+    AND immediate
+
+    Performs bitwise AND on register Xa and the sign-extended 12-bit immediate and place the result in Xd
+    """
+
+    pattern = "andi <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class ori(RISCVInstruction):
+    """
+    OR immediate
+
+    Performs bitwise OR on register Xa and the sign-extended 12-bit immediate and place the result in Xd
+    """
+
+    pattern = "ori <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class xori(RISCVInstruction):
+    """
+    XOR immediate
+
+    Performs bitwise XOR on register Xa and the sign-extended 12-bit immediate and place the result in Xd.
+    Note, XORI Xa, Xb, -1 performs a bitwise logical inversion of register Xa
+    """
+
+    pattern = "xori <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+##################
+# Special I-Type #
+##################
+"""
+Shifts by a constant are encoded as a specialization of the I-type format. The operand to be shifted is in rs1,
+and the shift amount is encoded in the lower 5 bits of the I-immediate field. The right shift type is encoded
+in bit 30.
+"""
+
+class slli(RISCVInstruction):
+    """
+    Logical left shift by immediate
+
+    Performs logical left shift on the value in register Xa by the shift amount held in the lower 5 bits of the immediate.
+    In RV64, bit-25 is used to shamt[5].
+    """
+
+    pattern = "slli <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class srli(RISCVInstruction):
+    """
+    Logical right shift by immediate
+
+    Performs logical right shift on the value in register Xa by the shift amount held in the lower 5 bits of the immediate.
+    In RV64, bit-25 is used to shamt[5].
+    """
+
+    pattern = "srli <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class srai(RISCVInstruction):
+    """
+    Arithmetic right shift by immediate
+
+    Performs arithmetic right shift on the value in register Xa by the shift amount held in the lower 5 bits of the
+    immediate. In RV64, bit-25 is used to shamt[5].
+    """
+
+    pattern = "srai <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+##########
+# U-Type #
+##########
+
+class lui(RISCVInstruction):
+    # is the input/ output register special here?
+    """
+    Load upper immediate
+
+    Build 32-bit constants and uses the U-type format. LUI places the U-immediate value in the top 20 bits of the
+    destination register Xd, filling in the lowest 12 bits with zeros.
+    """
+
+    pattern = "lui <Xd>, <imm>"
+    outputs = ["Xd"]
+
+class auipc(RISCVInstruction):
+    # is the input/ output register special here?
+    """
+    Load upper immediate to pc
+
+    Build pc-relative addresses and uses the U-type format. AUIPC forms a 32-bit offset from the 20-bit U-immediate,
+    filling in the lowest 12 bits with zeros, adds this offset to the pc, then places the result in register Xd.
+    """
+
+    pattern = "auipc <Xd>, <imm>"
+    outputs = ["Xd"]
+
+#######################################################################################################################
+# Old ARM stuff from here
+#######################################################################################################################
 
 class add(RISCVBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "add <Xd>, <Xa>, <Xb>"
@@ -1010,9 +1136,6 @@ class vmov(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "mov <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]
     outputs = ["Vd"]
-
-
-
 
 def iter_riscv_instructions():
     yield from all_subclass_leaves(Instruction)

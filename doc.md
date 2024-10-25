@@ -32,15 +32,15 @@ convention uses register x2 as the stack pointer
 #### Integer Register-Immediate Instructions
 
 I-Type:
-- ADDI
-- SLTI
-- ANDI
-- ORI
-- XORI
-? Type:
-- SLLI
-- SRLI
-- SRAI
+- ADDI #
+- SLTI #
+- ANDI #
+- ORI #
+- XORI # 
+Special I-Type:
+- SLLI #
+- SRLI #
+- SRAI #
 U-Type:
 - LUI
 - AUIPC
