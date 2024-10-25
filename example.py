@@ -1376,6 +1376,8 @@ class RISC_VExample0(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.config.constraints.stalls_first_attempt=32
+        slothy.config.inputs_are_outputs = True
+        slothy.config.outputs = ["x3"]
         slothy.optimize()
 
 #############################################################################################

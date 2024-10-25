@@ -1,0 +1,1141 @@
+* Example: riscv_simple0_c908 (dry run only)...
+INFO:riscv_simple0_c908:Instructions in body: 2
+DEBUG:root:Parsing result for 'mul x3, x1, x2': ['mul_xform']
+DEBUG:root:Parsing result for 'add x3, x3, x3': ['add']
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Typecheck instruction mul x3, x1, x2
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    + x1 not in state dictionary
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    + x2 not in state dictionary
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Adding instruction to CFG: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x1 is a global input
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Adding virtual instruction for input x1
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x2 is a global input
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Adding virtual instruction for input x2
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Typecheck instruction add x3, x3, x3
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Adding instruction to CFG: add x3, x3, x3
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Typecheck instruction <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x1 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Adding virtual instruction for output x1
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Typecheck instruction <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x2 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Adding virtual instruction for output x2
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Typecheck instruction <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Adding virtual instruction for output x3
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:-> x3 has been produced by (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:Dumping computational flow graph
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:ComputationNode
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ID:  input_x1
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Pos: None
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ASM: <input:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Outputs: [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Inputs:  []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + In/Outs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Output dependants
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    - output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:ComputationNode
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ID:  input_x2
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Pos: None
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ASM: <input:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Outputs: [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Inputs:  []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + In/Outs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Output dependants
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    - output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:ComputationNode
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ID:  0
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Pos: 0
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ASM: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Inputs:  [('x1', BASE_INT), ('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + In/Outs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* TYPE: mul_xform
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Input sources
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 1: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Output dependants
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:ComputationNode
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ID:  1
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Pos: 1
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ASM: add x3, x3, x3
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Inputs:  [('x3', BASE_INT), ('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + In/Outs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* TYPE: add
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Input sources
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 1: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Output dependants
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:    - output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:ComputationNode
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ID:  output_x1
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Pos: None
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ASM: <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Outputs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Inputs:  [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + In/Outs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Input sources
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:ComputationNode
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ID:  output_x2
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Pos: None
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ASM: <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Outputs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Inputs:  [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + In/Outs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Input sources
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:ComputationNode
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ID:  output_x3
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Pos: None
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* ASM: <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Outputs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + Inputs:  [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:  + In/Outs: []
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.dfg_generate_outputs:* Input sources
+DEBUG:riscv_simple0_c908.dfg_generate_outputs: + 0: (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908:Dump: Starting linear optimization... (size 2)
+DEBUG:riscv_simple0_c908:> mul x3, x1, x2
+DEBUG:riscv_simple0_c908:> add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.config:Config:
+DEBUG:riscv_simple0_c908.slothy.config:        _locked: True
+DEBUG:riscv_simple0_c908.slothy.config:        _arch: <module 'slothy.targets.riscv.riscv' from '/home/juber/Documents/slothy/slothy/targets/riscv/riscv.py'>
+DEBUG:riscv_simple0_c908.slothy.config:        _target: <module 'slothy.targets.riscv.xuantie_c908' from '/home/juber/Documents/slothy/slothy/targets/riscv/xuantie_c908.py'>
+DEBUG:riscv_simple0_c908.slothy.config:        _sw_pipelining: SoftwarePipelining:
+DEBUG:riscv_simple0_c908.slothy.config:                _locked: True
+DEBUG:riscv_simple0_c908.slothy.config:                _enabled: False
+DEBUG:riscv_simple0_c908.slothy.config:                _unroll: 1
+DEBUG:riscv_simple0_c908.slothy.config:                _pre_before_post: False
+DEBUG:riscv_simple0_c908.slothy.config:                _allow_pre: True
+DEBUG:riscv_simple0_c908.slothy.config:                _allow_post: False
+DEBUG:riscv_simple0_c908.slothy.config:                _unknown_iteration_count: False
+DEBUG:riscv_simple0_c908.slothy.config:                _minimize_overlapping: True
+DEBUG:riscv_simple0_c908.slothy.config:                _optimize_preamble: True
+DEBUG:riscv_simple0_c908.slothy.config:                _optimize_postamble: True
+DEBUG:riscv_simple0_c908.slothy.config:                _max_overlapping: None
+DEBUG:riscv_simple0_c908.slothy.config:                _min_overlapping: None
+DEBUG:riscv_simple0_c908.slothy.config:                _halving_heuristic: False
+DEBUG:riscv_simple0_c908.slothy.config:                _halving_heuristic_periodic: False
+DEBUG:riscv_simple0_c908.slothy.config:                _halving_heuristic_split_only: False
+DEBUG:riscv_simple0_c908.slothy.config:                _max_pre: 1.0
+DEBUG:riscv_simple0_c908.slothy.config:        _constraints: Constraints:
+DEBUG:riscv_simple0_c908.slothy.config:                _locked: True
+DEBUG:riscv_simple0_c908.slothy.config:                st_ld_hazard: True
+DEBUG:riscv_simple0_c908.slothy.config:                st_ld_hazard_ignore_scattergather: False
+DEBUG:riscv_simple0_c908.slothy.config:                st_ld_hazard_ignore_stack: False
+DEBUG:riscv_simple0_c908.slothy.config:                minimize_st_ld_hazards: False
+DEBUG:riscv_simple0_c908.slothy.config:                _max_displacement: 1.0
+DEBUG:riscv_simple0_c908.slothy.config:                maximize_register_lifetimes: False
+DEBUG:riscv_simple0_c908.slothy.config:                _minimize_spills: False
+DEBUG:riscv_simple0_c908.slothy.config:                move_stalls_to_top: False
+DEBUG:riscv_simple0_c908.slothy.config:                move_stalls_to_bottom: False
+DEBUG:riscv_simple0_c908.slothy.config:                minimize_register_usage: None
+DEBUG:riscv_simple0_c908.slothy.config:                minimize_use_of_extra_registers: None
+DEBUG:riscv_simple0_c908.slothy.config:                allow_extra_registers: {}
+DEBUG:riscv_simple0_c908.slothy.config:                _stalls_allowed: 0
+DEBUG:riscv_simple0_c908.slothy.config:                _stalls_maximum_attempt: 512
+DEBUG:riscv_simple0_c908.slothy.config:                _stalls_minimum_attempt: 0
+DEBUG:riscv_simple0_c908.slothy.config:                _stalls_precision: 0
+DEBUG:riscv_simple0_c908.slothy.config:                _stalls_timeout_below_precision: None
+DEBUG:riscv_simple0_c908.slothy.config:                _stalls_first_attempt: 32
+DEBUG:riscv_simple0_c908.slothy.config:                _model_latencies: False
+DEBUG:riscv_simple0_c908.slothy.config:                _model_functional_units: False
+DEBUG:riscv_simple0_c908.slothy.config:                _allow_reordering: False
+DEBUG:riscv_simple0_c908.slothy.config:                _allow_renaming: False
+DEBUG:riscv_simple0_c908.slothy.config:                _allow_spills: False
+DEBUG:riscv_simple0_c908.slothy.config:        _hints: Hints:
+DEBUG:riscv_simple0_c908.slothy.config:                _locked: True
+DEBUG:riscv_simple0_c908.slothy.config:                _all_core: True
+DEBUG:riscv_simple0_c908.slothy.config:                _order_hint_orig_order: False
+DEBUG:riscv_simple0_c908.slothy.config:                _rename_hint_orig_rename: False
+DEBUG:riscv_simple0_c908.slothy.config:                _ext_bsearch_remember_successes: False
+DEBUG:riscv_simple0_c908.slothy.config:        _variable_size: True
+DEBUG:riscv_simple0_c908.slothy.config:        _register_aliases: {}
+DEBUG:riscv_simple0_c908.slothy.config:        _outputs: {'x1', 'x3', 'x2'}
+DEBUG:riscv_simple0_c908.slothy.config:        _inputs_are_outputs: False
+DEBUG:riscv_simple0_c908.slothy.config:        _rename_inputs: {'arch': 'static', 'symbolic': 'any'}
+DEBUG:riscv_simple0_c908.slothy.config:        _rename_outputs: {'arch': 'static', 'symbolic': 'any'}
+DEBUG:riscv_simple0_c908.slothy.config:        _locked_registers: []
+DEBUG:riscv_simple0_c908.slothy.config:        _reserved_regs: None
+DEBUG:riscv_simple0_c908.slothy.config:        _reserved_regs_are_locked: True
+DEBUG:riscv_simple0_c908.slothy.config:        _selfcheck: True
+DEBUG:riscv_simple0_c908.slothy.config:        _selfcheck_failure_logfile: None
+DEBUG:riscv_simple0_c908.slothy.config:        _allow_useless_instructions: False
+DEBUG:riscv_simple0_c908.slothy.config:        _absorb_spills: True
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic: False
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_region: [0.0, 1.0]
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_chunks: False
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_optimize_seam: 0
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_bottom_to_top: False
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_factor: 2
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_abort_cycle_at_high: None
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_abort_cycle_at_low: None
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_stepsize: None
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_repeat: 1
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_preprocess_naive_interleaving: False
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_preprocess_naive_interleaving_by_latency: False
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_preprocess_naive_interleaving_strategy: depth
+DEBUG:riscv_simple0_c908.slothy.config:        _split_heuristic_estimate_performance: True
+DEBUG:riscv_simple0_c908.slothy.config:        _compiler_binary: gcc
+DEBUG:riscv_simple0_c908.slothy.config:        _compiler_include_paths: None
+DEBUG:riscv_simple0_c908.slothy.config:        _llvm_mca_binary: llvm-mca
+DEBUG:riscv_simple0_c908.slothy.config:        _keep_tags: True
+DEBUG:riscv_simple0_c908.slothy.config:        _inherit_macro_comments: False
+DEBUG:riscv_simple0_c908.slothy.config:        _ignore_tags: False
+DEBUG:riscv_simple0_c908.slothy.config:        _do_address_fixup: True
+DEBUG:riscv_simple0_c908.slothy.config:        _with_preprocessor: False
+DEBUG:riscv_simple0_c908.slothy.config:        _llvm_mca_full: False
+DEBUG:riscv_simple0_c908.slothy.config:        _llvm_mca_issue_width_overwrite: False
+DEBUG:riscv_simple0_c908.slothy.config:        _with_llvm_mca_before: False
+DEBUG:riscv_simple0_c908.slothy.config:        _with_llvm_mca_after: False
+DEBUG:riscv_simple0_c908.slothy.config:        _max_solutions: 64
+DEBUG:riscv_simple0_c908.slothy.config:        _timeout: None
+DEBUG:riscv_simple0_c908.slothy.config:        _retry_timeout: None
+DEBUG:riscv_simple0_c908.slothy.config:        _ignore_objective: False
+DEBUG:riscv_simple0_c908.slothy.config:        _objective_precision: 0
+DEBUG:riscv_simple0_c908.slothy.config:        indentation: 8
+DEBUG:riscv_simple0_c908.slothy.config:        visualize_reordering: True
+DEBUG:riscv_simple0_c908.slothy.config:        visualize_expected_performance: True
+DEBUG:riscv_simple0_c908.slothy.config:        visualize_show_old_code: False
+DEBUG:riscv_simple0_c908.slothy.config:        placeholder_char: .
+DEBUG:riscv_simple0_c908.slothy.config:        early_char: e
+DEBUG:riscv_simple0_c908.slothy.config:        late_char: l
+DEBUG:riscv_simple0_c908.slothy.config:        core_char: *
+DEBUG:riscv_simple0_c908.slothy.config:        mirror_char: ~
+DEBUG:riscv_simple0_c908.slothy.config:        typing_hints: {}
+DEBUG:riscv_simple0_c908.slothy.config:        solver_random_seed: 42
+DEBUG:riscv_simple0_c908.slothy.config:        log_model: None
+DEBUG:riscv_simple0_c908.slothy.config:        log_model_only_on_success: True
+DEBUG:riscv_simple0_c908.slothy.config:        log_model_dir: models
+DEBUG:riscv_simple0_c908.slothy.config:        log_model_log_results: True
+DEBUG:riscv_simple0_c908.slothy.config:        log_model_results_file: results.txt
+DEBUG:riscv_simple0_c908.slothy.input:Dump: Source code
+DEBUG:riscv_simple0_c908.slothy.input:> mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.input:> add x3, x3, x3
+DEBUG:root:Parsing result for 'mul x3, x1, x2': ['mul_xform']
+DEBUG:root:Parsing result for 'add x3, x3, x3': ['add']
+DEBUG:riscv_simple0_c908.slothy.dataflow:Typecheck instruction mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.dataflow: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:    + x1 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:    + x2 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:Adding instruction to CFG: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.dataflow:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x1 is a global input
+DEBUG:riscv_simple0_c908.slothy.dataflow:Adding virtual instruction for input x1
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x2 is a global input
+DEBUG:riscv_simple0_c908.slothy.dataflow:Adding virtual instruction for input x2
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:Typecheck instruction add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.dataflow: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:Adding instruction to CFG: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.dataflow:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:Typecheck instruction <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.dataflow: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x1 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:Adding virtual instruction for output x1
+DEBUG:riscv_simple0_c908.slothy.dataflow:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:Typecheck instruction <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.dataflow: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:Adding virtual instruction for output x3
+DEBUG:riscv_simple0_c908.slothy.dataflow:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x3 has been produced by (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:Typecheck instruction <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.dataflow: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x2 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:Adding virtual instruction for output x2
+DEBUG:riscv_simple0_c908.slothy.dataflow:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.dataflow:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:Dumping computational flow graph
+DEBUG:riscv_simple0_c908.slothy.dataflow:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ID:  input_x1
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ASM: <input:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Outputs: [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0
+DEBUG:riscv_simple0_c908.slothy.dataflow:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.dataflow:    - output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.dataflow:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ID:  input_x2
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ASM: <input:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Outputs: [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0
+DEBUG:riscv_simple0_c908.slothy.dataflow:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.dataflow:    - output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.dataflow:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ID:  0
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Pos: 0
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ASM: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Inputs:  [('x1', BASE_INT), ('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:* TYPE: mul_xform
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Input sources
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 1: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0
+DEBUG:riscv_simple0_c908.slothy.dataflow:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.dataflow:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.dataflow:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ID:  1
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Pos: 1
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ASM: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Inputs:  [('x3', BASE_INT), ('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:* TYPE: add
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Input sources
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 1: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0
+DEBUG:riscv_simple0_c908.slothy.dataflow:    - output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.dataflow:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ID:  output_x1
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ASM: <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Inputs:  [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Input sources
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ID:  output_x3
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ASM: <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Inputs:  [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Input sources
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0: (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.slothy.dataflow:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ID:  output_x2
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.dataflow:* ASM: <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + Inputs:  [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.dataflow:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.dataflow:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.dataflow:* Input sources
+DEBUG:riscv_simple0_c908.slothy.dataflow: + 0: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.input:Registers available for renaming
+DEBUG:riscv_simple0_c908.slothy.input:- BASE_INT available: ['x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12', 'x13', 'x14', 'x15', 'x16', 'x17', 'x18', 'x19', 'x20', 'x21', 'x22', 'x23', 'x24', 'x25', 'x26', 'x27', 'x28', 'x29', 'x30', 'pc']
+DEBUG:riscv_simple0_c908.slothy.input:Statically assign global input x1 to register x1
+DEBUG:riscv_simple0_c908.slothy.input:Statically assign global input x2 to register x2
+DEBUG:riscv_simple0_c908.slothy.input:Statically assign global output x1 to register x1
+DEBUG:riscv_simple0_c908.slothy.input:Statically assign global output x3 to register x3
+DEBUG:riscv_simple0_c908.slothy.input:Statically assign global output x2 to register x2
+DEBUG:riscv_simple0_c908.slothy:Creating constraint model...
+DEBUG:riscv_simple0_c908.slothy:Adding variables for register allocation...
+DEBUG:riscv_simple0_c908.slothy:Create register renaming variables for input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)
+DEBUG:riscv_simple0_c908.slothy:- Output x1 (BASE_INT)
+DEBUG:riscv_simple0_c908.slothy:Locked registers: set()
+DEBUG:riscv_simple0_c908.slothy.input:Instruction // input renaming: x1 -> x1 has its output locked
+DEBUG:riscv_simple0_c908.slothy.input:Reason: Register renaming disabled for this instruction
+DEBUG:riscv_simple0_c908.slothy:input_x1 (<input:x1:BASE_INT>): Output restriction ['x1']
+DEBUG:riscv_simple0_c908.slothy.input:Registers available for renaming of [<input:x1:BASE_INT>].x1 (None)
+DEBUG:riscv_simple0_c908.slothy.input:['x1']
+DEBUG:riscv_simple0_c908.slothy:Create register renaming variables for input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)
+DEBUG:riscv_simple0_c908.slothy:- Output x2 (BASE_INT)
+DEBUG:riscv_simple0_c908.slothy:Locked registers: set()
+DEBUG:riscv_simple0_c908.slothy.input:Instruction // input renaming: x2 -> x2 has its output locked
+DEBUG:riscv_simple0_c908.slothy.input:Reason: Register renaming disabled for this instruction
+DEBUG:riscv_simple0_c908.slothy:input_x2 (<input:x2:BASE_INT>): Output restriction ['x2']
+DEBUG:riscv_simple0_c908.slothy.input:Registers available for renaming of [<input:x2:BASE_INT>].x2 (None)
+DEBUG:riscv_simple0_c908.slothy.input:['x2']
+DEBUG:riscv_simple0_c908.slothy:Create register renaming variables for 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy:- Output x3 (BASE_INT)
+DEBUG:riscv_simple0_c908.slothy:Locked registers: set()
+DEBUG:riscv_simple0_c908.slothy.input:Instruction mul x3, x1, x2 has its output locked
+DEBUG:riscv_simple0_c908.slothy.input:Reason: Register renaming disabled for this instruction
+DEBUG:riscv_simple0_c908.slothy.input:Registers available for renaming of [mul x3, x1, x2].x3 (0)
+DEBUG:riscv_simple0_c908.slothy.input:['x3']
+DEBUG:riscv_simple0_c908.slothy:Create register renaming variables for 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy:- Output x3 (BASE_INT)
+DEBUG:riscv_simple0_c908.slothy:Locked registers: set()
+DEBUG:riscv_simple0_c908.slothy.input:Instruction add x3, x3, x3 has its output locked
+DEBUG:riscv_simple0_c908.slothy.input:Reason: Register renaming disabled for this instruction
+DEBUG:riscv_simple0_c908.slothy.input:Registers available for renaming of [add x3, x3, x3].x3 (1)
+DEBUG:riscv_simple0_c908.slothy.input:['x3']
+DEBUG:riscv_simple0_c908.slothy:Create register renaming variables for output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy:Create register renaming variables for output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy:Create register renaming variables for output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy:Create register usage intervals for input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)
+DEBUG:riscv_simple0_c908.slothy:Create register usage intervals for input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)
+DEBUG:riscv_simple0_c908.slothy:Create register usage intervals for 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy:Create register usage intervals for 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy:Create register usage intervals for output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy:Create register usage intervals for output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy:Create register usage intervals for output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy:Add positional constraints for 2 instructions
+DEBUG:riscv_simple0_c908.slothy:Add positional constraints for 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy:Add positional constraints for 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy:Program order constraint: [0:'mul x3, x1, x2' (type mul_xform)] > [input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)]
+DEBUG:riscv_simple0_c908.slothy:Program order constraint: [0:'mul x3, x1, x2' (type mul_xform)] > [input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)]
+DEBUG:riscv_simple0_c908.slothy:Program order constraint: [1:'add x3, x3, x3' (type add)] > [0:'mul x3, x1, x2' (type mul_xform)]
+DEBUG:riscv_simple0_c908.slothy:Program order constraint: [1:'add x3, x3, x3' (type add)] > [0:'mul x3, x1, x2' (type mul_xform)]
+DEBUG:riscv_simple0_c908.slothy:Program order constraint: [output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)] > [input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)]
+DEBUG:riscv_simple0_c908.slothy:Program order constraint: [output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)] > [1:'add x3, x3, x3' (type add)]
+DEBUG:riscv_simple0_c908.slothy:Program order constraint: [output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)] > [input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)]
+DEBUG:riscv_simple0_c908.slothy:Ensure unambiguous register renaming for <input:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy:Ensure unambiguous register renaming for <input:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy:Ensure unambiguous register renaming for mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy:Ensure unambiguous register renaming for add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy:Ensure unambiguous register renaming for <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy:Ensure unambiguous register renaming for <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy:Ensure unambiguous register renaming for <output:x2:BASE_INT>
+INFO:riscv_simple0_c908.slothy:Objective: minimize cycles
+INFO:riscv_simple0_c908.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:riscv_simple0_c908.slothy:[0.0012s]: Found 1 solutions so far... objective (minimize cycles): currently 0.0, bound 0.0
+INFO:riscv_simple0_c908.slothy:Closer than 1 stalls to theoretical optimum... stop
+INFO:riscv_simple0_c908.slothy:OPTIMAL, wall time: 0.005601 s
+INFO:riscv_simple0_c908.slothy:Booleans in result: 0
+DEBUG:riscv_simple0_c908.slothy:Reordering (without bubbles, 1 copies)
+DEBUG:riscv_simple0_c908.slothy:{0: 0, 1: 1}
+DEBUG:riscv_simple0_c908.slothy:Output 0 of '<input:x1:BASE_INT>' renamed to x1
+DEBUG:riscv_simple0_c908.slothy:New instruction: <input:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy:Output 0 of '<input:x2:BASE_INT>' renamed to x2
+DEBUG:riscv_simple0_c908.slothy:New instruction: <input:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy:Output 0 of 'mul x3, x1, x2' renamed to x3
+DEBUG:riscv_simple0_c908.slothy:Input 0 of 'mul x3, x1, x2' renamed to x1
+DEBUG:riscv_simple0_c908.slothy:Input 1 of 'mul x3, x1, x2' renamed to x2
+DEBUG:riscv_simple0_c908.slothy:New instruction: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy:Output 0 of 'add x3, x3, x3' renamed to x3
+DEBUG:riscv_simple0_c908.slothy:Input 0 of 'add x3, x3, x3' renamed to x3
+DEBUG:riscv_simple0_c908.slothy:Input 1 of 'add x3, x3, x3' renamed to x3
+DEBUG:riscv_simple0_c908.slothy:New instruction: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy:Input 0 of '<output:x1:BASE_INT>' renamed to x1
+DEBUG:riscv_simple0_c908.slothy:New instruction: <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy:Input 0 of '<output:x3:BASE_INT>' renamed to x3
+DEBUG:riscv_simple0_c908.slothy:New instruction: <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy:Input 0 of '<output:x2:BASE_INT>' renamed to x2
+DEBUG:riscv_simple0_c908.slothy:New instruction: <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.result:Optimized code
+DEBUG:riscv_simple0_c908.slothy.result:>                       // Instructions:    2
+DEBUG:riscv_simple0_c908.slothy.result:>                       // Expected cycles: 1
+DEBUG:riscv_simple0_c908.slothy.result:>                       // Expected IPC:    2.00
+DEBUG:riscv_simple0_c908.slothy.result:>                       //
+DEBUG:riscv_simple0_c908.slothy.result:>                       // Cycle bound:     1.0
+DEBUG:riscv_simple0_c908.slothy.result:>                       // IPC bound:       2.00
+DEBUG:riscv_simple0_c908.slothy.result:>                       //
+DEBUG:riscv_simple0_c908.slothy.result:>                       // Wall time:     0.01s
+DEBUG:riscv_simple0_c908.slothy.result:>                       // User time:     0.01s
+DEBUG:riscv_simple0_c908.slothy.result:>                       //
+DEBUG:riscv_simple0_c908.slothy.result:>                       // ----- cycle (expected) ------>
+DEBUG:riscv_simple0_c908.slothy.result:>                       // 0                        25
+DEBUG:riscv_simple0_c908.slothy.result:>                       // |------------------------|----
+DEBUG:riscv_simple0_c908.slothy.result:>         mul x3, x1, x2        // *.............................
+DEBUG:riscv_simple0_c908.slothy.result:>         add x3, x3, x3        // *.............................
+DEBUG:riscv_simple0_c908.slothy.result:> 
+DEBUG:riscv_simple0_c908.slothy.result:>                        // ------ cycle (expected) ------>
+DEBUG:riscv_simple0_c908.slothy.result:>                        // 0                        25
+DEBUG:riscv_simple0_c908.slothy.result:>                        // |------------------------|-----
+DEBUG:riscv_simple0_c908.slothy.result:> // mul x3, x1, x2      // *..............................
+DEBUG:riscv_simple0_c908.slothy.result:> // add x3, x3, x3      // *..............................
+DEBUG:riscv_simple0_c908.slothy.result:> 
+DEBUG:root:Parsing result for 'mul x3, x1, x2': ['mul_xform']
+DEBUG:root:Parsing result for 'add x3, x3, x3': ['add']
+DEBUG:root:Parsing result for 'mul x3, x1, x2': ['mul_xform']
+DEBUG:root:Parsing result for 'add x3, x3, x3': ['add']
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Dump: Old code (1 copies)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:> mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:> add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Dump: New code (1 copies)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // Instructions:    2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // Expected cycles: 1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // Expected IPC:    2.00
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       //
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // Cycle bound:     1.0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // IPC bound:       2.00
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       //
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // Wall time:     0.01s
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // User time:     0.01s
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       //
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // ----- cycle (expected) ------>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // 0                        25
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                       // |------------------------|----
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>         mul x3, x1, x2        // *.............................
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>         add x3, x3, x3        // *.............................
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:> 
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                        // ------ cycle (expected) ------>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                        // 0                        25
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:>                        // |------------------------|-----
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:> // mul x3, x1, x2      // *..............................
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:> // add x3, x3, x3      // *..............................
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:> 
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Typecheck instruction mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    + x1 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    + x2 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Adding instruction to CFG: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x1 is a global input
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Adding virtual instruction for input x1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x2 is a global input
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Adding virtual instruction for input x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Typecheck instruction add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Adding instruction to CFG: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Typecheck instruction <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x1 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Adding virtual instruction for output x1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Typecheck instruction <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x2 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Adding virtual instruction for output x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Typecheck instruction <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Adding virtual instruction for output x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:-> x3 has been produced by (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:Dumping computational flow graph
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ID:  input_x1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ASM: <input:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Outputs: [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    - output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ID:  input_x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ASM: <input:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Outputs: [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    - output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ID:  0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Pos: 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ASM: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Inputs:  [('x1', BASE_INT), ('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* TYPE: mul_xform
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 1: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ID:  1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Pos: 1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ASM: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Inputs:  [('x3', BASE_INT), ('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* TYPE: add
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 1: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:    - output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ID:  output_x1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ASM: <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Inputs:  [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ID:  output_x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ASM: <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Inputs:  [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ID:  output_x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* ASM: <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + Inputs:  [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_old: + 0: (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Typecheck instruction mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    + x1 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    + x2 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Adding instruction to CFG: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x1 is a global input
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Adding virtual instruction for input x1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x2 is a global input
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Adding virtual instruction for input x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Typecheck instruction add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Adding instruction to CFG: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Typecheck instruction <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x1 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Adding virtual instruction for output x1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Typecheck instruction <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x2 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Adding virtual instruction for output x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Typecheck instruction <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Adding virtual instruction for output x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:-> x3 has been produced by (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:Dumping computational flow graph
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ID:  input_x1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ASM: <input:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Outputs: [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    - output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ID:  input_x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ASM: <input:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Outputs: [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    - output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ID:  0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Pos: 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ASM: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Inputs:  [('x1', BASE_INT), ('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* TYPE: mul_xform
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 1: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ID:  1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Pos: 1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ASM: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Inputs:  [('x3', BASE_INT), ('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* TYPE: add
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 1: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:    - output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ID:  output_x1
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ASM: <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Inputs:  [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ID:  output_x2
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ASM: <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Inputs:  [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ID:  output_x3
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* ASM: <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + Inputs:  [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.selfcheck.dfg_new: + 0: (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.slothy.selfcheck:Isomophism between computation flow graphs: OK!
+INFO:riscv_simple0_c908.slothy.selfcheck:OK!
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Dump: Old code (1 copies)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:> mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:> add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Dump: New code (1 copies)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // Instructions:    2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // Expected cycles: 1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // Expected IPC:    2.00
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       //
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // Cycle bound:     1.0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // IPC bound:       2.00
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       //
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // Wall time:     0.01s
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // User time:     0.01s
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       //
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // ----- cycle (expected) ------>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // 0                        25
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                       // |------------------------|----
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>         mul x3, x1, x2        // *.............................
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>         add x3, x3, x3        // *.............................
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:> 
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                        // ------ cycle (expected) ------>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                        // 0                        25
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:>                        // |------------------------|-----
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:> // mul x3, x1, x2      // *..............................
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:> // add x3, x3, x3      // *..............................
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:> 
+DEBUG:root:Parsing result for 'mul x3, x1, x2': ['mul_xform']
+DEBUG:root:Parsing result for 'add x3, x3, x3': ['add']
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Typecheck instruction mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    + x1 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    + x2 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Adding instruction to CFG: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x1 is a global input
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Adding virtual instruction for input x1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x2 is a global input
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Adding virtual instruction for input x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Typecheck instruction add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Adding instruction to CFG: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Typecheck instruction <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x1 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Adding virtual instruction for output x1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Typecheck instruction <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x2 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Adding virtual instruction for output x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Typecheck instruction <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Adding virtual instruction for output x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:-> x3 has been produced by (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:Dumping computational flow graph
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ID:  input_x1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ASM: <input:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Outputs: [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    - output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ID:  input_x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ASM: <input:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Outputs: [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    - output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ID:  0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Pos: 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ASM: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Inputs:  [('x1', BASE_INT), ('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* TYPE: mul_xform
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 1: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ID:  1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Pos: 1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ASM: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Inputs:  [('x3', BASE_INT), ('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* TYPE: add
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 1: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:    - output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ID:  output_x1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ASM: <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Inputs:  [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ID:  output_x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ASM: <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Inputs:  [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ID:  output_x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* ASM: <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + Inputs:  [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_old: + 0: (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:root:Parsing result for 'mul x3, x1, x2': ['mul_xform']
+DEBUG:root:Parsing result for 'add x3, x3, x3': ['add']
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Typecheck instruction mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    + x1 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    + x2 not in state dictionary
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Adding instruction to CFG: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x1 is a global input
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Adding virtual instruction for input x1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x2 is a global input
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Adding virtual instruction for input x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Typecheck instruction add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Adding instruction to CFG: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x3 has been produced by (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Typecheck instruction <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: - argument x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x1 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x1 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x1 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Adding virtual instruction for output x1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Finding source of register x1 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x1 has been produced by (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Typecheck instruction <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: - argument x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x2 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x2 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x2 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Adding virtual instruction for output x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Finding source of register x2 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x2 has been produced by (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Typecheck instruction <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: - argument x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 in state dictionary: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 according to typing hints: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:   + type of x3 according to model: BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Adding virtual instruction for output x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Finding source of register x3 of type BASE_INT
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:-> x3 has been produced by (1:'add x3, x3, x3' (type add)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:Dumping computational flow graph
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ID:  input_x1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ASM: <input:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Outputs: [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    - output_x1:'<output:x1:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ID:  input_x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ASM: <input:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Outputs: [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Inputs:  []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* TYPE: VirtualInputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    - 0:'mul x3, x1, x2' (type mul_xform)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    - output_x2:'<output:x2:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ID:  0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Pos: 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ASM: mul x3, x1, x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Inputs:  [('x1', BASE_INT), ('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* TYPE: mul_xform
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 1: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    - 1:'add x3, x3, x3' (type add)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ID:  1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Pos: 1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ASM: add x3, x3, x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Outputs: [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Inputs:  [('x3', BASE_INT), ('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* TYPE: add
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 1: (0:'mul x3, x1, x2' (type mul_xform)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Output dependants
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:    - output_x3:'<output:x3:BASE_INT>' (type VirtualOutputInstruction)
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ID:  output_x1
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ASM: <output:x1:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Inputs:  [('x1', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0: (input_x1:'<input:x1:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ID:  output_x2
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ASM: <output:x2:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Inputs:  [('x2', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0: (input_x2:'<input:x2:BASE_INT>' (type VirtualInputInstruction)).out[0]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:ComputationNode
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ID:  output_x3
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Pos: None
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* ASM: <output:x3:BASE_INT>
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Outputs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + Inputs:  [('x3', BASE_INT)]
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:  + In/Outs: []
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* TYPE: VirtualOutputInstruction
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new:* Input sources
+DEBUG:riscv_simple0_c908.slothy.fixup.dfg_new: + 0: (1:'add x3, x3, x3' (type add)).out[0]

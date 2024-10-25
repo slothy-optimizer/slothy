@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
 # Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
+# Copyright (c) 2024 Justus Bergermann
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,7 +27,7 @@
 #
 
 """
-Experimental Cortex-A55 microarchitecture model for SLOTHY
+Experimental XuanTie C908 microarchitecture model for SLOTHY
 
 Most data in this model is derived from the Cortex-A55 software optimization guide.
 Some latency exceptions were manually identified through microbenchmarks.
@@ -48,7 +49,7 @@ issue_rate = 2
 llvm_mca_target = "cortex-a55"
 
 class ExecutionUnit(Enum):
-    """Enumeration of execution units in Cortex-A55 model"""
+    """Enumeration of execution units in XuanTie C908 model"""
     SCALAR_ALU0=1
     SCALAR_ALU1=2
     SCALAR_MAC=3
@@ -72,25 +73,9 @@ class ExecutionUnit(Enum):
 def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
-    add_slot_constraints(slothy)
-    add_st_hazard(slothy)
+    #add_slot_constraints(slothy)
+    #add_st_hazard(slothy)
 
-def add_slot_constraints(slothy):
-    # Q-Form vector instructions are on slot 0 only
-    slothy.restrict_slots_for_instructions_by_property(
-        Instruction.is_q_form_vector_instruction, [0])
-    # fcsel and vld2 on slot 0 only
-    #slothy.restrict_slots_for_instructions_by_class(
-    #   [fcsel_dform, Q_Ld2_Lane_Post_Inc], [0])
-
-def add_st_hazard(slothy):
-    def is_vec_st_st_pair(inst_a, inst_b):
-        return inst_a.inst.is_vector_store() and inst_b.inst.is_vector_store()
-
-    for t0, t1 in slothy.get_inst_pairs(cond=is_vec_st_st_pair):
-        if t0.is_locked and t1.is_locked:
-            continue
-        slothy._Add( t0.cycle_start_var != t1.cycle_start_var + 1 )
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
@@ -103,15 +88,15 @@ def get_min_max_objective(slothy):
     return
 
 execution_units = {
-   add : ExecutionUnit.SCALAR(),
+    add: ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
-    ( add) : 1
+    add: 1
 }
 
 default_latencies = {
-    add: 2,
+    add:1
 }
 
 def get_latency(src, out_idx, dst):
@@ -122,6 +107,7 @@ def get_latency(src, out_idx, dst):
 
     latency = lookup_multidict(
         default_latencies, src)
+
 
 
     return latency

@@ -87,3 +87,8 @@ core might support multiple RISC-V-compatible hardware threads, or harts, throug
 # C908 Overview
 
 - Supports RISC-V 64GCB[V] ISA 
+
+# Questions
+
+- Where do data types (abbrev_unfold) come from
+- make vs build vs parse

@@ -26,7 +26,7 @@
 #
 
 """
-Partial SLOTHY architecture model for AArch64
+Partial SLOTHY architecture model for RISCV
 
 Various arithmetic and LSU scalar and Neon instructions are included,
 but many are still missing. The model is lazily growing with the workloads
@@ -49,6 +49,9 @@ from sympy import simplify
 llvm_mca_arch = "aarch64"
 
 class RegisterType(Enum):
+    """
+    Enum of all register types
+    """
     BASE_INT = 1  # 32 x-registers, 32-bit width + additional pc register
 
     def __str__(self):
@@ -59,7 +62,7 @@ class RegisterType(Enum):
     @cache
     @staticmethod
     def spillable(reg_type):  # done
-        #return reg_type in [RegisterType.GPR, RegisterType.NEON]
+        #return reg_type in [RegisterType.BASE_INT, RegisterType.NEON]
         return
 
     @cache
@@ -68,7 +71,10 @@ class RegisterType(Enum):
         """Return the list of all registers of a given type"""
 
         base_int  = [ f"x{i}" for i in range(31) ] + ["pc"]
-        return { RegisterType.BASE_INT : base_int }[reg_type]
+
+
+        return { RegisterType.BASE_INT : base_int,
+                 }[reg_type]
 
 
     @staticmethod
@@ -81,7 +87,6 @@ class RegisterType(Enum):
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
                 return ty
-
         return None
 
     @staticmethod
@@ -233,13 +238,13 @@ class RegisterType(Enum):
 #             raise FatalParsingException(f"Couldn't identify loop {lbl}")
 #         return pre, body, post, lbl, (reg0, reg1, imm)
 
-class FatalParsingException(Exception):
+class FatalParsingException(Exception):  # done
     """A fatal error happened during instruction parsing"""
 
-class UnknownInstruction(Exception):
+class UnknownInstruction(Exception):  # done
     """The parent instruction class for the given object could not be found"""
 
-class UnknownRegister(Exception):
+class UnknownRegister(Exception):  # done
     """The register could not be found"""
 
 class Instruction:
@@ -295,7 +300,7 @@ class Instruction:
         self.index = None
         self.flag = None
 
-    def extract_read_writes(self):
+    def extract_read_writes(self):  # what does this do?
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
 
         src_line = self.source_line
@@ -308,13 +313,13 @@ class Instruction:
             self.num_out += 1
             self.args_out_restrictions.append(None)
             self.args_out.append(hint_register_name(tag))
-            self.arg_types_out.append(RegisterType.HINT)
+            #self.arg_types_out.append(RegisterType.HINT)
 
         def add_memory_read(tag):
             self.num_in += 1
             self.args_in_restrictions.append(None)
             self.args_in.append(hint_register_name(tag))
-            self.arg_types_in.append(RegisterType.HINT)
+            #self.arg_types_in.append(RegisterType.HINT)
 
         write_tags = src_line.tags.get("writes", [])
         read_tags = src_line.tags.get("reads", [])
@@ -333,7 +338,7 @@ class Instruction:
 
         return self
 
-    def global_parsing_cb(self, a, log=None):
+    def global_parsing_cb(self, a, log=None): # done
         """Parsing callback triggered after DataFlowGraph parsing which allows modification
         of the instruction in the context of the overall computation.
 
@@ -342,7 +347,7 @@ class Instruction:
         _ = log # log is not used
         return False
 
-    def global_fusion_cb(self, a, log=None):
+    def global_fusion_cb(self, a, log=None):  # done
         """Fusion callback triggered after DataFlowGraph parsing which allows fusing
         of the instruction in the context of the overall computation.
 
@@ -350,13 +355,13 @@ class Instruction:
         _ = log # log is not used
         return False
 
-    def write(self):
+    def write(self):  # done
         """Write the instruction"""
         args = self.args_out + self.args_in_out + self.args_in
         return self.mnemonic + ' ' + ', '.join(args)
 
     @staticmethod
-    def unfold_abbrevs(mnemonic):
+    def unfold_abbrevs(mnemonic):  # NOT done
         if mnemonic.count("<dt") > 1:
             for i in range(mnemonic.count("<dt")):
                 mnemonic = re.sub(f"<dt{i}>", f"(?P<datatype{i}>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))",
@@ -372,63 +377,67 @@ class Instruction:
         return False
 
     # vector
-    # def is_q_form_vector_instruction(self):
-    #     """Indicates whether an instruction is Neon instruction operating on
-    #     a 128-bit vector"""
-    #
-    #     # For most instructions, we infer their operating size from explicit
-    #     # datatype annotations. Others need listing explicitly.
-    #
-    #     if self.datatype is None:
-    #         return self._is_instance_of([Str_Q, Ldr_Q])
-    #
-    #     # Operations on specific lanes are not counted as Q-form instructions
-    #     if self._is_instance_of([Q_Ld2_Lane_Post_Inc]):
-    #         return False
-    #
-    #     dt = self.datatype
-    #     if isinstance(dt, list):
-    #         dt = dt[0]
-    #
-    #     if dt.lower() in ["2d", "4s", "8h", "16b"]:
-    #         return True
-    #     if dt.lower() in ["1d", "2s", "4h", "8b"]:
-    #         return False
-    #     raise FatalParsingException(f"unknown datatype '{dt}' in {self}")
-    #
-    # def is_vector_load(self):
-    #     """Indicates if an instruction is a Neon load instruction"""
-    #     return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld2, Ld4, Q_Ld2_Lane_Post_Inc ])
-    # def is_vector_store(self):
-    #     """Indicates if an instruction is a Neon store instruction"""
-    #     return self._is_instance_of([ Str_Q, Stp_Q, St2, St4,
-    #                                   d_stp_stack_with_inc, d_str_stack_with_inc])
-    #
-    # # scalar
-    # def is_scalar_load(self):
-    #     """Indicates if an instruction is a scalar load instruction"""
-    #     return self._is_instance_of([ Ldr_X, Ldp_X ])
-    # def is_scalar_store(self):
-    #     """Indicates if an instruction is a scalar store instruction"""
-    #     return  self._is_instance_of([ Stp_X, Str_X ])
-    #
-    # # scalar or vector
-    # def is_load(self):
-    #     """Indicates if an instruction is a scalar or Neon load instruction"""
-    #     return self.is_vector_load() or self.is_scalar_load()
-    # def is_store(self):
-    #     """Indicates if an instruction is a scalar or Neon store instruction"""
-    #     return self.is_vector_store() or self.is_scalar_store()
-    # def is_load_store_instruction(self):
-    #     """Indicates if an instruction is a scalar or Neon load or store instruction"""
-    #     return self.is_load() or self.is_store()
+    def is_q_form_vector_instruction(self):
+        """Indicates whether an instruction is Neon instruction operating on
+        a 128-bit vector"""
+
+        # For most instructions, we infer their operating size from explicit
+        # datatype annotations. Others need listing explicitly.
+
+        #if self.datatype is None:
+        #    return self._is_instance_of([Str_Q, Ldr_Q])
+
+        # Operations on specific lanes are not counted as Q-form instructions
+        #if self._is_instance_of([Q_Ld2_Lane_Post_Inc]):
+        #    return False
+
+        dt = self.datatype
+        if isinstance(dt, list):
+            dt = dt[0]
+
+        if dt.lower() in ["2d", "4s", "8h", "16b"]:
+            return True
+        if dt.lower() in ["1d", "2s", "4h", "8b"]:
+            return False
+        raise FatalParsingException(f"unknown datatype '{dt}' in {self}")
+
+    def is_vector_load(self):
+        """Indicates if an instruction is a Neon load instruction"""
+        #return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld2, Ld4, Q_Ld2_Lane_Post_Inc ])
+        return False
+    def is_vector_store(self):
+        """Indicates if an instruction is a Neon store instruction"""
+    #    return self._is_instance_of([ Str_Q, Stp_Q, St2, St4,
+    #                                  d_stp_stack_with_inc, d_str_stack_with_inc])
+        return False
+    # scalar
+    def is_scalar_load(self):
+         """Indicates if an instruction is a scalar load instruction"""
+         #return self._is_instance_of([ Ldr_X, Ldp_X ])
+         return False
+    def is_scalar_store(self):
+         """Indicates if an instruction is a scalar store instruction"""
+         #return  self._is_instance_of([ Stp_X, Str_X ])
+         return False
+
+    # scalar or vector
+    def is_load(self):
+         """Indicates if an instruction is a scalar or Neon load instruction"""
+         return self.is_vector_load() or self.is_scalar_load()
+
+    def is_store(self):
+         """Indicates if an instruction is a scalar or Neon store instruction"""
+         return self.is_vector_store() or self.is_scalar_store()
+    def is_load_store_instruction(self):
+         """Indicates if an instruction is a scalar or Neon load or store instruction"""
+         return self.is_load() or self.is_store()
 
     @classmethod
     def make(cls, src):
         """Abstract factory method parsing a string into an instruction instance."""
 
     @staticmethod
-    def build(c, src, mnemonic, **kwargs):
+    def build(c, src, mnemonic, **kwargs):  # done
         """Attempt to parse a string as an instance of an instruction.
 
         Args:
@@ -486,7 +495,7 @@ class Instruction:
         return obj
 
     @staticmethod
-    def parser(src_line):
+    def parser(src_line):  # done
         """Global factory method parsing an assembly line into an instance
         of a subclass of Instruction."""
         insts = []
@@ -526,8 +535,8 @@ class Instruction:
     def __repr__(self):
         return self.write()
 
-class RISCVInstruction(Instruction):
-    """Abstract class representing AArch64 instructions"""
+class RISCVInstruction(Instruction):  # NOT done
+    """Abstract class representing RISCV instructions"""
 
     PARSERS = {}
 
@@ -614,12 +623,8 @@ class RISCVInstruction(Instruction):
     @cache
     @staticmethod
     def _infer_register_type(ptrn):
-        if ptrn[0].upper() in ["X","W"]:
-            return RegisterType.GPR
-        if ptrn[0].upper() in ["V","Q","D","B"]:
-            return RegisterType.NEON
-        if ptrn[0].upper() in ["T"]:
-            return RegisterType.HINT
+        if ptrn[0].upper() in ["X"]:
+            return RegisterType.BASE_INT
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
 
     def __init__(self, pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False,
@@ -637,13 +642,13 @@ class RISCVInstruction(Instruction):
         arg_types_out    = [RISCVInstruction._infer_register_type(r) for r in outputs]
         arg_types_in_out = [RISCVInstruction._infer_register_type(r) for r in in_outs]
 
-        if modifiesFlags:
-            arg_types_out += [RegisterType.FLAGS]
-            outputs       += ["flags"]
+        #if modifiesFlags:
+        #    arg_types_out += [RegisterType.FLAGS]
+        #    outputs       += ["flags"]
 
-        if dependsOnFlags:
-            arg_types_in += [RegisterType.FLAGS]
-            inputs += ["flags"]
+        #if dependsOnFlags:
+        #    arg_types_in += [RegisterType.FLAGS]
+        #    inputs += ["flags"]
 
         super().__init__(mnemonic=pattern,
                      arg_types_in=arg_types_in,
@@ -663,12 +668,8 @@ class RISCVInstruction(Instruction):
 
     @staticmethod
     def _to_reg(ty, s):
-        if ty == RegisterType.GPR:
+        if ty == RegisterType.BASE_INT:
             c = "x"
-        elif ty == RegisterType.NEON:
-            c = "v"
-        elif ty == RegisterType.HINT:
-            c = "t"
         else:
             assert False
         if s.replace('_','').isdigit():
@@ -677,24 +678,16 @@ class RISCVInstruction(Instruction):
 
     @staticmethod
     def _build_pattern_replacement(s, ty, arg):
-        if ty == RegisterType.GPR:
+        if ty == RegisterType.BASE_INT:
             if arg[0] != "x":
-                return f"{s[0].upper()}<{arg}>"
-            return s[0].lower() + arg[1:]
-        if ty == RegisterType.NEON:
-            if arg[0] != "v":
-                return f"{s[0].upper()}<{arg}>"
-            return s[0].lower() + arg[1:]
-        if ty == RegisterType.HINT:
-            if arg[0] != "t":
                 return f"{s[0].upper()}<{arg}>"
             return s[0].lower() + arg[1:]
         raise FatalParsingException(f"Unknown register type ({s}, {ty}, {arg})")
 
     @staticmethod
     def _instantiate_pattern(s, ty, arg, out):
-        if ty == RegisterType.FLAGS:
-            return out
+        #if ty == RegisterType.FLAGS:
+        #    return out
         rep = RISCVInstruction._build_pattern_replacement(s, ty, arg)
         res = out.replace(f"<{s}>", rep)
         if res == out:
@@ -727,15 +720,15 @@ class RISCVInstruction(Instruction):
         group_to_attribute('flag', 'flag')
 
         for s, ty in obj.pattern_inputs:
-            if ty == RegisterType.FLAGS:
-                obj.args_in.append("flags")
-            else:
-                obj.args_in.append(RISCVInstruction._to_reg(ty, res[s]))
+            #if ty == RegisterType.FLAGS:
+            #    obj.args_in.append("flags")
+            #else:
+            obj.args_in.append(RISCVInstruction._to_reg(ty, res[s]))
         for s, ty in obj.pattern_outputs:
-            if ty == RegisterType.FLAGS:
-                obj.args_out.append("flags")
-            else:
-                obj.args_out.append(RISCVInstruction._to_reg(ty, res[s]))
+            #if ty == RegisterType.FLAGS:
+            #    obj.args_out.append("flags")
+            #else:
+            obj.args_out.append(RISCVInstruction._to_reg(ty, res[s]))
 
         for s, ty in obj.pattern_in_outs:
             obj.args_in_out.append(RISCVInstruction._to_reg(ty, res[s]))
@@ -830,8 +823,8 @@ class RISCVInstruction(Instruction):
 #     @classmethod
 #     def make(cls, src):
 #         obj = Instruction.build(cls, src, mnemonic="save",
-#                                arg_types_in=[RegisterType.GPR],
-#                                arg_types_out=[RegisterType.STACK_GPR])
+#                                arg_types_in=[RegisterType.BASE_INT],
+#                                arg_types_out=[RegisterType.STACK_BASE_INT])
 #         obj.addr = "sp"
 #         obj.increment = None
 #         return obj
@@ -840,8 +833,8 @@ class RISCVInstruction(Instruction):
 #     @classmethod
 #     def make(cls, src):
 #         obj = Instruction.build(cls, src, mnemonic="restore",
-#                                arg_types_in=[RegisterType.STACK_GPR],
-#                                arg_types_out=[RegisterType.GPR])
+#                                arg_types_in=[RegisterType.STACK_BASE_INT],
+#                                arg_types_out=[RegisterType.BASE_INT])
 #         obj.addr = "sp"
 #         obj.increment = None
 #         return obj
@@ -865,34 +858,34 @@ class RISCVInstruction(Instruction):
 #                          #
 ############################
 
-class Ldr_Q(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+#class Ldr_Q(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
+#    pass
 
-class Ldp_Q(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+#class Ldp_Q(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
+#    pass
 
-class d_ldp_sp_imm(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
-    pattern = "ldp <Da>, <Db>, [sp, <imm>]"
-    outputs = ["Da", "Db"]
-    @classmethod
-    def make(cls, src):
-        obj = RISCVInstruction.build(cls, src)
-        obj.increment = None
-        obj.pre_index = obj.immediate
-        obj.addr = "sp"
-        return obj
-
-class q_ldr(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
-    pattern = "ldr <Qa>, [<Xc>]"
-    inputs = ["Xc"]
-    outputs = ["Qa"]
-    @classmethod
-    def make(cls, src):
-        obj = RISCVInstruction.build(cls, src)
-        obj.increment = None
-        obj.pre_index = None
-        obj.addr = obj.args_in[0]
-        return obj
+# class d_ldp_sp_imm(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
+#     pattern = "ldp <Da>, <Db>, [sp, <imm>]"
+#     outputs = ["Da", "Db"]
+#     @classmethod
+#     def make(cls, src):
+#         obj = RISCVInstruction.build(cls, src)
+#         obj.increment = None
+#         obj.pre_index = obj.immediate
+#         obj.addr = "sp"
+#         return obj
+#
+# class q_ldr(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
+#     pattern = "ldr <Qa>, [<Xc>]"
+#     inputs = ["Xc"]
+#     outputs = ["Qa"]
+#     @classmethod
+#     def make(cls, src):
+#         obj = RISCVInstruction.build(cls, src)
+#         obj.increment = None
+#         obj.pre_index = None
+#         obj.addr = obj.args_in[0]
+#         return obj
 
 
 ############################
