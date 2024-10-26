@@ -42,22 +42,22 @@ Special I-Type:
 - SRLI #
 - SRAI #
 U-Type:
-- LUI
-- AUIPC
+- LUI #
+- AUIPC #
 
 #### Integer Register-Register Operations
 
 R-Type:
-- ADD
-- SLT
-- SLTU
-- AND
-- OR
-- XOR
-- SLL
-- SRL
-- SUB
-- SRA
+- ADD #
+- SLT #
+- SLTU #
+- AND #
+- OR #
+- XOR #
+- SLL #
+- SRL # 
+- SUB #
+- SRA #
 
 ### NOP Instruction
 - NOP = ADDI x0, x0, 0

@@ -1030,6 +1030,132 @@ class auipc(RISCVInstruction):
     pattern = "auipc <Xd>, <imm>"
     outputs = ["Xd"]
 
+
+###########################################
+# Integer Register-Register Instructions #
+###########################################
+
+##########
+# R-Type #
+##########
+
+class add(RISCVInstruction):
+    """
+    Add two registers
+
+    Adds the registers Xa and Xb and stores the result in Xd.
+    Arithmetic overflow is ignored and the result is simply the low XLEN bits of the result.
+    """
+
+    pattern = "add <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa","Xb"]
+    outputs = ["Xd"]
+
+class slt(RISCVInstruction):
+    """
+    Set less than
+
+    Place the value 1 in register Xd if register Xa is less than register Xb when both are treated as signed numbers,
+    else 0 is written to Xd.
+    """
+
+    pattern = "slt <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class sltu(RISCVInstruction):
+    """
+    Set less than (unsigned numbers)
+
+    Place the value 1 in register Xd if register Xa is less than register Xb when both are treated as unsigned numbers,
+    else 0 is written to Xd.
+    """
+
+    pattern = "sltu <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+class and_reg(RISCVInstruction):
+    """
+    AND two register
+
+    Performs bitwise AND on registers Xa and Xb and place the result in Xd
+    """
+
+    pattern = "and <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+class or_reg(RISCVInstruction):
+    """
+    OR two register
+
+    Performs bitwise OR on registers Xa and Xb and place the result in Xd
+    """
+
+    pattern = "or <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+class xor_reg(RISCVInstruction):
+    """
+    XOR two register
+
+    Performs bitwise XOR on registers Xa and Xb and place the result in Xd
+    """
+
+    pattern = "xor <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+class sll(RISCVInstruction):
+    """
+    Logical left shift by register
+
+    Performs logical left shift on the value in register Xa by the shift amount held in the lower 5 bits of register
+    Xb.
+    """
+
+    pattern = "sll <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+class slr(RISCVInstruction):
+    """
+    Logical right shift by register
+
+    Performs logical right shift on the value in register Xa by the shift amount held in the lower 5 bits of register
+    Xb.
+    """
+
+    pattern = "slr <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+class sub(RISCVInstruction):
+    """
+    Sub two register
+
+    Subs the register Xb from Xa and stores the result in Xd.
+    Arithmetic overflow is ignored and the result is simply the low XLEN bits of the result.
+    """
+
+    pattern = "sub <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+class sra(RISCVInstruction):
+    """
+    Arithmetic right shift by register
+
+    Performs arithmetic right shift on the value in register Xa by the shift amount held in the lower 5 bits of register
+    Xb.
+    """
+
+    pattern = "sra <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
 #######################################################################################################################
 # Old ARM stuff from here
 #######################################################################################################################
