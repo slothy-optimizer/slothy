@@ -589,9 +589,14 @@ class AsmHelper():
 class AsmAllocation():
     """Helper for tracking register aliases via .req and .unreq"""
 
+    # TODO: This is conceptionally different and should be
+    # handled in its own class.
+    _REGEXP_EQU_TXT = r"\s*\.equ\s+(?P<key>[A-Za-z0-9\_]+)\s*,\s*(?P<val>[A-Za-z0-9()*/+-]+)"
+
     _REGEXP_REQ_TXT = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
     _REGEXP_UNREQ_TXT = r"\s*\.unreq\s+(?P<alias>\w+)"
 
+    _REGEXP_EQU   = re.compile(_REGEXP_EQU_TXT)
     _REGEXP_REQ   = re.compile(_REGEXP_REQ_TXT)
     _REGEXP_UNREQ = re.compile(_REGEXP_UNREQ_TXT)
 
@@ -624,6 +629,12 @@ class AsmAllocation():
             alias = p.group("alias")
             reg = p.group("reg")
             return alias, reg
+
+        p = AsmAllocation._REGEXP_EQU.match(line.text)
+        if p is not None:
+            key = p.group("key")
+            val = p.group("val")
+            return key, val
 
         return None
 
@@ -683,10 +694,17 @@ class AsmAllocation():
     def unfold_all_aliases(aliases, src):
         """Unfold aliases in assembly source"""
         def _apply_single_alias_to_line(alias_from, alias_to, src):
-            return re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\1{alias_to}\\2", src)
+            res = re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\g<1>{alias_to}\\2", src)
+            return res
         def _apply_multiple_aliases_to_line(line):
-            for (alias_from, alias_to) in aliases.items():
-                line = _apply_single_alias_to_line(alias_from, alias_to, line)
+            do_again = True
+            while do_again:
+                do_again = False
+                for (alias_from, alias_to) in aliases.items():
+                    line_new = _apply_single_alias_to_line(alias_from, alias_to, line)
+                    if line_new != line:
+                        do_again = True
+                    line = line_new
             return line
         res = []
         for line in src:
