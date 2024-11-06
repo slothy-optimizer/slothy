@@ -2954,9 +2954,18 @@ class SlothyBase(LockAttributes):
             if isinstance(latency, int):
                 self.logger.debug("General latency constraint: [%s] >= [%s] + %d",
                     t, i.src, latency)
-                self._add_path_constraint( t, i.src,
-                    lambda t=t, i=i, latency=latency: self._Add(
-                        t.cycle_start_var >= i.src.cycle_start_var + latency))
+                # Some microarchitectures have instructions with 0-cycle latency, i.e., the can 
+                # forward the result to an instruction in the same cycle (e.g., X+str on Cortex-M7)
+                # If that is the case we need to make sure that the consumer is after the producer
+                # in the output.
+                if latency == 0:
+                    self._add_path_constraint(t, i.src,
+                        lambda i=i, t=t:
+                            self._Add(t.program_start_var > i.src.program_start_var))
+                else:
+                    self._add_path_constraint( t, i.src,
+                        lambda t=t, i=i, latency=latency: self._Add(
+                            t.cycle_start_var >= i.src.cycle_start_var + latency))
             else:
                 # We allow `get_latency()` to return a pair (latency, exception),
                 # where `exception` is a callback generating a constraint that _may_
