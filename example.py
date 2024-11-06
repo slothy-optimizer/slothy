@@ -88,7 +88,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False, log_model=False, log_model_dir="models", dry_run=False, silent=False, timeout=0, debug_logfile=None):
+    def run(self, debug=False, log_model=False, log_model_dir="models", dry_run=False, silent=False, timeout=0, debug_logfile=None, only_target=None):
 
         if dry_run is True:
             annotation = " (dry run only)"
@@ -96,6 +96,10 @@ class Example():
             annotation = ""
 
         print(f"* Example: {self.name}{annotation}...")
+
+        # skip eaxmples for all but the target that was asked for
+        if only_target is not None and self.target.__name__ != only_target:
+            return
 
         handlers = []
 
@@ -1516,7 +1520,10 @@ def main():
     parser.add_argument("--debug-logfile", type=str, default=None)
     parser.add_argument("--log-model", default=False, action="store_true")
     parser.add_argument("--log-model-dir", type=str, default="models")
-
+    parser.add_argument("--only-target", type=str,choices=[
+        Target_CortexM55r1.__name__, Target_CortexM85r1.__name__, \
+        Target_CortexA55.__name__, Target_CortexA72.__name__, Target_AppleM1_firestorm.__name__, \
+        Target_AppleM1_icestorm.__name__])
     args = parser.parse_args()
     if args.examples != "all":
         todo = args.examples.split(",")
@@ -1539,7 +1546,8 @@ def main():
             run_example(e, debug=args.debug, dry_run=args.dry_run,
                         silent=args.silent, log_model=args.log_model,
                         debug_logfile=args.debug_logfile,
-                        log_model_dir=args.log_model_dir, timeout=args.timeout)
+                        log_model_dir=args.log_model_dir, timeout=args.timeout,
+                        only_target=args.only_target)
 
 if __name__ == "__main__":
     main()
