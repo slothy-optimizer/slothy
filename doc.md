@@ -1,14 +1,18 @@
 # TODO
 
-- Example file with simple RISC-V source code
-- adjust example.py (instance of example, class of example)
-- try with --dry-run option, add microarchitecture at the end of name
-- Add template file for C908
 - common RISC-V naming
-
-- start with implementation of RISC-V architecture
-- copy whole file, adjust stack specifications etc., look for architecture-specific things
-- implement first instructions at the end of file
+- provide documentation for adding a new architecture
+- think about a method to parse instructions like vmul.xx or fence.tso
+and also for ADDW (32 bit version)
+- restructure instructions by extension
+- add vector instruction set
+  - https://eupilot.eu/wp-content/uploads/2022/11/RISC-V-VectorExtension-1-1.pdf
+  - https://fprox.substack.com/p/risc-v-vector-in-a-nutshell
+  - https://riscv.org/wp-content/uploads/2018/05/15.20-15.55-18.05.06.VEXT-bcn-v1.pdf
+  - Testcode: https://github.com/Ji-Peng/PQRV/blob/master/ntt/dilithium/ntt_8l_singleissue_mont_rv32im.S
+- CSR Registers?
+  - CRS instructions are no longer part of standard base ISA, mostly used for privileged stuff
+- Fix GitHub E-Mail connection
 
 # RISC-V 
 
@@ -62,14 +66,43 @@ R-Type:
 ### NOP Instruction
 - NOP = ADDI x0, x0, 0
 
-### Control Transfer Instructions
+### Control Transfer Instructions (not scope of SLOTHY)
   #### Unconditional Jumps
+
+  J-Type:
+  - JAL
+  I-Type:
+  - JALR
   #### Conditional Branches
+  B-Type:
+  - BEQ
+  - BNE
+  - BLT
+  - BLTU
+  - BGE
+  - BGEU
 
 ### Load and Store Instructions
+
+  I-Type:
+  - LOAD
+
+  S-Type:
+  - STORE
 ### Memory Ordering Instructions
+  - FENCE
+    - pred + succ argument are combinations of R,W,I,O
+  - FENCE.TSO
 ### Environment Call and Breakpoints
+  I-Type:
+  - ECALL
+  - EBREAK
 ### HINT Instructions
+
+RV32I reserves a large encoding space for HINT instructions, which are usually used to communicate
+performance hints to the microarchitecture. Like the NOP instruction, HINTs do not change any
+architecturally visible state, except for advancing the pc and any applicable performance counters.
+Implementations are always allowed to ignore the encoded hints.
 
 ## ISA Extensions
 
@@ -88,7 +121,15 @@ core might support multiple RISC-V-compatible hardware threads, or harts, throug
 
 - Supports RISC-V 64GCB[V] ISA 
 
-# Questions
+# Instruction Structure
 
-- Where do data types (abbrev_unfold) come from
-- make vs build vs parse
+- 32/64/128 bit
+- Extension set (M, A, F, D, G, Q, L, C, B, J, T, P, V, N, H, S)
+- Instruction encoding type (I-Type, R-Type, U-Type ...)
+- Privileged/ Unprivileged
+
+- One file per instruction extension set
+- Superclasses for semantic related instructions (own file)
+
+
+# Questions

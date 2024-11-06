@@ -574,7 +574,7 @@ class RISCVInstruction(Instruction):  # NOT done
 
         flag_pattern = '|'.join(flaglist)
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
-        imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
+        imm_pattern = "(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
 
         src = re.sub(" ", "\\\\s+", src)
@@ -715,7 +715,7 @@ class RISCVInstruction(Instruction):  # NOT done
                         list(map(lambda i: f(res[group_name_i(i)]), idxs)))
 
         group_to_attribute('datatype', 'datatype', lambda x: x.lower())
-        group_to_attribute('imm', 'immediate', lambda x:x[1:]) # Strip '#'
+        group_to_attribute('imm', 'immediate')
         group_to_attribute('index', 'index', int)
         group_to_attribute('flag', 'flag')
 
@@ -784,7 +784,7 @@ class RISCVInstruction(Instruction):  # NOT done
                 txt = txt.replace(f"<{mnemonic_key}{i}>", t(v))
             return txt
 
-        out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
+        out = replace_pattern(out, "immediate", "imm", lambda x: f"{x}")
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
