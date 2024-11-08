@@ -573,7 +573,6 @@ layer34_loop_end:
 
         // TEMPORARY: Barrett reduction
         barrett_const .req r1
-        .equ const_barrett, 63
         movw barrett_const, #:lower16:const_barrett
         movt barrett_const, #:upper16:const_barrett
         mov lr, #64
