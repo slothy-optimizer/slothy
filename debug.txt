@@ -1,4 +1,0 @@
-* Example: riscv_simple0_c908 (dry run only)...
-INFO:riscv_simple0_c908:Instructions in body: 5
-DEBUG:root:Parsing result for 'mul x3, x1, x2': ['mul_xform']
-DEBUG:root:Parsing result for 'add x3, x3, x3': ['add']

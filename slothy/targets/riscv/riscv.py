@@ -43,6 +43,7 @@ import re
 import math
 from enum import Enum
 from functools import cache
+from os import replace
 
 from sympy import simplify
 
@@ -299,6 +300,7 @@ class Instruction:
         self.datatype = None
         self.index = None
         self.flag = None
+        self.is32bit = None
 
     def extract_read_writes(self):  # what does this do?
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -539,7 +541,7 @@ class RISCVInstruction(Instruction):  # NOT done
     """Abstract class representing RISCV instructions"""
 
     PARSERS = {}
-
+    is32bit_pattern = "w?"
     @staticmethod
     def _unfold_pattern(src):
 
@@ -586,6 +588,7 @@ class RISCVInstruction(Instruction):  # NOT done
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag")
+        src = replace_placeholders(src, "w", RISCVInstruction.is32bit_pattern, "is32bit")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -720,6 +723,7 @@ class RISCVInstruction(Instruction):  # NOT done
         group_to_attribute('imm', 'immediate')
         group_to_attribute('index', 'index', int)
         group_to_attribute('flag', 'flag')
+        group_to_attribute('is32bit', 'is32bit')
 
         for s, ty in obj.pattern_inputs:
             #if ty == RegisterType.FLAGS:
@@ -745,7 +749,7 @@ class RISCVInstruction(Instruction):  # NOT done
         depends_on_flags = getattr(c,"dependsOnFlags", False)
 
         if isinstance(src, str):
-            if src.split(' ')[0] != pattern.split(' ')[0]:
+            if not re.match(src.split(' ')[0], pattern.replace('<w>', RISCVInstruction.is32bit_pattern).split(' ')[0]) :
                 raise Instruction.ParsingException("Mnemonic does not match")
             res = RISCVInstruction.get_parser(pattern)(src)
         else:
@@ -790,6 +794,7 @@ class RISCVInstruction(Instruction):  # NOT done
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "is32bit", "w", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -898,8 +903,8 @@ class RISCVInstruction(Instruction):  # NOT done
 ##########
 # I-Type #
 ##########
-class RISCVBasicArithmetic(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+#class RISCVBasicArithmetic(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
+#    pass
 
 class addi(RISCVInstruction):
     """
@@ -909,7 +914,7 @@ class addi(RISCVInstruction):
     low XLEN bits of the result. ADDI rd, rs1, 0 is used to implement the MV rd, rs1 assembler pseudo-instruction.
     """
 
-    pattern = "addi <Xd>, <Xa>, <imm>"
+    pattern = "addi<w> <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -989,7 +994,7 @@ class slli(RISCVInstruction):
     In RV64, bit-25 is used to shamt[5].
     """
 
-    pattern = "slli <Xd>, <Xa>, <imm>"
+    pattern = "slli<w> <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -1001,7 +1006,7 @@ class srli(RISCVInstruction):
     In RV64, bit-25 is used to shamt[5].
     """
 
-    pattern = "srli <Xd>, <Xa>, <imm>"
+    pattern = "srli<w> <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -1013,7 +1018,7 @@ class srai(RISCVInstruction):
     immediate. In RV64, bit-25 is used to shamt[5].
     """
 
-    pattern = "srai <Xd>, <Xa>, <imm>"
+    pattern = "srai<w> <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -1062,7 +1067,7 @@ class add(RISCVInstruction):
     Arithmetic overflow is ignored and the result is simply the low XLEN bits of the result.
     """
 
-    pattern = "add <Xd>, <Xa>, <Xb>"
+    pattern = "add<w> <Xd>, <Xa>, <Xb>"
     inputs = ["Xa","Xb"]
     outputs = ["Xd"]
 
@@ -1132,7 +1137,7 @@ class sll(RISCVInstruction):
     Xb.
     """
 
-    pattern = "sll <Xd>, <Xa>, <Xb>"
+    pattern = "sll<w> <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -1144,7 +1149,7 @@ class srl(RISCVInstruction):
     Xb.
     """
 
-    pattern = "srl <Xd>, <Xa>, <Xb>"
+    pattern = "srl<w> <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -1156,7 +1161,7 @@ class sub(RISCVInstruction):
     Arithmetic overflow is ignored and the result is simply the low XLEN bits of the result.
     """
 
-    pattern = "sub <Xd>, <Xa>, <Xb>"
+    pattern = "sub<w> <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -1168,7 +1173,7 @@ class sra(RISCVInstruction):
     Xb.
     """
 
-    pattern = "sra <Xd>, <Xa>, <Xb>"
+    pattern = "sra<w> <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -1294,18 +1299,10 @@ class sd(RISCVStoreInstruction):
 # Old ARM stuff from here
 #######################################################################################################################
 
-class add(RISCVBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add <Xd>, <Xa>, <Xb>"
-    inputs = ["Xa","Xb"]
-    outputs = ["Xd"]
 
-class RISCVShiftedArithmetic(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
 
-class add_lsl(RISCVShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add <Xd>, <Xa>, <Xb>, lsl <imm>"
-    inputs = ["Xa","Xb"]
-    outputs = ["Xd"]
+#class RISCVShiftedArithmetic(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
+#    pass
 
 class RISCVShift(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
     pass

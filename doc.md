@@ -4,7 +4,7 @@
 - provide documentation for adding a new architecture
 - think about a method to parse instructions like vmul.xx or fence.tso
 and also for ADDW (32 bit version)
-- restructure instructions by extension
+- restructure instructions by extension + superclasses 
 - add vector instruction set
   - https://eupilot.eu/wp-content/uploads/2022/11/RISC-V-VectorExtension-1-1.pdf
   - https://fprox.substack.com/p/risc-v-vector-in-a-nutshell
