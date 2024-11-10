@@ -544,8 +544,10 @@ class RISCVInstruction(Instruction):  # NOT done
     def _unfold_pattern(src):
 
         src = re.sub(r"\.",  "\\\\s*\\\\.\\\\s*", src)
-        src = re.sub(r"\[", "\\\\s*\\\\[\\\\s*", src)
-        src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
+        #src = re.sub(r"\[", "\\\\s*\\\\[\\\\s*", src)
+        #src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
+        src = re.sub(r"\(", "\\\\s*\\\\(\\\\s*", src)
+        src = re.sub(r"\)", "\\\\s*\\\\)\\\\s*", src)
 
         def pattern_transform(g):
             return \
@@ -1156,6 +1158,125 @@ class sra(RISCVInstruction):
     pattern = "sra <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
+
+############################
+# load/ store instructions #
+############################
+
+class lb(RISCVInstruction):
+    """
+    Load byte
+
+    Loads a 8-bit value from memory and sign-extends this to XLEN bits before storing it in register Xd.
+    """
+
+    pattern = "lb <Xd>, <imm>(<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class lbu(RISCVInstruction):
+    """
+    Load byte unsigned
+
+    Loads a 8-bit value from memory and zero-extends this to XLEN bits before storing it in register Xd.
+    """
+    pattern = "lbu <Xd>, <imm>(<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class lh(RISCVInstruction):
+    """
+    Load half word
+
+    Loads a 16-bit value from memory and sign-extends this to XLEN bits before storing it in register Xd.
+    """
+    pattern = "lh <Xd>, <imm>(<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class lhu(RISCVInstruction):
+    """
+    Load half word unsigned
+
+    Loads a 16-bit value from memory and zero-extends this to XLEN bits before storing it in register Xd.
+    """
+    pattern = "lhu <Xd>, <imm>(<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class lw(RISCVInstruction):
+    """
+    Load word
+
+    Loads a 32-bit value from memory and sign-extends this to XLEN bits before storing it in register Xd.
+    """
+    pattern = "lw <Xd>, <imm>(<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class lwu(RISCVInstruction):
+    """
+    Load word
+
+    Loads a 32-bit value from memory and zero-extends this to XLEN bits before storing it in register Xd.
+    """
+    pattern = "lwu <Xd>, <imm>(<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class ld(RISCVInstruction):
+    """
+    Load double word
+
+    Loads a 64-bit value from memory into register Xd for RV64I.
+    """
+    pattern = "ld <Xd>, <imm>(<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+class RISCVStoreInstruction(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
+
+    inputs = ["Xa", "Xb"]
+
+class sb(RISCVStoreInstruction):
+    """
+    Store byte
+
+    Store 8-bit, values from the low bits of register Xb to memory.
+    """
+    pattern = "sb <Xb>, <imm>(<Xa>)"
+
+class sh(RISCVStoreInstruction):
+    """
+    Store half word
+
+    Store 16-bit, values from the low bits of register Xb to memory.
+    """
+    pattern = "sh <Xb>, <imm>(<Xa>)"
+
+class sw(RISCVStoreInstruction):
+    """
+    Store word
+
+    Store 32-bit, values from the low bits of register Xb to memory.
+    """
+    pattern = "sw <Xb>, <imm>(<Xa>)"
+
+class sd(RISCVStoreInstruction):
+    """
+    Store double word
+
+    Store 64-bit, values from the low bits of register Xb to memory.
+    """
+    pattern = "sd <Xb>, <imm>(<Xa>)"
+
 #######################################################################################################################
 # Old ARM stuff from here
 #######################################################################################################################

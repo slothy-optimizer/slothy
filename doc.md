@@ -12,7 +12,8 @@ and also for ADDW (32 bit version)
   - Testcode: https://github.com/Ji-Peng/PQRV/blob/master/ntt/dilithium/ntt_8l_singleissue_mont_rv32im.S
 - CSR Registers?
   - CRS instructions are no longer part of standard base ISA, mostly used for privileged stuff
-- Fix GitHub E-Mail connection
+- width-specifier for load/ store instructions?
+- factory method for instructions with same pattern/ inputs/ outputs using a dict 
 
 # RISC-V 
 
@@ -85,10 +86,20 @@ R-Type:
 ### Load and Store Instructions
 
   I-Type:
-  - LOAD
+  - LD (64-bit value)
+  - LW (32-bit value)
+  - LWU (32-bit value)
+  - LH (16-bit values)
+  - LHU (16-bit values)
+  - LB (8-bit values)
+  - LBU (8-bit values)
 
   S-Type:
-  - STORE
+  - SD (64-bit value)
+  - SW (32-bit value)
+  - SH (16-bit values)
+  - SB (8-bit values)
+
 ### Memory Ordering Instructions
   - FENCE
     - pred + succ argument are combinations of R,W,I,O
