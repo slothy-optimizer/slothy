@@ -925,6 +925,19 @@ class slti(RISCVInstruction):
     inputs = ["Xa"]
     outputs = ["Xd"]
 
+
+class sltiu(RISCVInstruction):
+    """
+    Set less than immediate unsigned
+
+    Place the value 1 in register Xd if register Xa is less than the signextended immediate when both are treated as
+    unsigned numbers, else 0 is written to rd.
+    """
+
+    pattern = "sltiu <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
 class andi(RISCVInstruction):
     """
     AND immediate
@@ -1123,7 +1136,7 @@ class sll(RISCVInstruction):
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
-class slr(RISCVInstruction):
+class srl(RISCVInstruction):
     """
     Logical right shift by register
 
@@ -1131,7 +1144,7 @@ class slr(RISCVInstruction):
     Xb.
     """
 
-    pattern = "slr <Xd>, <Xa>, <Xb>"
+    pattern = "srl <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
