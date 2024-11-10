@@ -43,6 +43,7 @@ WARNING: The data in this module is approximate and may contain errors.
 
 from enum import Enum
 from slothy.targets.riscv.riscv import *
+from slothy.targets.riscv.rv32_64_i_instructions import *
 
 issue_rate = 2
 llvm_mca_target = "cortex-a55"
