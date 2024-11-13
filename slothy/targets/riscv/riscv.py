@@ -47,7 +47,7 @@ from os import replace
 
 from sympy import simplify
 
-from slothy.targets.riscv.abstract_instruction import Instruction
+from slothy.targets.riscv.instruction_core import Instruction
 from slothy.targets.riscv.exceptions import UnknownInstruction
 
 llvm_mca_arch = "aarch64"

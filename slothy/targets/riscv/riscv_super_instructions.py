@@ -1,4 +1,4 @@
-from slothy.targets.riscv.abstract_riscv_instruction import RISCVInstruction
+from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 class RISCVStoreInstruction(RISCVInstruction):
     @classmethod

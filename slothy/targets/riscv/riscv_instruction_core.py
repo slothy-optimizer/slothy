@@ -1,4 +1,4 @@
-from slothy.targets.riscv.abstract_instruction import Instruction
+from slothy.targets.riscv.instruction_core import Instruction
 import re as re
 from slothy.targets.riscv.riscv import RegisterType
 from slothy.targets.riscv.exceptions import FatalParsingException, ParsingException

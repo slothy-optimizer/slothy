@@ -11,6 +11,7 @@
 - CSR Registers?
   - CRS instructions are no longer part of standard base ISA, mostly used for privileged stuff
 - factory method for instructions with same pattern/ inputs/ outputs using a dict 
+- add proper license/ copyright notices for all new files
 
 # RISC-V 
 
