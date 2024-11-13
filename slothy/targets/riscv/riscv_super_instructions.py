@@ -12,28 +12,28 @@ class RISCVStoreInstruction(RISCVInstruction):
     inputs = ["Xa", "Xb"]
 
 class RISCVShift(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""
 
 class RISCVLogical(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""
 
 class RISCVLogicalShifted(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""
 
 class RISCVConditionalCompare(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""
 
 class RISCVConditionalSelect(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""
 
 class RISCVMove(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""
 
 class RISCVHighMultiply(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""
 
 class RISCVMultiply(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""
 
 class Tst(RISCVInstruction): # pylint: disable=missing-docstring,invalid-name
-    pass
+    pattern = ""

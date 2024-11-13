@@ -343,8 +343,7 @@ class RegisterType(Enum):
 #         return obj
 
 
-def iter_riscv_instructions():
-    yield from all_subclass_leaves(Instruction)
+
 
 def find_class(src):
     for inst_class in iter_riscv_instructions():
@@ -352,28 +351,6 @@ def find_class(src):
             return inst_class
     raise UnknownInstruction(f"Couldn't find instruction class for {src} (type {type(src)})")
 
-
-# Returns the list of all subclasses of a class which don't have
-# subclasses themselves
-def all_subclass_leaves(c):
-
-    def has_subclasses(cl):
-        return len(cl.__subclasses__()) > 0
-    def is_leaf(c):
-        return not has_subclasses(c)
-
-    def all_subclass_leaves_core(leaf_lst, todo_lst):
-        leaf_lst += filter(is_leaf, todo_lst)
-        todo_lst = [ csub
-                     for c in filter(has_subclasses, todo_lst)
-                     for csub in c.__subclasses__() ]
-        if len(todo_lst) == 0:
-            return leaf_lst
-        return all_subclass_leaves_core(leaf_lst, todo_lst)
-
-    return all_subclass_leaves_core([], [c])
-
-Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 def lookup_multidict(d, inst, default=None):
     instclass = find_class(inst)

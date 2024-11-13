@@ -1,7 +1,7 @@
 from slothy.targets.riscv.abstract_instruction import Instruction
 import re as re
 from slothy.targets.riscv.riscv import RegisterType
-from slothy.targets.riscv.exceptions import FatalParsingException
+from slothy.targets.riscv.exceptions import FatalParsingException, ParsingException
 from functools import cache
 
 class RISCVInstruction(Instruction):  # NOT done
@@ -68,7 +68,7 @@ class RISCVInstruction(Instruction):  # NOT done
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result is None:
-                raise Instruction.Instruction.ParsingException(f"Does not match instruction pattern {src}"\
+                raise ParsingException(f"Does not match instruction pattern {src}"\
                                                    f"[regex: {regexp_txt}]")
             res = regexp.match(line).groupdict()
             items = list(res.items())
@@ -217,7 +217,7 @@ class RISCVInstruction(Instruction):  # NOT done
 
         if isinstance(src, str):
             if not re.match(src.split(' ')[0], pattern.replace('<w>', RISCVInstruction.is32bit_pattern).split(' ')[0]) :
-                raise Instruction.Instruction.ParsingException("Mnemonic does not match")
+                raise ParsingException("Mnemonic does not match")
             res = RISCVInstruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
