@@ -29,8 +29,9 @@ import re
 import subprocess
 import logging
 from abc import ABC, abstractmethod
-
+from sympy import simplify
 from slothy.targets.common import *
+
 
 class SourceLine:
     """Representation of a single line of source code"""
@@ -934,6 +935,106 @@ class AsmMacro():
         with open(filename,"r",encoding="utf-8") as f:
             res = AsmMacro.extract(f.read().splitlines())
         return res
+
+
+class AsmIfElse():
+    _REGEXP_IF_TXT = r"\s*\.if\s+(?P<cond>.*)"
+    _REGEXP_ELSE_TXT = r"\s*\.else"
+    _REGEXP_ENDIF_TXT = r"\s*\.endif"
+
+    _REGEXP_IF    = re.compile(_REGEXP_IF_TXT)
+    _REGEXP_ELSE  = re.compile(_REGEXP_ELSE_TXT)
+    _REGEXP_ENDIF = re.compile(_REGEXP_ENDIF_TXT)
+
+    @staticmethod
+    def check_if(line):
+        """Check if an assembly line is a .req directive. Return the pair
+        of alias and register, if so. Otherwise, return None."""
+        assert SourceLine.is_source_line(line)
+
+        p = AsmIfElse._REGEXP_IF.match(line.text)
+        if p is not None:
+            return p.group("cond")
+        return None
+
+    @staticmethod
+    def is_if(line):
+        return AsmIfElse.check_if(line) is not None
+
+    @staticmethod
+    def check_else(line):
+        """Check if an assembly line is a .req directive. Return the pair
+        of alias and register, if so. Otherwise, return None."""
+        assert SourceLine.is_source_line(line)
+
+        p = AsmIfElse._REGEXP_ELSE.match(line.text)
+        if p is not None:
+            return True
+        return None
+
+    @staticmethod
+    def is_else(line):
+        return AsmIfElse.check_else(line) is not None
+
+    @staticmethod
+    def check_endif(line):
+        """Check if an assembly line is a .req directive. Return the pair
+        of alias and register, if so. Otherwise, return None."""
+        assert SourceLine.is_source_line(line)
+
+        p = AsmIfElse._REGEXP_ENDIF.match(line.text)
+        if p is not None:
+            return True
+        return None
+
+    @staticmethod
+    def is_endif(line):
+        return AsmIfElse.check_endif(line) is not None
+
+    @staticmethod
+    def evaluate_condition(condition):
+        """Evaluates the condition string and returns True or False."""
+        try:
+            # Evaluate the condition and return the result.
+            return simplify(condition)
+        except Exception as e:
+            print(f"Error evaluating condition '{condition}': {e}")
+            return False
+
+    @staticmethod
+    def process_instructions(instructions):
+        """Processes a list of instructions with conditional statements."""
+        output_lines = []
+        skip_stack = []
+
+        for instruction in instructions:
+            if AsmIfElse.is_if(instruction):
+                # Extract condition and evaluate it.
+                condition = AsmIfElse.check_if(instruction)
+                if AsmIfElse.evaluate_condition(condition):
+                    skip_stack.append(False)
+                else:
+                    skip_stack.append(True)
+                continue
+            elif AsmIfElse.is_else(instruction):
+                if skip_stack:
+                    # Invert the top of the stack
+                    skip_stack[-1] = not skip_stack[-1]
+                continue  # Skip adding the .else line to output
+            elif AsmIfElse.is_endif(instruction):
+                if skip_stack:
+                    skip_stack.pop()  # Exit the current .if block
+                continue  # Skip adding the .endif line to output
+
+            # Determine if the current line should be skipped
+            if skip_stack and True in skip_stack:
+                continue  # Skip lines when inside a false .if block
+
+            # Add the line to output if not skipped
+            output_lines.append(instruction)
+
+        return output_lines
+
 
 class CPreprocessor():
     """Helper class for the application of the C preprocessor"""
