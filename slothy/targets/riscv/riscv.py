@@ -343,7 +343,8 @@ class RegisterType(Enum):
 #         return obj
 
 
-
+def iter_riscv_instructions():
+    yield from Instruction.all_subclass_leaves(Instruction)
 
 def find_class(src):
     for inst_class in iter_riscv_instructions():

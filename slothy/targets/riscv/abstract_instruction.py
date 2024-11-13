@@ -305,5 +305,3 @@ class Instruction:
 
         return all_subclass_leaves_core([], [c])
 
-def iter_riscv_instructions():
-    yield from Instruction.all_subclass_leaves(Instruction)
