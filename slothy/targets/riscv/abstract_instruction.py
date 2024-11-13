@@ -255,8 +255,7 @@ class Instruction:
 
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds
-        Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
-        for inst_class in Instruction.all_subclass_leaves:
+        for inst_class in Instruction.all_subclass_leaves(Instruction):
             try:
                 inst = inst_class.make(src)
                 instnames = [inst_class.__name__]
@@ -285,26 +284,26 @@ class Instruction:
     def __repr__(self):
         return self.write()
 
-# Returns the list of all subclasses of a class which don't have
-# subclasses themselves
-def all_subclass_leaves(c):
+    # Returns the list of all subclasses of a class which don't have
+    # subclasses themselves
+    def all_subclass_leaves(c):
 
-    def has_subclasses(cl):
-        return len(cl.__subclasses__()) > 0
+        def has_subclasses(cl):
+            return len(cl.__subclasses__()) > 0
 
-    def is_leaf(c):
-        return not has_subclasses(c)
+        def is_leaf(c):
+            return not has_subclasses(c)
 
-    def all_subclass_leaves_core(leaf_lst, todo_lst):
-        leaf_lst += filter(is_leaf, todo_lst)
-        todo_lst = [csub
-                    for c in filter(has_subclasses, todo_lst)
-                    for csub in c.__subclasses__()]
-        if len(todo_lst) == 0:
-            return leaf_lst
-        return all_subclass_leaves_core(leaf_lst, todo_lst)
+        def all_subclass_leaves_core(leaf_lst, todo_lst):
+            leaf_lst += filter(is_leaf, todo_lst)
+            todo_lst = [csub
+                        for c in filter(has_subclasses, todo_lst)
+                        for csub in c.__subclasses__()]
+            if len(todo_lst) == 0:
+                return leaf_lst
+            return all_subclass_leaves_core(leaf_lst, todo_lst)
 
-    return all_subclass_leaves_core([], [c])
+        return all_subclass_leaves_core([], [c])
 
 def iter_riscv_instructions():
-    yield from all_subclass_leaves(Instruction)
+    yield from Instruction.all_subclass_leaves(Instruction)
