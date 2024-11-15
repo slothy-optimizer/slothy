@@ -77,9 +77,10 @@ def add_further_constraints(slothy):
     add_st_hazard(slothy)
 
 def add_slot_constraints(slothy):
+    pass
     # Q-Form vector instructions are on slot 0 only
-    slothy.restrict_slots_for_instructions_by_property(
-        Instruction.is_q_form_vector_instruction, [0])
+    #slothy.restrict_slots_for_instructions_by_property()
+        #Instruction.is_q_form_vector_instruction, [0])
     # fcsel and vld2 on slot 0 only
     #slothy.restrict_slots_for_instructions_by_class(
     #   [fcsel_dform, Q_Ld2_Lane_Post_Inc], [0])
@@ -104,15 +105,15 @@ def get_min_max_objective(slothy):
     return
 
 execution_units = {
-   add : ExecutionUnit.SCALAR(),
+   classes_by_names["add"] : ExecutionUnit.SCALAR(),  # this could be more convenient
 }
 
 inverse_throughput = {
-    ( add) : 1
+    classes_by_names["add"] : 1
 }
 
 default_latencies = {
-    add: 2,
+    classes_by_names["add"]: 2,
 }
 
 def get_latency(src, out_idx, dst):

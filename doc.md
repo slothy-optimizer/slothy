@@ -10,8 +10,10 @@
   - Testcode: https://github.com/Ji-Peng/PQRV/blob/master/ntt/dilithium/ntt_8l_singleissue_mont_rv32im.S
 - CSR Registers?
   - CRS instructions are no longer part of standard base ISA, mostly used for privileged stuff
-- factory method for instructions with same pattern/ inputs/ outputs using a dict 
 - add proper license/ copyright notices for all new files
+- mul extension
+- uArch Model
+- inverse throughput = How long is one execution unit kept busy by one instruction
 
 # RISC-V 
 

@@ -365,7 +365,7 @@ def lookup_multidict(d, inst, default=None):
         def match(x):
             if inspect.isclass(x):
                 return isinstance(inst, x)
-            assert callable(x)
+            #assert callable(x)
             return x(inst)
         if not isinstance(l, tuple):
             l = [l]

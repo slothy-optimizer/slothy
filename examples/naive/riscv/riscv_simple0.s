@@ -1,1 +1,2 @@
-add x3, x2, x1
+add x3, x4, x5
+addiw x3, x3, 10
