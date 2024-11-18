@@ -1,19 +1,21 @@
-                              // Instructions:    1
-                              // Expected cycles: 1
-                              // Expected IPC:    1.00
+                              // Instructions:    2
+                              // Expected cycles: 3
+                              // Expected IPC:    0.67
                               //
-                              // Cycle bound:     1.0
-                              // IPC bound:       1.00
+                              // Cycle bound:     3.0
+                              // IPC bound:       0.67
                               //
-                              // Wall time:     0.02s
-                              // User time:     0.02s
+                              // Wall time:     0.01s
+                              // User time:     0.01s
                               //
                               // ----- cycle (expected) ------>
                               // 0                        25
                               // |------------------------|----
-        add x3, x4, x5        // *.............................
+        mul x8, x4, x5        // *.............................
+        add x3, x8, x8        // ..*...........................
 
                                // ------ cycle (expected) ------>
                                // 0                        25
                                // |------------------------|-----
-        // add x3, x4, x5      // *..............................
+        // mul x3, x4, x5      // *..............................
+        // add x3, x3, x3      // ..*............................

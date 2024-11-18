@@ -44,6 +44,7 @@ WARNING: The data in this module is approximate and may contain errors.
 from enum import Enum
 from slothy.targets.riscv.riscv import *
 from slothy.targets.riscv.rv32_64_i_instructions import *
+from slothy.targets.riscv.rv32_64_m_instructions import *
 
 issue_rate = 2
 llvm_mca_target = "cortex-a55"
@@ -105,15 +106,18 @@ def get_min_max_objective(slothy):
     return
 
 execution_units = {
-   classes_by_names["add"] : ExecutionUnit.SCALAR(),  # this could be more convenient
+    RISCVInstruction.classes_by_names["mul"] : ExecutionUnit.SCALAR(),  # this could be more convenient
+    RISCVInstruction.classes_by_names["add"] : ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
-    classes_by_names["add"] : 1
+    RISCVInstruction.classes_by_names["mul"]: 1,
+RISCVInstruction.classes_by_names["add"] : 1
 }
 
 default_latencies = {
-    classes_by_names["add"]: 2,
+    RISCVInstruction.classes_by_names["mul"]: 2,
+    RISCVInstruction.classes_by_names["add"]: 2,
 }
 
 def get_latency(src, out_idx, dst):

@@ -6,7 +6,8 @@ from functools import cache
 
 class RISCVInstruction(Instruction):  # NOT done
     """Abstract class representing RISCV instructions"""
-
+    dynamic_instr_classes = []  # list of all rv32_64_i instruction classes
+    classes_by_names = {}  # dict of all classes with keys = class names
     PARSERS = {}
     is32bit_pattern = "w?"
     @staticmethod
