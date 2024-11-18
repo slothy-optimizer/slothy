@@ -3,7 +3,7 @@ from slothy.targets.riscv.riscv_super_instructions import *
 
 
 # the following lists maybe could be encapsulated somehow
-IntegerRegisterRegisterInstructions = ["mul", "mulh", "mulhsu", "mulhu", "div", "divu", "rem", "remu"]
+IntegerRegisterRegisterInstructions = ["mul<w>", "mulh", "mulhsu", "mulhu", "div<w>", "divu<w>", "rem<w>", "remu<w>"]
 
 PythonKeywords = ["and", "or"]  # not allowed as class names
 

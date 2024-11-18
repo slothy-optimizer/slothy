@@ -2,7 +2,6 @@
 
 - common RISC-V naming
 - provide documentation for adding a new architecture
-- restructure instructions by extension + superclasses 
 - add vector instruction set
   - https://eupilot.eu/wp-content/uploads/2022/11/RISC-V-VectorExtension-1-1.pdf
   - https://fprox.substack.com/p/risc-v-vector-in-a-nutshell
@@ -11,7 +10,6 @@
 - CSR Registers?
   - CRS instructions are no longer part of standard base ISA, mostly used for privileged stuff
 - add proper license/ copyright notices for all new files
-- mul extension
 - uArch Model
 - inverse throughput = How long is one execution unit kept busy by one instruction
 
