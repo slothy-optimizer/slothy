@@ -12,6 +12,7 @@
 - add proper license/ copyright notices for all new files
 - uArch Model
 - inverse throughput = How long is one execution unit kept busy by one instruction
+- provide mechanism to specify comment-character depending on arch -> Hardcoded in helper.py l. 36 ff.
 
 # RISC-V 
 

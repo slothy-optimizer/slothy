@@ -1378,7 +1378,7 @@ class RISC_VExample0(Example):
         slothy.config.constraints.stalls_first_attempt=32
         slothy.config.inputs_are_outputs = True
         slothy.config.outputs = ["x3"]
-        slothy.optimize()
+        slothy.optimize(start="mainloop", end="end_label")
 
 #############################################################################################
 
