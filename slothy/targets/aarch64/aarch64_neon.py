@@ -176,12 +176,12 @@ class Branch:
 class SubsLoop(Loop):
     """
     Loop ending in a flag setting subtraction and a branch.
-    
+
     Example:
     ```
            loop_lbl:
                {code}
-               sub[s] <cnt>, <cnt>, #1
+               sub[s] <cnt>, <cnt>, #<imm>
                (cbnz|bnz|bne) <cnt>, loop_lbl
     ```
     where cnt is the loop counter in lr.
@@ -191,16 +191,19 @@ class SubsLoop(Loop):
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*(?P<imm>#1)",
+        self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
                                rf"^\s*(cbnz|bnz|bne)\s+(?P<cnt>\w+),\s*{lbl}")
-    
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, postamble_code=None):
+
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:
             assert unroll in [1,2,4,8,16,32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
         if fixup != 0:
+            # In case the immediate is >1, we need to scale the fixup. This
+            # allows for loops that do not use an increment of 1
+            fixup *= self.additional_data['imm']
             yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
