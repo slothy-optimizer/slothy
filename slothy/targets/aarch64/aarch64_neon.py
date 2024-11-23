@@ -958,7 +958,7 @@ class prefetch(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
         obj.addr = obj.args_in[0]
         return obj
 
-class q_ldr_with_inc_hint(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
+class q_ldr_with_imm_hint(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrh <Qa>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Th"]
     outputs = ["Qa"]
@@ -1187,7 +1187,7 @@ class q_str(Str_Q): # pylint: disable=missing-docstring,invalid-name
         obj.addr = obj.args_in[1]
         return obj
 
-class q_str_with_inc_hint(Str_Q): # pylint: disable=missing-docstring,invalid-name
+class q_str_with_imm_hint(Str_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "strh <Qa>, <Xc>, <imm>, <Th>"
     inputs = ["Qa", "Xc"]
     outputs = ["Th"]
@@ -1550,7 +1550,7 @@ class x_ldp_with_postinc_writeback(Ldp_X): # pylint: disable=missing-docstring,i
         obj.addr = obj.args_in_out[0]
         return obj
 
-class x_ldp_with_inc_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_imm_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldph <Xa>, <Xb>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Th"]
     outputs = ["Xa", "Xb"]
@@ -1566,7 +1566,7 @@ class x_ldp_with_inc_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-na
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_ldp_sp_with_inc_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+class x_ldp_sp_with_imm_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldph <Xa>, <Xb>, sp, <imm>, <Th>"
     inputs = ["Th"]
     outputs = ["Xa", "Xb"]
@@ -1582,7 +1582,7 @@ class x_ldp_sp_with_inc_hint(Ldp_X): # pylint: disable=missing-docstring,invalid
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_ldp_sp_with_inc_hint2(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+class x_ldp_sp_with_imm_hint2(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>"
     inputs = ["Th0", "Th1"]
     outputs = ["Xa", "Xb"]
@@ -1598,7 +1598,7 @@ class x_ldp_sp_with_inc_hint2(Ldp_X): # pylint: disable=missing-docstring,invali
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_ldp_with_inc_hint2(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_imm_hint2(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>"
     inputs = ["Xc", "Th0", "Th1"]
     outputs = ["Xa", "Xb"]
@@ -2864,7 +2864,7 @@ class x_stp_with_inc_writeback(Stp_X): # pylint: disable=missing-docstring,inval
         obj.addr = obj.args_in_out[0]
         return obj
 
-class x_stp_with_inc_hint(Stp_X): # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_imm_hint(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stph <Xa>, <Xb>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Xa", "Xb"]
     outputs = ["Th"]
@@ -2880,7 +2880,7 @@ class x_stp_with_inc_hint(Stp_X): # pylint: disable=missing-docstring,invalid-na
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_stp_sp_with_inc_hint(Stp_X): # pylint: disable=missing-docstring,invalid-name
+class x_stp_sp_with_imm_hint(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stph <Xa>, <Xb>, sp, <imm>, <Th>"
     inputs = ["Xa", "Xb"]
     outputs = ["Th"]
@@ -2896,7 +2896,7 @@ class x_stp_sp_with_inc_hint(Stp_X): # pylint: disable=missing-docstring,invalid
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_stp_sp_with_inc_hint2(Stp_X): # pylint: disable=missing-docstring,invalid-name
+class x_stp_sp_with_imm_hint2(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>"
     inputs = ["Xa", "Xb"]
     outputs = ["Th0", "Th1"]
@@ -2912,7 +2912,7 @@ class x_stp_sp_with_inc_hint2(Stp_X): # pylint: disable=missing-docstring,invali
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_stp_with_inc_hint2(Stp_X): # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_imm_hint2(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>"
     inputs = ["Xa", "Xb", "Xc"]
     outputs = ["Th0", "Th1"]
