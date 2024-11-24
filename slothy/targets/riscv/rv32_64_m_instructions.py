@@ -28,7 +28,7 @@ def generate_rv32_64_m_instructions():
     """
     Generates all instruction classes for the rv32_64_i extension set
     """
-    instr_factory(IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegister)
+    instr_factory(IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegisterMul)
     RISCVInstruction.classes_by_names.update({cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes})
     return RISCVInstruction.dynamic_instr_classes
 

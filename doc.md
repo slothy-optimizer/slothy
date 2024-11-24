@@ -11,8 +11,58 @@
   - CRS instructions are no longer part of standard base ISA, mostly used for privileged stuff
 - add proper license/ copyright notices for all new files
 - uArch Model
+  - https://github.com/Ji-Peng/PQRV/tree/ches2025/cpi (CPI benchmark tool)
+  - https://zulip.mpi-sp.org/user_uploads/2/35/pti_jvEdy5Egd_GawmsgcVL8/XuanTie-C908-UserManual.pdf (XuanTie-C908 manual)
+  - https://camel-cdr.github.io/rvv-bench-results/canmv_k230/index.html (Benchmarks)
+  - https://www.reddit.com/r/RISCV/comments/1cybkrv/xuantie_c908_and_spacemit_x60_vector/  (Benchmarks)
+- PQRV benchmrks
+- asm file: single issue plant -> optimize
+
+# Xuan-Tie C908
+
+## Execution Units
+
+From XuanTie-C908 Manual, Chapter 2.2:
+  - IFU (instruction fetch unit)
+  - IEU (instruction execution Unit)
+    - **ALU -> used for 32-bit and 64-bit integers and bit-extension operations**
+    - MULT
+    - DIV
+    - BJU
+  - FPU (floating-point units)
+    - FALU (floating-point arithmetic logic unit)
+      - add, sub, comparison, conversion, register data transmission, sign injection and classification
+    - FMAU (floating-point fused multiply-add unit)
+      - common multiplication and fused multiply-add operations
+    - FDSU (floating-point divide and square root unit)
+      - floating-point divisions and square root operations
+
+  - "On the basis of the original scalar floating-point
+    computation, floating-point units can be extended to vector floating-point units", so the following units are
+    physically the same (?) as the FPUs, but extended to vector
+
+  - VFPU (vector floating-point units)
+    - VFALU (vector floating-point arithmetic logic unit)
+    - VFMAU (vector floating-point fused multiply-add unit)
+    - VFDSU (vector floating-point divide and square root unit)
+    
+  - Vector integer units:
+    - VALU (vector arithmetic logic unit)
+    - VSHIFT (vector shift unit)
+    - VMUL (vector multiplication unit)
+    - VDIVU (vector division unit)
+    - VPERM (vector permutation unit)
+    - VREDU (vector reduction unit)
+    - VMISC (vector logical operation unit)
+  - LSU (load/ store unit)
+  - MMU (memory management unit)
+  - PMP (physical memory protection unit)
+
+## Further information
+- Two 64-bit Vector execution units
 - inverse throughput = How long is one execution unit kept busy by one instruction
 - provide mechanism to specify comment-character depending on arch -> Hardcoded in helper.py l. 36 ff.
+- test file for all implemented instructions…-
 
 # RISC-V 
 
@@ -143,3 +193,16 @@ core might support multiple RISC-V-compatible hardware threads, or harts, throug
 
 
 # Questions
+
+
+# How to PQRV
+
+- Slothy submodule updaten
+- Symlink asm ordner to optimized asm
+- ntt-dilithium.mk add assembly file
+- optional: add wrapper for assembly fct
+- pqrv.h: extern void asm fct 
+- main.c: copy make test ntt + make bench
+- main.c call test in main file
+
+- idea: build tests with PQRV, then run them on RISC-V machine

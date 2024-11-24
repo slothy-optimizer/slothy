@@ -50,24 +50,19 @@ issue_rate = 2
 llvm_mca_target = "cortex-a55"
 
 class ExecutionUnit(Enum):
-    """Enumeration of execution units in Cortex-A55 model"""
-    SCALAR_ALU0=1
-    SCALAR_ALU1=2
-    SCALAR_MAC=3
-    SCALAR_LOAD=4
-    SCALAR_STORE=5
-    VEC0=6
-    VEC1=7
+    """Enumeration of execution units in C908 model"""
+    SCALAR_ALU0 = 1
+    SCALAR_ALU1 = 2
+    SCALAR_MUL = 3
+    LSU =4
+    VEC0=5
+    VEC1=6
     def __repr__(self):
         return self.name
     @classmethod
     def SCALAR(cls): # pylint: disable=invalid-name
         """All scalar execution units"""
         return [ExecutionUnit.SCALAR_ALU0, ExecutionUnit.SCALAR_ALU1]
-    @classmethod
-    def SCALAR_MUL(cls): # pylint: disable=invalid-name
-        """All multiply-capable scalar execution units"""
-        return [ExecutionUnit.SCALAR_MAC]
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
@@ -106,18 +101,116 @@ def get_min_max_objective(slothy):
     return
 
 execution_units = {
-    RISCVInstruction.classes_by_names["mul"] : ExecutionUnit.SCALAR(),  # this could be more convenient
-    RISCVInstruction.classes_by_names["add"] : ExecutionUnit.SCALAR(),
+    (  # this could be more convenient, maybe use existing instructions list or superclass?
+        RISCVInstruction.classes_by_names["addi"],
+        RISCVInstruction.classes_by_names["slti"],
+        RISCVInstruction.classes_by_names["sltiu"],
+        RISCVInstruction.classes_by_names["andi"],
+        RISCVInstruction.classes_by_names["ori"],
+        RISCVInstruction.classes_by_names["xori"],
+        RISCVInstruction.classes_by_names["slli"],
+        RISCVInstruction.classes_by_names["srli"],
+        RISCVInstruction.classes_by_names["srai"],
+        RISCVInstruction.classes_by_names["andcls"],
+        RISCVInstruction.classes_by_names["orcls"],
+        RISCVInstruction.classes_by_names["xor"],
+        RISCVInstruction.classes_by_names["add"],
+        RISCVInstruction.classes_by_names["slt"],
+        RISCVInstruction.classes_by_names["sltu"],
+        RISCVInstruction.classes_by_names["sll"],
+        RISCVInstruction.classes_by_names["srl"],
+        RISCVInstruction.classes_by_names["sub"],
+        RISCVInstruction.classes_by_names["sra"],
+        RISCVInstruction.classes_by_names["lui"],
+        RISCVInstruction.classes_by_names["auipc"],
+
+    ) : ExecutionUnit.SCALAR(),
+
+    (
+        RISCVInstruction.classes_by_names["lb"],
+        RISCVInstruction.classes_by_names["lbu"],
+        RISCVInstruction.classes_by_names["lh"],
+        RISCVInstruction.classes_by_names["lhu"],
+        RISCVInstruction.classes_by_names["lw"],
+        RISCVInstruction.classes_by_names["lwu"],
+        RISCVInstruction.classes_by_names["ld"],
+        RISCVInstruction.classes_by_names["sb"],
+        RISCVInstruction.classes_by_names["sh"],
+        RISCVInstruction.classes_by_names["sw"],
+        RISCVInstruction.classes_by_names["sd"],
+    ) : ExecutionUnit.LSU,
+
+    (
+        RISCVInstruction.classes_by_names["mul"],
+        RISCVInstruction.classes_by_names["mulh"],
+        RISCVInstruction.classes_by_names["mulhsu"],
+        RISCVInstruction.classes_by_names["mulhu"],
+        RISCVInstruction.classes_by_names["div"],
+        RISCVInstruction.classes_by_names["divu"],
+        RISCVInstruction.classes_by_names["rem"],
+        RISCVInstruction.classes_by_names["remu"]
+    ) : ExecutionUnit.SCALAR_MUL
 }
 
 inverse_throughput = {
-    RISCVInstruction.classes_by_names["mul"]: 1,
-RISCVInstruction.classes_by_names["add"] : 1
+    (
+        RISCVInstruction.classes_by_names["addi"],
+        RISCVInstruction.classes_by_names["slti"],
+        RISCVInstruction.classes_by_names["sltiu"],
+        RISCVInstruction.classes_by_names["andi"],
+        RISCVInstruction.classes_by_names["ori"],
+        RISCVInstruction.classes_by_names["xori"],
+        RISCVInstruction.classes_by_names["slli"],
+        RISCVInstruction.classes_by_names["srli"],
+        RISCVInstruction.classes_by_names["srai"],
+        RISCVInstruction.classes_by_names["andcls"],
+        RISCVInstruction.classes_by_names["orcls"],
+        RISCVInstruction.classes_by_names["xor"],
+        RISCVInstruction.classes_by_names["add"],
+        RISCVInstruction.classes_by_names["slt"],
+        RISCVInstruction.classes_by_names["sltu"],
+        RISCVInstruction.classes_by_names["sll"],
+        RISCVInstruction.classes_by_names["srl"],
+        RISCVInstruction.classes_by_names["sub"],
+        RISCVInstruction.classes_by_names["sra"],
+        RISCVInstruction.classes_by_names["lui"],
+        RISCVInstruction.classes_by_names["auipc"],
+    ): 1,
+    (
+        RISCVInstruction.classes_by_names["lb"],
+        RISCVInstruction.classes_by_names["lbu"],
+        RISCVInstruction.classes_by_names["lh"],
+        RISCVInstruction.classes_by_names["lhu"],
+        RISCVInstruction.classes_by_names["lw"],
+        RISCVInstruction.classes_by_names["lwu"],
+        RISCVInstruction.classes_by_names["ld"],
+        RISCVInstruction.classes_by_names["sb"],
+        RISCVInstruction.classes_by_names["sh"],
+        RISCVInstruction.classes_by_names["sw"],
+        RISCVInstruction.classes_by_names["sd"],
+    ) : 1,
+
+    (
+        RISCVInstruction.classes_by_names["mul"],
+        RISCVInstruction.classes_by_names["mulh"],
+        RISCVInstruction.classes_by_names["mulhsu"],
+        RISCVInstruction.classes_by_names["mulhu"],
+        RISCVInstruction.classes_by_names["div"],
+        RISCVInstruction.classes_by_names["divu"],
+        RISCVInstruction.classes_by_names["rem"],
+        RISCVInstruction.classes_by_names["remu"]
+    ) : 2
+
+
 }
 
 default_latencies = {
-    RISCVInstruction.classes_by_names["mul"]: 2,
-    RISCVInstruction.classes_by_names["add"]: 2,
+    RISCVIntegerRegisterRegister : 1,
+    RISCVIntegerRegisterImmediate: 1,
+    RISCVUType : 1,
+    RISCVLoad : 3,
+    RISCVStore : 1,
+    RISCVIntegerRegisterRegisterMul : 4 # not correct for div, rem
 }
 
 def get_latency(src, out_idx, dst):

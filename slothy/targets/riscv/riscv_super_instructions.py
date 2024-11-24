@@ -29,3 +29,8 @@ class RISCVLoad(RISCVInstruction):
 class RISCVUType(RISCVInstruction):
     pattern = "mnemonic <Xd>, <imm>"
     outputs = ["Xd"]
+
+class RISCVIntegerRegisterRegisterMul(RISCVInstruction):
+    pattern = "mnemonic <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
