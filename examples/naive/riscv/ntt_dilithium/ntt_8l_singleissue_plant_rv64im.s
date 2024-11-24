@@ -211,7 +211,7 @@ ntt_8l_rv64im:
     ct_bfu s9,  a3, t2, a6, a7
     ct_bfu s10, a4, t2, a6, a7
     ct_bfu s11, a5, t2, a6, a7
-    end_label:
+
     // layer 3
     ct_bfu s0, s2,  t3, a6, a7
     ct_bfu s1, s3,  t3, a6, a7
@@ -221,6 +221,7 @@ ntt_8l_rv64im:
     ct_bfu s9, s11, t5, a6, a7
     ct_bfu a2, a4,  t6, a6, a7
     ct_bfu a3, a5,  t6, a6, a7
+    end_label:
     // layer 4
     ct_bfu s0,  s1,  tp, a6, a7
     ct_bfu s2,  s3,  ra, a6, a7 
@@ -236,6 +237,7 @@ ntt_8l_rv64im:
     ct_bfu a2,  a3,  a7, a6, a7
     ld a7, 14*8(a1)
     ct_bfu a4,  a5,  a7, a6, a7
+
     store_coeffs a0, 16, 4
   addi gp, gp, -1
   bge gp, zero, ntt_8l_rv64im_loop1
