@@ -221,13 +221,16 @@ ntt_8l_rv64im:
     ct_bfu s9, s11, t5, a6, a7
     ct_bfu a2, a4,  t6, a6, a7
     ct_bfu a3, a5,  t6, a6, a7
-    end_label:
+
     // layer 4
     ct_bfu s0,  s1,  tp, a6, a7
     ct_bfu s2,  s3,  ra, a6, a7 
     ld a7, 9*8(a1)
+    end_label:
     ct_bfu s4,  s5,  a7, a6, a7
     ld a7, 10*8(a1)
+
+
     ct_bfu s6,  s7,  a7, a6, a7
     ld a7, 11*8(a1)
     ct_bfu s8,  s9,  a7, a6, a7
