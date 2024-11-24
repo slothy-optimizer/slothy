@@ -192,6 +192,7 @@ ntt_8l_rv64im:
     addi a0, a0, -4
     load_coeffs a0, 16, 4
     // layer 1
+    main_loop:
     ct_bfu s0, s8,  t0, a6, a7
     ct_bfu s1, s9,  t0, a6, a7
     ct_bfu s2, s10, t0, a6, a7
@@ -200,6 +201,7 @@ ntt_8l_rv64im:
     ct_bfu s5, a3,  t0, a6, a7
     ct_bfu s6, a4,  t0, a6, a7
     ct_bfu s7, a5,  t0, a6, a7
+
     // layer 2
     ct_bfu s0,  s4, t1, a6, a7
     ct_bfu s1,  s5, t1, a6, a7
@@ -209,6 +211,7 @@ ntt_8l_rv64im:
     ct_bfu s9,  a3, t2, a6, a7
     ct_bfu s10, a4, t2, a6, a7
     ct_bfu s11, a5, t2, a6, a7
+    end_label:
     // layer 3
     ct_bfu s0, s2,  t3, a6, a7
     ct_bfu s1, s3,  t3, a6, a7
