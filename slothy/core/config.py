@@ -101,6 +101,52 @@ class Config(NestedPrint, LockAttributes):
         return self._reserved_regs_are_locked
 
     @property
+    def selftest(self):
+        """Indicates whether SLOTHY performs an empirical equivalence-test on the
+        optimization results.
+
+        When this is set, and if the target architecture and host platform support it,
+        this will run an empirical equivalence checker trying to confirm that the
+        input and output of SLOTHY are likely functionally equivalent.
+
+        The primary purpose of this checker is to detect issue that would presently
+        be overlooked by the selfcheck:
+        - The selfcheck is currently blind to address offset fixup. If something goes
+          wrong, the input and output will not be functionally equivalent, but we would
+          only notice once we actually compile and run the code. The selftest will
+          likely catch issues.
+        - When using software pipelining, the selfcheck reduces to a straightline check
+          for a bounded unrolling of the loop. An unbounded selfcheck is currently not
+          implemented.
+          With the selftest, you still need to fix a loop bound, but at least you can
+          equivalence-check the loop-form (including the compare+branch instructions
+          at the loop boundary) rather than the unrolled code.
+
+        DEPENDENCY: To run this, you need `llvm-mc` the binary in your path or configured
+        as via `llvm_mc_binary`, and `unicorn-engine` Python bindings setup.
+
+        NOTE: This is so far implemented as a repeated randomized test -- nothing clever.
+        """
+        return self._selftest
+
+    @property
+    def selftest_iterations(self):
+        """If selftest is set, indicates the number of random selftest to conduct"""
+        return self._selftest_iterations
+
+    @property
+    def selftest_address_gprs(self):
+        """Dictionary of (reg, sz) items indicating which registers are assumed to be
+        pointers to memory, and if so, of what size."""
+        return self._selftest_address_gprs
+
+    @property
+    def selftest_default_memory_size(self):
+        """Default buffer size to use for registers which are automatically inferred to be
+        used as pointers and for which no memory size has been configured via `address_gprs`."""
+        return self._selftest_default_memory_size
+
+    @property
     def selfcheck(self):
         """Indicates whether SLOTHY performs a self-check on the optimization result.
 
@@ -430,6 +476,13 @@ class Config(NestedPrint, LockAttributes):
         This is only relevant if `with_llvm_mca_before` or `with_llvm_mca_after`
         is set."""
         return self._llvm_mca_binary
+
+    @property
+    def llvm_mc_binary(self):
+        """The llvm-mc binary to be used for assembling output data
+
+        This is only relevant if `selftest` is set."""
+        return self._llvm_mc_binary
 
     @property
     def timeout(self):
@@ -1143,6 +1196,10 @@ class Config(NestedPrint, LockAttributes):
         self._reserved_regs = None
         self._reserved_regs_are_locked = True
 
+        self._selftest = True
+        self._selftest_iterations = 10
+        self._selftest_address_gprs = None
+        self._selftest_default_memory_size = 1024
         self._selfcheck = True
         self._selfcheck_failure_logfile = None
         self._allow_useless_instructions = False
@@ -1172,6 +1229,7 @@ class Config(NestedPrint, LockAttributes):
         self._compiler_binary = "gcc"
         self._compiler_include_paths = None
         self._llvm_mca_binary = "llvm-mca"
+        self._llvm_mc_binary = "llvm-mc"
 
         self.keep_tags = True
         self.inherit_macro_comments = False
@@ -1260,6 +1318,20 @@ class Config(NestedPrint, LockAttributes):
     @variable_size.setter
     def variable_size(self,val):
         self._variable_size = val
+    @selftest.setter
+    def selftest(self,val):
+        if hasattr(self.arch, "Checker") is False:
+            raise InvalidConfig("Trying to enable checker, but architecture model does not seem to support it")
+        self._selftest = val
+    @selftest_iterations.setter
+    def selftest_iterations(self,val):
+        self._selftest_iterations = val
+    @selftest_address_gprs.setter
+    def selftest_address_gprs(self,val):
+        self._selftest_address_gprs = val
+    @selftest_default_memory_size.setter
+    def selftest_default_memory_size(self,val):
+        self._selftest_default_memory_size = val
     @selfcheck.setter
     def selfcheck(self,val):
         self._selfcheck = val
@@ -1308,6 +1380,9 @@ class Config(NestedPrint, LockAttributes):
     @llvm_mca_binary.setter
     def llvm_mca_binary(self, val):
         self._llvm_mca_binary = val
+    @llvm_mc_binary.setter
+    def llvm_mc_binary(self, val):
+        self._llvm_mc_binary = val
     @timeout.setter
     def timeout(self, val):
         self._timeout = val
