@@ -32,10 +32,11 @@ class ExecutionUnit(Enum):
     ALU0 = 1
     ALU1 = 2
     MAC = 5
-    FPU = 6
-    LOAD0 = 7
-    LOAD1 = 8
-    SIMD = 9
+    FPU0 = 6
+    FPU1 = 7
+    LOAD0 = 8
+    LOAD1 = 9
+    SIMD = 10
 
     def __repr__(self):
         return self.name
@@ -153,7 +154,8 @@ execution_units = {
     (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0], [ExecutionUnit.ALU1]],
     (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
      smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
-    (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
+    (vmov_gpr, vmov_gpr2): [ExecutionUnit.FPU0, ExecutionUnit.FPU1],
+    (vmov_gpr2_dual): [[ExecutionUnit.FPU0, ExecutionUnit.FPU1]],
     (uadd16, sadd16, usub16, ssub16): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))),
     (pkhbt, pkhtb, pkhbt_shifted, ubfx_imm): [[ExecutionUnit.ALU0, ExecutionUnit.SIMD]],
     (Armv7mShiftedArithmetic): [[ExecutionUnit.ALU0]],
