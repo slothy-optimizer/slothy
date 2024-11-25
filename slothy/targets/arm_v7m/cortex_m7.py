@@ -199,7 +199,6 @@ inverse_throughput = {
         ror, ror_short, rors_short, lsl, asr, asrs,
         cmp, cmp_imm,
         vmov_gpr,
-        vmov_gpr2, vmov_gpr2_dual,  # verify for dual
         pkhbt, pkhtb, pkhbt_shifted, ubfx_imm,
         str_with_imm,
         str_with_imm_stack,
@@ -211,7 +210,7 @@ inverse_throughput = {
     ): 1,
     (
         stm_interval_inc_writeback,  # actually not, just placeholder
-        vmov_gpr2_dual): 2
+        vmov_gpr2, vmov_gpr2_dual): 2
 }
 
 default_latencies = {
