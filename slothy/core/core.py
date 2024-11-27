@@ -3413,7 +3413,7 @@ class SlothyBase(LockAttributes):
                    cur <= self.config.objective_lower_bound:
                     self.logger.info("Reached user-defined objective_lower_bound ... stop")
                     return True
-            return False
+            return True
 
         solution_cb = SlothyBase.CpSatSolutionCb(self.logger,self._model.objective_name,
                                                  self.config.max_solutions,
