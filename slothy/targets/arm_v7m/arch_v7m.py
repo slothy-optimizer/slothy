@@ -162,7 +162,8 @@ class BranchLoop(Loop):
                 loop_end_reg = inst[0].args_in_out[0]
                 break
         
-        # Find FPR that is used to stash the loop end
+        # Find FPR that is used to stash the loop end incase it's vmov loop
+        loop_end_reg_fpr = None
         for l in body_code:
             inst = Instruction.parser(l)
             # Flags are set through cmp 
@@ -187,14 +188,14 @@ class BranchLoop(Loop):
                 inc_per_iter = inc_per_iter + simplify(inst[0].immediate)
         logging.debug(f"Loop counter {loop_cnt_reg} is incremented by {inc_per_iter} per iteration.")
         
-        if fixup != 0:
+        if fixup != 0 and loop_end_reg_fpr is not None:
             yield f"{indent}push {{{loop_end_reg}}}"
             yield f"{indent}vmov {loop_end_reg}, {loop_end_reg_fpr}"
         
         if fixup != 0:
             yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
 
-        if fixup != 0:
+        if fixup != 0 and loop_end_reg_fpr is not None:
             yield f"{indent}vmov {loop_end_reg_fpr}, {loop_end_reg}"
             yield f"{indent}pop {{{loop_end_reg}}}"
         
