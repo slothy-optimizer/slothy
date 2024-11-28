@@ -133,6 +133,7 @@ class Branch:
 class BranchLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+        self.lbl = lbl
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}",)
 
@@ -141,7 +142,7 @@ class BranchLoop(Loop):
         indent = ' ' * indentation
         if body_code is None:
             logging.debug(f"No body code in loop start: Just printing label.")
-            yield f"{self.lbl_start}:"
+            yield f"{self.lbl}:"
             return
         # Identify the register that is used as a loop counter
         body_code = [l for l in body_code if l.text != ""]
@@ -201,12 +202,12 @@ class BranchLoop(Loop):
         
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
-        yield f"{self.lbl_start}:"
+        yield f"{self.lbl}:"
 
     def end(self, other, indentation=0):
         """Emit compare-and-branch at the end of the loop"""
         indent = ' ' * indentation
-        lbl_start = self.lbl_start
+        lbl_start = self.lbl
         if lbl_start.isdigit():
             lbl_start += "b"
 
