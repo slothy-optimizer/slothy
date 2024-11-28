@@ -154,25 +154,27 @@ class VmovCmpLoop(Loop):
         logging.debug(f"Loop counter {loop_cnt} is incremented by {inc_per_iter} per iteration")
         # Check whether instructions modifying the loop count moved to
         # pre/postamble and adjust the fixup based on that.
-        new_fixup = 0
-        if postamble_code is not None:
-            new_fixup = 0
-            for l in postamble_code:
-                if l.text == "":
-                    continue
-                inst = Instruction.parser(l)
-                if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
-                    new_fixup = new_fixup + simplify(inst[0].increment)
+        # new_fixup = 0
+        # if postamble_code is not None:
+        #     new_fixup = 0
+        #     for l in postamble_code:
+        #         if l.text == "":
+        #             continue
+        #         inst = Instruction.parser(l)
+        #         if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
+        #             new_fixup = new_fixup + simplify(inst[0].increment)
 
-        if new_fixup != 0 or fixup != 0:
+        # if new_fixup != 0 or fixup != 0:
+        if fixup != 0:
             yield f"{indent}push {{{self.additional_data['end']}}}"
             yield f"{indent}vmov {self.additional_data['end']}, {self.additional_data['endf']}"
 
-        if new_fixup != 0:
-            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
+        # if new_fixup != 0:
+        #     yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
         if fixup != 0:
             yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
-        if new_fixup != 0 or fixup != 0:
+        #if new_fixup != 0 or fixup != 0:
+        if fixup != 0:
             yield f"{indent}vmov {self.additional_data['endf']}, {self.additional_data['end']}"
             yield f"{indent}pop {{{self.additional_data['end']}}}"
         if jump_if_empty is not None:
@@ -221,18 +223,18 @@ class CmpLoop(Loop):
 
         # Check whether instructions modifying the loop count moved to
         # pre/postamble and adjust the fixup based on that.
-        new_fixup = 0
-        if postamble_code is not None:
-            new_fixup = 0
-            for l in postamble_code:
-                if l.text == "":
-                    continue
-                inst = Instruction.parser(l)
-                if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
-                    new_fixup = new_fixup + simplify(inst[0].increment)
+        # new_fixup = 0
+        # if postamble_code is not None:
+        #     new_fixup = 0
+        #     for l in postamble_code:
+        #         if l.text == "":
+        #             continue
+        #         inst = Instruction.parser(l)
+        #         if loop_cnt in inst[0].args_in_out and inst[0].increment is not None:
+        #             new_fixup = new_fixup + simplify(inst[0].increment)
 
-        if new_fixup != 0:
-            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
+        # if new_fixup != 0:
+        #     yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
 
         if fixup != 0:
             yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
