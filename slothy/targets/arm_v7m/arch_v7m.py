@@ -140,7 +140,9 @@ class BranchLoop(Loop):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if body_code is None:
-            raise FatalParsingException("Body code is required for branch loop")
+            logging.debug(f"No body code in loop start: Just printing label.")
+            yield f"{self.lbl_start}:"
+            return
         # Identify the register that is used as a loop counter
         body_code = [l for l in body_code if l.text != ""]
         for l in body_code:

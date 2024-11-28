@@ -371,7 +371,10 @@ class Slothy:
 
         pre , body, post, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl)
-        loop_cnt = other_data['cnt']
+        try:
+            loop_cnt = other_data['cnt']
+        except KeyError:
+            loop_cnt = None
         indentation = AsmHelper.find_indentation(body)
 
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
