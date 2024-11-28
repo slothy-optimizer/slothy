@@ -2527,9 +2527,7 @@ class frombytes_mul_acc_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
-        r = slothy.config.reserved_regs
-        r.add("r14")
-        slothy.config.reserved_regs = r
+        slothy.config.unsafe_address_offset_fixup = False
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
