@@ -130,7 +130,81 @@ class Branch:
         """Emit unconditional branch"""
         yield f"b {lbl}"
 
+class BranchLoop(Loop):
+    def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
+        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.end_regex = (rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}",)
 
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
+        """Emit starting instruction(s) and jump label for loop"""
+        indent = ' ' * indentation
+        if body_code is None:
+            raise FatalParsingException("Body code is required for branch loop")
+        # Identify the register that is used as a loop counter
+        body_code = [l for l in body_code if l.text != ""]
+        for l in body_code:
+            inst = Instruction.parser(l)
+            # Flags are set through cmp 
+            # LIMITATION: By convention, we require the first argument to be the
+            # "counter" and the second the one marking the iteration end.
+            if isinstance(inst[0], cmp):
+                # Assume this mapping
+                loop_cnt_reg = inst[0].args_in[0]
+                loop_end_reg = inst[0].args_in[1]
+                logging.debug(f"Assuming {loop_cnt_reg} as counter register and {loop_end_reg} as end register.")
+                
+                # Swap if the counter is not used as an input and output in the loop. 
+                is_input = False
+                is_output = False
+                for k in body_code:
+                    inst = Instruction.parser(k)
+                    if loop_end_reg in (inst[0].args_out + inst[0].args_in_out):
+                        is_output = True
+                    if loop_end_reg in (inst[0].args_in + inst[0].args_in_out):
+                        is_input = True
+                if is_input and is_output:
+                    logging.debug(f"Swapping counter register and end register.")
+                    swap = loop_cnt_reg
+                    loop_cnt_reg = loop_end_reg
+                    loop_end_reg = swap
+                break
+            # Flags are set through subs
+            elif isinstance(inst[0], subs_imm_short):
+                loop_cnt_reg = inst[0].args_in_out[0]
+                loop_end_reg = inst[0].args_in_out[0]
+                break
+        
+        if unroll > 1:
+            assert unroll in [1,2,4,8,16,32]
+            yield f"{indent}lsr {loop_end_reg}, {loop_end_reg}, #{int(math.log2(unroll))}"
+        
+        inc_per_iter = 0
+        for l in body_code:
+            inst = Instruction.parser(l)
+            # Increment happens through pointer modification
+            if loop_cnt_reg.lower() == inst[0].addr and inst[0].increment is not None:
+                inc_per_iter = inc_per_iter + simplify(inst[0].increment)
+            # Increment through explicit modification
+            elif loop_cnt_reg.lower() in (inst[0].args_out + inst[0].args_in_out) and inst[0].immediate is not None:
+                # TODO: subtract if we have a subtraction
+                inc_per_iter = inc_per_iter + simplify(inst[0].immediate)
+        logging.debug(f"Loop counter {loop_cnt_reg} is incremented by {inc_per_iter} per iteration.")
+        if fixup != 0:
+            yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
+
+        if jump_if_empty is not None:
+            yield f"cbz {loop_cnt}, {jump_if_empty}"
+        yield f"{self.lbl_start}:"
+
+    def end(self, other, indentation=0):
+        """Emit compare-and-branch at the end of the loop"""
+        indent = ' ' * indentation
+        lbl_start = self.lbl_start
+        if lbl_start.isdigit():
+            lbl_start += "b"
+
+        yield f'{indent}bne {lbl_start}'
 class VmovCmpLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)

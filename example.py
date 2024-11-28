@@ -329,7 +329,7 @@ class Armv7mLoopCmp(Example):
 
     def core(self,slothy):
         slothy.config.variable_size=True
-        slothy.config.outputs = ["r6"]
+        slothy.config.outputs = ["flags"]
         slothy.optimize_loop("start")
 
 class CRT(Example):
