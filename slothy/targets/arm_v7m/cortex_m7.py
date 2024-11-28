@@ -283,9 +283,13 @@ def get_latency(src, out_idx, dst):
     if instclass_dst in [mla, mls, smlabb, smlabt, smlatt] and src.args_out[0] == dst.args_in[2]:
         latency =  latency - 1
 
-    if instclass_dst in [smlal] and \
-            (src.args_out[0] == dst.args_in_out[0] or src.args_out[0] == dst.args_in_out[1]):
-        latency = latency - 1
+    if instclass_dst in [smlal]:
+        if len(src.args_out) > 1:
+            if (src.args_out[0] == dst.args_in_out[0] or src.args_out[0] == dst.args_in_out[1]):
+                latency = latency - 1
+        elif len(src.args_in_out) > 1:
+            if (src.args_in_out[0] == dst.args_in_out[0] or src.args_in_out[0] == dst.args_in_out[1]):
+                latency = latency - 1
 
     # Multiply accumulate chain latency is 1
     if instclass_src in [smlal] and instclass_dst in [smlal] and \
