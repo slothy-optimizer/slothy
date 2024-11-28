@@ -29,13 +29,13 @@ __asm_asymmetric_mul_257_16:
     smuadx r11, r4, r5
 
     str.w r11, [r0, #width]
-    str.w r10, [r0], #2*width
+    str.w r10, [r0], #2*width // @slothy:core=True
 
     smuad r10, r7, r9
     smuadx r11, r7, r8
 
     str.w r11, [r0, #width]
-    str.w r10, [r0], #2*width
+    str.w r10, [r0], #2*width // @slothy:core=True
 
     cmp.w r0, r12
     bne.w _asymmetric_mul_16_loop
