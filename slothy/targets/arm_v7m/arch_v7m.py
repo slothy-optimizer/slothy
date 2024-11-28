@@ -155,21 +155,6 @@ class BranchLoop(Loop):
                 loop_cnt_reg = inst[0].args_in[0]
                 loop_end_reg = inst[0].args_in[1]
                 logging.debug(f"Assuming {loop_cnt_reg} as counter register and {loop_end_reg} as end register.")
-                
-                # Swap if the counter is not used as an input and output in the loop. 
-                is_input = False
-                is_output = False
-                for k in body_code:
-                    inst = Instruction.parser(k)
-                    if loop_end_reg in (inst[0].args_out + inst[0].args_in_out):
-                        is_output = True
-                    if loop_end_reg in (inst[0].args_in + inst[0].args_in_out):
-                        is_input = True
-                if is_input and is_output:
-                    logging.debug(f"Swapping counter register and end register.")
-                    swap = loop_cnt_reg
-                    loop_cnt_reg = loop_end_reg
-                    loop_end_reg = swap
                 break
             # Flags are set through subs
             elif isinstance(inst[0], subs_imm_short):
@@ -177,6 +162,15 @@ class BranchLoop(Loop):
                 loop_end_reg = inst[0].args_in_out[0]
                 break
         
+        # Find FPR that is used to stash the loop end
+        for l in body_code:
+            inst = Instruction.parser(l)
+            # Flags are set through cmp 
+            if isinstance(inst[0], vmov_gpr):
+                if loop_end_reg in inst[0].args_out:
+                    loop_end_reg_fpr = inst[0].args_in[0]
+                    break
+
         if unroll > 1:
             assert unroll in [1,2,4,8,16,32]
             yield f"{indent}lsr {loop_end_reg}, {loop_end_reg}, #{int(math.log2(unroll))}"
@@ -192,9 +186,18 @@ class BranchLoop(Loop):
                 # TODO: subtract if we have a subtraction
                 inc_per_iter = inc_per_iter + simplify(inst[0].immediate)
         logging.debug(f"Loop counter {loop_cnt_reg} is incremented by {inc_per_iter} per iteration.")
+        
+        if fixup != 0:
+            yield f"{indent}push {{{loop_end_reg}}}"
+            yield f"{indent}vmov {loop_end_reg}, {loop_end_reg_fpr}"
+        
         if fixup != 0:
             yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
 
+        if fixup != 0:
+            yield f"{indent}vmov {loop_end_reg_fpr}, {loop_end_reg}"
+            yield f"{indent}pop {{{loop_end_reg}}}"
+        
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl_start}:"
