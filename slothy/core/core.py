@@ -1475,8 +1475,6 @@ class SlothyBase(LockAttributes):
         self.result.success = self._solve()
         self.result.valid = True
 
-        # - Export (optional)
-        self._export_model()
 
         if not retry and self.success:
             self.logger.info("Booleans in result: %d", self._model.cp_solver.NumBooleans())
@@ -3428,6 +3426,9 @@ class SlothyBase(LockAttributes):
         self.logger.info("%s, wall time: %4f s", status_str, self._model.cp_solver.WallTime())
 
         ok = self._model.cp_model.status in [cp_model.FEASIBLE, cp_model.OPTIMAL]
+
+        # - Export (optional)
+        self._export_model()
 
         if ok:
             # Remember solution in case we want to retry with an(other) objective
