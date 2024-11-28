@@ -1581,11 +1581,13 @@ class intt_dilithium_123_456_78(Example):
 
     def core(self, slothy):
         slothy.config.constraints.stalls_first_attempt = 16
+        
+        slothy.config.unsafe_address_offset_fixup = False
+        
         slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.minimize_overlapping = True
-        slothy.config.sw_pipelining.boundary_reserved_regs = ["r10"]
         slothy.config.sw_pipelining.optimize_preamble = True
         slothy.config.sw_pipelining.optimize_postamble = True
         slothy.config.sw_pipelining.allow_pre = True
@@ -1594,8 +1596,6 @@ class intt_dilithium_123_456_78(Example):
         slothy.optimize_loop("layer456_first_loop")
         slothy.optimize_loop("layer456_loop")
 
-        slothy.config.sw_pipelining.boundary_reserved_regs = ["r4"]
-        slothy.config.outputs = []
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer78_loop")
 
