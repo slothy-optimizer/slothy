@@ -1875,7 +1875,7 @@ class intt_769_dilithium(Example):
 
         slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("layer1234_loop", ssa=False)
-        slothy.config.unsafe_address_offset_fixup = True
+        # slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize_loop("layer1234_loop")
         slothy.config.split_heuristic_optimize_seam = 6
         slothy.optimize_loop("layer1234_loop")
@@ -1889,12 +1889,12 @@ class intt_769_dilithium(Example):
         slothy.config.outputs = ["s0", "s2"]
         slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
-        slothy.config.unsafe_address_offset_fixup = True
+        # slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize(start="layer567_first_start", end="layer567_first_end")
 
         slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("layer567_loop", ssa=False)
-        slothy.config.unsafe_address_offset_fixup = True
+        # slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize_loop("layer567_loop")
         slothy.config.split_heuristic_optimize_seam = 6
         slothy.optimize_loop("layer567_loop")
