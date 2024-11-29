@@ -1669,7 +1669,6 @@ class fnt_257_dilithium(Example):
 
         slothy.config.constraints.stalls_first_attempt = 8
         slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.boundary_reserved_regs = ["r12"]
         slothy.config.timeout = 600
         slothy.optimize_loop("_fnt_0_1_2")
         
@@ -1683,7 +1682,7 @@ class fnt_257_dilithium(Example):
         slothy.config.timeout = 180 # Not more than 2min per step
         # TODO: run with more repeats
         slothy.config.split_heuristic_repeat = 2
-        slothy.config.outputs = ["s25", "s27"]
+        slothy.config.outputs = ["s25", "s27", "r12"]
         slothy.fusion_loop("_fnt_3_4_5_6", ssa=False)
         slothy.optimize_loop("_fnt_3_4_5_6")
         slothy.config.split_heuristic_optimize_seam = 6
