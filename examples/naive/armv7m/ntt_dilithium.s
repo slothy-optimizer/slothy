@@ -329,7 +329,7 @@ pqcrystals_dilithium_ntt:
       str.w pol2, [ptr_p, #8]
       str.w pol3, [ptr_p, #12]
       str pol0, [ptr_p], #16 // @slothy:core=True
-      cmp.w cntr, ptr_p
+      cmp.w ptr_p, cntr
       bne.w layer78_loop
 
     //restore registers

@@ -1111,7 +1111,7 @@ layer456_loop:
         // smlal r5, r10, r8, r3       // ........*......................
         // smlal r14, r7, r9, r3       // .......*.......................
 
-        sub r0, r0, #0
+        sub r4, r4, #16
 layer78_loop:
                                           // Instructions:    32
                                           // Expected cycles: 21
