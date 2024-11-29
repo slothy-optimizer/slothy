@@ -1840,7 +1840,7 @@ class ntt_769_dilithium(Example):
         slothy.config.constraints.minimize_spills = False
         slothy.config.absorb_spills = False
         slothy.config.constraints.stalls_precision = 1
-        slothy.config.unsafe_address_offset_fixup = True
+        # slothy.config.unsafe_address_offset_fixup = True
         slothy.config.constraints.functional_only = False
         slothy.config.constraints.allow_reordering = True
         slothy.optimize_loop("layer567_loop")

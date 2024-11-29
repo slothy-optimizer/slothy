@@ -251,7 +251,7 @@ small_ntt_asm_769:
 		uadd16 tmp, poly0, poly1
 		usub16 twiddle1, poly0, poly1
 		str.w twiddle1, [poly, #offset]
-		str.w tmp, [poly], #4
+		str.w tmp, [poly], #4 // @slothy:core
 
 	vmov tmp, s24
 	cmp.w poly, tmp
@@ -280,7 +280,7 @@ small_ntt_asm_769:
 		str.w poly1, [poly, #distance2/4]
 		str.w poly2, [poly, #2*distance2/4]
 		str.w poly3, [poly, #3*distance2/4]
-		str.w poly0, [poly], #strincr2
+		str.w poly0, [poly], #strincr2 // @slothy:core
 
 	vmov tmp, s13
 	cmp.w poly, tmp
