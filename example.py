@@ -1705,6 +1705,8 @@ class ifnt_257_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
+        slothy.config.unsafe_address_offset_fixup = False
+        
         slothy.config.outputs = ["r14", "s1", "r12"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
