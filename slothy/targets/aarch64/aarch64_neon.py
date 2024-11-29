@@ -46,6 +46,9 @@ from functools import cache
 
 from sympy import simplify
 
+from slothy.targets.common import *
+from slothy.helper import Loop
+
 arch_name = "Arm_AArch64"
 llvm_mca_arch = "aarch64"
 
@@ -169,23 +172,38 @@ class Branch:
         """Emit unconditional branch"""
         yield f"b {lbl}"
 
-class Loop:
-    """Helper functions for parsing and writing simple loops in AArch64
 
-    TODO: Generalize; current implementation too specific about shape of loop"""
+class SubsLoop(Loop):
+    """
+    Loop ending in a flag setting subtraction and a branch.
 
-    def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr"):
-        self.lbl_start = lbl_start
-        self.lbl_end   = lbl_end
-        self.loop_init = loop_init
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               sub[s] <cnt>, <cnt>, #<imm>
+               (cbnz|bnz|bne) <cnt>, loop_lbl
+    ```
+    where cnt is the loop counter in lr.
+    """
+    def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
+        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+        # The group naming in the regex should be consistent; give same group
+        # names to the same registers
+        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
+                               rf"^\s*(cbnz|bnz|bne)\s+(?P<cnt>\w+),\s*{lbl}")
 
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None):
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
         indent = ' ' * indentation
         if unroll > 1:
             assert unroll in [1,2,4,8,16,32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
         if fixup != 0:
+            # In case the immediate is >1, we need to scale the fixup. This
+            # allows for loops that do not use an increment of 1
+            fixup *= self.additional_data['imm']
             yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
@@ -193,95 +211,14 @@ class Loop:
 
     def end(self, other, indentation=0):
         """Emit compare-and-branch at the end of the loop"""
-        (reg0, reg1, imm) = other
         indent = ' ' * indentation
         lbl_start = self.lbl_start
         if lbl_start.isdigit():
             lbl_start += "b"
 
-        yield f"{indent}sub {reg0}, {reg1}, {imm}"
-        yield f"{indent}cbnz {reg0}, {lbl_start}"
+        yield f"{indent}sub {other['cnt']}, {other['cnt']}, {other['imm']}"
+        yield f"{indent}cbnz {other['cnt']}, {lbl_start}"
 
-    @staticmethod
-    def extract(source, lbl):
-        """Locate a loop with start label `lbl` in `source`.
-
-        We currently only support the following loop forms:
-
-           ```
-           loop_lbl:
-               {code}
-               sub[s] <cnt>, <cnt>, #1
-               (cbnz|bnz|bne) <cnt>, loop_lbl
-           ```
-
-        """
-        assert isinstance(source, list)
-
-        pre  = []
-        body = []
-        post = []
-        loop_lbl_regexp_txt = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
-
-        # TODO: Allow other forms of looping
-
-        loop_end_regexp_txt = (r"^\s*sub[s]?\s+(?P<reg0>\w+),\s*(?P<reg1>\w+),\s*(?P<imm>#1)",
-                               rf"^\s*(cbnz|bnz|bne)\s+(?P<reg0>\w+),\s*{lbl}")
-        loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
-        lines = iter(source)
-        l = None
-        keep = False
-        state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop
-        while True:
-            if not keep:
-                l = next(lines, None)
-            keep = False
-            if l is None:
-                break
-            l_str = l.text
-            assert isinstance(l, str) is False
-            if state == 0:
-                p = loop_lbl_regexp.match(l_str)
-                if p is not None and p.group("label") == lbl:
-                    l = l.copy().set_text(p.group("remainder"))
-                    keep = True
-                    state = 1
-                else:
-                    pre.append(l)
-                continue
-            if state == 1:
-                p = loop_end_regexp[0].match(l_str)
-                if p is not None:
-                    reg0 = p.group("reg0")
-                    reg1 = p.group("reg1")
-                    imm = p.group("imm")
-                    state = 2
-                    continue
-                body.append(l)
-                continue
-            if state == 2:
-                p = loop_end_regexp[1].match(l_str)
-                if p is not None:
-                    state = 3
-                    continue
-                body.append(l)
-                continue
-            if state == 3:
-                post.append(l)
-                continue
-        if state < 3:
-            raise FatalParsingException(f"Couldn't identify loop {lbl}")
-        return pre, body, post, lbl, (reg0, reg1, imm)
-
-class FatalParsingException(Exception):
-    """A fatal error happened during instruction parsing"""
-
-class UnknownInstruction(Exception):
-    """The parent instruction class for the given object could not be found"""
-
-class UnknownRegister(Exception):
-    """The register could not be found"""
 
 class Instruction:
 

@@ -196,6 +196,37 @@ class Example3(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("start")
 
+class LoopLe(Example):
+    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
+        name = "loop_le"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize_loop("start")
+
+class AArch64LoopSubs(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_loop_subs"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize_loop("start")
 
 class CRT(Example):
     def __init__(self):
@@ -1393,6 +1424,10 @@ def main():
                  AArch64Example1(target=Target_CortexA72),
                  AArch64Example2(),
                  AArch64Example2(target=Target_CortexA72),
+
+                # Loop examples
+                 AArch64LoopSubs(),
+                 LoopLe(),
 
                  CRT(),
 

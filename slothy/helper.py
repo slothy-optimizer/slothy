@@ -28,6 +28,9 @@
 import re
 import subprocess
 import logging
+from abc import ABC, abstractmethod
+
+from slothy.targets.common import *
 
 class SourceLine:
     """Representation of a single line of source code"""
@@ -1089,3 +1092,106 @@ class DeferHandler(logging.Handler):
         h.setLevel(lvl)
         l.addHandler(h)
         self.forward(l)
+
+
+class Loop(ABC):
+    def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr"):
+        self.lbl_start = lbl_start
+        self.lbl_end   = lbl_end
+        self.loop_init = loop_init
+        self.additional_data = {}
+
+    @abstractmethod
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None):
+        """Emit starting instruction(s) and jump label for loop"""
+        pass
+
+    @abstractmethod
+    def end(self, other, indentation=0):
+        """Emit compare-and-branch at the end of the loop"""
+        pass
+
+    def _extract(self, source, lbl):
+        """Locate a loop with start label `lbl` in `source`.```"""
+        assert isinstance(source, list)
+
+        # additional_data will be assigned according to the capture groups from
+        # loop_end_regexp.
+        pre  = []
+        body = []
+        post = []
+        # candidate lines for the end of the loop
+        loop_end_candidates = []
+        loop_lbl_regexp_txt = self.lbl_regex
+        loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
+
+        # end_regex shall contain group cnt as the counter variable
+        loop_end_regexp_txt = self.end_regex
+        loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
+        lines = iter(source)
+        l = None
+        keep = False
+        state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop
+        loop_end_ctr = 0
+        while True:
+            if not keep:
+                l = next(lines, None)
+            keep = False
+            if l is None:
+                break
+            l_str = l.text
+            assert isinstance(l, str) is False
+            if state == 0:
+                p = loop_lbl_regexp.match(l_str)
+                if p is not None and p.group("label") == lbl:
+                    l = l.copy().set_text(p.group("remainder"))
+                    keep = True
+                    state = 1
+                else:
+                    pre.append(l)
+                continue
+            if state == 1:
+                p = loop_end_regexp[loop_end_ctr].match(l_str)
+                if p is not None:
+                    # Case: We may have encountered part of the loop end
+                    # collect all named groups
+                    self.additional_data = self.additional_data | p.groupdict()
+                    loop_end_ctr += 1
+                    loop_end_candidates.append(l)
+                    if loop_end_ctr == len(loop_end_regexp):
+                        state = 2
+                    continue
+                elif loop_end_ctr > 0 and l_str != "":
+                    # Case: The sequence of loop end candidates was interrupted
+                    #       i.e., we found a false-positive or this is not a proper loop
+                    
+                    # The loop end candidates are not part of the loop, meaning
+                    # they belonged to the body
+                    body += loop_end_candidates
+                    self.additional_data = {}
+                    loop_end_ctr = 0
+                    loop_end_candidates = []
+                body.append(l)
+                continue
+            if state == 2:
+                loop_end_candidates = []
+                post.append(l)
+                continue
+        if state < 2:
+            raise FatalParsingException(f"Couldn't identify loop {lbl}")
+        return pre, body, post, lbl, self.additional_data
+
+    @staticmethod
+    def extract(source, lbl):
+        for loop_type in Loop.__subclasses__():
+            try:
+                l = loop_type(lbl)
+                # concatenate the extracted loop with an instance of the
+                # identified loop_type, (l,) creates a tuple with one element to
+                # merge with the tuple retuned by _extract
+                return l._extract(source, lbl) + (l,)
+            except FatalParsingException:
+                logging.debug("Parsing loop type '%s'failed", loop_type)
+                pass
+
+        raise FatalParsingException(f"Couldn't identify loop {lbl}")
