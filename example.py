@@ -1545,6 +1545,8 @@ class ntt_dilithium(Example):
         # slothy.config.llvm_mca_full = True
         slothy.config.constraints.stalls_first_attempt = 16
 
+        slothy.config.unsafe_address_offset_fixup = False
+
         slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
