@@ -688,6 +688,23 @@ class Armv7mLoopCmp(Example):
         slothy.config.variable_size=True
         slothy.config.outputs = ["r6"]
         slothy.optimize_loop("start")
+        
+class Armv7mLoopVmovCmp(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_vmov_cmp"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.outputs = ["r6"]
+        slothy.optimize_loop("start")
 
 class ntt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
@@ -1486,6 +1503,7 @@ def main():
                  LoopLe(),
                  Armv7mLoopSubs(),
                  Armv7mLoopCmp(),
+                 Armv7mLoopVmovCmp(),
 
                  CRT(),
 
