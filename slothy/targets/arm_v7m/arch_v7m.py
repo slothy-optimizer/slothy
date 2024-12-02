@@ -123,6 +123,28 @@ class Branch:
 
 
 class VmovCmpLoop(Loop):
+    """
+    Loop ending in a vmov, a compare, and a branch.
+    
+    The modification to the value we compare against happens inside the loop
+    body. The value that is being compared to is stashed to a floating point
+    register before the loop starts and therefore needs to be recovered before
+    the comparison. 
+    
+    WARNING: This type of loop is experimental as slothy has no knowledge about
+    what happens inside the loop boundary! Especially, a register is written
+    inside the boundary which may be used for renaming by slothy. Use with
+    caution.
+
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               vmov <end>, <endf>
+               cmp <cnt>, <end>
+               (cbnz|bnz|bne) loop_lbl
+    ``` where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
@@ -193,6 +215,21 @@ class VmovCmpLoop(Loop):
         yield f'{indent}bne {lbl_start}'
 
 class CmpLoop(Loop):
+    """
+    Loop ending in a compare and a branch.
+    The modification to the value we compare against happens inside the loop body.
+    WARNING: This type of loop is experimental as slothy has no knowledge about 
+    what happens inside the loop boundary! Use with caution.
+
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               cmp <cnt>, <end>
+               (cbnz|bnz|bne) loop_lbl
+    ```
+    where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
@@ -254,6 +291,18 @@ class CmpLoop(Loop):
         yield f'{indent}bne {lbl_start}'
 
 class SubsLoop(Loop):
+    """
+    Loop ending in a flag setting subtraction and a branch.
+
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               sub[s] <cnt>, <cnt>, #1
+               (cbnz|bnz|bne) loop_lbl
+    ```
+    where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
