@@ -14,10 +14,8 @@ llvm_mca_arch = "arm"  # TODO
 class RegisterType(Enum):
     GPR = 1
     FPR = 2
-    STACK_FPR = 3
-    STACK_GPR = 4
-    FLAGS = 5
-    HINT = 6
+    FLAGS = 3
+    HINT = 4
 
     def __str__(self):
         return self.name
@@ -33,9 +31,6 @@ class RegisterType(Enum):
     @staticmethod
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
-
-        stack_locations  = [ f"STACK{i}"  for i in range(8) ]
-        fpstack_locations  = [ f"STACK{i}"  for i in range(8) ]
 
         gprs_normal  = [ f"r{i}" for i in range(15) ]
         fprs_normal  = [ f"s{i}" for i in range(31) ]
@@ -59,9 +54,7 @@ class RegisterType(Enum):
             fprs += fprs_extra
 
         return { RegisterType.GPR       : gprs,
-                 RegisterType.STACK_GPR : stack_locations,
                  RegisterType.FPR       : fprs,
-                 RegisterType.STACK_FPR : fpstack_locations,
                  RegisterType.HINT      : hints,
                  RegisterType.FLAGS     : flags}[reg_type]
 
@@ -89,9 +82,7 @@ class RegisterType(Enum):
     def from_string(string):
         """Find registe type from string"""
         string = string.lower()
-        return { "fprstack"    : RegisterType.STACK_FPR,
-                 "stack"     : RegisterType.STACK_GPR,
-                 "fpr"      : RegisterType.FPR,
+        return { "fpr"      : RegisterType.FPR,
                  "gpr"       : RegisterType.GPR,
                  "hint"      : RegisterType.HINT,
                  "flags"     : RegisterType.FLAGS}.get(string,None)
