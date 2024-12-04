@@ -50,6 +50,7 @@ from sympy import simplify
 from slothy.targets.common import *
 from slothy.helper import Loop
 
+arch_name = "Arm_AArch64"
 llvm_mca_arch = "aarch64"
 
 class RegisterType(Enum):
@@ -181,7 +182,7 @@ class SubsLoop(Loop):
     ```
            loop_lbl:
                {code}
-               sub[s] <cnt>, <cnt>, #1
+               sub[s] <cnt>, <cnt>, #<imm>
                (cbnz|bnz|bne) <cnt>, loop_lbl
     ```
     where cnt is the loop counter in lr.
@@ -191,7 +192,7 @@ class SubsLoop(Loop):
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*(?P<imm>#1)",
+        self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
                                rf"^\s*(cbnz|bnz|bne)\s+(?P<cnt>\w+),\s*{lbl}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
@@ -201,6 +202,9 @@ class SubsLoop(Loop):
             assert unroll in [1,2,4,8,16,32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
         if fixup != 0:
+            # In case the immediate is >1, we need to scale the fixup. This
+            # allows for loops that do not use an increment of 1
+            fixup *= self.additional_data['imm']
             yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
@@ -893,7 +897,7 @@ class prefetch(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
         obj.addr = obj.args_in[0]
         return obj
 
-class q_ldr_with_inc_hint(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
+class q_ldr_with_imm_hint(Ldr_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrh <Qa>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Th"]
     outputs = ["Qa"]
@@ -1122,7 +1126,7 @@ class q_str(Str_Q): # pylint: disable=missing-docstring,invalid-name
         obj.addr = obj.args_in[1]
         return obj
 
-class q_str_with_inc_hint(Str_Q): # pylint: disable=missing-docstring,invalid-name
+class q_str_with_imm_hint(Str_Q): # pylint: disable=missing-docstring,invalid-name
     pattern = "strh <Qa>, <Xc>, <imm>, <Th>"
     inputs = ["Qa", "Xc"]
     outputs = ["Th"]
@@ -1485,7 +1489,7 @@ class x_ldp_with_postinc_writeback(Ldp_X): # pylint: disable=missing-docstring,i
         obj.addr = obj.args_in_out[0]
         return obj
 
-class x_ldp_with_inc_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_imm_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldph <Xa>, <Xb>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Th"]
     outputs = ["Xa", "Xb"]
@@ -1501,7 +1505,7 @@ class x_ldp_with_inc_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-na
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_ldp_sp_with_inc_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+class x_ldp_sp_with_imm_hint(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldph <Xa>, <Xb>, sp, <imm>, <Th>"
     inputs = ["Th"]
     outputs = ["Xa", "Xb"]
@@ -1517,7 +1521,7 @@ class x_ldp_sp_with_inc_hint(Ldp_X): # pylint: disable=missing-docstring,invalid
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_ldp_sp_with_inc_hint2(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+class x_ldp_sp_with_imm_hint2(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>"
     inputs = ["Th0", "Th1"]
     outputs = ["Xa", "Xb"]
@@ -1533,7 +1537,7 @@ class x_ldp_sp_with_inc_hint2(Ldp_X): # pylint: disable=missing-docstring,invali
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_ldp_with_inc_hint2(Ldp_X): # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_imm_hint2(Ldp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>"
     inputs = ["Xc", "Th0", "Th1"]
     outputs = ["Xa", "Xb"]
@@ -2799,7 +2803,7 @@ class x_stp_with_inc_writeback(Stp_X): # pylint: disable=missing-docstring,inval
         obj.addr = obj.args_in_out[0]
         return obj
 
-class x_stp_with_inc_hint(Stp_X): # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_imm_hint(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stph <Xa>, <Xb>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Xa", "Xb"]
     outputs = ["Th"]
@@ -2815,7 +2819,7 @@ class x_stp_with_inc_hint(Stp_X): # pylint: disable=missing-docstring,invalid-na
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_stp_sp_with_inc_hint(Stp_X): # pylint: disable=missing-docstring,invalid-name
+class x_stp_sp_with_imm_hint(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stph <Xa>, <Xb>, sp, <imm>, <Th>"
     inputs = ["Xa", "Xb"]
     outputs = ["Th"]
@@ -2831,7 +2835,7 @@ class x_stp_sp_with_inc_hint(Stp_X): # pylint: disable=missing-docstring,invalid
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_stp_sp_with_inc_hint2(Stp_X): # pylint: disable=missing-docstring,invalid-name
+class x_stp_sp_with_imm_hint2(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>"
     inputs = ["Xa", "Xb"]
     outputs = ["Th0", "Th1"]
@@ -2847,7 +2851,7 @@ class x_stp_sp_with_inc_hint2(Stp_X): # pylint: disable=missing-docstring,invali
         self.immediate = simplify(self.pre_index)
         return super().write()
 
-class x_stp_with_inc_hint2(Stp_X): # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_imm_hint2(Stp_X): # pylint: disable=missing-docstring,invalid-name
     pattern = "stphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>"
     inputs = ["Xa", "Xb", "Xc"]
     outputs = ["Th0", "Th1"]

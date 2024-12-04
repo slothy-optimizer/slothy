@@ -43,6 +43,7 @@ from enum import Enum
 from slothy.targets.common import *
 from slothy.helper import Loop
 
+arch_name = "Arm_v81M"
 llvm_mca_arch = "arm"
 
 class RegisterType(Enum):

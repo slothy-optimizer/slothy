@@ -1222,11 +1222,11 @@ class Loop(ABC):
         pre  = []
         body = []
         post = []
+        # candidate lines for the end of the loop
         loop_end_candidates = []
         loop_lbl_regexp_txt = self.lbl_regex
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
 
-        # TODO: Allow other forms of looping
         # end_regex shall contain group cnt as the counter variable
         loop_end_regexp_txt = self.end_regex
         loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
@@ -1255,6 +1255,7 @@ class Loop(ABC):
             if state == 1:
                 p = loop_end_regexp[loop_end_ctr].match(l_str)
                 if p is not None:
+                    # Case: We may have encountered part of the loop end
                     # collect all named groups
                     self.additional_data = self.additional_data | p.groupdict()
                     loop_end_ctr += 1
@@ -1263,6 +1264,11 @@ class Loop(ABC):
                         state = 2
                     continue
                 elif loop_end_ctr > 0 and l_str != "":
+                    # Case: The sequence of loop end candidates was interrupted
+                    #       i.e., we found a false-positive or this is not a proper loop
+                    
+                    # The loop end candidates are not part of the loop, meaning
+                    # they belonged to the body
                     body += loop_end_candidates
                     self.additional_data = {}
                     loop_end_ctr = 0

@@ -385,7 +385,9 @@ class Slothy:
         assert SourceLine.is_source(self.source)
 
     def optimize_loop(self, loop_lbl, postamble_label=None):
-        """Optimize the loop starting at a given label"""
+        """Optimize the loop starting at a given label
+            The postamble_label marks the end of the loop kernel.
+        """
 
         logger = self.logger.getChild(loop_lbl)
 

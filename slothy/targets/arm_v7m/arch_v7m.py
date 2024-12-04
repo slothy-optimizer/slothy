@@ -14,10 +14,8 @@ llvm_mca_arch = "arm"  # TODO
 class RegisterType(Enum):
     GPR = 1
     FPR = 2
-    STACK_FPR = 3
-    STACK_GPR = 4
-    FLAGS = 5
-    HINT = 6
+    FLAGS = 3
+    HINT = 4
 
     def __str__(self):
         return self.name
@@ -33,9 +31,6 @@ class RegisterType(Enum):
     @staticmethod
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
         """Return the list of all registers of a given type"""
-
-        stack_locations  = [ f"STACK{i}"  for i in range(8) ]
-        fpstack_locations  = [ f"STACK{i}"  for i in range(8) ]
 
         gprs_normal  = [ f"r{i}" for i in range(15) ]
         fprs_normal  = [ f"s{i}" for i in range(31) ]
@@ -59,9 +54,7 @@ class RegisterType(Enum):
             fprs += fprs_extra
 
         return { RegisterType.GPR       : gprs,
-                 RegisterType.STACK_GPR : stack_locations,
                  RegisterType.FPR       : fprs,
-                 RegisterType.STACK_FPR : fpstack_locations,
                  RegisterType.HINT      : hints,
                  RegisterType.FLAGS     : flags}[reg_type]
 
@@ -89,9 +82,7 @@ class RegisterType(Enum):
     def from_string(string):
         """Find registe type from string"""
         string = string.lower()
-        return { "fprstack"    : RegisterType.STACK_FPR,
-                 "stack"     : RegisterType.STACK_GPR,
-                 "fpr"      : RegisterType.FPR,
+        return { "fpr"      : RegisterType.FPR,
                  "gpr"       : RegisterType.GPR,
                  "hint"      : RegisterType.HINT,
                  "flags"     : RegisterType.FLAGS}.get(string,None)
@@ -130,89 +121,112 @@ class Branch:
         """Emit unconditional branch"""
         yield f"b {lbl}"
 
-class BranchLoop(Loop):
-    def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
-        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
-        self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        self.end_regex = (rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}",)
+# class BranchLoop(Loop):
+#     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
+#         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+#         self.lbl = lbl
+#         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+#         self.end_regex = (rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}",)
 
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
-        """Emit starting instruction(s) and jump label for loop"""
-        indent = ' ' * indentation
-        if body_code is None:
-            logging.debug(f"No body code in loop start: Just printing label.")
-            yield f"{self.lbl}:"
-            return
-        # Identify the register that is used as a loop counter
-        body_code = [l for l in body_code if l.text != ""]
-        for l in body_code:
-            inst = Instruction.parser(l)
-            # Flags are set through cmp 
-            # LIMITATION: By convention, we require the first argument to be the
-            # "counter" and the second the one marking the iteration end.
-            if isinstance(inst[0], cmp):
-                # Assume this mapping
-                loop_cnt_reg = inst[0].args_in[0]
-                loop_end_reg = inst[0].args_in[1]
-                logging.debug(f"Assuming {loop_cnt_reg} as counter register and {loop_end_reg} as end register.")
-                break
-            # Flags are set through subs
-            elif isinstance(inst[0], subs_imm_short):
-                loop_cnt_reg = inst[0].args_in_out[0]
-                loop_end_reg = inst[0].args_in_out[0]
-                break
+#     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
+#         """Emit starting instruction(s) and jump label for loop"""
+#         indent = ' ' * indentation
+#         if body_code is None:
+#             logging.debug(f"No body code in loop start: Just printing label.")
+#             yield f"{self.lbl}:"
+#             return
+#         # Identify the register that is used as a loop counter
+#         body_code = [l for l in body_code if l.text != ""]
+#         for l in body_code:
+#             inst = Instruction.parser(l)
+#             # Flags are set through cmp 
+#             # LIMITATION: By convention, we require the first argument to be the
+#             # "counter" and the second the one marking the iteration end.
+#             if isinstance(inst[0], cmp):
+#                 # Assume this mapping
+#                 loop_cnt_reg = inst[0].args_in[0]
+#                 loop_end_reg = inst[0].args_in[1]
+#                 logging.debug(f"Assuming {loop_cnt_reg} as counter register and {loop_end_reg} as end register.")
+#                 break
+#             # Flags are set through subs
+#             elif isinstance(inst[0], subs_imm_short):
+#                 loop_cnt_reg = inst[0].args_in_out[0]
+#                 loop_end_reg = inst[0].args_in_out[0]
+#                 break
         
-        # Find FPR that is used to stash the loop end incase it's vmov loop
-        loop_end_reg_fpr = None
-        for l in body_code:
-            inst = Instruction.parser(l)
-            # Flags are set through cmp 
-            if isinstance(inst[0], vmov_gpr):
-                if loop_end_reg in inst[0].args_out:
-                    loop_end_reg_fpr = inst[0].args_in[0]
-                    break
+#         # Find FPR that is used to stash the loop end incase it's vmov loop
+#         loop_end_reg_fpr = None
+#         for l in body_code:
+#             inst = Instruction.parser(l)
+#             # Flags are set through cmp 
+#             if isinstance(inst[0], vmov_gpr):
+#                 if loop_end_reg in inst[0].args_out:
+#                     loop_end_reg_fpr = inst[0].args_in[0]
+#                     break
 
-        if unroll > 1:
-            assert unroll in [1,2,4,8,16,32]
-            yield f"{indent}lsr {loop_end_reg}, {loop_end_reg}, #{int(math.log2(unroll))}"
+#         if unroll > 1:
+#             assert unroll in [1,2,4,8,16,32]
+#             yield f"{indent}lsr {loop_end_reg}, {loop_end_reg}, #{int(math.log2(unroll))}"
         
-        inc_per_iter = 0
-        for l in body_code:
-            inst = Instruction.parser(l)
-            # Increment happens through pointer modification
-            if loop_cnt_reg.lower() == inst[0].addr and inst[0].increment is not None:
-                inc_per_iter = inc_per_iter + simplify(inst[0].increment)
-            # Increment through explicit modification
-            elif loop_cnt_reg.lower() in (inst[0].args_out + inst[0].args_in_out) and inst[0].immediate is not None:
-                # TODO: subtract if we have a subtraction
-                inc_per_iter = inc_per_iter + simplify(inst[0].immediate)
-        logging.debug(f"Loop counter {loop_cnt_reg} is incremented by {inc_per_iter} per iteration.")
+#         inc_per_iter = 0
+#         for l in body_code:
+#             inst = Instruction.parser(l)
+#             # Increment happens through pointer modification
+#             if loop_cnt_reg.lower() == inst[0].addr and inst[0].increment is not None:
+#                 inc_per_iter = inc_per_iter + simplify(inst[0].increment)
+#             # Increment through explicit modification
+#             elif loop_cnt_reg.lower() in (inst[0].args_out + inst[0].args_in_out) and inst[0].immediate is not None:
+#                 # TODO: subtract if we have a subtraction
+#                 inc_per_iter = inc_per_iter + simplify(inst[0].immediate)
+#         logging.debug(f"Loop counter {loop_cnt_reg} is incremented by {inc_per_iter} per iteration.")
         
-        if fixup != 0 and loop_end_reg_fpr is not None:
-            yield f"{indent}push {{{loop_end_reg}}}"
-            yield f"{indent}vmov {loop_end_reg}, {loop_end_reg_fpr}"
+#         if fixup != 0 and loop_end_reg_fpr is not None:
+#             yield f"{indent}push {{{loop_end_reg}}}"
+#             yield f"{indent}vmov {loop_end_reg}, {loop_end_reg_fpr}"
         
-        if fixup != 0:
-            yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
+#         if fixup != 0:
+#             yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
 
-        if fixup != 0 and loop_end_reg_fpr is not None:
-            yield f"{indent}vmov {loop_end_reg_fpr}, {loop_end_reg}"
-            yield f"{indent}pop {{{loop_end_reg}}}"
+#         if fixup != 0 and loop_end_reg_fpr is not None:
+#             yield f"{indent}vmov {loop_end_reg_fpr}, {loop_end_reg}"
+#             yield f"{indent}pop {{{loop_end_reg}}}"
         
-        if jump_if_empty is not None:
-            yield f"cbz {loop_cnt}, {jump_if_empty}"
-        yield f"{self.lbl}:"
+#         if jump_if_empty is not None:
+#             yield f"cbz {loop_cnt}, {jump_if_empty}"
+#         yield f"{self.lbl}:"
 
-    def end(self, other, indentation=0):
-        """Emit compare-and-branch at the end of the loop"""
-        indent = ' ' * indentation
-        lbl_start = self.lbl
-        if lbl_start.isdigit():
-            lbl_start += "b"
+#     def end(self, other, indentation=0):
+#         """Emit compare-and-branch at the end of the loop"""
+#         indent = ' ' * indentation
+#         lbl_start = self.lbl
+#         if lbl_start.isdigit():
+#             lbl_start += "b"
 
-        yield f'{indent}bne {lbl_start}'
+#         yield f'{indent}bne {lbl_start}'
+
 class VmovCmpLoop(Loop):
+    """
+    Loop ending in a vmov, a compare, and a branch.
+    
+    The modification to the value we compare against happens inside the loop
+    body. The value that is being compared to is stashed to a floating point
+    register before the loop starts and therefore needs to be recovered before
+    the comparison. 
+    
+    WARNING: This type of loop is experimental as slothy has no knowledge about
+    what happens inside the loop boundary! Especially, a register is written
+    inside the boundary which may be used for renaming by slothy. Use with
+    caution.
+
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               vmov <end>, <endf>
+               cmp <cnt>, <end>
+               (cbnz|bnz|bne) loop_lbl
+    ``` where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
@@ -283,6 +297,21 @@ class VmovCmpLoop(Loop):
         yield f'{indent}bne {lbl_start}'
 
 class CmpLoop(Loop):
+    """
+    Loop ending in a compare and a branch.
+    The modification to the value we compare against happens inside the loop body.
+    WARNING: This type of loop is experimental as slothy has no knowledge about 
+    what happens inside the loop boundary! Use with caution.
+
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               cmp <cnt>, <end>
+               (cbnz|bnz|bne) loop_lbl
+    ```
+    where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
@@ -344,6 +373,18 @@ class CmpLoop(Loop):
         yield f'{indent}bne {lbl_start}'
 
 class SubsLoop(Loop):
+    """
+    Loop ending in a flag setting subtraction and a branch.
+
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               sub[s] <cnt>, <cnt>, #1
+               (cbnz|bnz|bne) loop_lbl
+    ```
+    where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"

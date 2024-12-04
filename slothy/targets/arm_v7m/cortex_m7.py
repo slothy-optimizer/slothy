@@ -32,11 +32,10 @@ class ExecutionUnit(Enum):
     ALU0 = 1
     ALU1 = 2
     MAC = 5
-    FPU0 = 6
-    FPU1 = 7
-    LOAD0 = 8
-    LOAD1 = 9
-    SIMD = 10
+    FPU = 6
+    LOAD0 = 7
+    LOAD1 = 8
+    SIMD = 9
 
     def __repr__(self):
         return self.name
@@ -160,8 +159,7 @@ execution_units = {
     (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0], [ExecutionUnit.ALU1]],
     (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
      smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
-    (vmov_gpr, vmov_gpr2): [ExecutionUnit.FPU0, ExecutionUnit.FPU1],
-    (vmov_gpr2_dual): [[ExecutionUnit.FPU0, ExecutionUnit.FPU1]],
+    (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
     (uadd16, sadd16, usub16, ssub16): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))),
     (pkhbt, pkhtb, pkhbt_shifted, ubfx_imm): [[ExecutionUnit.ALU0, ExecutionUnit.SIMD]],
     (Armv7mShiftedArithmetic): [[ExecutionUnit.ALU0]],
@@ -207,6 +205,7 @@ inverse_throughput = {
         ror, ror_short, rors_short, lsl, asr, asrs,
         cmp, cmp_imm,
         vmov_gpr,
+        vmov_gpr2, vmov_gpr2_dual,  # verify for dual
         pkhbt, pkhtb, pkhbt_shifted, ubfx_imm,
         str_with_imm,
         str_with_imm_stack,
@@ -218,7 +217,7 @@ inverse_throughput = {
     ): 1,
     (
         stm_interval_inc_writeback,  # actually not, just placeholder
-        vmov_gpr2, vmov_gpr2_dual): 2
+        vmov_gpr2_dual): 2
 }
 
 default_latencies = {
