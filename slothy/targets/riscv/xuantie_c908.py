@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
 # Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
+# Copyright (c) 2024 Justus Bergermann
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,7 +23,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Author: Hanno Becker <hannobecker@posteo.de>
+# Authors: Hanno Becker <hannobecker@posteo.de>
+#          Justus Bergermann <mail@justus-bergermann.de>
 #
 
 """
