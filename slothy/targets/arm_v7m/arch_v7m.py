@@ -13,6 +13,7 @@ from unicorn.arm_const import *
 from slothy.helper import SourceLine, Loop, LLVM_Mc
 from sympy import simplify
 
+arch_name = "Arm_v7M"
 llvm_mca_arch = "arm"
 llvm_mc_arch = "thumb"
 llvm_mc_attr = "armv7e-m,thumb2,dsp,fpregs"
