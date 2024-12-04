@@ -581,9 +581,7 @@ class AArch64Example0(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.config.constraints.stalls_first_attempt=32
-        slothy.config.selfcheck = False
-        slothy.config.allow_useless_instructions = True
-        slothy.fusion_region("start", "end", ssa=False)
+        slothy.optimize()
 
 class AArch64Example0Equ(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
