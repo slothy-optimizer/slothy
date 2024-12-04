@@ -21,7 +21,4 @@ fi
 echo "* tutorial-6.py (Optimizing a full Neon NTT)"
 python3 tutorial-6.py >/dev/null
 
-echo "* tutorial-7.py (Optimizing larger pieces of code)"
-python3 tutorial-7.py >/dev/null
-
 echo "Done :-)"
