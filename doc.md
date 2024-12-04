@@ -15,8 +15,9 @@
   - https://zulip.mpi-sp.org/user_uploads/2/35/pti_jvEdy5Egd_GawmsgcVL8/XuanTie-C908-UserManual.pdf (XuanTie-C908 manual)
   - https://camel-cdr.github.io/rvv-bench-results/canmv_k230/index.html (Benchmarks)
   - https://www.reddit.com/r/RISCV/comments/1cybkrv/xuantie_c908_and_spacemit_x60_vector/  (Benchmarks)
-- PQRV benchmrks
-- asm file: single issue plant -> optimize
+- Benchmark new results
+- Try out profiling
+- clean up ntt dilithium asm
 
 # Xuan-Tie C908
 
@@ -206,3 +207,14 @@ core might support multiple RISC-V-compatible hardware threads, or harts, throug
 - main.c call test in main file
 
 - idea: build tests with PQRV, then run them on RISC-V machine
+Build:
+- nix develop --extra-experimental-features flakes --extra-experimental-features nix-command
+- make build-cross-rv64im_ntt-dilithium will build the elf and put it into envs/cross-rv64im
+- make run-cross-rv64im_ntt-dilithium will build the elf and put it into envs/cross-rv64im and run it using qemu
+
+## Profiler
+
+- tests/profiling/asm.txt -> here my asm code
+- execute profiler.py
+- in nix: make build profiling platform ...
+- binary is in env directory

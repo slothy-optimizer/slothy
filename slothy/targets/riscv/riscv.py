@@ -74,7 +74,7 @@ class RegisterType(Enum):
     def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):  # done
         """Return the list of all registers of a given type"""
 
-        base_int  = [ f"x{i}" for i in range(31) ] + ["pc"]
+        base_int  = [ f"x{i}" for i in range(32) ]
 
 
         return { RegisterType.BASE_INT : base_int,
@@ -110,7 +110,7 @@ class RegisterType(Enum):
     def default_reserved():  # done
         """Return the list of registers that should be reserved by default"""
         #return set(["flags", "sp"] + RegisterType.list_registers(RegisterType.HINT))
-        return []
+        return ['x2', 'x0']
 
     @staticmethod
     def default_aliases():  # done

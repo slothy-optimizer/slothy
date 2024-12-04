@@ -5,11 +5,11 @@ class RISCVStore(RISCVInstruction):
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
-        obj.pre_index = None
+        obj.pre_index = obj.immediate
         obj.addr = obj.args_in[1]
         return obj
     pattern = "mnemonic <Xb>, <imm>(<Xa>)"
-    inputs = ["Xa", "Xb"]
+    inputs = ["Xb", "Xa"]
 
 class RISCVIntegerRegisterImmediate(RISCVInstruction):
     pattern = "mnemonic <Xd>, <Xa>, <imm>"
@@ -22,6 +22,13 @@ class RISCVIntegerRegisterRegister(RISCVInstruction):
     outputs = ["Xd"]
 
 class RISCVLoad(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
     pattern = "mnemonic <Xd>, <imm>(<Xa>)"
     inputs = ["Xa"]
     outputs = ["Xd"]

@@ -1401,12 +1401,18 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
         slothy.config.variable_size=True
         slothy.config.constraints.stalls_first_attempt=32
         slothy.config.inputs_are_outputs = True
-        slothy.config.outputs = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10',
- 'x11', 'x12', 'x13', 'x14', 'x15', 'x16', 'x17', 'x18', 'x19',
- 'x20', 'x21', 'x22', 'x23', 'x24', 'x25', 'x26', 'x27', 'x28',
- 'x29', 'x30', 'x31']
-        slothy.optimize(start="main_loop", end="end_label")
 
+        r = slothy.config.reserved_regs
+        r += ['x3']
+        slothy.config.reserved_regs = r
+
+
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
+        slothy.optimize(start="main_loop_1", end="end_loop_1")
+        slothy.optimize(start="main_loop_2", end="end_loop_2")
 #############################################################################################
 
 
