@@ -566,6 +566,7 @@ class Instruction:
                                       ldr_with_imm_stack,
                                       ldr_with_postinc,
                                       ldrh_with_postinc,
+                                      ldrb_with_postinc,
                                       ldrd_imm,
                                       ldrd_with_postinc,
                                       ldr_with_inc_writeback,
@@ -1166,6 +1167,12 @@ class smlatt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-
     inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
 
+class smlatb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
+    pattern = "smlatb<width> <Rd>, <Ra>, <Rb>, <Rc>"
+    inputs = ["Ra","Rb", "Rc"]
+    outputs = ["Rd"]
+
+
 class smull(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smull<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rc","Rd"]
@@ -1437,6 +1444,21 @@ class ldrh_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
         obj.pre_index = None
         obj.addr = obj.args_in_out[0]
         return obj
+
+
+class ldrb_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ldrb<width> <Rd>, [<Ra>], <imm>"
+    in_outs = [ "Ra" ]
+    outputs = ["Rd"]
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.args_inout_out_different = [(0,0)] # Can't have Rd==Ra
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
 
 class Ldrd(Armv7mLoadInstruction):
     pass

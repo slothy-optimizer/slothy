@@ -65,7 +65,7 @@ def add_dsp_slot_constraint(slothy):
 def add_mac_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
         [mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
-     smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr], [1])
+     smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr], [1])
 
 # TODO: this seems incorrect
 def add_slot_constraints(slothy):
@@ -124,6 +124,7 @@ execution_units = {
         ldrb_with_imm,
         ldrh_with_imm,
         ldrh_with_postinc,
+        ldrb_with_postinc,
         vldr_with_imm, vldr_with_postinc  # TODO: also FPU?
         ): ExecutionUnit.LOAD(),
     (
@@ -158,7 +159,7 @@ execution_units = {
     ): ExecutionUnit.ALU(),
     (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0], [ExecutionUnit.ALU1]],
     (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
-     smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
+     smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
     (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
     (uadd16, sadd16, usub16, ssub16): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))),
     (pkhbt, pkhtb, pkhbt_shifted, ubfx_imm): [[ExecutionUnit.ALU0, ExecutionUnit.SIMD]],
@@ -176,6 +177,7 @@ inverse_throughput = {
         ldrb_with_imm,
         ldrh_with_imm,
         ldrh_with_postinc,
+        ldrb_with_postinc,
         vldr_with_imm, vldr_with_postinc,  # TODO: double-check
         # actually not, just placeholder
         ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback,
@@ -194,7 +196,7 @@ inverse_throughput = {
         mul, mul_short,
         smull,
         smlal,
-        mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr,
+        mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr,
         neg_short,
         log_and, log_and_shifted,
         log_or, log_or_shifted,
@@ -257,7 +259,7 @@ default_latencies = {
         mul, mul_short,
         smull,
         smlal,
-        mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr,
+        mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr,
         # TODO: Verify load latency
         stm_interval_inc_writeback,  # actually not, just placeholder
         ldr,
@@ -268,6 +270,8 @@ default_latencies = {
         ldrb_with_imm,
         ldrh_with_imm,
         ldrh_with_postinc,
+        ldrb_with_postinc,
+        ldrb_with_postinc,
         eor_shifted
     ): 2,
     (Ldrd): 3,
@@ -285,7 +289,7 @@ def get_latency(src, out_idx, dst):
     latency = lookup_multidict(default_latencies, src)
 
     # Forwarding path to MAC instructions
-    if instclass_dst in [mla, mls, smlabb, smlabt, smlatt] and dst.args_in[2] in (src.args_out + src.args_in_out):
+    if instclass_dst in [mla, mls, smlabb, smlabt, smlatt, smlatb] and dst.args_in[2] in (src.args_out + src.args_in_out):
         latency =  latency - 1
 
     if instclass_dst in [smlal]:
