@@ -9,7 +9,6 @@
   - Testcode: https://github.com/Ji-Peng/PQRV/blob/master/ntt/dilithium/ntt_8l_singleissue_mont_rv32im.S
 - CSR Registers?
   - CRS instructions are no longer part of standard base ISA, mostly used for privileged stuff
-- add proper license/ copyright notices for all new files
 - uArch Model
   - https://github.com/Ji-Peng/PQRV/tree/ches2025/cpi (CPI benchmark tool)
   - https://zulip.mpi-sp.org/user_uploads/2/35/pti_jvEdy5Egd_GawmsgcVL8/XuanTie-C908-UserManual.pdf (XuanTie-C908 manual)
@@ -18,6 +17,7 @@
 - Benchmark new results
 - Try out profiling
 - clean up ntt dilithium asm
+- move instruction factory to instruction class
 
 # Xuan-Tie C908
 

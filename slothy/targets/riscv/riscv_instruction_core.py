@@ -33,45 +33,49 @@ from slothy.targets.riscv.riscv import RegisterType
 from slothy.targets.riscv.exceptions import FatalParsingException, ParsingException
 from functools import cache
 
-class RISCVInstruction(Instruction):  # NOT done
+
+class RISCVInstruction(Instruction):
     """Abstract class representing RISCV instructions"""
+
     dynamic_instr_classes = []  # list of all rv32_64_i instruction classes
-    classes_by_names = {}  # dict of all classes with keys = class names
+    classes_by_names = {}  # dict of all classes where keys are the class names
     PARSERS = {}
-    is32bit_pattern = "w?"
+    is32bit_pattern = "w?"  # pattern to enable specific 32bit instructions (e.g. add/ addw)
+
     @staticmethod
     def _unfold_pattern(src):
-
-        src = re.sub(r"\.",  "\\\\s*\\\\.\\\\s*", src)
-        #src = re.sub(r"\[", "\\\\s*\\\\[\\\\s*", src)
-        #src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
+        src = re.sub(r"\.", "\\\\s*\\\\.\\\\s*", src)
+        # src = re.sub(r"\[", "\\\\s*\\\\[\\\\s*", src)
+        # src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
         src = re.sub(r"\(", "\\\\s*\\\\(\\\\s*", src)
         src = re.sub(r"\)", "\\\\s*\\\\)\\\\s*", src)
 
         def pattern_transform(g):
             return \
-                f"([{g.group(1).lower()}{g.group(1)}]" +\
-                f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|" +\
-                f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
+                    f"([{g.group(1).lower()}{g.group(1)}]" + \
+                    f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|" + \
+                    f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
+
         src = re.sub(r"<([BHWXVQTD])(\w+)>", pattern_transform, src)
 
         # Replace <key> or <key0>, <key1>, ... with pattern
         def replace_placeholders(src, mnemonic_key, regexp, group_name):
             prefix = f"<{mnemonic_key}"
             pattern = f"<{mnemonic_key}>"
+
             def pattern_i(i):
                 return f"<{mnemonic_key}{i}>"
 
             cnt = src.count(prefix)
             if cnt > 1:
                 for i in range(cnt):
-                    src = re.sub(pattern_i(i),  f"(?P<{group_name}{i}>{regexp})", src)
+                    src = re.sub(pattern_i(i), f"(?P<{group_name}{i}>{regexp})", src)
             else:
                 src = re.sub(pattern, f"(?P<{group_name}>{regexp})", src)
 
             return src
 
-        flaglist = ["eq","ne","cs","hs","cc","lo","mi","pl","vs","vc","hi","ls","ge","lt","gt","le"]
+        flaglist = ["eq", "ne", "cs", "hs", "cc", "lo", "mi", "pl", "vs", "vc", "hi", "ls", "ge", "lt", "gt", "le"]
 
         flag_pattern = '|'.join(flaglist)
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
@@ -98,8 +102,8 @@ class RISCVInstruction(Instruction):  # NOT done
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result is None:
-                raise ParsingException(f"Does not match instruction pattern {src}"\
-                                                   f"[regex: {regexp_txt}]")
+                raise ParsingException(f"Does not match instruction pattern {src}" \
+                                       f"[regex: {regexp_txt}]")
             res = regexp.match(line).groupdict()
             items = list(res.items())
             for k, v in items:
@@ -111,11 +115,13 @@ class RISCVInstruction(Instruction):  # NOT done
                         k = k[len(l):]
                         res[k] = v
             return res
+
         return _parse
 
     @staticmethod
     def get_parser(pattern):
         """Build parser for given AArch64 instruction pattern"""
+
         if pattern in RISCVInstruction.PARSERS:
             return RISCVInstruction.PARSERS[pattern]
         parser = RISCVInstruction._build_parser(pattern)
@@ -140,22 +146,22 @@ class RISCVInstruction(Instruction):  # NOT done
             outputs = []
         if in_outs is None:
             in_outs = []
-        arg_types_in     = [RISCVInstruction._infer_register_type(r) for r in inputs]
-        arg_types_out    = [RISCVInstruction._infer_register_type(r) for r in outputs]
+        arg_types_in = [RISCVInstruction._infer_register_type(r) for r in inputs]
+        arg_types_out = [RISCVInstruction._infer_register_type(r) for r in outputs]
         arg_types_in_out = [RISCVInstruction._infer_register_type(r) for r in in_outs]
 
-        #if modifiesFlags:
+        # if modifiesFlags:
         #    arg_types_out += [RegisterType.FLAGS]
         #    outputs       += ["flags"]
 
-        #if dependsOnFlags:
+        # if dependsOnFlags:
         #    arg_types_in += [RegisterType.FLAGS]
         #    inputs += ["flags"]
 
         super().__init__(mnemonic=pattern,
-                     arg_types_in=arg_types_in,
-                     arg_types_out=arg_types_out,
-                     arg_types_in_out=arg_types_in_out)
+                         arg_types_in=arg_types_in,
+                         arg_types_out=arg_types_out,
+                         arg_types_in_out=arg_types_in_out)
 
         self.inputs = inputs
         self.outputs = outputs
@@ -166,15 +172,13 @@ class RISCVInstruction(Instruction):  # NOT done
         self.pattern_outputs = list(zip(outputs, arg_types_out, strict=True))
         self.pattern_in_outs = list(zip(in_outs, arg_types_in_out, strict=True))
 
-
-
     @staticmethod
     def _to_reg(ty, s):
         if ty == RegisterType.BASE_INT:
             c = "x"
         else:
             assert False
-        if s.replace('_','').isdigit():
+        if s.replace('_', '').isdigit():
             return f"{c}{s}"
         return s
 
@@ -188,7 +192,7 @@ class RISCVInstruction(Instruction):  # NOT done
 
     @staticmethod
     def _instantiate_pattern(s, ty, arg, out):
-        #if ty == RegisterType.FLAGS:
+        # if ty == RegisterType.FLAGS:
         #    return out
         rep = RISCVInstruction._build_pattern_replacement(s, ty, arg)
         res = out.replace(f"<{s}>", rep)
@@ -202,14 +206,16 @@ class RISCVInstruction(Instruction):  # NOT done
         def group_to_attribute(group_name, attr_name, f=None):
             def f_default(x):
                 return x
+
             def group_name_i(i):
                 return f"{group_name}{i}"
+
             if f is None:
                 f = f_default
             if group_name in res.keys():
                 setattr(obj, attr_name, f(res[group_name]))
             else:
-                idxs = [ i for i in range(4) if group_name_i(i) in res.keys() ]
+                idxs = [i for i in range(4) if group_name_i(i) in res.keys()]
                 if len(idxs) == 0:
                     return
                 assert idxs == list(range(len(idxs)))
@@ -223,14 +229,14 @@ class RISCVInstruction(Instruction):  # NOT done
         group_to_attribute('is32bit', 'is32bit')
 
         for s, ty in obj.pattern_inputs:
-            #if ty == RegisterType.FLAGS:
+            # if ty == RegisterType.FLAGS:
             #    obj.args_in.append("flags")
-            #else:
+            # else:
             obj.args_in.append(RISCVInstruction._to_reg(ty, res[s]))
         for s, ty in obj.pattern_outputs:
-            #if ty == RegisterType.FLAGS:
+            # if ty == RegisterType.FLAGS:
             #    obj.args_out.append("flags")
-            #else:
+            # else:
             obj.args_out.append(RISCVInstruction._to_reg(ty, res[s]))
 
         for s, ty in obj.pattern_in_outs:
@@ -242,11 +248,11 @@ class RISCVInstruction(Instruction):  # NOT done
         inputs = getattr(c, "inputs", []).copy()
         outputs = getattr(c, "outputs", []).copy()
         in_outs = getattr(c, "in_outs", []).copy()
-        modifies_flags = getattr(c,"modifiesFlags", False)
-        depends_on_flags = getattr(c,"dependsOnFlags", False)
+        modifies_flags = getattr(c, "modifiesFlags", False)
+        depends_on_flags = getattr(c, "dependsOnFlags", False)
 
         if isinstance(src, str):
-            if not re.match(src.split(' ')[0], pattern.replace('<w>', RISCVInstruction.is32bit_pattern).split(' ')[0]) :
+            if not re.match(src.split(' ')[0], pattern.replace('<w>', RISCVInstruction.is32bit_pattern).split(' ')[0]):
                 raise ParsingException("Mnemonic does not match")
             res = RISCVInstruction.get_parser(pattern)(src)
         else:
@@ -265,8 +271,8 @@ class RISCVInstruction(Instruction):  # NOT done
 
     def write(self):
         out = self.pattern
-        l = list(zip(self.args_in, self.pattern_inputs))     + \
-            list(zip(self.args_out, self.pattern_outputs))   + \
+        l = list(zip(self.args_in, self.pattern_inputs)) + \
+            list(zip(self.args_out, self.pattern_outputs)) + \
             list(zip(self.args_in_out, self.pattern_in_outs))
         for arg, (s, ty) in l:
             out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
@@ -274,6 +280,7 @@ class RISCVInstruction(Instruction):  # NOT done
         def replace_pattern(txt, attr_name, mnemonic_key, t=None):
             def t_default(x):
                 return x
+
             if t is None:
                 t = t_default
 
@@ -296,4 +303,3 @@ class RISCVInstruction(Instruction):  # NOT done
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
         return out
-

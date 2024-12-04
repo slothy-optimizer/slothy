@@ -23,7 +23,10 @@
 # Author: Justus Bergermann <mail@justus-bergermann.de>
 #
 
+"""This module contains abstract RISC-V instruction types to represent instructions which share the same pattern"""
+
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
+
 
 class RISCVStore(RISCVInstruction):
     @classmethod
@@ -33,18 +36,22 @@ class RISCVStore(RISCVInstruction):
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[1]
         return obj
+
     pattern = "mnemonic <Xb>, <imm>(<Xa>)"
     inputs = ["Xb", "Xa"]
+
 
 class RISCVIntegerRegisterImmediate(RISCVInstruction):
     pattern = "mnemonic <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
+
 class RISCVIntegerRegisterRegister(RISCVInstruction):
     pattern = "mnemonic <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
+
 
 class RISCVLoad(RISCVInstruction):
     @classmethod
@@ -54,13 +61,16 @@ class RISCVLoad(RISCVInstruction):
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
+
     pattern = "mnemonic <Xd>, <imm>(<Xa>)"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
+
 class RISCVUType(RISCVInstruction):
     pattern = "mnemonic <Xd>, <imm>"
     outputs = ["Xd"]
+
 
 class RISCVIntegerRegisterRegisterMul(RISCVInstruction):
     pattern = "mnemonic <Xd>, <Xa>, <Xb>"
