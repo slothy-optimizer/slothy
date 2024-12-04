@@ -303,3 +303,28 @@ class RISCVInstruction(Instruction):
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
         return out
+
+    @classmethod
+    def instr_factory(self, instr_list, baseclass):
+        """
+        Dynamically creates instruction classes from a list, inheriting from a given super class. This method allows
+        to create classes for instructions with common pattern, inputs and outputs at one go. Usually, a lot of instructions
+        share the same structure.
+
+        :param instr_list: List of instructions with a common pattern etc. to create classes of
+        :param baseclass: Baseclass which describes the common pattern and other properties of the instruction type
+        :return: A list with the dynamically created classes
+        """
+
+        PythonKeywords = ["and", "or"]  # not allowed as class names
+
+        for instr in instr_list:
+            classname = instr
+            if "<w>" in instr:
+                classname = instr.split("<")[0]
+            if instr in PythonKeywords:
+                classname = classname + "cls"
+            RISCVInstruction.dynamic_instr_classes.append(type(classname, (baseclass, Instruction),
+                                                               {'pattern': baseclass.pattern.replace("mnemonic",
+                                                                                                     instr)}))
+        return RISCVInstruction.dynamic_instr_classes

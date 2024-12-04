@@ -34,6 +34,7 @@ WARNING: The data in this module is approximate and may contain errors. They are
 """
 
 from slothy.targets.riscv.riscv import *
+from slothy.targets.riscv.rv32_64_i_instructions import *
 from slothy.targets.riscv.rv32_64_m_instructions import *
 
 issue_rate = 2

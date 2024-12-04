@@ -27,6 +27,7 @@
 
 from slothy.targets.riscv.instruction_core import Instruction
 from slothy.targets.riscv.riscv_super_instructions import *
+from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 # the following lists maybe could be encapsulated somehow
 IntegerRegisterImmediateInstructions = ["addi<w>", "slti", "sltiu", "andi", "ori", "xori", "slli<w>", "srli<w>",
@@ -37,42 +38,17 @@ LoadInstructions = ["lb", "lbu", "lh", "lhu", "lw", "lwu", "ld"]
 StoreInstructions = ["sb", "sh", "sw", "sd"]
 UTypeInstructions = ["lui", "auipc"]
 
-PythonKeywords = ["and", "or"]  # not allowed as class names
-
-
-# TODO: Move to Instruction class?
-def instr_factory(instr_list, baseclass):
-    """
-    Dynamically creates instruction classes from a list, inheriting from a given super class. This method allows
-    to create classes for instructions with common pattern, inputs and outputs at one go. Usually, a lot of instructions
-    share the same structure.
-
-    :param instr_list: List of instructions with a common pattern etc. to create classes of
-    :param baseclass: Baseclass which describes the common pattern and other properties of the instruction type
-    :return: A list with the dynamically created classes
-    """
-
-    for instr in instr_list:
-        classname = instr
-        if "<w>" in instr:
-            classname = instr.split("<")[0]
-        if instr in PythonKeywords:
-            classname = classname + "cls"
-        RISCVInstruction.dynamic_instr_classes.append(type(classname, (baseclass, Instruction),
-                                                           {'pattern': baseclass.pattern.replace("mnemonic", instr)}))
-    return RISCVInstruction.dynamic_instr_classes
-
 
 def generate_rv32_64_i_instructions():
     """
     Generates all instruction classes for the rv32_64_i extension set
     """
 
-    instr_factory(IntegerRegisterImmediateInstructions, RISCVIntegerRegisterImmediate)
-    instr_factory(IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegister)
-    instr_factory(LoadInstructions, RISCVLoad)
-    instr_factory(StoreInstructions, RISCVStore)
-    instr_factory(UTypeInstructions, RISCVUType)
+    RISCVInstruction.instr_factory(IntegerRegisterImmediateInstructions, RISCVIntegerRegisterImmediate)
+    RISCVInstruction.instr_factory(IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegister)
+    RISCVInstruction.instr_factory(LoadInstructions, RISCVLoad)
+    RISCVInstruction.instr_factory(StoreInstructions, RISCVStore)
+    RISCVInstruction.instr_factory(UTypeInstructions, RISCVUType)
     RISCVInstruction.classes_by_names.update({cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes})
     return RISCVInstruction.dynamic_instr_classes
 
