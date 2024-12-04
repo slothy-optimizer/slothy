@@ -1651,6 +1651,7 @@ def main():
     parser.add_argument("--log-model", default=False, action="store_true")
     parser.add_argument("--log-model-dir", type=str, default="models")
     parser.add_argument("--only-target", type=str,choices=[
+        Target_CortexM7.__name__,
         Target_CortexM55r1.__name__, Target_CortexM85r1.__name__, \
         Target_CortexA55.__name__, Target_CortexA72.__name__, Target_AppleM1_firestorm.__name__, \
         Target_AppleM1_icestorm.__name__])
