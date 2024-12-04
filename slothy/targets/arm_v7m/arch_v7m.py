@@ -8,6 +8,7 @@ from functools import cache
 from slothy.helper import SourceLine, Loop
 from sympy import simplify
 
+arch_name = "Arm_v7M"
 llvm_mca_arch = "arm"  # TODO
 
 
