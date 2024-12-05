@@ -2734,7 +2734,6 @@ class matacc_asm_opt_32_16_kyber(Example):
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
 
-        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are unused in this code.
         slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
 
         slothy.config.outputs = ["r9"]
@@ -2791,8 +2790,16 @@ class matacc_asm_cache_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: do actual opt
-        slothy.write_source_to_file(self.outfile_full)
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
 
 def main():
     examples = [
