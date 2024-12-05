@@ -650,7 +650,7 @@ class Armv7mInstruction(Instruction):
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
         width_pattern = "(?:\.w|\.n|)"
-        barrel_pattern = "(?:lsl|ror|lsr|asr)"
+        barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
         range_pattern = "\{(?P<range_type>[rs])(?P<range_start>\\\\d+)-[rs](?P<range_end>\\\\d+)\}"
 
         src = re.sub(" ", "\\\\s+", src)
@@ -968,7 +968,7 @@ class add_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,
     in_outs = ["Rd"]
 
 class add_shifted(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "add<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    pattern = "add<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
@@ -995,7 +995,7 @@ class sub(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-na
     outputs = ["Rd"]
 
 class sub_shifted(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
-    pattern = "sub<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    pattern = "sub<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
@@ -1138,7 +1138,7 @@ class log_and(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     outputs = ["Rd"]
 
 class log_and_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "and<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    pattern = "and<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
@@ -1148,7 +1148,7 @@ class log_or(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     outputs = ["Rd"]
 
 class log_or_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "orr<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    pattern = "orr<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
@@ -1175,7 +1175,7 @@ class eors_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-nam
     modifiesFlags = True
 
 class eor_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "eor<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    pattern = "eor<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
@@ -1195,7 +1195,7 @@ class bics(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     modifiesFlags = True
 
 class bic_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "bic<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    pattern = "bic<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
@@ -1235,7 +1235,7 @@ class asrs(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     modifiesFlags = True
 
 class pkhtb(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "pkhtb<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    pattern = "pkhtb<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
@@ -1245,7 +1245,7 @@ class pkhbt(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     outputs = ["Rd"]
 
 class pkhbt_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
-    pattern = "pkhbt<width> <Rd>, <Ra>, <Rb>, <barrel> <imm>"
+    pattern = "pkhbt<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
