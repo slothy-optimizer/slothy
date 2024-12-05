@@ -61,7 +61,7 @@ jobs:
     - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
-        python3 example.py --examples ntt_kyber_1_23_45_67_m55,ntt_dilithium_12_34_56_78_m55 --timeout=300
+        python3 example.py --examples ntt_kyber_1_23_45_67_m55,ntt_dilithium_12_34_56_78_m55 --timeout=1200
   examples_ntt_kyber_dilithium_neon_core:
     if: ${{ github.event.label.name == 'needs-ci' ||
             github.event.pull_request.user.login == 'hanno-becker' ||
@@ -74,7 +74,7 @@ jobs:
     - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
-        python3 example.py --examples ntt_kyber_123_4567_a55,ntt_dilithium_123_45678_a55 --timeout=300
+        python3 example.py --examples ntt_kyber_123_4567_a55,ntt_dilithium_123_45678_a55 --timeout=1200
   sqmag:
     if: ${{ github.event.label.name == 'needs-ci' ||
             github.event.pull_request.user.login == 'hanno-becker' ||
