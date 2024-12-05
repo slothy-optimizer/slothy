@@ -11,12 +11,15 @@ jobs:
             github.event.pull_request.user.login == 'dop-amin' ||
             github.event.pull_request.user.login == 'mkannwischer'
             }}
-    runs-on: ubuntu-latest
-    strategy: 
-      matrix:      
+    runs-on: macos-latest
+    strategy:
+      matrix:
         target: [slothy.targets.arm_v7m.cortex_m7,slothy.targets.arm_v81m.cortex_m55r1, slothy.targets.arm_v81m.cortex_m85r1, slothy.targets.aarch64.cortex_a55, slothy.targets.aarch64.cortex_a72_frontend, slothy.targets.aarch64.apple_m1_firestorm_experimental, slothy.targets.aarch64.apple_m1_icestorm_experimental]
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: Install python dependencies
       run: |
         python3 -m venv venv
@@ -31,9 +34,12 @@ jobs:
             github.event.pull_request.user.login == 'dop-amin' ||
             github.event.pull_request.user.login == 'mkannwischer'
             }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: Install python dependencies
       run: |
         python3 -m venv venv
@@ -48,9 +54,12 @@ jobs:
             github.event.pull_request.user.login == 'dop-amin' ||
             github.event.pull_request.user.login == 'mkannwischer'
             }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: Install python dependencies
       run: |
         python3 -m venv venv
@@ -65,9 +74,12 @@ jobs:
             github.event.pull_request.user.login == 'dop-amin' ||
             github.event.pull_request.user.login == 'mkannwischer'
             }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: Install python dependencies
       run: |
         python3 -m venv venv
@@ -82,9 +94,12 @@ jobs:
             github.event.pull_request.user.login == 'dop-amin' ||
             github.event.pull_request.user.login == 'mkannwischer'
             }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: Install python dependencies
       run: |
         python3 -m venv venv
@@ -99,9 +114,12 @@ jobs:
             github.event.pull_request.user.login == 'dop-amin' ||
             github.event.pull_request.user.login == 'mkannwischer'
             }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: Install python dependencies
       run: |
         python3 -m venv venv
@@ -116,9 +134,12 @@ jobs:
             github.event.pull_request.user.login == 'dop-amin' ||
             github.event.pull_request.user.login == 'mkannwischer'
             }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
     - name: Install python dependencies
       run: |
         python3 -m venv venv
