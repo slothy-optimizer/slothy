@@ -4,69 +4,28 @@
 
 .extern shake128_squeezeblocks
 
+  rptr   .req r0 
+  bptr   .req r1
+  cptr   .req r2
+  bufptr .req r3
+  zetaptr   .req r4
+  val0   .req r5
+  val1   .req r6
+  tmp    .req r7
+  tmp2   .req r8
+  k      .req r9
+  q      .req r10
+  qa     .req r11
+  qinv   .req r12
+  ctr    .req r14
+
+
 // q locates in the bottom half of the register
 .macro plant_red_b q, qa, qinv, tmp
 	mul \tmp, \tmp, \qinv     
 	//tmp*qinv mod 2^2n/ 2^n; in high half
 	smlatb \tmp, \tmp, \q, \qa
 	// result in high half
-.endm
-
-// Checks if val0 is suitable and multiplies with values from bptr using func 
-.macro first_if func, tmp, tmp2, val0, val1, rptr, bptr, cptr, bufptr, zetaptr, k, q, qa, qinv, ctr
-  // if (val0 < KYBER_Q)
-  cmp.w \val0, \q
-  bhs.w 2f
-    strh \val0, [\cptr], #2
-    add \k, #1
-    cmp.w \k, #4
-    bne.w 2f
-        sub \cptr, #4*2
-        vmov s18, \bufptr
-        vmov s19, \ctr
-        vmov s20, \val1
-        \func \rptr, \bptr, \cptr, \zetaptr, \bufptr, \k, \val0, \val1, \q, \qa, \qinv, \tmp, \tmp2, \ctr
-        vmov \bufptr, s18
-        vmov \ctr, s19
-        vmov \val1, s20
-
-        add \ctr, #1
-        
-        movw \k, #0
-    2:
-.endm
-
-// Checks if val1 is suitable and multiplies with values from bptr using func 
-.macro second_if func, tmp, tmp2, val0, val1, rptr, bptr, cptr, bufptr, zetaptr, k, q, qa, qinv, ctr
-// if (val1 < KYBER_Q && ctr < KYBER_N/4)
-  cmp.w \val1, \q
-  bhs.w 2f
-    cmp.w \ctr, #256/4
-    bge.w 2f
-      strh \val1, [\cptr], #2
-      add \k, #1
-      cmp.w \k, #4
-      bne.w 2f
-        sub \cptr, #4*2
-        vmov s18, \bufptr
-        vmov s19, \ctr
-        \func \rptr, \bptr, \cptr, \zetaptr, \bufptr, \k, \val0, \val1, \q, \qa, \qinv, \tmp, \tmp2, \ctr
-        vmov \bufptr, s18
-        vmov \ctr, s19
-
-        add \ctr, #1
-        
-        movw \k, #0
-    2:
-.endm
-
-.macro load_vals val0, val1, bufptr, tmp
-  ldrh \val0, [\bufptr], #2
-  ldrb \val1, [\bufptr], #1
-  ubfx \tmp, \val0, #12, #4
-  orr \val1, \tmp, \val1, lsl #4
-  ubfx \val0, \val0, #0, #12
-  ubfx \val1, \val1, #0, #12
 .endm
 
 .macro doublebasemul_asm_acc_opt_32_32 rptr_tmp, aptr, bptr, tmp2, poly0, poly1, poly2, poly3, q, qa, qinv, res, aprimeptr, tmp
@@ -103,6 +62,67 @@
   
   vmov s27, \aprimeptr
 .endm 
+
+// Checks if val0 is suitable and multiplies with values from bptr using func 
+.macro first_if
+  // if (val0 < KYBER_Q)
+  cmp.w val0, q
+  bhs.w 2f
+    strh val0, [cptr], #2
+    add k, #1
+    cmp.w k, #4
+    bne.w 2f
+    slothy_start_1:
+        sub cptr, #4*2
+        vmov s18, bufptr
+        vmov s19, ctr
+        vmov s20, val1
+        doublebasemul_asm_acc_opt_32_32 rptr, bptr, cptr, zetaptr, bufptr, k, val0, val1, q, qa, qinv, tmp, tmp2, ctr
+        vmov bufptr, s18
+        vmov ctr, s19
+        vmov val1, s20
+
+        add ctr, #1
+        
+        movw k, #0
+        slothy_end_1:
+    2:
+.endm
+
+// Checks if val1 is suitable and multiplies with values from bptr using func 
+.macro second_if
+// if (val1 < KYBER_Q && ctr < KYBER_N/4)
+  cmp.w val1, q
+  bhs.w 2f
+    cmp.w ctr, #256/4
+    bge.w 2f
+      strh val1, [cptr], #2
+      add k, #1
+      cmp.w k, #4
+      bne.w 2f
+        slothy_start_2:
+        sub cptr, #4*2
+        vmov s18, bufptr
+        vmov s19, ctr
+        doublebasemul_asm_acc_opt_32_32 rptr, bptr, cptr, zetaptr, bufptr, k, val0, val1, q, qa, qinv, tmp, tmp2, ctr
+        vmov bufptr, s18
+        vmov ctr, s19
+
+        add ctr, #1
+        
+        movw k, #0
+        slothy_end_2:
+    2:
+.endm
+
+.macro load_vals val0, val1, bufptr, tmp
+  ldrh \val0, [\bufptr], #2
+  ldrb \val1, [\bufptr], #1
+  ubfx \tmp, \val0, #12, #4
+  orr \val1, \tmp, \val1, lsl #4
+  ubfx \val0, \val0, #0, #12
+  ubfx \val1, \val1, #0, #12
+.endm
 
 
 // shake128_squeezeblocks into buffer if all bytes have been used
@@ -144,20 +164,6 @@
 .align 2
 matacc_asm_opt_32_32:
   push {r0-r11, r14}
-  rptr   .req r0 
-  bptr   .req r1
-  cptr   .req r2
-  bufptr .req r3
-  tmp3   .req r4
-  val0   .req r5
-  val1   .req r6
-  tmp    .req r7
-  tmp2   .req r8
-  k      .req r9
-  q      .req r10
-  qa     .req r11
-  qinv   .req r12
-  ctr    .req r14
 
   movw qa, #26632
 	movw q, #3329
@@ -179,9 +185,9 @@ matacc_asm_opt_32_32:
 
     load_vals val0, val1, bufptr, tmp
 
-    first_if doublebasemul_asm_acc_opt_32_32, tmp, tmp2, val0, val1, rptr, bptr, cptr, bufptr, tmp3, k, q, qa, qinv, ctr
+    first_if
     
-    second_if doublebasemul_asm_acc_opt_32_32, tmp, tmp2, val0, val1, rptr, bptr, cptr, bufptr, tmp3, k, q, qa, qinv, ctr
+    second_if
 
     third_if tmp, tmp2, rptr, bptr, cptr, bufptr, ctr
 
