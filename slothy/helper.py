@@ -30,8 +30,9 @@ import subprocess
 import logging
 from sympy import simplify
 from abc import ABC, abstractmethod
-
+from sympy import simplify
 from slothy.targets.common import *
+
 
 class SourceLine:
     """Representation of a single line of source code"""
