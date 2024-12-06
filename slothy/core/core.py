@@ -1475,8 +1475,6 @@ class SlothyBase(LockAttributes):
         self.result.success = self._solve()
         self.result.valid = True
 
-        # - Export (optional)
-        self._export_model()
 
         if not retry and self.success:
             self.logger.info("Booleans in result: %d", self._model.cp_solver.NumBooleans())
@@ -2954,9 +2952,18 @@ class SlothyBase(LockAttributes):
             if isinstance(latency, int):
                 self.logger.debug("General latency constraint: [%s] >= [%s] + %d",
                     t, i.src, latency)
-                self._add_path_constraint( t, i.src,
-                    lambda t=t, i=i, latency=latency: self._Add(
-                        t.cycle_start_var >= i.src.cycle_start_var + latency))
+                # Some microarchitectures have instructions with 0-cycle latency, i.e., the can 
+                # forward the result to an instruction in the same cycle (e.g., X+str on Cortex-M7)
+                # If that is the case we need to make sure that the consumer is after the producer
+                # in the output.
+                if latency == 0:
+                    self._add_path_constraint(t, i.src,
+                        lambda i=i, t=t:
+                            self._Add(t.program_start_var > i.src.program_start_var))
+                else:
+                    self._add_path_constraint( t, i.src,
+                        lambda t=t, i=i, latency=latency: self._Add(
+                            t.cycle_start_var >= i.src.cycle_start_var + latency))
             else:
                 # We allow `get_latency()` to return a pair (latency, exception),
                 # where `exception` is a callback generating a constraint that _may_
@@ -3256,7 +3263,7 @@ class SlothyBase(LockAttributes):
                 name = "minimize iteration overlapping"
             elif self.config.constraints.minimize_spills:
                 name = "minimize spills"
-                minlist = [self._model.spill_vars]
+                minlist = self._model.spill_vars
             elif self.config.constraints.maximize_register_lifetimes:
                 name = "maximize register lifetimes"
                 maxlist = [ v for t in self._get_nodes(allnodes=True)
@@ -3392,11 +3399,19 @@ class SlothyBase(LockAttributes):
                 if cur - bound <= self.config.constraints.stalls_precision:
                     self.logger.info("Closer than %d stalls to theoretical optimum... stop", prec)
                     return True
+                if self.config.objective_lower_bound is not None and \
+                   cur <= self.config.objective_lower_bound:
+                    self.logger.info("Reached user-defined objective_lower_bound ... stop")
+                    return True
             elif self._model.objective_name != "no objective":
                 prec = self.config.objective_precision
                 if bound > 0 and abs(1 - (cur / bound)) < prec:
                     self.logger.info("Closer than %d%% to theoretical optimum... stop",
                                         int(prec*100))
+                    return True
+                if self.config.objective_lower_bound is not None and \
+                   cur <= self.config.objective_lower_bound:
+                    self.logger.info("Reached user-defined objective_lower_bound ... stop")
                     return True
             return False
 
@@ -3411,6 +3426,9 @@ class SlothyBase(LockAttributes):
         self.logger.info("%s, wall time: %4f s", status_str, self._model.cp_solver.WallTime())
 
         ok = self._model.cp_model.status in [cp_model.FEASIBLE, cp_model.OPTIMAL]
+
+        # - Export (optional)
+        self._export_model()
 
         if ok:
             # Remember solution in case we want to retry with an(other) objective

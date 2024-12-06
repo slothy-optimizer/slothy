@@ -31,7 +31,9 @@ import sys
 
 from slothy import Slothy, Config
 
+import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
+import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
@@ -46,6 +48,7 @@ import slothy.targets.riscv.xuantie_c908 as Target_XiunTanC908
 
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
+                     Target_CortexM7: "m7",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85",
                      Target_AppleM1_firestorm: "m1_firestorm",
@@ -80,6 +83,8 @@ class Example():
         subfolder = ""
         if self.arch == AArch64_Neon:
             subfolder = "aarch64/"
+        elif self.arch == Arch_Armv7M:
+            subfolder = "armv7m/"
         elif self.arch == RISC_V:
             subfolder = "riscv/"
         self.infile_full = f"examples/naive/{subfolder}{self.infile}.s"
@@ -94,7 +99,7 @@ class Example():
     def core(self, slothy):
         slothy.optimize()
 
-    def run(self, debug=False, log_model=False, log_model_dir="models", dry_run=False, silent=False, timeout=0, debug_logfile=None):
+    def run(self, debug=False, log_model=False, log_model_dir="models", dry_run=False, silent=False, timeout=0, debug_logfile=None, only_target=None):
 
         if dry_run is True:
             annotation = " (dry run only)"
@@ -102,6 +107,10 @@ class Example():
             annotation = ""
 
         print(f"* Example: {self.name}{annotation}...")
+
+        # skip eaxmples for all but the target that was asked for
+        if only_target is not None and self.target.__name__ != only_target:
+            return
 
         handlers = []
 
@@ -198,6 +207,37 @@ class Example3(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("start")
 
+class LoopLe(Example):
+    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
+        name = "loop_le"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize_loop("start")
+
+class AArch64LoopSubs(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_loop_subs"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize_loop("start")
 
 class CRT(Example):
     def __init__(self):
@@ -549,6 +589,24 @@ class AArch64Example0(Example):
         slothy.config.constraints.stalls_first_attempt=32
         slothy.optimize()
 
+class AArch64Example0Equ(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_simple0_equ"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.optimize(start="start", end="end")
+
+
 class AArch64Example1(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_simple0_macros"
@@ -587,7 +645,87 @@ class AArch64Example2(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("start")
 
+class Armv7mExample0(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "armv7m_simple0"
+        infile = name
 
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="start", end="end")
+
+class Armv7mLoopSubs(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_subs"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize_loop("start")
+
+class Armv7mLoopCmp(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_cmp"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.outputs = ["r6"]
+        slothy.optimize_loop("start")
+
+class Armv7mLoopVmovCmp(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_vmov_cmp"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.outputs = ["r6"]
+        slothy.optimize_loop("start")
+
+class AArch64IfElse(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_ifelse"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.optimize()
 
 class ntt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
@@ -1424,10 +1562,22 @@ def main():
 
                  AArch64Example0(),
                  AArch64Example0(target=Target_CortexA72),
+                 AArch64Example0Equ(),
                  AArch64Example1(),
                  AArch64Example1(target=Target_CortexA72),
                  AArch64Example2(),
                  AArch64Example2(target=Target_CortexA72),
+                 AArch64IfElse(),
+
+                # Armv7m examples
+                 Armv7mExample0(),
+
+                # Loop examples
+                 AArch64LoopSubs(),
+                 LoopLe(),
+                 Armv7mLoopSubs(),
+                 Armv7mLoopCmp(),
+                 Armv7mLoopVmovCmp(),
 
                  CRT(),
 
@@ -1578,7 +1728,11 @@ def main():
     parser.add_argument("--debug-logfile", type=str, default=None)
     parser.add_argument("--log-model", default=False, action="store_true")
     parser.add_argument("--log-model-dir", type=str, default="models")
-
+    parser.add_argument("--only-target", type=str,choices=[
+        Target_CortexM7.__name__,
+        Target_CortexM55r1.__name__, Target_CortexM85r1.__name__, \
+        Target_CortexA55.__name__, Target_CortexA72.__name__, Target_AppleM1_firestorm.__name__, \
+        Target_AppleM1_icestorm.__name__])
     args = parser.parse_args()
     if args.examples != "all":
         todo = args.examples.split(",")
@@ -1601,7 +1755,8 @@ def main():
             run_example(e, debug=args.debug, dry_run=args.dry_run,
                         silent=args.silent, log_model=args.log_model,
                         debug_logfile=args.debug_logfile,
-                        log_model_dir=args.log_model_dir, timeout=args.timeout)
+                        log_model_dir=args.log_model_dir, timeout=args.timeout,
+                        only_target=args.only_target)
 
 if __name__ == "__main__":
     main()

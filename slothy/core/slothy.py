@@ -53,7 +53,7 @@ from slothy.core.dataflow import Config as DFGConfig, ComputationNode
 from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
 from slothy.helper import CPreprocessor, SourceLine
-from slothy.helper import AsmAllocation, AsmMacro, AsmHelper
+from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, AsmIfElse
 from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mca_Error
 
 class Slothy:
@@ -251,6 +251,7 @@ class Slothy:
         body = SourceLine.split_semicolons(body)
         body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        body = AsmIfElse.process_instructions(body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
 
@@ -367,12 +368,11 @@ class Slothy:
         """Run fusion callbacks on loop body"""
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
-        pre , body, post, _, other_data = \
+        pre , body, post, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl)
-        (loop_cnt, _, _) = other_data
+        loop_cnt = other_data['cnt']
         indentation = AsmHelper.find_indentation(body)
 
-        loop = self.arch.Loop(lbl_start=loop_lbl)
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
             SourceLine.apply_indentation(self._fusion_core(pre, body, logger), indentation) + \
             SourceLine.read_multiline(loop.end(other_data))
@@ -394,13 +394,15 @@ class Slothy:
         assert SourceLine.is_source(self.source)
 
     def optimize_loop(self, loop_lbl, postamble_label=None):
-        """Optimize the loop starting at a given label"""
+        """Optimize the loop starting at a given label
+            The postamble_label marks the end of the loop kernel.
+        """
 
         logger = self.logger.getChild(loop_lbl)
 
-        early, body, late, _, other_data = \
+        early, body, late, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl)
-        (loop_cnt, _, _) = other_data
+        loop_cnt = other_data['cnt']
 
         # Check if the body has a dominant indentation
         indentation = AsmHelper.find_indentation(body)
@@ -464,7 +466,6 @@ class Slothy:
             for i in range(1, num_exceptional):
                 optimized_code += indented(self.arch.Branch.if_equal(loop_cnt, i, loop_lbl_iter(i)))
 
-        loop = self.arch.Loop(lbl_start=loop_lbl)
         optimized_code += indented(preamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:
@@ -479,7 +480,11 @@ class Slothy:
             indentation=self.config.indentation,
             fixup=num_exceptional,
             unroll=self.config.sw_pipelining.unroll,
-            jump_if_empty=jump_if_empty))
+            jump_if_empty=jump_if_empty,
+            preamble_code=preamble_code,
+            body_code=kernel_code,
+            postamble_code=postamble_code,
+            register_aliases=c.register_aliases))
         optimized_code += indented(kernel_code)
         optimized_code += SourceLine.read_multiline(loop.end(other_data,
             indentation=self.config.indentation))

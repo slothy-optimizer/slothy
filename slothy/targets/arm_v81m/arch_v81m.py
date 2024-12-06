@@ -40,6 +40,10 @@ import math
 from sympy import simplify
 from enum import Enum
 
+from slothy.targets.common import *
+from slothy.helper import Loop
+
+arch_name = "Arm_v81M"
 llvm_mca_arch = "arm"
 
 class RegisterType(Enum):
@@ -108,14 +112,25 @@ class RegisterType(Enum):
         """Return the list of registers that should be reserved by default"""
         return set(["r14"])
 
-class Loop:
-
+class LeLoop(Loop):
+    """
+    Loop ending in a le instruction.
+    
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               le <cnt>, loop_lbl
+    ```
+    
+    where cnt is the loop counter in lr.
+    """
     def __init__(self, lbl_start="1", lbl_end="2"):
-        self.lbl_start = lbl_start
-        self.lbl_end   = lbl_end
-        pass
+        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end)
+        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.end_regex = (rf"^\s*le\s+((?P<cnt>\w+)|r14)\s*,\s*{lbl_start}",)
 
-    def start(self,reg,indentation=0, fixup=0, unroll=1, jump_if_empty=None):
+    def start(self,reg,indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         assert reg == "lr"
         indent = ' ' * indentation
         if unroll > 1:
@@ -134,50 +149,10 @@ class Loop:
             lbl_start += "b"
         yield f"{indent}le lr, {lbl_start}"
 
-    def extract(source, lbl):
-        assert isinstance(source, list)
 
-        pre  = []
-        body = []
-        post = []
-        loop_lbl_regexp_txt = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
-        loop_end_regexp_txt = rf"^\s*le\s+(lr|r14)\s*,\s*{lbl}"
-        loop_end_regexp = re.compile(loop_end_regexp_txt)
-        lines = iter(source)
-        l = None
-        keep = False
-        state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop
-        while True:
-            if not keep:
-                l = next(lines, None)
-            keep = False
-            if l is None:
-                break
-            l_str = l.text
-            assert isinstance(l, str) is False
-            if state == 0:
-                p = loop_lbl_regexp.match(l_str)
-                if p is not None and p.group("label") == lbl:
-                    l.set_text(p.group("remainder"))
-                    keep = True
-                    state = 1
-                else:
-                    pre.append(l)
-                continue
-            if state == 1:
-                p = loop_end_regexp.match(l_str)
-                if p is not None:
-                    state = 2
-                    continue
-                body.append(l)
-                continue
-            if state == 2:
-                post.append(l)
-                continue
-        if state < 2:
-            raise Exception(f"Couldn't identify loop {lbl}")
-        return pre, body, post, lbl, ("lr", "lr", 0)
+class FatalParsingException(Exception):
+    """A fatal error happened during instruction parsing"""
+
 
 class Instruction:
 

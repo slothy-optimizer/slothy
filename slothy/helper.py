@@ -28,6 +28,10 @@
 import re
 import subprocess
 import logging
+from abc import ABC, abstractmethod
+from sympy import simplify
+from slothy.targets.common import *
+
 
 class SourceLine:
     """Representation of a single line of source code"""
@@ -589,9 +593,14 @@ class AsmHelper():
 class AsmAllocation():
     """Helper for tracking register aliases via .req and .unreq"""
 
+    # TODO: This is conceptionally different and should be
+    # handled in its own class.
+    _REGEXP_EQU_TXT = r"\s*\.equ\s+(?P<key>[A-Za-z0-9\_]+)\s*,\s*(?P<val>[A-Za-z0-9()*/+-]+)"
+
     _REGEXP_REQ_TXT = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
     _REGEXP_UNREQ_TXT = r"\s*\.unreq\s+(?P<alias>\w+)"
 
+    _REGEXP_EQU   = re.compile(_REGEXP_EQU_TXT)
     _REGEXP_REQ   = re.compile(_REGEXP_REQ_TXT)
     _REGEXP_UNREQ = re.compile(_REGEXP_UNREQ_TXT)
 
@@ -624,6 +633,12 @@ class AsmAllocation():
             alias = p.group("alias")
             reg = p.group("reg")
             return alias, reg
+
+        p = AsmAllocation._REGEXP_EQU.match(line.text)
+        if p is not None:
+            key = p.group("key")
+            val = p.group("val")
+            return key, val
 
         return None
 
@@ -683,10 +698,17 @@ class AsmAllocation():
     def unfold_all_aliases(aliases, src):
         """Unfold aliases in assembly source"""
         def _apply_single_alias_to_line(alias_from, alias_to, src):
-            return re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\1{alias_to}\\2", src)
+            res = re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\g<1>{alias_to}\\2", src)
+            return res
         def _apply_multiple_aliases_to_line(line):
-            for (alias_from, alias_to) in aliases.items():
-                line = _apply_single_alias_to_line(alias_from, alias_to, line)
+            do_again = True
+            while do_again:
+                do_again = False
+                for (alias_from, alias_to) in aliases.items():
+                    line_new = _apply_single_alias_to_line(alias_from, alias_to, line)
+                    if line_new != line:
+                        do_again = True
+                    line = line_new
             return line
         res = []
         for line in src:
@@ -914,6 +936,106 @@ class AsmMacro():
             res = AsmMacro.extract(f.read().splitlines())
         return res
 
+
+class AsmIfElse():
+    _REGEXP_IF_TXT = r"\s*\.if\s+(?P<cond>.*)"
+    _REGEXP_ELSE_TXT = r"\s*\.else"
+    _REGEXP_ENDIF_TXT = r"\s*\.endif"
+
+    _REGEXP_IF    = re.compile(_REGEXP_IF_TXT)
+    _REGEXP_ELSE  = re.compile(_REGEXP_ELSE_TXT)
+    _REGEXP_ENDIF = re.compile(_REGEXP_ENDIF_TXT)
+
+    @staticmethod
+    def check_if(line):
+        """Check if an assembly line is a .req directive. Return the pair
+        of alias and register, if so. Otherwise, return None."""
+        assert SourceLine.is_source_line(line)
+
+        p = AsmIfElse._REGEXP_IF.match(line.text)
+        if p is not None:
+            return p.group("cond")
+        return None
+
+    @staticmethod
+    def is_if(line):
+        return AsmIfElse.check_if(line) is not None
+
+    @staticmethod
+    def check_else(line):
+        """Check if an assembly line is a .req directive. Return the pair
+        of alias and register, if so. Otherwise, return None."""
+        assert SourceLine.is_source_line(line)
+
+        p = AsmIfElse._REGEXP_ELSE.match(line.text)
+        if p is not None:
+            return True
+        return None
+
+    @staticmethod
+    def is_else(line):
+        return AsmIfElse.check_else(line) is not None
+
+    @staticmethod
+    def check_endif(line):
+        """Check if an assembly line is a .req directive. Return the pair
+        of alias and register, if so. Otherwise, return None."""
+        assert SourceLine.is_source_line(line)
+
+        p = AsmIfElse._REGEXP_ENDIF.match(line.text)
+        if p is not None:
+            return True
+        return None
+
+    @staticmethod
+    def is_endif(line):
+        return AsmIfElse.check_endif(line) is not None
+
+    @staticmethod
+    def evaluate_condition(condition):
+        """Evaluates the condition string and returns True or False."""
+        try:
+            # Evaluate the condition and return the result.
+            return simplify(condition)
+        except Exception as e:
+            print(f"Error evaluating condition '{condition}': {e}")
+            return False
+
+    @staticmethod
+    def process_instructions(instructions):
+        """Processes a list of instructions with conditional statements."""
+        output_lines = []
+        skip_stack = []
+
+        for instruction in instructions:
+            if AsmIfElse.is_if(instruction):
+                # Extract condition and evaluate it.
+                condition = AsmIfElse.check_if(instruction)
+                if AsmIfElse.evaluate_condition(condition):
+                    skip_stack.append(False)
+                else:
+                    skip_stack.append(True)
+                continue
+            elif AsmIfElse.is_else(instruction):
+                if skip_stack:
+                    # Invert the top of the stack
+                    skip_stack[-1] = not skip_stack[-1]
+                continue  # Skip adding the .else line to output
+            elif AsmIfElse.is_endif(instruction):
+                if skip_stack:
+                    skip_stack.pop()  # Exit the current .if block
+                continue  # Skip adding the .endif line to output
+
+            # Determine if the current line should be skipped
+            if skip_stack and True in skip_stack:
+                continue  # Skip lines when inside a false .if block
+
+            # Add the line to output if not skipped
+            output_lines.append(instruction)
+
+        return output_lines
+
+
 class CPreprocessor():
     """Helper class for the application of the C preprocessor"""
 
@@ -1071,3 +1193,106 @@ class DeferHandler(logging.Handler):
         h.setLevel(lvl)
         l.addHandler(h)
         self.forward(l)
+
+
+class Loop(ABC):
+    def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr"):
+        self.lbl_start = lbl_start
+        self.lbl_end   = lbl_end
+        self.loop_init = loop_init
+        self.additional_data = {}
+
+    @abstractmethod
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None):
+        """Emit starting instruction(s) and jump label for loop"""
+        pass
+
+    @abstractmethod
+    def end(self, other, indentation=0):
+        """Emit compare-and-branch at the end of the loop"""
+        pass
+
+    def _extract(self, source, lbl):
+        """Locate a loop with start label `lbl` in `source`.```"""
+        assert isinstance(source, list)
+
+        # additional_data will be assigned according to the capture groups from
+        # loop_end_regexp.
+        pre  = []
+        body = []
+        post = []
+        # candidate lines for the end of the loop
+        loop_end_candidates = []
+        loop_lbl_regexp_txt = self.lbl_regex
+        loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
+
+        # end_regex shall contain group cnt as the counter variable
+        loop_end_regexp_txt = self.end_regex
+        loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
+        lines = iter(source)
+        l = None
+        keep = False
+        state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop
+        loop_end_ctr = 0
+        while True:
+            if not keep:
+                l = next(lines, None)
+            keep = False
+            if l is None:
+                break
+            l_str = l.text
+            assert isinstance(l, str) is False
+            if state == 0:
+                p = loop_lbl_regexp.match(l_str)
+                if p is not None and p.group("label") == lbl:
+                    l = l.copy().set_text(p.group("remainder"))
+                    keep = True
+                    state = 1
+                else:
+                    pre.append(l)
+                continue
+            if state == 1:
+                p = loop_end_regexp[loop_end_ctr].match(l_str)
+                if p is not None:
+                    # Case: We may have encountered part of the loop end
+                    # collect all named groups
+                    self.additional_data = self.additional_data | p.groupdict()
+                    loop_end_ctr += 1
+                    loop_end_candidates.append(l)
+                    if loop_end_ctr == len(loop_end_regexp):
+                        state = 2
+                    continue
+                elif loop_end_ctr > 0 and l_str != "":
+                    # Case: The sequence of loop end candidates was interrupted
+                    #       i.e., we found a false-positive or this is not a proper loop
+                    
+                    # The loop end candidates are not part of the loop, meaning
+                    # they belonged to the body
+                    body += loop_end_candidates
+                    self.additional_data = {}
+                    loop_end_ctr = 0
+                    loop_end_candidates = []
+                body.append(l)
+                continue
+            if state == 2:
+                loop_end_candidates = []
+                post.append(l)
+                continue
+        if state < 2:
+            raise FatalParsingException(f"Couldn't identify loop {lbl}")
+        return pre, body, post, lbl, self.additional_data
+
+    @staticmethod
+    def extract(source, lbl):
+        for loop_type in Loop.__subclasses__():
+            try:
+                l = loop_type(lbl)
+                # concatenate the extracted loop with an instance of the
+                # identified loop_type, (l,) creates a tuple with one element to
+                # merge with the tuple retuned by _extract
+                return l._extract(source, lbl) + (l,)
+            except FatalParsingException:
+                logging.debug("Parsing loop type '%s'failed", loop_type)
+                pass
+
+        raise FatalParsingException(f"Couldn't identify loop {lbl}")
