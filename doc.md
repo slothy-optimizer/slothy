@@ -16,7 +16,6 @@
   - https://www.reddit.com/r/RISCV/comments/1cybkrv/xuantie_c908_and_spacemit_x60_vector/  (Benchmarks)
 - Benchmark new results
 - Try out profiling
-- move instruction factory to instruction class
 
 # Xuan-Tie C908
 
