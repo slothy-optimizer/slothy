@@ -28,10 +28,10 @@
 import re
 import subprocess
 import logging
+from sympy import simplify
 from abc import ABC, abstractmethod
 from sympy import simplify
 from slothy.targets.common import *
-
 
 class SourceLine:
     """Representation of a single line of source code"""
@@ -258,8 +258,8 @@ class SourceLine:
         if len(s) == 0:
             return
         fun(f"Dump: {name}")
-        for l in s:
-            fun(f"> {l.to_string()}")
+        for (i,l) in enumerate(s):
+            fun(f"[{i}]> {l.to_string()}")
 
     def set_text(self, s):
         """Set the text of the source line
@@ -775,6 +775,8 @@ class AsmMacro():
             return a
 
         def apply_arg(l, arg, val):
+            if isinstance(l, str) is False:
+                return l
             l = re.sub(f"\\\\{arg}\\\\\(\)", val, l)
             l = re.sub(f"\\\\{arg}(\\W|$)",val + "\\1", l)
             l = l.replace("\\()\\()", "\\()")
@@ -1035,7 +1037,6 @@ class AsmIfElse():
 
         return output_lines
 
-
 class CPreprocessor():
     """Helper class for the application of the C preprocessor"""
 
@@ -1078,6 +1079,49 @@ class CPreprocessor():
         unfolded_code = unfolded_code[magic_idx_start+1:magic_idx_end]
 
         return [SourceLine(r) for r in unfolded_code]
+
+class LLVM_Mc_Error(Exception):
+    """Exception thrown if llvm-mc subprocess fails"""
+
+class LLVM_Mc():
+    """Helper class for the application of the LLVM MC tool"""
+
+    @staticmethod
+    def assemble(source, mc_binary, arch, attr, log):
+        """Runs LLVM-MC tool to assemble `source`, returning byte code"""
+
+        LLVM_MCA_BEGIN = SourceLine("").add_comment("LLVM-MCA-BEGIN")
+        LLVM_MCA_END = SourceLine("").add_comment("LLVM-MCA-END")
+
+        # Unfortunately, there is no option to directly extract byte code
+        # from LLVM-MC: One either gets a textual description, or an object file.
+        # To not introduce another binary dependency, we just extract the byte
+        # code directly from the textual output, which for every assembly line
+        # has a "encoding: [byte0, byte1, ...]" comment at the end.
+
+        code = SourceLine.write_multiline(source)
+        log.debug(f"Calling LLVM MC assmelber on the following code")
+        log.debug(code)
+        args = [f"--arch={arch}", "--assemble", "--show-encoding"]
+        if attr is not None:
+            args.append(f"--mattr={attr}")
+        try:
+            r = subprocess.run([mc_binary] + args,
+                               input=code, text=True, capture_output=True, check=True)
+        except subprocess.CalledProcessError as exc:
+            raise LLVM_Mc_Error from exc
+
+        res = r.stdout.split('\n')
+        res = filter(lambda s: "encoding:" in s, res)
+        res = list(map(lambda s: s.split("encoding:")[1].strip(), res))
+
+        # Every line has the form "[byte, byte, byte,...]" now -- interpret as byte array
+        # Bit hacky, but nevermind...
+        def string_as_byte_array(s):
+            return s.replace("[", "").replace("]", "").split(",")
+        res = list(map(string_as_byte_array, res))
+        res = [int(b, base=16) for l in res for b in l] # Flatten
+        return bytes(res)
 
 class LLVM_Mca_Error(Exception):
     """Exception thrown if llvm-mca subprocess fails"""
@@ -1265,7 +1309,7 @@ class Loop(ABC):
                 elif loop_end_ctr > 0 and l_str != "":
                     # Case: The sequence of loop end candidates was interrupted
                     #       i.e., we found a false-positive or this is not a proper loop
-                    
+
                     # The loop end candidates are not part of the loop, meaning
                     # they belonged to the body
                     body += loop_end_candidates

@@ -27,6 +27,7 @@
 
 import logging
 import math
+import os
 import time
 
 from types import SimpleNamespace
@@ -38,7 +39,12 @@ import ortools
 from ortools.sat.python import cp_model
 
 from slothy.core.config import Config
-from slothy.helper import LockAttributes, Permutation, DeferHandler, SourceLine
+from slothy.helper import LockAttributes, Permutation, DeferHandler, SourceLine, LLVM_Mc
+
+try:
+    from unicorn import Uc
+except ImportError:
+    Uc = None
 
 from slothy.core.dataflow import DataFlowGraph as DFG
 from slothy.core.dataflow import Config as DFGConfig
@@ -588,14 +594,22 @@ class Result(LockAttributes):
         d = self.config.placeholder_char
 
         def gen_restore(reg, loc, vis):
-            yield SourceLine(self.config.arch.Stack.restore(reg, loc)).\
+            if self.config.constraints.spill_type is not None:
+                args = self.config.constraints.spill_type
+            else:
+                args = {}
+            yield SourceLine(self.config.arch.Spill.restore(reg, loc, **args)).\
                 set_length(self.fixlen).\
                 set_comment(vis).\
                 add_tag("is_restore", True).\
                 add_tag("reads", f"stack_{loc}")
 
         def gen_spill(reg, loc, vis):
-            yield SourceLine(self.config.arch.Stack.spill(reg, loc)).\
+            if self.config.constraints.spill_type is not None:
+                args = self.config.constraints.spill_type
+            else:
+                args = {}
+            yield SourceLine(self.config.arch.Spill.spill(reg, loc, **args)).\
                 set_length(self.fixlen).\
                 set_comment(vis).\
                 add_tag("is_spill", True).\
@@ -642,7 +656,7 @@ class Result(LockAttributes):
                     yield from gen_restore(reg, loc, gen_vis(0, d))
                 for (reg, loc) in spills:
                     yield from gen_spill(reg, loc, gen_vis(0, d))
-                if p is None and len(s) == 0 and len(r) == 0:
+                if p is None and len(spills) == 0 and len(restores) == 0:
                     gap_str = "gap"
                     yield SourceLine("")    \
                         .set_comment(f"{gap_str:{fixlen-4}s}") \
@@ -817,6 +831,121 @@ class Result(LockAttributes):
         if self.config.selfcheck and not res:
             raise SlothySelfCheckException("Isomorphism between computation flow graphs: FAIL!")
         return res
+
+    def selftest(self, log):
+        """Run empirical self test, if it exists for the target architecture"""
+        if self._config.selftest is False:
+            return
+
+        if Uc is None:
+            raise SlothySelfTestException("Cannot run selftest -- unicorn-engine is not available.")
+
+        if self._config.arch.unicorn_arch is None or \
+           self._config.arch.llvm_mc_arch is None:
+            log.warning("Selftest not supported on target architecture")
+            return
+
+        log.info(f"Running selftest ({self._config.selftest_iterations} iterations)...")
+
+        address_gprs = self._config.selftest_address_gprs
+        if address_gprs is None:
+            # Try to infer which registes need to be pointers
+            log_addresses = log.getChild("infer_address_gprs")
+            tree = DFG(self._orig_code, log_addresses, DFGConfig(self.config, outputs=self.outputs))
+            # Look for load/store instructions and remember addresses
+            addresses = set()
+            for t in tree.nodes:
+                addr = getattr(t.inst, "addr", None)
+                if addr is None:
+                    continue
+                addresses.add(addr)
+
+            # For now, we don't look into increments and immedate offsets
+            # to gauge the amount of memory we actually need. Instaed, we
+            # just allocate a buffer of a configurable default size.
+            log.info(f"Inferred that the following registers seem to act as pointers: {addresses}")
+            log.info(f"Using default buffer size of {self._config.selftest_default_memory_size} bytes. "
+                     "If you want different buffer sizes, set selftest_address_gprs manually.")
+            address_gprs = { a: self._config.selftest_default_memory_size for a in addresses }
+
+        # This produces _unrolled_ code, the same that is checked in the selfcheck.
+        # The selftest should instead use the rolled form of the loop.
+        iterations = 7
+        if self.config.sw_pipelining.enabled is True:
+            old_source, new_source = self.get_fully_unrolled_loop(iterations)
+        else:
+            old_source, new_source = self.orig_code, self.code
+
+        CODE_BASE = 0x010000
+        CODE_SZ =   0x010000
+        RAM_BASE =  0x020000
+        RAM_SZ =    0x010000
+
+        regs = [r for ty in self._config.arch.RegisterType for r in \
+            self._config.arch.RegisterType.list_registers(ty)]
+
+        def run_code(code, txt=None):
+            objcode = LLVM_Mc.assemble(code, self._config.llvm_mc_binary,
+                                       self._config.arch.llvm_mc_arch,
+                                       self._config.arch.llvm_mc_attr,
+                                       log)
+
+            # Setup emulator
+            mu = Uc(self.config.arch.unicorn_arch, self.config.arch.unicorn_mode)
+            # Copy initial register contents into emulator
+            for r,v in initial_register_contents.items():
+                ur = self._config.arch.RegisterType.unicorn_reg_by_name(r)
+                if ur is None:
+                    continue
+                mu.reg_write(ur, v)
+            # Copy code into emulator
+            mu.mem_map(CODE_BASE, CODE_SZ)
+            mu.mem_write(CODE_BASE, objcode)
+            # Copy initial memory contents into emulator
+            mu.mem_map(RAM_BASE, RAM_SZ)
+            mu.mem_write(RAM_BASE, initial_memory)
+            # Run emulator
+            mu.emu_start(CODE_BASE, CODE_BASE + len(objcode))
+
+            final_register_contents = {}
+            for r in regs:
+                ur = self._config.arch.RegisterType.unicorn_reg_by_name(r)
+                if ur is None:
+                    continue
+                final_register_contents[r] = mu.reg_read(ur)
+            final_memory_contents = mu.mem_read(RAM_BASE, RAM_SZ)
+
+            return final_register_contents, final_memory_contents
+
+        for _ in range(self._config.selftest_iterations):
+            initial_memory = os.urandom(RAM_SZ)
+            cur_ram = RAM_BASE
+            # Set initial register contents arbitrarily, except for registers
+            # which must hold valid memory addresses.
+            initial_register_contents = {}
+            for r in regs:
+                initial_register_contents[r] = int.from_bytes(os.urandom(16))
+            for (reg, sz) in address_gprs.items():
+                initial_register_contents[reg] = cur_ram
+                cur_ram += sz
+
+            final_regs_old, final_mem_old = run_code(old_source, txt="old")
+            final_regs_new, final_mem_new = run_code(new_source, txt="new")
+
+            # Check if memory contents are the same
+            if final_mem_old != final_mem_new:
+                raise SlothySelfTestException(f"Selftest failed: Memory mismatch")
+
+            # Check if register contents are the same
+            regs_expected = set(self.config.outputs).union(self.config.reserved_regs)
+            # Ignore hint registers, flags and sp for now
+            regs_expected = set(filter(lambda t: t.startswith("t") is False and
+                                             t != "sp" and t != "flags", regs_expected))
+            for r in regs_expected:
+                if final_regs_old[r] != final_regs_new[r]:
+                    raise SlothySelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
+
+        log.info("Selftest: OK")
 
     def selfcheck_with_fixup(self, log):
         """Do selfcheck, and consider preamble/postamble fixup in case of SW pipelining
@@ -1314,6 +1443,9 @@ class Result(LockAttributes):
 
 class SlothySelfCheckException(Exception):
     """Exception thrown upon selfcheck failures"""
+
+class SlothySelfTestException(Exception):
+    """Exception thrown upon selftest failures"""
 
 class SlothyBase(LockAttributes):
     """Stateless core of SLOTHY.
@@ -1875,6 +2007,8 @@ class SlothyBase(LockAttributes):
         self._result.selfcheck_with_fixup(self.logger.getChild("selfcheck"))
         self._result.offset_fixup(self.logger.getChild("fixup"))
 
+        self._result.selftest(self.logger.getChild("selftest"))
+
     def _extract_positions(self, get_value):
 
         if self.config.variable_size:
@@ -2264,19 +2398,19 @@ class SlothyBase(LockAttributes):
                     self._model.intervals_for_unit[unit].append(t.exec)
             else:
                 t.unique_unit = False
-                t.exec_unit_choices = {}
+                t.exec_unit_choices = []
                 for unit_choices in units:
                     if not isinstance(unit_choices, list):
                         unit_choices = [unit_choices]
+                    unit_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{unit_choices}")
+                    t.exec_unit_choices.append(unit_var)
                     for unit in unit_choices:
-                        unit_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{unit}")
-                        t.exec_unit_choices[unit] = unit_var
-                        t.exec = self._NewOptionalIntervalVar(t.cycle_start_var,
+                        interval = self._NewOptionalIntervalVar(t.cycle_start_var,
                                                             cycles_unit_occupied,
                                                             t.cycle_end_var,
                                                             unit_var,
                                                             f"{t.varname}_usage_{unit}")
-                        self._model.intervals_for_unit[unit].append(t.exec)
+                        self._model.intervals_for_unit[unit].append(interval)
 
     # ================================================================
     #                  VARIABLES (Dependency tracking)               #
@@ -2674,6 +2808,9 @@ class SlothyBase(LockAttributes):
             self._force_allocation_restriction_many(t.inst.args_in_out_restrictions,
                 t.alloc_in_out_var)
             # Enforce exclusivity of arguments
+            self._forbid_renaming_collision_many( t.inst.args_inout_out_different,
+                                            t.alloc_out_var,
+                                            t.alloc_in_out_var )
             self._forbid_renaming_collision_many( t.inst.args_in_out_different,
                                             t.alloc_out_var,
                                             t.alloc_in_var )
@@ -2754,6 +2891,16 @@ class SlothyBase(LockAttributes):
                 if self.config.sw_pipelining.max_pre < relpos < 1:
                     # pylint:disable=singleton-comparison
                     self._Add(t.pre_var == False)
+
+        # Forbid emerging dependencies across the loop boundary if the
+        # loop boundary (that SLOTHY pretends does not exist) uses temporary registers
+        for (consumer,producer, _, _, _, _, alloc) in self._iter_dependencies_with_lifetime():
+            for r in self.config.sw_pipelining.boundary_reserved_regs:
+                if r not in alloc.keys():
+                    continue
+                if producer.src.is_virtual is True or consumer.is_virtual is True:
+                    continue
+                self._Add(alloc[r] == False).OnlyEnforceIf(producer.src.pre_var, consumer.pre_var.Not())
 
         if self.config.sw_pipelining.pre_before_post:
             for t, s in [(t,s) for t in self._get_nodes(low=True) \
@@ -2952,7 +3099,7 @@ class SlothyBase(LockAttributes):
             if isinstance(latency, int):
                 self.logger.debug("General latency constraint: [%s] >= [%s] + %d",
                     t, i.src, latency)
-                # Some microarchitectures have instructions with 0-cycle latency, i.e., the can 
+                # Some microarchitectures have instructions with 0-cycle latency, i.e., the can
                 # forward the result to an instruction in the same cycle (e.g., X+str on Cortex-M7)
                 # If that is the case we need to make sure that the consumer is after the producer
                 # in the output.
@@ -3037,7 +3184,7 @@ class SlothyBase(LockAttributes):
         for t in self._get_nodes():
             if t.exec_unit_choices is None:
                 continue
-            self._AddExactlyOne(t.exec_unit_choices.values())
+            self._AddExactlyOne(t.exec_unit_choices)
 
     # ==============================================================#
     #                      CONSTRAINT (Code size)                   #
