@@ -1,9 +1,9 @@
 
 start:
-ldr r1, [r0, #4]
-add r1, r2, r1
-eor.w r1, r1, r3
-smlabt r3, r2, r2, r1
-asrs r3, r3, #1
-str r3, [r0, #4]
+ldr r1, [r0,   #4]
+add r1, r2,r1
+eor.w r1,r1, r3
+smlabt r3,r2, r2, r1
+asrs r3,   r3,#1
+str r3, [r0,#4]
 end:

@@ -696,7 +696,7 @@ class Armv7mInstruction(Instruction):
 
     @staticmethod
     def _unfold_pattern(src):
-
+        src = re.sub(r", +",  ",", src)
         src = re.sub(r"\.",  "\\\\s*\\\\.\\\\s*", src)
         src = re.sub(r"\[", "\\\\s*\\\\[\\\\s*", src)
         src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
