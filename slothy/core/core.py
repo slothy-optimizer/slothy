@@ -877,11 +877,10 @@ class Result(LockAttributes):
             self._config.arch.RegisterType.list_registers(ty)]
 
         def run_code(code, txt=None):
-            objcode = LLVM_Mc.assemble(code, self._config.llvm_mc_binary,
+            objcode, offset = LLVM_Mc.assemble(code, self._config.llvm_mc_binary,
                                        self._config.arch.llvm_mc_arch,
                                        self._config.arch.llvm_mc_attr,
                                        log)
-
             # Setup emulator
             mu = Uc(self.config.arch.unicorn_arch, self.config.arch.unicorn_mode)
             # Copy initial register contents into emulator
@@ -937,7 +936,7 @@ class Result(LockAttributes):
                 if final_regs_old[r] != final_regs_new[r]:
                     raise SlothySelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
 
-        log.info("Selftest: OK")
+        log.info("Local selftest: OK")
 
     def selfcheck_with_fixup(self, log):
         """Do selfcheck, and consider preamble/postamble fixup in case of SW pipelining
