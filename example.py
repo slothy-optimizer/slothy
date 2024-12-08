@@ -744,6 +744,9 @@ class ntt_kyber_123_4567(Example):
         slothy.config.constraints.stalls_first_attempt = 64
         slothy.optimize_loop("layer123_start")
         slothy.optimize_loop("layer4567_start")
+        # Build + emulate entire function to test that behaviour has not changed
+        slothy.global_selftest("ntt_kyber_123_4567",
+                               {"x0": 1024, "x1": 1024, "x3": 1024, "x4": 1024, "x5": 1024})
 
 class intt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):

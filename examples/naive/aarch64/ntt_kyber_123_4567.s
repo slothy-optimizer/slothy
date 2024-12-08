@@ -23,8 +23,13 @@
 /// SOFTWARE.
 ///
 
+// Commented out for simple standalone emulation not
+// requiring correct constant data
+//
+// Should be commented when used.
+//
 // Needed to provide ASM_LOAD directive
-#include <hal_env.h>
+// #include <hal_envh>
 
 .macro mulmodq dst, src, const, idx0, idx1
         sqrdmulh t2.8h,   \src\().8h, \const\().h[\idx1]
@@ -154,7 +159,12 @@
 .data
 .p2align 4
 roots:
-        #include "ntt_kyber_123_45_67_twiddles.s"
+// Commented out for simple standalone emulation not
+// requiring correct constant data
+//
+// Should be commented when used.
+//
+//        #include "ntt_kyber_123_45_67_twiddles.s"
 
         in      .req x0
         inp     .req x1
@@ -223,9 +233,14 @@ ntt_kyber_123_4567:
 _ntt_kyber_123_4567:
         push_stack
 
-        ASM_LOAD(r_ptr0, roots)
-        ASM_LOAD(r_ptr1, roots_l56)
-        ASM_LOAD(xtmp, const_addr)
+// Commented out for simple standalone emulation not
+// requiring correct constant data.
+//
+// Should be commented when used.
+//
+//        ASM_LOAD(r_ptr0, roots)
+//        ASM_LOAD(r_ptr1, roots_l56)
+//        ASM_LOAD(xtmp, const_addr)
 
         ld1 {consts.8h}, [xtmp]
 

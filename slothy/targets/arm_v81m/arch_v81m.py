@@ -46,6 +46,11 @@ from slothy.helper import Loop
 arch_name = "Arm_v81M"
 llvm_mca_arch = "arm"
 
+llvm_mc_arch = None
+llvm_mc_attr = None
+unicorn_arch = None
+unicorn_mode = None
+
 class RegisterType(Enum):
     GPR = 1,
     MVE = 2,
@@ -115,14 +120,14 @@ class RegisterType(Enum):
 class LeLoop(Loop):
     """
     Loop ending in a le instruction.
-    
+
     Example:
     ```
            loop_lbl:
                {code}
                le <cnt>, loop_lbl
     ```
-    
+
     where cnt is the loop counter in lr.
     """
     def __init__(self, lbl_start="1", lbl_end="2"):
