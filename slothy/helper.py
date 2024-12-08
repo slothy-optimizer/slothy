@@ -27,6 +27,7 @@
 
 import re
 import subprocess
+import platform
 import logging
 from abc import ABC, abstractmethod
 from sympy import simplify
@@ -1085,11 +1086,69 @@ class LLVM_Mc():
     """Helper class for the application of the LLVM MC tool"""
 
     @staticmethod
-    def assemble(source, mc_binary, arch, attr, log):
-        """Runs LLVM-MC tool to assemble `source`, returning byte code"""
+    def llvm_mc_output_extract_text_section(objfile):
+        """Extracts offset and size of .text section from an objectfile
+        emitted by llvm-mc."""
 
-        LLVM_MCA_BEGIN = SourceLine("").add_comment("LLVM-MCA-BEGIN")
-        LLVM_MCA_END = SourceLine("").add_comment("LLVM-MCA-END")
+        # We use llvm-readobj to inspect the objectfile, which works
+        # for both ELF and MachOS object files. Unfortunately, however,
+        # the output formats of both tools are not the same. Moreovoer,
+        # the output when selecting JSON as the output format, is not valid JSON.
+        # So we're left to hacky string munging.
+
+        # Feed object file through llvm-readobj
+        r = subprocess.run(["llvm-readobj", "-S", "-"], input=objfile, capture_output=True, check=True)
+        objfile_txt = r.stdout.decode().split("\n")
+
+        # We expect something like this here
+        # ```
+        # File: test.o
+        # Format: Mach-O arm
+        # Arch: arm
+        # AddressSize: 32bit
+        # Sections [
+        #   Section {
+        #     Index: 0
+        #     Name: __text (5F 5F 74 65 78 74 00 00 00 00 00 00 00 00 00 00)
+        #     Segment: __TEXT (5F 5F 54 45 58 54 00 00 00 00 00 00 00 00 00 00)
+        #     Address: 0x0
+        #     Size: 0x4
+        #     Offset: 176
+        #     Alignment: 0
+        #     RelocationOffset: 0x0
+        #     RelocationCount: 0
+        #     Type: Regular (0x0)
+        #     Attributes [ (0x800004)
+        #       PureInstructions (0x800000)
+        #       SomeInstructions (0x4)
+        #     ]
+        #     Reserved1: 0x0
+        #     Reserved2: 0x0
+        #   }
+        # ]
+        # ```
+        # So we look for lines "Name: __text" and lines "Offset: ...".
+        def parse_as_int(s):
+            if s.startswith("0x"):
+                return int(s, base=16)
+            else:
+                return int(s,base=10)
+
+        sections = filter(lambda l: l.strip().startswith("Name: "), objfile_txt)
+        sections = list(map(lambda l: l.strip().removeprefix("Name: ").split(' ')[0].strip(), sections))
+        offsets = filter(lambda l: l.strip().startswith("Offset: "), objfile_txt)
+        offsets = map(lambda l: parse_as_int(l.strip().removeprefix("Offset: ")), offsets)
+        sizes = filter(lambda l: l.strip().startswith("Size: "), objfile_txt)
+        sizes = map(lambda l: parse_as_int(l.strip().removeprefix("Size: ")), sizes)
+        sections_with_offsets = { s:(o,sz) for (s,o,sz) in zip(sections, offsets, sizes) }
+        text_section = list(filter(lambda s: "text" in s, sections))
+        if len(text_section) != 1:
+            raise LLVM_Mc_Error(f"Could not find unambiguous text section in object file. Sections: {sections}")
+        return sections_with_offsets[text_section[0]]
+
+    @staticmethod
+    def assemble(source, arch, attr, log, symbol=None, preprocessor=None, include_paths=None):
+        """Runs LLVM-MC tool to assemble `source`, returning byte code"""
 
         # Unfortunately, there is no option to directly extract byte code
         # from LLVM-MC: One either gets a textual description, or an object file.
@@ -1097,29 +1156,58 @@ class LLVM_Mc():
         # code directly from the textual output, which for every assembly line
         # has a "encoding: [byte0, byte1, ...]" comment at the end.
 
+        if symbol is None:
+            source = [SourceLine(".global harness"),
+                      SourceLine("harness:")] + source
+            symbol = "harness"
+
+        if preprocessor is not None:
+            # First, run the C preprocessor on the code
+            try:
+                source = CPreprocessor.unfold([], source, [], preprocessor,
+                                              include=include_paths)
+            except subprocess.CalledProcessError as exc:
+                raise LLVM_Mc_Error from exc
+
         code = SourceLine.write_multiline(source)
+
         log.debug(f"Calling LLVM MC assmelber on the following code")
         log.debug(code)
+
+        ### FOR DEBUGGING ONLY
+        ###
+        ### Remove once things work ...
         args = [f"--arch={arch}", "--assemble", "--show-encoding"]
         if attr is not None:
             args.append(f"--mattr={attr}")
         try:
-            r = subprocess.run([mc_binary] + args,
-                               input=code, text=True, capture_output=True, check=True)
+            r = subprocess.run(["llvm-mc"] + args,
+                               input=code.encode(), capture_output=True, check=True)
         except subprocess.CalledProcessError as exc:
             raise LLVM_Mc_Error from exc
 
-        res = r.stdout.split('\n')
-        res = filter(lambda s: "encoding:" in s, res)
-        res = list(map(lambda s: s.split("encoding:")[1].strip(), res))
+        args = [f"--arch={arch}", "--assemble", "--filetype=obj"]
+        if attr is not None:
+            args.append(f"--mattr={attr}")
+        try:
+            r = subprocess.run(["llvm-mc"] + args,
+                               input=code.encode(), capture_output=True, check=True)
+        except subprocess.CalledProcessError as exc:
+            raise LLVM_Mc_Error from exc
 
-        # Every line has the form "[byte, byte, byte,...]" now -- interpret as byte array
-        # Bit hacky, but nevermind...
-        def string_as_byte_array(s):
-            return s.replace("[", "").replace("]", "").split(",")
-        res = list(map(string_as_byte_array, res))
-        res = [int(b, base=16) for l in res for b in l] # Flatten
-        return bytes(res)
+        # TODO: If there are relocations remaining, we should fail at this point
+
+        objfile = r.stdout
+        offset, sz = LLVM_Mc.llvm_mc_output_extract_text_section(objfile)
+        code = objfile[offset:offset+sz]
+
+        # Extract symbol table
+        r = subprocess.run(["llvm-nm","-"], input=objfile, capture_output=True)
+        out = r.stdout.decode()
+        symbol = next(filter(lambda l: symbol in l, out.split("\n")))
+        offset = int(symbol.split(" ")[0], base=16)
+
+        return code, offset
 
 class LLVM_Mca_Error(Exception):
     """Exception thrown if llvm-mca subprocess fails"""
@@ -1128,11 +1216,12 @@ class LLVM_Mca():
     """Helper class for the application of the LLVM MCA tool"""
 
     @staticmethod
-    def run(header, body, mca_binary, arch, cpu, log, full=False, issue_width=None):
+    def run(header, body, arch, cpu, log, full=False, issue_width=None):
         """Runs LLVM-MCA tool on body and returns result as array of strings"""
 
         LLVM_MCA_BEGIN = SourceLine("").add_comment("LLVM-MCA-BEGIN")
         LLVM_MCA_END = SourceLine("").add_comment("LLVM-MCA-END")
+        mca_binary = "llvm-mca"
 
         data = SourceLine.write_multiline(header + [LLVM_MCA_BEGIN] + body + [LLVM_MCA_END])
 

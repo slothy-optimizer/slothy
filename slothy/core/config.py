@@ -122,8 +122,8 @@ class Config(NestedPrint, LockAttributes):
           equivalence-check the loop-form (including the compare+branch instructions
           at the loop boundary) rather than the unrolled code.
 
-        DEPENDENCY: To run this, you need `llvm-mc` the binary in your path or configured
-        as via `llvm_mc_binary`, and `unicorn-engine` Python bindings setup.
+        DEPENDENCY: To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
+                    in your PATH. Those are part of a standard LLVM setup.
 
         NOTE: This is so far implemented as a repeated randomized test -- nothing clever.
         """
@@ -416,8 +416,8 @@ class Config(NestedPrint, LockAttributes):
         """Indicates whether LLVM MCA should be run prior and after optimization
         to obtain approximate performance data based on LLVM's scheduling models.
 
-        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
-        need to be set.
+        If this is set, Config.compiler_binary need to be set, and llcm-mca in
+        your PATH.
         """
         return self._with_llvm_mca_before and self._with_llvm_mca_after
 
@@ -438,8 +438,8 @@ class Config(NestedPrint, LockAttributes):
         """Indicates whether LLVM MCA should be run prior to optimization
         to obtain approximate performance data based on LLVM's scheduling models.
 
-        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
-        need to be set.
+        If this is set, Config.compiler_binary need to be set, and llcm-mca in
+        your PATH.
         """
         return self._with_llvm_mca_before
 
@@ -448,8 +448,8 @@ class Config(NestedPrint, LockAttributes):
         """Indicates whether LLVM MCA should be run after optimization
         to obtain approximate performance data based on LLVM's scheduling models.
 
-        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
-        need to be set.
+        If this is set, Config.compiler_binary need to be set, and llcm-mca in
+        your PATH.
         """
         return self._with_llvm_mca_after
 
@@ -468,21 +468,6 @@ class Config(NestedPrint, LockAttributes):
         This is only relevant if `with_preprocessor` or `with_llvm_mca_before`
         or `with_llvm_mca_after` are set."""
         return self._compiler_include_paths
-
-    @property
-    def llvm_mca_binary(self):
-        """The llvm-mca binary to be used for estimated performance annotations
-
-        This is only relevant if `with_llvm_mca_before` or `with_llvm_mca_after`
-        is set."""
-        return self._llvm_mca_binary
-
-    @property
-    def llvm_mc_binary(self):
-        """The llvm-mc binary to be used for assembling output data
-
-        This is only relevant if `selftest` is set."""
-        return self._llvm_mc_binary
 
     @property
     def timeout(self):
@@ -1228,8 +1213,6 @@ class Config(NestedPrint, LockAttributes):
 
         self._compiler_binary = "gcc"
         self._compiler_include_paths = None
-        self._llvm_mca_binary = "llvm-mca"
-        self._llvm_mc_binary = "llvm-mc"
 
         self.keep_tags = True
         self.inherit_macro_comments = False
@@ -1377,12 +1360,6 @@ class Config(NestedPrint, LockAttributes):
     @compiler_include_paths.setter
     def compiler_include_paths(self, val):
         self._compiler_include_paths = val
-    @llvm_mca_binary.setter
-    def llvm_mca_binary(self, val):
-        self._llvm_mca_binary = val
-    @llvm_mc_binary.setter
-    def llvm_mc_binary(self, val):
-        self._llvm_mc_binary = val
     @timeout.setter
     def timeout(self, val):
         self._timeout = val

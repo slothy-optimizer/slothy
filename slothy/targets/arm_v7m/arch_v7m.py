@@ -13,8 +13,8 @@ from slothy.helper import SourceLine, Loop, LLVM_Mc
 from sympy import simplify
 
 llvm_mca_arch = "arm"
-llvm_mc_arch = "arm"
-llvm_mc_attr = "armv5te"
+llvm_mc_arch = "arm" ### TODO: What to put here?
+llvm_mc_attr = "armv5te,thumb2,dsp" ### TODO: What to put here?
 
 unicorn_arch = UC_ARCH_ARM
 unicorn_mode = UC_MODE_ARM
@@ -34,6 +34,22 @@ class RegisterType(Enum):
     @staticmethod
     def spillable(reg_type):
         return reg_type in [RegisterType.GPR]
+
+    @staticmethod
+    def callee_saved_registers():
+        return [f"r{i}" for i in range(4,12)] + [f"s{i}" for i in range(0,16)]
+
+    @staticmethod
+    def unicorn_link_register():
+        return UC_ARM_REG_LR
+
+    @staticmethod
+    def unicorn_program_counter():
+        return UC_ARM_REG_PC
+
+    @staticmethod
+    def unicorn_stack_pointer():
+        return UC_ARM_REG_SP
 
     @cache
     @staticmethod
