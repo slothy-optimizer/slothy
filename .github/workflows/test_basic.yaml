@@ -12,16 +12,12 @@ jobs:
             github.event.pull_request.user.login == 'mkannwischer'
             }}
     runs-on: ubuntu-latest
-    strategy: 
-      matrix:      
+    strategy:
+      matrix:
         target: [slothy.targets.arm_v7m.cortex_m4, slothy.targets.arm_v7m.cortex_m7,slothy.targets.arm_v81m.cortex_m55r1, slothy.targets.arm_v81m.cortex_m85r1, slothy.targets.aarch64.cortex_a55, slothy.targets.aarch64.cortex_a72_frontend, slothy.targets.aarch64.apple_m1_firestorm_experimental, slothy.targets.aarch64.apple_m1_icestorm_experimental]
     steps:
     - uses: actions/checkout@v3
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        ./venv/bin/python3 -m pip install -r requirements.txt
-        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
+    - uses: ./.github/actions/setup-ubuntu
     - name: Install llvm
       run: sudo apt-get install -y llvm
     - name: Run examples
@@ -36,11 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        ./venv/bin/python3 -m pip install -r requirements.txt
-        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
+    - uses: ./.github/actions/setup-ubuntu
     - name: Run tutorial
       run: |
         (cd tutorial && ./tutorial_all.sh)
@@ -53,11 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        ./venv/bin/python3 -m pip install -r requirements.txt
-        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
+    - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
         python3 example.py --examples simple0,simple1,simple0_loop,simple1_loop
@@ -70,11 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        ./venv/bin/python3 -m pip install -r requirements.txt
-        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
+    - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
         python3 example.py --examples ntt_kyber_1_23_45_67_m55,ntt_dilithium_12_34_56_78_m55 --timeout=300
@@ -87,11 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        ./venv/bin/python3 -m pip install -r requirements.txt
-        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
+    - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
         python3 example.py --examples ntt_kyber_123_4567_a55,ntt_dilithium_123_45678_a55 --timeout=300
@@ -104,11 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        ./venv/bin/python3 -m pip install -r requirements.txt
-        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
+    - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
         (cd paper/scripts && NO_LOG=Y ./slothy_sqmag.sh)
@@ -121,11 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install python dependencies
-      run: |
-        python3 -m venv venv
-        ./venv/bin/python3 -m pip install -r requirements.txt
-        echo BASH_ENV="./venv/bin/activate" >> $GITHUB_ENV
+    - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
         (cd paper/scripts && NO_LOG=Y ./slothy_fft.sh)

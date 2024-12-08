@@ -40,18 +40,30 @@ similar to those used in the Arm ARM.
 import logging
 import inspect
 import re
+import os
 import math
+import platform
+import subprocess
 from enum import Enum
 from functools import cache
 
 from slothy.helper import SourceLine
 from sympy import simplify
 
+from unicorn import *
+from unicorn.arm64_const import *
+
 from slothy.targets.common import *
-from slothy.helper import Loop
+from slothy.helper import Loop, LLVM_Mc
 
 arch_name = "Arm_AArch64"
+
 llvm_mca_arch = "aarch64"
+llvm_mc_arch = "aarch64"
+llvm_mc_attr = None
+
+unicorn_arch = UC_ARCH_ARM64
+unicorn_mode = UC_MODE_ARM
 
 class RegisterType(Enum):
     GPR = 1
@@ -70,6 +82,79 @@ class RegisterType(Enum):
     @staticmethod
     def spillable(reg_type):
         return reg_type in [RegisterType.GPR, RegisterType.NEON]
+
+    @cache
+    @staticmethod
+    def unicorn_reg_by_name(reg):
+        """Converts string name of register into numerical identifiers used
+        within the unicorn engine"""
+
+        d = {
+            "x0":  UC_ARM64_REG_X0,
+            "x1":  UC_ARM64_REG_X1,
+            "x2":  UC_ARM64_REG_X2,
+            "x3":  UC_ARM64_REG_X3,
+            "x4":  UC_ARM64_REG_X4,
+            "x5":  UC_ARM64_REG_X5,
+            "x6":  UC_ARM64_REG_X6,
+            "x7":  UC_ARM64_REG_X7,
+            "x8":  UC_ARM64_REG_X8,
+            "x9":  UC_ARM64_REG_X9,
+            "x10": UC_ARM64_REG_X10,
+            "x11": UC_ARM64_REG_X11,
+            "x12": UC_ARM64_REG_X12,
+            "x13": UC_ARM64_REG_X13,
+            "x14": UC_ARM64_REG_X14,
+            "x15": UC_ARM64_REG_X15,
+            "x16": UC_ARM64_REG_X16,
+            "x17": UC_ARM64_REG_X17,
+            "x18": UC_ARM64_REG_X18,
+            "x19": UC_ARM64_REG_X19,
+            "x20": UC_ARM64_REG_X20,
+            "x21": UC_ARM64_REG_X21,
+            "x22": UC_ARM64_REG_X22,
+            "x23": UC_ARM64_REG_X23,
+            "x24": UC_ARM64_REG_X24,
+            "x25": UC_ARM64_REG_X25,
+            "x26": UC_ARM64_REG_X26,
+            "x27": UC_ARM64_REG_X27,
+            "x28": UC_ARM64_REG_X28,
+            "x29": UC_ARM64_REG_X29,
+            "x30": UC_ARM64_REG_X30,
+            "v0":  UC_ARM64_REG_V0,
+            "v1":  UC_ARM64_REG_V1,
+            "v2":  UC_ARM64_REG_V2,
+            "v3":  UC_ARM64_REG_V3,
+            "v4":  UC_ARM64_REG_V4,
+            "v5":  UC_ARM64_REG_V5,
+            "v6":  UC_ARM64_REG_V6,
+            "v7":  UC_ARM64_REG_V7,
+            "v8":  UC_ARM64_REG_V8,
+            "v9":  UC_ARM64_REG_V9,
+            "v10": UC_ARM64_REG_V10,
+            "v11": UC_ARM64_REG_V11,
+            "v12": UC_ARM64_REG_V12,
+            "v13": UC_ARM64_REG_V13,
+            "v14": UC_ARM64_REG_V14,
+            "v15": UC_ARM64_REG_V15,
+            "v16": UC_ARM64_REG_V16,
+            "v17": UC_ARM64_REG_V17,
+            "v18": UC_ARM64_REG_V18,
+            "v19": UC_ARM64_REG_V19,
+            "v20": UC_ARM64_REG_V20,
+            "v21": UC_ARM64_REG_V21,
+            "v22": UC_ARM64_REG_V22,
+            "v23": UC_ARM64_REG_V23,
+            "v24": UC_ARM64_REG_V24,
+            "v25": UC_ARM64_REG_V25,
+            "v26": UC_ARM64_REG_V26,
+            "v27": UC_ARM64_REG_V27,
+            "v28": UC_ARM64_REG_V28,
+            "v29": UC_ARM64_REG_V29,
+            "v30": UC_ARM64_REG_V30,
+            "v31": UC_ARM64_REG_V31,
+        }
+        return d.get(reg, None)
 
     @cache
     @staticmethod
