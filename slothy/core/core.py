@@ -42,7 +42,8 @@ from slothy.core.config import Config
 from slothy.helper import LockAttributes, Permutation, DeferHandler, SourceLine, LLVM_Mc
 
 try:
-    from unicorn import Uc
+    from unicorn import *
+    from unicorn.arm_const import *
 except ImportError:
     Uc = None
 
@@ -885,11 +886,10 @@ class Result(LockAttributes):
             self._config.arch.RegisterType.list_registers(ty)]
 
         def run_code(code, txt=None):
-            objcode = LLVM_Mc.assemble(code, self._config.llvm_mc_binary,
+            objcode, offset = LLVM_Mc.assemble(code,
                                        self._config.arch.llvm_mc_arch,
                                        self._config.arch.llvm_mc_attr,
                                        log)
-
             # Setup emulator
             mu = Uc(self.config.arch.unicorn_arch, self.config.arch.unicorn_mode)
             # Copy initial register contents into emulator
@@ -905,7 +905,7 @@ class Result(LockAttributes):
             mu.mem_map(RAM_BASE, RAM_SZ)
             mu.mem_write(RAM_BASE, initial_memory)
             # Run emulator
-            mu.emu_start(CODE_BASE, CODE_BASE + len(objcode))
+            mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
 
             final_register_contents = {}
             for r in regs:
@@ -945,7 +945,7 @@ class Result(LockAttributes):
                 if final_regs_old[r] != final_regs_new[r]:
                     raise SlothySelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
 
-        log.info("Selftest: OK")
+        log.info("Local selftest: OK")
 
     def selfcheck_with_fixup(self, log):
         """Do selfcheck, and consider preamble/postamble fixup in case of SW pipelining

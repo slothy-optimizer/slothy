@@ -766,9 +766,28 @@ class Armv7mExample0(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
     def core(self,slothy):
-        slothy.config.allow_useless_instructions = True
-        slothy.fusion_region("start", "end", ssa=False)
-        
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="start", end="end")
+
+class Armv7mExample0Func(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "armv7m_simple0_func"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="start", end="end")
+        slothy.global_selftest("my_func", {"r0": 1024 })
+
 class Armv7mLoopSubs(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_subs"
@@ -801,7 +820,7 @@ class Armv7mLoopCmp(Example):
         slothy.config.variable_size=True
         slothy.config.outputs = ["r6"]
         slothy.optimize_loop("start")
-        
+
 class Armv7mLoopVmovCmp(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_vmov_cmp"
@@ -833,12 +852,13 @@ class AArch64IfElse(Example):
 
     def core(self,slothy):
         slothy.optimize()
-        
+
 class ntt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
         name = "ntt_kyber_123_4567"
         infile = name
 
+        self.var = var
         if var != "":
             name += f"_{var}"
             infile += f"_{var}"
@@ -857,6 +877,10 @@ class ntt_kyber_123_4567(Example):
         slothy.config.constraints.stalls_first_attempt = 64
         slothy.optimize_loop("layer123_start")
         slothy.optimize_loop("layer4567_start")
+        # Build + emulate entire function to test that behaviour has not changed
+        if self.var == "":
+            slothy.global_selftest("ntt_kyber_123_4567",
+                                   {"x0": 1024, "x1": 1024, "x3": 1024, "x4": 1024, "x5": 1024})
 
 class intt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
@@ -2838,6 +2862,7 @@ def main():
                  AArch64Split0(),
                 # Armv7m examples
                  Armv7mExample0(),
+                 Armv7mExample0Func(),
 
                 # Loop examples
                  AArch64LoopSubs(),

@@ -83,6 +83,22 @@ class RegisterType(Enum):
     def spillable(reg_type):
         return reg_type in [RegisterType.GPR, RegisterType.NEON]
 
+    @staticmethod
+    def callee_saved_registers():
+        return [f"x{i}" for i in range(18,31)] + [f"v{i}" for i in range(8,16)]
+
+    @staticmethod
+    def unicorn_link_register():
+        return UC_ARM64_REG_X30
+
+    @staticmethod
+    def unicorn_stack_pointer():
+        return UC_ARM64_REG_SP
+
+    @staticmethod
+    def unicorn_program_counter():
+        return UC_ARM64_REG_PC
+
     @cache
     @staticmethod
     def unicorn_reg_by_name(reg):
