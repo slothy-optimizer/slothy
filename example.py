@@ -1,3 +1,4 @@
+
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
@@ -33,6 +34,7 @@ from slothy import Slothy, Config
 
 import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
+import slothy.targets.arm_v7m.cortex_m4 as Target_CortexM4
 import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
@@ -45,6 +47,7 @@ import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_i
 
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
+                     Target_CortexM4: "m4",
                      Target_CortexM7: "m7",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85",
@@ -171,6 +174,69 @@ class Example():
         if dry_run is False:
             slothy.write_source_to_file(self.outfile_full)
 
+class ExampleDummy(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"dummy"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize(start="slothy_start", end="slothy_end")
+
+class ExampleKeccak(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"keccakf1600"
+        infile = name
+        funcname = "KeccakF1600_StatePermute"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+            funcname += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, funcname=funcname, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.reserved_regs = ["sp", "r13"]
+        slothy.config.locked_registers = ["sp", "r13"]
+
+        slothy.config.with_llvm_mca = True
+        slothy.config.llvm_mca_full = True
+
+        if "part" not in self.name:
+            slothy.config.outputs = ["flags", "hint_spEga0", "hint_spEge0", "hint_spEgi0", "hint_spEgo0", "hint_spEgu0", "hint_spEka1", "hint_spEke1", "hint_spEki1", "hint_spEko1", "hint_spEku1", "hint_spEma0", "hint_spEme0", "hint_spEmi0", "hint_spEmo0", "hint_spEmu0", "hint_spEsa1", "hint_spEse1", "hint_spEsi1", "hint_spEso1", "hint_spEsu1", "hint_spEbe0", "hint_spEbi0", "hint_spEbo0", "hint_spEbu0", "hint_spEba0", "hint_spEga1", "hint_spEge1", "hint_spEgi1", "hint_spEgo1", "hint_spEgu1", "hint_spEka0", "hint_spEke0", "hint_spEki0", "hint_spEko0", "hint_spEku0", "hint_spEma1", "hint_spEme1", "hint_spEmi1", "hint_spEmo1", "hint_spEmu1", "hint_spEsa0", "hint_spEse0", "hint_spEsi0", "hint_spEso0", "hint_spEsu0", "hint_spEbe1", "hint_spEbi1", "hint_spEbo1", "hint_spEbu1", "hint_spEba1"]
+
+            slothy.config.split_heuristic = True
+            slothy.config.split_heuristic_preprocess_naive_interleaving = True
+            slothy.config.split_heuristic_repeat = 2
+            slothy.config.split_heuristic_optimize_seam = 4
+            slothy.config.split_heuristic_stepsize = 0.05
+            if not "old" in self.name:
+                slothy.config.split_heuristic_factor = 8
+
+                slothy.optimize(start="slothy_start_round0", end="slothy_end_round0")
+                slothy.config.outputs = ["flags", "hint_r0Aba0", "hint_r0Aba1", "hint_r0Abe0", "hint_r0Abe1", "hint_r0Abi0", "hint_r0Abi1", "hint_r0Abo0", "hint_r0Abo1", "hint_r0Abu0", "hint_r0Abu1", "hint_r0Aga0", "hint_r0Aga1", "hint_r0Age0", "hint_r0Age1", "hint_r0Agi0", "hint_r0Agi1", "hint_r0Ago0", "hint_r0Ago1", "hint_r0Agu0", "hint_r0Agu1", "hint_r0Aka0", "hint_r0Aka1", "hint_r0Ake0", "hint_r0Ake1", "hint_r0Aki0", "hint_r0Aki1", "hint_r0Ako0", "hint_r0Ako1", "hint_r0Aku0", "hint_r0Aku1", "hint_r0Ama0", "hint_r0Ama1", "hint_r0Ame0", "hint_r0Ame1", "hint_r0Ami0", "hint_r0Ami1", "hint_r0Amo0", "hint_r0Amo1", "hint_r0Amu0", "hint_r0Amu1", "hint_r0Asa0", "hint_r0Asa1", "hint_r0Ase0", "hint_r0Ase1", "hint_r0Asi0", "hint_r0Asi1", "hint_r0Aso0", "hint_r0Aso1", "hint_r0Asu0", "hint_r0Asu1"]
+                slothy.optimize(start="slothy_start_round1", end="slothy_end_round1")
+            else:
+                slothy.config.split_heuristic_factor = 22
+
+                slothy.optimize(start="slothy_start", end="slothy_end")
+        else:
+            slothy.config.outputs = ['hint_sp\\()\\mDa0', 'hint_sp\\()\\mDa1', 'hint_sp\\()\\mDo0', 'hint_sp\\()\\mDo1', 'r10', 'hint_sp\\()\\mDi0', 'r14', 'flags']
+            slothy.optimize(start="slothy_start", end="slothy_end")
+
+
 class Example0(Example):
     def __init__(self):
         super().__init__("simple0")
@@ -231,6 +297,39 @@ class AArch64LoopSubs(Example):
 
     def core(self,slothy):
         slothy.config.variable_size=True
+        slothy.optimize_loop("start")
+
+class Armv7mLoopSubs(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_subs"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize_loop("start")
+
+class Armv7mLoopCmp(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_cmp"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.outputs = ["flags"]
         slothy.optimize_loop("start")
 
 class CRT(Example):
@@ -638,6 +737,21 @@ class AArch64Example2(Example):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("start")
+
+class AArch64Split0(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_split0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+    def core(self,slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.fusion_region("start", "end", ssa=False)
 
 class Armv7mExample0(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
@@ -1517,10 +1631,1221 @@ class fft_floatingpoint_radix4(Example):
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
 #############################################################################################
+class ntt_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"ntt_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_ntt"
 
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        # slothy.config.with_llvm_mca = True
+        # slothy.config.llvm_mca_full = True
+        slothy.config.constraints.stalls_first_attempt = 16
+
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.variable_size = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = True
+        slothy.config.sw_pipelining.optimize_postamble = True
+        slothy.config.sw_pipelining.allow_pre = True
+
+        slothy.config.sw_pipelining.boundary_reserved_regs = ["r10"]
+
+        slothy.config.outputs = ["r0"]
+        slothy.optimize_loop("layer123_loop")
+
+        slothy.config.outputs = ["r0", "s0", "s10", "s9"]
+        slothy.optimize_loop("layer456_loop")
+
+        slothy.config.sw_pipelining.boundary_reserved_regs = []
+        slothy.config.outputs = ["r0", "r4"]  # r4 is cntr
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("layer78_loop")
+
+class intt_dilithium_123_456_78(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "intt_dilithium_123_456_78"
+        infile = name
+        funcname = "pqcrystals_dilithium_invntt_tomont"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.constraints.stalls_first_attempt = 16
+        
+        slothy.config.unsafe_address_offset_fixup = False
+        
+        slothy.config.variable_size = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = True
+        slothy.config.sw_pipelining.optimize_preamble = True
+        slothy.config.sw_pipelining.optimize_postamble = True
+        slothy.config.sw_pipelining.allow_pre = True
+
+        slothy.optimize_loop("layer123_loop")
+        slothy.optimize_loop("layer456_first_loop")
+        slothy.optimize_loop("layer456_loop")
+
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("layer78_loop")
+
+class pointwise_montgomery_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "pointwise_montgomery_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_asm_pointwise_montgomery"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+
+        slothy.optimize_loop("1")
+
+class pointwise_acc_montgomery_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "pointwise_acc_montgomery_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_asm_pointwise_acc_montgomery"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r12"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+
+        slothy.optimize_loop("1")
+
+class fnt_257_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "fnt_257_dilithium"
+        infile = name
+        funcname = "__asm_fnt_257"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.visualize_expected_performance = False
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.variable_size = True
+
+        func_args = {"r1", "r2", "r3"}
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r = r.union(func_args)
+        slothy.config.reserved_regs = r
+
+        slothy.config.constraints.stalls_first_attempt = 8
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.timeout = 600
+        slothy.optimize_loop("_fnt_0_1_2")
+        
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.timeout = 300
+        
+        slothy.config.constraints.stalls_first_attempt = 8
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 8
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.timeout = 180 # Not more than 2min per step
+        # TODO: run with more repeats
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.outputs = ["s25", "s27", "r12"]
+        slothy.fusion_loop("_fnt_3_4_5_6", ssa=False)
+        slothy.optimize_loop("_fnt_3_4_5_6")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("_fnt_3_4_5_6")
+
+        # Due dependencies in the memory between loads and stores, skip this for now
+        # slothy.optimize_loop("_fnt_to_16_bit")
+
+class ifnt_257_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "ifnt_257_dilithium"
+        infile = name
+        funcname = "__asm_ifnt_257"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.unsafe_address_offset_fixup = False
+        
+        slothy.config.outputs = ["r14", "s1", "r12"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 6
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.config.objective_precision = 0.07
+        # TODO: run with more repeats
+        slothy.config.split_heuristic_repeat = 1
+        slothy.fusion_loop("_ifnt_7_6_5_4", ssa=False)
+        slothy.optimize_loop("_ifnt_7_6_5_4")
+
+        slothy.config.outputs = ["r14", "r1", "s1"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.split_heuristic = False
+        slothy.optimize_loop("_ifnt_0_1_2")
+
+class basemul_257_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_257_dilithium"
+        infile = name
+        funcname = "__asm_point_mul_257_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r12", "r14"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("_point_mul_16_loop")
+
+class basemul_257_asymmetric_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_257_asymmetric_dilithium"
+        infile = name
+        funcname = "__asm_asymmetric_mul_257_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("_asymmetric_mul_16_loop")
+
+class ntt_769_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "ntt_769_dilithium"
+        infile = name
+        outfile = name
+        funcname = "small_ntt_asm_769"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, outfile=outfile, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["r14"]
+        slothy.config.constraints.stalls_first_attempt = 32
+
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        slothy.config.reserved_regs = r
+
+        ### TODO
+        # - Experiment with lower split factors
+        # - Try to get stable performance: It currently varies a lot with each run
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic = True
+        slothy.config.constraints.stalls_precision = 1
+        slothy.config.timeout = 360 # Not more than 2min per step
+        slothy.config.split_heuristic_factor = 1
+        slothy.config.visualize_expected_performance = False
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.optimize_loop("layer1234_loop")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer1234_loop")
+
+        slothy.config.outputs = ["r14"]
+
+        slothy.config.absorb_spills = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("layer567_loop", ssa=True)
+
+        slothy.config.outputs = ["r14"]
+        slothy.config.constraints.functional_only = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.inputs_are_outputs = True
+        slothy.config.split_heuristic = False
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.config.constraints.allow_spills = True
+        slothy.config.absorb_spills = True
+        slothy.config.constraints.spill_type = { 'spill_to_vreg': 26 }
+        slothy.config.constraints.minimize_spills = True
+        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
+        slothy.optimize_loop("layer567_loop")
+
+        slothy.config.timeout = 360
+        slothy.config.constraints.maximize_register_lifetimes = False
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic_optimize_seam = 0
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_factor = 2.25
+        slothy.config.split_heuristic_stepsize = 0.25
+        slothy.config.constraints.allow_spills = False
+        slothy.config.constraints.minimize_spills = False
+        slothy.config.absorb_spills = False
+        slothy.config.constraints.stalls_precision = 1
+        # slothy.config.unsafe_address_offset_fixup = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.constraints.allow_reordering = True
+        slothy.optimize_loop("layer567_loop")
+
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer567_loop")
+
+class intt_769_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "intt_769_dilithium"
+        infile = name
+        funcname = "small_invntt_asm_769"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic = True
+
+        slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
+
+        slothy.config.split_heuristic_factor = 8
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.split_heuristic_repeat = 1
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("layer1234_loop", ssa=False)
+        # slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("layer1234_loop")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer1234_loop")
+
+        slothy.config.split_heuristic_factor = 4
+
+        # Optimize first iteration that has been separated from the loop
+        # TODO: Do we further need to limit renaming because of the following
+        # loop using registers set in this region?
+
+        slothy.config.outputs = ["s0", "s2"]
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
+        # slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize(start="layer567_first_start", end="layer567_first_end")
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("layer567_loop", ssa=False)
+        # slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("layer567_loop")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer567_loop")
+
+class pointwise_769_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "pointwise_769_dilithium"
+        infile = name
+        funcname = "small_pointmul_asm_769"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r3")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("_point_mul_16_loop")
+
+
+class pointwise_769_asymmetric_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "pointwise_769_asymmetric_dilithium"
+        infile = name
+        funcname = "small_asymmetric_mul_asm_769"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r10"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("_asymmetric_mul_16_loop")
+
+class reduce32_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "reduce32_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_asm_reduce32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r10"]
+        slothy.config.with_llvm_mca = True
+        slothy.config.llvm_mca_full = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("1")
+
+class caddq_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "caddq_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_asm_caddq"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r10"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("1")
+
+class ntt_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"ntt_kyber"
+        infile = name
+        funcname = "ntt_fast"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "s23"]
+        
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r.add("r1")
+        slothy.config.reserved_regs = r
+
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+
+
+        ### TODO
+        # - Experiment with lower split factors
+        # - Try to get stable performance: It currently varies a lot with each run
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic = True
+        slothy.config.constraints.stalls_precision = 1
+        slothy.config.timeout = 360 # Not more than 2min per step
+        slothy.config.split_heuristic_factor = 1
+        slothy.config.visualize_expected_performance = False
+        slothy.config.split_heuristic_factor = 6
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.optimize_loop("1")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("1")
+
+        slothy.config.outputs = ["r14"]
+
+        slothy.config.absorb_spills = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("2", ssa=True)
+
+        slothy.config.outputs = ["r14"]
+        slothy.config.constraints.functional_only = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.inputs_are_outputs = True
+        slothy.config.split_heuristic = False
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.config.constraints.allow_spills = True
+        slothy.config.absorb_spills = True
+        slothy.config.constraints.spill_type = { 'spill_to_vreg': 26 }
+        slothy.config.constraints.minimize_spills = True
+        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
+        slothy.optimize_loop("2")
+
+        slothy.config.timeout = 360
+        slothy.config.constraints.maximize_register_lifetimes = False
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic_optimize_seam = 0
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.25
+        slothy.config.constraints.allow_spills = False
+        slothy.config.constraints.minimize_spills = False
+        slothy.config.absorb_spills = False
+        slothy.config.constraints.stalls_precision = 1
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.constraints.allow_reordering = True
+        slothy.optimize_loop("2")
+
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("2")
+
+class ntt_kyber_symbolic(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"ntt_kyber_symbolic"
+        infile = name
+        funcname = "ntt_fast_symbolic"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["s23"]
+        slothy.config.reserved_regs = ["r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        orig_functional_only = slothy.config.constraints.functional_only
+        orig_allow_reordering = slothy.config.constraints.allow_reordering
+
+        # Step 1: find minimum number of stack spills in first loop
+        slothy.config.objective_lower_bound = 8
+        slothy.config.constraints.functional_only = True
+        slothy.config.constraints.allow_spills = True
+        slothy.config.constraints.minimize_spills = True
+        # TODO: it would be much better if we could allow re-ordering; but that seems out of reach for SLOTHY right now
+        slothy.config.constraints.allow_reordering = False
+        slothy.optimize_loop("1")
+        slothy.config.constraints.functional_only = orig_functional_only
+        slothy.config.constraints.allow_spills = False
+        slothy.config.constraints.allow_reordering = orig_allow_reordering
+        slothy.config.absorb_spills = False
+
+        # Step 2: optimize first loop
+        # TODO: use a small factor and larger repeat
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.config.split_heuristic_repeat = 1
+        slothy.optimize_loop("1")
+
+        # Step 3: optimize second loop
+        # TODO: use a small factor and larger repeat
+        slothy.config.split_heuristic = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic_factor = 2
+        slothy.config.split_heuristic_repeat = 1
+        slothy.fusion_loop("2",ssa=False)
+        slothy.optimize_loop("2")
+
+
+
+
+class intt_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "intt_kyber"
+        infile = name
+        funcname = "invntt_fast"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.inputs_are_outputs = True
+        slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
+        slothy.config.timeout = 300
+
+        # Step 1: optimize first loop
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.outputs = ["r14", "s8"]
+        slothy.optimize_loop("1")
+
+        # Step 2: optimize the start of the second loop
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 2.5
+        slothy.config.split_heuristic_stepsize = 0.2
+        slothy.config.outputs = ["r14", "r0", "r10", "s0", "s2"]
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize(start="layer567_first_start", end="layer567_first_end")
+
+        # Step 3: optimize the start of the second loop
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 3
+        slothy.config.split_heuristic_stepsize = 0.2
+        slothy.config.outputs = ["r14", "s14"]
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("2", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("2")
+
+class basemul_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_16_32_kyber"
+        infile = name
+        funcname = "basemul_asm_opt_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class basemul_acc_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_32_32_kyber"
+        infile = name
+        funcname = "basemul_asm_acc_opt_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class basemul_acc_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_32_16_kyber"
+        infile = name
+        funcname = "basemul_asm_acc_opt_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class frombytes_mul_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_16_32_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class frombytes_mul_acc_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_32_32_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class frombytes_mul_acc_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_32_16_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class add_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "add_kyber"
+        infile = name
+        funcname = "pointwise_add"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.sw_pipelining.enabled = True
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+        slothy.config.sw_pipelining.enabled = False
+        slothy.fusion_region(start="pointwise_add_final_start", end="pointwise_add_final_end", ssa=False)
+        slothy.optimize(start="pointwise_add_final_start", end="pointwise_add_final_end")
+
+class sub_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "sub_kyber"
+        infile = name
+        funcname = "pointwise_sub"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.sw_pipelining.enabled = True
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+
+        slothy.config.sw_pipelining.enabled = False
+        slothy.fusion_region(start="pointwise_sub_final_start", end="pointwise_sub_final_end", ssa=False)
+        slothy.optimize(start="pointwise_sub_final_start", end="pointwise_sub_final_end")
+
+class barrett_reduce_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "barrett_reduce_kyber"
+        infile = name
+        funcname = "asm_barrett_reduce"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r9"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 43
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+
+
+
+class ldr_test(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "ldr_test"
+        infile = name
+
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r1", "r2", "r3", "r4", "r5", "r6", 'r7', "r8"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.optimize(start="start", end="end")
+
+
+class fromplant_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "fromplant_kyber"
+        infile = name
+        funcname = "asm_fromplant"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r9"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+
+class basemul_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_kyber"
+        infile = name
+        funcname = "basemul_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.fusion_loop("1", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("1")
+
+class basemul_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_kyber"
+        infile = name
+        funcname = "basemul_asm_acc"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.fusion_loop("1", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("1")
+
+class frombytes_mul_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class frombytes_mul_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class matacc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_kyber"
+        infile = name
+        funcname = "matacc_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+class matacc_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_acc_kyber"
+        infile = name
+        funcname = "matacc_asm_acc"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+
+class matacc_asm_opt_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_16_32_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are unused in this code.
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+class matacc_asm_opt_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_32_32_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are unused in this code.
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+class matacc_asm_opt_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_32_16_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+class matacc_asm_cache_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_16_32_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+class matacc_asm_cache_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_32_32_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+        
+class matacc_asm_cache_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_32_16_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
 
 def main():
-    examples = [ Example0(),
+    examples = [
+                 ldr_test(),
+                 Example0(),
                  Example1(),
                  Example2(),
                  Example3(),
@@ -1534,6 +2859,7 @@ def main():
                  AArch64Example2(target=Target_CortexA72),
                  AArch64IfElse(),
 
+                 AArch64Split0(),
                 # Armv7m examples
                  Armv7mExample0(),
                  Armv7mExample0Func(),
@@ -1664,6 +2990,7 @@ def main():
                  intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
                  # Dilithium invNTT
                  # Cortex-M55
+
                  intt_dilithium_12_34_56_78(),
 
                  # Fast Fourier Transform (FFT)
@@ -1671,6 +2998,55 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
+                 # M7
+                 ExampleDummy(),
+                 ExampleKeccak(var="old"),
+                 ExampleKeccak(var="m7"),
+                 ExampleKeccak(var="part"),
+
+                 ntt_dilithium(),
+                 intt_dilithium_123_456_78(),
+                 pointwise_montgomery_dilithium(),
+                 pointwise_acc_montgomery_dilithium(),
+                 fnt_257_dilithium(),
+                 ifnt_257_dilithium(),
+                 basemul_257_dilithium(),
+                 basemul_257_asymmetric_dilithium(),
+                 ntt_769_dilithium(),
+                 intt_769_dilithium(),
+                 pointwise_769_dilithium(),
+                 pointwise_769_asymmetric_dilithium(),
+                 reduce32_dilithium(),
+                 caddq_dilithium(),
+
+                 ntt_kyber(),
+                 # temporarily disable
+                 # TODO: re-enable
+                 # ntt_kyber_symbolic(),
+                 intt_kyber(),
+                 basemul_16_32_kyber(),
+                 basemul_acc_32_32_kyber(),
+                 basemul_acc_32_16_kyber(),
+                 frombytes_mul_16_32_kyber(),
+                 frombytes_mul_acc_32_32_kyber(),
+                 frombytes_mul_acc_32_16_kyber(),
+                 add_kyber(),
+                 sub_kyber(),
+                 barrett_reduce_kyber(),
+                 fromplant_kyber(),
+
+                 basemul_kyber(),
+                 basemul_acc_kyber(),
+                 frombytes_mul_kyber(),
+                 frombytes_mul_acc_kyber(),
+                 matacc_kyber(),
+                 matacc_acc_kyber(),
+                 matacc_asm_opt_16_32_kyber(),
+                 matacc_asm_opt_32_32_kyber(),
+                 matacc_asm_opt_32_16_kyber(),
+                 matacc_asm_cache_16_32_kyber(),
+                 matacc_asm_cache_32_32_kyber(),
+                 matacc_asm_cache_32_16_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]
@@ -1690,8 +3066,8 @@ def main():
     parser.add_argument("--debug-logfile", type=str, default=None)
     parser.add_argument("--log-model", default=False, action="store_true")
     parser.add_argument("--log-model-dir", type=str, default="models")
-    parser.add_argument("--only-target", type=str,choices=[
-        Target_CortexM7.__name__,
+    parser.add_argument("--only-target", type=str,choices=[Target_CortexM4.__name__, \
+        Target_CortexM7.__name__, \
         Target_CortexM55r1.__name__, Target_CortexM85r1.__name__, \
         Target_CortexA55.__name__, Target_CortexA72.__name__, Target_AppleM1_firestorm.__name__, \
         Target_AppleM1_icestorm.__name__])
