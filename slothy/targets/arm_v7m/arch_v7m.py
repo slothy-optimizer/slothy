@@ -1,15 +1,23 @@
 import logging
 import inspect
+import os
 import re
 import math
 from enum import Enum
 from functools import cache
 
-from slothy.helper import SourceLine, Loop
+from unicorn import *
+from unicorn.arm_const import *
+
+from slothy.helper import SourceLine, Loop, LLVM_Mc
 from sympy import simplify
 
-llvm_mca_arch = "arm"  # TODO
+llvm_mca_arch = "arm"
+llvm_mc_arch = "arm" ### TODO: What to put here?
+llvm_mc_attr = "armv5te,thumb2,dsp" ### TODO: What to put here?
 
+unicorn_arch = UC_ARCH_ARM
+unicorn_mode = UC_MODE_ARM
 
 class RegisterType(Enum):
     GPR = 1
@@ -26,6 +34,79 @@ class RegisterType(Enum):
     @staticmethod
     def spillable(reg_type):
         return reg_type in [RegisterType.GPR]
+
+    @staticmethod
+    def callee_saved_registers():
+        return [f"r{i}" for i in range(4,12)] + [f"s{i}" for i in range(0,16)]
+
+    @staticmethod
+    def unicorn_link_register():
+        return UC_ARM_REG_LR
+
+    @staticmethod
+    def unicorn_program_counter():
+        return UC_ARM_REG_PC
+
+    @staticmethod
+    def unicorn_stack_pointer():
+        return UC_ARM_REG_SP
+
+    @cache
+    @staticmethod
+    def unicorn_reg_by_name(reg):
+        """Converts string name of register into numerical identifiers used
+        within the unicorn engine"""
+
+        d = {
+            "r0":  UC_ARM_REG_R0,
+            "r1":  UC_ARM_REG_R1,
+            "r2":  UC_ARM_REG_R2,
+            "r3":  UC_ARM_REG_R3,
+            "r4":  UC_ARM_REG_R4,
+            "r5":  UC_ARM_REG_R5,
+            "r6":  UC_ARM_REG_R6,
+            "r7":  UC_ARM_REG_R7,
+            "r8":  UC_ARM_REG_R8,
+            "r9":  UC_ARM_REG_R9,
+            "r10": UC_ARM_REG_R10,
+            "r11": UC_ARM_REG_R11,
+            "r12": UC_ARM_REG_R12,
+            "r13": UC_ARM_REG_SP,
+            "r14": UC_ARM_REG_LR,
+            "s0":  UC_ARM_REG_S0,
+            "s1":  UC_ARM_REG_S1,
+            "s2":  UC_ARM_REG_S2,
+            "s3":  UC_ARM_REG_S3,
+            "s4":  UC_ARM_REG_S4,
+            "s5":  UC_ARM_REG_S5,
+            "s6":  UC_ARM_REG_S6,
+            "s7":  UC_ARM_REG_S7,
+            "s8":  UC_ARM_REG_S8,
+            "s9":  UC_ARM_REG_S9,
+            "s10": UC_ARM_REG_S10,
+            "s11": UC_ARM_REG_S11,
+            "s12": UC_ARM_REG_S12,
+            "s13": UC_ARM_REG_S13,
+            "s14": UC_ARM_REG_S14,
+            "s15": UC_ARM_REG_S15,
+            "s16": UC_ARM_REG_S16,
+            "s17": UC_ARM_REG_S17,
+            "s18": UC_ARM_REG_S18,
+            "s19": UC_ARM_REG_S19,
+            "s20": UC_ARM_REG_S20,
+            "s21": UC_ARM_REG_S21,
+            "s22": UC_ARM_REG_S22,
+            "s23": UC_ARM_REG_S23,
+            "s24": UC_ARM_REG_S24,
+            "s25": UC_ARM_REG_S25,
+            "s26": UC_ARM_REG_S26,
+            "s27": UC_ARM_REG_S27,
+            "s28": UC_ARM_REG_S28,
+            "s29": UC_ARM_REG_S29,
+            "s30": UC_ARM_REG_S30,
+            "s31": UC_ARM_REG_S31,
+        }
+        return d.get(reg, None)
 
     @cache
     @staticmethod
@@ -125,12 +206,12 @@ class Branch:
 class VmovCmpLoop(Loop):
     """
     Loop ending in a vmov, a compare, and a branch.
-    
+
     The modification to the value we compare against happens inside the loop
     body. The value that is being compared to is stashed to a floating point
     register before the loop starts and therefore needs to be recovered before
-    the comparison. 
-    
+    the comparison.
+
     WARNING: This type of loop is experimental as slothy has no knowledge about
     what happens inside the loop boundary! Especially, a register is written
     inside the boundary which may be used for renaming by slothy. Use with
@@ -218,7 +299,7 @@ class CmpLoop(Loop):
     """
     Loop ending in a compare and a branch.
     The modification to the value we compare against happens inside the loop body.
-    WARNING: This type of loop is experimental as slothy has no knowledge about 
+    WARNING: This type of loop is experimental as slothy has no knowledge about
     what happens inside the loop boundary! Use with caution.
 
     Example:

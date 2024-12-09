@@ -2,3 +2,4 @@ numpy==1.26.4
 ortools==9.7.2996
 pandas==2.1.1
 sympy==1.12
+unicorn==2.1.1
