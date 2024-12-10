@@ -228,11 +228,11 @@
  *  - rot1-rot5     rotation values
  *****************************************************************************/
 .macro xor5   dst, src1, src2, src3, src4, src5, rot1, rot2, rot3, rot4, rot5
-    ldr.w   \dst, [r0, #\src1] // @slothy:reads=[r0\()\src1]
-    ldr.w     r1, [r0, #\src2] // @slothy:reads=[r0\()\src2]
-    ldr.w     r5, [r0, #\src3] // @slothy:reads=[r0\()\src3]
-    ldr      r11, [r0, #\src4] // @slothy:reads=[r0\()\src4]
-    ldr      r12, [r0, #\src5] // @slothy:reads=[r0\()\src5]
+    ldr.w   \dst, [r0, #\src1] // @slothy:reads=[r0\src1]
+    ldr.w     r1, [r0, #\src2] // @slothy:reads=[r0\src2]
+    ldr.w     r5, [r0, #\src3] // @slothy:reads=[r0\src3]
+    ldr      r11, [r0, #\src4] // @slothy:reads=[r0\src4]
+    ldr      r12, [r0, #\src5] // @slothy:reads=[r0\src5]
     eorror  \dst, \dst,  r1, \rot1, \rot2
     eorror  \dst, \dst,  r5, \rot1, \rot3
     eorror  \dst, \dst, r11, \rot1, \rot4
@@ -251,12 +251,12 @@
  *  - strofs        stack pointer memory offset for the str instruction
  *****************************************************************************/
 .macro xor5str   dst, src1, src2, src3, src4, src5, rot1, rot2, rot3, rot4, rot5, strreg, stradr, strofs
-    ldr.w    \dst, [r0, #\src1] // @slothy:reads=[r0\()\src1]
-    ldr.w      r1, [r0, #\src2] // @slothy:reads=[r0\()\src2]
-    ldr.w      r5, [r0, #\src3] // @slothy:reads=[r0\()\src3]
-    ldr       r11, [r0, #\src4] // @slothy:reads=[r0\()\src4]
-    ldr       r12, [r0, #\src5] // @slothy:reads=[r0\()\src5]
-    str.w \strreg, [\stradr, #\strofs] // @slothy:writes=[\stradr\()\strofs]
+    ldr.w    \dst, [r0, #\src1] // @slothy:reads=[r0\src1]
+    ldr.w      r1, [r0, #\src2] // @slothy:reads=[r0\src2]
+    ldr.w      r5, [r0, #\src3] // @slothy:reads=[r0\src3]
+    ldr       r11, [r0, #\src4] // @slothy:reads=[r0\src4]
+    ldr       r12, [r0, #\src5] // @slothy:reads=[r0\src5]
+    str.w \strreg, [\stradr, #\strofs] // @slothy:writes=[\stradr\strofs]
     eorror   \dst, \dst,  r1, \rot1, \rot2
     eorror   \dst, \dst,  r5, \rot1, \rot3
     eorror   \dst, \dst, r11, \rot1, \rot4
@@ -284,7 +284,7 @@
 .macro xandnotlazystr   resofs, src1, src2, src3, rot1, rot2, rot3
     bicror  r1, \src3, \src2, \rot3, \rot2
     eorror  r1, r1, \src1, \rot3, \rot1
-    str.w   r1, [r0, #\resofs] // @slothy:writes=[r0\()\resofs]
+    str.w   r1, [r0, #\resofs] // @slothy:writes=[r0\resofs]
 .endm
 
 
@@ -314,7 +314,7 @@
 .if \rot3 > 0
     ror     r1, r1, #32-\rot3
 .endif
-    str.w   r1, [r0, #\resofs] // @slothy:writes=[r0\()\resofs]
+    str.w   r1, [r0, #\resofs] // @slothy:writes=[r0\resofs]
 .endm
 
 
@@ -344,11 +344,11 @@
  *****************************************************************************/
 .macro xandnotiota    out, rot3, rot2, rcofs, last
     bicror  r5, r5, r4, \rot3, \rot2
-    ldr     r1, [sp, #mRC] // @slothy:reads=[sp\()mRC]
-    ldr     r4, [r1, #\rcofs] // @slothy:reads=[r1\()\rcofs]
+    ldr     r1, [sp, #mRC] // @slothy:reads=[spmRC]
+    ldr     r4, [r1, #\rcofs] // @slothy:reads=[r1\rcofs]
 .if  \last == 1
-    ldr     r7, [r1, #32]! // @slothy:reads=[r1\()32]
-    str     r1, [sp, #mRC] // @slothy:writes=[sp\()mRC]
+    ldr     r7, [r1, #32]! // @slothy:reads=[r132]
+    str     r1, [sp, #mRC] // @slothy:writes=[spmRC]
     cmp     r7, #0xFF
 .endif
 .if \rot3 > 0
@@ -416,12 +416,12 @@
                                     src4, par4, rot4, dly4, \
                                     src5, par5, rot5, dly5, \
                                     ofs,  last, lazy, strofs, reg
-    ldr.w       r3, [r0, #\src1] // @slothy:reads=[r0\()\src1]
-    ldr       r4, [r0, #\src2] // @slothy:reads=[r0\()\src2]
-    ldr       r5, [r0, #\src3] // @slothy:reads=[r0\()\src3]
-    ldr       r6, [r0, #\src4] // @slothy:reads=[r0\()\src4]
-    ldr       r7, [r0, #\src5] // @slothy:reads=[r0\()\src5]
-    str.w       r1, [r0, #\strofs] // @slothy:writes=[r0\()\strofs]
+    ldr.w       r3, [r0, #\src1] // @slothy:reads=[r0\src1]
+    ldr       r4, [r0, #\src2] // @slothy:reads=[r0\src2]
+    ldr       r5, [r0, #\src3] // @slothy:reads=[r0\src3]
+    ldr       r6, [r0, #\src4] // @slothy:reads=[r0\src4]
+    ldr       r7, [r0, #\src5] // @slothy:reads=[r0\src5]
+    str.w       r1, [r0, #\strofs] // @slothy:writes=[r0\strofs]
     addparity   \par1, \dly1, \par2, \dly2, \par3, \dly3, \par4, \dly4, \par5, \dly5
 .if \lazy == 1
     xandnotlazystr  \src2, r4, r5, r6, \rot2, \rot3, \rot4
@@ -459,12 +459,12 @@
                                 src4, dst4, par4, rot4, dly4, \
                                 src5, dst5, par5, rot5, dly5, \
                                 lazy, strofs
-    ldr.w       r3, [r0, #\src1] // @slothy:reads=[r0\()\src1]
-    ldr.w       r4, [r0, #\src2] // @slothy:reads=[r0\()\src2]
-    ldr.w       r5, [r0, #\src3] // @slothy:reads=[r0\()\src3]
-    ldr.w       r6, [r0, #\src4] // @slothy:reads=[r0\()\src4]
-    ldr.w       r7, [r0, #\src5] // @slothy:reads=[r0\()\src5]
-    str.w       r1, [r0, #\strofs] // @slothy:writes=[r0\()\strofs]
+    ldr.w       r3, [r0, #\src1] // @slothy:reads=[r0\src1]
+    ldr.w       r4, [r0, #\src2] // @slothy:reads=[r0\src2]
+    ldr.w       r5, [r0, #\src3] // @slothy:reads=[r0\src3]
+    ldr.w       r6, [r0, #\src4] // @slothy:reads=[r0\src4]
+    ldr.w       r7, [r0, #\src5] // @slothy:reads=[r0\src5]
+    str.w       r1, [r0, #\strofs] // @slothy:writes=[r0\strofs]
     addparity   \par1, \dly1, \par2, \dly2, \par3, \dly3, \par4, \dly4, \par5, \dly5
 .if \lazy == 1
     xandnotlazystr  \dst1, r3, r4, r5, \rot1, \rot2, \rot3
@@ -520,7 +520,7 @@
                         Amu1, Ako0, r14,  4, 0, \
                         Asa1, Amu1,  r8,  9, 0, \
                         1, Agu0
-    ldr         r8, [sp, #mDa0] // @slothy:reads=[sp\()\mDa0]
+    ldr         r8, [sp, #mDa0] // @slothy:reads=[spmDa0]
     KeccakThetaRhoPiChi Abu1, Aga0, r14, 14, 0, \
                         Aga0, Ake0,  r8, 18, 0, \
                         Ake0, Ami1, r10,  5, 0, \
@@ -533,14 +533,14 @@
                         Ama0, Ago0,  r8, 20, 0, \
                         Ase1, Aku0, r11,  1, 0, \
                         1, Abu1
-    ldr         r9, [sp, #mDo1] // @slothy:reads=[sp\()\mDo1]
+    ldr         r9, [sp, #mDo1] // @slothy:reads=[spmDo1]
     KeccakThetaRhoPiChiIota Aba0,  r8,  0,    \
                             Age0, r10, 22, 0, \
                             Aki1,  r2, 22, 0, \
                             Amo1,  r9, 11, 0, \
                             Asu0, r12,  7, 0, \
                             0, 0, 1, Aku0, r1
-    ldr.w       r2, [sp, #mDi0] // @slothy:reads=[sp\()\mDi0]
+    ldr.w       r2, [sp, #mDi0] // @slothy:reads=[spmDi0]
     KeccakThetaRhoPiChi Abo1, Aka0,  r9, 14, 0, \
                         Agu1, Ame0, r14, 10, 0, \
                         Aka0, Asi0,  r8,  1, 0, \
@@ -553,7 +553,7 @@
                         Amu0, Ako1, r12,  4, 0, \
                         Asa0, Amu0,  r8,  9, 0, \
                         1, Agu1
-    ldr         r8, [sp, #mDa1] // @slothy:reads=[sp\()\mDa1]
+    ldr         r8, [sp, #mDa1] // @slothy:reads=[spmDa1]
     KeccakThetaRhoPiChi Abu0, Aga1, r12, 13, 0, \
                         Aga1, Ake1,  r8, 18, 0, \
                         Ake1, Ami0, r11,  5, 0, \
@@ -566,7 +566,7 @@
                         Ama1, Ago1,  r8, 21, 0, \
                         Ase0, Aku1, r10,  1, 0, \
                         1, Abu0
-    ldr         r9, [sp, #mDo0] // @slothy:reads=[sp\()\mDo0]
+    ldr         r9, [sp, #mDo0] // @slothy:reads=[spmDo0]
     KeccakThetaRhoPiChiIota Aba1,  r8,  0,    \
                             Age1, r11, 22, 0, \
                             Aki0,  r2, 21, 0, \
@@ -616,7 +616,7 @@
                         Abu0, Ako1, r14,  4, 18, \
                         Ama0, Abu0,  r8,  9, 19, \
                         1, Agu0
-    ldr         r8, [sp, #mDa0] // @slothy:reads=[sp\()\mDa0]
+    ldr         r8, [sp, #mDa0] // @slothy:reads=[spmDa0]
     KeccakThetaRhoPiChi Asu1, Aka1, r14, 14, 22, \
                         Aka1, Abe1,  r8, 18,  2, \
                         Abe1, Ami0, r10,  5,  4, \
@@ -629,14 +629,14 @@
                         Aga0, Abo0,  r8, 20,  5, \
                         Ase1, Amu0, r11,  1, 20, \
                         1, Asu1
-    ldr         r9, [sp, #mDo1] // @slothy:reads=[sp\()\mDo1]
+    ldr         r9, [sp, #mDo1] // @slothy:reads=[spmDo1]
     KeccakThetaRhoPiChiIota Aba0,  r8,  0,     \
                             Ame1, r10, 22, 23, \
                             Agi1,  r2, 22,  9, \
                             Aso1,  r9, 11, 13, \
                             Aku1, r12,  7, 28, \
                             8, 0, 1, Amu0, r1
-    ldr.w         r2, [sp, #mDi0] // @slothy:reads=[sp\()\mDi0]
+    ldr.w         r2, [sp, #mDi0] // @slothy:reads=[spmDi0]
     KeccakThetaRhoPiChi Amo0, Asa0,  r9, 14,  0, \
                         Agu1, Ake0, r14, 10, 10, \
                         Asa0, Abi0,  r8,  1, 13, \
@@ -649,7 +649,7 @@
                         Abu1, Ako0, r12,  4, 18, \
                         Ama1, Abu1,  r8,  9, 20, \
                         1, Agu1
-    ldr         r8, [sp, #mDa1] // @slothy:reads=[sp\()\mDa1]
+    ldr         r8, [sp, #mDa1] // @slothy:reads=[spmDa1]
     KeccakThetaRhoPiChi Asu0, Aka0, r12, 13, 22, \
                         Aka0, Abe0,  r8, 18,  1, \
                         Abe0, Ami1, r11,  5,  4, \
@@ -662,7 +662,7 @@
                         Aga1, Abo1,  r8, 21,  5, \
                         Ase0, Amu1, r10,  1, 21, \
                         1, Asu0
-    ldr         r9, [sp, #mDo0] // @slothy:reads=[sp\()\mDo0]
+    ldr         r9, [sp, #mDo0] // @slothy:reads=[spmDo0]
     KeccakThetaRhoPiChiIota Aba1,  r8,  0,     \
                             Ame0, r11, 22, 22, \
                             Agi0,  r2, 21,  9, \
@@ -710,7 +710,7 @@
                         Asu0, Ako0, r14,  4, 18, \
                         Aga0, Asu0,  r8,  9, 19, \
                         1, Agu0
-    ldr     r8, [sp, #mDa0] // @slothy:reads=[sp\()\mDa0]
+    ldr     r8, [sp, #mDa0] // @slothy:reads=[spmDa0]
     KeccakThetaRhoPiChi Aku0, Asa1, r14, 14, 22, \
                         Asa1, Age1,  r8, 18,  2, \
                         Age1, Ami1, r10,  5,  4, \
@@ -723,14 +723,14 @@
                         Aka1, Amo1,  r8, 20,  5, \
                         Ase1, Abu1, r11,  1, 20, \
                         1, Aku0
-    ldr     r9, [sp, #mDo1] // @slothy:reads=[sp\()\mDo1]
+    ldr     r9, [sp, #mDo1] // @slothy:reads=[spmDo1]
     KeccakThetaRhoPiChiIota Aba0, r8,  0,     \
                             Ake1, r10,22, 23, \
                             Asi0, r2, 22,  9, \
                             Ago0, r9, 11, 13, \
                             Amu1, r12, 7, 28, \
                             16, 0, 1, Abu1, r1
-    ldr.w   r2, [sp, #mDi0] // @slothy:reads=[sp\()\mDi0]
+    ldr.w   r2, [sp, #mDi0] // @slothy:reads=[spmDi0]
     KeccakThetaRhoPiChi Aso0, Ama1,  r9, 14,  0, \
                         Agu1, Abe1, r14, 10, 10, \
                         Ama1, Aki1,  r8,  1, 13, \
@@ -743,7 +743,7 @@
                         Asu1, Ako1, r12,  4, 18, \
                         Aga1, Asu1,  r8,  9, 20, \
                         1, Agu1
-    ldr     r8, [sp, #mDa1] // @slothy:reads=[sp\()\mDa1]
+    ldr     r8, [sp, #mDa1] // @slothy:reads=[spmDa1]
     KeccakThetaRhoPiChi Aku1, Asa0, r12, 13, 22, \
                         Asa0, Age0,  r8, 18,  1, \
                         Age0, Ami0, r11,  5,  4, \
@@ -756,7 +756,7 @@
                         Aka0, Amo0,  r8, 21,  5, \
                         Ase0, Abu0, r10,  1, 21, \
                         1, Aku1
-    ldr     r9, [sp, #mDo0] // @slothy:reads=[sp\()\mDo0]
+    ldr     r9, [sp, #mDo0] // @slothy:reads=[spmDo0]
     KeccakThetaRhoPiChiIota Aba1,  r8,  0,     \
                             Ake0, r11, 22, 22, \
                             Asi1,  r2, 21,  9, \
@@ -808,7 +808,7 @@
                             Aku1, Ako1, r14,  4, 18, \
                             Aka1, Aku1,  r8,  9, 19, \
                             0, Agu0
-    ldr     r8, [sp, #mDa0] // @slothy:writes=[sp\()\mDa0]
+    ldr     r8, [sp, #mDa0] // @slothy:reads=[spmDa0]
     KeccakThetaRhoPiChi     Amu0, Ama0, r14, 14, 22, \
                             Ama0, Ame0,  r8, 18,  2, \
                             Ame0, Ami0, r10,  5,  4, \
@@ -821,14 +821,14 @@
                             Asa1, Aso1,  r8, 20,  5, \
                             Ase1, Asu1, r11,  1, 20, \
                             0, Amu0
-    ldr     r9, [sp, #mDo1] // @slothy:writes=[sp\()\mDo1]
+    ldr     r9, [sp, #mDo1] // @slothy:reads=[spmDo1]
     KeccakThetaRhoPiChiIota Aba0,  r8,  0,     \
                             Abe0, r10, 22, 23, \
                             Abi0,  r2, 22,  9, \
                             Abo0,  r9, 11, 13, \
                             Abu0, r12,  7, 28, \
                             24, 0, 0, Asu1, r1
-    ldr.w   r2, [sp, #mDi0] // @slothy:writes=[sp\()\mDi0]
+    ldr.w   r2, [sp, #mDi0] // @slothy:reads=[spmDi0]
     KeccakThetaRhoPiChi     Ago1, Aga1,  r9, 14,  0, \
                             Agu1, Age1, r14, 10, 10, \
                             Aga1, Agi1,  r8,  1, 13, \
@@ -841,7 +841,7 @@
                             Aku0, Ako0, r12,  4, 18, \
                             Aka0, Aku0,  r8,  9, 20, \
                             0, Agu1
-    ldr     r8, [sp, #mDa1] // @slothy:writes=[sp\()\mDa1]
+    ldr     r8, [sp, #mDa1] // @slothy:reads=[spmDa1]
     KeccakThetaRhoPiChi     Amu1, Ama1, r12, 13, 22, \
                             Ama1, Ame1,  r8, 18,  1, \
                             Ame1, Ami1, r11,  5,  4, \
@@ -854,14 +854,14 @@
                             Asa0, Aso0,  r8, 21,  5, \
                             Ase0, Asu0, r10,  1, 21, \
                             0, Amu1
-    ldr     r9, [sp, #mDo0] // @slothy:writes=[sp\()\mDo0]
+    ldr     r9, [sp, #mDo0] // @slothy:reads=[spmDo0]
     KeccakThetaRhoPiChiIota Aba1,  r8, 0,      \
                             Abe1, r11, 22, 22, \
                             Abi1,  r2, 21,  9, \
                             Abo1,  r9, 10, 14, \
                             Abu1, r14,  7, 27, \
                             28, 1, 0, Asu0, r1
-    str.w r1, [r0, #Aba1] // @slothy:writes=[r0\()Aba1]
+    str.w r1, [r0, #Aba1] // @slothy:writes=[r0Aba1]
 .endm
 
 
