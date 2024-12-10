@@ -173,7 +173,7 @@ class Slothy:
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
         for l in s:
-            fun(f"> {l}")
+            fun(f"> {l.to_string()}")
 
     def global_selftest(self, funcname, address_gprs, iterations=5):
         """Conduct a function-level selftest
@@ -463,7 +463,7 @@ class Slothy:
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
 
-    def _fusion_core(self, pre, body, post, logger):
+    def _fusion_core(self, pre, body, post, logger, ssa=True):
         c = self.config.copy()
 
         if c.with_preprocessor:
@@ -481,9 +481,10 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         dfgc = DFGConfig(c)
 
-        dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
-        dfg.ssa()
-        body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
+        if ssa is True:
+            dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
+            dfg.ssa()
+            body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
 
         dfg = DFG(body, logger.getChild("fusion"), dfgc, parsing_cb=False)
         dfg.apply_fusion_cbs()
@@ -491,44 +492,34 @@ class Slothy:
 
         return body
 
-    def fusion_region(self, start, end):
+    def fusion_region(self, start, end, **kwargs):
         """Run fusion callbacks on straightline code"""
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
         body_ssa = [ SourceLine(f"{start}:") ] +\
-             self._fusion_core(pre, body, logger) + \
+             self._fusion_core(pre, body, post, logger, **kwargs) + \
             [ SourceLine(f"{end}:") ]
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-    def fusion_loop(self, loop_lbl):
+    def fusion_loop(self, loop_lbl, **kwargs):
         """Run fusion callbacks on loop body"""
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
         pre , body, post, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl)
-        loop_cnt = other_data['cnt']
+        try:
+            loop_cnt = other_data['cnt']
+        except KeyError:
+            loop_cnt = None
         indentation = AsmHelper.find_indentation(body)
 
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
-            SourceLine.apply_indentation(self._fusion_core(pre, body, logger), indentation) + \
+            SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
             SourceLine.read_multiline(loop.end(other_data))
 
         self.source = pre + body_ssa + post
-        assert SourceLine.is_source(self.source)
-
-        c = self.config.copy()
-        self.config.keep_tags = True
-        self.config.constraints.functional_only = True
-        self.config.constraints.allow_reordering = False
-        self.config.sw_pipelining.enabled = False
-        self.config.split_heuristic = False
-        self.config.inputs_are_outputs = True
-        self.config.sw_pipelining.unknown_iteration_count = False
-        self.optimize_loop(loop_lbl)
-        self.config = c
-
         assert SourceLine.is_source(self.source)
 
     def optimize_loop(self, loop_lbl, postamble_label=None):
@@ -540,7 +531,10 @@ class Slothy:
 
         early, body, late, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl)
-        loop_cnt = other_data['cnt']
+        try:
+            loop_cnt = other_data['cnt']
+        except KeyError:
+            loop_cnt = None
 
         # Check if the body has a dominant indentation
         indentation = AsmHelper.find_indentation(body)
@@ -561,7 +555,7 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Optimizing loop %s (%d instructions) ...",
-            loop_lbl, len(body))
+            loop_lbl, len(list(filter(None, body))))
 
         if self.config.with_llvm_mca_before is True:
             orig_stats = self._make_llvm_mca_stats(early, body, late, "ORIGINAL", indentation)
