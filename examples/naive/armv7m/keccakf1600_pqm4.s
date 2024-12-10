@@ -194,9 +194,9 @@
  *****************************************************************************/
 .macro eorror   dst, src1, src2, rot1, rot2
 .if \rot1 >= \rot2
-    eor  \dst, \src1, \src2, ror \rot1-\rot2
+    eor  \dst, \src1, \src2, ror #\rot1-\rot2
 .else
-    eor  \dst, \src1, \src2, ror 32+\rot1-\rot2
+    eor  \dst, \src1, \src2, ror #32+\rot1-\rot2
 .endif
 .endm
 
@@ -211,9 +211,9 @@
  *****************************************************************************/
 .macro bicror   dst, src1, src2, rot1, rot2
 .if \rot1 >= \rot2
-    bic  \dst, \src1, \src2, ror \rot1-\rot2
+    bic  \dst, \src1, \src2, ror #\rot1-\rot2
 .else
-    bic  \dst, \src1, \src2, ror 32+\rot1-\rot2
+    bic  \dst, \src1, \src2, ror #32+\rot1-\rot2
 .endif
 .endm
 
@@ -271,7 +271,7 @@
  *  - rot           differential rotation btw src1 & src2 (i.e. rot=rot1-rot2)
  *****************************************************************************/
 .macro xorrol   dst, src1, src2, rot
-    eor  \dst, \src1, \src2, ror \rot-1
+    eor  \dst, \src1, \src2, ror #\rot-1
 .endm
 
 
@@ -352,7 +352,7 @@
     cmp     r7, #0xFF
 .endif
 .if \rot3 > 0
-    eor    r3, r3, r5, ror 32-\rot3
+    eor    r3, r3, r5, ror #32-\rot3
 .else
     eor.w  r3, r3, r5
 .endif
@@ -369,27 +369,27 @@
  *****************************************************************************/
 .macro addparity par1, dly1, par2, dly2, par3, dly3, par4, dly4, par5, dly5
 .if \dly1 > 0
-    eor    r3, \par1, r3, ror 32-\dly1
+    eor    r3, \par1, r3, ror #32-\dly1
 .else
     eor.w  r3, \par1, r3
 .endif
 .if \dly2 > 0
-    eor    r4, \par2, r4, ror 32-\dly2
+    eor    r4, \par2, r4, ror #32-\dly2
 .else
     eor.w  r4, \par2, r4
 .endif
 .if \dly3 > 0
-    eor    r5, \par3, r5, ror 32-\dly3
+    eor    r5, \par3, r5, ror #32-\dly3
 .else
     eor.w  r5, \par3, r5
 .endif
 .if \dly4 > 0
-    eor    r6, \par4, r6, ror 32-\dly4
+    eor    r6, \par4, r6, ror #32-\dly4
 .else
     eor.w  r6, \par4, r6
 .endif
 .if \dly5 > 0
-    eor    r7, \par5, r7, ror 32-\dly5
+    eor    r7, \par5, r7, ror #32-\dly5
 .else
     eor.w  r7, \par5, r7
 .endif
@@ -583,23 +583,23 @@
 .macro    KeccakRound1
     xor5str     r3, Asu0, Agu0, Amu0, Abu1, Aku1, 22, 10,  3, 18, 28, r14, r0, Aba1
     xor5        r7, Age1, Ame0, Abe0, Ake1, Ase1, 10, 22,  4,  7, 20
-    ror         r3, 32-22
+    ror         r3, #32-22
     xorrol      r6, r3, r7, 32-10
     xor5str     r4, Aki0, Asi0, Agi1, Ami0, Abi1,  7, 30,  9, 28,  1, r6, sp, mDa0
-    eor         r6, r3, r4, ror 32-7
+    eor         r6, r3, r4, ror #32-7
     xor5str     r3, Amo1, Abo0, Ako1, Aso0, Ago1,  0, 14,  1, 14, 31, r6, sp, mDo1
-    eor         r2, r3, r7, ror 32-10
+    eor         r2, r3, r7, ror #32-10
     xor5        r7, Aba0, Aka1, Asa0, Aga0, Ama1,  0,  2, 13,  5, 20
     xorrol     r10, r7, r4, 32-7
     xor5        r4, Amo0, Abo1, Ako0, Aso1, Ago0,  0, 14,  0, 13, 31
     eor        r14, r4, r7
     xor5        r7, Age0, Ame1, Abe1, Ake0, Ase0, 11, 23,  4,  8, 21
-    ror         r7, 32-11
+    ror         r7, #32-11
     xorrol      r6, r7, r4, 32
     xor5str     r4, Asu1, Agu1, Amu1, Abu0, Aku0, 22, 10,  3, 18, 27, r6, sp, mDi0
-    eor         r8, r7, r4, ror 32-22
+    eor         r8, r7, r4, ror #32-22
     xor5str     r7, Aki1, Asi1, Agi0, Ami1, Abi0,  7, 31,  9, 28,  1, r8, sp, mDa1
-    ror         r7, 32-7
+    ror         r7, #32-7
     xorrol      r9, r7, r4, 32-22
     xor5str     r4, Aba1, Aka0, Asa1, Aga1, Ama0,  0,  1, 12,  5, 19, r9, sp, mDo0
     eor        r11, r4, r7
@@ -677,23 +677,23 @@
 .macro    KeccakRound2
     xor5str     r3, Aku1, Agu0, Abu1, Asu1, Amu1, 22, 10,  3, 18, 28, r14, r0, Aba1
     xor5        r7, Ame0, Ake0, Age0, Abe0, Ase1, 10, 22,  4,  7, 20
-    ror         r3, 32-22
+    ror         r3, #32-22
     xorrol      r6, r3, r7, 32-10
     xor5str     r4, Agi0, Abi0, Asi0, Ami1, Aki0,  7, 30,  9, 28,  1, r6, sp, mDa0
-    eor         r6, r3, r4, ror 32-7
+    eor         r6, r3, r4, ror #32-7
     xor5str     r3, Aso1, Amo1, Ako0, Ago1, Abo1,  0, 14,  1, 14, 31, r6, sp, mDo1
-    eor         r2, r3, r7, ror 32-10
+    eor         r2, r3, r7, ror #32-10
     xor5        r7, Aba0, Asa1, Ama1, Aka1, Aga1,  0,  2, 13,  5, 20
     xorrol     r10, r7, r4, 32-7
     xor5        r4, Aso0, Amo0, Ako1, Ago0, Abo0,  0, 14,  0, 13, 31
     eor        r14, r4, r7
     xor5        r7, Ame1, Ake1, Age1, Abe1, Ase0, 11, 23,  4,  8, 21
-    ror         r7, 32-11
+    ror         r7, #32-11
     xorrol      r6, r7, r4, 32
     xor5str     r4, Aku0, Agu1, Abu0, Asu0, Amu0, 22, 10,  3, 18, 27, r6, sp, mDi0
-    eor         r8, r7, r4, ror 32-22
+    eor         r8, r7, r4, ror #32-22
     xor5str     r7, Agi1, Abi1, Asi1, Ami0, Aki1,  7, 31,  9, 28,  1, r8, sp, mDa1
-    ror         r7, 32-7
+    ror         r7, #32-7
     xorrol      r9, r7, r4, 32-22
     xor5str     r4, Aba1, Asa0, Ama0, Aka0, Aga0,  0,  1, 12,  5, 19, r9, sp, mDo0
     eor        r11, r4, r7
@@ -775,12 +775,12 @@
 .macro    KeccakRound3
     xor5str     r3, Amu1, Agu0, Asu1, Aku0, Abu0, 22, 10,  3, 18, 28, r14, r0, Aba1
     xor5        r7, Ake0, Abe1, Ame1, Age0, Ase1, 10, 22,  4,  7, 20
-    ror         r3, 32-22
+    ror         r3, #32-22
     xorrol      r6, r3, r7, 32-10
     xor5str     r4, Asi1, Aki1, Abi0, Ami0, Agi0,  7, 30,  9, 28,  1, r6, sp, mDa0
-    eor         r6, r3, r4, ror 32-7
+    eor         r6, r3, r4, ror #32-7
     xor5str     r3, Ago0, Aso1, Ako1, Abo1, Amo0,  0, 14,  1, 14, 31, r6, sp, mDo1
-    eor         r2, r3, r7, ror 32-10
+    eor         r2, r3, r7, ror #32-10
     xor5        r7, Aba0, Ama0, Aga1, Asa1, Aka0,  0,  2, 13,  5, 20
     xorrol     r10, r7, r4, 32-7
     xor5        r4, Ago1, Aso0, Ako0, Abo0, Amo1,  0, 14,  0, 13, 31
@@ -789,9 +789,9 @@
     ror         r7, #32-11
     xorrol      r6, r7, r4, 32
     xor5str     r4, Amu0, Agu1, Asu0, Aku1, Abu1, 22, 10,  3, 18, 27, r6, sp, mDi0
-    eor         r8, r7, r4, ror 32-22
+    eor         r8, r7, r4, ror #32-22
     xor5str     r7, Asi0, Aki0, Abi1, Ami1, Agi1,  7, 31,  9, 28,  1, r8, sp, mDa1
-    ror         r7, 32-7
+    ror         r7, #32-7
     xorrol      r9, r7, r4, 32-22
     xor5str     r4, Aba1, Ama1, Aga0, Asa0, Aka1,  0,  1, 12,  5, 19, r9, sp, mDo0
     eor        r11, r4, r7
