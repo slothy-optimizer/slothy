@@ -481,6 +481,32 @@
 .endif
 .endm
 
+.macro    KeccakThetaRhoPiChiSkipStore   src1, dst1, par1, rot1, dly1, \
+                                src2, dst2, par2, rot2, dly2, \
+                                src3, dst3, par3, rot3, dly3, \
+                                src4, dst4, par4, rot4, dly4, \
+                                src5, dst5, par5, rot5, dly5, \
+                                lazy, strofs
+    ldr.w       r3, [r0, #\src1] // @slothy:reads=[r0\src1]
+    ldr.w       r4, [r0, #\src2] // @slothy:reads=[r0\src2]
+    ldr.w       r5, [r0, #\src3] // @slothy:reads=[r0\src3]
+    ldr.w       r6, [r0, #\src4] // @slothy:reads=[r0\src4]
+    ldr.w       r7, [r0, #\src5] // @slothy:reads=[r0\src5]
+    addparity   \par1, \dly1, \par2, \dly2, \par3, \dly3, \par4, \dly4, \par5, \dly5
+.if \lazy == 1
+    xandnotlazystr  \dst1, r3, r4, r5, \rot1, \rot2, \rot3
+    xandnotlazystr  \dst2, r4, r5, r6, \rot2, \rot3, \rot4
+    xandnotlazystr  \dst3, r5, r6, r7, \rot3, \rot4, \rot5
+    xandnotlazystr  \dst4, r6, r7, r3, \rot4, \rot5, \rot1
+    xandnotlazy            r7, r3, r4, \rot5, \rot1, \rot2
+.else
+    xandnotstr      \dst1, r3, r4, r5, \rot1, \rot2, \rot3
+    xandnotstr      \dst2, r4, r5, r6, \rot2, \rot3, \rot4
+    xandnotstr      \dst3, r5, r6, r7, \rot3, \rot4, \rot5
+    xandnotstr      \dst4, r6, r7, r3, \rot4, \rot5, \rot1
+    xandnot                r7, r3, r4, \rot5, \rot1, \rot2
+.endif
+.endm
 
 /******************************************************************************
  * 1st round of the 4 unrolled rounds routine due to in-place processing.
@@ -508,7 +534,7 @@
     xor5str   r4, Aba1, Aga1, Aka1, Ama1, Asa1, 0, 0, 0, 0, 0, r9, sp, mDo0
     eor      r11, r4, r7
     xorrol   r12, r3, r4, 32
-    KeccakThetaRhoPiChi Abo0, Aka1,  r9, 14, 0, \
+    KeccakThetaRhoPiChiSkipStore Abo0, Aka1,  r9, 14, 0, \
                         Agu0, Ame1, r12, 10, 0, \
                         Aka1, Asi1,  r8,  2, 0, \
                         Ame1, Abo0, r11, 23, 0, \
@@ -604,7 +630,7 @@
     xor5str     r4, Aba1, Aka0, Asa1, Aga1, Ama0,  0,  1, 12,  5, 19, r9, sp, mDo0
     eor        r11, r4, r7
     xorrol     r12, r3, r4, 32
-    KeccakThetaRhoPiChi Amo1, Asa1,  r9, 14,  0, \
+    KeccakThetaRhoPiChiSkipStore Amo1, Asa1,  r9, 14,  0, \
                         Agu0, Ake1, r12, 10, 10, \
                         Asa1, Abi1,  r8,  2, 12, \
                         Ake1, Amo1, r11, 23,  7, \
@@ -698,7 +724,7 @@
     xor5str     r4, Aba1, Asa0, Ama0, Aka0, Aga0,  0,  1, 12,  5, 19, r9, sp, mDo0
     eor        r11, r4, r7
     xorrol     r12, r3, r4, 32
-    KeccakThetaRhoPiChi Aso1, Ama0,  r9, 14,  0, \
+    KeccakThetaRhoPiChiSkipStore Aso1, Ama0,  r9, 14,  0, \
                         Agu0, Abe0, r12, 10, 10, \
                         Ama0, Aki0,  r8,  2, 12, \
                         Abe0, Aso1, r11, 23,  7, \
@@ -796,7 +822,7 @@
     xor5str     r4, Aba1, Ama1, Aga0, Asa0, Aka1,  0,  1, 12,  5, 19, r9, sp, mDo0
     eor        r11, r4, r7
     xorrol     r12, r3, r4, 32
-    KeccakThetaRhoPiChi     Ago0, Aga0,  r9, 14,  0, \
+    KeccakThetaRhoPiChiSkipStore     Ago0, Aga0,  r9, 14,  0, \
                             Agu0, Age0, r12, 10, 10, \
                             Aga0, Agi0,  r8,  2, 12, \
                             Age0, Ago0, r11, 23,  7, \
