@@ -775,7 +775,7 @@ class AsmMacro():
             return a
 
         def apply_arg(l, arg, val):
-            l = re.sub(f"\\\\{arg}\\\\\(\)", val, l)
+            l = re.sub(f"\\\\{arg}\\\\\\(\\)", val, l)
             l = re.sub(f"\\\\{arg}(\\W|$)",val + "\\1", l)
             l = l.replace("\\()\\()", "\\()")
             return l
@@ -816,7 +816,7 @@ class AsmMacro():
         for arg in self.args:
             arg_regexps.append(rf"\s*(?P<{arg}>[^,]+)\s*")
 
-        macro_regexp_txt += '(,|\s)'.join(arg_regexps)
+        macro_regexp_txt += '(,|\\s)'.join(arg_regexps)
         macro_regexp = re.compile(macro_regexp_txt)
 
         output = []
