@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Slothy'
+project = 'SLOTHY'
 copyright = '2024, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann'
 author = 'Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann'
 
