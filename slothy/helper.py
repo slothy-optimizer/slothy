@@ -1147,8 +1147,38 @@ class LLVM_Mc():
         return sections_with_offsets[text_section[0]]
 
     @staticmethod
+    def llvm_mc_output_extract_symbol(objfile, symbol):
+        """Extracts symbol from an objectfile emitted by llvm-mc"""
+
+        # Feed object file through llvm-readobj
+        r = subprocess.run(["llvm-readobj", "-s", "-"], input=objfile, capture_output=True, check=True)
+        objfile_txt = r.stdout.decode().split("\n")
+
+        # So we look for lines "Name: ..." and lines "Value: ...".
+        def parse_as_int(s):
+            if s.startswith("0x"):
+                return int(s, base=16)
+            else:
+                return int(s,base=10)
+
+        symbols = filter(lambda l: l.strip().startswith("Name: "), objfile_txt)
+        symbols = list(map(lambda l: l.strip().removeprefix("Name: ").split(' ')[0].strip(), symbols))
+        values = filter(lambda l: l.strip().startswith("Value: "), objfile_txt)
+        values = map(lambda l: parse_as_int(l.strip().removeprefix("Value: ")), values)
+        symbols_with_values = { s:val for (s,val) in zip(symbols, values) }
+        matching_symbols = list(filter(lambda s: s.endswith(symbol), symbols))
+        # Sometimes assemble functions are named both `_foo` and `foo`, in which case we'd find
+        # multiple matching symbols -- however, they'd have the same value. Hence, only fail if
+        # there are multiple matching symbols of _different_ values.
+        if len({ symbols_with_values[s] for s in matching_symbols }) != 1:
+            raise LLVM_Mc_Error(f"Could not find unambiguous symbol {symbol} in object file. Symbols: {symbols}")
+        return symbols_with_values[matching_symbols[0]]
+
+    @staticmethod
     def assemble(source, arch, attr, log, symbol=None, preprocessor=None, include_paths=None):
         """Runs LLVM-MC tool to assemble `source`, returning byte code"""
+
+        thumb = "thumb" in arch or (attr is not None and "thumb" in attr)
 
         # Unfortunately, there is no option to directly extract byte code
         # from LLVM-MC: One either gets a textual description, or an object file.
@@ -1157,7 +1187,10 @@ class LLVM_Mc():
         # has a "encoding: [byte0, byte1, ...]" comment at the end.
 
         if symbol is None:
+            if thumb is True:
+                source = [SourceLine(".thumb")] + source
             source = [SourceLine(".global harness"),
+                      SourceLine(".type harness, %function"),
                       SourceLine("harness:")] + source
             symbol = "harness"
 
@@ -1167,7 +1200,12 @@ class LLVM_Mc():
                 source = CPreprocessor.unfold([], source, [], preprocessor,
                                               include=include_paths)
             except subprocess.CalledProcessError as exc:
+                log.error("CPreprocessor failed on the following input")
+                log.error(SouceLine.write_multiline(source))
                 raise LLVM_Mc_Error from exc
+
+        if platform.system() == "Darwin":
+            source = list(filter(lambda s: s.text.strip().startswith(".type") is False, source))
 
         code = SourceLine.write_multiline(source)
 
@@ -1184,6 +1222,8 @@ class LLVM_Mc():
             r = subprocess.run(["llvm-mc"] + args,
                                input=code.encode(), capture_output=True, check=True)
         except subprocess.CalledProcessError as exc:
+            log.error("llvm-mc failed to handle the following code")
+            log.error(code)
             raise LLVM_Mc_Error from exc
 
         args = [f"--arch={arch}", "--assemble", "--filetype=obj"]
@@ -1201,11 +1241,10 @@ class LLVM_Mc():
         offset, sz = LLVM_Mc.llvm_mc_output_extract_text_section(objfile)
         code = objfile[offset:offset+sz]
 
-        # Extract symbol table
-        r = subprocess.run(["llvm-nm","-"], input=objfile, capture_output=True)
-        out = r.stdout.decode()
-        symbol = next(filter(lambda l: symbol in l, out.split("\n")))
-        offset = int(symbol.split(" ")[0], base=16)
+        offset = LLVM_Mc.llvm_mc_output_extract_symbol(objfile, symbol)
+
+        if platform.system() == "Darwin" and thumb is True:
+            offset += 1
 
         return code, offset
 
