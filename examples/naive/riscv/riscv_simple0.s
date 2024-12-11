@@ -333,13 +333,13 @@ intt_8l_rv32im_looper_678:
     gs_bfu t2, t3, s2, s3, a6, a2, a3
     gs_bfu t4, t5, s4, s5, a6, a2, a3
     gs_bfu t6, tp, s6, s7, a6, a2, a3
-
+end_label:
     // level 7
     gs_bfu t0, t2, s8, s9, a6, a2, a3
     gs_bfu t1, t3, s8, s9, a6, a2, a3
     gs_bfu t4, t6, s10,s11,a6, a2, a3
     gs_bfu t5, tp, s10,s11,a6, a2, a3
-    end_label:
+
     // level 8
     gs_bfu t0, t4, gp, ra, a6, a2, a3
     gs_bfu t1, t5, gp, ra, a6, a2, a3

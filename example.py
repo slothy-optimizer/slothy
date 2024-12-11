@@ -1509,7 +1509,7 @@ class RISC_VExample0(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv32im")
 
     def core(self,slothy):
         slothy.config.variable_size=True
@@ -1533,7 +1533,7 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target)
+        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv64im")
 
     def core(self,slothy):
         slothy.config.variable_size=True
