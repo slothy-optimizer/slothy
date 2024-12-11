@@ -1,12 +1,6 @@
-## SLOTHY: Assembly optimization via constraint solving
-
-<p align="center">
-    <image src="./docs/slothy_logo.png" width=160>
-</p>
-
 ## About SLOTHY
 
-**SLOTHY** - **S**uper (**L**azy) **O**ptimization of **T**ricky **H**andwritten assembl**Y** - is an assembly-level superoptimizer
+**SLOTHY** - **S**\uper **L**\azy **O**\ptimization of **T**\ricky **H**\andwritten assembl**Y** - is an assembly-level superoptimizer
 for:
 1. Instruction scheduling
 2. Register allocation

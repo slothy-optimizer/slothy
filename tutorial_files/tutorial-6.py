@@ -1,7 +1,7 @@
 import logging
 import sys
 
-sys.path.append("../")
+sys.path.append("/")
 from slothy import Slothy
 
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon

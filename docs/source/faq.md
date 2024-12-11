@@ -1,10 +1,8 @@
----
-layout: default
----
+.. _faq:
 
 ## Frequently asked questions
 
-[back](index.md)
+[back](../index.md)
 
 #### Is SLOTHY a peephole optimizer?
 

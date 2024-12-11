@@ -15,7 +15,7 @@ instructions, and scheduling/allocation optimizations are tightly controlled thr
 constraints, the developer keeps close control over the final assembly, while being freed from tedious
 micro-optimizations.
 
-See also [FAQ](faq.md)
+See also [FAQ](source/faq.md)
 
 #### Architecture/Microarchitecture support
 
