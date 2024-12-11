@@ -1523,7 +1523,7 @@ class RISC_VExample0(Example):
 
 
 class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
-    def __init__(self, var="", arch=RISC_V, target=Target_XiunTanC908):
+    def __init__(self, var="", arch=RISC_V, target=Target_XiunTanC908, timeout=None):
         name = "ntt_8l_singleissue_plant_rv64im"
         subpath = "ntt_dilithium/"
         infile = subpath + name
@@ -1533,7 +1533,7 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv64im")
+        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv64im", timeout=timeout)
 
     def core(self,slothy):
         slothy.config.variable_size=True
@@ -1708,7 +1708,7 @@ def main():
 
                  # RISC-V
                  RISC_VExample0(target=Target_XiunTanC908),
-                 RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XiunTanC908)
+                 RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XiunTanC908, timeout=300)
                  ]
 
     all_example_names = [e.name for e in examples]
