@@ -160,6 +160,12 @@
   mulh \a_3, \a_3, \q32
 .endm
 
+.equ q,    8380417
+.equ q32,  0x7fe00100000000               // q << 32
+.equ qinv, 0x180a406003802001             // q^-1 mod 2^64
+.equ plantconst, 0x200801c0602            // (((-2**64) % q) * qinv) % (2**64)
+.equ plantconst2, 0xb7b9f10ccf939804      // (((-2**64) % q) * ((-2**64) % q) * qinv) % (2**64)
+
 // |input| < 0.5q; |output| < 4q
 // API: a0: poly, a1: 64-bit twiddle ptr; a6: q<<32; a7: tmp, variable twiddle factors; gp: loop;
 // s0-s11, a2-a5: 16 coeffs; 
