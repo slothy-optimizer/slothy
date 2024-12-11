@@ -1212,10 +1212,7 @@ class LLVM_Mc():
         log.debug(f"Calling LLVM MC assmelber on the following code")
         log.debug(code)
 
-        ### FOR DEBUGGING ONLY
-        ###
-        ### Remove once things work ...
-        args = [f"--arch={arch}", "--assemble", "--show-encoding"]
+        args = [f"--arch={arch}", "--assemble", "--filetype=obj"]
         if attr is not None:
             args.append(f"--mattr={attr}")
         try:
@@ -1224,15 +1221,8 @@ class LLVM_Mc():
         except subprocess.CalledProcessError as exc:
             log.error("llvm-mc failed to handle the following code")
             log.error(code)
-            raise LLVM_Mc_Error from exc
-
-        args = [f"--arch={arch}", "--assemble", "--filetype=obj"]
-        if attr is not None:
-            args.append(f"--mattr={attr}")
-        try:
-            r = subprocess.run(["llvm-mc"] + args,
-                               input=code.encode(), capture_output=True, check=True)
-        except subprocess.CalledProcessError as exc:
+            log.error("Output from llvm-mc")
+            log.error(exc.stderr.decode())
             raise LLVM_Mc_Error from exc
 
         # TODO: If there are relocations remaining, we should fail at this point
