@@ -44,7 +44,7 @@ import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
 import slothy.targets.riscv.riscv as RISC_V
-import slothy.targets.riscv.xuantie_c908 as Target_XiunTanC908
+import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
 
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
@@ -53,7 +53,7 @@ target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexM85r1: "m85",
                      Target_AppleM1_firestorm: "m1_firestorm",
                      Target_AppleM1_icestorm: "m1_icestorm",
-                     Target_XiunTanC908: "c908"}
+                     Target_XuanTieC908: "c908"}
 
 
 class ExampleException(Exception):
@@ -1500,7 +1500,7 @@ class fft_floatingpoint_radix4(Example):
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
 class RISC_VExample0(Example):
-    def __init__(self, var="", arch=RISC_V, target=Target_XiunTanC908):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
         name = "riscv_simple0"
         infile = name
 
@@ -1523,7 +1523,7 @@ class RISC_VExample0(Example):
 
 
 class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
-    def __init__(self, var="", arch=RISC_V, target=Target_XiunTanC908, timeout=None):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "ntt_8l_singleissue_plant_rv64im"
         subpath = "ntt_dilithium/"
         infile = subpath + name
@@ -1707,8 +1707,8 @@ def main():
                  fft_fixedpoint_radix4(),
 
                  # RISC-V
-                 RISC_VExample0(target=Target_XiunTanC908),
-                 RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XiunTanC908, timeout=300)
+                 RISC_VExample0(target=Target_XuanTieC908),
+                 RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300)
                  ]
 
     all_example_names = [e.name for e in examples]
