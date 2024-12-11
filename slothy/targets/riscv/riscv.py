@@ -44,7 +44,9 @@ class RegisterType(Enum):
     """
     Enum of all register types
     """
-    BASE_INT = 1  # 32 x-registers, 32-bit width + additional pc register
+    BASE_INT = 1,  # 32 scalar x-registers, 32-bit width + additional pc register
+    VECT = 2, # 32 vector v-registers, VLEN width
+    CSR = 3
 
     def __str__(self):
         return self.name
@@ -64,8 +66,20 @@ class RegisterType(Enum):
         """Return the list of all registers of a given type"""
 
         base_int = [f"x{i}" for i in range(32)]
-
+        # TODO: check for reserved regs
+        vector_regs = [f"v{i}" for i in range(32)]
+        csr = [
+            "vstart",
+            "vxsat",
+            "vxrm",
+            "vcsr",
+            "vtype",
+            "vl",
+            "vlenb"
+        ]
         return {RegisterType.BASE_INT: base_int,
+                RegisterType.VECT: vector_regs,
+                RegisterType.CSR: csr
                 }[reg_type]
 
     @staticmethod
