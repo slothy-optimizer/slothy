@@ -27,11 +27,18 @@
 
 import re
 import subprocess
+import os
 import platform
 import logging
 from abc import ABC, abstractmethod
 from sympy import simplify
 from slothy.targets.common import *
+
+try:
+    from unicorn import *
+    from unicorn.arm64_const import *
+except ImportError:
+    Uc = None
 
 class SourceLine:
     """Representation of a single line of source code"""
@@ -1268,6 +1275,109 @@ class LLVM_Mca():
             raise LLVM_Mca_Error from exc
         res = r.stdout.split('\n')
         return res
+
+class SelfTestException(Exception):
+    """Exception thrown upon selftest failures"""
+
+class SelfTest():
+
+    @staticmethod
+    def run(config, log, codeA, codeB, address_gprs, output_registers, iterations, fnsym=None):
+        CODE_BASE = 0x010000
+        CODE_SZ = 0x010000
+        CODE_END = CODE_BASE + CODE_SZ
+        RAM_BASE = 0x030000
+        RAM_SZ = 0x010000
+        STACK_BASE = 0x040000
+        STACK_SZ = 0x010000
+        STACK_TOP = STACK_BASE + STACK_SZ
+
+        regs = [r for ty in config.arch.RegisterType for r in \
+            config.arch.RegisterType.list_registers(ty)]
+
+        def run_code(code, txt=None):
+            objcode, offset = LLVM_Mc.assemble(code,
+                                       config.arch.llvm_mc_arch,
+                                       config.arch.llvm_mc_attr,
+                                       log, symbol=fnsym,
+                                       preprocessor=config.compiler_binary,
+                                       include_paths=config.compiler_include_paths)
+            # Setup emulator
+            mu = Uc(config.arch.unicorn_arch, config.arch.unicorn_mode)
+            # Copy initial register contents into emulator
+            for r,v in initial_register_contents.items():
+                ur = config.arch.RegisterType.unicorn_reg_by_name(r)
+                if ur is None:
+                    continue
+                mu.reg_write(ur, v)
+            if fnsym is not None:
+                # If we expect a function return, put a valid address in the LR
+                # that serves as the marker to terminate emulation
+                mu.reg_write(config.arch.RegisterType.unicorn_link_register(), CODE_END)
+            # Setup stack
+            mu.reg_write(config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP)
+            # Copy code into emulator
+            mu.mem_map(CODE_BASE, CODE_SZ)
+            mu.mem_write(CODE_BASE, objcode)
+
+            # Copy initial memory contents into emulator
+            mu.mem_map(RAM_BASE, RAM_SZ)
+            mu.mem_write(RAM_BASE, initial_memory)
+            # Setup stack
+            mu.mem_map(STACK_BASE, STACK_SZ)
+            mu.mem_write(STACK_BASE, initial_stack)
+            # Run emulator
+            try:
+                # For a function, expect a function return; otherwise, expect
+                # to run to the address CODE_END stored in the link register
+                if fnsym is None:
+                    mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
+                else:
+                    mu.emu_start(CODE_BASE + offset, CODE_END)
+            except:
+                log.error("Failed to emulate code using unicorn engine")
+                log.error("Code")
+                log.error(SouceLine.write_multiline(code))
+
+            final_register_contents = {}
+            for r in regs:
+                ur = config.arch.RegisterType.unicorn_reg_by_name(r)
+                if ur is None:
+                    continue
+                final_register_contents[r] = mu.reg_read(ur)
+            final_memory_contents = mu.mem_read(RAM_BASE, RAM_SZ)
+
+            return final_register_contents, final_memory_contents
+
+        for _ in range(iterations):
+            initial_memory = os.urandom(RAM_SZ)
+            initial_stack = os.urandom(STACK_SZ)
+            cur_ram = RAM_BASE
+            # Set initial register contents arbitrarily, except for registers
+            # which must hold valid memory addresses.
+            initial_register_contents = {}
+            for r in regs:
+                initial_register_contents[r] = int.from_bytes(os.urandom(16))
+            for (reg, sz) in address_gprs.items():
+                initial_register_contents[reg] = cur_ram
+                cur_ram += sz
+
+            final_regs_old, final_mem_old = run_code(codeA, txt="old")
+            final_regs_new, final_mem_new = run_code(codeB, txt="new")
+
+            # Check if memory contents are the same
+            if final_mem_old != final_mem_new:
+                raise SelfTestException(f"Selftest failed: Memory mismatch")
+
+            # Check that callee-saved registers are the same
+            for r in output_registers:
+                if final_regs_old[r] != final_regs_new[r]:
+                    raise SelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
+
+        if fnsym is None:
+            log.info(f"Local selftest: OK")
+        else:
+            log.info(f"Global selftest for {fnsym}: OK")
 
 class Permutation():
     """Helper class for manipulating permutations"""
