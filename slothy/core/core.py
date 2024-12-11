@@ -905,7 +905,12 @@ class Result(LockAttributes):
             mu.mem_map(RAM_BASE, RAM_SZ)
             mu.mem_write(RAM_BASE, initial_memory)
             # Run emulator
-            mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
+            try:
+                mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
+            except:
+                log.error("Failed to emulate code using unicorn engine")
+                log.error("Code")
+                log.error(SouceLine.write_multiline(code))
 
             final_register_contents = {}
             for r in regs:

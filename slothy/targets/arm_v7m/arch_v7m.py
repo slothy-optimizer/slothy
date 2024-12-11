@@ -14,11 +14,11 @@ from sympy import simplify
 
 arch_name = "Arm_v7M"
 llvm_mca_arch = "arm"
-llvm_mc_arch = "arm" ### TODO: What to put here?
-llvm_mc_attr = "armv5te,thumb2,dsp" ### TODO: What to put here?
+llvm_mc_arch = "thumb"
+llvm_mc_attr = "armv7e-m,thumb2,dsp,fpregs"
 
 unicorn_arch = UC_ARCH_ARM
-unicorn_mode = UC_MODE_ARM
+unicorn_mode = UC_MODE_THUMB | UC_MODE_MCLASS
 
 class RegisterType(Enum):
     GPR = 1
