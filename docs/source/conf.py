@@ -16,8 +16,7 @@ author = 'Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergerman
 extensions = [
     'sphinx.ext.imgmath',
     'sphinx_rtd_theme',
-    'sphinx.ext.autosectionlabel',
-    #'autoapi.extension',
+    'autoapi.extension',
     #'myst_parser',
     'sphinx_mdinclude',
 
@@ -32,7 +31,7 @@ source_suffix = {
 }
 master_doc = 'index'
 
-#autoapi_dirs = ['../../slothy']
+autoapi_dirs = ['../../slothy']
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
