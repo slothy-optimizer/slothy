@@ -1978,14 +1978,11 @@ class intt_769_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        slothy.config.selftest = False
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.split_heuristic = True
-
-        slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
+        slothy.config.reserved_regs = ["r1", "r13"] + [f"s{i}" for i in range(23, 32)]
 
         slothy.config.split_heuristic_factor = 8
         slothy.config.split_heuristic_stepsize = 0.1
@@ -2261,12 +2258,10 @@ class intt_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        slothy.config.selftest = False
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
-        slothy.config.reserved_regs = ["r1", "r13", "s23-s31"]
+        slothy.config.reserved_regs = ["r1", "r13"] + [f"s{i}" for i in range(23, 32)]
         slothy.config.timeout = 300
 
         # Step 1: optimize first loop
