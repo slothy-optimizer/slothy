@@ -211,8 +211,6 @@ class ExampleKeccak(Example):
         slothy.config.reserved_regs = ["sp", "r13"]
         slothy.config.locked_registers = ["sp", "r13"]
         slothy.config.split_heuristic_estimate_performance = True
-        # TODO: fix selftest
-        slothy.config.selftest = False
 
         # slothy.config.with_llvm_mca = True
         # slothy.config.llvm_mca_full = True
@@ -1654,9 +1652,6 @@ class ntt_dilithium(Example):
         # slothy.config.with_llvm_mca = True
         # slothy.config.llvm_mca_full = True
 
-        # TODO: fix selftest
-        # slothy.config.selftest = False
-
         slothy.config.constraints.stalls_first_attempt = 16
 
         slothy.config.unsafe_address_offset_fixup = False
@@ -1699,8 +1694,6 @@ class intt_dilithium_123_456_78(Example):
         slothy.config.constraints.stalls_first_attempt = 16
 
         slothy.config.unsafe_address_offset_fixup = False
-        # TODO: fix selftest
-        # slothy.config.selftest = False
 
 
         slothy.config.variable_size = True
@@ -1773,8 +1766,6 @@ class fnt_257_dilithium(Example):
 
     def core(self, slothy):
 
-        # TODO: fix selftest
-        # slothy.config.selftest = False
 
         slothy.config.outputs = ["r14", "r12"]
         slothy.config.inputs_are_outputs = True
@@ -1826,9 +1817,6 @@ class ifnt_257_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
-
         slothy.config.unsafe_address_offset_fixup = False
 
         slothy.config.outputs = ["r14", "s1", "r12"]
@@ -1863,8 +1851,6 @@ class basemul_257_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
 
         slothy.config.outputs = ["r12", "r14"]
         slothy.config.inputs_are_outputs = True
@@ -1886,8 +1872,6 @@ class basemul_257_asymmetric_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.outputs = ["r14", "r12"]
         slothy.config.inputs_are_outputs = True
 
@@ -1910,7 +1894,7 @@ class ntt_769_dilithium(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.outputs = ["r14"]
@@ -1993,7 +1977,7 @@ class intt_769_dilithium(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
@@ -2045,8 +2029,6 @@ class pointwise_769_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2073,8 +2055,6 @@ class pointwise_769_asymmetric_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.outputs = ["r10"]
         slothy.config.inputs_are_outputs = True
 
@@ -2095,8 +2075,6 @@ class reduce32_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.outputs = ["r10"]
         slothy.config.with_llvm_mca = True
         slothy.config.llvm_mca_full = True
@@ -2139,7 +2117,7 @@ class ntt_kyber(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.outputs = ["r14", "s23"]
 
         r = slothy.config.reserved_regs
@@ -2282,7 +2260,7 @@ class intt_kyber(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
@@ -2331,8 +2309,6 @@ class basemul_16_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
@@ -2354,8 +2330,6 @@ class basemul_acc_32_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2381,8 +2355,6 @@ class basemul_acc_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2408,8 +2380,6 @@ class frombytes_mul_16_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2435,8 +2405,6 @@ class frombytes_mul_acc_32_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2462,8 +2430,6 @@ class frombytes_mul_acc_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2541,8 +2507,6 @@ class barrett_reduce_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.outputs = ["r9"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
@@ -2588,8 +2552,6 @@ class fromplant_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.outputs = ["r9"]
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
@@ -2612,8 +2574,6 @@ class basemul_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
@@ -2638,8 +2598,6 @@ class basemul_acc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.outputs = ["r14"]
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
@@ -2664,8 +2622,6 @@ class frombytes_mul_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2691,8 +2647,6 @@ class frombytes_mul_acc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2716,8 +2670,6 @@ class matacc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2741,8 +2693,6 @@ class matacc_acc_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        # slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
@@ -2768,7 +2718,7 @@ class matacc_asm_opt_16_32_kyber(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2796,7 +2746,7 @@ class matacc_asm_opt_32_32_kyber(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2825,7 +2775,7 @@ class matacc_asm_opt_32_16_kyber(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2853,7 +2803,7 @@ class matacc_asm_cache_16_32_kyber(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2881,7 +2831,7 @@ class matacc_asm_cache_32_32_kyber(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2908,7 +2858,7 @@ class matacc_asm_cache_32_16_kyber(Example):
 
     def core(self, slothy):
         # TODO: fix selftest
-        # slothy.config.selftest = False
+        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
