@@ -30,7 +30,7 @@
 
 	neg \zeta, \zeta
 
-	ldr.w \poly0, [\bptr, #-4]
+	ldr \poly0, [\bptr, #-4]
 	//basemul(r->coeffs + 4 * i + 2, a->coeffs + 4 * i + 2, b->coeffs + 4 * i + 2, - zetas[64 + i]);
 	smulwt \tmp, \zeta, \poly3 
 	smlabt \tmp, \tmp, \q, \qa  

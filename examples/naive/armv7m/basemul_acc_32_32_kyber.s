@@ -48,9 +48,9 @@ basemul_asm_acc_opt_32_32:
 
     ldr poly0, [aptr, #-4]
     ldr poly1, [bptr, #-4]
-    ldr.w res0, [rptr_tmp, #-8]
+    ldr res0, [rptr_tmp, #-8]
     ldr tmp2, [aprimeptr, #-4]
-    ldr.w res1, [rptr_tmp, #-4]
+    ldr res1, [rptr_tmp, #-4]
     
     smlad tmp2, tmp2, poly1, res0
     str tmp2, [rptr_tmp, #-8]

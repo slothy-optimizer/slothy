@@ -11,7 +11,7 @@
 
 // 2
 .macro addSub1 c0, c1
-    add.w \c0, \c1
+    add.w \c0, \c0, \c1
     sub.w \c1, \c0, \c1, lsl #1
 .endm
 
@@ -249,18 +249,18 @@ pqcrystals_dilithium_invntt_tomont:
     _3_layer_inv_butterfly_light_fast_first pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, s2, s3, s4, s5, s6, s7, s8, zeta, qinv, q, temp_h, temp_l
     
     ldr.w pol0, [ptr_p], #128
-    ldr.w pol1, [ptr_p, #1*distance2/4-128]
-    ldr.w pol2, [ptr_p, #2*distance2/4-128]
-    ldr.w pol3, [ptr_p, #3*distance2/4-128]
+    ldr pol1, [ptr_p, #1*distance2/4-128]
+    ldr pol2, [ptr_p, #2*distance2/4-128]
+    ldr pol3, [ptr_p, #3*distance2/4-128]
     _3_layer_inv_butterfly_light_fast_second pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, s2, s3, s4, s5, s6, s7, s8, zeta, qinv, q, temp_h, temp_l
 
-    str.w pol1, [ptr_p, #1*distance2/4-128]
-    str.w pol2, [ptr_p, #2*distance2/4-128]
-    str.w pol3, [ptr_p, #3*distance2/4-128]
+    str pol1, [ptr_p, #1*distance2/4-128]
+    str pol2, [ptr_p, #2*distance2/4-128]
+    str pol3, [ptr_p, #3*distance2/4-128]
     str.w pol5, [ptr_p, #5*distance2/4-128]
     str.w pol6, [ptr_p, #6*distance2/4-128]
     str.w pol7, [ptr_p, #7*distance2/4-128]
-    str.w pol0, [ptr_p, #-128]
+    str pol0, [ptr_p, #-128]
     str.w pol4, [ptr_p], #128
     //add.w ptr_p, #strincr2
 
@@ -282,9 +282,9 @@ pqcrystals_dilithium_invntt_tomont:
     vmov s0, ptr_zeta
     layer456_loop:
 	    ldr.w pol0, [ptr_p], #128
-	    ldr.w pol1, [ptr_p, #1*distance2/4-128]
-	    ldr.w pol2, [ptr_p, #2*distance2/4-128]
-	    ldr.w pol3, [ptr_p, #3*distance2/4-128]
+	    ldr pol1, [ptr_p, #1*distance2/4-128]
+	    ldr pol2, [ptr_p, #2*distance2/4-128]
+	    ldr pol3, [ptr_p, #3*distance2/4-128]
 	    ldr.w pol4, [ptr_p, #4*distance2/4-128]
 	    ldr.w pol5, [ptr_p, #5*distance2/4-128]
 	    ldr.w pol6, [ptr_p, #6*distance2/4-128]
@@ -292,13 +292,13 @@ pqcrystals_dilithium_invntt_tomont:
 
 	    _3_layer_inv_CT_32 pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, s2, s3, s4, s5, s6, s7, s8, zeta, qinv, q, temp_h, temp_l
 
-	    str.w pol1, [ptr_p, #1*distance2/4-128]
-	    str.w pol2, [ptr_p, #2*distance2/4-128]
-	    str.w pol3, [ptr_p, #3*distance2/4-128]
+	    str pol1, [ptr_p, #1*distance2/4-128]
+	    str pol2, [ptr_p, #2*distance2/4-128]
+	    str pol3, [ptr_p, #3*distance2/4-128]
 	    str.w pol5, [ptr_p, #5*distance2/4-128]
 	    str.w pol6, [ptr_p, #6*distance2/4-128]
 	    str.w pol7, [ptr_p, #7*distance2/4-128]
-	    str.w pol0, [ptr_p, #-128]
+	    str pol0, [ptr_p, #-128]
       str.w pol4, [ptr_p], #128
 	    //add.w ptr_p, #strincr2
 
