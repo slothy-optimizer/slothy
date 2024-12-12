@@ -61,13 +61,13 @@
 	ldrb.w \tmp3, [\aptr, #5]
 	ldrh.w \t0, [\aptr], #6
 
-	ubfx.w \t1, \t0, #12, #4
-	ubfx.w \t0, \t0, #0, #12
+	ubfx \t1, \t0, #12, #4
+	ubfx \t0, \t0, #0, #12
 	orr \t1, \t1, \tmp, lsl #4
 	orr \t0, \t0, \t1, lsl #16
 	//tmp is free now
-	ubfx.w \t1, \tmp2, #12, #4
-	ubfx.w \tmp, \tmp2, #0, #12
+	ubfx \t1, \tmp2, #12, #4
+	ubfx \tmp, \tmp2, #0, #12
 	orr \t1, \t1, \tmp3, lsl #4
 	orr \t1, \tmp, \t1, lsl #16
 .endm
