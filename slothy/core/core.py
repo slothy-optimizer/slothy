@@ -39,7 +39,7 @@ import ortools
 from ortools.sat.python import cp_model
 
 from slothy.core.config import Config
-from slothy.helper import LockAttributes, Permutation, DeferHandler, SourceLine, LLVM_Mc
+from slothy.helper import LockAttributes, Permutation, DeferHandler, SourceLine, LLVM_Mc, SelfTest, SelfTestException
 
 try:
     from unicorn import *
@@ -869,80 +869,14 @@ class Result(LockAttributes):
         else:
             old_source, new_source = self.orig_code, self.code
 
-        CODE_BASE = 0x010000
-        CODE_SZ =   0x010000
-        RAM_BASE =  0x020000
-        RAM_SZ =    0x010000
+        # Check if register contents are the same
+        regs_expected = set(self.config.outputs).union(self.config.reserved_regs)
+        # Ignore hint registers, flags and sp for now
+        regs_expected = set(filter(lambda t: t.startswith("t") is False and
+                                         t != "sp" and t != "flags", regs_expected))
 
-        regs = [r for ty in self._config.arch.RegisterType for r in \
-            self._config.arch.RegisterType.list_registers(ty)]
-
-        def run_code(code, txt=None):
-            objcode, offset = LLVM_Mc.assemble(code,
-                                       self._config.arch.llvm_mc_arch,
-                                       self._config.arch.llvm_mc_attr,
-                                       log)
-            # Setup emulator
-            mu = Uc(self.config.arch.unicorn_arch, self.config.arch.unicorn_mode)
-            # Copy initial register contents into emulator
-            for r,v in initial_register_contents.items():
-                ur = self._config.arch.RegisterType.unicorn_reg_by_name(r)
-                if ur is None:
-                    continue
-                mu.reg_write(ur, v)
-            # Copy code into emulator
-            mu.mem_map(CODE_BASE, CODE_SZ)
-            mu.mem_write(CODE_BASE, objcode)
-            # Copy initial memory contents into emulator
-            mu.mem_map(RAM_BASE, RAM_SZ)
-            mu.mem_write(RAM_BASE, initial_memory)
-            # Run emulator
-            try:
-                mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
-            except:
-                log.error("Failed to emulate code using unicorn engine")
-                log.error("Code")
-                log.error(SouceLine.write_multiline(code))
-
-            final_register_contents = {}
-            for r in regs:
-                ur = self._config.arch.RegisterType.unicorn_reg_by_name(r)
-                if ur is None:
-                    continue
-                final_register_contents[r] = mu.reg_read(ur)
-            final_memory_contents = mu.mem_read(RAM_BASE, RAM_SZ)
-
-            return final_register_contents, final_memory_contents
-
-        for _ in range(self._config.selftest_iterations):
-            initial_memory = os.urandom(RAM_SZ)
-            cur_ram = RAM_BASE
-            # Set initial register contents arbitrarily, except for registers
-            # which must hold valid memory addresses.
-            initial_register_contents = {}
-            for r in regs:
-                initial_register_contents[r] = int.from_bytes(os.urandom(16))
-            for (reg, sz) in address_gprs.items():
-                initial_register_contents[reg] = cur_ram
-                cur_ram += sz
-
-            final_regs_old, final_mem_old = run_code(old_source, txt="old")
-            final_regs_new, final_mem_new = run_code(new_source, txt="new")
-
-            # Check if memory contents are the same
-            if final_mem_old != final_mem_new:
-                raise SlothySelfTestException(f"Selftest failed: Memory mismatch")
-
-            # Check if register contents are the same
-            regs_expected = set(self.config.outputs).union(self.config.reserved_regs)
-            # Ignore hint registers, flags and sp for now
-            regs_expected = set(filter(lambda t: t.startswith("t") is False and
-                                             t != "sp" and t != "flags", regs_expected))
-            for r in regs_expected:
-                if final_regs_old[r] != final_regs_new[r]:
-                    raise SlothySelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
-
-        log.info("Local selftest: OK")
+        SelfTest.run(self.config, log, old_source, new_source, address_gprs, regs_expected,
+                     self.config.selftest_iterations)
 
     def selfcheck_with_fixup(self, log):
         """Do selfcheck, and consider preamble/postamble fixup in case of SW pipelining
@@ -1437,12 +1371,6 @@ class Result(LockAttributes):
         self._restores = {}
 
         self.lock()
-
-class SlothySelfCheckException(Exception):
-    """Exception thrown upon selfcheck failures"""
-
-class SlothySelfTestException(Exception):
-    """Exception thrown upon selftest failures"""
 
 class SlothyBase(LockAttributes):
     """Stateless core of SLOTHY.
