@@ -138,15 +138,15 @@
     vmov \tmp, \xi4
     vmov \tmp2, \xi6
 
-    smull.w \c0, \c5, \c1, \tmp
-    smlal.w \c0, \c5, \c3, \tmp2
+    smull \c0, \c5, \c1, \tmp
+    smlal \c0, \c5, \c3, \tmp2
     mul.w \twiddle, \c0, \Qprime
-    smlal.w \c0, \c5, \twiddle, \Q
+    smlal \c0, \c5, \twiddle, \Q
 
-    smull.w \c2, \c7, \c1, \tmp2
-    smlal.w \c2, \c7, \c3, \tmp
+    smull \c2, \c7, \c1, \tmp2
+    smlal \c2, \c7, \c3, \tmp
     mul.w \twiddle, \c2, \Qprime
-    smlal.w \c2, \c7, \twiddle, \Q
+    smlal \c2, \c7, \twiddle, \Q
 .endm
 
 /************************************************************
