@@ -28,7 +28,7 @@
 
 // 2
 .macro barrett_32 a, Qbar, Q, tmp
-    smmulr.w \tmp, \a, \Qbar
+    smmulr \tmp, \a, \Qbar
     mls \a, \tmp, \Q, \a
 .endm
 
