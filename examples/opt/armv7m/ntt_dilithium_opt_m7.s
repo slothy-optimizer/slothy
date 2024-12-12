@@ -140,12 +140,12 @@
 
     smull \c0, \c5, \c1, \tmp
     smlal \c0, \c5, \c3, \tmp2
-    mul.w \twiddle, \c0, \Qprime
+    mul \twiddle, \c0, \Qprime
     smlal \c0, \c5, \twiddle, \Q
 
     smull \c2, \c7, \c1, \tmp2
     smlal \c2, \c7, \c3, \tmp
-    mul.w \twiddle, \c2, \Qprime
+    mul \twiddle, \c2, \Qprime
     smlal \c2, \c7, \twiddle, \Q
 .endm
 

@@ -68,14 +68,14 @@
     vmov \c1, \c1f
     add.w \c0, \c1
     sub.w \c1, \c0, \c1, lsl #1
-    mul.w \c1, \twiddle
+    mul \c1, \twiddle
 .endm
 
 .macro final_butterfly2 c0, c0out, c1, c1f, twiddle, twiddle2
     vmov \c1, \c1f
     mla.w \c0out, \twiddle2, \c1, \c0
     mls.w \c1, \twiddle2, \c1, \c0
-    mul.w \c1, \twiddle
+    mul \c1, \twiddle
 .endm
 
 .syntax unified
@@ -101,9 +101,9 @@ __asm_ifnt_257:
 
             addSub4 r4, r5, r6, r7, r8, r9, r10, r11
             vmov r14, s6
-            mul.w r5, r5, r14
+            mul r5, r5, r14
             vmov r14, s8
-            mul.w r9, r9, r14
+            mul r9, r9, r14
             addSub2 r4, r6, r8, r10
             vmov r14, s7
             mla.w r12, r7, r14, r5
@@ -115,11 +115,11 @@ __asm_ifnt_257:
             // r4, r12, r6, r7, r8, r5, r10, r11
 
             vmov r14, s12
-            mul.w r6, r6, r14
-            mul.w r7, r7, r14
+            mul r6, r6, r14
+            mul r7, r7, r14
             vmov r14, s13
-            mul.w r10, r10, r14
-            mul.w r11, r11, r14
+            mul r10, r10, r14
+            mul r11, r11, r14
 
     barrett_32 r4, r2, r3, r14
     barrett_32 r12, r2, r3, r14
@@ -141,9 +141,9 @@ __asm_ifnt_257:
 
             addSub4 r4, r5, r6, r7, r8, r9, r10, r11
             vmov r14, s2
-            mul.w r5, r5, r14
+            mul r5, r5, r14
             vmov r14, s4
-            mul.w r9, r9, r14
+            mul r9, r9, r14
             addSub2 r4, r6, r8, r10
             vmov r14, s3
             mla.w r12, r7, r14, r5
@@ -155,11 +155,11 @@ __asm_ifnt_257:
             // r4, r12, r6, r7, r8, r5, r10, r11
 
             vmov r14, s10
-            mul.w r6, r6, r14
-            mul.w r7, r7, r14
+            mul r6, r6, r14
+            mul r7, r7, r14
             vmov r14, s11
-            mul.w r10, r10, r14
-            mul.w r11, r11, r14
+            mul r10, r10, r14
+            mul r11, r11, r14
 
     barrett_32 r4, r2, r3, r14
     barrett_32 r12, r2, r3, r14
@@ -172,10 +172,10 @@ __asm_ifnt_257:
 
             addSub4 r4, r8, r6, r10, r12, r5, r7, r11
             vmov r14, s14
-            mul.w r8, r8, r14
-            mul.w r5, r5, r14
-            mul.w r10, r10, r14
-            mul.w r11, r11, r14
+            mul r8, r8, r14
+            mul r5, r5, r14
+            mul r10, r10, r14
+            mul r11, r11, r14
             vmov r14, s16
             final_butterfly r12, r9, s18, r14
             str.w r12, [r0, #(2*1*width)]
@@ -209,9 +209,9 @@ __asm_ifnt_257:
 
             addSub4 r4, r5, r6, r7, r8, r9, r10, r11
             vmov r14, s6
-            mul.w r5, r5, r14
+            mul r5, r5, r14
             vmov r14, s8
-            mul.w r9, r9, r14
+            mul r9, r9, r14
             addSub2 r4, r6, r8, r10
             vmov r14, s7
             mla.w r12, r7, r14, r5
@@ -223,11 +223,11 @@ __asm_ifnt_257:
             // r4, r12, r6, r7, r8, r5, r10, r11
 
             vmov r14, s12
-            mul.w r6, r6, r14
-            mul.w r7, r7, r14
+            mul r6, r6, r14
+            mul r7, r7, r14
             vmov r14, s13
-            mul.w r10, r10, r14
-            mul.w r11, r11, r14
+            mul r10, r10, r14
+            mul r11, r11, r14
 
     barrett_32 r4, r2, r3, r14
     barrett_32 r12, r2, r3, r14
@@ -249,9 +249,9 @@ __asm_ifnt_257:
 
             addSub4 r4, r5, r6, r7, r8, r9, r10, r11
             vmov r14, s2
-            mul.w r5, r5, r14
+            mul r5, r5, r14
             vmov r14, s4
-            mul.w r9, r9, r14
+            mul r9, r9, r14
             addSub2 r4, r6, r8, r10
             vmov r14, s3
             mla.w r12, r7, r14, r5
@@ -263,11 +263,11 @@ __asm_ifnt_257:
             // r4, r12, r6, r7, r8, r5, r10, r11
 
             vmov r14, s10
-            mul.w r6, r6, r14
-            mul.w r7, r7, r14
+            mul r6, r6, r14
+            mul r7, r7, r14
             vmov r14, s11
-            mul.w r10, r10, r14
-            mul.w r11, r11, r14
+            mul r10, r10, r14
+            mul r11, r11, r14
 
     barrett_32 r4, r2, r3, r14
     barrett_32 r12, r2, r3, r14
@@ -280,10 +280,10 @@ __asm_ifnt_257:
 
             addSub4 r4, r8, r6, r10, r12, r5, r7, r11
             vmov r14, s14
-            mul.w r8, r8, r14
-            mul.w r5, r5, r14
-            mul.w r10, r10, r14
-            mul.w r11, r11, r14
+            mul r8, r8, r14
+            mul r5, r5, r14
+            mul r10, r10, r14
+            mul r11, r11, r14
             vmov r14, s16
 
             final_butterfly r12, r9, s18, r14
