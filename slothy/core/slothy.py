@@ -55,16 +55,13 @@ from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
 from slothy.helper import CPreprocessor, SourceLine
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, AsmIfElse
-from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mc, LLVM_Mca_Error
+from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mc, LLVM_Mca_Error, SelfTest, SelfTestException
 
 try:
     from unicorn import *
     from unicorn.arm64_const import *
 except ImportError:
     Uc = None
-
-class SlothyGlobalSelfTestException(Exception):
-    """Exception thrown upon global selftest failures"""
 
 class Slothy:
     """SLOTHY optimizer
@@ -191,7 +188,7 @@ class Slothy:
         log = self.logger.getChild(f"global_selftest_{funcname}")
 
         if Uc is None:
-            raise SlothyGlobalSelfTestException("Cannot run selftest -- unicorn-engine is not available.")
+            raise SelfTestException("Cannot run selftest -- unicorn-engine is not available.")
 
         if self.config.arch.unicorn_arch is None or \
            self.config.arch.llvm_mc_arch is None:
@@ -201,87 +198,9 @@ class Slothy:
         old_source = self.original_source
         new_source = self.source
 
-        CODE_BASE = 0x010000
-        CODE_SZ = 0x010000
-        CODE_END = CODE_BASE + CODE_SZ
-        RAM_BASE = 0x030000
-        RAM_SZ = 0x010000
-        STACK_BASE = 0x040000
-        STACK_SZ = 0x010000
-        STACK_TOP = STACK_BASE + STACK_SZ
-
-        regs = [r for ty in self.config.arch.RegisterType for r in \
-            self.config.arch.RegisterType.list_registers(ty)]
-
-        def run_code(code, txt=None):
-            objcode, offset = LLVM_Mc.assemble(code,
-                                       self.config.arch.llvm_mc_arch,
-                                       self.config.arch.llvm_mc_attr,
-                                       log, symbol=funcname,
-                                       preprocessor=self.config.compiler_binary,
-                                       include_paths=self.config.compiler_include_paths)
-            # Setup emulator
-            mu = Uc(self.config.arch.unicorn_arch, self.config.arch.unicorn_mode)
-            # Copy initial register contents into emulator
-            for r,v in initial_register_contents.items():
-                ur = self.config.arch.RegisterType.unicorn_reg_by_name(r)
-                if ur is None:
-                    continue
-                mu.reg_write(ur, v)
-            # Put a valid address in the LR that serves as the marker to terminate emulation
-            mu.reg_write(self.config.arch.RegisterType.unicorn_link_register(), CODE_END)
-            # Setup stack
-            mu.reg_write(self.config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP)
-            # Copy code into emulator
-            mu.mem_map(CODE_BASE, CODE_SZ)
-            mu.mem_write(CODE_BASE, objcode)
-
-            # Copy initial memory contents into emulator
-            mu.mem_map(RAM_BASE, RAM_SZ)
-            mu.mem_write(RAM_BASE, initial_memory)
-            # Setup stack
-            mu.mem_map(STACK_BASE, STACK_SZ)
-            mu.mem_write(STACK_BASE, initial_stack)
-            # Run emulator
-            mu.emu_start(CODE_BASE + offset, CODE_END)
-
-            final_register_contents = {}
-            for r in regs:
-                ur = self.config.arch.RegisterType.unicorn_reg_by_name(r)
-                if ur is None:
-                    continue
-                final_register_contents[r] = mu.reg_read(ur)
-            final_memory_contents = mu.mem_read(RAM_BASE, RAM_SZ)
-
-            return final_register_contents, final_memory_contents
-
-        for _ in range(iterations):
-            initial_memory = os.urandom(RAM_SZ)
-            initial_stack = os.urandom(STACK_SZ)
-            cur_ram = RAM_BASE
-            # Set initial register contents arbitrarily, except for registers
-            # which must hold valid memory addresses.
-            initial_register_contents = {}
-            for r in regs:
-                initial_register_contents[r] = int.from_bytes(os.urandom(16))
-            for (reg, sz) in address_gprs.items():
-                initial_register_contents[reg] = cur_ram
-                cur_ram += sz
-
-            final_regs_old, final_mem_old = run_code(old_source, txt="old")
-            final_regs_new, final_mem_new = run_code(new_source, txt="new")
-
-            # Check if memory contents are the same
-            if final_mem_old != final_mem_new:
-                raise SlothyGlobalSelfTestException(f"Selftest failed: Memory mismatch")
-
-            # Check that callee-saved registers are the same
-            regs_expected = self.config.arch.RegisterType.callee_saved_registers()
-            for r in regs_expected:
-                if final_regs_old[r] != final_regs_new[r]:
-                    raise SlothyGlobalSelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
-
-        log.info(f"Global selftest for {funcname}: OK")
+        SelfTest.run(self.config, log, old_source, new_source, address_gprs,
+                     self.config.arch.RegisterType.callee_saved_registers(), 5,
+                     fnsym=funcname)
 
     #
     # Stateful wrappers around heuristics
