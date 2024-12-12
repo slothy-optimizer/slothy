@@ -2719,8 +2719,6 @@ class matacc_asm_opt_16_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2747,8 +2745,6 @@ class matacc_asm_opt_32_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2776,8 +2772,6 @@ class matacc_asm_opt_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2804,8 +2798,6 @@ class matacc_asm_cache_16_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2832,8 +2824,6 @@ class matacc_asm_cache_32_32_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
@@ -2859,8 +2849,6 @@ class matacc_asm_cache_32_16_kyber(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
-        # TODO: fix selftest
-        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
