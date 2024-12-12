@@ -84,7 +84,7 @@
 	ssub16.w \c2, \c0, \c2
 	// c6, tmp2, c4, c2: 2q maximum
 
-	vmov.w \twiddle1, \xi2
+	vmov \twiddle1, \xi2
 	doublebutterfly_plant \c1, \c3, \twiddle1, \tmp, \q, \qa
 	doublebutterfly_plant \c5, \c7, \twiddle1, \tmp, \q, \qa 
 	// c1, c3, c7, c5: 1.5q maximum;
@@ -95,11 +95,11 @@
 	ssub16.w \c4, \c6, \c4
 	// c0, c4: 4q
 	// c6 are free at this point
-	vmov.w \twiddle1, \xi4
+	vmov \twiddle1, \xi4
 	doublebutterfly_plant \c1, \c5, \twiddle1, \tmp, \q, \qa
 	// c1, c5: 2q maximum
 
-	vmov.w \twiddle1, \xi5
+	vmov \twiddle1, \xi5
 	// this block is one doublebutterfly
 	smulwb \tmp, \twiddle1, \c2  // c2, c6
 	smulwt \c2,  \twiddle1, \c2
@@ -109,7 +109,7 @@
 	ssub16.w \c6, \tmp2, \tmp 
 	sadd16.w \c2, \tmp2, \tmp
 	//c6, c2: 4.5q
-	vmov.w \twiddle1, \xi6
+	vmov \twiddle1, \xi6
 	doublebutterfly_plant \c3, \c7, \twiddle1, \tmp, \q, \qa
 	//c3, c7: 2.5q maximum
 .endm

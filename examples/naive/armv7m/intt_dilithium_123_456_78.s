@@ -46,28 +46,28 @@
 .endm
 
 .macro _3_layer_inv_CT_32 c0, c1, c2, c3, c4, c5, c6, c7, xi0, xi1, xi2, xi3, xi4, xi5, xi6, twiddle, Qprime, Q, tmp, tmp2
-    vmov.w \twiddle, \xi0
+    vmov \twiddle, \xi0
     montgomery_mul_32 \c1, \twiddle, \Qprime, \Q, \tmp, \tmp2
     montgomery_mul_32 \c3, \twiddle, \Qprime, \Q, \tmp, \tmp2
     montgomery_mul_32 \c5, \twiddle, \Qprime, \Q, \tmp, \tmp2
     montgomery_mul_32 \c7, \twiddle, \Qprime, \Q, \tmp, \tmp2
     addSub4 \c0, \c1, \c2, \c3, \c4, \c5, \c6, \c7
 
-    vmov.w \twiddle, \xi1
+    vmov \twiddle, \xi1
     montgomery_mul_32 \c2, \twiddle, \Qprime, \Q, \tmp, \tmp2
     montgomery_mul_32 \c6, \twiddle, \Qprime, \Q, \tmp, \tmp2
-    vmov.w \twiddle, \xi2
+    vmov \twiddle, \xi2
     montgomery_mul_32 \c3, \twiddle, \Qprime, \Q, \tmp, \tmp2
     montgomery_mul_32 \c7, \twiddle, \Qprime, \Q, \tmp, \tmp2
     addSub4 \c0, \c2, \c1, \c3, \c4, \c6, \c5, \c7
 
-    vmov.w \twiddle, \xi3
+    vmov \twiddle, \xi3
     montgomery_mul_32 \c4, \twiddle, \Qprime, \Q, \tmp, \tmp2
-    vmov.w \twiddle, \xi4
+    vmov \twiddle, \xi4
     montgomery_mul_32 \c5, \twiddle, \Qprime, \Q, \tmp, \tmp2
-    vmov.w \twiddle, \xi5
+    vmov \twiddle, \xi5
     montgomery_mul_32 \c6, \twiddle, \Qprime, \Q, \tmp, \tmp2
-    vmov.w \twiddle, \xi6
+    vmov \twiddle, \xi6
     montgomery_mul_32 \c7, \twiddle, \Qprime, \Q, \tmp, \tmp2
     addSub4 \c0, \c4, \c1, \c5, \c2, \c6, \c3, \c7
 .endm
@@ -98,8 +98,8 @@
     addSub2 \c4, \c1, \c6, \c3
     addSub1 \c4, \c6
 
-    vmov.w \tmp, \xi4
-    vmov.w \tmp2, \xi6
+    vmov \tmp, \xi4
+    vmov \tmp2, \xi6
 
     smull.w \c0, \c5, \c1, \tmp
     smlal.w \c0, \c5, \c3, \tmp2
@@ -144,7 +144,7 @@
 .macro _3_layer_inv_butterfly_light_fast_second c0, c1, c2, c3, c4, c5, c6, c7, xi0, xi1, xi2, xi3, xi4, xi5, xi6, twiddle, Qprime, Q, tmp, tmp2
     addSub2 \c0, \c1, \c2, \c3
 
-    vmov.w \twiddle, \xi2
+    vmov \twiddle, \xi2
     montgomery_mul_32 \c3, \twiddle, \Qprime, \Q, \tmp, \tmp2
     addSub2 \c0, \c2, \c1, \c3
 

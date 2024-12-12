@@ -39,7 +39,7 @@
 
 // 46
 .macro _3_layer_CT_32_FNT c0, c1, c2, c3, c4, c5, c6, c7, xi0, xi1, xi2, xi3, xi4, xi5, xi6, twiddle, Qprime, Q, tmp, tmp2
-    vmov.w \twiddle, \xi0
+    vmov \twiddle, \xi0
 
     // c0, c1, c2, c3, c4, c5, c6, c7, c8
     // 0,4
@@ -69,7 +69,7 @@
     barrett_32 \c6, \Qprime, \Q, \c3
     barrett_32 \c7, \Qprime, \Q, \c3
 
-    vmov.w \twiddle, \xi1
+    vmov \twiddle, \xi1
     // 0,2
     mla \tmp2, \c1, \twiddle, \tmp
     mls \c3, \c1, \twiddle, \tmp
@@ -78,7 +78,7 @@
     mla \tmp, \c2, \twiddle, \c0
     mls \c0, \c2, \twiddle, \c0
 
-    vmov.w \twiddle, \xi2
+    vmov \twiddle, \xi2
 
     // 4,6
     mla \c2, \c6, \twiddle, \c4
@@ -91,29 +91,29 @@
     // tmp2, tmp, c3, c0 | c2, c6, c1, c7
 
     // 4,5
-    vmov.w \twiddle, \xi5
+    vmov \twiddle, \xi5
     mla \c4, \c6, \twiddle, \c2
     mls \c5, \c6, \twiddle, \c2
 
     // 6,7
-    vmov.w \twiddle, \xi6
+    vmov \twiddle, \xi6
     mla \c6, \c7, \twiddle, \c1
     mls \c7, \c7, \twiddle, \c1
 
     // 2,3
-    vmov.w \twiddle, \xi4
+    vmov \twiddle, \xi4
     mla \c2, \c0, \twiddle, \c3
     mls \c3, \c0, \twiddle, \c3
 
     // 0,1
-    vmov.w \twiddle, \xi3
+    vmov \twiddle, \xi3
     mla \c0, \tmp, \twiddle, \tmp2
     mls \c1, \tmp, \twiddle, \tmp2
 .endm
 
 .macro final_butterfly c0, c1f, twiddle, c0out, c1, qprime, q, tmp
-    vmov.w \c1, \c1f
-    vmov.w \tmp, \twiddle
+    vmov \c1, \c1f
+    vmov \tmp, \twiddle
 
     mla \c0out, \c1, \tmp, \c0
     mls \c1, \c1, \tmp, \c0
@@ -133,7 +133,7 @@ __asm_fnt_257:
     push.w {r4-r11, lr}
     vpush.w {s16-s27}
 
-    vmov.w s27, r1
+    vmov s27, r1
 
     .equ width, 4
 
@@ -163,7 +163,7 @@ __asm_fnt_257:
     sub.w r0, r0, #32*width
 
     add.w r12, r0, #256*width
-    vmov.w s25, r12
+    vmov s25, r12
     _fnt_3_4_5_6:
         vmov r1, s27
         vldm.w r1!, {s2-s16}
@@ -175,10 +175,10 @@ __asm_fnt_257:
 
         _3_layer_CT_32_FNT r4, r5, r6, r7, r8, r9, r10, r11, s2, s3, s4, s5, s6, s7, s8, r14, r2, r3, r1, r12
 
-        vmov.w s17, s18, r4, r5 // a1, a3
-        vmov.w s19, s20, r6, r7 // a5, a7
-        vmov.w s21, s22, r8, r9 // a9, a11
-        vmov.w s23, s24, r10, r11 // a13, a15
+        vmov s17, s18, r4, r5 // a1, a3
+        vmov s19, s20, r6, r7 // a5, a7
+        vmov s21, s22, r8, r9 // a9, a11
+        vmov s23, s24, r10, r11 // a13, a15
 
         ldrstrvec ldr.w, r0, r4, r5, r6, r7, r8, r9, r10, r11, #(4*0*width), #(4*1*width), #(4*2*width), #(4*3*width), #(4*4*width), #(4*5*width), #(4*6*width), #(4*7*width)
 
@@ -222,10 +222,10 @@ __asm_fnt_257:
 
         _3_layer_CT_32_FNT r4, r5, r6, r7, r8, r9, r10, r11, s2, s3, s4, s5, s6, s7, s8, r14, r2, r3, r1, r12
 
-        vmov.w s17, s18, r4, r5 // a1, a3
-        vmov.w s19, s20, r6, r7 // a5, a7
-        vmov.w s21, s22, r8, r9 // a9, a11
-        vmov.w s23, s24, r10, r11 // a13, a15
+        vmov s17, s18, r4, r5 // a1, a3
+        vmov s19, s20, r6, r7 // a5, a7
+        vmov s21, s22, r8, r9 // a9, a11
+        vmov s23, s24, r10, r11 // a13, a15
 
         ldrstrvec ldr.w, r0, r4, r5, r6, r7, r8, r9, r10, r11, #(4*0*width), #(4*1*width), #(4*2*width), #(4*3*width), #(4*4*width), #(4*5*width), #(4*6*width), #(4*7*width)
 
@@ -264,7 +264,7 @@ __asm_fnt_257:
         str.w r1, [r0], #width
         add.w r0, #((32-2)*width)
 
-    vmov.w r12, s25
+    vmov r12, s25
     cmp.w r0, r12
     bne.w _fnt_3_4_5_6
 

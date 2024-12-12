@@ -40,7 +40,7 @@ basemul_asm:
 
 	movw loop, #64
 	1:
-	vmov.w s0, loop
+	vmov s0, loop
 	movw qa, #26632
 			
 	ldrd poly0, poly2, [aptr], #8
@@ -82,7 +82,7 @@ basemul_asm:
 	pkhtb tmp, tmp2, tmp, asr #16
 	str tmp, [rptr], #4
 		
-	vmov.w loop, s0
+	vmov loop, s0
 	subs.w loop, #1
 	bne.w 1b
     pop {r4-r11, pc}
