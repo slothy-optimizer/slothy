@@ -115,7 +115,7 @@ class RegisterType(Enum):
         """Return the list of all registers of a given type"""
 
         gprs_normal  = [ f"r{i}" for i in range(15) ]
-        fprs_normal  = [ f"s{i}" for i in range(31) ]
+        fprs_normal  = [ f"s{i}" for i in range(32) ]
 
         gprs_extra  = []
         fprs_extra  = []
