@@ -341,7 +341,7 @@ __asm_ifnt_257:
     barrett_32 r6, r2, r3, r12
     barrett_32 r7, r2, r3, r12
     sub.w r4, r14, r4, lsl #1
-    neg.w r5, r5
+    neg r5, r5
     lsl.w r6, r6, #7
     lsl.w r7, r7, #6
     lsl.w r8, r8, #5

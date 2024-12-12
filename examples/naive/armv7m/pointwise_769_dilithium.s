@@ -46,7 +46,7 @@ small_pointmul_asm_769:
     smlabt r10, r10, r12, r14
     pkhbt r4, r4, r10
 
-    neg.w r6, r6
+    neg r6, r6
 
 	smulwt r10, r6, r5
     smlabt r10, r10, r12, r14
@@ -59,7 +59,7 @@ small_pointmul_asm_769:
     smlabt r10, r10, r12, r14
     pkhbt r7, r7, r10
 
-    neg.w r9, r9
+    neg r9, r9
 
     smulwt r10, r9, r8
     smlabt r10, r10, r12, r14

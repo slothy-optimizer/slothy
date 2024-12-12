@@ -31,7 +31,7 @@ __asm_point_mul_257_16:
     barrett_32 r10, r2, r3, r11
     pkhbt r4, r4, r10, lsl #16
 
-    neg.w r6, r6
+    neg r6, r6
 
     smultb r10, r5, r6
     barrett_32 r10, r2, r3, r11
@@ -44,7 +44,7 @@ __asm_point_mul_257_16:
     barrett_32 r10, r2, r3, r11
     pkhbt r7, r7, r10, lsl #16
 
-    neg.w r9, r9
+    neg r9, r9
 
     smultb r10, r8, r9
     barrett_32 r10, r2, r3, r11
