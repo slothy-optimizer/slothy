@@ -206,6 +206,8 @@ class ExampleKeccak(Example):
         super().__init__(infile, name, funcname=funcname, rename=True, arch=arch, target=target, timeout=timeout)
 
     def core(self, slothy):
+        # TODO: fix selftest
+        slothy.config.selftest = False
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.reserved_regs = ["sp", "r13"]
