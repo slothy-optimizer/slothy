@@ -78,23 +78,23 @@
 .macro _3_layer_double_inv_CT_16_plant_light c0, c1, c2, c3, c4, c5, c6, c7, xi2, xi4, xi5, xi6, twiddle1, tmp2, q, qa, tmp
 
 	// layer 1  
-	sadd16.w \tmp, \c0, \c1 // c0, c1
-	ssub16.w \c1, \c0, \c1
-	sadd16.w \tmp2, \c2, \c3 // c2, c3
-	ssub16.w \c3, \c2, \c3
+	sadd16 \tmp, \c0, \c1 // c0, c1
+	ssub16 \c1, \c0, \c1
+	sadd16 \tmp2, \c2, \c3 // c2, c3
+	ssub16 \c3, \c2, \c3
 	// tmp, c1, tmp2, c3: 1q maximum
-	sadd16.w \c0, \c4, \c5 // c4, c5
-	ssub16.w \c5, \c4, \c5
-	sadd16.w \c2, \c6, \c7 // c6, c7
-	ssub16.w \c7, \c6, \c7
+	sadd16 \c0, \c4, \c5 // c4, c5
+	ssub16 \c5, \c4, \c5
+	sadd16 \c2, \c6, \c7 // c6, c7
+	ssub16 \c7, \c6, \c7
 	// c4, c6 are free at this point
 	// c0,c5,c2,c7 1q maximum
 
 	// layer 2
-	sadd16.w \c6, \tmp, \tmp2 // c0, c2
-	ssub16.w \tmp2, \tmp, \tmp2
-	sadd16.w \c4, \c0, \c2 // c4, c6
-	ssub16.w \c2, \c0, \c2
+	sadd16 \c6, \tmp, \tmp2 // c0, c2
+	ssub16 \tmp2, \tmp, \tmp2
+	sadd16 \c4, \c0, \c2 // c4, c6
+	ssub16 \c2, \c0, \c2
 	// c6, tmp2, c4, c2: 2q maximum
 
 	vmov \twiddle1, \xi2
@@ -104,8 +104,8 @@
 
 	// tmp and c0 are free at this point
 	// layer 3
-	sadd16.w \c0, \c6, \c4 // c0, c4
-	ssub16.w \c4, \c6, \c4
+	sadd16 \c0, \c6, \c4 // c0, c4
+	ssub16 \c4, \c6, \c4
 	// c0, c4: 4q
 	// c6 are free at this point
 	vmov \twiddle1, \xi4
@@ -119,8 +119,8 @@
 	smlabt \tmp, \tmp, \q, \qa
 	smlabt \c2, \c2, \q, \qa
 	pkhtb \tmp, \c2, \tmp, asr #16
-	ssub16.w \c6, \tmp2, \tmp 
-	sadd16.w \c2, \tmp2, \tmp
+	ssub16 \c6, \tmp2, \tmp 
+	sadd16 \c2, \tmp2, \tmp
 	//c6, c2: 4.5q
 	vmov \twiddle1, \xi6
 	doublebutterfly_plant \c3, \c7, \twiddle1, \tmp, \q, \qa
