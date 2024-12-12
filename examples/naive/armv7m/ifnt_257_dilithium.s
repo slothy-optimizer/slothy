@@ -27,7 +27,7 @@
 .endm
 
 .macro addSub1 c0, c1
-    add.w \c0, \c1
+    add.w \c0, \c0, \c1
     sub.w \c1, \c0, \c1, lsl #1
 .endm
 
@@ -66,7 +66,7 @@
 
 .macro final_butterfly c0, c1, c1f, twiddle
     vmov \c1, \c1f
-    add.w \c0, \c1
+    add.w \c0, \c0, \c1
     sub.w \c1, \c0, \c1, lsl #1
     mul \c1, \twiddle
 .endm
