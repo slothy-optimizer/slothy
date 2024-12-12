@@ -1337,7 +1337,7 @@ class SelfTest():
             except:
                 log.error("Failed to emulate code using unicorn engine")
                 log.error("Code")
-                log.error(SouceLine.write_multiline(code))
+                log.error(SourceLine.write_multiline(code))
 
             final_register_contents = {}
             for r in regs:
