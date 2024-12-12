@@ -52,7 +52,7 @@
 // 2
 .macro barrett_32 a, Qbar, Q, tmp
     smmulr.w \tmp, \a, \Qbar
-    mls.w \a, \tmp, \Q, \a
+    mls \a, \tmp, \Q, \a
 .endm
 
 .macro shift_subAdd c0, c1, shlv
@@ -73,8 +73,8 @@
 
 .macro final_butterfly2 c0, c0out, c1, c1f, twiddle, twiddle2
     vmov \c1, \c1f
-    mla.w \c0out, \twiddle2, \c1, \c0
-    mls.w \c1, \twiddle2, \c1, \c0
+    mla \c0out, \twiddle2, \c1, \c0
+    mls \c1, \twiddle2, \c1, \c0
     mul \c1, \twiddle
 .endm
 
@@ -106,11 +106,11 @@ __asm_ifnt_257:
             mul r9, r9, r14
             addSub2 r4, r6, r8, r10
             vmov r14, s7
-            mla.w r12, r7, r14, r5
-            mls.w r7, r7, r14, r5
+            mla r12, r7, r14, r5
+            mls r7, r7, r14, r5
             vmov r14, s9
-            mla.w r5, r11, r14, r9
-            mls.w r11, r11, r14, r9
+            mla r5, r11, r14, r9
+            mls r11, r11, r14, r9
 
             // r4, r12, r6, r7, r8, r5, r10, r11
 
@@ -146,11 +146,11 @@ __asm_ifnt_257:
             mul r9, r9, r14
             addSub2 r4, r6, r8, r10
             vmov r14, s3
-            mla.w r12, r7, r14, r5
-            mls.w r7, r7, r14, r5
+            mla r12, r7, r14, r5
+            mls r7, r7, r14, r5
             vmov r14, s5
-            mla.w r5, r11, r14, r9
-            mls.w r11, r11, r14, r9
+            mla r5, r11, r14, r9
+            mls r11, r11, r14, r9
 
             // r4, r12, r6, r7, r8, r5, r10, r11
 
@@ -214,11 +214,11 @@ __asm_ifnt_257:
             mul r9, r9, r14
             addSub2 r4, r6, r8, r10
             vmov r14, s7
-            mla.w r12, r7, r14, r5
-            mls.w r7, r7, r14, r5
+            mla r12, r7, r14, r5
+            mls r7, r7, r14, r5
             vmov r14, s9
-            mla.w r5, r11, r14, r9
-            mls.w r11, r11, r14, r9
+            mla r5, r11, r14, r9
+            mls r11, r11, r14, r9
 
             // r4, r12, r6, r7, r8, r5, r10, r11
 
@@ -254,11 +254,11 @@ __asm_ifnt_257:
             mul r9, r9, r14
             addSub2 r4, r6, r8, r10
             vmov r14, s3
-            mla.w r12, r7, r14, r5
-            mls.w r7, r7, r14, r5
+            mla r12, r7, r14, r5
+            mls r7, r7, r14, r5
             vmov r14, s5
-            mla.w r5, r11, r14, r9
-            mls.w r11, r11, r14, r9
+            mla r5, r11, r14, r9
+            mls r11, r11, r14, r9
 
             // r4, r12, r6, r7, r8, r5, r10, r11
 

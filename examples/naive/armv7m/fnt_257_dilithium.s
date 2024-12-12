@@ -29,7 +29,7 @@
 // 2
 .macro barrett_32 a, Qbar, Q, tmp
     smmulr.w \tmp, \a, \Qbar
-    mls.w \a, \tmp, \Q, \a
+    mls \a, \tmp, \Q, \a
 .endm
 
 .macro FNT_CT_butterfly c0, c1, logW
