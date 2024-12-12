@@ -262,7 +262,7 @@ __asm_fnt_257:
         final_butterfly r4, s17, s9, r1, r12, r2, r3, r14
         str.w r12, [r0, #(4*0*width+2*width)]
         str.w r1, [r0], #width
-        add.w r0, #((32-2)*width)
+        add.w r0, r0, #((32-2)*width)
 
     vmov r12, s25
     cmp.w r0, r12
