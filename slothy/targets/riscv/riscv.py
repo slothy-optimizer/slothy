@@ -1,8 +1,8 @@
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
-# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
-# Copyright (c) 2024 Justus Bergermann
+# Copyright (c) 2023 Matthias Kannwischer
+# Copyright (c) 2024 Justus Bergermann, Amin Abdulrahman
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,6 +25,7 @@
 #
 # Authors: Hanno Becker <hannobecker@posteo.de>
 #          Justus Bergermann <mail@justus-bergermann.de>
+#          Amin Abdulrahman <amin@abdulrahman.de>
 #
 
 """
@@ -32,8 +33,10 @@ Partial SLOTHY architecture model for RISCV
 """
 
 import inspect
+import math
 from enum import Enum
 from functools import cache
+from slothy.helper import Loop
 from slothy.targets.riscv.instruction_core import Instruction
 from slothy.targets.riscv.exceptions import UnknownInstruction
 
@@ -157,6 +160,49 @@ class RegisterType(Enum):
             "t6": "x31",  # Temporary register 6
         }
 
+
+class AddiLoop(Loop):
+    """
+    Loop ending in an addition and a branch.
+
+    Example:
+    ```
+           loop_lbl:
+               {code}
+               addi <cnt>, <cnt>, -<imm>
+               (bne|bge) <cnt>, <end>, loop_lbl
+    ```
+    """
+    def __init__(self, lbl=None, lbl_start=None, lbl_end=None, loop_init=None) -> None:
+        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+        self.lbl = lbl
+        # The group naming in the regex should be consistent; give same group
+        # names to the same registers
+        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.end_regex = (r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*[-]*(?P<imm>\d+)",
+                               rf"^\s*(?P<branch_type>bne|bge)\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}")
+
+    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
+        """Emit starting instruction(s) and jump label for loop"""
+        indent = ' ' * indentation
+        if unroll > 1:
+            assert unroll in [1,2,4,8,16,32]
+            yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
+        if fixup != 0:
+            # In case the immediate is >1, we need to scale the fixup. This
+            # allows for loops that do not use an increment of 1
+            fixup *= self.additional_data['imm']
+            yield f"{indent}addi {loop_cnt}, {loop_cnt}, -{fixup}"
+        if jump_if_empty is not None:
+            yield f"beq {loop_cnt}, {loop_cnt}, {jump_if_empty}"
+        yield f"{self.lbl}:"
+
+    def end(self, other, indentation=0):
+        """Emit compare-and-branch at the end of the loop"""
+        indent = ' ' * indentation
+
+        yield f"{indent}addi {other['cnt']}, {other['cnt']}, {other['imm']}"
+        yield f"{indent}{other['branch_type']} {other['cnt']}, {other['end']}, {self.lbl}"
 
 def iter_riscv_instructions():
     yield from Instruction.all_subclass_leaves(Instruction)

@@ -1521,6 +1521,27 @@ class RISC_VExample0(Example):
  'x29', 'x30', 'x31']
         slothy.optimize(start="mainloop", end="end_label")
 
+class RISC_VExampleLoop0(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
+        name = "riscv_simple_loop0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        
+        slothy.config.sw_pipelining.enabled = True
+
+        slothy.optimize_loop("my_loop")
+        slothy.optimize_loop("my_loop2")
+        slothy.optimize_loop("my_loop3")
 
 class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
@@ -1708,6 +1729,7 @@ def main():
 
                  # RISC-V
                  RISC_VExample0(target=Target_XuanTieC908),
+                 RISC_VExampleLoop0(),
                  RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300)
                  ]
 
