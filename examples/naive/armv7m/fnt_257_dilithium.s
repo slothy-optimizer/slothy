@@ -166,7 +166,7 @@ __asm_fnt_257:
     vmov s25, r12
     _fnt_3_4_5_6:
         vmov r1, s27
-        vldm.w r1!, {s2-s16}
+        vldm r1!, {s2-s16}
         vmov s27, r1
 
         // rep 1
