@@ -3219,6 +3219,12 @@ def q_ld2_lane_post_inc_parsing_cb():
 q_ld2_lane_post_inc.global_parsing_cb  = q_ld2_lane_post_inc_parsing_cb()
 
 def eor3_fusion_cb():
+    """
+    Example for a fusion call back. Allows to merge two eor instruction with
+    two inputs into one eor with three inputs. Such technique can help perform
+    transformations in case of differences between uArchs. 
+    Note: This is not used in any real (crypto) example. This is merely a PoC.
+    """
     def core(inst,t,log=None):
         succ = None
 
@@ -3275,10 +3281,13 @@ def eor3_fusion_cb():
 
     return core
 
-# TODO: Test only...
-# veor.global_fusion_cb  = eor3_fusion_cb()
-
 def eor3_splitting_cb():
+    """
+    Example for a splitting call back. Allows to split one eor instruction with
+    three inputs into two eors with two inputs. Such technique can help perform
+    transformations in case of differences between uArchs. 
+    Note: This is not used in any real (crypto) example. This is merely a PoC.
+    """
     def core(inst,t,log=None):
 
         d = inst.args_out[0]
@@ -3318,6 +3327,7 @@ def eor3_splitting_cb():
 
     return core
 
+# Can alternatively set veor3.global_fusion_cb to eor3_fusion_cb() here
 veor3.global_fusion_cb  = eor3_splitting_cb()
 
 def iter_aarch64_instructions():
