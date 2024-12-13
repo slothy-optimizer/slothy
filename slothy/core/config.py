@@ -155,7 +155,7 @@ class Config(NestedPrint, LockAttributes):
         Address offset fixup is a feature which leverages commutativity relations
         such as
 
-        ```
+        ```python
            ldr X, [A], #immA;
            str Y, [A, #immB]
         ==

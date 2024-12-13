@@ -8,3 +8,4 @@ sphinx_autoapi
 sphinx_mdinclude
 myst_parser
 sphinx-autobuild
+sphinx-autodoc2

@@ -6,7 +6,8 @@
 Slothy documentation
 ====================
 
-.. mdinclude:: ./general.md
+.. include:: ./general.md
+   :parser: myst_parser.sphinx_
 
 .. toctree::
    :maxdepth: 1
@@ -27,5 +28,7 @@ Slothy documentation
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :hidden:
+
+   apidocs/index
 

@@ -6,6 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os, sys
+
 project = 'SLOTHY'
 copyright = '2024, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann'
 author = 'Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann'
@@ -13,12 +15,20 @@ author = 'Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergerman
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+sys.path.insert(0, os.path.abspath("../../slothy"))
+
+suppress_warnings = [
+    'misc.highlighting_failure',
+    'myst.xref_missing'
+]
+
 extensions = [
     'sphinx.ext.imgmath',
     'sphinx_rtd_theme',
-    'autoapi.extension',
-    #'myst_parser',
-    'sphinx_mdinclude',
+    #'autoapi.extension',
+    'myst_parser',
+    'autodoc2'
+    #'sphinx_mdinclude',
 
 ]
 
@@ -31,7 +41,15 @@ source_suffix = {
 }
 master_doc = 'index'
 
-autoapi_dirs = ['../../slothy']
+#autoapi_dirs = ['../../slothy']
+#autoapi_root = "autoapi"  # Target directory for AutoAPI-generated files
+#autoapi_keep_files = True  # Keep generated files
+
+autodoc2_packages = [
+    "../../slothy",
+]
+
+autodoc2_render_plugin = "myst"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -43,3 +61,5 @@ html_theme_options = { 'logo_only': True, }
 html_css_files = [
     'css/style.css',
 ]
+
+
