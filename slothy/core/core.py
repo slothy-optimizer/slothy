@@ -838,13 +838,17 @@ class Result(LockAttributes):
             log.warning("Selftest not supported on target architecture")
             return
 
+        tree = DFG(self._orig_code, log, DFGConfig(self.config, outputs=self.outputs))
+
+        if tree.has_symbolic_registers():
+            log.info("Skipping selftest as input contains symbolic registers.")
+            return
+
         log.info(f"Running selftest ({self._config.selftest_iterations} iterations)...")
 
         address_gprs = self._config.selftest_address_gprs
         if address_gprs is None:
             # Try to infer which registes need to be pointers
-            log_addresses = log.getChild("infer_address_gprs")
-            tree = DFG(self._orig_code, log_addresses, DFGConfig(self.config, outputs=self.outputs))
             # Look for load/store instructions and remember addresses
             addresses = set()
             for t in tree.nodes:
