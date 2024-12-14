@@ -412,7 +412,17 @@ class Slothy:
         return body
 
     def fusion_region(self, start, end, **kwargs):
-        """Run fusion callbacks on straightline code"""
+        """ Run fusion callbacks on straightline code replacing certain
+        instruction (sequences) with an alternative. These replacements are
+        defined in the architectural model by setting an instruction class'
+        global_fusion_cb.
+        
+        Args:
+            start: The label marking the beginning of the part of the code to
+                  apply fusion to.
+            end: The label marking the end of the part of the code to apply
+                  fusion to.
+        """
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
@@ -423,7 +433,13 @@ class Slothy:
         assert SourceLine.is_source(self.source)
 
     def fusion_loop(self, loop_lbl, **kwargs):
-        """Run fusion callbacks on loop body"""
+        """Run fusion callbacks on loop body replacing certain instruction
+        (sequences) with an alternative. These replacements are defined in the
+        architectural model by setting an instruction class' global_fusion_cb.
+        
+        Args:
+            loop_lbl: Label of loop to which the fusions are applied to. 
+        """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
         pre , body, post, _, other_data, loop = \
