@@ -382,7 +382,7 @@ class Slothy:
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
 
-    def _fusion_core(self, pre, body, post, logger):
+    def _fusion_core(self, pre, body, post, logger, ssa=True):
         c = self.config.copy()
 
         if c.with_preprocessor:
@@ -400,9 +400,10 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         dfgc = DFGConfig(c)
 
-        dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
-        dfg.ssa()
-        body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
+        if ssa is True:
+            dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
+            dfg.ssa()
+            body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
 
         dfg = DFG(body, logger.getChild("fusion"), dfgc, parsing_cb=False)
         dfg.apply_fusion_cbs()
@@ -410,19 +411,35 @@ class Slothy:
 
         return body
 
-    def fusion_region(self, start, end):
-        """Run fusion callbacks on straightline code"""
+    def fusion_region(self, start, end, **kwargs):
+        """ Run fusion callbacks on straightline code replacing certain
+        instruction (sequences) with an alternative. These replacements are
+        defined in the architectural model by setting an instruction class'
+        global_fusion_cb.
+        
+        Args:
+            start: The label marking the beginning of the part of the code to
+                  apply fusion to.
+            end: The label marking the end of the part of the code to apply
+                  fusion to.
+        """
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
         body_ssa = [ SourceLine(f"{start}:") ] +\
-             self._fusion_core(pre, body, logger) + \
+             self._fusion_core(pre, body, post, logger, **kwargs) + \
             [ SourceLine(f"{end}:") ]
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-    def fusion_loop(self, loop_lbl):
-        """Run fusion callbacks on loop body"""
+    def fusion_loop(self, loop_lbl, **kwargs):
+        """Run fusion callbacks on loop body replacing certain instruction
+        (sequences) with an alternative. These replacements are defined in the
+        architectural model by setting an instruction class' global_fusion_cb.
+        
+        Args:
+            loop_lbl: Label of loop to which the fusions are applied to. 
+        """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
         pre , body, post, _, other_data, loop = \
@@ -431,23 +448,10 @@ class Slothy:
         indentation = AsmHelper.find_indentation(body)
 
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
-            SourceLine.apply_indentation(self._fusion_core(pre, body, logger), indentation) + \
+            SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
             SourceLine.read_multiline(loop.end(other_data))
 
         self.source = pre + body_ssa + post
-        assert SourceLine.is_source(self.source)
-
-        c = self.config.copy()
-        self.config.keep_tags = True
-        self.config.constraints.functional_only = True
-        self.config.constraints.allow_reordering = False
-        self.config.sw_pipelining.enabled = False
-        self.config.split_heuristic = False
-        self.config.inputs_are_outputs = True
-        self.config.sw_pipelining.unknown_iteration_count = False
-        self.optimize_loop(loop_lbl)
-        self.config = c
-
         assert SourceLine.is_source(self.source)
 
     def optimize_loop(self, loop_lbl, postamble_label=None):

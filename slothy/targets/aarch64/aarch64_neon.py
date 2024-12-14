@@ -52,7 +52,7 @@ from unicorn import *
 from unicorn.arm64_const import *
 
 from slothy.targets.common import *
-from slothy.helper import Loop, LLVM_Mc
+from slothy.helper import Loop, LLVM_Mc, SourceLine
 
 arch_name = "Arm_AArch64"
 
@@ -3219,6 +3219,12 @@ def q_ld2_lane_post_inc_parsing_cb():
 q_ld2_lane_post_inc.global_parsing_cb  = q_ld2_lane_post_inc_parsing_cb()
 
 def eor3_fusion_cb():
+    """
+    Example for a fusion call back. Allows to merge two eor instruction with
+    two inputs into one eor with three inputs. Such technique can help perform
+    transformations in case of differences between uArchs. 
+    Note: This is not used in any real (crypto) example. This is merely a PoC.
+    """
     def core(inst,t,log=None):
         succ = None
 
@@ -3275,7 +3281,54 @@ def eor3_fusion_cb():
 
     return core
 
-veor.global_fusion_cb  = eor3_fusion_cb()
+def eor3_splitting_cb():
+    """
+    Example for a splitting call back. Allows to split one eor instruction with
+    three inputs into two eors with two inputs. Such technique can help perform
+    transformations in case of differences between uArchs. 
+    Note: This is not used in any real (crypto) example. This is merely a PoC.
+    """
+    def core(inst,t,log=None):
+
+        d = inst.args_out[0]
+        a = inst.args_in[0]
+        b = inst.args_in[1]
+        c = inst.args_in[2]
+
+        # Check if we can use the output as a temporary
+        if d in [a,b,c]:
+            return False
+
+        eor0 = AArch64Instruction.build(veor, { "Vd": d, "Va" : a, "Vb" : b,
+                                                "datatype0":"16b",
+                                                "datatype1":"16b",
+                                                "datatype2":"16b" })
+        eor1 = AArch64Instruction.build(veor, { "Vd": d, "Va" : d, "Vb" : c,
+                                                "datatype0":"16b",
+                                                "datatype1":"16b",
+                                                "datatype2":"16b" })
+
+        eor0_src = SourceLine(eor0.write()).\
+            add_tags(inst.source_line.tags).\
+            add_comments(inst.source_line.comments)
+        eor1_src = SourceLine(eor1.write()).\
+            add_tags(inst.source_line.tags).\
+            add_comments(inst.source_line.comments)
+
+        eor0.source_line = eor0_src
+        eor1.source_line = eor1_src
+
+        if log is not None:
+            log(f"EOR3 splitting: {t.inst}; {eor0} + {eor1}")
+
+        t.changed = True
+        t.inst = [eor0, eor1]
+        return True
+
+    return core
+
+# Can alternatively set veor3.global_fusion_cb to eor3_fusion_cb() here
+veor3.global_fusion_cb  = eor3_splitting_cb()
 
 def iter_aarch64_instructions():
     yield from all_subclass_leaves(Instruction)

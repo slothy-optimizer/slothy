@@ -525,7 +525,18 @@ class DataFlowGraph:
                 break
 
             z = filter(lambda x: x.delete is False, self.nodes)
-            z = map(lambda x: ([x.inst], x.inst.source_line), z)
+
+            def pair_with_source(i):
+                return ([i], i.source_line)
+            def map_node(t):
+                s = t.inst
+                if not isinstance(t.inst, list):
+                    s = [s]
+                return map(pair_with_source, s)
+            def flatten(llst):
+                return [x for y in llst for x in y]
+
+            z = flatten(map(map_node, z))
 
             self.src = list(z)
 
