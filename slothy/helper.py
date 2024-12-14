@@ -1373,6 +1373,9 @@ class SelfTest():
 
             # Check that callee-saved registers are the same
             for r in output_registers:
+                # skip over hints
+                if r.startswith("hint_"):
+                    continue
                 if final_regs_old[r] != final_regs_new[r]:
                     raise SelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
 
