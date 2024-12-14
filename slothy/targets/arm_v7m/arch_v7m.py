@@ -1391,6 +1391,13 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
 
     def write(self):
         self.immediate = simplify(self.pre_index)
+
+        if self.immediate < 0:
+            # if immediate is < 0, the encoding is 32-bit anyway
+            # and the .w has no meaning.
+            # LLVM complains about the .w in this case
+            # TODO: This actually seems to be a bug in LLVM
+            self.width = ""
         return super().write()
 
 class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1676,6 +1683,14 @@ class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,
 
     def write(self):
         self.immediate = simplify(self.pre_index)
+
+        if self.immediate < 0:
+            # if immediate is < 0, the encoding is 32-bit anyway
+            # and the .w has no meaning.
+            # LLVM complains about the .w in this case
+            # TODO: This actually seems to be a bug in LLVM
+            self.width = ""
+
         return super().write()
 
 class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
