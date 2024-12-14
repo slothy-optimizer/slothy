@@ -3,6 +3,7 @@ import inspect
 import os
 import re
 import math
+import itertools
 from enum import Enum
 from functools import cache
 
@@ -114,7 +115,7 @@ class RegisterType(Enum):
         """Return the list of all registers of a given type"""
 
         gprs_normal  = [ f"r{i}" for i in range(15) ]
-        fprs_normal  = [ f"s{i}" for i in range(31) ]
+        fprs_normal  = [ f"s{i}" for i in range(32) ]
 
         gprs_extra  = []
         fprs_extra  = []
@@ -478,7 +479,7 @@ class Instruction:
         self.flag = None
         self.width = None
         self.barrel = None
-        self.range = None
+        self.reg_list = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -696,7 +697,7 @@ class Armv7mInstruction(Instruction):
 
     @staticmethod
     def _unfold_pattern(src):
-
+        src = re.sub(r", +",  ",", src)
         src = re.sub(r"\.",  "\\\\s*\\\\.\\\\s*", src)
         src = re.sub(r"\[", "\\\\s*\\\\[\\\\s*", src)
         src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
@@ -732,7 +733,11 @@ class Armv7mInstruction(Instruction):
         index_pattern = "[0-9]+"
         width_pattern = "(?:\.w|\.n|)"
         barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
-        range_pattern = "\{(?P<range_type>[rs])(?P<range_start>\\\\d+)-[rs](?P<range_end>\\\\d+)\}"
+
+        # reg_list is <range>(,<range>)*
+        # range is [rs]NN(-rsMM)?
+        range_pat = "([rs]\\\\d+)(-[rs](\\\\d+))?"
+        reg_list_pattern = "\{"+ range_pat + "(," + range_pat + ")*" +"\}"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
@@ -743,7 +748,7 @@ class Armv7mInstruction(Instruction):
         src = replace_placeholders(src, "flag", flag_pattern, "flag") # TODO: Are any changes required for IT syntax?
         src = replace_placeholders(src, "width", width_pattern, "width")
         src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
-        src = replace_placeholders(src, "range", range_pattern, "range")
+        src = replace_placeholders(src, "reg_list", reg_list_pattern, "reg_list")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -871,6 +876,30 @@ class Armv7mInstruction(Instruction):
         return res
 
     @staticmethod
+    def _expand_reg_list(reg_list):
+        """Expanding list of registers that may contain ranges
+        Examples:
+        r1,r2,r3
+        s1-s7
+        r1-r3,r14
+        """
+        reg_list = reg_list.replace("{", "")
+        reg_list = reg_list.replace("}", "")
+
+        reg_list_type = reg_list[0]
+        regs = []
+        for reg_range in reg_list.split(","):
+            if "-" in reg_range:
+                start = reg_range.split("-")[0]
+                end   = reg_range.split("-")[1]
+                start = int(start.replace(reg_list_type, ""))
+                end   = int(end.replace(reg_list_type, ""))
+                regs += [f"{reg_list_type}{i}" for i in range(start, end+1)]
+            else: # not a range, just a register
+                regs += [reg_range]
+        return reg_list_type, regs
+
+    @staticmethod
     def build_core(obj, res):
 
         def group_to_attribute(group_name, attr_name, f=None):
@@ -896,10 +925,7 @@ class Armv7mInstruction(Instruction):
         group_to_attribute('flag', 'flag')
         group_to_attribute('width', 'width')
         group_to_attribute('barrel', 'barrel')
-        group_to_attribute('range', 'range')
-        group_to_attribute('range_start', 'range_start', int)
-        group_to_attribute('range_end', 'range_end', int)
-        group_to_attribute('range_type', 'range_type')
+        group_to_attribute('reg_list', 'reg_list')
 
         for s, ty in obj.pattern_inputs:
             if ty == RegisterType.FLAGS:
@@ -972,7 +998,7 @@ class Armv7mInstruction(Instruction):
         out = replace_pattern(out, "index", "index", str)
         out = replace_pattern(out, "width", "width", lambda x: x.lower())
         out = replace_pattern(out, "barrel", "barrel", lambda x: x.lower())
-        out = replace_pattern(out, "range", "range", lambda x: x.lower())
+        out = replace_pattern(out, "reg_list", "reg_list", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -1498,53 +1524,53 @@ class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-d
         return obj
 
 class ldm_interval(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "ldm<width> <Ra>, <range>"
+    pattern = "ldm<width> <Ra>, <reg_list>"
     inputs = ["Ra"]
     outputs = []
 
     def write(self):
-        reg_from = self.args_out[0]
-        reg_to = self.args_out[-1]
-        self.range = f"{{{reg_from}-{reg_to}}}"
+        regs = ",".join(self.args_out)
+        self.reg_list = f"{{{regs}}}"
         return super().write()
 
 
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
-        reg_type = Armv7mInstruction._infer_register_type(obj.range_type)
-        num_regs = len(RegisterType.list_registers(reg_type))
-        obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
-        obj.args_out =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
+
+        obj.args_out = reg_list
         obj.num_out = len(obj.args_out)
         obj.arg_types_out = [RegisterType.GPR] * obj.num_out
-        obj.args_out_restrictions    = [[ f"r{i+j}"  for j in range(0, num_regs-obj.num_out)] for i in range(0, obj.num_out) ]
-        obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"r{i+j}" for i in range(0, obj.num_out)] for j in range(0, num_regs-obj.num_out) ] )]
+        available_regs = RegisterType.list_registers(RegisterType.GPR)
+        obj.args_out_combinations =  [ (list(range(0, obj.num_out)), [list(a) for a in itertools.combinations(available_regs, obj.num_out)])]
+        obj.args_out_restrictions = [ None for _ in range(obj.num_out)    ]
         return obj
 
 class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "ldm<width> <Ra>!, <range>"
+    pattern = "ldm<width> <Ra>!, <reg_list>"
     in_outs = ["Ra"]
     outputs = []
 
     def write(self):
-        reg_from = self.args_out[0]
-        reg_to = self.args_out[-1]
-        self.range = f"{{{reg_from}-{reg_to}}}"
+        regs = ",".join(self.args_out)
+        self.reg_list = f"{{{regs}}}"
         return super().write()
 
 
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
-        reg_type = Armv7mInstruction._infer_register_type(obj.range_type)
-        num_regs = len(RegisterType.list_registers(reg_type))
-        obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
-        obj.args_out =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
+
+        obj.args_out = reg_list
         obj.num_out = len(obj.args_out)
         obj.arg_types_out = [RegisterType.GPR] * obj.num_out
-        obj.args_out_restrictions    = [[ f"r{i+j}"  for j in range(0, num_regs-obj.num_out)] for i in range(0, obj.num_out) ]
-        obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"r{i+j}" for i in range(0, obj.num_out)] for j in range(0, num_regs-obj.num_out) ] )]
+        obj.increment = obj.num_out * 4
+
+        available_regs = RegisterType.list_registers(RegisterType.GPR)
+        obj.args_out_combinations =  [ (list(range(0, obj.num_out)), [list(a) for a in itertools.combinations(available_regs, obj.num_out)])]
+        obj.args_out_restrictions = [ None for _ in range(obj.num_out)    ]
         return obj
 
 class vldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1577,27 +1603,28 @@ class vldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
         return obj
 
 class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "vldm<width> <Ra>!, <range>"
+    pattern = "vldm<width> <Ra>!, <reg_list>"
     in_outs = ["Ra"]
     outputs = []
     def write(self):
-        reg_from = self.args_out[0]
-        reg_to = self.args_out[-1]
-        self.range = f"{{{reg_from}-{reg_to}}}"
+        regs = ",".join(self.args_out)
+        self.reg_list = f"{{{regs}}}"
         return super().write()
 
 
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
-        reg_type = Armv7mInstruction._infer_register_type(obj.range_type)
-        num_regs = len(RegisterType.list_registers(reg_type))
-        obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
-        obj.args_out =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+        reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
+
+        obj.args_out = reg_list
         obj.num_out = len(obj.args_out)
         obj.arg_types_out = [RegisterType.FPR] * obj.num_out
-        obj.args_out_restrictions    = [[ f"s{i+j}"  for j in range(0, num_regs-obj.num_out)] for i in range(0, obj.num_out) ]
-        obj.args_out_combinations = [ ( list(range(0, obj.num_out)), [ [ f"s{i+j}" for i in range(0, obj.num_out)] for j in range(0, num_regs-obj.num_out) ] )]
+        obj.increment = obj.num_out * 4
+
+        available_regs = RegisterType.list_registers(RegisterType.FPR)
+        obj.args_out_combinations =  [ (list(range(0, obj.num_out)), [list(a) for a in itertools.combinations(available_regs, obj.num_out)])]
+        obj.args_out_restrictions = [ None for _ in range(obj.num_out)    ]
         return obj
 # Store
 
@@ -1692,27 +1719,29 @@ class strh_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docst
         return obj
 
 class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "stm<width> <Ra>!, <range>"
+    pattern = "stm<width> <Ra>!, <reg_list>"
     in_outs = ["Ra"]
     outputs = []
 
     def write(self):
-        reg_from = self.args_in[0]
-        reg_to = self.args_in[-1]
-        self.range = f"{{{reg_from}-{reg_to}}}"
+        regs = ",".join(self.args_out)
+        self.reg_list = f"{{{regs}}}"
         return super().write()
 
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
-        reg_type = Armv7mInstruction._infer_register_type(obj.range_type)
-        num_regs = len(RegisterType.list_registers(reg_type))
-        obj.increment = (obj.range_end-obj.range_start+1) * 4 # word sized loads
-        obj.args_in =  [f"{obj.range_type}{i}" for i in range(obj.range_start, obj.range_end+1)]
+
+        reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
+
+        obj.args_in = reg_list
         obj.num_in = len(obj.args_in)
         obj.arg_types_in = [RegisterType.GPR] * obj.num_in
-        obj.args_in_restrictions    = [[ f"r{i+j}"  for j in range(0, num_regs-obj.num_in)] for i in range(0, obj.num_in) ]
-        obj.args_in_combinations = [ ( list(range(0, obj.num_in)), [ [ f"r{i+j}" for i in range(0, obj.num_in)] for j in range(0, num_regs-obj.num_in) ] )]
+        obj.increment = obj.num_in * 4
+
+        available_regs = RegisterType.list_registers(RegisterType.GPR)
+        obj.args_in_combinations =  [ (list(range(0, obj.num_in)), [list(a) for a in itertools.combinations(available_regs, obj.num_in)])]
+        obj.args_in_restrictions = [ None for _ in range(obj.num_in)    ]
         return obj
 # Other
 class cmp(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name

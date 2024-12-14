@@ -313,7 +313,7 @@ def get_latency(src, out_idx, dst):
 
     # Load and store multiples take a long time to complete
     if instclass_src in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
-        latency = (src.range_end - src.range_start) + 1
+        latency = src.num_out
 
     # Can always store result in the same cycle
     # TODO: double-check this
@@ -352,6 +352,6 @@ def get_units(src):
 def get_inverse_throughput(src):
     itp = lookup_multidict(inverse_throughput, src)
     if find_class(src) in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
-        itp = (src.range_end - src.range_start) + 1
+        itp = src.num_out
 
     return itp
