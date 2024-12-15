@@ -55,6 +55,9 @@ from slothy.core.dataflow import SlothyUselessInstructionException
 class SlothyException(Exception):
     """Generic exception thrown by SLOTHY"""
 
+class SlothySelfCheckException(SlothyException):
+    """Exception thrown by SLOTHY during tht selfcheck """
+
 class Result(LockAttributes):
     """The results of a one-shot SLOTHY optimization run"""
 
