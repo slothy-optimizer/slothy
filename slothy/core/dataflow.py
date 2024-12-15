@@ -763,6 +763,18 @@ class DataFlowGraph:
             for i,v in enumerate(t.src_in_out):
                 t.inst.args_in_out[i] = v.reduce().name()
 
+    def has_symbolic_registers(self):
+        rt = self.config._arch.RegisterType
+        for i in self.nodes:
+            instr = i.inst
+            for out, ty in zip(instr.args_out, instr.arg_types_out):
+                if out not in rt.list_registers(ty):
+                    return True
+            for inout, ty in zip(instr.args_in_out, instr.arg_types_in_out):
+                if inout not in rt.list_registers(ty):
+                    return True
+        return False
+
     def ssa(self, filter_func=None):
         """Transform data flow graph into single static assignment (SSA) form."""
         # Go through non-virtual instruction nodes and assign unique names to

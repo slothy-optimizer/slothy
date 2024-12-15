@@ -1303,8 +1303,6 @@ class Config(NestedPrint, LockAttributes):
         self._variable_size = val
     @selftest.setter
     def selftest(self,val):
-        if hasattr(self.arch, "Checker") is False:
-            raise InvalidConfig("Trying to enable checker, but architecture model does not seem to support it")
         self._selftest = val
     @selftest_iterations.setter
     def selftest_iterations(self,val):
