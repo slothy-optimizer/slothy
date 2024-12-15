@@ -732,13 +732,13 @@ class Armv7mInstruction(Instruction):
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"  # TODO: Notion of dt can be placed with notion for size in FP instructions
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
-        width_pattern = "(?:\.w|\.n|)"
+        width_pattern = r"(?:\.w|\.n|)"
         barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
 
         # reg_list is <range>(,<range>)*
         # range is [rs]NN(-rsMM)?
         range_pat = "([rs]\\\\d+)(-[rs](\\\\d+))?"
-        reg_list_pattern = "\{"+ range_pat + "(," + range_pat + ")*" +"\}"
+        reg_list_pattern = "\{"+ range_pat + "(," + range_pat + ")*" + "\}"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
