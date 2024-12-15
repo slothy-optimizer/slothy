@@ -1713,7 +1713,7 @@ class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=miss
         obj.increment = obj.num_out * 4
 
         available_regs = RegisterType.list_registers(RegisterType.FPR)
-        obj.args_out_combinations =  [ (list(range(0, obj.num_out)), [list(a) for a in itertools.combinations(available_regs, obj.num_out)])]
+        obj.args_out_combinations =  [ ( list(range(0, obj.num_out)), [ [ f"s{i+j}" for i in range(0, obj.num_out)] for j in range(0, len(available_regs)-obj.num_out) ] )]
         obj.args_out_restrictions = [ None for _ in range(obj.num_out)    ]
         return obj
 # Store
@@ -1838,7 +1838,7 @@ class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
         obj.increment = obj.num_in * 4
 
         available_regs = RegisterType.list_registers(RegisterType.GPR)
-        obj.args_in_combinations =  [ (list(range(0, obj.num_in)), [list(a) for a in itertools.combinations(available_regs, obj.num_in)])]
+        obj.args_in_combinations =  [ ( list(range(0, obj.num_in)), [ [ f"s{i+j}" for i in range(0, obj.num_in)] for j in range(0, len(available_regs)-obj.num_in) ] )]
         obj.args_in_restrictions = [ None for _ in range(obj.num_in)    ]
         return obj
 # Other
