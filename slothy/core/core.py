@@ -870,6 +870,21 @@ class Result(LockAttributes):
         iterations = 7
         if self.config.sw_pipelining.enabled is True:
             old_source, new_source = self.get_fully_unrolled_loop(iterations)
+
+            dfgc_preamble = DFGConfig(self.config, outputs=self.kernel_input_output)
+            dfgc_preamble.inputs_are_outputs = False
+            preamble_dfg = DFG(self.preamble, log, dfgc_preamble)
+
+            if preamble_dfg.has_symbolic_registers():
+                log.info("Skipping selftest as preamble contains symbolic registers.")
+                return
+
+            dfgc_postamble = DFGConfig(self.config, outputs=self.orig_outputs)
+            postamble_dfg = DFG(self.postamble, log.getChild("new_postamble"), dfgc_postamble)
+
+            if postamble_dfg.has_symbolic_registers():
+                log.info("Skipping selftest as postamble contains symbolic registers.")
+                return
         else:
             old_source, new_source = self.orig_code, self.code
 
