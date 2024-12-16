@@ -1362,8 +1362,10 @@ class SelfTest():
             for r in regs:
                 initial_register_contents[r] = int.from_bytes(os.urandom(16))
             for (reg, sz) in address_registers.items():
-                initial_register_contents[reg] = cur_ram
-                cur_ram += sz
+                # allocate 2*sz and place pointer in the middle
+                # this makes sure that memory can be accessed at negative offsets
+                initial_register_contents[reg] = cur_ram + sz
+                cur_ram += 2*sz
 
             final_regs_old, final_mem_old = run_code(codeA, txt="old")
             final_regs_new, final_mem_new = run_code(codeB, txt="new")
