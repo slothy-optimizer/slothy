@@ -1353,12 +1353,11 @@ class SlothyBase(LockAttributes):
     def __init__(self, Arch, Target, *, logger=None, config=None):
         """Create a stateless SLOTHY instance
 
-           args:
-               Arch: A model of the underlying architecture.
-             Target: A model of the underlying microarchitecture.
-             logger: The logger to be used.
-                     If omitted, a child of the root logger will be used.
-             config: The configuration to use.
+        :param Arch:  A model of the underlying architecture.
+        :param Target: A model of the underlying microarchitecture.
+        :param logger: The logger to be used.
+                       If omitted, a child of the root logger will be used.
+        :param config: The configuration to use.
                      If omitted, the default configuration will be used.
         """
         super().__init__()
@@ -3000,14 +2999,12 @@ class SlothyBase(LockAttributes):
     def get_inst_pairs(self, cond_fst=None, cond_snd=None, cond=None):
         """Yields all instruction pairs satisfying the provided predicate.
 
-        This can be useful for the specification of additional
-        microarchitecture-specific constraints.
+        :param cond_fst:
+        :param cond_snd:
+        :param cond: Predicate on pairs of ComputationNode's. True by default.
+        :return: Generator of all instruction pairs satisfying the predicate.
+        """
 
-        Args:
-            cond: Predicate on pairs of ComputationNode's. True by default.
-
-        Returns:
-            Generator of all instruction pairs satisfying the predicate."""
         if cond_fst is None:
             cond_fst = lambda x: True
         if cond_snd is None:

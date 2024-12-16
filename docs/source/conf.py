@@ -49,7 +49,7 @@ autodoc2_packages = [
     "../../slothy",
 ]
 
-autodoc2_render_plugin = "myst"
+#autodoc2_render_plugin = "myst"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

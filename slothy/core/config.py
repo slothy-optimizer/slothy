@@ -75,13 +75,13 @@ class Config(NestedPrint, LockAttributes):
         the clobber list.
 
         NOTE: Reserved registers are, by default, considered  "locked": They
-          will not be _introduced_ during renaming, but existing uses will not
-          be touched. If you want to remove existing uses of reserved registers
-          through renaming, you should disable `reserved_regs_are_locked`.
+              will not be _introduced_ during renaming, but existing uses will not
+              be touched. If you want to remove existing uses of reserved registers
+              through renaming, you should disable `reserved_regs_are_locked`.
 
         WARNING: When this is set, it _overwrites_ the default reserved registers for
-          the target architecture. If you still want the default reserved
-          registers to remain reserved, you have to explicitly list them!"""
+              the target architecture. If you still want the default reserved
+              registers to remain reserved, you have to explicitly list them!"""
         if self._reserved_regs is not None:
             return self._reserved_regs
         return self._arch.RegisterType.default_reserved()
@@ -102,6 +102,7 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def selfcheck(self):
+
         """Indicates whether SLOTHY performs a self-check on the optimization result.
 
         The selfcheck confirms that the scheduling permutation found by SLOTHY yields
@@ -112,7 +113,6 @@ class Config(NestedPrint, LockAttributes):
 
         WARNING: The selfcheck is not a formal verification of SLOTHY's output!
             There are at least two classes of bugs uncaught by the selfcheck:
-
             - User configuration issues: The selfcheck validates SLOTHY's optimization
               in the context of the provided configuration. Validation of the configuration
               is the user's responsibility. Two common pitfalls include missing reserved
@@ -155,30 +155,31 @@ class Config(NestedPrint, LockAttributes):
         Address offset fixup is a feature which leverages commutativity relations
         such as
 
-        ```python
-           ldr X, [A], #immA;
-           str Y, [A, #immB]
-        ==
-           str Y, [A, #(immB+immA)]
-           ldr X, [A], #immA
-        ```
+        .. code-block:: asm
+
+            ldr X, [A], #immA;
+            str Y, [A, #immB]
+            ==
+            str Y, [A, #(immB+immA)]
+            ldr X, [A], #immA
 
         to achieve greater instruction scheduling flexibility in SLOTHY.
 
-        SAFETY:
-        When you enable this feature, you MUST ensure that registers which are
-        used for addresses are not used in any other instruction than load and
-        stores. OTHERWISE, THE USE OF THIS FEATURE IS UNSOUND (you may see ldr/
-        str instructions with increment reordered with instructions depending
-        on the address register).
+        .. important::
+
+            When you enable this feature, you MUST ensure that registers which are
+            used for addresses are not used in any other instruction than load and
+            stores. OTHERWISE, THE USE OF THIS FEATURE IS UNSOUND (you may see ldr/
+            str instructions with increment reordered with instructions depending
+            on the address register).
 
         By default, this is enabled for backwards compatibility.
 
-        LIMITATION: For historical reason, this feature cannot be disabled for
+        .. note:: For historical reason, this feature cannot be disabled for
         the Armv8.1-M architecture model. A refactoring of that model is needed
         to make address offset fixup configurable.
 
-        Note: The user-imposed safety constraint is not a necessity -- in principle,
+        .. note:: The user-imposed safety constraint is not a necessity -- in principle,
         SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
         It just hasn't been implemented yet.
         """
@@ -197,7 +198,7 @@ class Config(NestedPrint, LockAttributes):
         a sign of a buggy configuration, which would likely lead to intended output
         registers being clobbered by later instructions.
 
-        WARNING: Don't disable this option unless you know what you are doing!
+        .. warning:: Don't disable this option unless you know what you are doing!
             Disabling this option makes it much easier to overlook configuration
             issues in SLOTHY and can lead to hard-to-debug optimization failures.
         """
