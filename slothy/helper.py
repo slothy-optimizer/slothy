@@ -1316,8 +1316,8 @@ class SelfTest():
                 # If we expect a function return, put a valid address in the LR
                 # that serves as the marker to terminate emulation
                 mu.reg_write(config.arch.RegisterType.unicorn_link_register(), CODE_END)
-            # Setup stack
-            mu.reg_write(config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP)
+            # Setup stack and allocate allocate initial stack memory
+            mu.reg_write(config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP - config.selftest_default_memory_size)
             # Copy code into emulator
             mu.mem_map(CODE_BASE, CODE_SZ)
             mu.mem_write(CODE_BASE, objcode)
