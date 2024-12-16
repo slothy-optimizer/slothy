@@ -866,7 +866,7 @@ class Result(LockAttributes):
                 addr = getattr(t.inst, "addr", None)
                 if addr is None:
                     continue
-                addresses.add(addr)
+                addresses = addresses.union(tree.find_all_predecessors_input_registers(t, addr))
 
             # For now, we don't look into increments and immedate offsets
             # to gauge the amount of memory we actually need. Instaed, we
