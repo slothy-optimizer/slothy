@@ -211,6 +211,7 @@ class ExampleKeccak(Example):
         slothy.config.reserved_regs = ["sp", "r13"]
         slothy.config.locked_registers = ["sp", "r13"]
         slothy.config.split_heuristic_estimate_performance = True
+        slothy.config.unsafe_address_offset_fixup = False
 
         # slothy.config.with_llvm_mca = True
         # slothy.config.llvm_mca_full = True
@@ -226,7 +227,6 @@ class ExampleKeccak(Example):
             slothy.config.split_heuristic_optimize_seam = 6
             slothy.config.split_heuristic_stepsize = 0.05
             if not "old" in self.name and not "pqm4" in self.name:
-                slothy.config.unsafe_address_offset_fixup = False
                 slothy.config.split_heuristic_factor = 7
 
                 slothy.optimize(start="slothy_start_round0", end="slothy_end_round0")
@@ -3011,7 +3011,6 @@ def main():
                  ExampleKeccak(var="old"),
                  ExampleKeccak(var="pqm4"),
                  ExampleKeccak(var="m7"),
-                 ExampleKeccak(var="part"),
 
                  ntt_dilithium(),
                  intt_dilithium_123_456_78(),
