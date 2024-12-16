@@ -1260,6 +1260,8 @@ class Result(LockAttributes):
 
     def offset_fixup(self, log):
         """Fixup address offsets after optimization"""
+        if not self.config.unsafe_address_offset_fixup:
+            return
         if self.config.sw_pipelining.enabled:
             self._offset_fixup_sw(log)
         else:
