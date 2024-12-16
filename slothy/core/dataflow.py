@@ -775,6 +775,30 @@ class DataFlowGraph:
                     return True
         return False
 
+    def find_all_predecessors_input_registers(self, consumer, register_name):
+        """ recursively finds the set of input registers registers that a certain value depends on."""
+        # ignore the stack pointer
+        if register_name == "sp":
+            return set()
+
+        producer = consumer.reg_state[register_name].src
+        # if this is a virtual input instruction this is an actual input
+        # otherwise this is computed from other inputs
+        if isinstance(producer.inst, VirtualInputInstruction):
+            return set(producer.inst.args_out)
+        else:
+            # go through all predecessors and recursively call this function
+            # Note that we only care about inputs (i.e., produced by a VirtualInputInstruction)
+            regs = []
+            if hasattr(producer.inst, "args_in"):
+                regs += producer.inst.args_in
+            if hasattr(producer.inst, "args_in_out"):
+                regs += producer.inst.args_in_out
+            predecessors = set()
+            for reg in regs:
+                predecessors = predecessors.union(self.find_all_predecessors_input_registers(producer, reg))
+            return set(predecessors)
+
     def ssa(self, filter_func=None):
         """Transform data flow graph into single static assignment (SSA) form."""
         # Go through non-virtual instruction nodes and assign unique names to
