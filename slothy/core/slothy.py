@@ -172,7 +172,7 @@ class Slothy:
         for l in s:
             fun(f"> {l}")
 
-    def global_selftest(self, funcname, address_gprs, iterations=5):
+    def global_selftest(self, funcname, address_registers, iterations=5):
         """Conduct a function-level selftest
 
         - funcname: Name of function to be called. Must be exposed as a symbol
@@ -198,7 +198,7 @@ class Slothy:
         old_source = self.original_source
         new_source = self.source
 
-        SelfTest.run(self.config, log, old_source, new_source, address_gprs,
+        SelfTest.run(self.config, log, old_source, new_source, address_registers,
                      self.config.arch.RegisterType.callee_saved_registers(), 5,
                      fnsym=funcname)
 

@@ -1282,7 +1282,7 @@ class SelfTestException(Exception):
 class SelfTest():
 
     @staticmethod
-    def run(config, log, codeA, codeB, address_gprs, output_registers, iterations, fnsym=None):
+    def run(config, log, codeA, codeB, address_registers, output_registers, iterations, fnsym=None):
         CODE_BASE = 0x010000
         CODE_SZ = 0x010000
         CODE_END = CODE_BASE + CODE_SZ
@@ -1359,7 +1359,7 @@ class SelfTest():
             initial_register_contents = {}
             for r in regs:
                 initial_register_contents[r] = int.from_bytes(os.urandom(16))
-            for (reg, sz) in address_gprs.items():
+            for (reg, sz) in address_registers.items():
                 initial_register_contents[reg] = cur_ram
                 cur_ram += sz
 
