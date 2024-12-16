@@ -13,6 +13,7 @@ from unicorn.arm_const import *
 from slothy.helper import SourceLine, Loop, LLVM_Mc
 from sympy import simplify
 
+arch_name = "Arm_v7M"
 llvm_mca_arch = "arm"
 llvm_mc_arch = "thumb"
 llvm_mc_attr = "armv7e-m,thumb2,dsp,fpregs"
@@ -731,13 +732,13 @@ class Armv7mInstruction(Instruction):
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"  # TODO: Notion of dt can be placed with notion for size in FP instructions
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
-        width_pattern = "(?:\.w|\.n|)"
+        width_pattern = r"(?:\.w|\.n|)"
         barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
 
         # reg_list is <range>(,<range>)*
         # range is [rs]NN(-rsMM)?
         range_pat = "([rs]\\\\d+)(-[rs](\\\\d+))?"
-        reg_list_pattern = "\{"+ range_pat + "(," + range_pat + ")*" +"\}"
+        reg_list_pattern = "\{"+ range_pat + "(," + range_pat + ")*" + "\}"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
@@ -1391,6 +1392,13 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
 
     def write(self):
         self.immediate = simplify(self.pre_index)
+
+        if self.immediate < 0:
+            # if immediate is < 0, the encoding is 32-bit anyway
+            # and the .w has no meaning.
+            # LLVM complains about the .w in this case
+            # TODO: This actually seems to be a bug in LLVM
+            self.width = ""
         return super().write()
 
 class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1623,7 +1631,7 @@ class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=miss
         obj.increment = obj.num_out * 4
 
         available_regs = RegisterType.list_registers(RegisterType.FPR)
-        obj.args_out_combinations =  [ (list(range(0, obj.num_out)), [list(a) for a in itertools.combinations(available_regs, obj.num_out)])]
+        obj.args_out_combinations =  [ ( list(range(0, obj.num_out)), [ [ f"s{i+j}" for i in range(0, obj.num_out)] for j in range(0, len(available_regs)-obj.num_out) ] )]
         obj.args_out_restrictions = [ None for _ in range(obj.num_out)    ]
         return obj
 # Store
@@ -1676,6 +1684,14 @@ class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,
 
     def write(self):
         self.immediate = simplify(self.pre_index)
+
+        if self.immediate < 0:
+            # if immediate is < 0, the encoding is 32-bit anyway
+            # and the .w has no meaning.
+            # LLVM complains about the .w in this case
+            # TODO: This actually seems to be a bug in LLVM
+            self.width = ""
+
         return super().write()
 
 class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1740,7 +1756,7 @@ class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
         obj.increment = obj.num_in * 4
 
         available_regs = RegisterType.list_registers(RegisterType.GPR)
-        obj.args_in_combinations =  [ (list(range(0, obj.num_in)), [list(a) for a in itertools.combinations(available_regs, obj.num_in)])]
+        obj.args_in_combinations =  [ ( list(range(0, obj.num_in)), [ [ f"s{i+j}" for i in range(0, obj.num_in)] for j in range(0, len(available_regs)-obj.num_in) ] )]
         obj.args_in_restrictions = [ None for _ in range(obj.num_in)    ]
         return obj
 # Other
