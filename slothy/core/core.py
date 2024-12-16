@@ -857,8 +857,8 @@ class Result(LockAttributes):
 
         log.info(f"Running selftest ({self._config.selftest_iterations} iterations)...")
 
-        address_gprs = self._config.selftest_address_gprs
-        if address_gprs is None:
+        address_registers = self._config.selftest_address_registers
+        if address_registers is None:
             # Try to infer which registes need to be pointers
             # Look for load/store instructions and remember addresses
             addresses = set()
@@ -873,8 +873,8 @@ class Result(LockAttributes):
             # just allocate a buffer of a configurable default size.
             log.info(f"Inferred that the following registers seem to act as pointers: {addresses}")
             log.info(f"Using default buffer size of {self._config.selftest_default_memory_size} bytes. "
-                     "If you want different buffer sizes, set selftest_address_gprs manually.")
-            address_gprs = { a: self._config.selftest_default_memory_size for a in addresses }
+                     "If you want different buffer sizes, set selftest_address_registers manually.")
+            address_registers = { a: self._config.selftest_default_memory_size for a in addresses }
 
         # This produces _unrolled_ code, the same that is checked in the selfcheck.
         # The selftest should instead use the rolled form of the loop.
@@ -890,7 +890,7 @@ class Result(LockAttributes):
         regs_expected = set(filter(lambda t: t.startswith("t") is False and
                                          t != "sp" and t != "flags", regs_expected))
 
-        SelfTest.run(self.config, log, old_source, new_source, address_gprs, regs_expected,
+        SelfTest.run(self.config, log, old_source, new_source, address_registers, regs_expected,
                      self.config.selftest_iterations)
 
     def selfcheck_with_fixup(self, log):
