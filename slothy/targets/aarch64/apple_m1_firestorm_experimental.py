@@ -119,8 +119,11 @@ execution_units = {
      vqrdmulh, vqrdmulh_lane,
      vqdmulh_lane,
      vmull, vmlal,
-     vsrshr, vushr, vusra, vshl,
-     vand, vbic, ASimdCompare): ExecutionUnit.V(),
+     vsrshr, vusra,
+     vand, vbic, ASimdCompare,
+     VShiftImmediateBasic,
+     VShiftImmediateRounding
+     ): ExecutionUnit.V(),
     (vadd, vsub,
      trn1, trn2): ExecutionUnit.V(),
     Vins: ExecutionUnit.V(),  # guessed
@@ -183,8 +186,10 @@ inverse_throughput = {
      vmls, vmls_lane,
      vqdmulh_lane,
      vmull, vmlal,
-     vsrshr, vushr, vusra, vshl,
-     vand, vbic, ASimdCompare): 1,
+     vusra,
+     vand, vbic, ASimdCompare,
+     VShiftImmediateRounding,
+     VShiftImmediateBasic): 1,
     (vadd, vsub,
      trn1, trn2): 1,
 
@@ -237,9 +242,10 @@ default_latencies = {
      vmla, vmla_lane,
      vqdmulh_lane,
      vmull, vmlal,
-     vsrshr, vusra): 3,
-    (vshl, vushr,
-     vand, vbic, ASimdCompare): 2,
+     vusra): 3,
+    VShiftImmediateRounding: 3,
+    (vand, vbic, ASimdCompare,
+     VShiftImmediateBasic): 2,
     (vadd, vsub,
      trn1, trn2): 2,
     Vins: 2,  # or something less than 13
@@ -293,7 +299,7 @@ def get_latency(src, out_idx, dst):
     if instclass_src == umaddl_wform and instclass_dst == umaddl_wform and \
        src.args_out[0] == dst.args_in[2]:
         return (3, lambda t_src, t_dst: t_dst.program_start_var == t_src.program_start_var + 1)
-    
+
     return latency
 
 
