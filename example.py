@@ -1682,18 +1682,15 @@ class ntt_dilithium(Example):
         slothy.config.sw_pipelining.optimize_postamble = True
         slothy.config.sw_pipelining.allow_pre = True
 
-        slothy.config.sw_pipelining.boundary_reserved_regs = ["r10"]
-
         slothy.config.outputs = ["r0"]
-        slothy.optimize_loop("layer123_loop")
+        slothy.optimize_loop("layer123_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
 
         slothy.config.outputs = ["r0", "s0", "s10", "s9"]
-        slothy.optimize_loop("layer456_loop")
+        slothy.optimize_loop("layer456_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
 
-        slothy.config.sw_pipelining.boundary_reserved_regs = []
         slothy.config.outputs = ["r0", "r4"]  # r4 is cntr
         slothy.config.inputs_are_outputs = True
-        slothy.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer78_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class intt_dilithium_123_456_78(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
