@@ -135,15 +135,15 @@ class Config(NestedPrint, LockAttributes):
         return self._selftest_iterations
 
     @property
-    def selftest_address_gprs(self):
+    def selftest_address_registers(self):
         """Dictionary of (reg, sz) items indicating which registers are assumed to be
         pointers to memory, and if so, of what size."""
-        return self._selftest_address_gprs
+        return self._selftest_address_registers
 
     @property
     def selftest_default_memory_size(self):
         """Default buffer size to use for registers which are automatically inferred to be
-        used as pointers and for which no memory size has been configured via `address_gprs`."""
+        used as pointers and for which no memory size has been configured via `address_registers`."""
         return self._selftest_default_memory_size
 
     @property
@@ -1183,7 +1183,7 @@ class Config(NestedPrint, LockAttributes):
 
         self._selftest = True
         self._selftest_iterations = 10
-        self._selftest_address_gprs = None
+        self._selftest_address_registers = None
         self._selftest_default_memory_size = 1024
         self._selfcheck = True
         self._selfcheck_failure_logfile = None
@@ -1307,9 +1307,9 @@ class Config(NestedPrint, LockAttributes):
     @selftest_iterations.setter
     def selftest_iterations(self,val):
         self._selftest_iterations = val
-    @selftest_address_gprs.setter
-    def selftest_address_gprs(self,val):
-        self._selftest_address_gprs = val
+    @selftest_address_registers.setter
+    def selftest_address_registers(self,val):
+        self._selftest_address_registers = val
     @selftest_default_memory_size.setter
     def selftest_default_memory_size(self,val):
         self._selftest_default_memory_size = val

@@ -846,8 +846,8 @@ class Result(LockAttributes):
 
         log.info(f"Running selftest ({self._config.selftest_iterations} iterations)...")
 
-        address_gprs = self._config.selftest_address_gprs
-        if address_gprs is None:
+        address_registers = self._config.selftest_address_registers
+        if address_registers is None:
             # Try to infer which registes need to be pointers
             # Look for load/store instructions and remember addresses
             addresses = set()
@@ -855,21 +855,36 @@ class Result(LockAttributes):
                 addr = getattr(t.inst, "addr", None)
                 if addr is None:
                     continue
-                addresses.add(addr)
+                addresses = addresses.union(tree.find_all_predecessors_input_registers(t, addr))
 
             # For now, we don't look into increments and immedate offsets
             # to gauge the amount of memory we actually need. Instaed, we
             # just allocate a buffer of a configurable default size.
             log.info(f"Inferred that the following registers seem to act as pointers: {addresses}")
             log.info(f"Using default buffer size of {self._config.selftest_default_memory_size} bytes. "
-                     "If you want different buffer sizes, set selftest_address_gprs manually.")
-            address_gprs = { a: self._config.selftest_default_memory_size for a in addresses }
+                     "If you want different buffer sizes, set selftest_address_registers manually.")
+            address_registers = { a: self._config.selftest_default_memory_size for a in addresses }
 
         # This produces _unrolled_ code, the same that is checked in the selfcheck.
         # The selftest should instead use the rolled form of the loop.
         iterations = 7
         if self.config.sw_pipelining.enabled is True:
             old_source, new_source = self.get_fully_unrolled_loop(iterations)
+
+            dfgc_preamble = DFGConfig(self.config, outputs=self.kernel_input_output)
+            dfgc_preamble.inputs_are_outputs = False
+            preamble_dfg = DFG(self.preamble, log, dfgc_preamble)
+
+            if preamble_dfg.has_symbolic_registers():
+                log.info("Skipping selftest as preamble contains symbolic registers.")
+                return
+
+            dfgc_postamble = DFGConfig(self.config, outputs=self.orig_outputs)
+            postamble_dfg = DFG(self.postamble, log.getChild("new_postamble"), dfgc_postamble)
+
+            if postamble_dfg.has_symbolic_registers():
+                log.info("Skipping selftest as postamble contains symbolic registers.")
+                return
         else:
             old_source, new_source = self.orig_code, self.code
 
@@ -879,7 +894,7 @@ class Result(LockAttributes):
         regs_expected = set(filter(lambda t: t.startswith("t") is False and
                                          t != "sp" and t != "flags", regs_expected))
 
-        SelfTest.run(self.config, log, old_source, new_source, address_gprs, regs_expected,
+        SelfTest.run(self.config, log, old_source, new_source, address_registers, regs_expected,
                      self.config.selftest_iterations)
 
     def selfcheck_with_fixup(self, log):

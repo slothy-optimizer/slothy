@@ -1282,7 +1282,7 @@ class SelfTestException(Exception):
 class SelfTest():
 
     @staticmethod
-    def run(config, log, codeA, codeB, address_gprs, output_registers, iterations, fnsym=None):
+    def run(config, log, codeA, codeB, address_registers, output_registers, iterations, fnsym=None):
         CODE_BASE = 0x010000
         CODE_SZ = 0x010000
         CODE_END = CODE_BASE + CODE_SZ
@@ -1314,8 +1314,8 @@ class SelfTest():
                 # If we expect a function return, put a valid address in the LR
                 # that serves as the marker to terminate emulation
                 mu.reg_write(config.arch.RegisterType.unicorn_link_register(), CODE_END)
-            # Setup stack
-            mu.reg_write(config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP)
+            # Setup stack and allocate initial stack memory
+            mu.reg_write(config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP - config.selftest_default_memory_size)
             # Copy code into emulator
             mu.mem_map(CODE_BASE, CODE_SZ)
             mu.mem_write(CODE_BASE, objcode)
@@ -1334,10 +1334,11 @@ class SelfTest():
                     mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
                 else:
                     mu.emu_start(CODE_BASE + offset, CODE_END)
-            except:
+            except UcError as e:
                 log.error("Failed to emulate code using unicorn engine")
                 log.error("Code")
                 log.error(SourceLine.write_multiline(code))
+                raise SelfTestException(f"Selftest failed: Unicorn failed to emulate code: {str(e)}") from e
 
             final_register_contents = {}
             for r in regs:
@@ -1358,9 +1359,11 @@ class SelfTest():
             initial_register_contents = {}
             for r in regs:
                 initial_register_contents[r] = int.from_bytes(os.urandom(16))
-            for (reg, sz) in address_gprs.items():
-                initial_register_contents[reg] = cur_ram
-                cur_ram += sz
+            for (reg, sz) in address_registers.items():
+                # allocate 2*sz and place pointer in the middle
+                # this makes sure that memory can be accessed at negative offsets
+                initial_register_contents[reg] = cur_ram + sz
+                cur_ram += 2*sz
 
             final_regs_old, final_mem_old = run_code(codeA, txt="old")
             final_regs_new, final_mem_new = run_code(codeB, txt="new")
