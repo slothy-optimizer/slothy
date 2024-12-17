@@ -355,10 +355,15 @@ class Slothy:
         self.source = pre + optimized_source + post
         assert SourceLine.is_source(self.source)
 
-    def get_loop_input_output(self, loop_lbl):
-        """Find all registers that a loop body depends on"""
+    def get_loop_input_output(self, loop_lbl, forced_loop_type=None):
+        """Find all registers that a loop body depends on
+        
+            Args:
+                loop_lbl: Label of loop to process.
+                forced_loop_type: Forces the loop to be parsed as a certain type.
+        """
         logger = self.logger.getChild(loop_lbl)
-        _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl)
+        _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
 
         c = self.config.copy()
         dfgc = DFGConfig(c)
@@ -432,18 +437,19 @@ class Slothy:
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-    def fusion_loop(self, loop_lbl, **kwargs):
+    def fusion_loop(self, loop_lbl, forced_loop_type=None, **kwargs):
         """Run fusion callbacks on loop body replacing certain instruction
         (sequences) with an alternative. These replacements are defined in the
         architectural model by setting an instruction class' global_fusion_cb.
         
         Args:
             loop_lbl: Label of loop to which the fusions are applied to. 
+            forced_loop_type: Forces the loop to be parsed as a certain type.
         """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
         pre , body, post, _, other_data, loop = \
-            self.arch.Loop.extract(self.source, loop_lbl)
+            self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
         try:
             loop_cnt = other_data['cnt']
         except KeyError:
@@ -457,15 +463,18 @@ class Slothy:
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-    def optimize_loop(self, loop_lbl, postamble_label=None):
+    def optimize_loop(self, loop_lbl, postamble_label=None, forced_loop_type=None):
         """Optimize the loop starting at a given label
-            The postamble_label marks the end of the loop kernel.
+            
+            Args:
+                postamble_label: Marks end of loop kernel.
+                forced_loop_type: Forces the loop to be parsed as a certain type.
         """
 
         logger = self.logger.getChild(loop_lbl)
 
         early, body, late, _, other_data, loop = \
-            self.arch.Loop.extract(self.source, loop_lbl)
+            self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
         try:
             loop_cnt = other_data['cnt']
         except KeyError:
