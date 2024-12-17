@@ -1334,11 +1334,11 @@ class SelfTest():
                     mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
                 else:
                     mu.emu_start(CODE_BASE + offset, CODE_END)
-            except:
+            except UcError as e:
                 log.error("Failed to emulate code using unicorn engine")
                 log.error("Code")
                 log.error(SourceLine.write_multiline(code))
-                raise SelfTestException("Selftest failed: Unicorn failed to emulate code")
+                raise SelfTestException(f"Selftest failed: Unicorn failed to emulate code: {str(e)}") from e
 
             final_register_contents = {}
             for r in regs:
