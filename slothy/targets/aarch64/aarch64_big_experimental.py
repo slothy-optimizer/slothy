@@ -100,7 +100,8 @@ execution_units = {
     (vand, vadd)              : ExecutionUnit.V(),
     (vxtn)                    : ExecutionUnit.V(),
     veor3                     : ExecutionUnit.V(),
-    (vshl, vshl_d, vshli, vshrn) : ExecutionUnit.V1(),
+    (VShiftImmediateBasic,
+     vshl_d, vshli, vshrn)    : ExecutionUnit.V1(), # TODO: Should be V13?
     vusra                     : ExecutionUnit.V1(),
     AESInstruction            : ExecutionUnit.V(),
     Transpose                 : ExecutionUnit.V(),
@@ -141,7 +142,8 @@ inverse_throughput = {
     AArch64NeonLogical         : 1,
     (vmovi)                    : 1,
     (vxtn)                     : 1,
-    (vshl, vshl_d, vshli, vshrn) : 1,
+    (VShiftImmediateBasic,
+     vshl_d, vshli, vshrn) : 1,
     (vmul)                     : 2,
     vusra                      : 1,
     (vmlal, vmull)             : 1,
@@ -180,7 +182,8 @@ default_latencies = {
     (vmul)                    : 5,
     vusra                     : 4, # TODO: Add fwd path
     (vmlal, vmull)            : 4, # TODO: Add fwd path
-    (vshl, vshl_d, vshli, vshrn) : 2,
+    (VShiftImmediateBasic,
+     vshl_d, vshli, vshrn)    : 2,
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,
