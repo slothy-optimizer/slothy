@@ -351,6 +351,8 @@ pqcrystals_dilithium_ntt:
     .unreq zeta1
     .unreq zeta2
 
+.size pqcrystals_dilithium_ntt, .-pqcrystals_dilithium_ntt
+
 .align 2
 inv_ntt_asm_smull_qinv:
 .word 0xfc7fdfff

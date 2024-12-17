@@ -1274,6 +1274,8 @@ layer78_loop:
     .unreq zeta1
     .unreq zeta2
 
+.size pqcrystals_dilithium_ntt_opt_m7, .-pqcrystals_dilithium_ntt_opt_m7
+
 .align 2
 inv_ntt_asm_smull_qinv:
 .word 0xfc7fdfff

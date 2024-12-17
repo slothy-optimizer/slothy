@@ -189,3 +189,5 @@ small_pointmul_asm_769_opt_m7:
 
 
     pop.w {r4-r11, pc}
+
+.size small_pointmul_asm_769_opt_m7, .-small_pointmul_asm_769_opt_m7

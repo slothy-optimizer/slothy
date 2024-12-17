@@ -78,3 +78,5 @@ basemul_asm_acc_opt_32_16:
   bne.w 1b
 
   pop {r4-r11, pc}
+
+.size basemul_asm_acc_opt_32_16, .-basemul_asm_acc_opt_32_16

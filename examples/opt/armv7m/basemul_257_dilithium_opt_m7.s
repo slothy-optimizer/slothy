@@ -184,3 +184,5 @@ __asm_point_mul_257_16_opt_m7:
 
 
     pop.w {r4-r11, pc}
+
+.size __asm_point_mul_257_16_opt_m7, .-__asm_point_mul_257_16_opt_m7

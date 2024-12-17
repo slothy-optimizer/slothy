@@ -85,3 +85,5 @@ asm_fromplant:
 	.unreq qa          
 	.unreq tmp         
 	pop     {r4-r11, pc}
+
+.size asm_fromplant, .-asm_fromplant

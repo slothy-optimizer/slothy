@@ -1256,3 +1256,5 @@ layer567_loop:
 
  vpop.w {s16-s23}
  pop {r4-r11, pc}
+
+.size small_invntt_asm_769_opt_m7, .-small_invntt_asm_769_opt_m7

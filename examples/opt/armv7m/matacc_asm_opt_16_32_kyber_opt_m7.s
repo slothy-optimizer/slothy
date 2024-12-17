@@ -301,3 +301,5 @@ matacc_asm_opt_16_32_opt_m7:
     blt.w 1b
 
   pop {r0-r11, pc}
+
+  .size matacc_asm_opt_16_32_opt_m7, .-matacc_asm_opt_16_32_opt_m7

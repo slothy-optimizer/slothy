@@ -61,3 +61,5 @@ pqcrystals_dilithium_asm_pointwise_montgomery:
     str.w res, [c_ptr]
 
     pop.w {r4-r11, pc}
+
+.size pqcrystals_dilithium_asm_pointwise_montgomery, .-pqcrystals_dilithium_asm_pointwise_montgomery

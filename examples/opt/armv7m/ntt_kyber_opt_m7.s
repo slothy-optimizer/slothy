@@ -1029,3 +1029,5 @@ ntt_fast_opt_m7:
         bne 2b
  vpop.w {s16-s26}
  pop {r4-r11, pc}
+
+.size ntt_fast_opt_m7, .-ntt_fast_opt_m7

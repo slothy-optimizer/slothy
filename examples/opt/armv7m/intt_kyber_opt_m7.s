@@ -1353,3 +1353,5 @@ invntt_fast_opt_m7:
 
  vpop.w {s16-s23}
  pop {r4-r11, pc}
+
+.size invntt_fast_opt_m7, .-invntt_fast_opt_m7

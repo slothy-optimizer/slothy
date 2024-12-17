@@ -57,3 +57,5 @@ __asm_point_mul_257_16:
     bne.w _point_mul_16_loop
 
     pop.w {r4-r11, pc}
+
+.size __asm_point_mul_257_16, .-__asm_point_mul_257_16

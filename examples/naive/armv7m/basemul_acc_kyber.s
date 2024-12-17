@@ -89,3 +89,5 @@ basemul_asm_acc:
 	subs.w loop, #1
 	bne.w 1b
 	pop {r4-r11, pc}
+
+.size basemul_asm_acc, .-basemul_asm_acc

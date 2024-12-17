@@ -303,3 +303,5 @@ ntt_fast:
 	bne.w 2b
 	vpop.w {s16-s26}
 	pop {r4-r11, pc}
+
+.size ntt_fast, .-ntt_fast

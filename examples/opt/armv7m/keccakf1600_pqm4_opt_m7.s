@@ -3993,3 +3993,5 @@ KeccakF1600_StatePermute_RoundLoop:
  bne		KeccakF1600_StatePermute_RoundLoop
  add		sp, #mSize
  pop		{ r4 - r12, pc }
+
+.size KeccakF1600_StatePermute_pqm4_opt_m7, .-KeccakF1600_StatePermute_pqm4_opt_m7

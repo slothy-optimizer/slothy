@@ -280,3 +280,5 @@ frombytes_mul_asm_acc_32_32_opt_m7:
 
 
 pop {r4-r11, pc}
+
+.size frombytes_mul_asm_acc_32_32_opt_m7, .-frombytes_mul_asm_acc_32_32_opt_m7

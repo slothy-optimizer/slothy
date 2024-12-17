@@ -133,3 +133,5 @@ pointwise_add_opt_m7:
 
 
   pop {r4-r11, pc}
+
+.size pointwise_add_opt_m7, .-pointwise_add_opt_m7

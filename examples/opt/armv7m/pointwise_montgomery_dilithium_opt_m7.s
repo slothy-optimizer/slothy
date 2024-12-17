@@ -169,3 +169,5 @@ pqcrystals_dilithium_asm_pointwise_montgomery_opt_m7:
     str.w res, [c_ptr]
 
     pop.w {r4-r11, pc}
+
+.size pqcrystals_dilithium_asm_pointwise_montgomery_opt_m7, .-pqcrystals_dilithium_asm_pointwise_montgomery_opt_m7

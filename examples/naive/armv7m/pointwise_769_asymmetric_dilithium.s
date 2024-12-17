@@ -65,3 +65,5 @@ small_asymmetric_mul_asm_769:
     bne.w _asymmetric_mul_16_loop
 
     pop.w {r4-r11, pc}
+
+.size small_asymmetric_mul_asm_769, .-small_asymmetric_mul_asm_769

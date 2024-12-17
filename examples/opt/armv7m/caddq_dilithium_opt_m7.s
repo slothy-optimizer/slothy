@@ -116,3 +116,5 @@ pqcrystals_dilithium_asm_caddq_opt_m7:
                 //
 
     pop {r4-r11, pc}
+
+.size pqcrystals_dilithium_asm_caddq_opt_m7, .-pqcrystals_dilithium_asm_caddq_opt_m7

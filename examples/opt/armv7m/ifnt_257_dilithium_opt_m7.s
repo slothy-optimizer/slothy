@@ -1027,3 +1027,5 @@ _ifnt_0_1_2:
         bne _ifnt_0_1_2
     vpop.w {s16-s24}
     pop.w {r4-r11, pc}
+
+.size __asm_ifnt_257_opt_m7, .-__asm_ifnt_257_opt_m7

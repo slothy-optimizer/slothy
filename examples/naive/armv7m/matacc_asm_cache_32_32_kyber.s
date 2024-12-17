@@ -202,3 +202,5 @@ matacc_asm_cache_32_32:
     blt.w 1b
 
   pop {r0-r11, pc}
+
+.size matacc_asm_cache_32_32, .-matacc_asm_cache_32_32

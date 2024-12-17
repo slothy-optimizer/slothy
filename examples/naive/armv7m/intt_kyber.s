@@ -368,3 +368,5 @@ invntt_fast:
 
 	vpop.w {s16-s23}
 	pop {r4-r11, pc}
+
+.size invntt_fast, .-invntt_fast

@@ -104,3 +104,5 @@ frombytes_mul_asm:
 	bne.w 1b
 
 	pop {r4-r11, pc}
+
+.size frombytes_mul_asm, .-frombytes_mul_asm

@@ -287,3 +287,5 @@ small_ntt_asm_769:
 	bne.w layer567_loop
 	vpop.w {s16-s27}
 	pop {r4-r11, pc}
+
+.size small_ntt_asm_769, .-small_ntt_asm_769

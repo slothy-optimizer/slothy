@@ -822,3 +822,5 @@ ntt_fast_symbolic_opt_m7:
 
  vpop.w {s16-s25}
  pop {r4-r11, pc}
+
+.size ntt_fast_symbolic_opt_m7, .-ntt_fast_symbolic_opt_m7

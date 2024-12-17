@@ -85,3 +85,5 @@ asm_barrett_reduce:
 	.unreq tmp2        
 
 	pop     {r4-r11, pc}
+
+.size asm_barrett_reduce, .-asm_barrett_reduce

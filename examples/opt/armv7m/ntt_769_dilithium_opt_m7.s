@@ -1041,3 +1041,5 @@ layer567_loop:
         bne layer567_loop
  vpop.w {s16-s27}
  pop {r4-r11, pc}
+
+.size small_ntt_asm_769_opt_m7, .-small_ntt_asm_769_opt_m7

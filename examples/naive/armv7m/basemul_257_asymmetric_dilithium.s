@@ -41,3 +41,5 @@ __asm_asymmetric_mul_257_16:
     bne.w _asymmetric_mul_16_loop
 
     pop.w {r4-r11, pc}
+
+.size __asm_asymmetric_mul_257_16, .-__asm_asymmetric_mul_257_16

@@ -48,3 +48,5 @@ pqcrystals_dilithium_asm_caddq:
         bne.w 1b
 
     pop {r4-r11, pc}
+
+.size pqcrystals_dilithium_asm_caddq, .-pqcrystals_dilithium_asm_caddq

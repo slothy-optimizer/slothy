@@ -211,3 +211,5 @@ matacc_asm_opt_32_16:
   vmov rptr, s29
 
   pop {r0-r11, pc}
+
+.size matacc_asm_opt_32_16, .-matacc_asm_opt_32_16

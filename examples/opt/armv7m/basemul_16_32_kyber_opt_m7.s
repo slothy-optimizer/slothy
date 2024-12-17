@@ -150,3 +150,5 @@ basemul_asm_opt_16_32_opt_m7:
 
 
   pop {r4-r11, pc}
+
+.size basemul_asm_opt_16_32_opt_m7, .-basemul_asm_opt_16_32_opt_m7

@@ -30,3 +30,5 @@ pointwise_add:
   stm r0!, {r3-r5}
   pointwise_add_final_end:
   pop {r4-r11, pc}
+
+.size pointwise_add, .-pointwise_add

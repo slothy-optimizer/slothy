@@ -1443,3 +1443,5 @@ _fnt_3_4_5_6:
 
     vpop.w {s16-s27}
     pop.w {r4-r11, pc}
+
+.size __asm_fnt_257_opt_m7, .-__asm_fnt_257_opt_m7

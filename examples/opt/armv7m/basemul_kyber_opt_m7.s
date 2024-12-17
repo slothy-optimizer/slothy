@@ -222,3 +222,5 @@ basemul_asm_opt_m7:
         // str r10, [r0], #4                // ...................*...........
 
     pop {r4-r11, pc}
+
+.size basemul_asm_opt_m7, .-basemul_asm_opt_m7

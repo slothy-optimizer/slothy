@@ -366,6 +366,8 @@ pqcrystals_dilithium_invntt_tomont:
     .unreq zeta0
     .unreq zeta1
     .unreq zeta2
+  
+.size pqcrystals_dilithium_invntt_tomont, .-pqcrystals_dilithium_invntt_tomont
 
 .align 2
 inv_ntt_asm_smull_qinv:

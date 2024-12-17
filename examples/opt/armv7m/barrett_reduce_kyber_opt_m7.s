@@ -450,3 +450,5 @@ asm_barrett_reduce_opt_m7:
  .unreq tmp2
 
  pop     {r4-r11, pc}
+
+.size asm_barrett_reduce_opt_m7, .-asm_barrett_reduce_opt_m7

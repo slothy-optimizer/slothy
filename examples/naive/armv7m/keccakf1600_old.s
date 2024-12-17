@@ -732,3 +732,4 @@ slothy_end:
 	add		sp, #mSize
 	pop		{ r4 - r12, pc }
 
+.size KeccakF1600_StatePermute_old, .-KeccakF1600_StatePermute_old

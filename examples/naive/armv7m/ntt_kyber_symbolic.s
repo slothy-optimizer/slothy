@@ -301,3 +301,5 @@ ntt_fast_symbolic:
 
 	vpop.w {s16-s25}
 	pop {r4-r11, pc}
+
+.size ntt_fast_symbolic, .-ntt_fast_symbolic

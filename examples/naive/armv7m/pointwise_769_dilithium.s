@@ -72,3 +72,5 @@ small_pointmul_asm_769:
     bne.w _point_mul_16_loop
 
     pop.w {r4-r11, pc}
+
+.size small_pointmul_asm_769, .-small_pointmul_asm_769

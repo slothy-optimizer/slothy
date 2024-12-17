@@ -426,3 +426,5 @@ matacc_asm_cache_32_16_opt_m7:
   vmov rptr, s29
 
   pop {r0-r11, pc}
+
+.size matacc_asm_cache_32_16_opt_m7, .-matacc_asm_cache_32_16_opt_m7

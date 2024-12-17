@@ -31,3 +31,5 @@ pointwise_sub:
   stm r0!, {r3-r5}
   pointwise_sub_final_end:
   pop {r4-r11, pc}
+
+.size pointwise_sub, .-pointwise_sub

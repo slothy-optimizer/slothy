@@ -2826,4 +2826,4 @@ KeccakP1600_Permute_Round1Mod4:
     add     sp, #mSize
     pop     { r4 - r12, pc }
 
-
+.size KeccakP1600_Permute, .-KeccakP1600_Permute

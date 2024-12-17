@@ -197,3 +197,5 @@ matacc_asm:
 	blt.w 1b
 
 	pop {r0-r11, pc}
+
+.size matacc_asm, .-matacc_asm

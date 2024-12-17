@@ -48,3 +48,5 @@ pqcrystals_dilithium_asm_reduce32:
 
     pop {r4-r11, r14}
     bx lr
+
+.size pqcrystals_dilithium_asm_reduce32, .-pqcrystals_dilithium_asm_reduce32

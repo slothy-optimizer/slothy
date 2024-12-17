@@ -1157,3 +1157,5 @@ slothy_end:
 	bne		KeccakF1600_StatePermute_RoundLoop
 	add		sp, #mSize
 	pop		{ r4 - r12, pc }
+
+.size KeccakF1600_StatePermute_pqm4, .-KeccakF1600_StatePermute_pqm4
