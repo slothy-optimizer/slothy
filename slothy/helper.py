@@ -1350,6 +1350,15 @@ class SelfTest():
 
             return final_register_contents, final_memory_contents
 
+        def failure_dump():
+            log.error("Selftest failed")
+            log.error("Input code:")
+            log.error(SourceLine.write_multiline(codeA))
+            log.error("Output code:")
+            log.error(SourceLine.write_multiline(codeB))
+            log.error("Output registers:")
+            log.error(output_registers)
+
         for _ in range(iterations):
             initial_memory = os.urandom(RAM_SZ)
             initial_stack = os.urandom(STACK_SZ)
@@ -1370,6 +1379,7 @@ class SelfTest():
 
             # Check if memory contents are the same
             if final_mem_old != final_mem_new:
+                failure_dump()
                 raise SelfTestException(f"Selftest failed: Memory mismatch")
 
             # Check that callee-saved registers are the same
@@ -1378,6 +1388,7 @@ class SelfTest():
                 if r.startswith("hint_"):
                     continue
                 if final_regs_old[r] != final_regs_new[r]:
+                    failure_dump()
                     raise SelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
 
         if fnsym is None:
