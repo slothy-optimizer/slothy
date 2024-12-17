@@ -237,7 +237,7 @@ pqcrystals_dilithium_ntt:
   .equ distance, 512
   .equ strincr, 4
   
-  ldr ptr_zeta, =zetas_new332
+  ldr.w ptr_zeta, =zetas_new332
   vldm ptr_zeta!, {s2-s8} 
   vmov s0, ptr_zeta
   
