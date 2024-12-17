@@ -738,6 +738,23 @@ class Armv7mLoopVmovCmp(Example):
         slothy.config.variable_size=True
         slothy.config.outputs = ["r6"]
         slothy.optimize_loop("start")
+        
+class Armv7mLoopVmovCmpForced(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_vmov_cmp_forced"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.outputs = ["r5", "r6"]
+        slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.CmpLoop)
 
 class AArch64IfElse(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
@@ -1561,6 +1578,7 @@ def main():
                  Armv7mLoopSubs(),
                  Armv7mLoopCmp(),
                  Armv7mLoopVmovCmp(),
+                 Armv7mLoopVmovCmpForced(),
 
                  CRT(),
 

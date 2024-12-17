@@ -1559,8 +1559,21 @@ class Loop(ABC):
         return pre, body, post, lbl, self.additional_data
 
     @staticmethod
-    def extract(source, lbl):
-        for loop_type in Loop.__subclasses__():
+    def extract(source, lbl, forced_loop_type=None):
+        """
+        Find a loop with start label `lbl` in `source` and return it together
+        with its type.
+        
+            Args:
+                source: list of SourceLine objects
+                lbl: label of the loop to extract
+                forced_loop_type: if not None, only try to extract this type of loop
+        """
+        if forced_loop_type is not None:
+            loop_types = [forced_loop_type]
+        else:
+            loop_types = Loop.__subclasses__()
+        for loop_type in loop_types:
             try:
                 l = loop_type(lbl)
                 # concatenate the extracted loop with an instance of the
