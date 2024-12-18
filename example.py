@@ -1661,6 +1661,25 @@ class pointwise_769_dilithium(Example):
         slothy.optimize_loop("_point_mul_16_loop", forced_loop_type=Arch_Armv7M.CmpLoop)
 
 
+class pointwise_769_asymmetric_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "pointwise_769_asymmetric_dilithium"
+        infile = name
+        funcname = "small_asymmetric_mul_asm_769"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r10"]
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.optimize_loop("_asymmetric_mul_16_loop")
 def main():
     examples = [ Example0(),
                  Example1(),
@@ -1822,6 +1841,7 @@ def main():
                  basemul_257_dilithium(),
                  basemul_257_asymmetric_dilithium(),
                  pointwise_769_dilithium(),
+                 pointwise_769_asymmetric_dilithium(),
                  ]
 
     all_example_names = [e.name for e in examples]
