@@ -703,7 +703,7 @@ class Armv7mLoopSubs(Example):
 
     def core(self,slothy):
         slothy.config.variable_size=True
-        slothy.optimize_loop("start")
+        slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.SubsLoop)
 
 class Armv7mLoopCmp(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
@@ -720,7 +720,7 @@ class Armv7mLoopCmp(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.config.outputs = ["r6"]
-        slothy.optimize_loop("start")
+        slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.CmpLoop)
 
 class Armv7mLoopVmovCmp(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
