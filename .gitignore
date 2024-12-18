@@ -1,2 +1,6 @@
 **/__pycache__
 venv/
+.idea
+arch-docs/
+doc.md
+img.png

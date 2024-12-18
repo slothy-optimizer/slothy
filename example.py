@@ -43,13 +43,17 @@ import slothy.targets.aarch64.cortex_a72_frontend as Target_CortexA72
 import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
+import slothy.targets.riscv.riscv as RISC_V
+import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
+
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
                      Target_CortexM7: "m7",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85",
                      Target_AppleM1_firestorm: "m1_firestorm",
-                     Target_AppleM1_icestorm: "m1_icestorm"}
+                     Target_AppleM1_icestorm: "m1_icestorm",
+                     Target_XuanTieC908: "c908"}
 
 
 class ExampleException(Exception):
@@ -81,6 +85,8 @@ class Example():
             subfolder = "aarch64/"
         elif self.arch == Arch_Armv7M:
             subfolder = "armv7m/"
+        elif self.arch == RISC_V:
+            subfolder = "riscv/"
         self.infile_full = f"examples/naive/{subfolder}{self.infile}.s"
         self.outfile_full = f"examples/opt/{subfolder}{self.outfile}.s"
         self.name = name
@@ -1548,6 +1554,80 @@ class fft_floatingpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
+class RISC_VExample0(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
+        name = "riscv_simple0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv32im")
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.config.inputs_are_outputs = True
+        slothy.config.outputs = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10',
+ 'x11', 'x12', 'x13', 'x14', 'x15', 'x16', 'x17', 'x18', 'x19',
+ 'x20', 'x21', 'x22', 'x23', 'x24', 'x25', 'x26', 'x27', 'x28',
+ 'x29', 'x30', 'x31']
+        slothy.optimize(start="mainloop", end="end_label")
+
+class RISC_VExampleLoop0(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
+        name = "riscv_simple_loop0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        
+        slothy.config.sw_pipelining.enabled = True
+
+        slothy.optimize_loop("my_loop")
+        slothy.optimize_loop("my_loop2")
+        slothy.optimize_loop("my_loop3")
+
+class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "ntt_8l_singleissue_plant_rv64im"
+        subpath = "ntt_dilithium/"
+        infile = subpath + name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv64im", timeout=timeout)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.config.inputs_are_outputs = True
+
+        r = slothy.config.reserved_regs
+        r += ['x3']
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
+        slothy.optimize_loop("ntt_8l_rv64im_loop1")
+        slothy.optimize_loop("ntt_8l_rv64im_loop2")
 #############################################################################################
 
 
@@ -1706,6 +1786,11 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
+
+                 # RISC-V
+                 RISC_VExample0(target=Target_XuanTieC908),
+                 RISC_VExampleLoop0(),
+                 RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300)
                  ]
 
     all_example_names = [e.name for e in examples]
