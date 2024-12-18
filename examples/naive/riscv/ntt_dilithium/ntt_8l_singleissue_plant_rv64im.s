@@ -188,9 +188,10 @@ ntt_8l_rv64im:
   ld t6, 6*8(a1)
   ld tp, 7*8(a1)
   ld ra, 8*8(a1)
+
   //// LAYER 1+2+3+4
   ntt_8l_rv64im_loop1:
-    main_loop_1:
+    // main_loop_1:
     addi a0, a0, -4
     load_coeffs a0, 16, 4
     // layer 1
@@ -243,14 +244,14 @@ ntt_8l_rv64im:
     ct_bfu a4,  a5,  a7, a6, a7
 
     store_coeffs a0, 16, 4
-    end_loop_1:
+    //end_loop_1:
   addi gp, gp, -1
   bge gp, zero, ntt_8l_rv64im_loop1
   addi a1, a1, 15*8
   //// LAYER 5+6+7+8
   addi gp, x0, 16
   ntt_8l_rv64im_loop2:
-    main_loop_2:
+    //main_loop_2:
     load_coeffs a0, 1, 4
     ld t0, 0*8(a1)
     ld t1, 1*8(a1)
@@ -306,7 +307,7 @@ ntt_8l_rv64im:
     store_coeffs a0, 1, 4
     addi a0, a0, 16*4
     addi a1, a1, 15*8
-    end_loop_2:
+    //end_loop_2:
   addi gp, gp, -1
   bne gp, zero, ntt_8l_rv64im_loop2
   restore_regs
