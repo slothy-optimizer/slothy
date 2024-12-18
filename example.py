@@ -1572,7 +1572,7 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
         slothy.optimize_loop("ntt_8l_rv64im_loop1")
-        slothy.optimize_loop("ntt_8l_rv64im_loop1")
+        slothy.optimize_loop("ntt_8l_rv64im_loop2")
 #############################################################################################
 
 
