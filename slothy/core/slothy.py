@@ -450,7 +450,12 @@ class Slothy:
 
         pre , body, post, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
-        loop_cnt = other_data['cnt']
+
+        try:
+            loop_cnt = other_data['cnt']
+        except KeyError:
+            loop_cnt = Nonee
+
         indentation = AsmHelper.find_indentation(body)
 
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
@@ -472,7 +477,11 @@ class Slothy:
 
         early, body, late, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
-        loop_cnt = other_data['cnt']
+
+        try:
+            loop_cnt = other_data['cnt']
+        except KeyError:
+            loop_cnt = None
 
         # Check if the body has a dominant indentation
         indentation = AsmHelper.find_indentation(body)
