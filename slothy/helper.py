@@ -1316,7 +1316,7 @@ class SelfTest():
                 # If we expect a function return, put a valid address in the LR
                 # that serves as the marker to terminate emulation
                 mu.reg_write(config.arch.RegisterType.unicorn_link_register(), CODE_END)
-            # Setup stack and allocate allocate initial stack memory
+            # Setup stack and allocate initial stack memory
             mu.reg_write(config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP - config.selftest_default_memory_size)
             # Copy code into emulator
             mu.mem_map(CODE_BASE, CODE_SZ)
@@ -1336,11 +1336,11 @@ class SelfTest():
                     mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
                 else:
                     mu.emu_start(CODE_BASE + offset, CODE_END)
-            except:
+            except UcError as e:
                 log.error("Failed to emulate code using unicorn engine")
                 log.error("Code")
                 log.error(SourceLine.write_multiline(code))
-                raise SelfTestException("Selftest failed: Unicorn failed to emulate code")
+                raise SelfTestException(f"Selftest failed: Unicorn failed to emulate code: {str(e)}") from e
 
             final_register_contents = {}
             for r in regs:
@@ -1351,6 +1351,15 @@ class SelfTest():
             final_memory_contents = mu.mem_read(RAM_BASE, RAM_SZ)
 
             return final_register_contents, final_memory_contents
+
+        def failure_dump():
+            log.error("Selftest failed")
+            log.error("Input code:")
+            log.error(SourceLine.write_multiline(codeA))
+            log.error("Output code:")
+            log.error(SourceLine.write_multiline(codeB))
+            log.error("Output registers:")
+            log.error(output_registers)
 
         for _ in range(iterations):
             initial_memory = os.urandom(RAM_SZ)
@@ -1372,6 +1381,7 @@ class SelfTest():
 
             # Check if memory contents are the same
             if final_mem_old != final_mem_new:
+                failure_dump()
                 raise SelfTestException(f"Selftest failed: Memory mismatch")
 
             # Check that callee-saved registers are the same
@@ -1380,6 +1390,7 @@ class SelfTest():
                 if r.startswith("hint_"):
                     continue
                 if final_regs_old[r] != final_regs_new[r]:
+                    failure_dump()
                     raise SelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
 
         if fnsym is None:

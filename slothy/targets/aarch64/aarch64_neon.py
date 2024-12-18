@@ -2531,12 +2531,33 @@ class vsmlal2(Vmlal): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Va", "Vb"]
     in_outs=["Vd"]
 
-class vsrshr(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class VShiftImmediateBasic(AArch64Instruction):
+    pass
+
+class VShiftImmediateRounding(AArch64Instruction):
+    pass
+
+class vsrshr(VShiftImmediateRounding): # pylint: disable=missing-docstring,invalid-name
     pattern = "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
-class vshl(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+class vurshr(VShiftImmediateRounding): # pylint: disable=missing-docstring,invalid-name
+    pattern = "urshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+class vsshr(VShiftImmediateBasic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "sshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+class vushr(VShiftImmediateBasic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+class vshl(VShiftImmediateBasic): # pylint: disable=missing-docstring,invalid-name
     pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
@@ -2606,11 +2627,6 @@ class fmov_1_force_output(Fmov): # pylint: disable=missing-docstring,invalid-nam
         if force is False:
             raise Instruction.ParsingException("Instruction ignored")
         return AArch64Instruction.build(cls, src)
-
-class vushr(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
-    pattern = "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
 
 class Transpose(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pass
@@ -3222,7 +3238,7 @@ def eor3_fusion_cb():
     """
     Example for a fusion call back. Allows to merge two eor instruction with
     two inputs into one eor with three inputs. Such technique can help perform
-    transformations in case of differences between uArchs. 
+    transformations in case of differences between uArchs.
     Note: This is not used in any real (crypto) example. This is merely a PoC.
     """
     def core(inst,t,log=None):
@@ -3285,7 +3301,7 @@ def eor3_splitting_cb():
     """
     Example for a splitting call back. Allows to split one eor instruction with
     three inputs into two eors with two inputs. Such technique can help perform
-    transformations in case of differences between uArchs. 
+    transformations in case of differences between uArchs.
     Note: This is not used in any real (crypto) example. This is merely a PoC.
     """
     def core(inst,t,log=None):
