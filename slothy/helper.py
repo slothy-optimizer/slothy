@@ -519,6 +519,7 @@ class AsmHelper():
             s = re.sub( f"{old_funcname}:", f"{new_funcname}:", s)
             s = re.sub( f"\\.global(\\s+){old_funcname}", f".global\\1{new_funcname}", s)
             s = re.sub( f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
+            s = re.sub( f"\\.size(\\s+){old_funcname},(\\s*)\\.-{old_funcname}", f".size {new_funcname}, .-{new_funcname}", s)
             return line.copy().set_text(s)
         return [ change_funcname(s) for s in source ]
 
