@@ -1,0 +1,22 @@
+name: Setup ubuntu
+description: Setup ubuntu
+
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v2
+      with:
+        version: "18.1"
+    - name: Setup Python venv
+      shell: bash
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        python3 -m pip install -r requirements.txt
+        deactivate
+        echo "$(pwd)/venv/bin/" >> "$GITHUB_PATH"

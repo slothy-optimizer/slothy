@@ -46,6 +46,8 @@ import platform
 import subprocess
 from enum import Enum
 from functools import cache
+
+from slothy.helper import SourceLine
 from sympy import simplify
 
 from unicorn import *
@@ -345,6 +347,7 @@ class Instruction:
 
         self.args_out_combinations = None
         self.args_in_combinations = None
+        self.args_inout_out_different = None
         self.args_in_out_combinations = None
         self.args_in_out_different = None
         self.args_in_inout_different = None
@@ -3117,13 +3120,10 @@ class cmge(ASimdCompare): # pylint: disable=missing-docstring,invalid-name
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
-
-class Stack:
+class Spill:
     def spill(reg, loc):
-        # TODO: Use store instruction
         return f"str {reg}, [sp, #STACK_LOC_{loc}]"
     def restore(reg, loc):
-        # TODO: Use load instruction
         return  f"ldr {reg}, [sp, #STACK_LOC_{loc}]"
 
 # In a pair of vins writing both 64-bit lanes of a vector, mark the
