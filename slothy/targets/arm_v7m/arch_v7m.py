@@ -338,6 +338,10 @@ class BranchLoop(Loop):
                 loop_cnt_reg = inst[0].args_in_out[0]
                 loop_end_reg = inst[0].args_in_out[0]
                 break
+            elif isinstance(inst[0], subs_imm):
+                loop_cnt_reg = inst[0].args_out[0]
+                loop_end_reg = inst[0].args_out[0]
+                break
 
         # Find FPR that is used to stash the loop end incase it's vmov loop
         loop_end_reg_fpr = None
@@ -1214,6 +1218,12 @@ class sub_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,inva
 class sub_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sub<width> <Ra>, <imm>"
     in_outs = ["Ra"]
+
+class subs_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "subs<width> <Rd>, <Ra>, <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    modifiesFlags = True
 
 class subs_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "subs<width> <Ra>, <imm>"
