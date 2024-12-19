@@ -40,7 +40,7 @@ small_pointmul_asm_769:
     ldr.w r9, [r2, #1*width]
     ldr.w r5, [r1, #1*width]
     ldr.w r4, [r1], #4*width
-    ldr.w r6, [r2], #2*width // @slothy:core=True
+    ldr.w r6, [r2], #2*width
 
     smulwt r10, r6, r4
     smlabt r10, r10, r12, r14
@@ -53,7 +53,7 @@ small_pointmul_asm_769:
     pkhbt r5, r5, r10
 
     str.w r5, [r0, #1*width]
-    str.w r4, [r0], #4*width
+    str.w r4, [r0], #2*width
 
     smulwt r10, r9, r7
     smlabt r10, r10, r12, r14
@@ -65,8 +65,8 @@ small_pointmul_asm_769:
     smlabt r10, r10, r12, r14
     pkhbt r8, r8, r10
 
-    str r8, [r0, #-1*width]
-    str r7, [r0, #-2*width]
+    str.w r8, [r0, #1*width]
+    str.w r7, [r0], #2*width
 
     cmp.w r3, r2
     bne.w _point_mul_16_loop
