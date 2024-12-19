@@ -305,7 +305,8 @@ class SubsLoop(Loop):
         if fixup != 0:
             # In case the immediate is >1, we need to scale the fixup. This
             # allows for loops that do not use an increment of 1
-            fixup *= self.additional_data['imm']
+            assert isinstance(fixup, int)
+            fixup = simplify(f"{fixup} * ({self.additional_data['imm']})")
             yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
