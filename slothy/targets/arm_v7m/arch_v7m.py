@@ -311,7 +311,9 @@ class BranchLoop(Loop):
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        self.end_regex = (rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}",)
+        # Defines the end of the loop, boolean indicates whether the instruction
+        # shall be considered part of the body or not.
+        self.end_regex = ((rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}", True),)
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -392,13 +394,8 @@ class BranchLoop(Loop):
         yield f"{self.lbl}:"
 
     def end(self, other, indentation=0):
-        """Emit compare-and-branch at the end of the loop"""
-        indent = ' ' * indentation
-        lbl_start = self.lbl
-        if lbl_start.isdigit():
-            lbl_start += "b"
-
-        yield f'{indent}bne {lbl_start}'
+        """Nothing to do here"""
+        yield ""
 
 class CmpLoop(Loop):
     """

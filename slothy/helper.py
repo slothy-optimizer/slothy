@@ -1517,9 +1517,12 @@ class Loop(ABC):
         loop_lbl_regexp_txt = self.lbl_regex
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
 
-        # end_regex shall contain group cnt as the counter variable
-        loop_end_regexp_txt = self.end_regex
-        loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
+        # end_regex shall contain group cnt as the counter variable.
+        # Transform all loop_end_regexp into a list of tuples, where the second
+        # element determines whether the instruction should be counted into the
+        # body or not. The default is to not put the loop end into the body (False).
+        loop_end_regexp_txt = [e if isinstance(e, tuple) else (e,False) for e in self.end_regex]
+        loop_end_regexp = [re.compile(txt[0]) for txt in loop_end_regexp_txt]
         lines = iter(source)
         l = None
         keep = False
@@ -1548,8 +1551,12 @@ class Loop(ABC):
                     # Case: We may have encountered part of the loop end
                     # collect all named groups
                     self.additional_data = self.additional_data | p.groupdict()
+                    if loop_end_regexp_txt[loop_end_ctr][1]:
+                        # Put all instructions into the loop body, there won't be a boundary.
+                        body.append(l)
+                    else:
+                        loop_end_candidates.append(l)
                     loop_end_ctr += 1
-                    loop_end_candidates.append(l)
                     if loop_end_ctr == len(loop_end_regexp):
                         state = 2
                     continue

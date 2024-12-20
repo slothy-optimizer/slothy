@@ -2797,6 +2797,13 @@ class SlothyBase(LockAttributes):
                              self.config.sw_pipelining.min_overlapping )
 
         for t in self._get_nodes():
+            # If there is a instruction tagged with "branch" in the kernel, we
+            # must ensure that it gets placed at the very end of the loop.
+            if self._is_low(t):
+                if t.inst.source_line.tags.get("branch", []):
+                    self._Add( t.program_start_var ==
+                             self._model.program_padded_size_half - 1 )
+                
 
             self._AddExactlyOne([t.pre_var, t.post_var, t.core_var])
 
