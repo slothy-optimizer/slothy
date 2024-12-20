@@ -583,6 +583,7 @@ class Instruction:
         self.flag = None
         self.width = None
         self.barrel = None
+        self.label = None
         self.reg_list = None
 
     def extract_read_writes(self):
@@ -837,6 +838,7 @@ class Armv7mInstruction(Instruction):
         index_pattern = "[0-9]+"
         width_pattern = r"(?:\.w|\.n|)"
         barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
+        label_pattern = r"(?:\\w+)"
 
         # reg_list is <range>(,<range>)*
         # range is [rs]NN(-rsMM)?
@@ -852,6 +854,7 @@ class Armv7mInstruction(Instruction):
         src = replace_placeholders(src, "flag", flag_pattern, "flag") # TODO: Are any changes required for IT syntax?
         src = replace_placeholders(src, "width", width_pattern, "width")
         src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
+        src = replace_placeholders(src, "label", label_pattern, "label")
         src = replace_placeholders(src, "reg_list", reg_list_pattern, "reg_list")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
@@ -1029,6 +1032,7 @@ class Armv7mInstruction(Instruction):
         group_to_attribute('flag', 'flag')
         group_to_attribute('width', 'width')
         group_to_attribute('barrel', 'barrel')
+        group_to_attribute('label', 'label')
         group_to_attribute('reg_list', 'reg_list')
 
         for s, ty in obj.pattern_inputs:
@@ -1102,6 +1106,7 @@ class Armv7mInstruction(Instruction):
         out = replace_pattern(out, "index", "index", str)
         out = replace_pattern(out, "width", "width", lambda x: x.lower())
         out = replace_pattern(out, "barrel", "barrel", lambda x: x.lower())
+        out = replace_pattern(out, "label", "label")
         out = replace_pattern(out, "reg_list", "reg_list", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
