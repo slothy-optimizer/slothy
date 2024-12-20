@@ -1869,6 +1869,31 @@ class frombytes_mul_acc_32_16_kyber(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
+
+class add_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "add_kyber"
+        infile = name
+        funcname = "pointwise_add"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.sw_pipelining.enabled = True
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+        slothy.config.sw_pipelining.enabled = False
+        slothy.fusion_region(start="pointwise_add_final_start", end="pointwise_add_final_end", ssa=False)
+        slothy.optimize(start="pointwise_add_final_start", end="pointwise_add_final_end")
 def main():
     examples = [ Example0(),
                  Example1(),
@@ -2040,6 +2065,7 @@ def main():
                  frombytes_mul_16_32_kyber(),
                  frombytes_mul_acc_32_32_kyber(),
                  frombytes_mul_acc_32_16_kyber(),
+                 add_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]
