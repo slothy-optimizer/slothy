@@ -808,6 +808,9 @@ class Armv7mLoopSubs(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.SubsLoop)
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.outputs = ["r0", "r1", "r2", "r5", "flags"]
+        slothy.optimize_loop("start2", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class Armv7mLoopCmp(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
