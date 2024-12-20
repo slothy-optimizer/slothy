@@ -1843,6 +1843,32 @@ class frombytes_mul_acc_32_32_kyber(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
+
+class frombytes_mul_acc_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_32_16_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
 def main():
     examples = [ Example0(),
                  Example1(),
@@ -2013,6 +2039,7 @@ def main():
                  basemul_acc_32_16_kyber(),
                  frombytes_mul_16_32_kyber(),
                  frombytes_mul_acc_32_32_kyber(),
+                 frombytes_mul_acc_32_16_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]
