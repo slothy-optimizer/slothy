@@ -111,6 +111,7 @@ class VirtualInstruction:
         self.args_out_combinations = None
         self.args_in_out_combinations = None
         self.args_in_combinations = None
+        self.args_inout_out_different = None
         self.args_in_out_different = None
         self.args_in_inout_different = None
 
@@ -606,6 +607,10 @@ class DataFlowGraph:
             t.inst.args_in.append(addr)
             t.inst.arg_types_in.append(t.inst.arg_types_in_out[idx])
             t.inst.args_in_restrictions.append(t.inst.args_in_out_restrictions[idx])
+
+            t.inst.args_in_out_different = t.inst.args_inout_out_different
+            t.inst.args_inout_out_different = None
+
             # TODO: Architecture-model-specific code does not belong here.
             if hasattr(t.inst, 'pattern_inputs'):
                 t.inst.pattern_inputs.append(t.inst.pattern_in_outs[idx])
@@ -874,14 +879,41 @@ class DataFlowGraph:
         # Add the single valid candidate parsing to the CFG
         self._add_node(valid_candidates[0])
 
+    def _find_source_single(self,ty,name):
+        self.logger.debug("Finding source of register %s of type %s", name, ty)
+
+        # Check if the inputs have been produced by the data flow graph
+        if name not in self.reg_state:
+            # If not, treat them as a global input
+            self.logger.debug("-> %s is a global input", name)
+            # Create a virtual instruction producing the output add that first
+            # Since the virtual instruction does not have any inputs, there is
+            # no risk of infinite recursion here
+            self._add_node(VirtualInputInstruction(name, ty))
+            # Fall through
+
+        # At this point, the source _must_ be produced by an instruction in the graph
+        assert name in self.reg_state
+
+        # Return a reference to the node producing the input
+        origin = self.reg_state[name]
+        self.logger.debug(f"-> {name} has been produced by {origin}")
+
+        if origin.get_type() != ty:
+            warnstr = f"Type mismatch: Output {name} of {type(origin.src.inst).__name__} has "\
+                f"type {origin.get_type()} but {type(s).__name__} expects it to have type {ty}"
+            self.logger.debug(warnstr)
+            raise DataFlowGraphException(warnstr)
+
+        return self.reg_state[name]
+
     def _process_restore_instruction(self, reg, loc):
         assert loc in self.spilled_reg_state.keys()
         self.reg_state[reg] = self.spilled_reg_state.pop(loc)
 
-    def _process_spill_instruction(self, reg, loc):
+    def _process_spill_instruction(self, reg, loc, ty):
         assert loc not in self.spilled_reg_state.keys()
-        assert reg in self.reg_state.keys()
-        self.spilled_reg_state[loc] = self.reg_state.pop(reg)
+        self.spilled_reg_state[loc] = self._find_source_single(ty, reg)
 
     def _add_node(self, s):
         """Add a node to the data flow graph
@@ -901,7 +933,8 @@ class DataFlowGraph:
                 self.logger.debug("Handling spill instruction: %s", s)
                 reg = s.args_in[0]
                 loc = s.args_out[0]
-                self._process_spill_instruction(reg, loc)
+                ty = s.arg_types_in[0]
+                self._process_spill_instruction(reg, loc, ty)
                 return
             if self.config._absorb_spills is True and \
                s.source_line.tags.get("is_restore", False) is True:
@@ -918,36 +951,8 @@ class DataFlowGraph:
         elif isinstance(s, VirtualOutputInstruction):
             self.logger.debug("Adding virtual instruction for output %s", s.orig_reg)
 
-        def find_source_single(ty,name):
-            self.logger.debug("Finding source of register %s of type %s", name, ty)
-
-            # Check if the inputs have been produced by the data flow graph
-            if name not in self.reg_state:
-                # If not, treat them as a global input
-                self.logger.debug("-> %s is a global input", name)
-                # Create a virtual instruction producing the output add that first
-                # Since the virtual instruction does not have any inputs, there is
-                # no risk of infinite recursion here
-                self._add_node(VirtualInputInstruction(name, ty))
-                # Fall through
-
-            # At this point, the source _must_ be produced by an instruction in the graph
-            assert name in self.reg_state
-
-            # Return a reference to the node producing the input
-            origin = self.reg_state[name]
-            self.logger.debug(f"-> {name} has been produced by {origin}")
-
-            if origin.get_type() != ty:
-                warnstr = f"Type mismatch: Output {name} of {type(origin.src.inst).__name__} has "\
-                    f"type {origin.get_type()} but {type(s).__name__} expects it to have type {ty}"
-                self.logger.debug(warnstr)
-                raise DataFlowGraphException(warnstr)
-
-            return self.reg_state[name]
-
         def find_sources(types,names):
-            return [ find_source_single(t,n) for t,n in zip(types,names) ]
+            return [ self._find_source_single(t,n) for t,n in zip(types,names) ]
 
         # Lookup computation nodes for inputs
         src_in     = find_sources(s.arg_types_in, s.args_in)
