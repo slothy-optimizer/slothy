@@ -1943,6 +1943,30 @@ class barrett_reduce_kyber(Example):
         slothy.config.constraints.stalls_first_attempt = 43
         slothy.fusion_loop("1", ssa=False)
         slothy.optimize_loop("1")
+
+
+
+class fromplant_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "fromplant_kyber"
+        infile = name
+        funcname = "asm_fromplant"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r9"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
 def main():
     examples = [ Example0(),
                  Example1(),
@@ -2117,6 +2141,7 @@ def main():
                  add_kyber(),
                  sub_kyber(),
                  barrett_reduce_kyber(),
+                 fromplant_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]
