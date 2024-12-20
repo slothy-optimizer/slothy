@@ -1884,6 +1884,10 @@ class cmp_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invali
     pattern = "cmp<width> <Ra>, <imm>"
     inputs = ["Ra"]
     modifiesFlags=True
+    
+class bne(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+    pattern = "bne<width> <label>"
+    dependsOnFlags=True
 
 class Spill:
     def spill(reg, loc, spill_to_vreg=None):
