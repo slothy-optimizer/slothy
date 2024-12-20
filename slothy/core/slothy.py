@@ -454,7 +454,7 @@ class Slothy:
         try:
             loop_cnt = other_data['cnt']
         except KeyError:
-            loop_cnt = Nonee
+            loop_cnt = None
 
         indentation = AsmHelper.find_indentation(body)
 
