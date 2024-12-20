@@ -291,12 +291,16 @@ def get_latency(src, out_idx, dst):
     latency = lookup_multidict(default_latencies, src)
 
     # Forwarding path to MAC instructions
-    if instclass_dst in [mla, mls, smlabb, smlabt, smlatt, smlatb] and src.args_out[0] == dst.args_in[2]:
+    if instclass_dst in [mla, mls, smlabb, smlabt, smlatt, smlatb] and dst.args_in[2] in (src.args_out + src.args_in_out):
         latency =  latency - 1
 
-    if instclass_dst in [smlal] and \
-            (src.args_out[0] == dst.args_in_out[0] or src.args_out[0] == dst.args_in_out[1]):
-        latency = latency - 1
+    if instclass_dst in [smlal]:
+        if len(src.args_out) > 1:
+            if (src.args_out[0] == dst.args_in_out[0] or src.args_out[0] == dst.args_in_out[1]):
+                latency = latency - 1
+        elif len(src.args_in_out) > 1:
+            if (src.args_in_out[0] == dst.args_in_out[0] or src.args_in_out[0] == dst.args_in_out[1]):
+                latency = latency - 1
 
     # Multiply accumulate chain latency is 1
     if instclass_src in [smlal] and instclass_dst in [smlal] and \
