@@ -1612,7 +1612,7 @@ class basemul_257_dilithium(Example):
 
         slothy.config.outputs = ["r12", "r14"]
         slothy.config.inputs_are_outputs = True
-
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("_point_mul_16_loop")
 
