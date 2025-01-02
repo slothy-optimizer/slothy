@@ -774,6 +774,11 @@ class Instruction:
 
         for i in insts:
             i.source_line = src_line
+
+            # Mark as branch for BranchLoop
+            if isinstance(i, Armv7mBranch):
+                i.source_line.tags['branch'] = True
+
             i.extract_read_writes()
 
         if len(insts) == 0:
@@ -1110,6 +1115,8 @@ class Armv7mInstruction(Instruction):
         out = out.replace("\\]", "]")
         return out
 
+class Armv7mBranch(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
+    pass
 class Armv7mBasicArithmetic(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
 class Armv7mShiftedArithmetic(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1882,7 +1889,7 @@ class cmp_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invali
     inputs = ["Ra"]
     modifiesFlags=True
     
-class bne(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
+class bne(Armv7mBranch): # pylint: disable=missing-docstring,invalid-name
     pattern = "bne<width> <label>"
     dependsOnFlags=True
 
