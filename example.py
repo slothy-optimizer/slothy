@@ -1661,7 +1661,7 @@ class pointwise_769_dilithium(Example):
         slothy.config.reserved_regs = r
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.optimize_loop("_point_mul_16_loop", forced_loop_type=Arch_Armv7M.CmpLoop)
+        slothy.optimize_loop("_point_mul_16_loop")
 
 
 class pointwise_769_asymmetric_dilithium(Example):

@@ -4,8 +4,8 @@ start:
                 // Expected cycles: 0
                 // Expected IPC:    0.00
                 //
-                // Wall time:     0.02s
-                // User time:     0.02s
+                // Wall time:     0.00s
+                // User time:     0.00s
                 //
         subs r5, #1
         bne start
@@ -26,15 +26,15 @@ start2:
                                  // Cycle bound:     3.0
                                  // IPC bound:       1.67
                                  //
-                                 // Wall time:     0.03s
-                                 // User time:     0.03s
+                                 // Wall time:     0.02s
+                                 // User time:     0.02s
                                  //
                                  // ----- cycle (expected) ------>
                                  // 0                        25
                                  // |------------------------|----
-        eor.w r1, r0, r7         // *.............................
+        eor.w r0, r0, r7         // *.............................
         subs.w r5, r5, #1        // .*............................
-        mul r1, r1, r8           // .*............................
+        mul r1, r0, r8           // .*............................
         eor.w r0, r1, r4         // ...*..........................
         bne.w start2             // ...*.......................... // @slothy:branch
 

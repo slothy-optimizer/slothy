@@ -16,8 +16,8 @@ vmov s0, r5
                               // Cycle bound:     1.0
                               // IPC bound:       2.00
                               //
-                              // Wall time:     0.04s
-                              // User time:     0.04s
+                              // Wall time:     0.00s
+                              // User time:     0.00s
                               //
                               // ----- cycle (expected) ------>
                               // 0                        25
