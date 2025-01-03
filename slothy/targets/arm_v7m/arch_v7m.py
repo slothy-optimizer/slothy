@@ -311,7 +311,9 @@ class BranchLoop(Loop):
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        self.end_regex = (rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}",)
+        # Defines the end of the loop, boolean indicates whether the instruction
+        # shall be considered part of the body or not.
+        self.end_regex = ((rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}", True),)
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -392,13 +394,8 @@ class BranchLoop(Loop):
         yield f"{self.lbl}:"
 
     def end(self, other, indentation=0):
-        """Emit compare-and-branch at the end of the loop"""
-        indent = ' ' * indentation
-        lbl_start = self.lbl
-        if lbl_start.isdigit():
-            lbl_start += "b"
-
-        yield f'{indent}bne {lbl_start}'
+        """Nothing to do here"""
+        yield ""
 
 class CmpLoop(Loop):
     """
@@ -583,6 +580,7 @@ class Instruction:
         self.flag = None
         self.width = None
         self.barrel = None
+        self.label = None
         self.reg_list = None
 
     def extract_read_writes(self):
@@ -776,6 +774,11 @@ class Instruction:
 
         for i in insts:
             i.source_line = src_line
+
+            # Mark as branch for BranchLoop
+            if isinstance(i, Armv7mBranch):
+                i.source_line.tags['branch'] = True
+
             i.extract_read_writes()
 
         if len(insts) == 0:
@@ -837,6 +840,7 @@ class Armv7mInstruction(Instruction):
         index_pattern = "[0-9]+"
         width_pattern = r"(?:\.w|\.n|)"
         barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
+        label_pattern = r"(?:\\w+)"
 
         # reg_list is <range>(,<range>)*
         # range is [rs]NN(-rsMM)?
@@ -852,6 +856,7 @@ class Armv7mInstruction(Instruction):
         src = replace_placeholders(src, "flag", flag_pattern, "flag") # TODO: Are any changes required for IT syntax?
         src = replace_placeholders(src, "width", width_pattern, "width")
         src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
+        src = replace_placeholders(src, "label", label_pattern, "label")
         src = replace_placeholders(src, "reg_list", reg_list_pattern, "reg_list")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
@@ -1029,6 +1034,7 @@ class Armv7mInstruction(Instruction):
         group_to_attribute('flag', 'flag')
         group_to_attribute('width', 'width')
         group_to_attribute('barrel', 'barrel')
+        group_to_attribute('label', 'label')
         group_to_attribute('reg_list', 'reg_list')
 
         for s, ty in obj.pattern_inputs:
@@ -1102,12 +1108,15 @@ class Armv7mInstruction(Instruction):
         out = replace_pattern(out, "index", "index", str)
         out = replace_pattern(out, "width", "width", lambda x: x.lower())
         out = replace_pattern(out, "barrel", "barrel", lambda x: x.lower())
+        out = replace_pattern(out, "label", "label")
         out = replace_pattern(out, "reg_list", "reg_list", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
         return out
 
+class Armv7mBranch(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
+    pass
 class Armv7mBasicArithmetic(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
 class Armv7mShiftedArithmetic(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1879,6 +1888,10 @@ class cmp_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invali
     pattern = "cmp<width> <Ra>, <imm>"
     inputs = ["Ra"]
     modifiesFlags=True
+    
+class bne(Armv7mBranch): # pylint: disable=missing-docstring,invalid-name
+    pattern = "bne<width> <label>"
+    dependsOnFlags=True
 
 class Spill:
     def spill(reg, loc, spill_to_vreg=None):

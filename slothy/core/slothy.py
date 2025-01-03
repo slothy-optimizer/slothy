@@ -509,6 +509,10 @@ class Slothy:
 
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
+            
+        # Remove branch instructions from preamble and postamble
+        postamble_code = [l for l in postamble_code if not l.tags.get('branch')]
+        postamble_code = [l for l in postamble_code if not l.tags.get('branch')]
 
         if self.config.with_llvm_mca_before is True:
             kernel_code = kernel_code + orig_stats

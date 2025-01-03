@@ -13,8 +13,8 @@ start:
                               // Cycle bound:     1.0
                               // IPC bound:       1.00
                               //
-                              // Wall time:     0.02s
-                              // User time:     0.02s
+                              // Wall time:     0.00s
+                              // User time:     0.00s
                               //
                               // ----- cycle (expected) ------>
                               // 0                        25

@@ -156,6 +156,7 @@ execution_units = {
         eor, eor_short, eors, eors_short,
         bic, bics,
         cmp, cmp_imm,
+        bne
     ): ExecutionUnit.ALU(),
     (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0], [ExecutionUnit.ALU1]],
     (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
@@ -216,6 +217,7 @@ inverse_throughput = {
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
+        bne
 
     ): 1,
     (
@@ -256,6 +258,7 @@ default_latencies = {
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
+        bne
     ): 1,
     (
         mul, mul_short,
@@ -326,6 +329,10 @@ def get_latency(src, out_idx, dst):
     # Load and store multiples take a long time to complete
     if instclass_src in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
         latency = src.num_out
+        
+    # Flag setting -> branch has at least 3 latency
+    if instclass_src in [subs_imm, subs_imm_short, cmp, cmp_imm] and instclass_dst == bne:
+        latency = 2
 
     # Can always store result in the same cycle
     # TODO: double-check this

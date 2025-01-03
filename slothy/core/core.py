@@ -897,6 +897,10 @@ class Result(LockAttributes):
         regs_expected = set(filter(lambda t: t.startswith("t") is False and
                                          t != "sp" and t != "flags", regs_expected))
 
+        # filter out branches
+        old_source = [l for l in old_source if not l.tags.get('branch')]
+        new_source = [l for l in new_source if not l.tags.get('branch')]
+
         SelfTest.run(self.config, log, old_source, new_source, address_registers, regs_expected,
                      self.config.selftest_iterations)
 
@@ -2797,6 +2801,13 @@ class SlothyBase(LockAttributes):
                              self.config.sw_pipelining.min_overlapping )
 
         for t in self._get_nodes():
+            # If there is a instruction tagged with "branch" in the kernel, we
+            # must ensure that it gets placed at the very end of the loop.
+            if self._is_low(t):
+                if t.inst.source_line.tags.get("branch", []):
+                    self._Add( t.program_start_var ==
+                             self._model.program_padded_size_half - 1 )
+                
 
             self._AddExactlyOne([t.pre_var, t.post_var, t.core_var])
 
