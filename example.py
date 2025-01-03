@@ -1553,6 +1553,75 @@ class fft_floatingpoint_radix4(Example):
 
 #############################################################################################
 
+class ntt_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"ntt_dilithium"
+        infile = name
+        funcname = "pqcrystals_dilithium_ntt"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.constraints.stalls_first_attempt = 16
+
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.variable_size = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.sw_pipelining.optimize_preamble = True
+        slothy.config.sw_pipelining.optimize_postamble = True
+        slothy.config.sw_pipelining.allow_pre = True
+
+        slothy.config.outputs = ["r0"]
+        slothy.optimize_loop("layer123_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
+
+        slothy.config.outputs = ["r0", "s0", "s10", "s9"]
+        slothy.optimize_loop("layer456_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
+
+        slothy.config.outputs = ["r0", "r4"]  # r4 is cntr
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("layer78_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
+
+class intt_dilithium_123_456_78(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "intt_dilithium_123_456_78"
+        infile = name
+        funcname = "pqcrystals_dilithium_invntt_tomont"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.constraints.stalls_first_attempt = 16
+
+        slothy.config.unsafe_address_offset_fixup = False
+
+
+        slothy.config.variable_size = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = True
+        slothy.config.sw_pipelining.optimize_preamble = True
+        slothy.config.sw_pipelining.optimize_postamble = True
+        slothy.config.sw_pipelining.allow_pre = True
+
+        slothy.optimize_loop("layer123_loop")
+        slothy.optimize_loop("layer456_first_loop")
+        slothy.optimize_loop("layer456_loop")
+
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("layer78_loop")
 
 class pointwise_montgomery_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1593,6 +1662,92 @@ class pointwise_acc_montgomery_dilithium(Example):
         slothy.config.sw_pipelining.enabled = True
 
         slothy.optimize_loop("1")
+
+class fnt_257_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "fnt_257_dilithium"
+        infile = name
+        funcname = "__asm_fnt_257"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "r12"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.visualize_expected_performance = False
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.variable_size = True
+
+        func_args = {"r1", "r2", "r3"}
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r = r.union(func_args)
+        slothy.config.reserved_regs = r
+
+        slothy.config.constraints.stalls_first_attempt = 8
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.timeout = 600
+        slothy.optimize_loop("_fnt_0_1_2")
+
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.timeout = 300
+
+        slothy.config.constraints.stalls_first_attempt = 8
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 8
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.timeout = 180 # Not more than 2min per step
+        # TODO: run with more repeats
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.outputs = ["s25", "s27", "r12"]
+        slothy.fusion_loop("_fnt_3_4_5_6", ssa=False)
+        slothy.optimize_loop("_fnt_3_4_5_6")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("_fnt_3_4_5_6")
+
+        # Due dependencies in the memory between loads and stores, skip this for now
+        # slothy.optimize_loop("_fnt_to_16_bit")
+
+class ifnt_257_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "ifnt_257_dilithium"
+        infile = name
+        funcname = "__asm_ifnt_257"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.timeout = 300
+        
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.outputs = ["r14", "s1", "r12"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 6
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.config.objective_precision = 0.07
+        # TODO: run with more repeats
+        slothy.config.split_heuristic_repeat = 1
+        slothy.fusion_loop("_ifnt_7_6_5_4", ssa=False)
+        slothy.optimize_loop("_ifnt_7_6_5_4")
+
+        slothy.config.outputs = ["r14", "r1", "s1"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.split_heuristic = False
+        slothy.optimize_loop("_ifnt_0_1_2")
 
 
 class basemul_257_dilithium(Example):
@@ -1637,6 +1792,140 @@ class basemul_257_asymmetric_dilithium(Example):
         slothy.config.unsafe_address_offset_fixup = False
         slothy.optimize_loop("_asymmetric_mul_16_loop")
 
+
+class ntt_769_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "ntt_769_dilithium"
+        infile = name
+        outfile = name
+        funcname = "small_ntt_asm_769"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, outfile=outfile, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["r14"]
+        slothy.config.constraints.stalls_first_attempt = 32
+
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        slothy.config.reserved_regs = r
+
+        ### TODO
+        # - Experiment with lower split factors
+        # - Try to get stable performance: It currently varies a lot with each run
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic = True
+        slothy.config.constraints.stalls_precision = 1
+        slothy.config.timeout = 360 # Not more than 2min per step
+        slothy.config.split_heuristic_factor = 1
+        slothy.config.visualize_expected_performance = False
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.optimize_loop("layer1234_loop")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer1234_loop")
+
+        slothy.config.outputs = ["r14"]
+
+        slothy.config.absorb_spills = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("layer567_loop", ssa=True)
+
+        slothy.config.outputs = ["r14"]
+        slothy.config.constraints.functional_only = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.inputs_are_outputs = True
+        slothy.config.split_heuristic = False
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.config.constraints.allow_spills = True
+        slothy.config.absorb_spills = True
+        slothy.config.constraints.spill_type = { 'spill_to_vreg': 26 }
+        slothy.config.constraints.minimize_spills = True
+        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
+        slothy.optimize_loop("layer567_loop")
+
+        slothy.config.timeout = 360
+        slothy.config.constraints.maximize_register_lifetimes = False
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic_optimize_seam = 0
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_factor = 2.25
+        slothy.config.split_heuristic_stepsize = 0.25
+        slothy.config.constraints.allow_spills = False
+        slothy.config.constraints.minimize_spills = False
+        slothy.config.absorb_spills = False
+        slothy.config.constraints.stalls_precision = 1
+        # slothy.config.unsafe_address_offset_fixup = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.constraints.allow_reordering = True
+        slothy.optimize_loop("layer567_loop")
+
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer567_loop")
+
+class intt_769_dilithium(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "intt_769_dilithium"
+        infile = name
+        funcname = "small_invntt_asm_769"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.timeout = 180
+        
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.split_heuristic = True
+        slothy.config.reserved_regs = ["r1", "r13"] + [f"s{i}" for i in range(23, 32)]
+
+        slothy.config.split_heuristic_factor = 8
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.split_heuristic_repeat = 1
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("layer1234_loop", ssa=False)
+        # slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("layer1234_loop")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer1234_loop")
+
+        slothy.config.split_heuristic_factor = 4
+
+        # Optimize first iteration that has been separated from the loop
+        # TODO: Do we further need to limit renaming because of the following
+        # loop using registers set in this region?
+
+        slothy.config.outputs = ["s0", "s2"]
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
+        # slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize(start="layer567_first_start", end="layer567_first_end")
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("layer567_loop", ssa=False)
+        # slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("layer567_loop")
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("layer567_loop")
 
 
 class pointwise_769_dilithium(Example):
@@ -1924,11 +2213,17 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
-
+                 
+                 ntt_dilithium(),
+                 intt_dilithium_123_456_78(),
                  pointwise_montgomery_dilithium(),
                  pointwise_acc_montgomery_dilithium(),
+                 fnt_257_dilithium(),
+                 ifnt_257_dilithium(),
                  basemul_257_dilithium(),
                  basemul_257_asymmetric_dilithium(),
+                 ntt_769_dilithium(),
+                 intt_769_dilithium(),
                  pointwise_769_dilithium(),
                  pointwise_769_asymmetric_dilithium(),
                  reduce32_dilithium(),
