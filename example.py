@@ -2407,7 +2407,7 @@ class frombytes_mul_acc_kyber(Example):
         slothy.config.unsafe_address_offset_fixup = False
         r = slothy.config.reserved_regs
         r.add("r14")
-        r = r.union(f"s{i}" for i in range(31)) # reserve FPR
+        r = r.union(f"s{i}" for i in range(32)) # reserve FPR
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
@@ -2431,6 +2431,10 @@ class matacc_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(32)) # reserve FPR
+        slothy.config.reserved_regs = r
+
         slothy.config.outputs = ["r9"]
         slothy.optimize(start="slothy_start_1", end="slothy_end_1")
         slothy.config.outputs = ["r9"]
@@ -2453,6 +2457,10 @@ class matacc_acc_kyber(Example):
     def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(32)) # reserve FPR
+        slothy.config.reserved_regs = r
 
         slothy.config.outputs = ["r9"]
         slothy.optimize(start="slothy_start_1", end="slothy_end_1")
