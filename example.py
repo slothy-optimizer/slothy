@@ -1814,18 +1814,16 @@ class ntt_769_dilithium(Example):
         slothy.config.constraints.stalls_first_attempt = 32
 
         r = slothy.config.reserved_regs
-        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r = r.union(f"s{i}" for i in range(31)) # reserve FPR
         slothy.config.reserved_regs = r
 
         ### TODO
         # - Experiment with lower split factors
         # - Try to get stable performance: It currently varies a lot with each run
 
-        slothy.config.unsafe_address_offset_fixup = False
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.variable_size = True
         slothy.config.split_heuristic = True
-        slothy.config.constraints.stalls_precision = 1
         slothy.config.timeout = 360 # Not more than 2min per step
         slothy.config.split_heuristic_factor = 1
         slothy.config.visualize_expected_performance = False
@@ -1837,39 +1835,19 @@ class ntt_769_dilithium(Example):
 
         slothy.config.outputs = ["r14"]
 
-        slothy.config.absorb_spills = True
         slothy.config.unsafe_address_offset_fixup = False
-        slothy.fusion_loop("layer567_loop", ssa=True)
+        slothy.fusion_loop("layer567_loop", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
 
         slothy.config.outputs = ["r14"]
-        slothy.config.constraints.functional_only = True
-        slothy.config.unsafe_address_offset_fixup = False
-        slothy.config.constraints.allow_reordering = False
-        slothy.config.inputs_are_outputs = True
-        slothy.config.split_heuristic = False
-        slothy.config.constraints.stalls_first_attempt = 64
-        slothy.config.constraints.allow_spills = True
-        slothy.config.absorb_spills = True
-        slothy.config.constraints.spill_type = { 'spill_to_vreg': 26 }
-        slothy.config.constraints.minimize_spills = True
-        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
-        slothy.optimize_loop("layer567_loop")
 
         slothy.config.timeout = 360
-        slothy.config.constraints.maximize_register_lifetimes = False
         slothy.config.variable_size = True
         slothy.config.split_heuristic_optimize_seam = 0
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_repeat = 1
         slothy.config.split_heuristic_factor = 2.25
         slothy.config.split_heuristic_stepsize = 0.25
-        slothy.config.constraints.allow_spills = False
-        slothy.config.constraints.minimize_spills = False
-        slothy.config.absorb_spills = False
-        slothy.config.constraints.stalls_precision = 1
-        # slothy.config.unsafe_address_offset_fixup = True
-        slothy.config.constraints.functional_only = False
-        slothy.config.constraints.allow_reordering = True
         slothy.optimize_loop("layer567_loop")
 
         slothy.config.split_heuristic_optimize_seam = 6
