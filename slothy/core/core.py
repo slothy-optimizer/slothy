@@ -2965,7 +2965,24 @@ class SlothyBase(LockAttributes):
             force_after = t1.inst.source_line.tags.get("after", [])
             if not isinstance(force_after, list):
                 force_after = [force_after]
-            t0s = list(map(find_node_by_source_id, force_after))
+            t0s = []
+            for fa in force_after:
+                # In case the split heuristic is used, only instructions in the
+                # current "window" are considered here. The instruction that is
+                # being referred to using the id may not be present in this
+                # snippet of code. Thus, no constraint needs to be added because
+                # it does not affect this step right now, therefore we continue
+                # despite the exception.
+                try:
+                    t0 = find_node_by_source_id(fa)
+                    t0s.append(t0)
+                except SlothyException as e:
+                    if self.config.split_heuristic:
+                        self.logger.info("%s < %s by source annotation NOT enforced because of split heuristic", t0, t1)
+                        continue
+                    else:
+                        raise e
+   
             force_after_last = t1.inst.source_line.tags.get("after_last", False)
             if force_after_last is True:
                 if i == 0:
@@ -2982,7 +2999,20 @@ class SlothyBase(LockAttributes):
             if not isinstance(force_before, list):
                 force_before = [force_before]
             for t1_id in force_before:
-                t1 = find_node_by_source_id(t1_id)
+                # In case the split heuristic is used, only instructions in the
+                # current "window" are considered here. The instruction that is
+                # being referred to using the id may not be present in this
+                # snippet of code. Thus, no constraint needs to be added because
+                # it does not affect this step right now, therefore we continue
+                # despite the exception.
+                try: 
+                    t1 = find_node_by_source_id(t1_id)
+                except SlothyException as e:
+                    if self.config.split_heuristic:
+                        self.logger.info("%s < %s by source annotation NOT enforced because of split heuristic", t0, t1)
+                        continue
+                    else:
+                        raise e
                 self.logger.info("Force %s < %s by source annotation", t0, t1)
                 self._add_path_constraint(t1, t0,
                     lambda t0=t0, t1=t1: self._Add(t0.program_start_var < t1.program_start_var))
