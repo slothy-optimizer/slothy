@@ -67,13 +67,6 @@ def add_mac_slot_constraint(slothy):
         [mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
      smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr], [1])
 
-# TODO: this seems incorrect
-def add_slot_constraints(slothy):
-    slothy.restrict_slots_for_instructions_by_class(
-        [str_with_imm, str_with_imm_stack, str_with_postinc, strh_with_imm,
-         strh_with_postinc, stm_interval_inc_writeback, str_no_off, str], [1])
-
-
 def add_st_hazard(slothy):
     def is_st_ld_pair(inst_a, inst_b):
         return (isinstance(inst_a.inst, ldr_with_imm) or isinstance(inst_a.inst, ldr_with_imm_stack)) \
