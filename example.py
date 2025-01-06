@@ -2869,9 +2869,7 @@ class matacc_asm_cache_32_16_kyber(Example):
         slothy.optimize(start="slothy_start_2", end="slothy_end_2")
 
 def main():
-    examples = [
-                 ldr_test(),
-                 Example0(),
+    examples = [ Example0(),
                  Example1(),
                  Example2(),
                  Example3(),
