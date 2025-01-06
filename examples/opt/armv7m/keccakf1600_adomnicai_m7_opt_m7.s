@@ -462,7 +462,6 @@
 @ void KeccakP1600_StaticInitialize( void )
 @
 .align 8
-.global   KeccakP1600_StaticInitialize
 .type   KeccakP1600_StaticInitialize, %function;
 KeccakP1600_StaticInitialize:
     bx      lr
@@ -473,7 +472,6 @@ KeccakP1600_StaticInitialize:
 @ void KeccakP1600_Initialize(void *state)
 @
 .align 8
-.global   KeccakP1600_Initialize
 .type   KeccakP1600_Initialize, %function;
 KeccakP1600_Initialize:
     push    {r4 - r5}
@@ -501,7 +499,6 @@ KeccakP1600_Initialize:
 @  void KeccakP1600_AddByte(void *state, unsigned char byte, unsigned int offset)
 @
 .align 8
-.global   KeccakP1600_AddByte
 .type   KeccakP1600_AddByte, %function;
 KeccakP1600_AddByte:
     push    {r4 - r7}
@@ -527,7 +524,6 @@ KeccakP1600_AddByte:
 @ void KeccakP1600_AddBytes(void *state, const unsigned char *data, unsigned int offset, unsigned int length)
 @
 .align 8
-.global   KeccakP1600_AddBytes
 .type   KeccakP1600_AddBytes, %function;
 KeccakP1600_AddBytes:
     cbz     r3, KeccakP1600_AddBytes_Exit1
@@ -629,7 +625,6 @@ __KeccakP1600_AddBytesInLane_Loop:
 @ void KeccakP1600_OverwriteBytes(void *state, const unsigned char *data, unsigned int offset, unsigned int length)
 @
 .align 8
-.global   KeccakP1600_OverwriteBytes
 .type   KeccakP1600_OverwriteBytes, %function;
 KeccakP1600_OverwriteBytes:
     cbz     r3, KeccakP1600_OverwriteBytes_Exit1    @ .if length != 0
@@ -741,7 +736,6 @@ KeccakP1600_OverwriteBytesInLane_Loop:
 @ void KeccakP1600_OverwriteWithZeroes(void *state, unsigned int byteCount)
 @
 .align 8
-.global   KeccakP1600_OverwriteWithZeroes
 .type   KeccakP1600_OverwriteWithZeroes, %function;
 KeccakP1600_OverwriteWithZeroes:
     push    {r4 - r5}
@@ -776,7 +770,6 @@ KeccakP1600_OverwriteWithZeroes_Exit:
 @ void KeccakP1600_ExtractBytes(void *state, const unsigned char *data, unsigned int offset, unsigned int length)
 @
 .align 8
-.global   KeccakP1600_ExtractBytes
 .type   KeccakP1600_ExtractBytes, %function;
 KeccakP1600_ExtractBytes:
     cbz     r3, KeccakP1600_ExtractBytes_Exit1  @ .if length != 0
@@ -874,7 +867,6 @@ __KeccakP1600_ExtractBytesInLane_Loop:
 @  void KeccakP1600_ExtractAndAddBytes(void *state, const unsigned char *input, unsigned char *output, unsigned int offset, unsigned int length)
 @
 .align 8
-.global   KeccakP1600_ExtractAndAddBytes
 .type   KeccakP1600_ExtractAndAddBytes, %function;
 KeccakP1600_ExtractAndAddBytes:
     push    {r4 - r10, lr}
@@ -1028,7 +1020,6 @@ __KeccakP1600_ExtractAndAddBytesInLane_Loop:
 @  void KeccakP1600_Permute_Nrounds(void *state, unsigned int nrounds)
 @
 .align 8
-.global   KeccakP1600_Permute_Nrounds
 .type   KeccakP1600_Permute_Nrounds, %function;
 KeccakP1600_Permute_Nrounds:
     lsls    r3, r1, #30
@@ -1080,7 +1071,6 @@ KeccakP1600_Permute_Nrounds2Mod4:
 @  void KeccakP1600_Permute_12rounds( void *state )
 @
 .align 8
-.global   KeccakP1600_Permute_12rounds
 .type   KeccakP1600_Permute_12rounds, %function;
 KeccakP1600_Permute_12rounds:
     adr     r1, KeccakP1600_Permute_RoundConstants12
