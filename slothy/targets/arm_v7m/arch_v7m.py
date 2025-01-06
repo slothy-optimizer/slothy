@@ -204,6 +204,7 @@ class Branch:
         """Emit unconditional branch"""
         yield f"b {lbl}"
 
+
 class VmovCmpLoop(Loop):
     """
     Loop ending in a vmov, a compare, and a branch.
