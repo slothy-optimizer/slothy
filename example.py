@@ -2058,6 +2058,564 @@ class Keccak(Example):
 
             slothy.optimize(start="slothy_start", end="slothy_end")
 
+
+class basemul_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_16_32_kyber"
+        infile = name
+        funcname = "basemul_asm_opt_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class basemul_acc_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_32_32_kyber"
+        infile = name
+        funcname = "basemul_asm_acc_opt_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class basemul_acc_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_32_16_kyber"
+        infile = name
+        funcname = "basemul_asm_acc_opt_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class frombytes_mul_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_16_32_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class frombytes_mul_acc_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_32_32_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class frombytes_mul_acc_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_32_16_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class add_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "add_kyber"
+        infile = name
+        funcname = "pointwise_add"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.sw_pipelining.enabled = True
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+        slothy.config.sw_pipelining.enabled = False
+        slothy.fusion_region(start="pointwise_add_final_start", end="pointwise_add_final_end", ssa=False)
+        slothy.optimize(start="pointwise_add_final_start", end="pointwise_add_final_end")
+
+class sub_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "sub_kyber"
+        infile = name
+        funcname = "pointwise_sub"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.sw_pipelining.enabled = True
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+
+        slothy.config.sw_pipelining.enabled = False
+        slothy.fusion_region(start="pointwise_sub_final_start", end="pointwise_sub_final_end", ssa=False)
+        slothy.optimize(start="pointwise_sub_final_start", end="pointwise_sub_final_end")
+
+class barrett_reduce_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "barrett_reduce_kyber"
+        infile = name
+        funcname = "asm_barrett_reduce"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r9"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 43
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+
+
+
+class fromplant_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "fromplant_kyber"
+        infile = name
+        funcname = "asm_fromplant"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r9"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.fusion_loop("1", ssa=False)
+        slothy.optimize_loop("1")
+
+class basemul_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_kyber"
+        infile = name
+        funcname = "basemul_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(31)) # reserve FPR
+        slothy.config.reserved_regs = r
+
+        slothy.fusion_loop("1", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.SubsLoop)
+
+class basemul_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "basemul_acc_kyber"
+        infile = name
+        funcname = "basemul_asm_acc"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14"]
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.constraints.stalls_first_attempt = 16
+
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(31)) # reserve FPR
+        slothy.config.reserved_regs = r
+
+        slothy.fusion_loop("1", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.SubsLoop)
+
+class frombytes_mul_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        r = r.union(f"s{i}" for i in range(31)) # reserve FPR
+        slothy.config.reserved_regs = r
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class frombytes_mul_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "frombytes_mul_acc_kyber"
+        infile = name
+        funcname = "frombytes_mul_asm_acc"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["r14"]
+        slothy.config.unsafe_address_offset_fixup = False
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        r = r.union(f"s{i}" for i in range(31)) # reserve FPR
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.optimize_loop("1")
+
+class matacc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_kyber"
+        infile = name
+        funcname = "matacc_asm"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+class matacc_acc_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_acc_kyber"
+        infile = name
+        funcname = "matacc_asm_acc"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+
+class matacc_asm_opt_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_16_32_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are unused in this code.
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+class matacc_asm_opt_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_32_32_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are unused in this code.
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+class matacc_asm_opt_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_opt_32_16_kyber"
+        infile = name
+        funcname = "matacc_asm_opt_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+class matacc_asm_cache_16_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_16_32_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_16_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+
+class matacc_asm_cache_32_32_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_32_32_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_32_32"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
+class matacc_asm_cache_32_16_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "matacc_asm_cache_32_16_kyber"
+        infile = name
+        funcname = "matacc_asm_cache_32_16"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        slothy.config.reserved_regs = [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
+
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_1", end="slothy_end_1")
+        slothy.config.outputs = ["r9"]
+        slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
 def main():
     examples = [ Example0(),
                  Example1(),
@@ -2232,6 +2790,30 @@ def main():
                  Keccak(var="xkcp"),
                  Keccak(var="adomnicai_m4"),
                  Keccak(var="adomnicai_m7"),
+
+                 basemul_16_32_kyber(),
+                 basemul_acc_32_32_kyber(),
+                 basemul_acc_32_16_kyber(),
+                 frombytes_mul_16_32_kyber(),
+                 frombytes_mul_acc_32_32_kyber(),
+                 frombytes_mul_acc_32_16_kyber(),
+                 add_kyber(),
+                 sub_kyber(),
+                 barrett_reduce_kyber(),
+                 fromplant_kyber(),
+
+                 basemul_kyber(),
+                 basemul_acc_kyber(),
+                 frombytes_mul_kyber(),
+                 frombytes_mul_acc_kyber(),
+                 matacc_kyber(),
+                 matacc_acc_kyber(),
+                 matacc_asm_opt_16_32_kyber(),
+                 matacc_asm_opt_32_32_kyber(),
+                 matacc_asm_opt_32_16_kyber(),
+                 matacc_asm_cache_16_32_kyber(),
+                 matacc_asm_cache_32_32_kyber(),
+                 matacc_asm_cache_32_16_kyber(),
                  ]
 
     all_example_names = [e.name for e in examples]
