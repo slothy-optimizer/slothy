@@ -83,7 +83,7 @@ basemul_asm:
 	str tmp, [rptr], #4
 		
 	vmov loop, s0
-	subs.w loop, #1
+	subs.w loop, loop, #1
 	bne.w 1b
     pop {r4-r11, pc}
 

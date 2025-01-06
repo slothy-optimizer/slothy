@@ -1021,10 +1021,18 @@ class Config(NestedPrint, LockAttributes):
             For example, on Armv7-M microcontrollers it can be useful to spill
             from the GPR file to the FPR file.
 
-            The type of this configuration option is architecture dependent.
-            You should consult the `Spill` class in the target architecture
-            model to understand the options."""
-            return self._spill_type
+            It is expected that this option is set as a dictionary, for example,
+            with the key determining whether the spills are supposed to be to
+            the stack or to the FPR file, and the value defining a starting
+            index for the FPRs in the latter case.
+
+            The exact influence of this option is architecture dependent. You
+            should consult the `Spill` class in the target architecture model to
+            understand the options."""
+            if self._spill_type is None:
+                return {}
+            else:
+                return self._spill_type
 
         @property
         def minimize_spills(self):

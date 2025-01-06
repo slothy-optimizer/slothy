@@ -41,8 +41,8 @@ basemul_asm_acc:
 
 	movw loop, #64
 	1:
-		vmov s0, loop
-		movw qa, #26632
+		vmov s0, loop // @slothy:core
+		movw qa, #26632 // @slothy:core
 
 	ldrd poly0, poly2, [aptr], #8
 	ldrd poly1, poly3, [bptr], #8
@@ -85,8 +85,8 @@ basemul_asm_acc:
 	uadd16 tmp, tmp, tmp2
 	str.w tmp, [rptr], #4
 
-	vmov loop, s0
-	subs.w loop, #1
+	vmov loop, s0 // @slothy:core
+	subs.w loop, loop, #1
 	bne.w 1b
 	pop {r4-r11, pc}
 

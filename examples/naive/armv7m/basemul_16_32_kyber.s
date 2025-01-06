@@ -53,7 +53,7 @@ basemul_asm_opt_16_32:
     smuadx tmp2, poly2, poly3
     str tmp2, [rptr_tmp], #4
 
-    subs.w loop, #1
+    subs.w loop, loop, #1
   bne.w 1b
 
   pop {r4-r11, pc}

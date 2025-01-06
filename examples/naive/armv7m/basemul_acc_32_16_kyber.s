@@ -74,7 +74,7 @@ basemul_asm_acc_opt_32_16:
     pkhtb res0, res1, res0, asr #16
     str res0, [rptr], #4
 
-    subs.w loop, #1
+    subs.w loop, loop, #1
   bne.w 1b
 
   pop {r4-r11, pc}

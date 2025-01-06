@@ -58,7 +58,7 @@ basemul_asm_acc_opt_32_32:
     smladx tmp, poly0, poly1, res1
     str tmp, [rptr_tmp, #-4]
 
-    subs.w loop, #1
+    subs.w loop, loop, #1
   bne.w 1b
 
   pop {r4-r11, pc}

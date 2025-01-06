@@ -100,7 +100,7 @@ frombytes_mul_asm_acc_32_16:
   1:
     deserialize aptr, tmp, tmp2, tmp3, t0, t1
     vmov tmp, s2
-    ldr.w zeta, [tmp], #4
+    ldr zeta, [tmp], #4
     vmov s2, tmp
     doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, tmp3, t0, t1, tmp, tmp2, q, qa, qinv
     cmp.w rptr_tmp, ctr

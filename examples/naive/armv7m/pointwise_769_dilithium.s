@@ -68,7 +68,7 @@ small_pointmul_asm_769:
     str.w r8, [r0, #1*width]
     str.w r7, [r0], #2*width
 
-    cmp.w r3, r2
+    cmp.w r2, r3
     bne.w _point_mul_16_loop
 
     pop.w {r4-r11, pc}

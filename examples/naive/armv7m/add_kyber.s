@@ -18,7 +18,7 @@ pointwise_add:
     uadd16 r6, r6, r11
     uadd16 r7, r7, r12
     stm r0!, {r3-r7}
-    subs.w r14, #1
+    subs.w r14, r14, #1
   bne.w 1b
 
   pointwise_add_final_start:

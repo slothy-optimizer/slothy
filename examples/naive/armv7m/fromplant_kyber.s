@@ -67,7 +67,7 @@ asm_fromplant:
 	
 		stm poly!, {poly0-poly7}
 
-	subs.w loop, #1
+	subs.w loop, loop, #1
 	bne.w 1b
 
 	.unreq poly        
