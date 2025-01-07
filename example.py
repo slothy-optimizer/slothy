@@ -2037,6 +2037,109 @@ class Keccak(Example):
             slothy.optimize(start="slothy_start", end="slothy_end")
 
 
+class ntt_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"ntt_kyber"
+        infile = name
+        funcname = "ntt_fast"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.outputs = ["r14", "s23"]
+
+        r = slothy.config.reserved_regs
+        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r.add("r1")
+        slothy.config.reserved_regs = r
+
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.unsafe_address_offset_fixup = False
+
+        ### TODO
+        # - Experiment with lower split factors
+        # - Try to get stable performance: It currently varies a lot with each run
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.split_heuristic = True
+        slothy.config.timeout = 360 # Not more than 6min per step
+        slothy.config.visualize_expected_performance = False
+        slothy.config.split_heuristic_factor = 6
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
+
+        slothy.config.outputs = ["r14"]
+
+        slothy.fusion_loop("2", ssa=False, forced_loop_type=Arch_Armv7M.BranchLoop)
+
+        slothy.config.timeout = 360
+        slothy.config.split_heuristic_optimize_seam = 0
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("2", forced_loop_type=Arch_Armv7M.BranchLoop)
+
+        slothy.config.split_heuristic_optimize_seam = 6
+        slothy.optimize_loop("2", forced_loop_type=Arch_Armv7M.BranchLoop)
+
+
+class intt_kyber(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = "intt_kyber"
+        infile = name
+        funcname = "invntt_fast"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 16
+        slothy.config.inputs_are_outputs = True
+        slothy.config.reserved_regs = ["r1", "r13"] + [f"s{i}" for i in range(23, 32)]
+        slothy.config.timeout = 300
+
+        # Step 1: optimize first loop
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_stepsize = 0.15
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.outputs = ["r14", "s8"]
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
+
+        # Step 2: optimize the start of the second loop
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 2.5
+        slothy.config.split_heuristic_stepsize = 0.2
+        slothy.config.outputs = ["r14", "r0", "r10", "s0", "s2"]
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_region(start="layer567_first_start", end="layer567_first_end", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize(start="layer567_first_start", end="layer567_first_end")
+
+        # Step 3: optimize the start of the second loop
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 3
+        slothy.config.split_heuristic_stepsize = 0.2
+        slothy.config.outputs = ["r14", "s14"]
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.fusion_loop("2", ssa=False, forced_loop_type=Arch_Armv7M.BranchLoop)
+        slothy.config.unsafe_address_offset_fixup = True
+        slothy.optimize_loop("2", forced_loop_type=Arch_Armv7M.BranchLoop)
+
+
 class basemul_16_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "basemul_16_32_kyber"
@@ -2777,6 +2880,8 @@ def main():
                  Keccak(var="adomnicai_m4"),
                  Keccak(var="adomnicai_m7"),
 
+                 ntt_kyber(),
+                 intt_kyber(),
                  basemul_16_32_kyber(),
                  basemul_acc_32_32_kyber(),
                  basemul_acc_32_16_kyber(),
