@@ -2931,9 +2931,6 @@ def main():
                  caddq_dilithium(),
 
                  ntt_kyber(),
-                 # temporarily disable
-                 # TODO: re-enable
-                 # ntt_kyber_symbolic(),
                  intt_kyber(),
                  
                  Keccak(var="xkcp"),
