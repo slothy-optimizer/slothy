@@ -303,10 +303,10 @@ invntt_fast:
 		uadd16 tmp, poly0, poly1
 		usub16 twiddle2, poly0, poly1
 		str.w twiddle2, [poly, #offset]    
-		str.w tmp, [poly], #strincr // increase 2*8*4 = 64 (2 * 8 loads of 4 bytes each)
+		str.w tmp, [poly], #strincr // @slothy:core // @slothy:before=cmp // increase 2*8*4 = 64 (2 * 8 loads of 4 bytes each)
 		//0,2,4,6: < 1.5q
 	vmov tmp, s8
-	cmp.w poly, tmp
+	cmp.w poly, tmp // @slothy:id=cmp
 	bne.w 1b
 
 	sub.w poly, #8*strincr  
@@ -360,10 +360,10 @@ invntt_fast:
 		str.w poly1, [poly, #distance2/4]
 		str.w poly2, [poly, #2*distance2/4]
 		str.w poly3, [poly, #3*distance2/4]
-		str.w poly0, [poly], #4
+		str.w poly0, [poly], #4 // @slothy:core // @slothy:before=cmp
 
 	vmov tmp, s14
-	cmp.w poly, tmp
+	cmp.w poly, tmp // @slothy:id=cmp
 	bne.w 2b
 
 	vpop.w {s16-s23}

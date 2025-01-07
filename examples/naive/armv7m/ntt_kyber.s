@@ -267,10 +267,10 @@ ntt_fast:
 		uadd16 tmp, poly0, poly1
 		usub16 twiddle1, poly0, poly1
 		str.w twiddle1, [poly, #offset]
-		str.w tmp, [poly], #4
+		str.w tmp, [poly], #4 // @slothy:core // @slothy:before=cmp
 
 	vmov tmp, s24
-	cmp.w poly, tmp
+	cmp.w poly, tmp // @slothy:id=cmp
 	bne.w 1b
 
 	sub.w poly, #8*strincr
@@ -283,23 +283,22 @@ ntt_fast:
 	add.w tmp, poly, #strincr2*16
 	vmov s13, tmp
 	2:
-		vmov s23, poly // @slothy:is_spill
+		vmov s23, poly
 		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
 		load poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
 		
 		movw qa, #26632
 		_3_layer_double_CT_16_plant poly0, poly1, poly2, poly3, poly4, poly5, poly6, poly7, twiddle1, twiddle2, twiddle_ptr, q, qa, tmp
 		
-		vmov poly, s23 // @slothy:is_restore
+		vmov poly, s23
 		store poly, poly4, poly5, poly6, poly7, #distance2, #5*distance2/4, #6*distance2/4, #7*distance2/4
 		str.w poly1, [poly, #distance2/4]
 		str.w poly2, [poly, #2*distance2/4]
 		str.w poly3, [poly, #3*distance2/4]
-		str.w poly0, [poly], #strincr2
+		str.w poly0, [poly], #strincr2 // @slothy:core // @slothy:before=cmp
 	
-	vmov tmp, s13
-	
-	cmp.w poly, tmp
+		vmov tmp, s13
+		cmp.w poly, tmp // @slothy:id=cmp
 	bne.w 2b
 	vpop.w {s16-s26}
 	pop {r4-r11, pc}

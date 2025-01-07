@@ -1868,18 +1868,16 @@ class ntt_769_dilithium(Example):
         slothy.config.constraints.stalls_first_attempt = 32
 
         r = slothy.config.reserved_regs
-        r = r.union(f"s{i}" for i in range(30)) # reserve FPR
+        r = r.union(f"s{i}" for i in range(31)) # reserve FPR
         slothy.config.reserved_regs = r
 
         ### TODO
         # - Experiment with lower split factors
         # - Try to get stable performance: It currently varies a lot with each run
 
-        slothy.config.unsafe_address_offset_fixup = False
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.variable_size = True
         slothy.config.split_heuristic = True
-        slothy.config.constraints.stalls_precision = 1
         slothy.config.timeout = 360 # Not more than 2min per step
         slothy.config.split_heuristic_factor = 1
         slothy.config.visualize_expected_performance = False
@@ -1891,39 +1889,19 @@ class ntt_769_dilithium(Example):
 
         slothy.config.outputs = ["r14"]
 
-        slothy.config.absorb_spills = True
         slothy.config.unsafe_address_offset_fixup = False
-        slothy.fusion_loop("layer567_loop", ssa=True)
+        slothy.fusion_loop("layer567_loop", ssa=False)
+        slothy.config.unsafe_address_offset_fixup = True
 
         slothy.config.outputs = ["r14"]
-        slothy.config.constraints.functional_only = True
-        slothy.config.unsafe_address_offset_fixup = False
-        slothy.config.constraints.allow_reordering = False
-        slothy.config.inputs_are_outputs = True
-        slothy.config.split_heuristic = False
-        slothy.config.constraints.stalls_first_attempt = 64
-        slothy.config.constraints.allow_spills = True
-        slothy.config.absorb_spills = True
-        slothy.config.constraints.spill_type = { 'spill_to_vreg': 26 }
-        slothy.config.constraints.minimize_spills = True
-        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
-        slothy.optimize_loop("layer567_loop")
 
         slothy.config.timeout = 360
-        slothy.config.constraints.maximize_register_lifetimes = False
         slothy.config.variable_size = True
         slothy.config.split_heuristic_optimize_seam = 0
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_repeat = 1
         slothy.config.split_heuristic_factor = 2.25
         slothy.config.split_heuristic_stepsize = 0.25
-        slothy.config.constraints.allow_spills = False
-        slothy.config.constraints.minimize_spills = False
-        slothy.config.absorb_spills = False
-        slothy.config.constraints.stalls_precision = 1
-        # slothy.config.unsafe_address_offset_fixup = True
-        slothy.config.constraints.functional_only = False
-        slothy.config.constraints.allow_reordering = True
         slothy.optimize_loop("layer567_loop")
 
         slothy.config.split_heuristic_optimize_seam = 6
@@ -2113,7 +2091,6 @@ class Keccak(Example):
             slothy.optimize(start="slothy_start", end="slothy_end")
 
 
-
 class ntt_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"ntt_kyber"
@@ -2137,122 +2114,35 @@ class ntt_kyber(Example):
 
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 32
-
+        slothy.config.unsafe_address_offset_fixup = False
 
         ### TODO
         # - Experiment with lower split factors
         # - Try to get stable performance: It currently varies a lot with each run
-
-        slothy.config.unsafe_address_offset_fixup = False
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.config.variable_size = True
         slothy.config.split_heuristic = True
-        slothy.config.constraints.stalls_precision = 1
-        slothy.config.timeout = 360 # Not more than 2min per step
-        slothy.config.split_heuristic_factor = 1
+        slothy.config.timeout = 360 # Not more than 6min per step
         slothy.config.visualize_expected_performance = False
         slothy.config.split_heuristic_factor = 6
-        slothy.config.split_heuristic_stepsize = 0.15
-        slothy.optimize_loop("1")
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
         slothy.config.split_heuristic_optimize_seam = 6
-        slothy.optimize_loop("1")
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
         slothy.config.outputs = ["r14"]
 
-        slothy.config.absorb_spills = True
-        slothy.config.unsafe_address_offset_fixup = False
-        slothy.fusion_loop("2", ssa=True)
-
-        slothy.config.outputs = ["r14"]
-        slothy.config.constraints.functional_only = True
-        slothy.config.unsafe_address_offset_fixup = False
-        slothy.config.constraints.allow_reordering = False
-        slothy.config.inputs_are_outputs = True
-        slothy.config.split_heuristic = False
-        slothy.config.constraints.stalls_first_attempt = 64
-        slothy.config.constraints.allow_spills = True
-        slothy.config.absorb_spills = True
-        slothy.config.constraints.spill_type = { 'spill_to_vreg': 26 }
-        slothy.config.constraints.minimize_spills = True
-        slothy.config.objective_lower_bound = 2 # <2 stalls doesn't seem possible
-        slothy.optimize_loop("2")
+        slothy.fusion_loop("2", ssa=False, forced_loop_type=Arch_Armv7M.BranchLoop)
 
         slothy.config.timeout = 360
-        slothy.config.constraints.maximize_register_lifetimes = False
-        slothy.config.variable_size = True
         slothy.config.split_heuristic_optimize_seam = 0
-        slothy.config.split_heuristic = True
         slothy.config.split_heuristic_repeat = 1
         slothy.config.split_heuristic_factor = 4
-        slothy.config.split_heuristic_stepsize = 0.25
-        slothy.config.constraints.allow_spills = False
-        slothy.config.constraints.minimize_spills = False
-        slothy.config.absorb_spills = False
-        slothy.config.constraints.stalls_precision = 1
+        slothy.config.split_heuristic_stepsize = 0.1
         slothy.config.unsafe_address_offset_fixup = True
-        slothy.config.constraints.functional_only = False
-        slothy.config.constraints.allow_reordering = True
-        slothy.optimize_loop("2")
+        slothy.optimize_loop("2", forced_loop_type=Arch_Armv7M.BranchLoop)
 
         slothy.config.split_heuristic_optimize_seam = 6
-        slothy.optimize_loop("2")
-
-class ntt_kyber_symbolic(Example):
-    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
-        name = f"ntt_kyber_symbolic"
-        infile = name
-        funcname = "ntt_fast_symbolic"
-
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        name += f"_{target_label_dict[target]}"
-
-        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
-
-    def core(self, slothy):
-        slothy.config.outputs = ["s23"]
-        slothy.config.reserved_regs = ["r13", "s25", "s26", "s27", "s28", "s29", "s30", "s31"]
-        slothy.config.inputs_are_outputs = True
-        slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 16
-        orig_functional_only = slothy.config.constraints.functional_only
-        orig_allow_reordering = slothy.config.constraints.allow_reordering
-
-        # Step 1: find minimum number of stack spills in first loop
-        slothy.config.objective_lower_bound = 8
-        slothy.config.constraints.functional_only = True
-        slothy.config.constraints.allow_spills = True
-        slothy.config.constraints.minimize_spills = True
-        # TODO: it would be much better if we could allow re-ordering; but that seems out of reach for SLOTHY right now
-        slothy.config.constraints.allow_reordering = False
-        slothy.optimize_loop("1")
-        slothy.config.constraints.functional_only = orig_functional_only
-        slothy.config.constraints.allow_spills = False
-        slothy.config.constraints.allow_reordering = orig_allow_reordering
-        slothy.config.absorb_spills = False
-
-        # Step 2: optimize first loop
-        # TODO: use a small factor and larger repeat
-        slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 4
-        slothy.config.split_heuristic_stepsize = 0.15
-        slothy.config.split_heuristic_repeat = 1
-        slothy.optimize_loop("1")
-
-        # Step 3: optimize second loop
-        # TODO: use a small factor and larger repeat
-        slothy.config.split_heuristic = True
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.split_heuristic_factor = 2
-        slothy.config.split_heuristic_repeat = 1
-        slothy.fusion_loop("2",ssa=False)
-        slothy.optimize_loop("2")
-
-
+        slothy.optimize_loop("2", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 
 class intt_kyber(Example):
@@ -2281,7 +2171,7 @@ class intt_kyber(Example):
         slothy.config.split_heuristic_stepsize = 0.15
         slothy.config.split_heuristic_repeat = 1
         slothy.config.outputs = ["r14", "s8"]
-        slothy.optimize_loop("1")
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
         # Step 2: optimize the start of the second loop
         slothy.config.split_heuristic = True
@@ -2299,9 +2189,10 @@ class intt_kyber(Example):
         slothy.config.split_heuristic_stepsize = 0.2
         slothy.config.outputs = ["r14", "s14"]
         slothy.config.unsafe_address_offset_fixup = False
-        slothy.fusion_loop("2", ssa=False)
+        slothy.fusion_loop("2", ssa=False, forced_loop_type=Arch_Armv7M.BranchLoop)
         slothy.config.unsafe_address_offset_fixup = True
-        slothy.optimize_loop("2")
+        slothy.optimize_loop("2", forced_loop_type=Arch_Armv7M.BranchLoop)
+
 
 class basemul_16_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -3049,6 +2940,8 @@ def main():
                  Keccak(var="adomnicai_m4"),
                  Keccak(var="adomnicai_m7"),
 
+                 ntt_kyber(),
+                 intt_kyber(),
                  basemul_16_32_kyber(),
                  basemul_acc_32_32_kyber(),
                  basemul_acc_32_16_kyber(),

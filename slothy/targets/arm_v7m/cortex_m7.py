@@ -52,7 +52,6 @@ class ExecutionUnit(Enum):
 def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
-    # add_slot_constraints(slothy)
     add_st_hazard(slothy)
 
     add_dsp_slot_constraint(slothy)
