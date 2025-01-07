@@ -2930,9 +2930,6 @@ def main():
                  reduce32_dilithium(),
                  caddq_dilithium(),
 
-                 ntt_kyber(),
-                 intt_kyber(),
-                 
                  Keccak(var="xkcp"),
                  Keccak(var="adomnicai_m4"),
                  Keccak(var="adomnicai_m7"),
