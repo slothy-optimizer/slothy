@@ -52,7 +52,6 @@ class ExecutionUnit(Enum):
 def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
-    # add_slot_constraints(slothy)
     add_st_hazard(slothy)
 
     add_dsp_slot_constraint(slothy)
@@ -65,14 +64,7 @@ def add_dsp_slot_constraint(slothy):
 def add_mac_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
         [mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
-     smulbb, smlabt, smlabb, smlatt, smlad, smladx, smuad, smuadx, smmulr], [1])
-
-# TODO: this seems incorrect
-def add_slot_constraints(slothy):
-    slothy.restrict_slots_for_instructions_by_class(
-        [str_with_imm, str_with_imm_stack, str_with_postinc, strh_with_imm,
-         strh_with_postinc, stm_interval_inc_writeback, str_no_off, str], [1])
-
+     smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr], [1])
 
 def add_st_hazard(slothy):
     def is_st_ld_pair(inst_a, inst_b):
