@@ -2790,6 +2790,12 @@ class SlothyBase(LockAttributes):
     def _add_constraints_loop_optimization(self):
 
         if not self.config.sw_pipelining.enabled:
+            # Also if sw_pipelining is not enabled, we need to ensure that the
+            # "branch" is always the last instruction
+            for t in self._get_nodes():
+                if t.inst.source_line.tags.get("branch", []):
+                    self._Add( t.program_start_var ==
+                             self._model.program_padded_size - 1 )
             return
 
         if self.config.sw_pipelining.max_overlapping is not None:
