@@ -200,7 +200,7 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"]
-    ): 2
+    ): 3
 
 }
 
