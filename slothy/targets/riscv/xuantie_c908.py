@@ -189,7 +189,7 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["sh"],
         RISCVInstruction.classes_by_names["sw"],
         RISCVInstruction.classes_by_names["sd"],
-    ): 1,
+    ): 2,
 
     (
         RISCVInstruction.classes_by_names["mul"],
@@ -208,9 +208,25 @@ default_latencies = {
     RISCVIntegerRegisterRegister: 1,
     RISCVIntegerRegisterImmediate: 1,
     RISCVUType: 1,
-    RISCVLoad: 3,
+    #RISCVLoad: 3,
+    RISCVInstruction.classes_by_names["lb"]: 3,
+    RISCVInstruction.classes_by_names["lbu"]: 3,
+    RISCVInstruction.classes_by_names["lh"]: 3,
+    RISCVInstruction.classes_by_names["lhu"]: 3,
+    RISCVInstruction.classes_by_names["lw"]: 2,
+    RISCVInstruction.classes_by_names["lwu"]: 2,
+    RISCVInstruction.classes_by_names["ld"]: 2,
+
     RISCVStore: 1,
-    RISCVIntegerRegisterRegisterMul: 4  # not correct for div, rem
+    #RISCVIntegerRegisterRegisterMul: 4  # not correct for div, rem
+    RISCVInstruction.classes_by_names["mul"]: 3,
+    RISCVInstruction.classes_by_names["mulh"]: 4,
+    RISCVInstruction.classes_by_names["mulhsu"]: 4,
+    RISCVInstruction.classes_by_names["mulhu"]: 4,
+    RISCVInstruction.classes_by_names["div"]: 4,
+    RISCVInstruction.classes_by_names["divu"]: 4,
+    RISCVInstruction.classes_by_names["rem"]: 4,
+    RISCVInstruction.classes_by_names["remu"]: 4
 }
 
 
