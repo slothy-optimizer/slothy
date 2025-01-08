@@ -192,7 +192,7 @@ class AddiLoop(Loop):
             # In case the immediate is >1, we need to scale the fixup. This
             # allows for loops that do not use an increment of 1
             fixup *= self.additional_data['imm']
-            yield f"{indent}addi {loop_cnt}, {loop_cnt}, -{fixup}"
+            yield f"{indent}addi {loop_cnt}, {loop_cnt}, {fixup}"
         if jump_if_empty is not None:
             yield f"beq {loop_cnt}, {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl}:"
