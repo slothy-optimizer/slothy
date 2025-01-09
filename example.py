@@ -689,6 +689,110 @@ class Armv7mExample0Func(Example):
         slothy.optimize(start="start", end="end")
         slothy.global_selftest("my_func", {"r0": 1024 })
 
+class Fe25519_add(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "fe25519_add"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.outputs = ["r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"]
+        slothy.fusion_region("slothy_start", "slothy_end", ssa=False)
+        # if self.rename:
+        #     slothy.rename_function(
+        #         "fe25519_add_wrap", f"fe25519_add_opt_m7_wrap"
+        #     )
+        #slothy.optimize(start="slothy_start", end="slothy_end")
+
+class Fe25519_sub(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "fe25519_sub"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        r = slothy.config.reserved_regs
+        r.add("r14")
+        slothy.config.reserved_regs = r        
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.outputs = ["r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"]
+        slothy.fusion_region("slothy_start", "slothy_end", ssa=False)
+        # if self.rename:
+        #     slothy.rename_function(
+        #         "fe25519_sub_wrap", f"fe25519_sub_opt_m7_wrap"
+        #     )
+        # slothy.optimize(start="slothy_start", end="slothy_end")
+
+class Fe25519_mul(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "fe25519_mul"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 2
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.outputs = ["r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"]
+        # slothy.rename_function("fe25519_mul_wrap", "fe25519_mul_opt_m7_wrap")
+        slothy.fusion_region("slothy_start", "slothy_end", ssa=False)
+        #slothy.optimize(start="slothy_start", end="slothy_end")
+        
+
+class Fe25519_sqr(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "fe25519_sqr"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        # r = slothy.config.reserved_regs
+        # r.add("r14")
+        # slothy.config.reserved_regs = r
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 2
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.functional_only = False
+        slothy.config.outputs = ["r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"]
+        slothy.fusion_region("slothy_start", "slothy_end", ssa=False)
+        #slothy.optimize(start="slothy_start", end="slothy_end")
+
+
 class Armv7mLoopSubs(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_subs"
@@ -2724,6 +2828,10 @@ def main():
 
                 # Armv7m examples
                  Armv7mExample0(),
+                 Fe25519_add(),
+                 Fe25519_sub(),
+                 Fe25519_mul(),
+                 Fe25519_sqr(),
                  Armv7mExample0Func(),
 
                 # Loop examples
