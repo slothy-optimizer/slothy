@@ -669,7 +669,9 @@ class Armv7mExample0(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.config.inputs_are_outputs = True
+        slothy.fusion_region("start", "end", ssa=False)
         slothy.optimize(start="start", end="end")
+        
 
 class Armv7mExample0Func(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):

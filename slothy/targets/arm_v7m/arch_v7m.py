@@ -1486,7 +1486,6 @@ class ldr(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-na
         obj.increment = None
         obj.pre_index = 0
         obj.addr = obj.args_in[0]
-        obj.args_in_out_different = [(0,0)] # Can't have Rd==Ra
         return obj
 
     def write(self):
@@ -1505,7 +1504,6 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
-        obj.args_in_out_different = [(0,0)] # Can't have Rd==Ra
         return obj
 
     def write(self):
@@ -1528,7 +1526,6 @@ class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
-        obj.args_in_out_different = [(0,0)] # Can't have Rd==Ra
         obj.addr = obj.args_in[0]
         return obj
 
@@ -1545,7 +1542,6 @@ class ldrh_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
-        obj.args_in_out_different = [(0,0)] # Can't have Rd==Ra
         obj.addr = obj.args_in[0]
         return obj
 
@@ -1940,6 +1936,19 @@ def ldm_interval_splitting_cb():
                 add_comments(inst.source_line.comments)
             ldr.source_line = ldr_src
 
+        # In case the address register is also contained in the
+        # register list, we need to overwrite the address register
+        # in the last ldr
+        ldrs_reordered = []
+        for ldr, reg in zip(ldrs, regs):
+            if reg != ptr:
+                ldrs_reordered.append(ldr)
+
+        for ldr, reg in zip(ldrs, regs):
+            if reg == ptr:
+                ldrs_reordered.append(ldr)
+        ldrs = ldrs_reordered
+
         if log is not None:
             log(f"ldm splitting: {t.inst}; {[ldr for ldr in ldrs]}")
 
@@ -2127,6 +2136,19 @@ def ldrd_imm_splitting_cb():
                 add_tags(inst.source_line.tags).\
                 add_comments(inst.source_line.comments)
             ldr.source_line = ldr_src
+
+        # In case the address register is also contained in the
+        # register list, we need to overwrite the address register
+        # in the last ldr
+        ldrs_reordered = []
+        for ldr, reg in zip(ldrs, regs):
+            if reg != ptr:
+                ldrs_reordered.append(ldr)
+
+        for ldr, reg in zip(ldrs, regs):
+            if reg == ptr:
+                ldrs_reordered.append(ldr)
+        ldrs = ldrs_reordered
 
         if log is not None:
             log(f"ldrd splitting: {t.inst}; {[ldr for ldr in ldrs]}")
