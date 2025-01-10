@@ -1605,7 +1605,7 @@ class intt_dilithium_123_456_78(Example):
     def core(self, slothy):
         slothy.config.constraints.stalls_first_attempt = 16
 
-        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.unsafe_address_offset_fixup = True
 
 
         slothy.config.variable_size = True
@@ -1616,12 +1616,12 @@ class intt_dilithium_123_456_78(Example):
         slothy.config.sw_pipelining.optimize_postamble = True
         slothy.config.sw_pipelining.allow_pre = True
 
-        slothy.optimize_loop("layer123_loop")
+        slothy.optimize_loop("layer123_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
         slothy.optimize_loop("layer456_first_loop")
         slothy.optimize_loop("layer456_loop")
 
         slothy.config.inputs_are_outputs = True
-        slothy.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer78_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class pointwise_montgomery_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
