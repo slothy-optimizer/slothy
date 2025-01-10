@@ -189,7 +189,7 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["sh"],
         RISCVInstruction.classes_by_names["sw"],
         RISCVInstruction.classes_by_names["sd"],
-    ): 2,
+    ): 1,
 
     (
         RISCVInstruction.classes_by_names["mul"],
@@ -200,7 +200,7 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"]
-    ): 3
+    ): 2
 
 }
 
@@ -219,7 +219,7 @@ default_latencies = {
 
     RISCVStore: 1,
     #RISCVIntegerRegisterRegisterMul: 4  # not correct for div, rem
-    RISCVInstruction.classes_by_names["mul"]: 3,
+    RISCVInstruction.classes_by_names["mul"]: 4,
     RISCVInstruction.classes_by_names["mulh"]: 4,
     RISCVInstruction.classes_by_names["mulhsu"]: 4,
     RISCVInstruction.classes_by_names["mulhu"]: 4,
