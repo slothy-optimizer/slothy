@@ -32,7 +32,7 @@
 	// r[1] in upper half of tmp2
 	pkhtb \tmp, \tmp2, \tmp, asr #16
 	uadd16 \res0, \res0, \tmp
-	str \res0, [\rptr], #8 // @slothy:core=True
+	str \res0, [\rptr], #8 // @slothy:core=True // @slothy:before=cmp
 
 	neg \zeta, \zeta
 	
@@ -101,13 +101,13 @@ frombytes_mul_asm_acc:
 	movt qinv, #27560
 
 	add ctr, rptr, #64*4*2
-	vmov s0, ctr
 	1:
 		ldr.w zeta, [zetaptr], #4
 		deserialize aptr, tmp, tmp2, tmp3, t0, t1
+		vmov s0, ctr
 		doublebasemul_frombytes_asm_acc rptr, bptr, zeta, tmp3, t0, t1, ctr, tmp, tmp2, q, qa, qinv
 		vmov ctr, s0
-	cmp.w rptr, ctr
+	cmp.w rptr, ctr // @slothy:id=cmp
 	bne.w 1b
 
 	pop {r4-r11, pc}

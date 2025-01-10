@@ -12,7 +12,7 @@
 
 .macro doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, poly0, poly1, poly3, res0, tmp, q, qa, qinv
   ldr \poly0, [\bptr], #8
-  ldr \res0, [\rptr_tmp], #16 // @slothy:core=True
+  ldr \res0, [\rptr_tmp], #16 // @slothy:core=True // @slothy:before=cmp
 
   smulwt \tmp, \zeta, \poly1
 	smlabt \tmp, \tmp, \q, \qa
@@ -72,7 +72,7 @@ frombytes_mul_asm_acc_32_16:
   push {r4-r11, r14}
 
   rptr     .req r0
-  bptr     .req r1
+  bptr     .req r3
   aptr     .req r2
   zetaptr  .req r3
   t0       .req r4
@@ -85,7 +85,7 @@ frombytes_mul_asm_acc_32_16:
 	qinv     .req r11
 	zeta     .req r12
 	ctr      .req r14
-  rptr_tmp .req r3
+  rptr_tmp .req r1
 
   movw qa, #26632
 	movt  q, #3329
@@ -93,35 +93,20 @@ frombytes_mul_asm_acc_32_16:
 	movw qinv, #62209
 	movt qinv, #27560
 
-  vmov s2, zetaptr
+  vmov s1, r1
   ldr.w rptr_tmp, [sp, #9*4] // load rptr_tmp from stack
-  vmov s1, rptr_tmp
+  
   add ctr, rptr_tmp, #64*4*4
   1:
+    ldr.w zeta, [zetaptr], #4
     deserialize aptr, tmp, tmp2, tmp3, t0, t1
-    vmov tmp, s2
-    ldr zeta, [tmp], #4
-    vmov s2, tmp
+    vmov s2, zetaptr
+    vmov bptr, s1
     doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, tmp3, t0, t1, tmp, tmp2, q, qa, qinv
-    cmp.w rptr_tmp, ctr
+    vmov s1, bptr // @slothy:core=True
+    cmp.w rptr_tmp, ctr // @slothy:id=cmp
+    vmov zetaptr, s2
     bne.w 1b
 
-  // Original code
-  // ldr.w tmp, [sp, #9*4] // load rptr_tmp from stack
-  // vmov s1, tmp
-  // vmov s2, zetaptr
-  // add ctr, tmp, #64*4*4
-  // 1:
-  //   vmov zetaptr, s2
-  //   ldr.w zeta, [zetaptr], #4
-  //   deserialize aptr, tmp, tmp2, tmp3, t0, t1
-  //   vmov s2, zetaptr
-  //   vmov rptr_tmp, s1
-  //   doublebasemul_frombytes_asm_acc_32_16 rptr_tmp, rptr, bptr, zeta, tmp3, t0, t1, tmp, tmp2, q, qa, qinv
-  //   vmov s1, rptr_tmp
-  //   cmp.w rptr_tmp, ctr
-  //   bne.w 1b
-
 pop {r4-r11, pc}
-
 .size frombytes_mul_asm_acc_32_16, .-frombytes_mul_asm_acc_32_16
