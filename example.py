@@ -1576,6 +1576,31 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
         #slothy.config.split_heuristic_stepsize = 0.3
         slothy.optimize_loop("ntt_8l_rv64im_loop1")
         slothy.optimize_loop("ntt_8l_rv64im_loop2")
+
+class RISC_V_test(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "riscv_test"
+        subpath = ""
+        infile = subpath + name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="poly_basemul_8l_acc_rv64im", timeout=timeout)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.config.inputs_are_outputs = True
+
+        r = slothy.config.reserved_regs
+        r += ['x3']
+        slothy.config.reserved_regs = r
+        slothy.optimize_loop("poly_basemul_8l_acc_rv64im_looper")
+
+
 #############################################################################################
 
 
@@ -1734,7 +1759,8 @@ def main():
                  # RISC-V
                  RISC_VExample0(target=Target_XuanTieC908),
                  RISC_VExampleLoop0(),
-                 RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300)
+                 RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
+                 RISC_V_test(target=Target_XuanTieC908)
                  ]
 
     all_example_names = [e.name for e in examples]

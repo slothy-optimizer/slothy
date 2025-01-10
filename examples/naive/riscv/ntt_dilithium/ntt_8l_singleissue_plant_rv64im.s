@@ -101,6 +101,8 @@
   ld ra,  14*8(sp)
 .endm
 
+
+
 // a <- a*b*(-2^{-64}) mod+- q
 // q32: q<<32; bqinv: b*qinv
 .macro plant_mul_const_inplace q32, bqinv, a

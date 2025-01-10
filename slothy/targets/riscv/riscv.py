@@ -179,7 +179,7 @@ class AddiLoop(Loop):
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        self.end_regex = (r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*(?P<imm>[-]\d+)",
+        self.end_regex = (r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*(?P<imm>-*\d+)",
                                rf"^\s*(?P<branch_type>bne|bge)\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
