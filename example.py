@@ -2179,12 +2179,11 @@ class basemul_acc_32_32_kyber(Example):
         slothy.config.variable_size = True
 
         r = slothy.config.reserved_regs
-        r.add("r14")
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.optimize_loop("1")
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class basemul_acc_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2278,14 +2277,10 @@ class frombytes_mul_acc_32_16_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
-        r = slothy.config.reserved_regs
-        r.add("r14")
-        slothy.config.reserved_regs = r
-
         slothy.config.unsafe_address_offset_fixup = False
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.optimize_loop("1")
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class add_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2484,16 +2479,14 @@ class frombytes_mul_acc_kyber(Example):
     def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
-        slothy.config.outputs = ["r14"]
         slothy.config.unsafe_address_offset_fixup = False
         r = slothy.config.reserved_regs
-        r.add("r14")
         r = r.union(f"s{i}" for i in range(32)) # reserve FPR
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.optimize_loop("1")
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class matacc_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
