@@ -1212,11 +1212,27 @@ class LLVM_Mc():
                                               include=include_paths)
             except subprocess.CalledProcessError as exc:
                 log.error("CPreprocessor failed on the following input")
-                log.error(SouceLine.write_multiline(source))
+                log.error(SourceLine.write_multiline(source))
                 raise LLVM_Mc_Error from exc
 
         if platform.system() == "Darwin":
             source = list(filter(lambda s: s.text.strip().startswith(".type") is False, source))
+
+
+        # Remove all width information - LLVM cannot handle .w for
+        # some instructions that only have a 32-bit encoding,
+        # e.g., uadd16.w works in gcc, but not LLVM.
+        # Unfortunately, for some instructions this depends
+        # on the registers used and, hence, adjusting the input to
+        # SLOTHY is not sufficient.
+        # As currently, we don't have a model of the instruction encodings,
+        # there is no principled way to reason about it.
+        if thumb:
+            for line in source:
+                instruction = line.text
+                instruction = instruction.replace(".w ", " ")
+                instruction = instruction.replace(".n ", " ")
+                line.set_text(instruction)
 
         code = SourceLine.write_multiline(source)
 
@@ -1585,7 +1601,7 @@ class Loop(ABC):
         """
         Find a loop with start label `lbl` in `source` and return it together
         with its type.
-        
+
             Args:
                 source: list of SourceLine objects
                 lbl: label of the loop to extract
