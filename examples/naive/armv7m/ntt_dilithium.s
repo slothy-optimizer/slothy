@@ -262,10 +262,10 @@ pqcrystals_dilithium_ntt:
     str.w pol5, [ptr_p, #5*distance/4]
     str.w pol6, [ptr_p, #6*distance/4]
     str.w pol7, [ptr_p, #7*distance/4]
-    str pol0, [ptr_p], #strincr // @slothy:core=True
+    str pol0, [ptr_p], #strincr // @slothy:core=True // @slothy:before=cmp
     vmov temp_l, s9
 
-    cmp.w ptr_p, temp_l
+    cmp.w ptr_p, temp_l // @slothy:id=cmp
     bne layer123_loop
   
   sub ptr_p, #32*4
@@ -299,9 +299,9 @@ pqcrystals_dilithium_ntt:
       str.w pol5, [ptr_p, #5*distance2/4]
       str.w pol6, [ptr_p, #6*distance2/4]
       str.w pol7, [ptr_p, #7*distance2/4]
-      str pol0, [ptr_p], #4 // @slothy:core=True
+      str pol0, [ptr_p], #4 // @slothy:core=True // @slothy:before=cmp
       vmov temp_l, s10
-      cmp.w ptr_p, temp_l
+      cmp.w ptr_p, temp_l // @slothy:id=cmp
       bne layer456_loop
 
     add.w ptr_p, #112
@@ -328,8 +328,8 @@ pqcrystals_dilithium_ntt:
       str.w pol1, [ptr_p, #4]
       str.w pol2, [ptr_p, #8]
       str.w pol3, [ptr_p, #12]
-      str pol0, [ptr_p], #16 // @slothy:core=True
-      cmp.w ptr_p, cntr
+      str pol0, [ptr_p], #16 // @slothy:core=True // @slothy:before=cmp
+      cmp.w ptr_p, cntr // @slothy:id=cmp
       bne.w layer78_loop
 
     //restore registers
