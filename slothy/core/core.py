@@ -1258,6 +1258,8 @@ class Result(LockAttributes):
 
     def offset_fixup(self, log):
         """Fixup address offsets after optimization"""
+        if not self.config.unsafe_address_offset_fixup:
+            return
         if self.config.sw_pipelining.enabled:
             self._offset_fixup_sw(log)
         else:
@@ -2351,19 +2353,19 @@ class SlothyBase(LockAttributes):
                     self._model.intervals_for_unit[unit].append(t.exec)
             else:
                 t.unique_unit = False
-                t.exec_unit_choices = {}
+                t.exec_unit_choices = []
                 for unit_choices in units:
                     if not isinstance(unit_choices, list):
                         unit_choices = [unit_choices]
+                    unit_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{unit_choices}")
+                    t.exec_unit_choices.append(unit_var)
                     for unit in unit_choices:
-                        unit_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{unit}")
-                        t.exec_unit_choices[unit] = unit_var
-                        t.exec = self._NewOptionalIntervalVar(t.cycle_start_var,
+                        interval = self._NewOptionalIntervalVar(t.cycle_start_var,
                                                             cycles_unit_occupied,
                                                             t.cycle_end_var,
                                                             unit_var,
                                                             f"{t.varname}_usage_{unit}")
-                        self._model.intervals_for_unit[unit].append(t.exec)
+                        self._model.intervals_for_unit[unit].append(interval)
 
     # ================================================================
     #                  VARIABLES (Dependency tracking)               #
@@ -2761,6 +2763,9 @@ class SlothyBase(LockAttributes):
             self._force_allocation_restriction_many(t.inst.args_in_out_restrictions,
                 t.alloc_in_out_var)
             # Enforce exclusivity of arguments
+            self._forbid_renaming_collision_many( t.inst.args_inout_out_different,
+                                            t.alloc_out_var,
+                                            t.alloc_in_out_var )
             self._forbid_renaming_collision_many( t.inst.args_in_out_different,
                                             t.alloc_out_var,
                                             t.alloc_in_var )
@@ -2854,6 +2859,16 @@ class SlothyBase(LockAttributes):
                 if self.config.sw_pipelining.max_pre < relpos < 1:
                     # pylint:disable=singleton-comparison
                     self._Add(t.pre_var == False)
+
+        # Forbid emerging dependencies across the loop boundary if the
+        # loop boundary (that SLOTHY pretends does not exist) uses temporary registers
+        for (consumer,producer, _, _, _, _, alloc) in self._iter_dependencies_with_lifetime():
+            for r in self.config.sw_pipelining.boundary_reserved_regs:
+                if r not in alloc.keys():
+                    continue
+                if producer.src.is_virtual is True or consumer.is_virtual is True:
+                    continue
+                self._Add(alloc[r] == False).OnlyEnforceIf(producer.src.pre_var, consumer.pre_var.Not())
 
         if self.config.sw_pipelining.pre_before_post:
             for t, s in [(t,s) for t in self._get_nodes(low=True) \
@@ -3167,7 +3182,7 @@ class SlothyBase(LockAttributes):
         for t in self._get_nodes():
             if t.exec_unit_choices is None:
                 continue
-            self._AddExactlyOne(t.exec_unit_choices.values())
+            self._AddExactlyOne(t.exec_unit_choices)
 
     # ==============================================================#
     #                      CONSTRAINT (Code size)                   #
@@ -3451,6 +3466,8 @@ class SlothyBase(LockAttributes):
         self._model.cp_model  = cp_model.CpModel()
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
+
+        self._model.cp_solver.parameters.num_workers = 16
 
     def _NewIntVar(self, minval, maxval, name=""): # pylint:disable=invalid-name
         r = self._model.cp_model.NewIntVar(minval,maxval, name)

@@ -33,6 +33,7 @@ from slothy import Slothy, Config
 
 import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
+import slothy.targets.arm_v7m.cortex_m4 as Target_CortexM4
 import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
@@ -45,6 +46,7 @@ import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_i
 
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
+                     Target_CortexM4: "m4",
                      Target_CortexM7: "m7",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85",
@@ -171,6 +173,23 @@ class Example():
         if dry_run is False:
             slothy.write_source_to_file(self.outfile_full)
 
+class ExampleDummy(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
+        name = f"dummy"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize(start="slothy_start", end="slothy_end")
+
 class Example0(Example):
     def __init__(self):
         super().__init__("simple0")
@@ -231,6 +250,39 @@ class AArch64LoopSubs(Example):
 
     def core(self,slothy):
         slothy.config.variable_size=True
+        slothy.optimize_loop("start")
+
+class Armv7mLoopSubs(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_subs"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize_loop("start")
+
+class Armv7mLoopCmp(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "loop_cmp"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.outputs = ["flags"]
         slothy.optimize_loop("start")
 
 class CRT(Example):
@@ -650,10 +702,10 @@ class AArch64Split0(Example):
         name += f"_{target_label_dict[target]}"
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
-
     def core(self,slothy):
         slothy.config.allow_useless_instructions = True
         slothy.fusion_region("start", "end", ssa=False)
+
 class Armv7mExample0(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "armv7m_simple0"
@@ -1552,7 +1604,6 @@ class fft_floatingpoint_radix4(Example):
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
 #############################################################################################
-
 class ntt_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"ntt_dilithium"
@@ -1567,6 +1618,9 @@ class ntt_dilithium(Example):
         super().__init__(infile, name, rename=True, arch=arch, target=target, timeout=timeout, funcname=funcname)
 
     def core(self, slothy):
+        # slothy.config.with_llvm_mca = True
+        # slothy.config.llvm_mca_full = True
+
         slothy.config.constraints.stalls_first_attempt = 16
 
         slothy.config.unsafe_address_offset_fixup = True
@@ -1989,7 +2043,7 @@ class caddq_dilithium(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("1")
-        
+
 class Keccak(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"keccakf1600"
@@ -2714,7 +2768,6 @@ def main():
                  AArch64IfElse(),
 
                  AArch64Split0(),
-
                 # Armv7m examples
                  Armv7mExample0(),
                  Armv7mExample0Func(),
@@ -2846,6 +2899,7 @@ def main():
                  intt_dilithium_1234_5678(var="manual_ld4", target=Target_AppleM1_icestorm, timeout=3600),
                  # Dilithium invNTT
                  # Cortex-M55
+
                  intt_dilithium_12_34_56_78(),
 
                  # Fast Fourier Transform (FFT)
@@ -2868,7 +2922,7 @@ def main():
                  pointwise_769_asymmetric_dilithium(),
                  reduce32_dilithium(),
                  caddq_dilithium(),
-                 
+
                  Keccak(var="xkcp"),
                  Keccak(var="adomnicai_m4"),
                  Keccak(var="adomnicai_m7"),
@@ -2917,8 +2971,8 @@ def main():
     parser.add_argument("--debug-logfile", type=str, default=None)
     parser.add_argument("--log-model", default=False, action="store_true")
     parser.add_argument("--log-model-dir", type=str, default="models")
-    parser.add_argument("--only-target", type=str,choices=[
-        Target_CortexM7.__name__,
+    parser.add_argument("--only-target", type=str,choices=[Target_CortexM4.__name__, \
+        Target_CortexM7.__name__, \
         Target_CortexM55r1.__name__, Target_CortexM85r1.__name__, \
         Target_CortexA55.__name__, Target_CortexA72.__name__, Target_AppleM1_firestorm.__name__, \
         Target_AppleM1_icestorm.__name__])

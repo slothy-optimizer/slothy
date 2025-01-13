@@ -46,6 +46,8 @@ import platform
 import subprocess
 from enum import Enum
 from functools import cache
+
+from slothy.helper import SourceLine
 from sympy import simplify
 
 from unicorn import *
@@ -345,6 +347,7 @@ class Instruction:
 
         self.args_out_combinations = None
         self.args_in_combinations = None
+        self.args_inout_out_different = None
         self.args_in_out_combinations = None
         self.args_in_out_different = None
         self.args_in_inout_different = None

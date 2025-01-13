@@ -170,7 +170,7 @@ class Slothy:
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
         for l in s:
-            fun(f"> {l}")
+            fun(f"> {l.to_string()}")
 
     def global_selftest(self, funcname, address_registers, iterations=5):
         """Conduct a function-level selftest
@@ -477,7 +477,6 @@ class Slothy:
 
         early, body, late, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
-
         try:
             loop_cnt = other_data['cnt']
         except KeyError:
@@ -502,7 +501,7 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Optimizing loop %s (%d instructions) ...",
-            loop_lbl, len(body))
+            loop_lbl, len(list(filter(None, body))))
 
         if self.config.with_llvm_mca_before is True:
             orig_stats = self._make_llvm_mca_stats(early, body, late, "ORIGINAL", indentation)
