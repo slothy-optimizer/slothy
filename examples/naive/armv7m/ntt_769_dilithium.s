@@ -146,7 +146,6 @@ small_ntt_asm_769:
 	// s24: tmp
         // s25: twiddle_ptr
 	vmov s24, tmp
-        vmov s25, twiddle_ptr
 	layer1234_loop:
 		// load a1, a3, ..., a15
 		vmov s23, poly
@@ -251,10 +250,10 @@ small_ntt_asm_769:
 		uadd16 tmp, poly0, poly1
 		usub16 twiddle1, poly0, poly1
 		str.w twiddle1, [poly, #offset]
-		str.w tmp, [poly], #4 // @slothy:core
+		str.w tmp, [poly], #4 // @slothy:core // @slothy:before=cmp
 
 	vmov tmp, s24
-	cmp.w poly, tmp
+	cmp.w poly, tmp // @slothy:id=cmp
 	bne.w layer1234_loop
 
 	sub.w poly, #8*strincr
@@ -266,7 +265,6 @@ small_ntt_asm_769:
 
 	add.w tmp, poly, #strincr2*16
 	vmov s13, tmp
-        vmov twiddle_ptr, s25
     layer567_loop:
 		vmov s23, poly
 		load poly, poly0, poly1, poly2, poly3, #0, #distance2/4, #2*distance2/4, #3*distance2/4
