@@ -1569,7 +1569,7 @@ class ntt_dilithium(Example):
     def core(self, slothy):
         slothy.config.constraints.stalls_first_attempt = 16
 
-        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.unsafe_address_offset_fixup = True
 
         slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
