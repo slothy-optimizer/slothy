@@ -1814,6 +1814,7 @@ class ntt_769_dilithium(Example):
         slothy.config.constraints.stalls_first_attempt = 32
 
         r = slothy.config.reserved_regs
+        r.add("r1")
         r = r.union(f"s{i}" for i in range(31)) # reserve FPR
         slothy.config.reserved_regs = r
 
@@ -1825,13 +1826,12 @@ class ntt_769_dilithium(Example):
         slothy.config.variable_size = True
         slothy.config.split_heuristic = True
         slothy.config.timeout = 360 # Not more than 2min per step
-        slothy.config.split_heuristic_factor = 1
         slothy.config.visualize_expected_performance = False
-        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_stepsize = 0.15
-        slothy.optimize_loop("layer1234_loop")
+        slothy.optimize_loop("layer1234_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
         slothy.config.split_heuristic_optimize_seam = 6
-        slothy.optimize_loop("layer1234_loop")
+        slothy.optimize_loop("layer1234_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
 
         slothy.config.outputs = ["r14"]
 
