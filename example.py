@@ -1623,7 +1623,7 @@ class ntt_dilithium(Example):
 
         slothy.config.constraints.stalls_first_attempt = 16
 
-        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.unsafe_address_offset_fixup = True
 
         slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
@@ -1659,7 +1659,7 @@ class intt_dilithium_123_456_78(Example):
     def core(self, slothy):
         slothy.config.constraints.stalls_first_attempt = 16
 
-        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.unsafe_address_offset_fixup = True
 
 
         slothy.config.variable_size = True
@@ -1670,12 +1670,12 @@ class intt_dilithium_123_456_78(Example):
         slothy.config.sw_pipelining.optimize_postamble = True
         slothy.config.sw_pipelining.allow_pre = True
 
-        slothy.optimize_loop("layer123_loop")
+        slothy.optimize_loop("layer123_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
         slothy.optimize_loop("layer456_first_loop")
         slothy.optimize_loop("layer456_loop")
 
         slothy.config.inputs_are_outputs = True
-        slothy.optimize_loop("layer78_loop")
+        slothy.optimize_loop("layer78_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class pointwise_montgomery_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1868,6 +1868,7 @@ class ntt_769_dilithium(Example):
         slothy.config.constraints.stalls_first_attempt = 32
 
         r = slothy.config.reserved_regs
+        r.add("r1")
         r = r.union(f"s{i}" for i in range(31)) # reserve FPR
         slothy.config.reserved_regs = r
 
@@ -1879,13 +1880,12 @@ class ntt_769_dilithium(Example):
         slothy.config.variable_size = True
         slothy.config.split_heuristic = True
         slothy.config.timeout = 360 # Not more than 2min per step
-        slothy.config.split_heuristic_factor = 1
         slothy.config.visualize_expected_performance = False
-        slothy.config.split_heuristic_factor = 4
+        slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_stepsize = 0.15
-        slothy.optimize_loop("layer1234_loop")
+        slothy.optimize_loop("layer1234_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
         slothy.config.split_heuristic_optimize_seam = 6
-        slothy.optimize_loop("layer1234_loop")
+        slothy.optimize_loop("layer1234_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
 
         slothy.config.outputs = ["r14"]
 
@@ -2233,12 +2233,11 @@ class basemul_acc_32_32_kyber(Example):
         slothy.config.variable_size = True
 
         r = slothy.config.reserved_regs
-        r.add("r14")
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.optimize_loop("1")
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class basemul_acc_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2332,14 +2331,10 @@ class frombytes_mul_acc_32_16_kyber(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
 
-        r = slothy.config.reserved_regs
-        r.add("r14")
-        slothy.config.reserved_regs = r
-
         slothy.config.unsafe_address_offset_fixup = False
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.optimize_loop("1")
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class add_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2538,16 +2533,14 @@ class frombytes_mul_acc_kyber(Example):
     def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
-        slothy.config.outputs = ["r14"]
         slothy.config.unsafe_address_offset_fixup = False
         r = slothy.config.reserved_regs
-        r.add("r14")
         r = r.union(f"s{i}" for i in range(32)) # reserve FPR
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.optimize_loop("1")
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
 class matacc_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
