@@ -689,6 +689,32 @@ class Armv7mExample0Func(Example):
         slothy.optimize(start="start", end="end")
         slothy.global_selftest("my_func", {"r0": 1024 })
 
+class Armv7mSplit0(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "armv7m_splitting"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        
+        # Disable fixup as the remapping of in_out to in only causes the writer
+        # for `stm` to confuse this input for a register that is supposed to be
+        # stored to memory.
+        slothy.config.unsafe_address_offset_fixup = False
+        
+        slothy.fusion_region("start0", "end0", ssa=False)
+        slothy.optimize(start="start0", end="end0")
+        
+        slothy.optimize(start="start1", end="end1")
+
 class Armv7mLoopSubs(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_subs"
@@ -2718,6 +2744,7 @@ def main():
                 # Armv7m examples
                  Armv7mExample0(),
                  Armv7mExample0Func(),
+                 Armv7mSplit0(),
 
                 # Loop examples
                  AArch64LoopSubs(),

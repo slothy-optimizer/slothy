@@ -1663,6 +1663,9 @@ class ldm_interval(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
+        
+        obj.addr = obj.args_in[0]
+        
         reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
 
         obj.args_out = reg_list
@@ -1687,6 +1690,9 @@ class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
+        
+        obj.addr = obj.args_in_out[0]
+        
         reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
 
         obj.args_out = reg_list
@@ -1741,6 +1747,9 @@ class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=miss
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
+        
+        obj.addr = obj.args_in_out[0]
+        
         reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
 
         obj.args_out = reg_list
@@ -1858,13 +1867,15 @@ class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
     outputs = []
 
     def write(self):
-        regs = ",".join(self.args_out)
+        regs = ",".join(self.args_in)
         self.reg_list = f"{{{regs}}}"
         return super().write()
 
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
+
+        obj.addr = obj.args_in_out[0]
 
         reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
 
@@ -1874,7 +1885,7 @@ class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
         obj.increment = obj.num_in * 4
 
         available_regs = RegisterType.list_registers(RegisterType.GPR)
-        obj.args_in_combinations =  [ ( list(range(0, obj.num_in)), [ [ f"s{i+j}" for i in range(0, obj.num_in)] for j in range(0, len(available_regs)-obj.num_in) ] )]
+        obj.args_in_combinations =  [ (list(range(0, obj.num_in)), [list(a) for a in itertools.combinations(available_regs, obj.num_in)])]
         obj.args_in_restrictions = [ None for _ in range(obj.num_in)    ]
         return obj
 # Other
