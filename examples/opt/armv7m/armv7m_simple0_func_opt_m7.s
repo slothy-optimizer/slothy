@@ -16,8 +16,8 @@ my_func:
                                      // Cycle bound:     5.0
                                      // IPC bound:       1.20
                                      //
-                                     // Wall time:     0.01s
-                                     // User time:     0.01s
+                                     // Wall time:     0.00s
+                                     // User time:     0.00s
                                      //
                                      // ----- cycle (expected) ------>
                                      // 0                        25

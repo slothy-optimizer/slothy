@@ -7,8 +7,8 @@
                                      // Cycle bound:     36.0
                                      // IPC bound:       1.03
                                      //
-                                     // Wall time:     0.10s
-                                     // User time:     0.10s
+                                     // Wall time:     0.09s
+                                     // User time:     0.09s
                                      //
                                      // -------- cycle (expected) --------->
                                      // 0                        25
