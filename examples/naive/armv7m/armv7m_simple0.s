@@ -29,7 +29,7 @@ smlabt r3,r2, r2, r1
 asrs r3,   r3,#1
 str r3, [r0,#4] // @slothy:writes=a
 
-ldrd r2, r3, [r1, #8]
-str r2,[r0]
+ldrd r1, r3, [r1, #8]
+str r1,[r0]
 ldm r0 ,{r0-r3}
 end:
