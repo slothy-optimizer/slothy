@@ -27,11 +27,18 @@
 
 import re
 import subprocess
+import os
+import platform
 import logging
 from abc import ABC, abstractmethod
 from sympy import simplify
 from slothy.targets.common import *
 
+try:
+    from unicorn import *
+    from unicorn.arm64_const import *
+except ImportError:
+    Uc = None
 
 class SourceLine:
     """Representation of a single line of source code"""
@@ -512,6 +519,7 @@ class AsmHelper():
             s = re.sub( f"{old_funcname}:", f"{new_funcname}:", s)
             s = re.sub( f"\\.global(\\s+){old_funcname}", f".global\\1{new_funcname}", s)
             s = re.sub( f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
+            s = re.sub( f"\\.size(\\s+){old_funcname},(\\s*)\\.-{old_funcname}", f".size {new_funcname}, .-{new_funcname}", s)
             return line.copy().set_text(s)
         return [ change_funcname(s) for s in source ]
 
@@ -775,7 +783,10 @@ class AsmMacro():
             return a
 
         def apply_arg(l, arg, val):
-            l = re.sub(f"\\\\{arg}\\\\\(\)", val, l)
+            # This function is also called on the values of tags, which may not be strings.
+            if isinstance(l, str) is False:
+                return l
+            l = re.sub(f"\\\\{arg}\\\\\\(\\)", val, l)
             l = re.sub(f"\\\\{arg}(\\W|$)",val + "\\1", l)
             l = l.replace("\\()\\()", "\\()")
             return l
@@ -816,7 +827,7 @@ class AsmMacro():
         for arg in self.args:
             arg_regexps.append(rf"\s*(?P<{arg}>[^,]+)\s*")
 
-        macro_regexp_txt += '(,|\s)'.join(arg_regexps)
+        macro_regexp_txt += '(,|\\s)'.join(arg_regexps)
         macro_regexp = re.compile(macro_regexp_txt)
 
         output = []
@@ -1079,6 +1090,165 @@ class CPreprocessor():
 
         return [SourceLine(r) for r in unfolded_code]
 
+class LLVM_Mc_Error(Exception):
+    """Exception thrown if llvm-mc subprocess fails"""
+
+class LLVM_Mc():
+    """Helper class for the application of the LLVM MC tool"""
+
+    @staticmethod
+    def llvm_mc_output_extract_text_section(objfile):
+        """Extracts offset and size of .text section from an objectfile
+        emitted by llvm-mc."""
+
+        # We use llvm-readobj to inspect the objectfile, which works
+        # for both ELF and MachOS object files. Unfortunately, however,
+        # the output formats of both tools are not the same. Moreovoer,
+        # the output when selecting JSON as the output format, is not valid JSON.
+        # So we're left to hacky string munging.
+
+        # Feed object file through llvm-readobj
+        r = subprocess.run(["llvm-readobj", "-S", "-"], input=objfile, capture_output=True, check=True)
+        objfile_txt = r.stdout.decode().split("\n")
+
+        # We expect something like this here
+        # ```
+        # File: test.o
+        # Format: Mach-O arm
+        # Arch: arm
+        # AddressSize: 32bit
+        # Sections [
+        #   Section {
+        #     Index: 0
+        #     Name: __text (5F 5F 74 65 78 74 00 00 00 00 00 00 00 00 00 00)
+        #     Segment: __TEXT (5F 5F 54 45 58 54 00 00 00 00 00 00 00 00 00 00)
+        #     Address: 0x0
+        #     Size: 0x4
+        #     Offset: 176
+        #     Alignment: 0
+        #     RelocationOffset: 0x0
+        #     RelocationCount: 0
+        #     Type: Regular (0x0)
+        #     Attributes [ (0x800004)
+        #       PureInstructions (0x800000)
+        #       SomeInstructions (0x4)
+        #     ]
+        #     Reserved1: 0x0
+        #     Reserved2: 0x0
+        #   }
+        # ]
+        # ```
+        # So we look for lines "Name: __text" and lines "Offset: ...".
+        def parse_as_int(s):
+            if s.startswith("0x"):
+                return int(s, base=16)
+            else:
+                return int(s,base=10)
+
+        sections = filter(lambda l: l.strip().startswith("Name: "), objfile_txt)
+        sections = list(map(lambda l: l.strip().removeprefix("Name: ").split(' ')[0].strip(), sections))
+        offsets = filter(lambda l: l.strip().startswith("Offset: "), objfile_txt)
+        offsets = map(lambda l: parse_as_int(l.strip().removeprefix("Offset: ")), offsets)
+        sizes = filter(lambda l: l.strip().startswith("Size: "), objfile_txt)
+        sizes = map(lambda l: parse_as_int(l.strip().removeprefix("Size: ")), sizes)
+        sections_with_offsets = { s:(o,sz) for (s,o,sz) in zip(sections, offsets, sizes) }
+        text_section = list(filter(lambda s: "text" in s, sections))
+        if len(text_section) != 1:
+            raise LLVM_Mc_Error(f"Could not find unambiguous text section in object file. Sections: {sections}")
+        return sections_with_offsets[text_section[0]]
+
+    @staticmethod
+    def llvm_mc_output_extract_symbol(objfile, symbol):
+        """Extracts symbol from an objectfile emitted by llvm-mc"""
+
+        # Feed object file through llvm-readobj
+        r = subprocess.run(["llvm-readobj", "-s", "-"], input=objfile, capture_output=True, check=True)
+        objfile_txt = r.stdout.decode().split("\n")
+
+        # So we look for lines "Name: ..." and lines "Value: ...".
+        def parse_as_int(s):
+            if s.startswith("0x"):
+                return int(s, base=16)
+            else:
+                return int(s,base=10)
+
+        symbols = filter(lambda l: l.strip().startswith("Name: "), objfile_txt)
+        symbols = list(map(lambda l: l.strip().removeprefix("Name: ").split(' ')[0].strip(), symbols))
+        values = filter(lambda l: l.strip().startswith("Value: "), objfile_txt)
+        values = map(lambda l: parse_as_int(l.strip().removeprefix("Value: ")), values)
+        symbols_with_values = { s:val for (s,val) in zip(symbols, values) }
+        matching_symbols = list(filter(lambda s: s.endswith(symbol), symbols))
+        # Sometimes assemble functions are named both `_foo` and `foo`, in which case we'd find
+        # multiple matching symbols -- however, they'd have the same value. Hence, only fail if
+        # there are multiple matching symbols of _different_ values.
+        if len({ symbols_with_values[s] for s in matching_symbols }) != 1:
+            raise LLVM_Mc_Error(f"Could not find unambiguous symbol {symbol} in object file. Symbols: {symbols}")
+        return symbols_with_values[matching_symbols[0]]
+
+    @staticmethod
+    def assemble(source, arch, attr, log, symbol=None, preprocessor=None, include_paths=None):
+        """Runs LLVM-MC tool to assemble `source`, returning byte code"""
+
+        thumb = "thumb" in arch or (attr is not None and "thumb" in attr)
+
+        # Unfortunately, there is no option to directly extract byte code
+        # from LLVM-MC: One either gets a textual description, or an object file.
+        # To not introduce another binary dependency, we just extract the byte
+        # code directly from the textual output, which for every assembly line
+        # has a "encoding: [byte0, byte1, ...]" comment at the end.
+
+        if symbol is None:
+            if thumb is True:
+                source = [SourceLine(".thumb")] + source
+            source = [SourceLine(".global harness"),
+                      SourceLine(".type harness, %function"),
+                      SourceLine("harness:")] + source
+            symbol = "harness"
+
+        if preprocessor is not None:
+            # First, run the C preprocessor on the code
+            try:
+                source = CPreprocessor.unfold([], source, [], preprocessor,
+                                              include=include_paths)
+            except subprocess.CalledProcessError as exc:
+                log.error("CPreprocessor failed on the following input")
+                log.error(SouceLine.write_multiline(source))
+                raise LLVM_Mc_Error from exc
+
+        if platform.system() == "Darwin":
+            source = list(filter(lambda s: s.text.strip().startswith(".type") is False, source))
+
+        code = SourceLine.write_multiline(source)
+
+        log.debug(f"Calling LLVM MC assmelber on the following code")
+        log.debug(code)
+
+        args = [f"--arch={arch}", "--assemble", "--filetype=obj"]
+        if attr is not None:
+            args.append(f"--mattr={attr}")
+        try:
+            r = subprocess.run(["llvm-mc"] + args,
+                               input=code.encode(), capture_output=True, check=True)
+        except subprocess.CalledProcessError as exc:
+            log.error("llvm-mc failed to handle the following code")
+            log.error(code)
+            log.error("Output from llvm-mc")
+            log.error(exc.stderr.decode())
+            raise LLVM_Mc_Error from exc
+
+        # TODO: If there are relocations remaining, we should fail at this point
+
+        objfile = r.stdout
+        offset, sz = LLVM_Mc.llvm_mc_output_extract_text_section(objfile)
+        code = objfile[offset:offset+sz]
+
+        offset = LLVM_Mc.llvm_mc_output_extract_symbol(objfile, symbol)
+
+        if platform.system() == "Darwin" and thumb is True:
+            offset += 1
+
+        return code, offset
+
 class LLVM_Mca_Error(Exception):
     """Exception thrown if llvm-mca subprocess fails"""
 
@@ -1086,11 +1256,12 @@ class LLVM_Mca():
     """Helper class for the application of the LLVM MCA tool"""
 
     @staticmethod
-    def run(header, body, mca_binary, arch, cpu, log, full=False, issue_width=None):
+    def run(header, body, arch, cpu, log, full=False, issue_width=None):
         """Runs LLVM-MCA tool on body and returns result as array of strings"""
 
         LLVM_MCA_BEGIN = SourceLine("").add_comment("LLVM-MCA-BEGIN")
         LLVM_MCA_END = SourceLine("").add_comment("LLVM-MCA-END")
+        mca_binary = "llvm-mca"
 
         data = SourceLine.write_multiline(header + [LLVM_MCA_BEGIN] + body + [LLVM_MCA_END])
 
@@ -1108,6 +1279,126 @@ class LLVM_Mca():
             raise LLVM_Mca_Error from exc
         res = r.stdout.split('\n')
         return res
+
+class SelfTestException(Exception):
+    """Exception thrown upon selftest failures"""
+
+class SelfTest():
+
+    @staticmethod
+    def run(config, log, codeA, codeB, address_registers, output_registers, iterations, fnsym=None):
+        CODE_BASE = 0x010000
+        CODE_SZ = 0x010000
+        CODE_END = CODE_BASE + CODE_SZ
+        RAM_BASE = 0x030000
+        RAM_SZ = 0x010000
+        STACK_BASE = 0x040000
+        STACK_SZ = 0x010000
+        STACK_TOP = STACK_BASE + STACK_SZ
+
+        regs = [r for ty in config.arch.RegisterType for r in \
+            config.arch.RegisterType.list_registers(ty)]
+
+        def run_code(code, txt=None):
+            objcode, offset = LLVM_Mc.assemble(code,
+                                       config.arch.llvm_mc_arch,
+                                       config.arch.llvm_mc_attr,
+                                       log, symbol=fnsym,
+                                       preprocessor=config.compiler_binary,
+                                       include_paths=config.compiler_include_paths)
+            # Setup emulator
+            mu = Uc(config.arch.unicorn_arch, config.arch.unicorn_mode)
+            # Copy initial register contents into emulator
+            for r,v in initial_register_contents.items():
+                ur = config.arch.RegisterType.unicorn_reg_by_name(r)
+                if ur is None:
+                    continue
+                mu.reg_write(ur, v)
+            if fnsym is not None:
+                # If we expect a function return, put a valid address in the LR
+                # that serves as the marker to terminate emulation
+                mu.reg_write(config.arch.RegisterType.unicorn_link_register(), CODE_END)
+            # Setup stack and allocate initial stack memory
+            mu.reg_write(config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP - config.selftest_default_memory_size)
+            # Copy code into emulator
+            mu.mem_map(CODE_BASE, CODE_SZ)
+            mu.mem_write(CODE_BASE, objcode)
+
+            # Copy initial memory contents into emulator
+            mu.mem_map(RAM_BASE, RAM_SZ)
+            mu.mem_write(RAM_BASE, initial_memory)
+            # Setup stack
+            mu.mem_map(STACK_BASE, STACK_SZ)
+            mu.mem_write(STACK_BASE, initial_stack)
+            # Run emulator
+            try:
+                # For a function, expect a function return; otherwise, expect
+                # to run to the address CODE_END stored in the link register
+                if fnsym is None:
+                    mu.emu_start(CODE_BASE + offset, CODE_BASE + len(objcode))
+                else:
+                    mu.emu_start(CODE_BASE + offset, CODE_END)
+            except UcError as e:
+                log.error("Failed to emulate code using unicorn engine")
+                log.error("Code")
+                log.error(SourceLine.write_multiline(code))
+                raise SelfTestException(f"Selftest failed: Unicorn failed to emulate code: {str(e)}") from e
+
+            final_register_contents = {}
+            for r in regs:
+                ur = config.arch.RegisterType.unicorn_reg_by_name(r)
+                if ur is None:
+                    continue
+                final_register_contents[r] = mu.reg_read(ur)
+            final_memory_contents = mu.mem_read(RAM_BASE, RAM_SZ)
+
+            return final_register_contents, final_memory_contents
+
+        def failure_dump():
+            log.error("Selftest failed")
+            log.error("Input code:")
+            log.error(SourceLine.write_multiline(codeA))
+            log.error("Output code:")
+            log.error(SourceLine.write_multiline(codeB))
+            log.error("Output registers:")
+            log.error(output_registers)
+
+        for _ in range(iterations):
+            initial_memory = os.urandom(RAM_SZ)
+            initial_stack = os.urandom(STACK_SZ)
+            cur_ram = RAM_BASE
+            # Set initial register contents arbitrarily, except for registers
+            # which must hold valid memory addresses.
+            initial_register_contents = {}
+            for r in regs:
+                initial_register_contents[r] = int.from_bytes(os.urandom(16))
+            for (reg, sz) in address_registers.items():
+                # allocate 2*sz and place pointer in the middle
+                # this makes sure that memory can be accessed at negative offsets
+                initial_register_contents[reg] = cur_ram + sz
+                cur_ram += 2*sz
+
+            final_regs_old, final_mem_old = run_code(codeA, txt="old")
+            final_regs_new, final_mem_new = run_code(codeB, txt="new")
+
+            # Check if memory contents are the same
+            if final_mem_old != final_mem_new:
+                failure_dump()
+                raise SelfTestException(f"Selftest failed: Memory mismatch")
+
+            # Check that callee-saved registers are the same
+            for r in output_registers:
+                # skip over hints
+                if r.startswith("hint_"):
+                    continue
+                if final_regs_old[r] != final_regs_new[r]:
+                    failure_dump()
+                    raise SelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
+
+        if fnsym is None:
+            log.info(f"Local selftest: OK")
+        else:
+            log.info(f"Global selftest for {fnsym}: OK")
 
 class Permutation():
     """Helper class for manipulating permutations"""
@@ -1226,9 +1517,12 @@ class Loop(ABC):
         loop_lbl_regexp_txt = self.lbl_regex
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
 
-        # end_regex shall contain group cnt as the counter variable
-        loop_end_regexp_txt = self.end_regex
-        loop_end_regexp = [re.compile(txt) for txt in loop_end_regexp_txt]
+        # end_regex shall contain group cnt as the counter variable.
+        # Transform all loop_end_regexp into a list of tuples, where the second
+        # element determines whether the instruction should be counted into the
+        # body or not. The default is to not put the loop end into the body (False).
+        loop_end_regexp_txt = [e if isinstance(e, tuple) else (e,False) for e in self.end_regex]
+        loop_end_regexp = [re.compile(txt[0]) for txt in loop_end_regexp_txt]
         lines = iter(source)
         l = None
         keep = False
@@ -1257,15 +1551,19 @@ class Loop(ABC):
                     # Case: We may have encountered part of the loop end
                     # collect all named groups
                     self.additional_data = self.additional_data | p.groupdict()
+                    if loop_end_regexp_txt[loop_end_ctr][1]:
+                        # Put all instructions into the loop body, there won't be a boundary.
+                        body.append(l)
+                    else:
+                        loop_end_candidates.append(l)
                     loop_end_ctr += 1
-                    loop_end_candidates.append(l)
                     if loop_end_ctr == len(loop_end_regexp):
                         state = 2
                     continue
                 elif loop_end_ctr > 0 and l_str != "":
                     # Case: The sequence of loop end candidates was interrupted
                     #       i.e., we found a false-positive or this is not a proper loop
-                    
+
                     # The loop end candidates are not part of the loop, meaning
                     # they belonged to the body
                     body += loop_end_candidates
@@ -1283,8 +1581,21 @@ class Loop(ABC):
         return pre, body, post, lbl, self.additional_data
 
     @staticmethod
-    def extract(source, lbl):
-        for loop_type in Loop.__subclasses__():
+    def extract(source, lbl, forced_loop_type=None):
+        """
+        Find a loop with start label `lbl` in `source` and return it together
+        with its type.
+        
+            Args:
+                source: list of SourceLine objects
+                lbl: label of the loop to extract
+                forced_loop_type: if not None, only try to extract this type of loop
+        """
+        if forced_loop_type is not None:
+            loop_types = [forced_loop_type]
+        else:
+            loop_types = Loop.__subclasses__()
+        for loop_type in loop_types:
             try:
                 l = loop_type(lbl)
                 # concatenate the extracted loop with an instance of the

@@ -45,6 +45,7 @@ and readability- and verifiability-impeding micro-optimizations.
 This module provides the Slothy class, which is a stateful interface to both
 one-shot and heuristic optimiations using SLOTHY."""
 
+import os
 import logging
 from types import SimpleNamespace
 
@@ -54,7 +55,13 @@ from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
 from slothy.helper import CPreprocessor, SourceLine
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, AsmIfElse
-from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mca_Error
+from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mc, LLVM_Mca_Error, SelfTest, SelfTestException
+
+try:
+    from unicorn import *
+    from unicorn.arm64_const import *
+except ImportError:
+    Uc = None
 
 class Slothy:
     """SLOTHY optimizer
@@ -87,6 +94,7 @@ class Slothy:
 
         # The source, once loaded, is represented as a list of strings
         self._source = None
+        self._original_source = None
         self.results = None
 
         self.last_result = None
@@ -99,14 +107,31 @@ class Slothy:
         If you want the current source code as a multiline string, use get_source_as_string()."""
         return self._source
 
+    @property
+    def original_source(self):
+        """Returns the original source code as an array of SourceLine objects
+
+        If you want the current source code as a multiline string, use get_original_source_as_string()."""
+        return self._original_source
+
     @source.setter
     def source(self, val):
         assert SourceLine.is_source(val)
         self._source = val
 
+    @original_source.setter
+    def original_source(self, val):
+        assert SourceLine.is_source(val)
+        self._original_source = val
+
     def get_source_as_string(self, comments=True, indentation=True, tags=True):
         """Retrieve current source code as multi-line string"""
         return SourceLine.write_multiline(self.source, comments=comments,
+            indentation=indentation, tags=tags)
+
+    def get_original_source_as_string(self, comments=True, indentation=True, tags=True):
+        """Retrieve original source code as multi-line string"""
+        return SourceLine.write_multiline(self.original_source, comments=comments,
             indentation=indentation, tags=tags)
 
     def set_source_as_string(self, s):
@@ -114,6 +139,8 @@ class Slothy:
         assert isinstance(s, str)
         reduce = not self.config.ignore_tags
         self.source = SourceLine.read_multiline(s, reduce=reduce)
+        if self.original_source is None:
+            self.original_source = self.source
 
     def load_source_raw(self, source):
         """Load source code from multi-line string"""
@@ -144,6 +171,36 @@ class Slothy:
         fun(f"Dump: {name}")
         for l in s:
             fun(f"> {l}")
+
+    def global_selftest(self, funcname, address_registers, iterations=5):
+        """Conduct a function-level selftest
+
+        - funcname: Name of function to be called. Must be exposed as a symbol
+        - address_prs: Dictionary indicating which GPRs are pointers to buffers of which size.
+            For example, `{ "x0": 1024, "x4": 1024 }` would indicate that both x0 and x4
+            point to buffers of size 1024 bytes. The global selftest needs to know this to
+            setup valid calls to the assembly routine.
+
+        DEPENDENCY: To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
+                    in your PATH. Those are part of a standard LLVM setup.
+        """
+
+        log = self.logger.getChild(f"global_selftest_{funcname}")
+
+        if Uc is None:
+            raise SelfTestException("Cannot run selftest -- unicorn-engine is not available.")
+
+        if self.config.arch.unicorn_arch is None or \
+           self.config.arch.llvm_mc_arch is None:
+            log.warning("Selftest not supported on target architecture")
+            return
+
+        old_source = self.original_source
+        new_source = self.source
+
+        SelfTest.run(self.config, log, old_source, new_source, address_registers,
+                     self.config.arch.RegisterType.callee_saved_registers(), 5,
+                     fnsym=funcname)
 
     #
     # Stateful wrappers around heuristics
@@ -193,7 +250,7 @@ class Slothy:
                 issue_width = self.config.target.issue_rate
             else:
                 issue_width = None
-            stats = LLVM_Mca.run(pre, code, self.config.llvm_mca_binary,
+            stats = LLVM_Mca.run(pre, code,
                                  self.config.arch.llvm_mca_arch,
                                  self.config.target.llvm_mca_target, self.logger,
                                  full=self.config.llvm_mca_full,
@@ -298,10 +355,15 @@ class Slothy:
         self.source = pre + optimized_source + post
         assert SourceLine.is_source(self.source)
 
-    def get_loop_input_output(self, loop_lbl):
-        """Find all registers that a loop body depends on"""
+    def get_loop_input_output(self, loop_lbl, forced_loop_type=None):
+        """Find all registers that a loop body depends on
+        
+            Args:
+                loop_lbl: Label of loop to process.
+                forced_loop_type: Forces the loop to be parsed as a certain type.
+        """
         logger = self.logger.getChild(loop_lbl)
-        _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl)
+        _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
 
         c = self.config.copy()
         dfgc = DFGConfig(c)
@@ -325,7 +387,7 @@ class Slothy:
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
 
-    def _fusion_core(self, pre, body, post, logger):
+    def _fusion_core(self, pre, body, post, logger, ssa=True):
         c = self.config.copy()
 
         if c.with_preprocessor:
@@ -343,9 +405,10 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         dfgc = DFGConfig(c)
 
-        dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
-        dfg.ssa()
-        body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
+        if ssa is True:
+            dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
+            dfg.ssa()
+            body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
 
         dfg = DFG(body, logger.getChild("fusion"), dfgc, parsing_cb=False)
         dfg.apply_fusion_cbs()
@@ -353,56 +416,72 @@ class Slothy:
 
         return body
 
-    def fusion_region(self, start, end):
-        """Run fusion callbacks on straightline code"""
+    def fusion_region(self, start, end, **kwargs):
+        """ Run fusion callbacks on straightline code replacing certain
+        instruction (sequences) with an alternative. These replacements are
+        defined in the architectural model by setting an instruction class'
+        global_fusion_cb.
+        
+        Args:
+            start: The label marking the beginning of the part of the code to
+                  apply fusion to.
+            end: The label marking the end of the part of the code to apply
+                  fusion to.
+        """
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
         body_ssa = [ SourceLine(f"{start}:") ] +\
-             self._fusion_core(pre, body, logger) + \
+             self._fusion_core(pre, body, post, logger, **kwargs) + \
             [ SourceLine(f"{end}:") ]
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-    def fusion_loop(self, loop_lbl):
-        """Run fusion callbacks on loop body"""
+    def fusion_loop(self, loop_lbl, forced_loop_type=None, **kwargs):
+        """Run fusion callbacks on loop body replacing certain instruction
+        (sequences) with an alternative. These replacements are defined in the
+        architectural model by setting an instruction class' global_fusion_cb.
+        
+        Args:
+            loop_lbl: Label of loop to which the fusions are applied to. 
+            forced_loop_type: Forces the loop to be parsed as a certain type.
+        """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
         pre , body, post, _, other_data, loop = \
-            self.arch.Loop.extract(self.source, loop_lbl)
-        loop_cnt = other_data['cnt']
+            self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
+
+        try:
+            loop_cnt = other_data['cnt']
+        except KeyError:
+            loop_cnt = None
+
         indentation = AsmHelper.find_indentation(body)
 
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
-            SourceLine.apply_indentation(self._fusion_core(pre, body, logger), indentation) + \
+            SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
             SourceLine.read_multiline(loop.end(other_data))
 
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-        c = self.config.copy()
-        self.config.keep_tags = True
-        self.config.constraints.functional_only = True
-        self.config.constraints.allow_reordering = False
-        self.config.sw_pipelining.enabled = False
-        self.config.split_heuristic = False
-        self.config.inputs_are_outputs = True
-        self.config.sw_pipelining.unknown_iteration_count = False
-        self.optimize_loop(loop_lbl)
-        self.config = c
-
-        assert SourceLine.is_source(self.source)
-
-    def optimize_loop(self, loop_lbl, postamble_label=None):
+    def optimize_loop(self, loop_lbl, postamble_label=None, forced_loop_type=None):
         """Optimize the loop starting at a given label
-            The postamble_label marks the end of the loop kernel.
+            
+            Args:
+                postamble_label: Marks end of loop kernel.
+                forced_loop_type: Forces the loop to be parsed as a certain type.
         """
 
         logger = self.logger.getChild(loop_lbl)
 
         early, body, late, _, other_data, loop = \
-            self.arch.Loop.extract(self.source, loop_lbl)
-        loop_cnt = other_data['cnt']
+            self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
+
+        try:
+            loop_cnt = other_data['cnt']
+        except KeyError:
+            loop_cnt = None
 
         # Check if the body has a dominant indentation
         indentation = AsmHelper.find_indentation(body)
@@ -430,6 +509,10 @@ class Slothy:
 
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
+            
+        # Remove branch instructions from preamble and postamble
+        postamble_code = [l for l in postamble_code if not l.tags.get('branch')]
+        postamble_code = [l for l in postamble_code if not l.tags.get('branch')]
 
         if self.config.with_llvm_mca_before is True:
             kernel_code = kernel_code + orig_stats
