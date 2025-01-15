@@ -1577,10 +1577,10 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
         slothy.optimize_loop("ntt_8l_rv64im_loop1")
         slothy.optimize_loop("ntt_8l_rv64im_loop2")
 
-class RISC_V_test(Example):
+class RISC_V_poly_basemul_8l_acc_rv64im(Example):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "riscv_test"
-        subpath = ""
+        name = "poly_basemul_8l_acc_rv64im"
+        subpath = "poly_basemul/"
         infile = subpath + name
 
         if var != "":
@@ -1760,7 +1760,7 @@ def main():
                  RISC_VExample0(target=Target_XuanTieC908),
                  RISC_VExampleLoop0(),
                  RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
-                 RISC_V_test(target=Target_XuanTieC908)
+                 RISC_V_poly_basemul_8l_acc_rv64im(target=Target_XuanTieC908)
                  ]
 
     all_example_names = [e.name for e in examples]
