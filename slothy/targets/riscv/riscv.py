@@ -42,6 +42,11 @@ from slothy.targets.riscv.exceptions import UnknownInstruction
 
 llvm_mca_arch = "aarch64"
 
+llvm_mc_arch = None
+llvm_mc_attr = None
+unicorn_arch = None
+unicorn_mode = None
+
 
 class RegisterType(Enum):
     """

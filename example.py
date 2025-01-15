@@ -645,6 +645,22 @@ class AArch64Example2(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("start")
 
+class AArch64Split0(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_split0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.fusion_region("start", "end", ssa=False)
+
 class Armv7mExample0(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "armv7m_simple0"
@@ -661,6 +677,24 @@ class Armv7mExample0(Example):
         slothy.config.variable_size=True
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="start", end="end")
+
+class Armv7mExample0Func(Example):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "armv7m_simple0_func"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="start", end="end")
+        slothy.global_selftest("my_func", {"r0": 1024 })
 
 class Armv7mLoopSubs(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
@@ -2930,7 +2964,7 @@ def main():
                  RISC_VExample0(target=Target_XuanTieC908),
                  RISC_VExampleLoop0(),
                  RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
-                 RISC_V_poly_basemul_8l_acc_rv64im(target=Target_XuanTieC908)
+                 RISC_V_poly_basemul_8l_acc_rv64im(target=Target_XuanTieC908),
 
                  ntt_dilithium(),
                  intt_dilithium_123_456_78(),
