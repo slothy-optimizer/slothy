@@ -66,6 +66,12 @@ def add_mac_slot_constraint(slothy):
         [mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
      smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr], [1])
 
+# TODO: this seems incorrect
+def add_slot_constraints(slothy):
+   slothy.restrict_slots_for_instructions_by_class(
+        [str_with_imm, str_with_imm_stack, str_with_postinc, strh_with_imm,
+    strh_with_postinc, stm_interval_inc_writeback, str_no_off, str], [1])
+
 def add_st_hazard(slothy):
     def is_st_ld_pair(inst_a, inst_b):
         return (isinstance(inst_a.inst, ldr_with_imm) or isinstance(inst_a.inst, ldr_with_imm_stack)) \
@@ -121,12 +127,14 @@ execution_units = {
         ): ExecutionUnit.LOAD(),
     (
         Ldrd,
+        ldrd_with_imm_stack,
         ldm_interval,
         ldm_interval_inc_writeback,
         vldm_interval_inc_writeback): [ExecutionUnit.LOAD()],
     (
         str_with_imm,
         str_with_imm_stack,
+        strd_with_imm_stack,
         str_with_postinc,
         str_no_off,
         strh_with_imm,
@@ -134,24 +142,42 @@ execution_units = {
         stm_interval_inc_writeback
     ): [[ExecutionUnit.STORE, ExecutionUnit.MAC]],
     (
+        mov,
+        mov_imm,
+        movs_imm,
         movw_imm,
         movt_imm,
+        adc,
+        adcs,
+        adcs_short,
+        adcs_imm_short,
         adds,
+        adds_imm,
+        adds_short,
         add,
         add_short,
         add_imm,
         add_imm_short,
-        sub, subs_imm, subs_imm_short, sub_imm_short,
+        sbc_short,
+        sbcs_short,
+        sub, subs_imm, subs_short,subs_imm_short, sub_imm_short,
+        sub_short,
         neg_short,
         log_and,
+        # To check:didn't have log_and_shifted,is't execute?
+        log_and_imm,
         log_or,
         eor, eor_short, eors, eors_short,
         bic, bics,
+        bic_imm,
         cmp, cmp_imm,
+        # To do: To do: Not sure where to put the 'pop' and 'push' classes.the book?
+        pop,push,
+
         bne
     ): ExecutionUnit.ALU(),
     (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0], [ExecutionUnit.ALU1]],
-    (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
+    (mul, mul_short, smull, umaal, umull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
      smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
     (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
     (uadd16, sadd16, usub16, ssub16): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))),
@@ -167,6 +193,7 @@ inverse_throughput = {
         ldr_with_inc_writeback,
         ldr_with_postinc,
         Ldrd,
+        ldrd_with_imm_stack,
         ldrb_with_imm,
         ldrh_with_imm,
         ldrh_with_postinc,
@@ -174,28 +201,46 @@ inverse_throughput = {
         vldr_with_imm, vldr_with_postinc,  # TODO: double-check
         # actually not, just placeholder
         ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback,
+        mov,
+        mov_imm,
+        movs_imm,
         movw_imm,
         movt_imm,
+        adc,
+        adcs,
+        adcs_short,
+        adcs_imm_short,
         adds,
+        adds_imm,
+        adds_short,
+        add_short,
         add,
         add_short,
         add_imm,
         add_imm_short,
         add_shifted,
+        sbc_short,
+        sbcs_short,
         sub_shifted,
+        sub_short,
         sub_imm_short,
+        subs_short,
         subs_imm,
         subs_imm_short,
         uadd16, sadd16, usub16, ssub16,
         mul, mul_short,
         smull,
+        umaal,
+        umull,
         smlal,
         mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr,
         neg_short,
         log_and, log_and_shifted,
+        log_and_imm,
         log_or, log_or_shifted,
         eor, eor_short, eors, eors_short,
         eor_shifted,
+        bic_imm,
         bic, bics,
         bic_shifted,
         ror, ror_short, rors_short, lsl, asr, asrs,
@@ -205,10 +250,12 @@ inverse_throughput = {
         pkhbt, pkhtb, pkhbt_shifted, ubfx_imm,
         str_with_imm,
         str_with_imm_stack,
+        strd_with_imm_stack,
         str_with_postinc,
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
+        pop,push,
         bne
 
     ): 1,
@@ -219,23 +266,40 @@ inverse_throughput = {
 
 default_latencies = {
     (
+        mov,
+        mov_imm,
+        movs_imm,
         movw_imm,
         movt_imm,
+        adc,
+        adcs,
+        adcs_short,
+        adcs_imm_short,
         adds,
+        adds_imm,
+        adds_short,
+        add_short,
         add,
         add_short,
         add_imm,
         add_imm_short,
         add_shifted,
+        sbc_short,
+        sbcs_short,
         sub_shifted,
+        sub_short,
         sub_imm_short,
+        sub_short,
+        subs_short,
         subs_imm,
         subs_imm_short,
         uadd16, sadd16, usub16, ssub16,
         neg_short,
         log_and, log_and_shifted,
+        log_and_imm,
         log_or, log_or_shifted,
         eor, eor_short, eors, eors_short,
+        bic_imm,
         bic, bics,
         bic_shifted,
         ror, ror_short, rors_short, lsl, asr, asrs,
@@ -246,16 +310,20 @@ default_latencies = {
         ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback,
         str_with_imm,
         str_with_imm_stack,
+        strd_with_imm_stack,
         str_with_postinc,
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
+        pop,push,
         bne
     ): 1,
     (
         mul, mul_short,
         smull,
         smlal,
+        umaal,
+        umull,
         mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr,
         # TODO: Verify load latency
         stm_interval_inc_writeback,  # actually not, just placeholder
@@ -271,7 +339,7 @@ default_latencies = {
         ldrb_with_postinc,
         eor_shifted
     ): 2,
-    (Ldrd): 3,
+    (Ldrd,ldrd_with_imm_stack): 3,
     (vmov_gpr2, vmov_gpr2_dual): 3,
     (vmov_gpr): 1
 }
@@ -298,7 +366,8 @@ def get_latency(src, out_idx, dst):
                 latency = latency - 1
 
     # Multiply accumulate chain latency is 1
-    if instclass_src in [smlal] and instclass_dst in [smlal] and \
+    # TODO: verify this for umaal
+    if instclass_src in [smlal] and instclass_dst in [smlal, umaal] and \
             src.args_in_out[0] == dst.args_in_out[0] and \
             src.args_in_out[1] == dst.args_in_out[1]:
         return 1
