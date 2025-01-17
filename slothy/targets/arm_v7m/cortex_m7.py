@@ -364,6 +364,6 @@ def get_units(src):
 def get_inverse_throughput(src):
     itp = lookup_multidict(inverse_throughput, src)
     if find_class(src) in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
-        itp = src.num_out
+        itp = ceil(src.num_out/2)
 
     return itp
