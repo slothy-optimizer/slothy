@@ -277,7 +277,7 @@ class VmovCmpLoop(Loop):
         # if new_fixup != 0:
         #     yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
         if fixup != 0:
-            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
+            yield f"{indent}sub.w {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
         #if new_fixup != 0 or fixup != 0:
         if fixup != 0:
             yield f"{indent}vmov {self.additional_data['endf']}, {self.additional_data['end']}"
@@ -383,7 +383,7 @@ class BranchLoop(Loop):
             yield f"{indent}vmov {loop_end_reg}, {loop_end_reg_fpr}"
 
         if fixup != 0:
-            yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
+            yield f"{indent}sub.w {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
 
         if fixup != 0 and loop_end_reg_fpr is not None:
             yield f"{indent}vmov {loop_end_reg_fpr}, {loop_end_reg}"
@@ -457,7 +457,7 @@ class CmpLoop(Loop):
         #     yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
 
         if fixup != 0:
-            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
+            yield f"{indent}sub.w {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
 
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
@@ -499,7 +499,7 @@ class SubsLoop(Loop):
             assert unroll in [1,2,4,8,16,32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
         if fixup != 0:
-            yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
+            yield f"{indent}sub.w {loop_cnt}, {loop_cnt}, #{fixup}"
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl_start}:"
@@ -1079,6 +1079,10 @@ class Armv7mInstruction(Instruction):
         return Armv7mInstruction.build(cls, src)
 
     def write(self):
+        # Default to .w for all instructions for better performance
+        # TODO: find a more principled way to do this
+        self.width = ".w"
+
         out = self.pattern
         l = list(zip(self.args_in, self.pattern_inputs))     + \
             list(zip(self.args_out, self.pattern_outputs))   + \
