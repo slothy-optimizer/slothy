@@ -278,6 +278,7 @@ class SubsLoop(Loop):
     Loop ending in a flag setting subtraction and a branch.
 
     Example:
+
     .. code-block:: asm
 
         loop_lbl:

@@ -34,7 +34,7 @@ up to 150 instructions in minutes to hours, while for larger kernels some heuris
 SLOTHY has been used to provide the fastest known implementations of various cryptographic and DSP primitives:
 For example, the [SLOTHY paper](https://eprint.iacr.org/2022/1303) discusses the NTTs underlying ML-KEM and ML-DSA for
 Cortex-{A55, A72, M55, M85}, the FFT for Cortex-{M55,M85}, and the X25519 scalar multiplication for Cortex-A55. You find
-the clean and optimized source code for those examples in [`paper/`](paper).
+the clean and optimized source code for those examples in [`paper/`](https://github.com/slothy-optimizer/slothy/tree/main/paper).
 
 # Getting started
 
@@ -67,7 +67,7 @@ SLOTHY has been successfully used on
 - Ubuntu-21.10 and up (64-bit),
 - macOS Monterey 12.6 and up.
 
-SLOTHY requires Python >= 3.10. See [requirements.txt](requirements.txt) for package requirements, and install via `pip
+SLOTHY requires Python >= 3.10. See [requirements.txt](https://github.com/slothy-optimizer/slothy/blob/main/requirements.txt) for package requirements, and install via `pip
 install -r requirements.txt`.
 
 **Note:** `requirements.txt` pins versions for reproducibility. If you already have newer versions of some dependencies
@@ -83,8 +83,8 @@ Then, enter the virtual environment via `source venv/bin/activate` prior to runn
 ## Docker
 
 A dockerfile for an Ubuntu-22.04 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
-environments setup can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.Dockerfile). See
-[paper/artifact/README.md](paper/artifact/README.md) for instructions.
+environments setup can be found in [paper/artifact/slothy.dockerfile](https://github.com/slothy-optimizer/slothy/blob/main/paper/artifact/slothy.Dockerfile). See
+[paper/artifact/README.md](https://github.com/slothy-optimizer/slothy/blob/main/paper/artifact/README.md) for instructions.
 
 ## Quick check
 
@@ -113,7 +113,7 @@ INFO:aarch64_simple0_a55.slothy:Minimum number of stalls: 18
 
 ## Examples
 
-The [SLOTHY Tutorial](tutorial/README.md) and the [examples](examples/naive) directory contain numerous exemplary
+The [SLOTHY Tutorial](tutorial/README.md) and the [examples](https://github.com/slothy-optimizer/slothy/tree/main/examples/naive) directory contain numerous exemplary
 assembly snippets. To try them, use `python3 example.py --examples={YOUR_EXAMPLE}`. See `python3 example.py --help` for
 the list of all available examples.
 

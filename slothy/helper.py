@@ -1585,11 +1585,10 @@ class Loop(ABC):
         """
         Find a loop with start label `lbl` in `source` and return it together
         with its type.
-        
-            Args:
-                source: list of SourceLine objects
-                lbl: label of the loop to extract
-                forced_loop_type: if not None, only try to extract this type of loop
+
+        :param source: list of SourceLine objects
+        :param lbl: label of the loop to extract
+        :param forced_loop_type: if not None, only try to extract this type of loop
         """
         if forced_loop_type is not None:
             loop_types = [forced_loop_type]

@@ -3299,9 +3299,9 @@ class SlothyBase(LockAttributes):
         """Restrict issue slots for all instructions belonging to the
         provided list of instruction classes.
 
-        Args:
-            cls_lst: A list of instruction classes
-            slots: A list of issue slots represented as integers."""
+        :param cls_lst: A list of instruction classes
+        :param slots: A list of issue slots represented as integers.
+        """
         self.restrict_slots_for_instructions(
             self.filter_instructions_by_class(cls_lst), slots )
 
@@ -3309,9 +3309,9 @@ class SlothyBase(LockAttributes):
         """Restrict issue slots for all instructions passing the given
         filter function.
 
-        Args:
-            cls_lst: A predicate on instructions
-            slots: A list of issue slots represented as integers."""
+        :param cls_lst: A predicate on instructions
+        :param slots: A list of issue slots represented as integers.
+        """
         self.restrict_slots_for_instructions(
             self.filter_instructions_by_property(filter_func), slots )
 

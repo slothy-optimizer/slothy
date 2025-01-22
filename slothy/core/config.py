@@ -751,10 +751,12 @@ class Config(NestedPrint, LockAttributes):
         """Strategy for naive interleaving preprocessing step
 
         Supported values are:
-          - "depth": Always pick the instruction with the lower possible
-                             depth in the DFG first.
-          - "alternate": Try to evenly alternate between instructions tagged with
-                         "interleaving_class=0/1".
+
+        * "depth": Always pick the instruction with the lower possible
+          depth in the DFG first.
+        * "alternate": Try to evenly alternate between instructions tagged with
+          "interleaving_class=0/1".
+
         """
         return self._split_heuristic_preprocess_naive_interleaving_strategy
 
@@ -1096,8 +1098,9 @@ class Config(NestedPrint, LockAttributes):
             This is an experimental feature for the purpose of speeding
             up otherwise intractable optimization tasks.
 
-            LIMITATION: This only takes effect in straightline optimization
-              (no software pipelining).
+            .. warning::
+
+                This only takes effect in straightline optimization (no software pipelining).
             """
             return self._max_displacement
 
@@ -1206,8 +1209,7 @@ class Config(NestedPrint, LockAttributes):
 
         @property
         def ext_bsearch_remember_successes(self):
-            """When using an external binary search, hint previous successful
-                optimiation.
+            """When using an external binary search, hint previous successful optimization.
 
             See also Config.variable_size."""
             return self._ext_bsearch_remember_successes

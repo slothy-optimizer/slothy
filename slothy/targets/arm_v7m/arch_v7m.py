@@ -416,7 +416,7 @@ class CmpLoop(Loop):
 
     Example:
 
-    ..code-block:: asm
+    .. code-block:: asm
 
         loop_lbl:
            {code}
