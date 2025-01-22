@@ -9,3 +9,4 @@ sphinx_mdinclude
 myst_parser
 sphinx-autobuild
 sphinx-autodoc2
+unicorn==2.1.1

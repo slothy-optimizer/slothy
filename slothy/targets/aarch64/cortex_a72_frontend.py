@@ -131,7 +131,8 @@ execution_units = {
 
     (add, add_imm, add_lsl, add_lsr) : ExecutionUnit.SCALAR(),
 
-    vsrshr : [ExecutionUnit.ASIMD1],
+    (VShiftImmediateRounding,
+     VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
 
     (St4, St2) : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
@@ -164,7 +165,8 @@ inverse_throughput = {
       Ldr_X, Str_X )
       : 1,
 
-    vsrshr : 1,
+    (VShiftImmediateRounding,
+     VShiftImmediateBasic): 1,
 
     St2 : 4,
     St4 : 8,
@@ -195,7 +197,9 @@ default_latencies = {
 
     (add, add_imm, add_lsl, add_lsr) : 2,
 
-    vsrshr : 3, # approx
+    VShiftImmediateRounding: 3, # approx
+    VShiftImmediateBasic: 3,
+
     St2 : 4,
     St4 : 8,
     Ld4 : 4

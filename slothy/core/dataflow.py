@@ -525,7 +525,18 @@ class DataFlowGraph:
                 break
 
             z = filter(lambda x: x.delete is False, self.nodes)
-            z = map(lambda x: ([x.inst], x.inst.source_line), z)
+
+            def pair_with_source(i):
+                return ([i], i.source_line)
+            def map_node(t):
+                s = t.inst
+                if not isinstance(t.inst, list):
+                    s = [s]
+                return map(pair_with_source, s)
+            def flatten(llst):
+                return [x for y in llst for x in y]
+
+            z = flatten(map(map_node, z))
 
             self.src = list(z)
 
@@ -752,6 +763,42 @@ class DataFlowGraph:
             for i,v in enumerate(t.src_in_out):
                 t.inst.args_in_out[i] = v.reduce().name()
 
+    def has_symbolic_registers(self):
+        rt = self.config._arch.RegisterType
+        for i in self.nodes:
+            instr = i.inst
+            for out, ty in zip(instr.args_out, instr.arg_types_out):
+                if out not in rt.list_registers(ty):
+                    return True
+            for inout, ty in zip(instr.args_in_out, instr.arg_types_in_out):
+                if inout not in rt.list_registers(ty):
+                    return True
+        return False
+
+    def find_all_predecessors_input_registers(self, consumer, register_name):
+        """ recursively finds the set of input registers registers that a certain value depends on."""
+        # ignore the stack pointer
+        if register_name == "sp":
+            return set()
+
+        producer = consumer.reg_state[register_name].src
+        # if this is a virtual input instruction this is an actual input
+        # otherwise this is computed from other inputs
+        if isinstance(producer.inst, VirtualInputInstruction):
+            return set(producer.inst.args_out)
+        else:
+            # go through all predecessors and recursively call this function
+            # Note that we only care about inputs (i.e., produced by a VirtualInputInstruction)
+            regs = []
+            if hasattr(producer.inst, "args_in"):
+                regs += producer.inst.args_in
+            if hasattr(producer.inst, "args_in_out"):
+                regs += producer.inst.args_in_out
+            predecessors = set()
+            for reg in regs:
+                predecessors = predecessors.union(self.find_all_predecessors_input_registers(producer, reg))
+            return set(predecessors)
+
     def ssa(self, filter_func=None):
         """Transform data flow graph into single static assignment (SSA) form."""
         # Go through non-virtual instruction nodes and assign unique names to
@@ -827,14 +874,41 @@ class DataFlowGraph:
         # Add the single valid candidate parsing to the CFG
         self._add_node(valid_candidates[0])
 
+    def _find_source_single(self,ty,name):
+        self.logger.debug("Finding source of register %s of type %s", name, ty)
+
+        # Check if the inputs have been produced by the data flow graph
+        if name not in self.reg_state:
+            # If not, treat them as a global input
+            self.logger.debug("-> %s is a global input", name)
+            # Create a virtual instruction producing the output add that first
+            # Since the virtual instruction does not have any inputs, there is
+            # no risk of infinite recursion here
+            self._add_node(VirtualInputInstruction(name, ty))
+            # Fall through
+
+        # At this point, the source _must_ be produced by an instruction in the graph
+        assert name in self.reg_state
+
+        # Return a reference to the node producing the input
+        origin = self.reg_state[name]
+        self.logger.debug(f"-> {name} has been produced by {origin}")
+
+        if origin.get_type() != ty:
+            warnstr = f"Type mismatch: Output {name} of {type(origin.src.inst).__name__} has "\
+                f"type {origin.get_type()} but {type(s).__name__} expects it to have type {ty}"
+            self.logger.debug(warnstr)
+            raise DataFlowGraphException(warnstr)
+
+        return self.reg_state[name]
+
     def _process_restore_instruction(self, reg, loc):
         assert loc in self.spilled_reg_state.keys()
         self.reg_state[reg] = self.spilled_reg_state.pop(loc)
 
-    def _process_spill_instruction(self, reg, loc):
+    def _process_spill_instruction(self, reg, loc, ty):
         assert loc not in self.spilled_reg_state.keys()
-        assert reg in self.reg_state.keys()
-        self.spilled_reg_state[loc] = self.reg_state.pop(reg)
+        self.spilled_reg_state[loc] = self._find_source_single(ty, reg)
 
     def _add_node(self, s):
         """Add a node to the data flow graph
@@ -854,7 +928,8 @@ class DataFlowGraph:
                 self.logger.debug("Handling spill instruction: %s", s)
                 reg = s.args_in[0]
                 loc = s.args_out[0]
-                self._process_spill_instruction(reg, loc)
+                ty = s.arg_types_in[0]
+                self._process_spill_instruction(reg, loc, ty)
                 return
             if self.config._absorb_spills is True and \
                s.source_line.tags.get("is_restore", False) is True:
@@ -871,36 +946,8 @@ class DataFlowGraph:
         elif isinstance(s, VirtualOutputInstruction):
             self.logger.debug("Adding virtual instruction for output %s", s.orig_reg)
 
-        def find_source_single(ty,name):
-            self.logger.debug("Finding source of register %s of type %s", name, ty)
-
-            # Check if the inputs have been produced by the data flow graph
-            if name not in self.reg_state:
-                # If not, treat them as a global input
-                self.logger.debug("-> %s is a global input", name)
-                # Create a virtual instruction producing the output add that first
-                # Since the virtual instruction does not have any inputs, there is
-                # no risk of infinite recursion here
-                self._add_node(VirtualInputInstruction(name, ty))
-                # Fall through
-
-            # At this point, the source _must_ be produced by an instruction in the graph
-            assert name in self.reg_state
-
-            # Return a reference to the node producing the input
-            origin = self.reg_state[name]
-            self.logger.debug(f"-> {name} has been produced by {origin}")
-
-            if origin.get_type() != ty:
-                warnstr = f"Type mismatch: Output {name} of {type(origin.src.inst).__name__} has "\
-                    f"type {origin.get_type()} but {type(s).__name__} expects it to have type {ty}"
-                self.logger.debug(warnstr)
-                raise DataFlowGraphException(warnstr)
-
-            return self.reg_state[name]
-
         def find_sources(types,names):
-            return [ find_source_single(t,n) for t,n in zip(types,names) ]
+            return [ self._find_source_single(t,n) for t,n in zip(types,names) ]
 
         # Lookup computation nodes for inputs
         src_in     = find_sources(s.arg_types_in, s.args_in)

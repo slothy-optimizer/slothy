@@ -101,6 +101,52 @@ class Config(NestedPrint, LockAttributes):
         return self._reserved_regs_are_locked
 
     @property
+    def selftest(self):
+        """Indicates whether SLOTHY performs an empirical equivalence-test on the
+        optimization results.
+
+        When this is set, and if the target architecture and host platform support it,
+        this will run an empirical equivalence checker trying to confirm that the
+        input and output of SLOTHY are likely functionally equivalent.
+
+        The primary purpose of this checker is to detect issue that would presently
+        be overlooked by the selfcheck:
+        - The selfcheck is currently blind to address offset fixup. If something goes
+          wrong, the input and output will not be functionally equivalent, but we would
+          only notice once we actually compile and run the code. The selftest will
+          likely catch issues.
+        - When using software pipelining, the selfcheck reduces to a straightline check
+          for a bounded unrolling of the loop. An unbounded selfcheck is currently not
+          implemented.
+          With the selftest, you still need to fix a loop bound, but at least you can
+          equivalence-check the loop-form (including the compare+branch instructions
+          at the loop boundary) rather than the unrolled code.
+
+        DEPENDENCY: To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
+                    in your PATH. Those are part of a standard LLVM setup.
+
+        NOTE: This is so far implemented as a repeated randomized test -- nothing clever.
+        """
+        return self._selftest
+
+    @property
+    def selftest_iterations(self):
+        """If selftest is set, indicates the number of random selftest to conduct"""
+        return self._selftest_iterations
+
+    @property
+    def selftest_address_registers(self):
+        """Dictionary of (reg, sz) items indicating which registers are assumed to be
+        pointers to memory, and if so, of what size."""
+        return self._selftest_address_registers
+
+    @property
+    def selftest_default_memory_size(self):
+        """Default buffer size to use for registers which are automatically inferred to be
+        used as pointers and for which no memory size has been configured via `address_registers`."""
+        return self._selftest_default_memory_size
+
+    @property
     def selfcheck(self):
 
         """Indicates whether SLOTHY performs a self-check on the optimization result.
@@ -371,8 +417,8 @@ class Config(NestedPrint, LockAttributes):
         """Indicates whether LLVM MCA should be run prior and after optimization
         to obtain approximate performance data based on LLVM's scheduling models.
 
-        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
-        need to be set.
+        If this is set, Config.compiler_binary need to be set, and llcm-mca in
+        your PATH.
         """
         return self._with_llvm_mca_before and self._with_llvm_mca_after
 
@@ -393,8 +439,8 @@ class Config(NestedPrint, LockAttributes):
         """Indicates whether LLVM MCA should be run prior to optimization
         to obtain approximate performance data based on LLVM's scheduling models.
 
-        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
-        need to be set.
+        If this is set, Config.compiler_binary need to be set, and llcm-mca in
+        your PATH.
         """
         return self._with_llvm_mca_before
 
@@ -403,8 +449,8 @@ class Config(NestedPrint, LockAttributes):
         """Indicates whether LLVM MCA should be run after optimization
         to obtain approximate performance data based on LLVM's scheduling models.
 
-        If this is set, both Config.llvm_mca_binary and Config.compiler_binary
-        need to be set.
+        If this is set, Config.compiler_binary need to be set, and llcm-mca in
+        your PATH.
         """
         return self._with_llvm_mca_after
 
@@ -423,14 +469,6 @@ class Config(NestedPrint, LockAttributes):
         This is only relevant if `with_preprocessor` or `with_llvm_mca_before`
         or `with_llvm_mca_after` are set."""
         return self._compiler_include_paths
-
-    @property
-    def llvm_mca_binary(self):
-        """The llvm-mca binary to be used for estimated performance annotations
-
-        This is only relevant if `with_llvm_mca_before` or `with_llvm_mca_after`
-        is set."""
-        return self._llvm_mca_binary
 
     @property
     def timeout(self):
@@ -968,6 +1006,27 @@ class Config(NestedPrint, LockAttributes):
             return self._allow_spills
 
         @property
+        def spill_type(self):
+            """The type of spills to generate
+
+            This is usually spilling to the stack, but other options may exist.
+            For example, on Armv7-M microcontrollers it can be useful to spill
+            from the GPR file to the FPR file.
+
+            It is expected that this option is set as a dictionary, for example,
+            with the key determining whether the spills are supposed to be to
+            the stack or to the FPR file, and the value defining a starting
+            index for the FPRs in the latter case.
+
+            The exact influence of this option is architecture dependent. You
+            should consult the `Spill` class in the target architecture model to
+            understand the options."""
+            if self._spill_type is None:
+                return {}
+            else:
+                return self._spill_type
+
+        @property
         def minimize_spills(self):
             """Minimize number of stack spills
 
@@ -1025,6 +1084,7 @@ class Config(NestedPrint, LockAttributes):
             self._allow_reordering = True
             self._allow_renaming = True
             self._allow_spills = False
+            self._spill_type = None
 
             self.lock()
 
@@ -1064,6 +1124,9 @@ class Config(NestedPrint, LockAttributes):
         @allow_spills.setter
         def allow_spills(self,val):
             self._allow_spills = val
+        @spill_type.setter
+        def spill_type(self,val):
+            self._spill_type = val
         @minimize_spills.setter
         def minimize_spills(self,val):
             self._minimize_spills = val
@@ -1144,6 +1207,10 @@ class Config(NestedPrint, LockAttributes):
         self._reserved_regs = None
         self._reserved_regs_are_locked = True
 
+        self._selftest = True
+        self._selftest_iterations = 10
+        self._selftest_address_registers = None
+        self._selftest_default_memory_size = 1024
         self._selfcheck = True
         self._selfcheck_failure_logfile = None
         self._allow_useless_instructions = False
@@ -1172,7 +1239,6 @@ class Config(NestedPrint, LockAttributes):
 
         self._compiler_binary = "gcc"
         self._compiler_include_paths = None
-        self._llvm_mca_binary = "llvm-mca"
 
         self.keep_tags = True
         self.inherit_macro_comments = False
@@ -1261,6 +1327,18 @@ class Config(NestedPrint, LockAttributes):
     @variable_size.setter
     def variable_size(self,val):
         self._variable_size = val
+    @selftest.setter
+    def selftest(self,val):
+        self._selftest = val
+    @selftest_iterations.setter
+    def selftest_iterations(self,val):
+        self._selftest_iterations = val
+    @selftest_address_registers.setter
+    def selftest_address_registers(self,val):
+        self._selftest_address_registers = val
+    @selftest_default_memory_size.setter
+    def selftest_default_memory_size(self,val):
+        self._selftest_default_memory_size = val
     @selfcheck.setter
     def selfcheck(self,val):
         self._selfcheck = val
@@ -1306,9 +1384,6 @@ class Config(NestedPrint, LockAttributes):
     @compiler_include_paths.setter
     def compiler_include_paths(self, val):
         self._compiler_include_paths = val
-    @llvm_mca_binary.setter
-    def llvm_mca_binary(self, val):
-        self._llvm_mca_binary = val
     @timeout.setter
     def timeout(self, val):
         self._timeout = val
