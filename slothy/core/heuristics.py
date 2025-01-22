@@ -48,7 +48,8 @@ class Heuristics():
     The one-shot SLOTHY approach tends to become computationally infeasible above
     200 assembly instructions. To optimize kernels beyond that threshold, this
     class provides heuristics to split the optimization problem into several
-    smaller-sizes problems amenable to one-shot SLOTHY."""
+    smaller-sizes problems amenable to one-shot SLOTHY.
+    """
 
     @staticmethod
     def _optimize_binsearch_core(source, logger, conf, **kwargs):
@@ -110,12 +111,12 @@ class Heuristics():
     def optimize_binsearch(source, logger, conf, **kwargs):
         """Optimize for minimum number of stalls, and potentially a secondary objective.
 
-        Args:
-            source: The source code to be optimized. Must be a list of
-                SourceLine instances.
-            logger: The logger to be used
-            conf: The configuration to apply. This fixed for all one-shot SLOTHY
-                runs invoked by this call, except for the variation of the stall count.
+        :param source: The source code to be optimized. Must be a list of
+            SourceLine instances.
+        :param logger: The logger to be used
+        :param conf: The configuration to apply. This fixed for all one-shot SLOTHY
+            runs invoked by this call, except for the variation of the stall count.
+        :returns: The Result object for the succceeding optimization with the smallest number of stalls.
 
         The `variable_size` configuration option determines whether the minimiation of
         stalls happens internally or externally. Internal minimization means that the
@@ -123,10 +124,6 @@ class Heuristics():
         objective to the underlying solver. External minimization means that the number
         of stalls is statically fixed per one-shot SLOTHY optimization, and that an
         external binary search is used to minimize it.
-
-        Returns:
-            The Result object for the succceeding optimization with the smallest
-            number of stalls.
         """
         flexible = not conf.constraints.functional_only
 
@@ -162,18 +159,17 @@ class Heuristics():
         has a secondary objective, it then re-optimizes the result for that secondary
         objective, fixing the minimal number of stalls.
 
-        Args:
-            source: The source code to be optimized. Must be a list of SourceLine instances.
-            logger: The logger to be used.
-            conf: The configuration to apply. This is fixed for all one-shot SLOTHY
-                runs invoked by this call, except for variation of stall count.
-            flexible: Indicates whether the number of stalls should be minimized
-                through a binary search, or whether a single one-shot SLOTHY optimization
-                for a fixed number of stalls (encoded in the configuration) should be
-                conducted.
 
-        Returns:
-            A Result object representing the final optimization result.
+        :param source: The source code to be optimized. Must be a list of SourceLine instances.
+        :param logger: The logger to be used.
+        :param conf: The configuration to apply. This is fixed for all one-shot SLOTHY
+            runs invoked by this call, except for variation of stall count.
+        :param flexible: Indicates whether the number of stalls should be minimized
+            through a binary search, or whether a single one-shot SLOTHY optimization
+            for a fixed number of stalls (encoded in the configuration) should be
+            conducted.
+
+        :return: A Result object representing the final optimization result.
         """
 
         if not flexible:
@@ -212,18 +208,17 @@ class Heuristics():
         If the provided configuration has a secondary objective, it then re-optimizes the result
         for that secondary objective, fixing the minimal number of stalls.
 
-        Args:
-            source: The source code to be optimized. Must be a list of SourceLine instances.
-            logger: The logger to be used.
-            conf: The configuration to apply. This is fixed for all one-shot SLOTHY
-                runs invoked by this call, except for variation of stall count.
-            flexible: Indicates whether the number of stalls should be minimized
-                through a binary search, or whether a single one-shot SLOTHY optimization
-                for a fixed number of stalls (encoded in the configuration) should be
-                conducted.
 
-        Returns:
-            A Result object representing the final optimization result.
+        :param source: The source code to be optimized. Must be a list of SourceLine instances.
+        :param  logger: The logger to be used.
+        :param conf: The configuration to apply. This is fixed for all one-shot SLOTHY
+            runs invoked by this call, except for variation of stall count.
+        :param flexible: Indicates whether the number of stalls should be minimized
+            through a binary search, or whether a single one-shot SLOTHY optimization
+            for a fixed number of stalls (encoded in the configuration) should be
+            conducted.
+        :return: A Result object representing the final optimization result.
+
         """
 
         if not flexible:
@@ -293,18 +288,18 @@ class Heuristics():
         done via Heuristics.linear() and thus themselves subject to the
         splitting heuristic, if enabled.
 
-        Args:
-            body: The loop body to be optimized. This must be a list of
-                SourceLine instances.
-            logger: The logger to be used.
-            conf: The configuration to be applied.
 
-        Returns:
-            Tuple (preamble, kernel, postamble, num_exceptional_iterations)
+        :param body: The loop body to be optimized. This must be a list of
+            SourceLine instances.
+        :param logger: The logger to be used.
+        :param conf: The configuration to be applied.
+
+        :return: Tuple (preamble, kernel, postamble, num_exceptional_iterations)
             of preamble, kernel and postamble (each as a list of SourceLine
             objects), plus the number of iterations jointly accounted for by
             the preamble and postamble (the caller will need this to adjust the
             loop counter).
+
         """
 
         if conf.sw_pipelining.enabled and not conf.inputs_are_outputs:
@@ -381,13 +376,11 @@ class Heuristics():
         input is optimized by successively applying one-shot optimizations to a
         'sliding window' of code.
 
-        Args:
-            body: The assembly input to be optimized. This must be a list of
-                SourceLine objects.
-            conf: The configuration to be applied. Software pipelining must be disabled.
+        :param body: The assembly input to be optimized. This must be a list of
+            SourceLine objects.
+        :param conf: The configuration to be applied. Software pipelining must be disabled.
 
-        Raises:
-            Raises a SlothyException if software pipelining is enabled.
+        :raises: Raises a SlothyException if software pipelining is enabled.
         """
         assert SourceLine.is_source(body)
         if conf.sw_pipelining.enabled:

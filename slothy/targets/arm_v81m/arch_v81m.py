@@ -122,11 +122,12 @@ class LeLoop(Loop):
     Loop ending in a le instruction.
 
     Example:
-    ```
-           loop_lbl:
-               {code}
-               le <cnt>, loop_lbl
-    ```
+
+    .. code-block::
+
+       loop_lbl:
+           {code}
+           le <cnt>, loop_lbl
 
     where cnt is the loop counter in lr.
     """

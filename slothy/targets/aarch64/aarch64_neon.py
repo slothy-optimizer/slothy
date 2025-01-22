@@ -278,12 +278,13 @@ class SubsLoop(Loop):
     Loop ending in a flag setting subtraction and a branch.
 
     Example:
-    ```
-           loop_lbl:
-               {code}
-               sub[s] <cnt>, <cnt>, #<imm>
-               (cbnz|bnz|bne) <cnt>, loop_lbl
-    ```
+    .. code-block:: asm
+
+        loop_lbl:
+           {code}
+           sub[s] <cnt>, <cnt>, #<imm>
+           (cbnz|bnz|bne) <cnt>, loop_lbl
+
     where cnt is the loop counter in lr.
     """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
@@ -510,18 +511,15 @@ class Instruction:
     def build(c, src, mnemonic, **kwargs):
         """Attempt to parse a string as an instance of an instruction.
 
-        Args:
-            c: The target instruction the string should be attempted to be parsed as.
-            src: The string to parse.
-            mnemonic: The mnemonic of instruction c
 
-        Returns:
-            Upon success, the result of parsing src as an instance of c.
+        :param c: The target instruction the string should be attempted to be parsed as.
+        :param src: The string to parse.
+        :param mnemonic: The mnemonic of instruction c
 
-        Raises:
-            ParsingException: The str argument cannot be parsed as an
-                instance of c.
-            FatalParsingException: A fatal error during parsing happened
+        :return: Upon success, the result of parsing src as an instance of c.
+
+        :raises: :ParsingException: The str argument cannot be parsed as an instance of c.
+            :FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
         """
 
@@ -3237,7 +3235,10 @@ def eor3_fusion_cb():
     Example for a fusion call back. Allows to merge two eor instruction with
     two inputs into one eor with three inputs. Such technique can help perform
     transformations in case of differences between uArchs.
-    Note: This is not used in any real (crypto) example. This is merely a PoC.
+
+    .. note::
+
+        This is not used in any real (crypto) example. This is merely a PoC.
     """
     def core(inst,t,log=None):
         succ = None
@@ -3300,7 +3301,10 @@ def eor3_splitting_cb():
     Example for a splitting call back. Allows to split one eor instruction with
     three inputs into two eors with two inputs. Such technique can help perform
     transformations in case of differences between uArchs.
-    Note: This is not used in any real (crypto) example. This is merely a PoC.
+
+    .. note::
+
+        This is not used in any real (crypto) example. This is merely a PoC.
     """
     def core(inst,t,log=None):
 
