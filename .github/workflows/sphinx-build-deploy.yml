@@ -1,0 +1,36 @@
+name: Deploy Sphinx Documentation
+
+on:
+  push:
+    branches:
+      - sphinx_docs # Trigger the workflow on pushes to the sphinx_docs branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        ref: sphinx_docs # Ensure the sphinx_docs branch is checked out
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build Sphinx documentation
+      run: |
+        sphinx-build -b html docs/source docs/build/html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/build/html
