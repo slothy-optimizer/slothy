@@ -1565,7 +1565,7 @@ class RISC_VExample0(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv32im")
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
 
     def core(self,slothy):
         slothy.config.variable_size=True
@@ -1575,7 +1575,7 @@ class RISC_VExample0(Example):
  'x11', 'x12', 'x13', 'x14', 'x15', 'x16', 'x17', 'x18', 'x19',
  'x20', 'x21', 'x22', 'x23', 'x24', 'x25', 'x26', 'x27', 'x28',
  'x29', 'x30', 'x31']
-        slothy.optimize(start="mainloop", end="end_label")
+        slothy.optimize()
 
 class RISC_VExampleLoop0(Example):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
