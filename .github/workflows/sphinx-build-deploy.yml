@@ -1,4 +1,4 @@
-name: Deploy Sphinx Documentation
+name: Sphinx Documentation
 
 on:
   push: # Trigger on any branch push
@@ -6,7 +6,7 @@ on:
       - '**'
   pull_request: # Check if build is successful before merge
     branches:
-      - sphinx_docs
+      - main
 
 jobs:
   build:
@@ -26,13 +26,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build Sphinx documentation
+      - name: Build Sphinx Documentation
         run: |
           sphinx-build -b html docs/source docs/build/html
 
   deploy:
     needs: build
-    if: github.ref == 'refs/heads/sphinx_docs' # Only deploy if merged into main
+    if: github.ref == 'refs/heads/main' # Only deploy if merged into main
     runs-on: ubuntu-latest
 
     steps:
@@ -49,11 +49,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Build Sphinx documentation
+      - name: Build Sphinx Documentation
         run: |
           sphinx-build -b html docs/source docs/build/html
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy Sphinx Documentation
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
