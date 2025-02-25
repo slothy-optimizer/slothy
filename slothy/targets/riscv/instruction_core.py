@@ -143,15 +143,15 @@ class Instruction:
         args = self.args_out + self.args_in_out + self.args_in
         return self.mnemonic + ' ' + ', '.join(args)
 
-    @staticmethod
-    def unfold_abbrevs(mnemonic):
-        if mnemonic.count("<dt") > 1:
-            for i in range(mnemonic.count("<dt")):
-                mnemonic = re.sub(f"<dt{i}>", f"(?P<datatype{i}>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))",
-                                  mnemonic)
-        else:
-            mnemonic = re.sub("<dt>", f"(?P<datatype>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))", mnemonic)
-        return mnemonic
+    #@staticmethod
+    #def unfold_abbrevs(mnemonic):
+        #if mnemonic.count("<dt") > 1:
+        #    for i in range(mnemonic.count("<dt")):
+        #        mnemonic = re.sub(f"<dt{i}>", f"(?P<datatype{i}>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))",
+        #                          mnemonic)
+        #else:
+        #    mnemonic = re.sub("<dt>", f"(?P<datatype>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))", mnemonic)
+        #return mnemonic
 
     def _is_instance_of(self, inst_list):
         for inst in inst_list:
@@ -250,7 +250,7 @@ class Instruction:
         obj = c(mnemonic=mnemonic, **kwargs)
 
         # Replace <dt> by list of all possible datatypes
-        mnemonic = Instruction.unfold_abbrevs(obj.mnemonic)
+        #mnemonic = Instruction.unfold_abbrevs(obj.mnemonic)
 
         expected_args = obj.num_in + obj.num_out + obj.num_in_out
         regexp_txt = rf"^\s*{mnemonic}"
