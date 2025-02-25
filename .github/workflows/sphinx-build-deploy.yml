@@ -32,7 +32,7 @@ jobs:
 
   deploy:
     needs: build
-    if: github.ref == 'refs/heads/main' # Only deploy if merged into main
+    if: github.ref == 'refs/heads/sphinx_docs' # Only deploy if merged into main
     runs-on: ubuntu-latest
 
     steps:
