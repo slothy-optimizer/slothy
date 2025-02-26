@@ -120,7 +120,7 @@ class RISCVInstruction(Instruction):
 
     @staticmethod
     def get_parser(pattern):
-        """Build parser for given AArch64 instruction pattern"""
+        """Build parser for given RISC-V instruction pattern"""
 
         if pattern in RISCVInstruction.PARSERS:
             return RISCVInstruction.PARSERS[pattern]

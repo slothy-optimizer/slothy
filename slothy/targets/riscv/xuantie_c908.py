@@ -63,30 +63,15 @@ class ExecutionUnit(Enum):
 #  Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
-    if slothy.config.constraints.functional_only:
-        return
-    add_slot_constraints(slothy)
-    add_st_hazard(slothy)
+    pass
 
 
 def add_slot_constraints(slothy):
     pass
-    # Q-Form vector instructions are on slot 0 only
-    # slothy.restrict_slots_for_instructions_by_property()
-    # Instruction.is_q_form_vector_instruction, [0])
-    # fcsel and vld2 on slot 0 only
-    # slothy.restrict_slots_for_instructions_by_class(
-    #   [fcsel_dform, Q_Ld2_Lane_Post_Inc], [0])
 
 
 def add_st_hazard(slothy):
-    def is_vec_st_st_pair(inst_a, inst_b):
-        return inst_a.inst.is_vector_store() and inst_b.inst.is_vector_store()
-
-    for t0, t1 in slothy.get_inst_pairs(cond=is_vec_st_st_pair):
-        if t0.is_locked and t1.is_locked:
-            continue
-        slothy._Add(t0.cycle_start_var != t1.cycle_start_var + 1)
+    pass
 
 
 #  Opaque function called by SLOTHY to add further microarchitecture-
@@ -99,7 +84,6 @@ def has_min_max_objective(config):
 def get_min_max_objective(slothy):
     _ = slothy
     return
-
 
 execution_units = {
     (  # this could be more convenient, maybe use existing instructions list or superclass?
