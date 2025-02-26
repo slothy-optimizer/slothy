@@ -2162,7 +2162,7 @@ class ntt_kyber(Example):
 
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
-        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.unsafe_address_offset_fixup = True
 
         ### TODO
         # - Experiment with lower split factors
@@ -2178,15 +2178,15 @@ class ntt_kyber(Example):
         slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
 
         slothy.config.outputs = ["r14"]
-
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.fusion_loop("2", ssa=False, forced_loop_type=Arch_Armv7M.BranchLoop)
+        slothy.config.unsafe_address_offset_fixup = True
 
         slothy.config.timeout = 360
         slothy.config.split_heuristic_optimize_seam = 0
         slothy.config.split_heuristic_repeat = 1
         slothy.config.split_heuristic_factor = 4
         slothy.config.split_heuristic_stepsize = 0.1
-        slothy.config.unsafe_address_offset_fixup = True
         slothy.optimize_loop("2", forced_loop_type=Arch_Armv7M.BranchLoop)
 
         slothy.config.split_heuristic_optimize_seam = 6
