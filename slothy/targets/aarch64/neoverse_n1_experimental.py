@@ -86,7 +86,7 @@ def get_min_max_objective(slothy):
 execution_units = {
     (Ldp_X, Ldr_X,
      Str_X, Stp_X,
-     Ldr_Q, Str_Q)            : ExecutionUnit.LSU(),
+     Ldr_Q, Str_Q,q_ldp_with_inc,d_stp_stack_with_inc,q_stp_with_postinc,q_stp_with_inc)            : ExecutionUnit.LSU(),
     # TODO: The following would be more accurate, but does not
     #       necessarily lead to better results, while making the
     #       optimization slower. Investigate...
@@ -105,13 +105,15 @@ execution_units = {
     (vmovi)                   : ExecutionUnit.V(),
     (vand, vadd, vsub)        : ExecutionUnit.V(),
     (vxtn)                    : ExecutionUnit.V(),
+    (mov_hl,mov_hh)           : ExecutionUnit.V(),
+    v_tbl_16b                 : ExecutionUnit.V(),
     (vuxtl, vshl, vshl_d,
      vshli, vsrshr, vshrn)    : ExecutionUnit.V1(),
     vusra                     : ExecutionUnit.V1(),
     AESInstruction            : ExecutionUnit.V0(),
     (Vmul, Vmla, Vqdmulh,
      Vmull, Vmlal)            : ExecutionUnit.V0(),
-    AArch64NeonLogical        : ExecutionUnit.V(),
+    (AArch64NeonLogical,VShiftImmediateBasic )        : ExecutionUnit.V(),
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,
@@ -131,12 +133,12 @@ execution_units = {
 inverse_throughput = {
     (Ldr_X, Str_X,
      Ldr_Q, Str_Q)             : 1,
-    (Ldp_X, Stp_X)             : 2,
+    (Ldp_X, Stp_X,q_ldp_with_inc,d_stp_stack_with_inc,q_stp_with_postinc,q_stp_with_inc)             : 2,
     St4                        : 6, # TODO: Really??
     (Vzip, uaddlp, Vrev)       : 1,
     VecToGprMov                : 1,
     (vand, vadd, vsub)         : 1,
-    (vmov)                     : 1,
+    (vmov,mov_hl,mov_hh)       : 1, 
     Transpose                  : 1,
     AESInstruction             : 1,
     AArch64NeonLogical         : 1,
@@ -147,6 +149,8 @@ inverse_throughput = {
     (Vmul, Vmla, Vqdmulh)      : 2,
     vusra                      : 1,
     (Vmull, Vmlal)             : 1,
+    v_tbl_16b                 : 2, # not sure
+    VShiftImmediateBasic : 1,
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,
@@ -166,8 +170,8 @@ inverse_throughput = {
 default_latencies = {
     (Ldp_X,
      Ldr_X,
-     Ldr_Q)                   : 4,
-    (Stp_X, Str_X, Str_Q)     : 2,
+     Ldr_Q,q_ldp_with_inc)                   : 4,
+    (Stp_X, Str_X, Str_Q,d_stp_stack_with_inc,q_stp_with_postinc,q_stp_with_inc)     : 2,
     St4                       : 4,
     (Vzip, Vrev, uaddlp)      : 2,
     VecToGprMov               : 2,
@@ -176,7 +180,7 @@ default_latencies = {
     AArch64NeonLogical        : 2,
     Transpose                 : 2,
     (vand, vadd, vsub)        : 2,
-    (vmov)                    : 2, # ???
+    (vmov,mov_hl,mov_hh)     : 2,
     (vmovi)                   : 2,
     (Vmul, Vmla, Vqdmulh)     : 5,
     vusra                     : 4, # TODO: Add fwd path
@@ -184,6 +188,8 @@ default_latencies = {
     (vuxtl, vshl, vshl_d,
      vshli, vshrn)            : 2,
     (vsrshr)                  : 4,
+    v_tbl_16b                 : 4, # not sure
+    VShiftImmediateBasic : 1,
     (AArch64BasicArithmetic,
      AArch64ConditionalSelect,
      AArch64ConditionalCompare,
