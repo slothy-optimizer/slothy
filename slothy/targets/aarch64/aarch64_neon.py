@@ -286,10 +286,11 @@ class SubsLoop(Loop):
     ```
     where cnt is the loop counter in lr.
     """
-    def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
-        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+    def __init__(self, lbl="lbl") -> None:
+        super().__init__()
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
+        self.lbl = lbl
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
                                rf"^\s*(cbnz|bnz|bne)\s+(?P<cnt>\w+),\s*{lbl}")
@@ -308,12 +309,12 @@ class SubsLoop(Loop):
             yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
-        yield f"{self.lbl_start}:"
+        yield f"{self.lbl}:"
 
     def end(self, other, indentation=0):
         """Emit compare-and-branch at the end of the loop"""
         indent = ' ' * indentation
-        lbl_start = self.lbl_start
+        lbl_start = self.lbl
         if lbl_start.isdigit():
             lbl_start += "b"
 
