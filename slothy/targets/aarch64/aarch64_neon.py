@@ -286,8 +286,8 @@ class SubsLoop(Loop):
     ```
     where cnt is the loop counter in lr.
     """
-    def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
-        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+    def __init__(self, lbl="lbl") -> None:
+        super().__init__()
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl = lbl
