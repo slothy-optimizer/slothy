@@ -1,7 +1,7 @@
 # SLOTHY Tutorial
 
 This tutorial introduces you to using the SLOTHY superoptimizer for optimizing assembly programs for a specific microarchitecture.
-It goes beyond what is written in the [README](../README.md) or the [SLOTHY
+It goes beyond what is written in the [README](../../../README.md) or the [SLOTHY
 paper](https://eprint.iacr.org/2022/1303.pdf) in that it gives more examples on how we, the developers of SLOTHY,
 typically use SLOTHY to optimize cryptographic code. At the end of the tutorial, you should be familiar with
 the workflow of using SLOTHY as well as a number of common ways to debug or improve your results.
@@ -51,16 +51,16 @@ formally verified using the [HOL-Light](https://github.com/jrh13/hol-light) proo
 
 ## Table of contents
 
-1) [Installation](#1-installation). This is limited to the fastest way of installing SLOTHY using pip. For more complete instructions, see the [README](../README.md).
-2) [Getting started](#2-getting-started)
-3) [Using SLOTHY for your own code](#3-writing-your-own-calling-code)
-4) [Using SLOTHY's Software Pipelining](#4-software-pipelining)
-5) [Checking the quality of SLOTHY optimizations](#5-checking-the-quality-of-slothy-optimizations)
-6) [Optimizing a full Neon NTT](#6-optimizing-a-full-neon-ntt)
-7) [Optimizing larger pieces of code](#7-optimizing-larger-pieces-of-code)
-8) [Adding a new microarchitecture](#8-adding-a-new-microarchitecture)
+1) [Installation](#installation). This is limited to the fastest way of installing SLOTHY using pip. For more complete instructions, see the [README](../../../README.md).
+2) [Getting started](#getting-started)
+3) [Using SLOTHY for your own code](#writing-your-own-calling-code)
+4) [Using SLOTHY's Software Pipelining](#software-pipelining)
+5) [Checking the quality of SLOTHY optimizations](#checking-the-quality-of-slothy-optimizations)
+6) [Optimizing a full Neon NTT](#optimizing-a-full-neon-ntt)
+7) [Optimizing larger pieces of code](#optimizing-larger-pieces-of-code)
+8) [Adding a new microarchitecture](#adding-a-new-microarchitecture)
 
-The SLOTHY calling code used for the parts 3-7 is located in `tutorial-{3a,3b,4,5,6,7}.py`.
+The SLOTHY calling code used for the parts 3-7 is located in [tutorial-files/tuturial-{3a,3b,4,5,6,7}.py](https://github.com/slothy-optimizer/slothy/tree/main/tutorial_files).
 
 ## 1. Installation
 
@@ -91,12 +91,12 @@ We will look into more examples shortly and discuss input, output, and available
 
 The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
 Once you work on your own code, you will likely be using the `slothy-cli` command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has.
-However, for now we will be using the [example.py](../example.py) script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
+However, for now we will be using the [example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.pyy) script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
 You can run `python3 example.py --help` to see all examples available.
 
 Let's look at a very simple example from the previous section called `aarch64_simple0`.
-You can find the corresponding code in [examples/naive/aarch64/aarch64_simple0.s](../examples/naive/aarch64/aarch64_simple0.s):
-```nasm
+You can find the corresponding code in [examples/naive/aarch64/aarch64_simple0.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/aarch64_simple0.s):
+```asm
 ldr q0, [x1, #0]
 ldr q1, [x2, #0]
 
@@ -133,10 +133,10 @@ Note, however, that SLOTHY has been used to also obtain significant speed-ups fo
 
 SLOTHY comes with models for various Arm architectures, including the power-efficient, in-order
 [Cortex-A55](https://developer.arm.com/Processors/Cortex-A55), so we can now optimize this piece of code for that
-microarchitecture. [example.py](../example.py) contains the needed SLOTHY incarnations for convenience, so we can simply run `python3
+microarchitecture. [example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.py) contains the needed SLOTHY incarnations for convenience, so we can simply run `python3
 example.py --examples aarch64_simple0_a55` which will optimize for the Cortex-A55 microarchitecture. You can check
-[example.py](../example.py) for the details. This will optimize the piece of code above and write the output code to
-[examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s).
+[example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.pyy) for the details. This will optimize the piece of code above and write the output code to
+[examples/opt/aarch64/aarch64_simple0_opt_a55.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/aarch64_simple0_opt_a55.s).
 SLOTHY should print something similar to this:
 ```
 INFO:aarch64_simple0_a55:Instructions in body: 20
@@ -158,8 +158,8 @@ The best solution it can find has 16 stalls -- which is guaranteed to be the min
 In the last step, SLOTHY will transform the found traversal of the DFG into actual assembly and write it to the file.
 To make sure everything worked out as expected, it will perform a selfcheck which consists of transforming the output assembly into a DFG again and testing that the resulting graph is isomorphic to the input DFG.
 
-We can now take a look at the output assembly in [examples/opt/aarch64/aarch64_simple0_opt_a55.s](../examples/opt/aarch64/aarch64_simple0_opt_a55.s):
-```nasm
+We can now take a look at the output assembly in [examples/opt/aarch64/aarch64_simple0_opt_a55.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/aarch64_simple0_opt_a55.s):
+```asm
 ldr q8, [x1, #0]                        // *...................
 // gap                                  // ....................
 // gap                                  // ....................
@@ -296,7 +296,7 @@ microarchitecture model that come with SLOTHY.
 
 The calls to SLOTHY should be self-explanatory:
  - `load_source_from_file` loads an assembly file to be optimized.
- - `slothy.config` can be used to configure SLOTHY. For the documentation of the configuration options, see the comments in [config.py](../slothy/core/config.py).
+ - `slothy.config` can be used to configure SLOTHY. For the documentation of the configuration options, see the comments in [config.py](https://github.com/slothy-optimizer/slothy/blob/main/slothy/core/config.py).
  - `optimize` performs the actual optimizations by calling the external constraint solver.
  - `write_source_to_file` writes back the optimized assembly to a file.
 
@@ -312,62 +312,62 @@ find the minimum number of stalls for which a solution exists.
 Even with this small Neon example, you can see that understanding the input code is much easier than the output code. In
 fact, the input code can be further clarified through the use of macros and register aliases, leading to the following
 'clean' version from
-[examples/naive/aarch64/aarch64_simple0_macros.s](../examples/naive/aarch64/aarch64_simple0_macros.s) which makes it
+[examples/naive/aarch64/aarch64_simple0_macros.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/aarch64_simple0_macros.s) which makes it
 apparent that our example is just a pair of NTT butterflies using Barrett multiplication. Note that the `.req` and
 `.macro` directives used here are commonly supported [assembly
 directives](https://www.sourceware.org/binutils/docs/as/ARM-Directives.html).
 
-```nasm
-qdata0   .req q8
-qdata1   .req q9
-qdata2   .req q10
-qdata3   .req q11
-
-qtwiddle .req q0
-
-data0    .req v8
-data1    .req v9
-data2    .req v10
-data3    .req v11
-
-twiddle  .req v0
-modulus  .req v1
-
-tmp      .req v12
-
-data_ptr      .req x0
-twiddle_ptr   .req x1
-
-.macro barmul out, in, twiddle, modulus
-    mul      \out.8h,   \in.8h, \twiddle.h[0]
-    sqrdmulh \in.8h,    \in.8h, \twiddle.h[1]
-    mls      \out.8h,   \in.8h, \modulus.h[0]
-.endm
-
-.macro butterfly data0, data1, tmp, twiddle, modulus
-    barmul \tmp, \data1, \twiddle, \modulus
-    sub    \data1.8h, \data0.8h, \tmp.8h
-    add    \data0.8h, \data0.8h, \tmp.8h
-.endm
-
-start:
-
-    ldr qtwiddle, [twiddle_ptr, #0]
-
-    ldr qdata0, [data_ptr, #0*16]
-    ldr qdata1, [data_ptr, #1*16]
-    ldr qdata2, [data_ptr, #2*16]
-    ldr qdata3, [data_ptr, #3*16]
-
-    butterfly data0, data1, tmp, twiddle, modulus
-    butterfly data2, data3, tmp, twiddle, modulus
-
-    str qdata0, [data_ptr], #4*16
-    str qdata1, [data_ptr, #-3*16]
-    str qdata2, [data_ptr, #-2*16]
-    str qdata3, [data_ptr, #-1*16]
-
-end:
+```asm
+    qdata0   .req q8
+    qdata1   .req q9
+    qdata2   .req q10
+    qdata3   .req q11
+    
+    qtwiddle .req q0
+    
+    data0    .req v8
+    data1    .req v9
+    data2    .req v10
+    data3    .req v11
+    
+    twiddle  .req v0
+    modulus  .req v1
+    
+    tmp      .req v12
+    
+    data_ptr      .req x0
+    twiddle_ptr   .req x1
+    
+    .macro barmul out, in, twiddle, modulus
+        mul      \out.8h,   \in.8h, \twiddle.h[0]
+        sqrdmulh \in.8h,    \in.8h, \twiddle.h[1]
+        mls      \out.8h,   \in.8h, \modulus.h[0]
+    .endm
+    
+    .macro butterfly data0, data1, tmp, twiddle, modulus
+        barmul \tmp, \data1, \twiddle, \modulus
+        sub    \data1.8h, \data0.8h, \tmp.8h
+        add    \data0.8h, \data0.8h, \tmp.8h
+    .endm
+    
+    start:
+    
+        ldr qtwiddle, [twiddle_ptr, #0]
+    
+        ldr qdata0, [data_ptr, #0*16]
+        ldr qdata1, [data_ptr, #1*16]
+        ldr qdata2, [data_ptr, #2*16]
+        ldr qdata3, [data_ptr, #3*16]
+    
+        butterfly data0, data1, tmp, twiddle, modulus
+        butterfly data2, data3, tmp, twiddle, modulus
+    
+        str qdata0, [data_ptr], #4*16
+        str qdata1, [data_ptr, #-3*16]
+        str qdata2, [data_ptr, #-2*16]
+        str qdata3, [data_ptr, #-1*16]
+    
+    end:
 ```
 
 SLOTHY will then internally expand all macros and the resulting DFG will be exactly the same as before.
@@ -403,7 +403,7 @@ postamble, respectively.
 Let's look at an example demonstrating how SLOTHY can perform software pipelining for you.
 Consider the simple case of performing the code from the previous example within a loop with a fixed number of iterations (>=2). This is exactly what the
 `aarch64_simple0_loop` example in SLOTHY does:
-```nasm
+```asm
 ... // .req and .macro as above
 
 count .req x2
@@ -452,7 +452,7 @@ automatically detect that the loop ends at `cbnz count, start`. Finally, `optimi
 it would by default -- you normally want this set, but we unset it here to simplify the output. This is what it will
 look like:
 
-```nasm
+```asm
 // ...
 count .req x2
 ldr qtwiddle, [twiddle_ptr, #0]
@@ -598,7 +598,7 @@ slothy.write_source_to_file("./aarch64_simple0_loop_mca_a55.s")
 
 This will call LLVM MCA on both the original code and the optimized code and append the LLVM MCA statistics as a comment to the output.
 Somewhere in the code you will see:
-```nasm
+```asm
 // LLVM MCA STATISTICS (ORIGINAL) BEGIN
 //
 // Iterations:        100
@@ -630,7 +630,7 @@ This suggests that our optimizations were actually useful: With respect to LLVM-
  cycle count per iteration was reduced from 31 cycles to 21 cycles.
 
 But LLVM MCA gives you more: It outputs a timeline view showing how each instruction travels through the pipeline:
-```nasm
+```asm
 // Timeline view (ORIGINAL):
 //                     0123456789          0123456789          0123456789          0123456789          01234
 // Index     0123456789          0123456789          0123456789          0123456789          0123456789
@@ -769,48 +769,49 @@ as part of the [pqax](https://github.com/slothy-optimizer/pqax) benchmarking fra
 input and automatically generates a program running and benchmarking prefixes of the input, and combining them into a
 performance diagram similar to the one generated by LLVM-MCA. Here's the output in our case:
 
-```nasm
-===== Stepwise profiling =======
-[  0]:                     ldr q0, [x1, #0] ......*.....................................
-[  1]:                  ldr q8, [x0, #0*16] .......*....................................
-[  2]:                  ldr q9, [x0, #1*16] .........*..................................
-[  3]:                 ldr q10, [x0, #2*16] ...........*................................
-[  4]:                 ldr q11, [x0, #3*16] .............*..............................
-[  5]:    mul      v12.8h,   v9.8h, v0.h[0] ...............*............................
-[  6]:    sqrdmulh v9.8h,    v9.8h, v0.h[1] ................*...........................
-[  7]:    mls      v12.8h,   v9.8h, v1.h[0] .................*..........................
-[  8]:          sub    v9.8h, v8.8h, v12.8h .....................*......................
-[  9]:          add    v8.8h, v8.8h, v12.8h ........................*...................
-[ 10]:   mul      v12.8h,   v11.8h, v0.h[0] .........................*..................
-[ 11]:  sqrdmulh v11.8h,    v11.8h, v0.h[1] ..........................*.................
-[ 12]:   mls      v12.8h,   v11.8h, v1.h[0] ...........................*................
-[ 13]:        sub    v11.8h, v10.8h, v12.8h ...............................*............
-[ 14]:        add    v10.8h, v10.8h, v12.8h ..................................*.........
-[ 15]:                  str q8, [x0], #4*16 ...................................*........
-[ 16]:                 str q9, [x0, #-3*16] .....................................*......
-[ 17]:                str q10, [x0, #-2*16] .....................................*......
-[ 18]:                str q11, [x0, #-1*16] ........................................*...
+```asm
 
-===== Stepwise profiling (OPTIMIZED) =======
-[  0]:  ldr q18, [x0, #16]              // .*........................
-[  1]:  sqrdmulh v8.8H, v6.8H, v2.H[1]  // ..*.......................
-[  2]:  mul v23.8H, v6.8H, v2.H[0]      // ...*......................
-[  3]:  ldr q31, [x0, #32]              // ....*.....................
-[  4]:  mul v3.8H, v18.8H, v2.H[0]      // ......*...................
-[  5]:  mls v23.8H, v8.8H, v1.H[0]      // .......*..................
-[  6]:  sqrdmulh v9.8H, v18.8H, v2.H[1] // ........*.................
-[  7]:  ldr q15, [x0, #0]               // .........*................
-[  8]:  sub v11.8H, v31.8H, v23.8H      // ...........*..............
-[  9]:  mls v3.8H, v9.8H, v1.H[0]       // ............*.............
-[ 10]:  add v16.8H, v31.8H, v23.8H      // .............*............
-[ 11]:  str q11, [x0, #48]              // ..............*...........
-[ 12]:  ldr q2, [x1, #0]                // ...............*..........
-[ 13]:  add v13.8H, v15.8H, v3.8H       // .................*........
-[ 14]:  str q16, [x0, #32]              // ..................*.......
-[ 15]:  sub v7.8H, v15.8H, v3.8H        // ...................*......
-[ 16]:  str q13, [x0], #4*16            // ....................*.....
-[ 17]:  ldr q6, [x0, #48]               // .....................*....
-[ 18]:  str q7, [x0, #-48]              // .......................*..
+    ===== Stepwise profiling =======
+    [  0]:                     ldr q0, [x1, #0] ......*.....................................
+    [  1]:                  ldr q8, [x0, #0*16] .......*....................................
+    [  2]:                  ldr q9, [x0, #1*16] .........*..................................
+    [  3]:                 ldr q10, [x0, #2*16] ...........*................................
+    [  4]:                 ldr q11, [x0, #3*16] .............*..............................
+    [  5]:    mul      v12.8h,   v9.8h, v0.h[0] ...............*............................
+    [  6]:    sqrdmulh v9.8h,    v9.8h, v0.h[1] ................*...........................
+    [  7]:    mls      v12.8h,   v9.8h, v1.h[0] .................*..........................
+    [  8]:          sub    v9.8h, v8.8h, v12.8h .....................*......................
+    [  9]:          add    v8.8h, v8.8h, v12.8h ........................*...................
+    [ 10]:   mul      v12.8h,   v11.8h, v0.h[0] .........................*..................
+    [ 11]:  sqrdmulh v11.8h,    v11.8h, v0.h[1] ..........................*.................
+    [ 12]:   mls      v12.8h,   v11.8h, v1.h[0] ...........................*................
+    [ 13]:        sub    v11.8h, v10.8h, v12.8h ...............................*............
+    [ 14]:        add    v10.8h, v10.8h, v12.8h ..................................*.........
+    [ 15]:                  str q8, [x0], #4*16 ...................................*........
+    [ 16]:                 str q9, [x0, #-3*16] .....................................*......
+    [ 17]:                str q10, [x0, #-2*16] .....................................*......
+    [ 18]:                str q11, [x0, #-1*16] ........................................*...
+    
+    ===== Stepwise profiling (OPTIMIZED) =======
+    [  0]:  ldr q18, [x0, #16]              // .*........................
+    [  1]:  sqrdmulh v8.8H, v6.8H, v2.H[1]  // ..*.......................
+    [  2]:  mul v23.8H, v6.8H, v2.H[0]      // ...*......................
+    [  3]:  ldr q31, [x0, #32]              // ....*.....................
+    [  4]:  mul v3.8H, v18.8H, v2.H[0]      // ......*...................
+    [  5]:  mls v23.8H, v8.8H, v1.H[0]      // .......*..................
+    [  6]:  sqrdmulh v9.8H, v18.8H, v2.H[1] // ........*.................
+    [  7]:  ldr q15, [x0, #0]               // .........*................
+    [  8]:  sub v11.8H, v31.8H, v23.8H      // ...........*..............
+    [  9]:  mls v3.8H, v9.8H, v1.H[0]       // ............*.............
+    [ 10]:  add v16.8H, v31.8H, v23.8H      // .............*............
+    [ 11]:  str q11, [x0, #48]              // ..............*...........
+    [ 12]:  ldr q2, [x1, #0]                // ...............*..........
+    [ 13]:  add v13.8H, v15.8H, v3.8H       // .................*........
+    [ 14]:  str q16, [x0, #32]              // ..................*.......
+    [ 15]:  sub v7.8H, v15.8H, v3.8H        // ...................*......
+    [ 16]:  str q13, [x0], #4*16            // ....................*.....
+    [ 17]:  ldr q6, [x0, #48]               // .....................*....
+    [ 18]:  str q7, [x0, #-48]              // .......................*..
 ```
 
 We can see that SLOTHY's predictions were exactly right, and that LLVM-MCA's model is off in a few places.
@@ -823,7 +824,7 @@ The examples previously considered were all toy examples, so you may wonder how 
 Let's look at a real-world example: The Kyber number-theoretic transform -- a core arithmetic function of the Kyber key-encapsulation mechanism making up a large chunk of the total run-time.
 The target platform is again the Arm Cortex-A55 and the code primarily consists of
 Neon vector instructions.
-We'll consider a straightforward implementation available here: [ntt_kyber_123_4567.s](../examples/naive/aarch64/ntt_kyber_123_4567.s).
+We'll consider a straightforward implementation available here: [ntt_kyber_123_4567.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/ntt_kyber_123_4567.s).
 If you have ever written an NTT, it should be fairly easy to understand what the code is doing.
 The code consists of 2 main loops implementing layers 1+2+3 and 4+5+6+7 of the NTT.
 The actual operations are wrapped in macros implementing butterflies on single vector registers.
@@ -844,7 +845,7 @@ slothy.write_source_to_file("opt/ntt_kyber_123_4567_opt_a55.s")
 ```
 
 We simply optimize both loops separately.
-You will notice some additional flags we have set. To read the documentation of those, please have a look at [config.py](../slothy/core/config.py).
+You will notice some additional flags we have set. To read the documentation of those, please have a look at [config.py](https://github.com/slothy-optimizer/slothy/blob/main/slothy/core/config.py).
 We have set an additional flag: `inputs_are_outputs = True`. This tells SLOTHY that the registers that are used as
 inputs to the loop (e.g., the pointer to the polynomial input) are also outputs of the entire loop; otherwise, SLOTHY
 could overwrite them in the postamble once they are no longer needed. You most likely want `inputs_are_outputs=True`
@@ -856,7 +857,7 @@ registers. If you are familiar with inline assembly, SLOTHY's `reserved_regs` ar
 
 When running this example, you will notice that it has a significantly longer runtime.
 On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
-You may instead look at an optimized version of the same code [examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s](../examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s).
+You may instead look at an optimized version of the same code [examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s).
 You notice that both loops have many early instructions, and coming up with this code by hand would be tedious, time-consuming and error-prone.
 
 
@@ -867,7 +868,7 @@ When using a more powerful machine and allowing optimization times of hours, one
 We've successfully used (vanilla) SLOTHY for optimized code snippets of up to 180 instructions.
 However, for larger code at a certain point the constraint solving becomes prohibitively expensive and we need to use a different strategy.
 
-One such example is the X25519 implementation we looked at in the [SLOTHY paper](https://eprint.iacr.org/2022/1303) available in [X25519-AArch64-simple.s](../examples/naive/aarch64/X25519-AArch64-simple.s)
+One such example is the X25519 implementation we looked at in the [SLOTHY paper](https://eprint.iacr.org/2022/1303) available in [X25519-AArch64-simple.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/X25519-AArch64-simple.s)
 It is a hybrid vector-scalar implementation based on an [implementation](https://github.com/Emill/X25519-AArch64) by Lenngren.
 Its core loop consists of 958 instructions which well exceeds what SLOTHY can currently optimize in a single pass.
 
@@ -920,15 +921,15 @@ We can configure SLOTHY to only consider register allocation by setting the `all
 In this way, the constraints remain manageable, and SLOTHY finds a register allocation within a few minutes.
 
 Running this example takes around 15 minutes.
-You can instead look at the output available in [opt/X25519-AArch64-simple_opt.s](opt/X25519-AArch64-simple_opt.s)
+You can instead look at the output available in [opt/X25519-AArch64-simple_opt.s](https://github.com/slothy-optimizer/slothy/tree/main/tutorial_files/opt/X25519-AArch64-simple_opt.s)
 The output will look similar to the previous examples and contains significantly less pipeline stalls than the input.
-For achieving the best performance, we require a few more calls to SLOTHY. You can find the script we used [here](../paper/scripts/slothy_x25519.sh) - it runs around 1.5 hours.
+For achieving the best performance, we require a few more calls to SLOTHY. You can find the script we used [here](https://github.com/slothy-optimizer/slothy/blob/main/paper/scripts/slothy_x25519.sh) - it runs around 1.5 hours.
 
 ## 8. Adding a new microarchitecture
 
 You may wonder how to extend SLOTHY to include a new microarchitecture.
 For example, you may want to optimize code for a newer iteration of the Arm Cortex-A55, e.g., the Arm Cortex-A510.
-To understand what is needed for that, let's look at the microarchitectural model for the Cortex-A55 available in [slothy/targets/aarch64/cortex_a55.py](../slothy/targets/aarch64/cortex_a55.py).
+To understand what is needed for that, let's look at the microarchitectural model for the Cortex-A55 available in [slothy/targets/aarch64/cortex_a55.py](https://github.com/slothy-optimizer/slothy/blob/main/slothy/targets/aarch64/cortex_a55.py).
 
 Skipping some boilerplate code, you will see the following structure:
 ```python
@@ -984,7 +985,7 @@ Going through the snippet, we can see the core components:
  - Finally, we need to implement the functions `get_latency`, `get_units`, `get_inverse_throughput` returning the
    latency, occupied execution units, and throughputs. The input to these functions is a class from the architectural
    model representing the instruction in question. For example, the class `vmull` in
-   [aarch64_neon.py](../slothy/targets/aarch64/aarch64_neon.py) corresponds to the `umull` instruction. We commonly
+   [aarch64_neon.py](https://github.com/slothy-optimizer/slothy/blob/main/slothy/targets/aarch64/aarch64_neon.py) corresponds to the `umull` instruction. We commonly
    implement this using dictionaries above.
 
 For example, for the (128-bit/qform) `vmull` instruction, we can find in the [Arm Cortex-A55 Software Optimization

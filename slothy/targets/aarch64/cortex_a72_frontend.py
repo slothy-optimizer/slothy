@@ -46,7 +46,9 @@ on issue queues.
 This file thus tries to model basic aspects of the frontend of Cortex-A72
 alongside instruction latencies, both taken from the Cortex-A72 Software Optimization Guide.
 
-Note: We focus on a very small subset of AArch64, just enough to experiment with the
+.. note::
+
+    We focus on a very small subset of AArch64, just enough to experiment with the
     optimization of the Kyber and Dilithium NTT.
 """
 
