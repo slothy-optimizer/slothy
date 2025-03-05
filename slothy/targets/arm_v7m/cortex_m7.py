@@ -20,6 +20,7 @@ from itertools import product
 from slothy.targets.arm_v7m.arch_v7m import *
 import re
 from sympy import simplify
+from math import ceil
 
 issue_rate = 2
 llvm_mca_target = "cortex-m7"
@@ -123,7 +124,7 @@ execution_units = {
         Ldrd,
         ldm_interval,
         ldm_interval_inc_writeback,
-        vldm_interval_inc_writeback): [ExecutionUnit.LOAD()],
+        vldm_interval_inc_writeback): [[ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]],
     (
         str_with_imm,
         str_with_imm_stack,
@@ -320,7 +321,7 @@ def get_latency(src, out_idx, dst):
 
     # Load and store multiples take a long time to complete
     if instclass_src in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
-        latency = src.num_out
+        latency = ceil(src.num_out/2)
         
     # Flag setting -> branch has at least 3 latency
     if instclass_src in [subs_imm, subs_imm_short, cmp, cmp_imm] and instclass_dst == bne:
@@ -363,6 +364,6 @@ def get_units(src):
 def get_inverse_throughput(src):
     itp = lookup_multidict(inverse_throughput, src)
     if find_class(src) in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
-        itp = src.num_out
+        itp = ceil(src.num_out/2)
 
     return itp
