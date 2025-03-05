@@ -123,6 +123,10 @@ execution_units = {
     Ld4: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD]
           + ExecutionUnit.SCALAR()],
 
+    St3 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
+            ExecutionUnit.SCALAR_STORE] + ExecutionUnit.SCALAR()],
+    Ld3: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD]
+          + ExecutionUnit.SCALAR()],
     # non-q-form vector instructions
     ( umov_d, mov_d01, mov_b00,
       fcsel_dform,
@@ -186,7 +190,9 @@ inverse_throughput = {
     ( nop, Vins, Ldr_X, Str_X ) : 1,
     Ldp_X : 2,
     St4 : 5,
+    St3 : 3,
     Ld4 : 9,
+    Ld3 : 6,
     (fcsel_dform) : 1,
     (VecToGprMov, Mov_xtov_d) : 1,
     (movk_imm, mov) : 1,
@@ -225,7 +231,9 @@ default_latencies = {
       vqrdmulh, vqrdmulh_lane, vqdmulh_lane, Vmull, Vmlal) : 4,
     ( Ldr_Q, Str_Q ) : 4,
     St4 : 5,
+    St3 : 3,
     # TODO: Add distinction between Q/D and B/H vs. D/S
+    Ld3 : 8,
     Ld4 : 11,
     ( Str_X, Ldr_X ) : 4,
     Ldp_X : 4,

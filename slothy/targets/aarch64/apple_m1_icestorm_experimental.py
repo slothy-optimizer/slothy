@@ -113,6 +113,11 @@ execution_units = {
     St4: list(map(list, product(ExecutionUnit.STORE(), ExecutionUnit.V()))),  # guessed
     Ld4: [list(l[0] + (l[1],)) for l in map(list, (product(combinations(ExecutionUnit.LOAD(), 2),
                                                            ExecutionUnit.V())))],  # guessed
+
+    St3: list(map(list, product(ExecutionUnit.STORE(), ExecutionUnit.V()))),  # guessed
+    Ld3: [list(l[0] + (l[1],)) for l in map(list, (product(combinations(ExecutionUnit.LOAD(), 2),
+                                                           ExecutionUnit.V())))],  # guessed
+
     (Ldr_Q): ExecutionUnit.LOAD(),  # for LDR (unsigned offset, Q)
     (Str_Q): ExecutionUnit.STORE(),  # for STR (signed offset, Q)
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc): list(map(list, product(ExecutionUnit.V(),
@@ -172,6 +177,8 @@ inverse_throughput = {
      Q_Ld2_Lane_Post_Inc): 3,  # guessed
     St4: 5,  # guessed
     Ld4: 5,  # guessed
+    St3: 4,  # guessed
+    Ld3: 4,  # guessed
     Mov_xtov_d: 1,  # guessed
     d_stp_stack_with_inc: 1,  # guessed
     d_str_stack_with_inc: 1,
@@ -225,6 +232,8 @@ default_latencies = {
     (Str_Q): 4,  # guessed
     St4: 4,  # guessed
     Ld4: 6,  # guessed
+    St4: 3,  # guessed
+    Ld4: 4,  # guessed
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc): 4,  # guessed
     Mov_xtov_d: 4,  # <=7, based on FMOV
     d_stp_stack_with_inc: 4,  # guessed
