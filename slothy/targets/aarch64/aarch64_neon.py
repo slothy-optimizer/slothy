@@ -1013,6 +1013,12 @@ class q_ldr_with_imm_hint(Ldr_Q): # pylint: disable=missing-docstring,invalid-na
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+class v_tbl_16b(AArch64Instruction):
+    pattern = "tbl <Vd>.16b, {<Vn>.16b}, <Vm>.16b"
+    outputs = ["Vd"]
+    inputs = ["Vn", "Vm"]
+    
+
 class b_ldr_stack_with_inc(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr <Ba>, [sp, <imm>]"
     # TODO: Model sp dependency
@@ -2126,6 +2132,14 @@ class mvn_xzr(AArch64Move): # pylint: disable=missing-docstring,invalid-name
     pattern = "mvn <Xd>, xzr"
     inputs = []
     outputs = ["Xd"]
+class mov_hh(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "mov <Va>.d[1], <Vb>.d[1]"
+    inputs = ["Vb"]
+    in_outs = ["Va"]
+class mov_hl(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pattern = "mov <Va>.d[1], <Vb>.d[0]"
+    inputs = ["Vb"]
+    in_outs = ["Va"]
 
 class mov_xform(AArch64Move): # pylint: disable=missing-docstring,invalid-name
     pattern = "mov <Xd>, <Xa>"
