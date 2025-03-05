@@ -115,6 +115,9 @@ execution_units = {
         q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
         Vmull, Vmlal, vusra,
         vushr, vsshr,
+        vshrn,
+        vshli,
+        vxtn,
         VShiftImmediateRounding,
     ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
@@ -126,6 +129,11 @@ execution_units = {
     St3 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
             ExecutionUnit.SCALAR_STORE] + ExecutionUnit.SCALAR()],
     Ld3: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD]
+          + ExecutionUnit.SCALAR()],
+
+    St2 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
+            ExecutionUnit.SCALAR_STORE] + ExecutionUnit.SCALAR()],
+    Ld2: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD]
           + ExecutionUnit.SCALAR()],
     # non-q-form vector instructions
     ( umov_d, mov_d01, mov_b00,
@@ -191,8 +199,13 @@ inverse_throughput = {
     Ldp_X : 2,
     St4 : 5,
     St3 : 3,
+    St2 : 2,
     Ld4 : 9,
     Ld3 : 6,
+    Ld2 : 4,
+    vxtn : 1,
+    vshrn : 2,
+    vshli : 2,
     (fcsel_dform) : 1,
     (VecToGprMov, Mov_xtov_d) : 1,
     (movk_imm, mov) : 1,
@@ -232,9 +245,14 @@ default_latencies = {
     ( Ldr_Q, Str_Q ) : 4,
     St4 : 5,
     St3 : 3,
+    St2 : 2,
     # TODO: Add distinction between Q/D and B/H vs. D/S
+    Ld2 : 6,
     Ld3 : 8,
     Ld4 : 11,
+    vxtn : 2,
+    vshrn : 2,
+    vshli : 2,
     ( Str_X, Ldr_X ) : 4,
     Ldp_X : 4,
     ( Vins, umov_d ) : 2,
