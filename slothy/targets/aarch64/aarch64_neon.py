@@ -478,10 +478,10 @@ class Instruction:
 
     def is_vector_load(self):
         """Indicates if an instruction is a Neon load instruction"""
-        return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld2, Ld4, Q_Ld2_Lane_Post_Inc ])
+        return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld2, Ld3, Ld4, Q_Ld2_Lane_Post_Inc ])
     def is_vector_store(self):
         """Indicates if an instruction is a Neon store instruction"""
-        return self._is_instance_of([ Str_Q, Stp_Q, St2, St4,
+        return self._is_instance_of([ Str_Q, Stp_Q, St2, St3, St4,
                                       d_stp_stack_with_inc, d_str_stack_with_inc])
 
     # scalar
@@ -2995,7 +2995,7 @@ class st4_base(St4): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
             ]
         return obj
 
@@ -3010,7 +3010,38 @@ class st4_with_inc(St4): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
+            ]
+        return obj
+
+class St3(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pass
+
+class st3_base(St3): # pylint: disable=missing-docstring,invalid-name
+    pattern = "st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]"
+    inputs = ["Xc", "Va", "Vb", "Vc"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
+        obj.addr = obj.args_in[0]
+        obj.args_in_combinations = [
+                ( [1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
+            ]
+        return obj
+
+class st3_with_inc(St3): # pylint: disable=missing-docstring,invalid-name
+    pattern = "st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>"
+    inputs = ["Va", "Vb", "Vc"]
+    in_outs = ["Xc"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in_out[0]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.args_in_combinations = [
+                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -3026,7 +3057,7 @@ class st2_base(St2): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
         return obj
 
@@ -3041,7 +3072,7 @@ class st2_with_inc(St2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
         return obj
 
@@ -3058,7 +3089,7 @@ class ld4_base(Ld4): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
             ]
         return obj
 
@@ -3073,7 +3104,39 @@ class ld4_with_inc(Ld4): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
+            ]
+        return obj
+
+class Ld3(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
+    pass
+
+class ld3_base(Ld3): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Va", "Vb", "Vc"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.offset_adjustable = False
+        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
+            ]
+        return obj
+
+class ld3_with_inc(Ld3): # pylint: disable=missing-docstring,invalid-name
+    pattern = "ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>"
+    in_outs = ["Xc"]
+    outputs = ["Va", "Vb", "Vc"]
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in_out[0]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.args_out_combinations = [
+                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0,30) ] )
             ]
         return obj
 
@@ -3090,7 +3153,7 @@ class ld2_base(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
         return obj
 
@@ -3105,7 +3168,7 @@ class ld2_with_inc(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
         return obj
 

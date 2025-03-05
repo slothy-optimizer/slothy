@@ -639,6 +639,23 @@ class AArch64Example2(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("start")
 
+class AArch64ExampleLdSt(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_ldst"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.optimize()
+
+
 class AArch64Split0(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_split0"
@@ -2711,6 +2728,7 @@ def main():
                  AArch64Example1(target=Target_CortexA72),
                  AArch64Example2(),
                  AArch64Example2(target=Target_CortexA72),
+                 AArch64ExampleLdSt(),
                  AArch64IfElse(),
 
                  AArch64Split0(),

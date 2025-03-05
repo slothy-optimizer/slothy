@@ -134,9 +134,9 @@ execution_units = {
     (VShiftImmediateRounding,
      VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
 
-    (St4, St2) : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    (St4, St3, St2) : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
-    Ld4 : [[ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
+    (Ld3, Ld4) : [[ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
            [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]]
 }
 
@@ -168,9 +168,13 @@ inverse_throughput = {
     (VShiftImmediateRounding,
      VShiftImmediateBasic): 1,
 
+    # TODO: this seems in accurate; revisiting may improve performance
     St2 : 4,
+    St3 : 6,
     St4 : 8,
-    Ld4 : 4
+    Ld3 : 3,
+    Ld4 : 4,
+    
 }
 
 ### REVISIT
@@ -200,8 +204,11 @@ default_latencies = {
     VShiftImmediateRounding: 3, # approx
     VShiftImmediateBasic: 3,
 
+    # TODO: this seems in accurate; revisiting may improve performance
     St2 : 4,
+    St3 : 6,
     St4 : 8,
+    Ld3 : 3,
     Ld4 : 4
 }
 
