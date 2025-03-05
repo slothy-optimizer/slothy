@@ -2995,7 +2995,7 @@ class st4_base(St4): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
             ]
         return obj
 
@@ -3010,7 +3010,7 @@ class st4_with_inc(St4): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
             ]
         return obj
 
@@ -3026,7 +3026,7 @@ class st3_base(St3): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,29) ] )
+                ( [1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -3041,7 +3041,7 @@ class st3_with_inc(St3): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,29) ] )
+                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -3057,7 +3057,7 @@ class st2_base(St2): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
         return obj
 
@@ -3072,7 +3072,7 @@ class st2_with_inc(St2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
         return obj
 
@@ -3089,7 +3089,7 @@ class ld4_base(Ld4): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
             ]
         return obj
 
@@ -3104,7 +3104,7 @@ class ld4_with_inc(Ld4): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,28) ] )
+                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
             ]
         return obj
 
@@ -3121,7 +3121,7 @@ class ld3_base(Ld3): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,29) ] )
+                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
             ]
         return obj
 
@@ -3136,7 +3136,7 @@ class ld3_with_inc(Ld3): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0,29) ] )
+                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0,30) ] )
             ]
         return obj
 
@@ -3153,7 +3153,7 @@ class ld2_base(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
         return obj
 
@@ -3168,7 +3168,7 @@ class ld2_with_inc(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
             ]
         return obj
 
