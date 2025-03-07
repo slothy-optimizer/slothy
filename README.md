@@ -73,8 +73,8 @@ SLOTHY has been successfully used on
 - Ubuntu-21.10 and up (64-bit),
 - macOS Monterey 12.6 and up.
 
-SLOTHY requires Python 3.11. See [requirements.txt](requirements.txt) for package requirements, and install via `pip
-install -r requirements.txt`.
+SLOTHY requires Python 3.11 (consider using pyenv to pin your Python version locally).
+See [requirements.txt](requirements.txt) for package requirements, and install via `pip install -r requirements.txt`.
 
 **Note:** `requirements.txt` pins versions for reproducibility. If you already have newer versions of some dependencies
 installed and don't want them downgraded, consider using a virtual environment:
