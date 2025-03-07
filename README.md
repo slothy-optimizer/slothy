@@ -73,7 +73,7 @@ SLOTHY has been successfully used on
 - Ubuntu-21.10 and up (64-bit),
 - macOS Monterey 12.6 and up.
 
-SLOTHY requires Python >= 3.10. See [requirements.txt](requirements.txt) for package requirements, and install via `pip
+SLOTHY requires Python 3.11. See [requirements.txt](requirements.txt) for package requirements, and install via `pip
 install -r requirements.txt`.
 
 **Note:** `requirements.txt` pins versions for reproducibility. If you already have newer versions of some dependencies
@@ -85,6 +85,8 @@ python3 -m venv venv
 ```
 
 Then, enter the virtual environment via `source venv/bin/activate` prior to running SLOTHY.
+Finally, adjust your PATH environment variable to include the directories containining
+the `slothy-cli` script and the LLVM `llvm-mca` tool.
 
 ### Docker
 
