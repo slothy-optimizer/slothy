@@ -43,13 +43,17 @@ import slothy.targets.aarch64.cortex_a72_frontend as Target_CortexA72
 import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
+import slothy.targets.riscv.riscv as RISC_V
+import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
+
 target_label_dict = {Target_CortexA55: "a55",
                      Target_CortexA72: "a72",
                      Target_CortexM7: "m7",
                      Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85",
                      Target_AppleM1_firestorm: "m1_firestorm",
-                     Target_AppleM1_icestorm: "m1_icestorm"}
+                     Target_AppleM1_icestorm: "m1_icestorm",
+                     Target_XuanTieC908: "c908"}
 
 
 class ExampleException(Exception):
@@ -81,6 +85,8 @@ class Example():
             subfolder = "aarch64/"
         elif self.arch == Arch_Armv7M:
             subfolder = "armv7m/"
+        elif self.arch == RISC_V:
+            subfolder = "riscv/"
         self.infile_full = f"examples/naive/{subfolder}{self.infile}.s"
         self.outfile_full = f"examples/opt/{subfolder}{self.outfile}.s"
         self.name = name
@@ -671,6 +677,7 @@ class AArch64Split0(Example):
     def core(self,slothy):
         slothy.config.allow_useless_instructions = True
         slothy.fusion_region("start", "end", ssa=False)
+
 class Armv7mExample0(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "armv7m_simple0"
@@ -720,10 +727,7 @@ class Armv7mLoopSubs(Example):
 
     def core(self,slothy):
         slothy.config.variable_size=True
-        slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.SubsLoop)
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.outputs = ["r0", "r1", "r2", "r5", "flags"]
-        slothy.optimize_loop("start2", forced_loop_type=Arch_Armv7M.BranchLoop)
+        slothy.optimize_loop("start")
 
 class Armv7mLoopCmp(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
@@ -758,7 +762,7 @@ class Armv7mLoopVmovCmp(Example):
         slothy.config.variable_size=True
         slothy.config.outputs = ["r6"]
         slothy.optimize_loop("start")
-        
+
 class Armv7mLoopVmovCmpForced(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_vmov_cmp_forced"
@@ -1568,6 +1572,104 @@ class fft_floatingpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
+class RISC_VExample0(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
+        name = "riscv_simple0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize()
+
+class RISC_VExampleLoop0(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
+        name = "riscv_simple_loop0"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.sw_pipelining.enabled = True
+
+        slothy.optimize_loop("my_loop")
+        slothy.optimize_loop("my_loop2")
+        slothy.optimize_loop("my_loop3")
+
+class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "ntt_8l_singleissue_plant_rv64im"
+        subpath = "ntt_dilithium/"
+        infile = subpath + name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv64im", timeout=timeout)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.config.inputs_are_outputs = True
+
+        r = slothy.config.reserved_regs
+        r += ['x3']
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
+        #slothy.config.split_heuristic_factor = 10
+        #slothy.config.split_heuristic_repeat = 1
+        #slothy.config.split_heuristic_stepsize = 0.3
+        slothy.optimize_loop("ntt_8l_rv64im_loop1")
+        slothy.optimize_loop("ntt_8l_rv64im_loop2")
+
+class RISC_V_poly_basemul_8l_acc_rv64im(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "poly_basemul_8l_acc_rv64im"
+        subpath = "poly_basemul/"
+        infile = subpath + name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="poly_basemul_8l_acc_rv64im", timeout=timeout)
+
+    def core(self,slothy):
+        slothy.config.variable_size=True
+        slothy.config.constraints.stalls_first_attempt=32
+        slothy.config.inputs_are_outputs = True
+
+        r = slothy.config.reserved_regs
+        r += ['x3']
+        slothy.config.reserved_regs = r
+        slothy.optimize_loop("poly_basemul_8l_acc_rv64im_looper")
+
+
 #############################################################################################
 
 class ntt_dilithium(Example):
@@ -1745,7 +1847,7 @@ class ifnt_257_dilithium(Example):
 
     def core(self, slothy):
         slothy.config.timeout = 300
-        
+
         slothy.config.unsafe_address_offset_fixup = False
 
         slothy.config.outputs = ["r14", "s1", "r12"]
@@ -1885,7 +1987,7 @@ class intt_769_dilithium(Example):
 
     def core(self, slothy):
         slothy.config.timeout = 180
-        
+
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
@@ -2006,13 +2108,13 @@ class caddq_dilithium(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("1")
-        
+
 class Keccak(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"keccakf1600"
         infile = name
         funcname = "KeccakF1600_StatePermute"
-        
+
 
         if var != "":
             name += f"_{var}"
@@ -2028,7 +2130,7 @@ class Keccak(Example):
         slothy.config.reserved_regs = ["sp", "r13"]
         slothy.config.locked_registers = ["sp", "r13"]
         slothy.config.unsafe_address_offset_fixup = False
-        
+
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_preprocess_naive_interleaving = True
         slothy.config.split_heuristic_repeat = 2
@@ -2037,17 +2139,17 @@ class Keccak(Example):
 
         if "adomnicai_m7" in self.name:
             slothy.config.split_heuristic_factor = 6
-            
+
             slothy.config.outputs = ['hint_spEga0', 'hint_spEge0', 'hint_spEgi0', 'hint_spEgo0', 'hint_spEgu0', 'hint_spEka1', 'hint_spEke1', 'hint_spEki1', 'hint_spEko1', 'hint_spEku1', 'hint_spEma0', 'hint_spEme0', 'hint_spEmi0', 'hint_spEmo0', 'hint_spEmu0', 'hint_spEsa1', 'hint_spEse1', 'hint_spEsi1', 'hint_spEso1', 'hint_spEsu1', 'hint_spEbe0', 'hint_spEbi0', 'hint_spEbo0', 'hint_spEbu0', 'hint_spEba0', 'hint_spEga1', 'hint_spEge1', 'hint_spEgi1', 'hint_spEgo1', 'hint_spEgu1', 'hint_spEka0', 'hint_spEke0', 'hint_spEki0', 'hint_spEko0', 'hint_spEku0', 'hint_spEma1', 'hint_spEme1', 'hint_spEmi1', 'hint_spEmo1', 'hint_spEmu1', 'hint_spEsa0', 'hint_spEse0', 'hint_spEsi0', 'hint_spEso0', 'hint_spEsu0', 'hint_spEbe1', 'hint_spEbi1', 'hint_spEbo1', 'hint_spEbu1', 'hint_spEba1']
             slothy.optimize(start="slothy_start_round0", end="slothy_end_round0")
             slothy.config.outputs = ['flags', 'hint_r0Aba0', 'hint_r0Aba1', 'hint_r0Abe0', 'hint_r0Abe1', 'hint_r0Abi0', 'hint_r0Abi1', 'hint_r0Abo0', 'hint_r0Abo1', 'hint_r0Abu0', 'hint_r0Abu1', 'hint_r0Aga0', 'hint_r0Aga1', 'hint_r0Age0', 'hint_r0Age1', 'hint_r0Agi0', 'hint_r0Agi1', 'hint_r0Ago0', 'hint_r0Ago1', 'hint_r0Agu0', 'hint_r0Agu1', 'hint_r0Aka0', 'hint_r0Aka1', 'hint_r0Ake0', 'hint_r0Ake1', 'hint_r0Aki0', 'hint_r0Aki1', 'hint_r0Ako0', 'hint_r0Ako1', 'hint_r0Aku0', 'hint_r0Aku1', 'hint_r0Ama0', 'hint_r0Ama1', 'hint_r0Ame0', 'hint_r0Ame1', 'hint_r0Ami0', 'hint_r0Ami1', 'hint_r0Amo0', 'hint_r0Amo1', 'hint_r0Amu0', 'hint_r0Amu1', 'hint_r0Asa0', 'hint_r0Asa1', 'hint_r0Ase0', 'hint_r0Ase1', 'hint_r0Asi0', 'hint_r0Asi1', 'hint_r0Aso0', 'hint_r0Aso1', 'hint_r0Asu0', 'hint_r0Asu1']
             slothy.optimize(start="slothy_start_round1", end="slothy_end_round1")
-        else: 
+        else:
             if "xkcp" in self.name:
                 slothy.config.outputs = ['flags', 'hint_spEba0', 'hint_spEba1', 'hint_spEbe0', 'hint_spEbe1', 'hint_spEbi0', 'hint_spEbi1', 'hint_spEbo0', 'hint_spEbo1', 'hint_spEbu0', 'hint_spEbu1', 'hint_spEga0', 'hint_spEga1', 'hint_spEge0', 'hint_spEge1', 'hint_spEgi0', 'hint_spEgi1', 'hint_spEgo0', 'hint_spEgo1', 'hint_spEgu0', 'hint_spEgu1', 'hint_spEka0', 'hint_spEka1', 'hint_spEke0', 'hint_spEke1', 'hint_spEki0', 'hint_spEki1', 'hint_spEko0', 'hint_spEko1', 'hint_spEku0', 'hint_spEku1', 'hint_spEma0', 'hint_spEma1', 'hint_spEme0', 'hint_spEme1', 'hint_spEmi0', 'hint_spEmi1', 'hint_spEmo0', 'hint_spEmo1', 'hint_spEmu0', 'hint_spEmu1', 'hint_spEsa0', 'hint_spEsa1', 'hint_spEse0', 'hint_spEse1', 'hint_spEsi0', 'hint_spEsi1', 'hint_spEso0', 'hint_spEso1', 'hint_spEsu0', 'hint_spEsu1']
             if "adomnicai_m4" in self.name:
                 slothy.config.outputs = ['flags', 'hint_r0Aba1', 'hint_r0Aka1', 'hint_spEba0', 'hint_spEba1', 'hint_spEbe0', 'hint_spEbe1', 'hint_spEbi0', 'hint_spEbi1', 'hint_spEbo0', 'hint_spEbo1', 'hint_spEbu0', 'hint_spEbu1', 'hint_spEga0', 'hint_spEga1', 'hint_spEge0', 'hint_spEge1', 'hint_spEgi0', 'hint_spEgi1', 'hint_spEgo0', 'hint_spEgo1', 'hint_spEgu0', 'hint_spEgu1', 'hint_spEka0', 'hint_spEka1', 'hint_spEke0', 'hint_spEke1', 'hint_spEki0', 'hint_spEki1', 'hint_spEko0', 'hint_spEko1', 'hint_spEku0', 'hint_spEku1', 'hint_spEma0', 'hint_spEma1', 'hint_spEme0', 'hint_spEme1', 'hint_spEmi0', 'hint_spEmi1', 'hint_spEmo0', 'hint_spEmo1', 'hint_spEmu0', 'hint_spEmu1', 'hint_spEsa0', 'hint_spEsa1', 'hint_spEse0', 'hint_spEse1', 'hint_spEsi0', 'hint_spEsi1', 'hint_spEso0', 'hint_spEso1', 'hint_spEsu0', 'hint_spEsu1', 'hint_spmDa0']
-            
+
             slothy.config.split_heuristic_factor = 22
             slothy.config.constraints.stalls_first_attempt = 16
 
@@ -2871,7 +2973,13 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
-                 
+
+                 # RISC-V
+                 RISC_VExample0(target=Target_XuanTieC908),
+                 RISC_VExampleLoop0(),
+                 RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
+                 RISC_V_poly_basemul_8l_acc_rv64im(target=Target_XuanTieC908),
+
                  ntt_dilithium(),
                  intt_dilithium_123_456_78(),
                  pointwise_montgomery_dilithium(),
@@ -2886,7 +2994,7 @@ def main():
                  pointwise_769_asymmetric_dilithium(),
                  reduce32_dilithium(),
                  caddq_dilithium(),
-                 
+
                  Keccak(var="xkcp"),
                  Keccak(var="adomnicai_m4"),
                  Keccak(var="adomnicai_m7"),
