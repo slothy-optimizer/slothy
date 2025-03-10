@@ -32,7 +32,8 @@ class SlothyUselessInstructionException(Exception):
     """An instruction was found whose outputs are neither used by a subsequent instruction
     nor declared as global outputs of the code under consideration. The instruction is therefore
     useless according to the architecture model given to SLOTHY. Consider removing the instruction
-    or refining the architecture model."""
+    or refining the architecture model.
+    """
 
 class RegisterSource:
     """Representation of the output of an instruction
@@ -160,17 +161,16 @@ class ComputationNode:
     def __init__(self, *, node_id, inst, orig_pos=None, src_in=None, src_in_out=None):
         """A node in a data flow graph
 
-           Args:
-              id:     A unique identifier for the node
-              inst:   The instruction which the node represents
-                      Must be an instance of Instruction
-              src_in: A list of RegisterSource instances representing
-                      the inputs to the instruction. Inputs which are
-                      also written to should not be listed here, but in
-                      the separate src_in_out argument.
-              src_in_out: A list of RegisterSource instances representing
-                          the inputs to the instruction which are also
-                          written to.
+
+        :param id:   A unique identifier for the node
+        :param inst: The instruction which the node represents
+            Must be an instance of Instruction
+        :param src_in: A list of RegisterSource instances representing
+            the inputs to the instruction. Inputs which are
+            also written to should not be listed here, but in
+            the separate src_in_out argument.
+        :param src_in_out: A list of RegisterSource instances representing the inputs to the instruction which are
+            also written to.
         """
 
         def isinstancelist(l, c):
@@ -294,11 +294,12 @@ class Config:
     @property
     def typing_hints(self):
         """A dictionary of 'typing hints' explicitly assigning to symbolic register names
-         a register type.
+        a register type.
 
         This can be necessary to disambiguate the type of symbolic registers.
         For example, the Helium vector extension has various instructions which
-        accept either vector or GPR arguments."""
+        accept either vector or GPR arguments.
+        """
         typing_hints = { name : ty for ty in self.arch.RegisterType \
                for name in self.arch.RegisterType.list_registers(ty, with_variants=True) }
         return { **self._typing_hints, **typing_hints }
@@ -309,12 +310,14 @@ class Config:
     @property
     def inputs_are_outputs(self):
         """Every input is automatically treated as an output.
-        This is typically set for loop kernels."""
+        This is typically set for loop kernels.
+        """
         return self._inputs_are_outputs
     @property
     def allow_useless_instructions(self):
         """Indicates whether data flow creation should raise SlothyUselessInstructionException
-        when a useless instruction is detected."""
+        when a useless instruction is detected.
+        """
         return self._allow_useless_instructions
 
     @typing_hints.setter
@@ -333,9 +336,8 @@ class Config:
     def __init__(self, slothy_config=None, **kwargs):
         """Create a DataFlowGraph config from a Slothy config
 
-        Args:
-            slothy_config: The Slothy configuration to reference.
-                   kwargs: An optional list of modifications of the Slothy config
+        :param slothy_config: The Slothy configuration to reference.
+        :param kwargs: An optional list of modifications of the Slothy config
         """
         self._arch = None
         self._typing_hints = None
@@ -376,14 +378,16 @@ class DataFlowGraph:
         (a) make the graph self-contained in the sense that there are no
         external inputs to the graph, (b) makes it easier to track where
         outputs are written, (c) automatically creates input nodes for
-        outputs which are never written to."""
+        outputs which are never written to.
+        """
         return self._nodes_all
 
     @property
     def nodes(self):
         """The list of all ComputationNodes corresonding to instructions in
         the original source code. Compared to DataFlowGraph.nodes_all, this
-        omits "virtual" computation nodes."""
+        omits "virtual" computation nodes.
+        """
         return list(filter(lambda x: x.is_not_virtual, self.nodes_all))
 
     @property
@@ -443,14 +447,16 @@ class DataFlowGraph:
     @property
     def nodes_low(self):
         """For a source with an even number of instructions, the lower half of the
-        data flow graph, excluding virtual instructions."""
+        data flow graph, excluding virtual instructions.
+        """
         num_nodes = len(self.nodes)
         assert num_nodes % 2 == 0
         return self.nodes[:num_nodes//2]
     @property
     def nodes_high(self):
         """For a source with an even number of instructions, the upper half of the
-        data flow graph, excluding virtual instructions."""
+        data flow graph, excluding virtual instructions.
+        """
         num_nodes = len(self.nodes)
         assert num_nodes % 2 == 0
         return self.nodes[num_nodes//2:]
@@ -470,7 +476,8 @@ class DataFlowGraph:
 
         The ID of a virtual input/output node is "input/output_{name}" (as a string),
         while the ID of computation nodes corresponding to instructions in the input
-        source is their original position, as an integer."""
+        source is their original position, as an integer.
+        """
         def _iter_edges_with_label():
             for t in self.nodes_all:
                 for out_idx, deps in enumerate(t.dst_out):
@@ -485,7 +492,8 @@ class DataFlowGraph:
         """The depth of the data flow graph.
 
         Equivalently, the maximum length of a dependency chain in the assembly source
-        represented by the graph."""
+        represented by the graph.
+        """
         if self.nodes is None or len(self.nodes) == 0:
             return 1
         return max(t.depth for t in self.nodes)
@@ -628,15 +636,14 @@ class DataFlowGraph:
     def __init__(self, src, logger, config, parsing_cb=True):
         """Compute a data flow graph from a source code snippet.
 
-        Args:
-            arch: The underlying architecture.
-             src: The source code to be converted into a data flow graph.
-          logger: The logger to be used.
-           typing_hints: String-indexed dictionary mapping symbolic register names
-                         to types. Types are members of the RegisterType enum from the
-                         arch module.
-           outputs: The symbolic or architectural registers that the code produces.
-                    Dictionary indexed by the RegisterType enum from the the arch module.
+        :param arch: The underlying architecture.
+        :param src: The source code to be converted into a data flow graph.
+        :param logger: The logger to be used.
+        :param typing_hints: String-indexed dictionary mapping symbolic register names
+            to types. Types are members of the RegisterType enum from the
+            arch module.
+        :returns: The symbolic or architectural registers that the code produces.
+            Dictionary indexed by the RegisterType enum from the the arch module.
         """
 
         self.logger = logger
@@ -655,7 +662,8 @@ class DataFlowGraph:
 
     def _selfcheck_outputs(self):
         """Checks whether there are instructions whose output(s) are never used, but also
-        not declared as outputs."""
+        not declared as outputs.
+        """
 
         def flatten(llst):
             return [x for y in llst for x in y]
@@ -698,7 +706,8 @@ class DataFlowGraph:
         Each returned element has the form (consumer, producer, ty, idx), representing a dependency
         from output producer to the idx-th input (if ty=="in") or input/output (if ty=="inout") of
         consumer. The producer field is an instance of RegisterSource and contains the output index
-        and source instruction as producer.idx and producer.src, respectively."""
+        and source instruction as producer.idx and producer.src, respectively.
+        """
         for consumer in self.nodes_all:
             for idx, producer in enumerate(consumer.src_in):
                 yield (consumer, producer, "in", idx)
@@ -911,12 +920,12 @@ class DataFlowGraph:
         self.spilled_reg_state[loc] = self._find_source_single(ty, reg)
 
     def _add_node(self, s):
-        """Add a node to the data flow graph
+        """
+        Add a node to the dataflow graph
 
-           Args:
-               s: Instruction to be added to the graph. This may be a single
-                  instruction of a list of candidate instructions, in case the
-                  parsing wasn't unambiguous.
+        :param s: Instruction to be added to the graph. This may be a single
+            instruction of a list of candidate instructions, in case the
+            parsing wasn't unambiguous.
         """
 
         if not isinstance(s, VirtualInstruction):
