@@ -1762,8 +1762,8 @@ class SlothyBase(LockAttributes):
 
         spill_ival_active = self._NewBoolVar("")
         self._AddMultiplicationEquality([var, spill_var], spill_ival_active)
-        spill_point_start = self._NewOptionalIntervalVar(t.program_start_var,
-                                1, t.program_start_var + 1, spill_ival_active, "")
+        spill_point_start = self._NewOptionalFixedIntervalVar(t.program_start_var,
+                                1, spill_ival_active, "")
 
         interval = self._NewOptionalIntervalVar(
             start_var, dur_var, end_var, var, f"Usage({t.inst})({reg})<{var}>")
@@ -2340,14 +2340,12 @@ class SlothyBase(LockAttributes):
                     # multiple execution units in use
                     for unit in units[0]:
                         t.exec_unit_choices = None
-                        t.exec = self._NewIntervalVar(t.cycle_start_var, cycles_unit_occupied,
-                                                      t.cycle_end_var, "")
+                        t.exec = self._NewFixedIntervalVar(t.cycle_start_var, cycles_unit_occupied, "")
                         self._model.intervals_for_unit[unit].append(t.exec)
                 else:
                     t.exec_unit_choices = None
                     unit = units[0]
-                    t.exec = self._NewIntervalVar(t.cycle_start_var, cycles_unit_occupied,
-                                                  t.cycle_end_var, "")
+                    t.exec = self._NewFixedIntervalVar(t.cycle_start_var, cycles_unit_occupied, "")
                     self._model.intervals_for_unit[unit].append(t.exec)
             else:
                 t.unique_unit = False
@@ -2358,9 +2356,8 @@ class SlothyBase(LockAttributes):
                     for unit in unit_choices:
                         unit_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{unit}")
                         t.exec_unit_choices[unit] = unit_var
-                        t.exec = self._NewOptionalIntervalVar(t.cycle_start_var,
+                        t.exec = self._NewOptionalFixedIntervalVar(t.cycle_start_var,
                                                             cycles_unit_occupied,
-                                                            t.cycle_end_var,
                                                             unit_var,
                                                             f"{t.varname}_usage_{unit}")
                         self._model.intervals_for_unit[unit].append(t.exec)
@@ -3458,8 +3455,12 @@ class SlothyBase(LockAttributes):
         r = self._model.cp_model.NewIntVar(minval,maxval, name)
         self._model.variables.append(r)
         return r
+    def _NewFixedIntervalVar(self, base, dur, name=""): # pylint:disable=invalid-name
+        return self._model.cp_model.new_fixed_size_interval_var(base,dur,name)
     def _NewIntervalVar(self, base, dur, end, name=""): # pylint:disable=invalid-name
         return self._model.cp_model.NewIntervalVar(base,dur,end,name)
+    def _NewOptionalFixedIntervalVar(self, base, dur, cond,name=""): # pylint:disable=invalid-name
+        return self._model.cp_model.new_optional_fixed_size_interval_var(base,dur,cond,name)
     def _NewOptionalIntervalVar(self, base, dur, end, cond,name=""): # pylint:disable=invalid-name
         return self._model.cp_model.NewOptionalIntervalVar(base,dur,end,cond,name)
     def _NewBoolVar(self, name=""): # pylint:disable=invalid-name
