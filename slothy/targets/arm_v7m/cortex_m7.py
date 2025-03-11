@@ -1,7 +1,9 @@
 """
 Experimental Cortex-M7 microarchitecture model for SLOTHY
 
-WARNING: The data in this module is approximate and may contain errors.
+.. warning::
+
+    The data in this module is approximate and may contain errors.
 """
 
 ################################### NOTE ###############################################

@@ -214,19 +214,24 @@ class VmovCmpLoop(Loop):
     register before the loop starts and therefore needs to be recovered before
     the comparison.
 
-    WARNING: This type of loop is experimental as slothy has no knowledge about
-    what happens inside the loop boundary! Especially, a register is written
-    inside the boundary which may be used for renaming by slothy. Use with
-    caution.
+    .. warning::
+
+        This type of loop is experimental as slothy has no knowledge about
+        what happens inside the loop boundary! Especially, a register is written
+        inside the boundary which may be used for renaming by slothy. Use with
+        caution.
 
     Example:
-    ```
-           loop_lbl:
-               {code}
-               vmov <end>, <endf>
-               cmp <cnt>, <end>
-               (cbnz|bnz|bne) loop_lbl
-    ``` where cnt is the loop counter in lr.
+
+    .. code-block:: asm
+
+        loop_lbl:
+           {code}
+           vmov <end>, <endf>
+           cmp <cnt>, <end>
+           (cbnz|bnz|bne) loop_lbl
+
+    where cnt is the loop counter in lr.
     """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
@@ -303,7 +308,12 @@ class BranchLoop(Loop):
     More general loop type that just considers the branch instruction as part of the boundary.
     This can help to improve performance as the instructions that belong to handling the loop can be considered by SLOTHY aswell. 
     
-    Note: This loop type is still rather experimental. It has a lot of logics inside as it needs to be able to "understand" a variety of different ways to express loops, e.g., how counters get incremented, how registers marking the end of the loop need to be modified in case of software pipelining etc. Currently, this type covers the three other types we offer above, namely `SubsLoop`, `CmpLoop`, and `VmovCmpLoop`. 
+    .. note::
+
+        This loop type is still rather experimental. It has a lot of logics inside as it needs to be able to "understand"
+        a variety of different ways to express loops, e.g., how counters get incremented, how registers marking the end of the
+        loop need to be modified in case of software pipelining etc. Currently, this type covers the three other types we offer
+        above, namely `SubsLoop`, `CmpLoop`, and `VmovCmpLoop`.
 
     For examples, we refer to the classes `SubsLoop`, `CmpLoop`, and `VmovCmpLoop`. 
  """
@@ -405,12 +415,14 @@ class CmpLoop(Loop):
     what happens inside the loop boundary! Use with caution.
 
     Example:
-    ```
-           loop_lbl:
-               {code}
-               cmp <cnt>, <end>
-               (cbnz|bnz|bne) loop_lbl
-    ```
+
+    .. code-block:: asm
+
+        loop_lbl:
+           {code}
+           cmp <cnt>, <end>
+           (cbnz|bnz|bne) loop_lbl
+
     where cnt is the loop counter in lr.
     """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
@@ -478,12 +490,14 @@ class SubsLoop(Loop):
     Loop ending in a flag setting subtraction and a branch.
 
     Example:
-    ```
-           loop_lbl:
-               {code}
-               sub[s] <cnt>, <cnt>, #1
-               (cbnz|bnz|bne) loop_lbl
-    ```
+
+    .. code-block::
+
+        loop_lbl:
+           {code}
+           sub[s] <cnt>, <cnt>, #1
+           (cbnz|bnz|bne) loop_lbl
+
     where cnt is the loop counter in lr.
     """
     def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr") -> None:
@@ -697,18 +711,16 @@ class Instruction:
     def build(c, src, mnemonic, **kwargs):
         """Attempt to parse a string as an instance of an instruction.
 
-        Args:
-            c: The target instruction the string should be attempted to be parsed as.
-            src: The string to parse.
-            mnemonic: The mnemonic of instruction c
 
-        Returns:
-            Upon success, the result of parsing src as an instance of c.
+        :param c: The target instruction the string should be attempted to be parsed as.
+        :param src: The string to parse.
+        :param mnemonic: The mnemonic of instruction c
 
-        Raises:
-            ParsingException: The str argument cannot be parsed as an
+        :return: Upon success, the result of parsing src as an instance of c.
+
+        :raises: :ParsingException: The str argument cannot be parsed as an
                 instance of c.
-            FatalParsingException: A fatal error during parsing happened
+            :FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
         """
 

@@ -31,9 +31,9 @@ SLOTHY - Super Lazy Optimization of Tricky Handwritten assemblY - is a
 fixed-instruction assembly superoptimizer based on constraint solving.
 It takes handwritten assembly as input and simultaneously super-optimizes:
 
-- Instruction scheduling
-- Register allocation
-- Software pipelining
+* Instruction scheduling
+* Register allocation
+* Software pipelining
 
 SLOTHY enables a development workflow where developers write 'clean' assembly by hand,
 emphasizing the logic of the computation, while SLOTHY automates microarchitecture-specific
@@ -43,7 +43,8 @@ developer keeps close control over the final assembly, while being freed from th
 and readability- and verifiability-impeding micro-optimizations.
 
 This module provides the Slothy class, which is a stateful interface to both
-one-shot and heuristic optimiations using SLOTHY."""
+one-shot and heuristic optimiations using SLOTHY.
+"""
 
 import os
 import logging
@@ -63,6 +64,7 @@ try:
 except ImportError:
     Uc = None
 
+
 class Slothy:
     """SLOTHY optimizer
 
@@ -70,12 +72,13 @@ class Slothy:
     optimizations using SLOTHY.
 
     The basic flow of operation is the following:
-    - Initialize an instance, providing models to the target architecture
+
+    * Initialize an instance, providing models to the target architecture
       and microarchitecture as arguments.
-    - Load source code from file or raw string.
-    - Repeat: Adjust configuration and conduct an optimization of a loop body or
-        straightline block of code, using optimize() or optimize_loop().
-    - Write source code to file or raw string.
+    * Load source code from file or raw string.
+    * Repeat: Adjust configuration and conduct an optimization of a loop body or
+      traightline block of code, using optimize() or optimize_loop().
+    * Write source code to file or raw string.
 
     The use of heuristics is controlled through the configuration.
     """
@@ -83,8 +86,10 @@ class Slothy:
     # Quick convenience access to architecture and target from the config
     def _get_arch(self):
         return self.config.arch
+
     def _get_target(self):
         return self.config.target
+
     arch = property(_get_arch)
     target = property(_get_target)
 
@@ -102,16 +107,18 @@ class Slothy:
 
     @property
     def source(self):
-        """Returns the current source code as an array of SourceLine objects
+        """Returns the current source code as an array of SourceLine objects.
 
-        If you want the current source code as a multiline string, use get_source_as_string()."""
+        If you want the current source code as a multiline string, use get_source_as_string().
+        """
         return self._source
 
     @property
     def original_source(self):
         """Returns the original source code as an array of SourceLine objects
 
-        If you want the current source code as a multiline string, use get_original_source_as_string()."""
+        If you want the current source code as a multiline string, use get_original_source_as_string().
+        """
         return self._original_source
 
     @source.setter
@@ -127,12 +134,12 @@ class Slothy:
     def get_source_as_string(self, comments=True, indentation=True, tags=True):
         """Retrieve current source code as multi-line string"""
         return SourceLine.write_multiline(self.source, comments=comments,
-            indentation=indentation, tags=tags)
+                                          indentation=indentation, tags=tags)
 
     def get_original_source_as_string(self, comments=True, indentation=True, tags=True):
         """Retrieve original source code as multi-line string"""
         return SourceLine.write_multiline(self.original_source, comments=comments,
-            indentation=indentation, tags=tags)
+                                          indentation=indentation, tags=tags)
 
     def set_source_as_string(self, s):
         """Provide input source code as multi-line string"""
@@ -151,12 +158,12 @@ class Slothy:
         """Load source code from file"""
         if self.source is not None:
             self.logger.warning("Overwriting previous source code")
-        with open(filename,"r", encoding="utf8") as f:
+        with open(filename, "r", encoding="utf8") as f:
             self.load_source_raw(f.read())
 
     def write_source_to_file(self, filename):
         """Write current source code to file"""
-        with open(filename,"w", encoding="utf8") as f:
+        with open(filename, "w", encoding="utf8") as f:
             f.write(self.get_source_as_string())
 
     def rename_function(self, old_funcname, new_funcname):
@@ -175,14 +182,16 @@ class Slothy:
     def global_selftest(self, funcname, address_registers, iterations=5):
         """Conduct a function-level selftest
 
-        - funcname: Name of function to be called. Must be exposed as a symbol
-        - address_prs: Dictionary indicating which GPRs are pointers to buffers of which size.
+        :param funcname: Name of function to be called. Must be exposed as a symbol
+        :param address_prs: Dictionary indicating which GPRs are pointers to buffers of which size.
             For example, `{ "x0": 1024, "x4": 1024 }` would indicate that both x0 and x4
             point to buffers of size 1024 bytes. The global selftest needs to know this to
             setup valid calls to the assembly routine.
 
-        DEPENDENCY: To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
-                    in your PATH. Those are part of a standard LLVM setup.
+        .. important::
+
+            To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
+            in your PATH. Those are part of a standard LLVM setup.
         """
 
         log = self.logger.getChild(f"global_selftest_{funcname}")
@@ -191,7 +200,7 @@ class Slothy:
             raise SelfTestException("Cannot run selftest -- unicorn-engine is not available.")
 
         if self.config.arch.unicorn_arch is None or \
-           self.config.arch.llvm_mc_arch is None:
+                self.config.arch.llvm_mc_arch is None:
             log.warning("Selftest not supported on target architecture")
             return
 
@@ -255,8 +264,8 @@ class Slothy:
                                  self.config.target.llvm_mca_target, self.logger,
                                  full=self.config.llvm_mca_full,
                                  issue_width=issue_width)
-            stats = ["",f"LLVM MCA STATISTICS ({txt}) BEGIN",""] + stats + \
-                ["", f"ORIGINAL LLVM MCA STATISTICS ({txt}) END",""]
+            stats = ["", f"LLVM MCA STATISTICS ({txt}) BEGIN", ""] + stats + \
+                    ["", f"ORIGINAL LLVM MCA STATISTICS ({txt}) END", ""]
             stats = [SourceLine("").add_comment(r) for r in stats]
             stats = SourceLine.apply_indentation(stats, indentation)
         except LLVM_Mca_Error:
@@ -267,19 +276,21 @@ class Slothy:
     def optimize(self, start=None, end=None, loop_synthesis_cb=None, logname=None):
         """Optimize all or part of the currently loaded source code
 
-        Note: It is OK to use this in software pipelining mode. In this case, the
-        tool will output preamble, kernel, and postamble separately, while the looping
-        code itself needs to be introduced by the user. Alternatively, a callback can be
-        provided which will be given preamble, kernel, postamble, and the number of exceptional
-        iterations, and piece together a list of source code lines from that.
+        .. note::
 
-        Args:
-           start: The label marking the beginning of the part of the code to optimize.
-                  This cannot be used together with the 'loop' argument.
-             end: The label marking the end of the part of the code to optimize.
-                  This cannot be used together with the 'loop' argument.
-             loop_synthesis_cb: Optional (None by default) callback synthesis final source code
-                  from tuple of (preamble, kernel, postamble, # exceptional iterations).
+            It is OK to use this in software pipelining mode. In this case, the
+            tool will output preamble, kernel, and postamble separately, while the looping
+            code itself needs to be introduced by the user. Alternatively, a callback can be
+            provided which will be given preamble, kernel, postamble, and the number of exceptional
+            iterations, and piece together a list of source code lines from that.
+
+
+        :param start: The label marking the beginning of the part of the code to optimize.
+              This cannot be used together with the 'loop' argument.
+        :param end: The label marking the end of the part of the code to optimize.
+              This cannot be used together with the 'loop' argument.
+        :param loop_synthesis_cb: Optional (None by default) callback synthesis final source code
+              from tuple of (preamble, kernel, postamble, # exceptional iterations).
         """
         # pylint:disable=too-many-locals
 
@@ -327,7 +338,7 @@ class Slothy:
             core = core + new_stats_kernel
 
         def indented(code):
-            return [ SourceLine(l).set_indentation(indentation) for l in code]
+            return [SourceLine(l).set_indentation(indentation) for l in code]
 
         if start is not None:
             core = [SourceLine(f"{start}:")] + core
@@ -341,7 +352,7 @@ class Slothy:
             assert num_exceptional == 0
             optimized_source = core
         elif loop_synthesis_cb is not None:
-            optimized_source = loop_synthesis_cb( pre, core, post, num_exceptional)
+            optimized_source = loop_synthesis_cb(pre, core, post, num_exceptional)
         else:
             optimized_source = []
             optimized_source += indented([f"// Exceptional iterations: {num_exceptional}",
@@ -357,10 +368,9 @@ class Slothy:
 
     def get_loop_input_output(self, loop_lbl, forced_loop_type=None):
         """Find all registers that a loop body depends on
-        
-            Args:
-                loop_lbl: Label of loop to process.
-                forced_loop_type: Forces the loop to be parsed as a certain type.
+
+        :param loop_lbl: Label of loop to process.
+        :param forced_loop_type: Forces the loop to be parsed as a certain type.
         """
         logger = self.logger.getChild(loop_lbl)
         _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
@@ -408,11 +418,11 @@ class Slothy:
         if ssa is True:
             dfg = DFG(body, logger.getChild("ssa"), dfgc, parsing_cb=False)
             dfg.ssa()
-            body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
+            body = [ComputationNode.to_source_line(t) for t in dfg.nodes]
 
         dfg = DFG(body, logger.getChild("fusion"), dfgc, parsing_cb=False)
         dfg.apply_fusion_cbs()
-        body = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
+        body = [ComputationNode.to_source_line(t) for t in dfg.nodes]
 
         return body
 
@@ -421,19 +431,18 @@ class Slothy:
         instruction (sequences) with an alternative. These replacements are
         defined in the architectural model by setting an instruction class'
         global_fusion_cb.
-        
-        Args:
-            start: The label marking the beginning of the part of the code to
-                  apply fusion to.
-            end: The label marking the end of the part of the code to apply
-                  fusion to.
+
+        :param start: The label marking the beginning of the part of the code to
+              apply fusion to.
+        :param end: The label marking the end of the part of the code to apply
+              fusion to.
         """
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
-        body_ssa = [ SourceLine(f"{start}:") ] +\
-             self._fusion_core(pre, body, post, logger, **kwargs) + \
-            [ SourceLine(f"{end}:") ]
+        body_ssa = [SourceLine(f"{start}:")] + \
+                   self._fusion_core(pre, body, post, logger, **kwargs) + \
+                   [SourceLine(f"{end}:")]
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
@@ -441,14 +450,13 @@ class Slothy:
         """Run fusion callbacks on loop body replacing certain instruction
         (sequences) with an alternative. These replacements are defined in the
         architectural model by setting an instruction class' global_fusion_cb.
-        
-        Args:
-            loop_lbl: Label of loop to which the fusions are applied to. 
-            forced_loop_type: Forces the loop to be parsed as a certain type.
+
+        :param loop_lbl: Label of loop to which the fusions are applied to.
+        :param forced_loop_type: Forces the loop to be parsed as a certain type.
         """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
-        pre , body, post, _, other_data, loop = \
+        pre, body, post, _, other_data, loop = \
             self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
 
         try:
@@ -459,18 +467,17 @@ class Slothy:
         indentation = AsmHelper.find_indentation(body)
 
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
-            SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
-            SourceLine.read_multiline(loop.end(other_data))
+                   SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
+                   SourceLine.read_multiline(loop.end(other_data))
 
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
     def optimize_loop(self, loop_lbl, postamble_label=None, forced_loop_type=None):
         """Optimize the loop starting at a given label
-            
-            Args:
-                postamble_label: Marks end of loop kernel.
-                forced_loop_type: Forces the loop to be parsed as a certain type.
+
+        :param postamble_label: Marks end of loop kernel.
+        :param forced_loop_type: Forces the loop to be parsed as a certain type.
         """
 
         logger = self.logger.getChild(loop_lbl)
@@ -502,14 +509,14 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Optimizing loop %s (%d instructions) ...",
-            loop_lbl, len(body))
+                         loop_lbl, len(body))
 
         if self.config.with_llvm_mca_before is True:
             orig_stats = self._make_llvm_mca_stats(early, body, late, "ORIGINAL", indentation)
 
         preamble_code, kernel_code, postamble_code, num_exceptional = \
             Heuristics.periodic(body, logger, c)
-            
+
         # Remove branch instructions from preamble and postamble
         postamble_code = [l for l in postamble_code if not l.tags.get('branch')]
         postamble_code = [l for l in postamble_code if not l.tags.get('branch')]
@@ -523,13 +530,13 @@ class Slothy:
             kernel_code = kernel_code + new_stats_kernel
 
             if self.config.sw_pipelining.optimize_preamble is True \
-               and len(preamble_code) > 0:
+                    and len(preamble_code) > 0:
                 new_stats_preamble = self._make_llvm_mca_stats(early, preamble_code, late, "PREAMBLE",
                                                                indentation)
                 preamble_code = preamble_code + new_stats_preamble
 
             if self.config.sw_pipelining.optimize_postamble is True \
-               and len(postamble_code) > 0:
+                    and len(postamble_code) > 0:
                 new_stats_postamble = self._make_llvm_mca_stats(early, postamble_code, late, "POSTAMBLE",
                                                                 indentation)
                 postamble_code = postamble_code + new_stats_postamble
@@ -540,6 +547,7 @@ class Slothy:
             return SourceLine.apply_indentation(code, self.config.indentation)
 
         loop_lbl_end = f"{loop_lbl}_end"
+
         def loop_lbl_iter(i):
             return f"{loop_lbl}_iter_{i}"
 
@@ -570,10 +578,10 @@ class Slothy:
             register_aliases=c.register_aliases))
         optimized_code += indented(kernel_code)
         optimized_code += SourceLine.read_multiline(loop.end(other_data,
-            indentation=self.config.indentation))
+                                                             indentation=self.config.indentation))
         if postamble_label is not None:
-            optimized_code += [ SourceLine(f"{postamble_label}:")
-                .add_comment("end of loop kernel") ]
+            optimized_code += [SourceLine(f"{postamble_label}:")
+                               .add_comment("end of loop kernel")]
         optimized_code += indented(postamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:

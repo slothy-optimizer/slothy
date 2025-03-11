@@ -37,32 +37,37 @@ import os
 from slothy.helper import LockAttributes, NestedPrint
 
 class InvalidConfig(Exception):
-    """Exception raised when an invalid SLOTHY configuration is detected"""
+    """Exception raised when an invalid SLOTHY configuration is detected
+    """
 
 class Config(NestedPrint, LockAttributes):
     """Configuration for Slothy.
 
     This configuration object is used both for one-shot optimizations using
-    SlothyBase, as well as stateful multi-pass optimizations using Slothy."""
+    SlothyBase, as well as stateful multi-pass optimizations using Slothy.
+    """
 
     @property
     def arch(self):
         """The module defining the underlying architecture used by Slothy.
 
-        TODO: Add details on what exactly is assumed about this module."""
+        TODO: Add details on what exactly is assumed about this module.
+        """
         return self._arch
 
     @property
     def target(self):
         """The module defining the target microarchitecture used by Slothy.
 
-        TODO: Add details on what exactly is assumed about this module."""
+        TODO: Add details on what exactly is assumed about this module.
+        """
         return self._target
 
     @property
     def outputs(self):
         """List defining of architectural or symbolic registers that should
-        be considered as outputs of the input snippet."""
+        be considered as outputs of the input snippet.
+        """
         return self._outputs
 
     @property
@@ -74,14 +79,19 @@ class Config(NestedPrint, LockAttributes):
         In the lingo of inline assembly, this can be seen as the complement of
         the clobber list.
 
-        NOTE: Reserved registers are, by default, considered  "locked": They
-          will not be _introduced_ during renaming, but existing uses will not
-          be touched. If you want to remove existing uses of reserved registers
-          through renaming, you should disable `reserved_regs_are_locked`.
+        .. note::
 
-        WARNING: When this is set, it _overwrites_ the default reserved registers for
-          the target architecture. If you still want the default reserved
-          registers to remain reserved, you have to explicitly list them!"""
+            Reserved registers are, by default, considered  "locked": They
+            will not be _introduced_ during renaming, but existing uses will not
+            be touched. If you want to remove existing uses of reserved registers
+            through renaming, you should disable `reserved_regs_are_locked`.
+
+        .. warning::
+
+            When this is set, it _overwrites_ the default reserved registers for
+            the target architecture. If you still want the default reserved
+            registers to remain reserved, you have to explicitly list them!
+        """
         if self._reserved_regs is not None:
             return self._reserved_regs
         return self._arch.RegisterType.default_reserved()
@@ -97,12 +107,14 @@ class Config(NestedPrint, LockAttributes):
 
         Disable this configuration option to allow (in fact, force) renaming
         of existing uses of reserved registers. This can be useful when trying
-        to eliminate uses of particular registers from some piece of assembly."""
+        to eliminate uses of particular registers from some piece of assembly.
+        """
         return self._reserved_regs_are_locked
 
     @property
     def selftest(self):
-        """Indicates whether SLOTHY performs an empirical equivalence-test on the
+        """
+        Indicates whether SLOTHY performs an empirical equivalence-test on the
         optimization results.
 
         When this is set, and if the target architecture and host platform support it,
@@ -111,55 +123,68 @@ class Config(NestedPrint, LockAttributes):
 
         The primary purpose of this checker is to detect issue that would presently
         be overlooked by the selfcheck:
-        - The selfcheck is currently blind to address offset fixup. If something goes
+
+        * The selfcheck is currently blind to address offset fixup. If something goes
           wrong, the input and output will not be functionally equivalent, but we would
           only notice once we actually compile and run the code. The selftest will
           likely catch issues.
-        - When using software pipelining, the selfcheck reduces to a straightline check
+
+        * When using software pipelining, the selfcheck reduces to a straightline check
           for a bounded unrolling of the loop. An unbounded selfcheck is currently not
-          implemented.
-          With the selftest, you still need to fix a loop bound, but at least you can
+          implemented. With the selftest, you still need to fix a loop bound, but at least you can
           equivalence-check the loop-form (including the compare+branch instructions
           at the loop boundary) rather than the unrolled code.
 
-        DEPENDENCY: To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
-                    in your PATH. Those are part of a standard LLVM setup.
+        .. important::
 
-        NOTE: This is so far implemented as a repeated randomized test -- nothing clever.
+            To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
+            in your PATH. Those are part of a standard LLVM setup.
+
+        .. note::
+
+            This is so far implemented as a repeated randomized test -- nothing clever.
         """
         return self._selftest
 
     @property
     def selftest_iterations(self):
-        """If selftest is set, indicates the number of random selftest to conduct"""
+        """If selftest is set, indicates the number of random selftest to conduct
+        """
         return self._selftest_iterations
 
     @property
     def selftest_address_registers(self):
         """Dictionary of (reg, sz) items indicating which registers are assumed to be
-        pointers to memory, and if so, of what size."""
+        pointers to memory, and if so, of what size.
+        """
         return self._selftest_address_registers
 
     @property
     def selftest_default_memory_size(self):
         """Default buffer size to use for registers which are automatically inferred to be
-        used as pointers and for which no memory size has been configured via `address_registers`."""
+        used as pointers and for which no memory size has been configured via `address_registers`.
+        """
         return self._selftest_default_memory_size
 
     @property
     def selfcheck(self):
+
         """Indicates whether SLOTHY performs a self-check on the optimization result.
 
         The selfcheck confirms that the scheduling permutation found by SLOTHY yields
         an isomorphism between the data flow graphs of the original and optimized code.
 
-        WARNING: Do not unset this option unless you know what you are doing.
+        .. warning::
+
+            Do not unset this option unless you know what you are doing.
             It is vital in catching bugs in the model generation early.
 
-        WARNING: The selfcheck is not a formal verification of SLOTHY's output!
+        .. warning::
+
+            The selfcheck is not a formal verification of SLOTHY's output!
             There are at least two classes of bugs uncaught by the selfcheck:
 
-            - User configuration issues: The selfcheck validates SLOTHY's optimization
+            * User configuration issues: The selfcheck validates SLOTHY's optimization
               in the context of the provided configuration. Validation of the configuration
               is the user's responsibility. Two common pitfalls include missing reserved
               registers (allowing SLOTHY to clobber more registers than intended), or
@@ -169,20 +194,23 @@ class Config(NestedPrint, LockAttributes):
               This is the most common source of issues for code passing the selfcheck
               but remaining functionally incorrect.
 
-            - Bugs in address offset fixup: SLOTHY's modelling of post-load/store address
+            * Bugs in address offset fixup: SLOTHY's modelling of post-load/store address
               increments is deliberately inaccurate to allow for reordering of such instructions
               leveraging commutativity relations such as
 
-              ```
-              LDR X,[A],#imm;  STR Y,[A]    ===     STR Y,[A, #imm];  LDR X,[A],#imm
-              ```
+            .. code-block:: asm
 
-              (See also section "Address offset rewrites" in the SLOTHY paper).
+                LDR X,[A],#imm;  STR Y,[A]    ===     STR Y,[A, #imm];  LDR X,[A],#imm
 
-              Bugs in SLOTHY's address fixup logic would not be caught by the selfcheck.
-              If your code doesn't work and you are sure to have configured SLOTHY correctly,
-              you may therefore want to double-check that address offsets have been adjusted
-              correctly by SLOTHY.
+
+            .. hint::
+
+                See also section "Address offset rewrites" in the SLOTHY paper
+
+            Bugs in SLOTHY's address fixup logic would not be caught by the selfcheck.
+            If your code doesn't work and you are sure to have configured SLOTHY correctly,
+            you may therefore want to double-check that address offsets have been adjusted
+            correctly by SLOTHY.
         """
         return self._selfcheck
 
@@ -191,7 +219,8 @@ class Config(NestedPrint, LockAttributes):
         """The filename for the log of a failing selfcheck.
 
         This is printed in the terminal as well, but difficult to analyze for its
-        sheer size."""
+        sheer size.
+        """
         return self._selfcheck_failure_logfile
 
     @property
@@ -201,32 +230,37 @@ class Config(NestedPrint, LockAttributes):
         Address offset fixup is a feature which leverages commutativity relations
         such as
 
-        ```
-           ldr X, [A], #immA;
-           str Y, [A, #immB]
-        ==
-           str Y, [A, #(immB+immA)]
-           ldr X, [A], #immA
-        ```
+        .. code-block:: asm
+
+            ldr X, [A], #immA;
+            str Y, [A, #immB]
+            ==
+            str Y, [A, #(immB+immA)]
+            ldr X, [A], #immA
 
         to achieve greater instruction scheduling flexibility in SLOTHY.
 
-        SAFETY:
-        When you enable this feature, you MUST ensure that registers which are
-        used for addresses are not used in any other instruction than load and
-        stores. OTHERWISE, THE USE OF THIS FEATURE IS UNSOUND (you may see ldr/
-        str instructions with increment reordered with instructions depending
-        on the address register).
+        .. important::
+
+            When you enable this feature, you MUST ensure that registers which are
+            used for addresses are not used in any other instruction than load and
+            stores. OTHERWISE, THE USE OF THIS FEATURE IS UNSOUND (you may see ldr/
+            str instructions with increment reordered with instructions depending
+            on the address register).
 
         By default, this is enabled for backwards compatibility.
 
-        LIMITATION: For historical reason, this feature cannot be disabled for
-        the Armv8.1-M architecture model. A refactoring of that model is needed
-        to make address offset fixup configurable.
+        .. note::
 
-        Note: The user-imposed safety constraint is not a necessity -- in principle,
-        SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
-        It just hasn't been implemented yet.
+            For historical reason, this feature cannot be disabled for
+            the Armv8.1-M architecture model. A refactoring of that model is needed
+            to make address offset fixup configurable.
+
+        .. note::
+
+            The user-imposed safety constraint is not a necessity -- in principle,
+            SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
+            It just hasn't been implemented yet.
         """
         return self._unsafe_address_offset_fixup
 
@@ -243,7 +277,9 @@ class Config(NestedPrint, LockAttributes):
         a sign of a buggy configuration, which would likely lead to intended output
         registers being clobbered by later instructions.
 
-        WARNING: Don't disable this option unless you know what you are doing!
+        .. warning::
+
+            Don't disable this option unless you know what you are doing!
             Disabling this option makes it much easier to overlook configuration
             issues in SLOTHY and can lead to hard-to-debug optimization failures.
         """
@@ -273,18 +309,21 @@ class Config(NestedPrint, LockAttributes):
 
         Tags include pre/core/post or ordering annotations that usually become meaningless
         post-optimization. However, for preprocessing runs that do not reorder code, it makes
-        sense to keep them."""
+        sense to keep them.
+        """
         return self._keep_tags
 
     @property
     def inherit_macro_comments(self):
         """Indicates whether comments at macro invocations should be inherited to instructions
-        in the macro body."""
+        in the macro body.
+        """
         return self._inherit_macro_comments
 
     @property
     def ignore_tags(self):
-        """Indicates whether tags in the input source should be ignored."""
+        """Indicates whether tags in the input source should be ignored.
+        """
         return self._ignore_tags
 
     @property
@@ -295,11 +334,13 @@ class Config(NestedPrint, LockAttributes):
            in by hand.
 
            This is always joined with a list of default aliases (such as lr mapping to r14)
-           specified in the target architecture."""
+           specified in the target architecture.
+        """
         return { **self._register_aliases, **self._arch.RegisterType.default_aliases() }
 
     def add_aliases(self, new_aliases):
-        """Add further register aliases to the configuration"""
+        """Add further register aliases to the configuration
+        """
         self._register_aliases = { **self._register_aliases, **new_aliases }
 
     @property
@@ -327,13 +368,14 @@ class Config(NestedPrint, LockAttributes):
         inputs are not renamed, while symbolic inputs are dynamically renamed.
 
         Examples:
-        - Generally, unless you are prepared to modify surrounding code, you should
+
+        * Generally, unless you are prepared to modify surrounding code, you should
           have "arch" : "static", which will not rename inputs which already have
           architectural register names.
-        - Config.rename_inputs = { "other" : "any" }
+        * Config.rename_inputs = { "other" : "any" }
           This would rename _all_ inputs, regardless of whether they're symbolic or not.
           Thus, you'd likely need to modify surrounding code.
-        - Config.rename_inputs = { "in" : "r0", "arch" : "static", "symbolic" : "any" }
+        * Config.rename_inputs = { "in" : "r0", "arch" : "static", "symbolic" : "any" }
           This would rename the symbolic input GPR 'in' to 'r0', keep all other inputs which
           already have an architectural name, while dynamically assigning suitable registers
           for symbolic inputs.
@@ -367,14 +409,16 @@ class Config(NestedPrint, LockAttributes):
            _Moreover_, such simultaneous input-outputs are forced to reside in the same
            architectural register at the beginning and end of the snippet.
 
-           This should usually be set when optimizing loops."""
+           This should usually be set when optimizing loops.
+        """
         return self._inputs_are_outputs
 
     @property
     def locked_registers(self):
         """List of architectural registers that should not be renamed when they are
            used as output registers. Reserved registers are treated as locked if
-           the option `reserved_regs_are_locked` is set."""
+           the option `reserved_regs_are_locked` is set.
+        """
         if self.reserved_regs_are_locked:
             return set(self.reserved_regs).union(self._locked_registers)
         else:
@@ -384,26 +428,30 @@ class Config(NestedPrint, LockAttributes):
     def sw_pipelining(self):
         """Subconfiguration for software pipelining. Enabled/Disabled
         via the sub-field sw_pipelining.enabled. See Config.SoftwarePipelining
-        for more information."""
+        for more information.
+        """
         return self._sw_pipelining
 
     @property
     def constraints(self):
         """Subconfiguration for constraints to be considered by SLOTHY,
         e.g. whether latencies or functional units are modelled.
-        See Config.Constraints for more information."""
+        See Config.Constraints for more information.
+        """
         return self._constraints
 
     @property
     def hints(self):
         """Subconfiguration for hints to be considered by SLOTHY.
-        See Config.Hints for more information."""
+        See Config.Hints for more information.
+        """
         return self._hints
 
     @property
     def max_solutions(self):
         """The maximum number of solution found by the underlying constraint
-        solver before it stops the search."""
+        solver before it stops the search.
+        """
         return self._max_solutions
 
     @property
@@ -703,10 +751,12 @@ class Config(NestedPrint, LockAttributes):
         """Strategy for naive interleaving preprocessing step
 
         Supported values are:
-          - "depth": Always pick the instruction with the lower possible
-                             depth in the DFG first.
-          - "alternate": Try to evenly alternate between instructions tagged with
-                         "interleaving_class=0/1".
+
+        * "depth": Always pick the instruction with the lower possible
+          depth in the DFG first.
+        * "alternate": Try to evenly alternate between instructions tagged with
+          "interleaving_class=0/1".
+
         """
         return self._split_heuristic_preprocess_naive_interleaving_strategy
 
@@ -1039,16 +1089,18 @@ class Config(NestedPrint, LockAttributes):
             """The maximum relative displacement of an instruction.
 
             Examples:
-            - If set to 1, instructions can be reordered freely.
-            - If set to 0, no reordering will happen.
-            - If set to 0.5, an instruction will not move by more than N/2
+
+            * If set to 1, instructions can be reordered freely.
+            * If set to 0, no reordering will happen.
+            * If set to 0.5, an instruction will not move by more than N/2
               places between original and re-scheduled source code.
 
             This is an experimental feature for the purpose of speeding
             up otherwise intractable optimization tasks.
 
-            LIMITATION: This only takes effect in straightline optimization
-              (no software pipelining).
+            .. warning::
+
+                This only takes effect in straightline optimization (no software pipelining).
             """
             return self._max_displacement
 
@@ -1157,8 +1209,7 @@ class Config(NestedPrint, LockAttributes):
 
         @property
         def ext_bsearch_remember_successes(self):
-            """When using an external binary search, hint previous successful
-                optimiation.
+            """When using an external binary search, hint previous successful optimization.
 
             See also Config.variable_size."""
             return self._ext_bsearch_remember_successes

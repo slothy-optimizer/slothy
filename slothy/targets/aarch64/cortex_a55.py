@@ -31,7 +31,9 @@ Experimental Cortex-A55 microarchitecture model for SLOTHY
 Most data in this model is derived from the Cortex-A55 software optimization guide.
 Some latency exceptions were manually identified through microbenchmarks.
 
-WARNING: The data in this module is approximate and may contain errors.
+.. warning::
+
+    The data in this module is approximate and may contain errors.
 """
 
 ################################### NOTE ###############################################
