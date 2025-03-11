@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>slothy.core.slothy &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="slothy.helper" href="slothy.helper.html" />
+    <link rel="prev" title="slothy.core.config" href="slothy.core.config.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html">About SLOTHY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#installation">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/README.html">SLOTHY Tutorial</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="slothy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a></li>
+          <li class="breadcrumb-item"><a href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core.slothy</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/apidocs/slothy/slothy.core.slothy.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-slothy.core.slothy">
+<span id="slothy-core-slothy"></span><h1><a class="reference internal" href="#module-slothy.core.slothy" title="slothy.core.slothy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core.slothy</span></code></a><a class="headerlink" href="#module-slothy.core.slothy" title="Link to this heading"></a></h1>
+<p>SLOTHY optimizer</p>
+<p>SLOTHY - Super Lazy Optimization of Tricky Handwritten assemblY - is a
+fixed-instruction assembly superoptimizer based on constraint solving.
+It takes handwritten assembly as input and simultaneously super-optimizes:</p>
+<ul class="simple">
+<li><p>Instruction scheduling</p></li>
+<li><p>Register allocation</p></li>
+<li><p>Software pipelining</p></li>
+</ul>
+<p>SLOTHY enables a development workflow where developers write ‘clean’ assembly by hand,
+emphasizing the logic of the computation, while SLOTHY automates microarchitecture-specific
+micro-optimizations. Since SLOTHY does not change instructions, and scheduling/allocation
+optimizations are tightly controlled through configurable and extensible constraints, the
+developer keeps close control over the final assembly, while being freed from the most tedious
+and readability- and verifiability-impeding micro-optimizations.</p>
+<p>This module provides the Slothy class, which is a stateful interface to both
+one-shot and heuristic optimiations using SLOTHY.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.core.slothy.Slothy" title="slothy.core.slothy.Slothy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Slothy</span></code></a></p></td>
+<td><p>SLOTHY optimizer</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.slothy.</span></span><span class="sig-name descname"><span class="pre">Slothy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy" title="Link to this definition"></a></dt>
+<dd><p>SLOTHY optimizer</p>
+<p>This class provides a stateful interface to both one-shot and heuristic
+optimizations using SLOTHY.</p>
+<p>The basic flow of operation is the following:</p>
+<ul class="simple">
+<li><p>Initialize an instance, providing models to the target architecture
+and microarchitecture as arguments.</p></li>
+<li><p>Load source code from file or raw string.</p></li>
+<li><p>Repeat: Adjust configuration and conduct an optimization of a loop body or
+traightline block of code, using optimize() or optimize_loop().</p></li>
+<li><p>Write source code to file or raw string.</p></li>
+</ul>
+<p>The use of heuristics is controlled through the configuration.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy._get_arch">
+<span class="sig-name descname"><span class="pre">_get_arch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy._get_arch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy._get_target">
+<span class="sig-name descname"><span class="pre">_get_target</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy._get_target" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.arch">
+<span class="sig-name descname"><span class="pre">arch</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'property(...)'</span></em><a class="headerlink" href="#slothy.core.slothy.Slothy.arch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.target">
+<span class="sig-name descname"><span class="pre">target</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'property(...)'</span></em><a class="headerlink" href="#slothy.core.slothy.Slothy.target" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.source">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source</span></span><a class="headerlink" href="#slothy.core.slothy.Slothy.source" title="Link to this definition"></a></dt>
+<dd><p>Returns the current source code as an array of SourceLine objects.</p>
+<p>If you want the current source code as a multiline string, use get_source_as_string().</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.original_source">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">original_source</span></span><a class="headerlink" href="#slothy.core.slothy.Slothy.original_source" title="Link to this definition"></a></dt>
+<dd><p>Returns the original source code as an array of SourceLine objects</p>
+<p>If you want the current source code as a multiline string, use get_original_source_as_string().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.get_source_as_string">
+<span class="sig-name descname"><span class="pre">get_source_as_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.get_source_as_string" title="Link to this definition"></a></dt>
+<dd><p>Retrieve current source code as multi-line string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.get_original_source_as_string">
+<span class="sig-name descname"><span class="pre">get_original_source_as_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.get_original_source_as_string" title="Link to this definition"></a></dt>
+<dd><p>Retrieve original source code as multi-line string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.set_source_as_string">
+<span class="sig-name descname"><span class="pre">set_source_as_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.set_source_as_string" title="Link to this definition"></a></dt>
+<dd><p>Provide input source code as multi-line string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.load_source_raw">
+<span class="sig-name descname"><span class="pre">load_source_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.load_source_raw" title="Link to this definition"></a></dt>
+<dd><p>Load source code from multi-line string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.load_source_from_file">
+<span class="sig-name descname"><span class="pre">load_source_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.load_source_from_file" title="Link to this definition"></a></dt>
+<dd><p>Load source code from file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.write_source_to_file">
+<span class="sig-name descname"><span class="pre">write_source_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.write_source_to_file" title="Link to this definition"></a></dt>
+<dd><p>Write current source code to file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.rename_function">
+<span class="sig-name descname"><span class="pre">rename_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_funcname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_funcname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.rename_function" title="Link to this definition"></a></dt>
+<dd><p>Rename a function in the current source code</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy._dump">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy._dump" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.global_selftest">
+<span class="sig-name descname"><span class="pre">global_selftest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">funcname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_registers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.global_selftest" title="Link to this definition"></a></dt>
+<dd><p>Conduct a function-level selftest</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>funcname</strong> – Name of function to be called. Must be exposed as a symbol</p></li>
+<li><p><strong>address_prs</strong> – Dictionary indicating which GPRs are pointers to buffers of which size.
+For example, <cite>{ “x0”: 1024, “x4”: 1024 }</cite> would indicate that both x0 and x4
+point to buffers of size 1024 bytes. The global selftest needs to know this to
+setup valid calls to the assembly routine.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To run this, you need <cite>llvm-nm</cite>, <cite>llvm-readobj</cite>, <cite>llvm-mc</cite>
+in your PATH. Those are part of a standard LLVM setup.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.unfold">
+<span class="sig-name descname"><span class="pre">unfold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aliases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.unfold" title="Link to this definition"></a></dt>
+<dd><p>Unfold macros and/or register aliases in specified region</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy._make_llvm_mca_stats">
+<span class="sig-name descname"><span class="pre">_make_llvm_mca_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy._make_llvm_mca_stats" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.optimize">
+<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_synthesis_cb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.optimize" title="Link to this definition"></a></dt>
+<dd><p>Optimize all or part of the currently loaded source code</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is OK to use this in software pipelining mode. In this case, the
+tool will output preamble, kernel, and postamble separately, while the looping
+code itself needs to be introduced by the user. Alternatively, a callback can be
+provided which will be given preamble, kernel, postamble, and the number of exceptional
+iterations, and piece together a list of source code lines from that.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – The label marking the beginning of the part of the code to optimize.
+This cannot be used together with the ‘loop’ argument.</p></li>
+<li><p><strong>end</strong> – The label marking the end of the part of the code to optimize.
+This cannot be used together with the ‘loop’ argument.</p></li>
+<li><p><strong>loop_synthesis_cb</strong> – Optional (None by default) callback synthesis final source code
+from tuple of (preamble, kernel, postamble, # exceptional iterations).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.get_loop_input_output">
+<span class="sig-name descname"><span class="pre">get_loop_input_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.get_loop_input_output" title="Link to this definition"></a></dt>
+<dd><p>Find all registers that a loop body depends on</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loop_lbl</strong> – Label of loop to process.</p></li>
+<li><p><strong>forced_loop_type</strong> – Forces the loop to be parsed as a certain type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.get_input_from_output">
+<span class="sig-name descname"><span class="pre">get_input_from_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.get_input_from_output" title="Link to this definition"></a></dt>
+<dd><p>For the piece of straightline code, infer which input registers affect its output</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy._fusion_core">
+<span class="sig-name descname"><span class="pre">_fusion_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy._fusion_core" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.fusion_region">
+<span class="sig-name descname"><span class="pre">fusion_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.fusion_region" title="Link to this definition"></a></dt>
+<dd><p>Run fusion callbacks on straightline code replacing certain
+instruction (sequences) with an alternative. These replacements are
+defined in the architectural model by setting an instruction class’
+global_fusion_cb.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – The label marking the beginning of the part of the code to
+apply fusion to.</p></li>
+<li><p><strong>end</strong> – The label marking the end of the part of the code to apply
+fusion to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.fusion_loop">
+<span class="sig-name descname"><span class="pre">fusion_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.fusion_loop" title="Link to this definition"></a></dt>
+<dd><p>Run fusion callbacks on loop body replacing certain instruction
+(sequences) with an alternative. These replacements are defined in the
+architectural model by setting an instruction class’ global_fusion_cb.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loop_lbl</strong> – Label of loop to which the fusions are applied to.</p></li>
+<li><p><strong>forced_loop_type</strong> – Forces the loop to be parsed as a certain type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.slothy.Slothy.optimize_loop">
+<span class="sig-name descname"><span class="pre">optimize_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postamble_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.optimize_loop" title="Link to this definition"></a></dt>
+<dd><p>Optimize the loop starting at a given label</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>postamble_label</strong> – Marks end of loop kernel.</p></li>
+<li><p><strong>forced_loop_type</strong> – Forces the loop to be parsed as a certain type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="slothy.core.config.html" class="btn btn-neutral float-left" title="slothy.core.config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="slothy.helper.html" class="btn btn-neutral float-right" title="slothy.helper" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

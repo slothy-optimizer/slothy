@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frequently asked questions &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="apidocs/index.html" />
+    <link rel="prev" title="SLOTHY Tutorial" href="tutorial/README.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="general.html">About SLOTHY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general.html#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="general.html#installation">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/README.html">SLOTHY Tutorial</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Frequently asked questions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#is-slothy-a-peephole-optimizer">Is SLOTHY a peephole optimizer?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#is-slothy-better-than-name-your-favourite-superoptimizer">Is SLOTHY better than {name your favourite superoptimizer}?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#does-slothy-support-x86">Does SLOTHY support x86?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#does-slothy-support-risc-v">Does SLOTHY support RISC-V?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#is-slothy-formally-verified">Is SLOTHY formally verified?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#is-slothy-generated-code-formally-verified-to-be-equivalent-to-the-input-code">Is SLOTHY-generated code formally verified to be equivalent to the input code?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-is-my-question-not-here">Why is my question not here?</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="apidocs/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Frequently asked questions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/faq.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="frequently-asked-questions">
+<h1>Frequently asked questions<a class="headerlink" href="#frequently-asked-questions" title="Link to this heading"></a></h1>
+<section id="is-slothy-a-peephole-optimizer">
+<h2>Is SLOTHY a peephole optimizer?<a class="headerlink" href="#is-slothy-a-peephole-optimizer" title="Link to this heading"></a></h2>
+<p>No. SLOTHY is a <em>fixed-instruction</em> super-optimizer: It keeps instructions and optimizes
+register allocation, instruction scheduling, and software pipelining. It is the developer’s or another tool’s
+responsibility to map the workload at hand to the target architecture.</p>
+<!-- #### When should I use SLOTHY?
+
+You may want to use SLOTHY on performance-critical workloads for which precise control over instruction-selection
+is beneficial (e.g. because other code-generation techniques do not find ideal instruction sequences) or needed
+(e.g. because some instructions or instruction patterns have to be avoided for security). -->
+</section>
+<section id="is-slothy-better-than-name-your-favourite-superoptimizer">
+<h2>Is SLOTHY better than {name your favourite superoptimizer}?<a class="headerlink" href="#is-slothy-better-than-name-your-favourite-superoptimizer" title="Link to this heading"></a></h2>
+<p>Most likely, they serve different purposes. SLOTHY aims to do one thing well: Optimization <em>after</em> instruction selection.
+It is thus independent of and potentially combinable with superoptimizers operating at earlier stages of the code-generation process, such as <a class="reference external" href="https://github.com/google/souper">souper</a> and <a class="reference external" href="https://github.com/0xADE1A1DE/CryptOpt">CryptOpt</a>.</p>
+</section>
+<section id="does-slothy-support-x86">
+<h2>Does SLOTHY support x86?<a class="headerlink" href="#does-slothy-support-x86" title="Link to this heading"></a></h2>
+<p>The core of SLOTHY is architecture- and microarchitecture-agnostic and can accommodate x86. As it stands, however,
+there is no model of the x86 architecture. Feel free to build one!</p>
+</section>
+<section id="does-slothy-support-risc-v">
+<h2>Does SLOTHY support RISC-V?<a class="headerlink" href="#does-slothy-support-risc-v" title="Link to this heading"></a></h2>
+<p>As for x86.</p>
+</section>
+<section id="is-slothy-formally-verified">
+<h2>Is SLOTHY formally verified?<a class="headerlink" href="#is-slothy-formally-verified" title="Link to this heading"></a></h2>
+<p>No. Arguably, that wouldn’t be a good use of time. The more relevant question is the following:</p>
+</section>
+<section id="is-slothy-generated-code-formally-verified-to-be-equivalent-to-the-input-code">
+<h2>Is SLOTHY-generated code formally verified to be equivalent to the input code?<a class="headerlink" href="#is-slothy-generated-code-formally-verified-to-be-equivalent-to-the-input-code" title="Link to this heading"></a></h2>
+<p>Not yet. SLOTHY runs a self-check confirming that input and output have isomorphic data flow graphs,
+but pitfalls remain, such as bad user configurations allowing SLOTHY to clobber a register that’s not
+meant to be reserved. More work is needed for formal verification of the equivalence of input
+and output.</p>
+</section>
+<section id="why-is-my-question-not-here">
+<h2>Why is my question not here?<a class="headerlink" href="#why-is-my-question-not-here" title="Link to this heading"></a></h2>
+<p>Ping us! (<a class="reference external" href="https://github.com/slothy-optimizer/slothy/issues">GitHub</a>, or see <a class="reference external" href="https://eprint.iacr.org/2022/1303.pdf">paper</a> for
+contact information).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial/README.html" class="btn btn-neutral float-left" title="SLOTHY Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="apidocs/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

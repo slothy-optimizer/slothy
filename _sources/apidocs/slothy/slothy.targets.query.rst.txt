@@ -1,0 +1,76 @@
+:py:mod:`slothy.targets.query`
+==============================
+
+.. py:module:: slothy.targets.query
+
+.. autodoc2-docstring:: slothy.targets.query
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`Archery <slothy.targets.query.Archery>`
+     - .. autodoc2-docstring:: slothy.targets.query.Archery
+          :summary:
+
+API
+~~~
+
+.. py:exception:: UnknownTarget()
+   :canonical: slothy.targets.query.UnknownTarget
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.query.UnknownTarget
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.query.UnknownTarget.__init__
+
+.. py:class:: Archery
+   :canonical: slothy.targets.query.Archery
+
+   .. autodoc2-docstring:: slothy.targets.query.Archery
+
+   .. py:attribute:: _archs
+      :canonical: slothy.targets.query.Archery._archs
+      :value: None
+
+      .. autodoc2-docstring:: slothy.targets.query.Archery._archs
+
+   .. py:attribute:: _targets
+      :canonical: slothy.targets.query.Archery._targets
+      :value: None
+
+      .. autodoc2-docstring:: slothy.targets.query.Archery._targets
+
+   .. py:method:: list_archs()
+      :canonical: slothy.targets.query.Archery.list_archs
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.query.Archery.list_archs
+
+   .. py:method:: list_targets()
+      :canonical: slothy.targets.query.Archery.list_targets
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.query.Archery.list_targets
+
+   .. py:method:: get_arch(name)
+      :canonical: slothy.targets.query.Archery.get_arch
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.query.Archery.get_arch
+
+   .. py:method:: get_target(name)
+      :canonical: slothy.targets.query.Archery.get_target
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.query.Archery.get_target

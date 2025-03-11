@@ -1,0 +1,156 @@
+:py:mod:`slothy.core.slothy`
+============================
+
+.. py:module:: slothy.core.slothy
+
+.. autodoc2-docstring:: slothy.core.slothy
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`Slothy <slothy.core.slothy.Slothy>`
+     - .. autodoc2-docstring:: slothy.core.slothy.Slothy
+          :summary:
+
+API
+~~~
+
+.. py:class:: Slothy(arch, target, logger=None)
+   :canonical: slothy.core.slothy.Slothy
+
+   .. autodoc2-docstring:: slothy.core.slothy.Slothy
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.slothy.Slothy.__init__
+
+   .. py:method:: _get_arch()
+      :canonical: slothy.core.slothy.Slothy._get_arch
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy._get_arch
+
+   .. py:method:: _get_target()
+      :canonical: slothy.core.slothy.Slothy._get_target
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy._get_target
+
+   .. py:attribute:: arch
+      :canonical: slothy.core.slothy.Slothy.arch
+      :value: 'property(...)'
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.arch
+
+   .. py:attribute:: target
+      :canonical: slothy.core.slothy.Slothy.target
+      :value: 'property(...)'
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.target
+
+   .. py:property:: source
+      :canonical: slothy.core.slothy.Slothy.source
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.source
+
+   .. py:property:: original_source
+      :canonical: slothy.core.slothy.Slothy.original_source
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.original_source
+
+   .. py:method:: get_source_as_string(comments=True, indentation=True, tags=True)
+      :canonical: slothy.core.slothy.Slothy.get_source_as_string
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.get_source_as_string
+
+   .. py:method:: get_original_source_as_string(comments=True, indentation=True, tags=True)
+      :canonical: slothy.core.slothy.Slothy.get_original_source_as_string
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.get_original_source_as_string
+
+   .. py:method:: set_source_as_string(s)
+      :canonical: slothy.core.slothy.Slothy.set_source_as_string
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.set_source_as_string
+
+   .. py:method:: load_source_raw(source)
+      :canonical: slothy.core.slothy.Slothy.load_source_raw
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.load_source_raw
+
+   .. py:method:: load_source_from_file(filename)
+      :canonical: slothy.core.slothy.Slothy.load_source_from_file
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.load_source_from_file
+
+   .. py:method:: write_source_to_file(filename)
+      :canonical: slothy.core.slothy.Slothy.write_source_to_file
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.write_source_to_file
+
+   .. py:method:: rename_function(old_funcname, new_funcname)
+      :canonical: slothy.core.slothy.Slothy.rename_function
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.rename_function
+
+   .. py:method:: _dump(name, s, logger, err=False)
+      :canonical: slothy.core.slothy.Slothy._dump
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy._dump
+
+   .. py:method:: global_selftest(funcname, address_registers, iterations=5)
+      :canonical: slothy.core.slothy.Slothy.global_selftest
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.global_selftest
+
+   .. py:method:: unfold(start=None, end=None, macros=True, aliases=False)
+      :canonical: slothy.core.slothy.Slothy.unfold
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.unfold
+
+   .. py:method:: _make_llvm_mca_stats(pre, code, post, txt, indentation)
+      :canonical: slothy.core.slothy.Slothy._make_llvm_mca_stats
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy._make_llvm_mca_stats
+
+   .. py:method:: optimize(start=None, end=None, loop_synthesis_cb=None, logname=None)
+      :canonical: slothy.core.slothy.Slothy.optimize
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.optimize
+
+   .. py:method:: get_loop_input_output(loop_lbl, forced_loop_type=None)
+      :canonical: slothy.core.slothy.Slothy.get_loop_input_output
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.get_loop_input_output
+
+   .. py:method:: get_input_from_output(start, end, outputs=None)
+      :canonical: slothy.core.slothy.Slothy.get_input_from_output
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.get_input_from_output
+
+   .. py:method:: _fusion_core(pre, body, post, logger, ssa=True)
+      :canonical: slothy.core.slothy.Slothy._fusion_core
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy._fusion_core
+
+   .. py:method:: fusion_region(start, end, **kwargs)
+      :canonical: slothy.core.slothy.Slothy.fusion_region
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.fusion_region
+
+   .. py:method:: fusion_loop(loop_lbl, forced_loop_type=None, **kwargs)
+      :canonical: slothy.core.slothy.Slothy.fusion_loop
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.fusion_loop
+
+   .. py:method:: optimize_loop(loop_lbl, postamble_label=None, forced_loop_type=None)
+      :canonical: slothy.core.slothy.Slothy.optimize_loop
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy.optimize_loop

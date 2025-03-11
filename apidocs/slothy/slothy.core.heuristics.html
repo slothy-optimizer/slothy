@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>slothy.core.heuristics &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="slothy.core.config" href="slothy.core.config.html" />
+    <link rel="prev" title="slothy.core.core" href="slothy.core.core.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html">About SLOTHY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#installation">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/README.html">SLOTHY Tutorial</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="slothy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a></li>
+          <li class="breadcrumb-item"><a href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core.heuristics</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/apidocs/slothy/slothy.core.heuristics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-slothy.core.heuristics">
+<span id="slothy-core-heuristics"></span><h1><a class="reference internal" href="#module-slothy.core.heuristics" title="slothy.core.heuristics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core.heuristics</span></code></a><a class="headerlink" href="#module-slothy.core.heuristics" title="Link to this heading"></a></h1>
+<p>SLOTHY heuristics</p>
+<p>The one-shot SLOTHY approach tends to become computationally infeasible above
+200 assembly instructions. To optimize kernels beyond that threshold, this
+module provides heuristics to split the optimization problem into several
+smaller-sizes problems amenable to one-shot SLOTHY.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.core.heuristics.Heuristics" title="slothy.core.heuristics.Heuristics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Heuristics</span></code></a></p></td>
+<td><p>Break down large optimization problems into smaller ones.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.heuristics.</span></span><span class="sig-name descname"><span class="pre">Heuristics</span></span><a class="headerlink" href="#slothy.core.heuristics.Heuristics" title="Link to this definition"></a></dt>
+<dd><p>Break down large optimization problems into smaller ones.</p>
+<p>The one-shot SLOTHY approach tends to become computationally infeasible above
+200 assembly instructions. To optimize kernels beyond that threshold, this
+class provides heuristics to split the optimization problem into several
+smaller-sizes problems amenable to one-shot SLOTHY.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._optimize_binsearch_core">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_optimize_binsearch_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._optimize_binsearch_core" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics.optimize_binsearch">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize_binsearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics.optimize_binsearch" title="Link to this definition"></a></dt>
+<dd><p>Optimize for minimum number of stalls, and potentially a secondary objective.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – The source code to be optimized. Must be a list of
+SourceLine instances.</p></li>
+<li><p><strong>logger</strong> – The logger to be used</p></li>
+<li><p><strong>conf</strong> – The configuration to apply. This fixed for all one-shot SLOTHY
+runs invoked by this call, except for the variation of the stall count.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Result object for the succceeding optimization with the smallest number of stalls.</p>
+</dd>
+</dl>
+<p>The <cite>variable_size</cite> configuration option determines whether the minimiation of
+stalls happens internally or externally. Internal minimization means that the
+number of stalls is part of the model, and its minimization registered as the
+objective to the underlying solver. External minimization means that the number
+of stalls is statically fixed per one-shot SLOTHY optimization, and that an
+external binary search is used to minimize it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._log_reoptimization_failure">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_log_reoptimization_failure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._log_reoptimization_failure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._log_input_output_warning">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_log_input_output_warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._log_input_output_warning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics.optimize_binsearch_external">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize_binsearch_external</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flexible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics.optimize_binsearch_external" title="Link to this definition"></a></dt>
+<dd><p>Externally optimize for minimum number of stalls, and potentially a secondary objective.</p>
+<p>This function uses an external binary search to find the minimum number of stalls
+for which a one-shot SLOTHY optimization succeeds. If the provided configuration
+has a secondary objective, it then re-optimizes the result for that secondary
+objective, fixing the minimal number of stalls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – The source code to be optimized. Must be a list of SourceLine instances.</p></li>
+<li><p><strong>logger</strong> – The logger to be used.</p></li>
+<li><p><strong>conf</strong> – The configuration to apply. This is fixed for all one-shot SLOTHY
+runs invoked by this call, except for variation of stall count.</p></li>
+<li><p><strong>flexible</strong> – Indicates whether the number of stalls should be minimized
+through a binary search, or whether a single one-shot SLOTHY optimization
+for a fixed number of stalls (encoded in the configuration) should be
+conducted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Result object representing the final optimization result.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics.optimize_binsearch_internal">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize_binsearch_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flexible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics.optimize_binsearch_internal" title="Link to this definition"></a></dt>
+<dd><p>Internally optimize for minimum number of stalls, and potentially a secondary objective.</p>
+<p>This finds the minimum number of stalls for which a one-shot SLOTHY optimization succeeds.
+If the provided configuration has a secondary objective, it then re-optimizes the result
+for that secondary objective, fixing the minimal number of stalls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – The source code to be optimized. Must be a list of SourceLine instances.</p></li>
+<li><p><strong>logger</strong> – The logger to be used.</p></li>
+<li><p><strong>conf</strong> – The configuration to apply. This is fixed for all one-shot SLOTHY
+runs invoked by this call, except for variation of stall count.</p></li>
+<li><p><strong>flexible</strong> – Indicates whether the number of stalls should be minimized
+through a binary search, or whether a single one-shot SLOTHY optimization
+for a fixed number of stalls (encoded in the configuration) should be
+conducted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Result object representing the final optimization result.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics.periodic">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">periodic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics.periodic" title="Link to this definition"></a></dt>
+<dd><p>Entrypoint for optimization of loops.</p>
+<p>If software pipelining is disabled, this function forwards to
+the straightline optimization via Heuristics.linear().</p>
+<p>If software pipelining is enabled but the halving heuristic
+is disabled, this function performs a one-shot SLOTHY optimization
+without heuristics.</p>
+<p>If software pipelining is enabled and the halving heuristic is
+enabled, this function optimizes the loop body via straightline
+optimization first, splits result as <cite>[A;B]</cite>, and optimizes
+<cite>[B;A]</cite> again via straightline optimizations. The optimized loop
+is then given by the preamble <cite>A</cite>, kernel <cite>opt(B;A)</cite>, and postamble
+<cite>B</cite>. The straightline optimizations applied in this heuristics are
+done via Heuristics.linear() and thus themselves subject to the
+splitting heuristic, if enabled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> – The loop body to be optimized. This must be a list of
+SourceLine instances.</p></li>
+<li><p><strong>logger</strong> – The logger to be used.</p></li>
+<li><p><strong>conf</strong> – The configuration to be applied.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple (preamble, kernel, postamble, num_exceptional_iterations)
+of preamble, kernel and postamble (each as a list of SourceLine
+objects), plus the number of iterations jointly accounted for by
+the preamble and postamble (the caller will need this to adjust the
+loop counter).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics.linear">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">linear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics.linear" title="Link to this definition"></a></dt>
+<dd><p>Entrypoint for straightline optimization.</p>
+<p>If the split heuristic is disabled, this forwards to a one-shot optimization.</p>
+<p>If the split heuristic is enabled (conf.split_heuristic == True), the assembly
+input is optimized by successively applying one-shot optimizations to a
+‘sliding window’ of code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> – The assembly input to be optimized. This must be a list of
+SourceLine objects.</p></li>
+<li><p><strong>conf</strong> – The configuration to be applied. Software pipelining must be disabled.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p>Raises a SlothyException if software pipelining is enabled.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._naive_reordering">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_naive_reordering</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_latency_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._naive_reordering" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._idxs_from_fractions">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_idxs_from_fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fraction_lst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._idxs_from_fractions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._get_ssa_form">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_ssa_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._get_ssa_form" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._split_inner">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_split_inner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._split_inner" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._split">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._split" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._dump">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_comments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._dump" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.heuristics.Heuristics._periodic_halving">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_periodic_halving</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.heuristics.Heuristics._periodic_halving" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="slothy.core.core.html" class="btn btn-neutral float-left" title="slothy.core.core" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="slothy.core.config.html" class="btn btn-neutral float-right" title="slothy.core.config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

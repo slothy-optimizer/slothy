@@ -1,0 +1,213 @@
+:py:mod:`slothy.targets.aarch64.cortex_a55`
+===========================================
+
+.. py:module:: slothy.targets.aarch64.cortex_a55
+
+.. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ExecutionUnit <slothy.targets.aarch64.cortex_a55.ExecutionUnit>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`add_further_constraints <slothy.targets.aarch64.cortex_a55.add_further_constraints>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.add_further_constraints
+          :summary:
+   * - :py:obj:`add_slot_constraints <slothy.targets.aarch64.cortex_a55.add_slot_constraints>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.add_slot_constraints
+          :summary:
+   * - :py:obj:`add_st_hazard <slothy.targets.aarch64.cortex_a55.add_st_hazard>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.add_st_hazard
+          :summary:
+   * - :py:obj:`has_min_max_objective <slothy.targets.aarch64.cortex_a55.has_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.has_min_max_objective
+          :summary:
+   * - :py:obj:`get_min_max_objective <slothy.targets.aarch64.cortex_a55.get_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.get_min_max_objective
+          :summary:
+   * - :py:obj:`get_latency <slothy.targets.aarch64.cortex_a55.get_latency>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.get_latency
+          :summary:
+   * - :py:obj:`get_units <slothy.targets.aarch64.cortex_a55.get_units>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.get_units
+          :summary:
+   * - :py:obj:`get_inverse_throughput <slothy.targets.aarch64.cortex_a55.get_inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.get_inverse_throughput
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`issue_rate <slothy.targets.aarch64.cortex_a55.issue_rate>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.issue_rate
+          :summary:
+   * - :py:obj:`llvm_mca_target <slothy.targets.aarch64.cortex_a55.llvm_mca_target>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.llvm_mca_target
+          :summary:
+   * - :py:obj:`execution_units <slothy.targets.aarch64.cortex_a55.execution_units>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.execution_units
+          :summary:
+   * - :py:obj:`inverse_throughput <slothy.targets.aarch64.cortex_a55.inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.inverse_throughput
+          :summary:
+   * - :py:obj:`default_latencies <slothy.targets.aarch64.cortex_a55.default_latencies>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.default_latencies
+          :summary:
+
+API
+~~~
+
+.. py:data:: issue_rate
+   :canonical: slothy.targets.aarch64.cortex_a55.issue_rate
+   :value: 2
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.issue_rate
+
+.. py:data:: llvm_mca_target
+   :canonical: slothy.targets.aarch64.cortex_a55.llvm_mca_target
+   :value: 'cortex-a55'
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.llvm_mca_target
+
+.. py:class:: ExecutionUnit
+   :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit
+
+   Bases: :py:obj:`enum.Enum`
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit
+
+   .. py:attribute:: SCALAR_ALU0
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_ALU0
+      :value: 1
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_ALU0
+
+   .. py:attribute:: SCALAR_ALU1
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_ALU1
+      :value: 2
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_ALU1
+
+   .. py:attribute:: SCALAR_MAC
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_MAC
+      :value: 3
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_MAC
+
+   .. py:attribute:: SCALAR_LOAD
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_LOAD
+      :value: 4
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_LOAD
+
+   .. py:attribute:: SCALAR_STORE
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_STORE
+      :value: 5
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_STORE
+
+   .. py:attribute:: VEC0
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.VEC0
+      :value: 6
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.VEC0
+
+   .. py:attribute:: VEC1
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.VEC1
+      :value: 7
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.VEC1
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.__repr__
+
+   .. py:method:: SCALAR()
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR
+
+   .. py:method:: SCALAR_MUL()
+      :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_MUL
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_MUL
+
+.. py:function:: add_further_constraints(slothy)
+   :canonical: slothy.targets.aarch64.cortex_a55.add_further_constraints
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.add_further_constraints
+
+.. py:function:: add_slot_constraints(slothy)
+   :canonical: slothy.targets.aarch64.cortex_a55.add_slot_constraints
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.add_slot_constraints
+
+.. py:function:: add_st_hazard(slothy)
+   :canonical: slothy.targets.aarch64.cortex_a55.add_st_hazard
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.add_st_hazard
+
+.. py:function:: has_min_max_objective(config)
+   :canonical: slothy.targets.aarch64.cortex_a55.has_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.has_min_max_objective
+
+.. py:function:: get_min_max_objective(slothy)
+   :canonical: slothy.targets.aarch64.cortex_a55.get_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.get_min_max_objective
+
+.. py:data:: execution_units
+   :canonical: slothy.targets.aarch64.cortex_a55.execution_units
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.execution_units
+
+.. py:data:: inverse_throughput
+   :canonical: slothy.targets.aarch64.cortex_a55.inverse_throughput
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.inverse_throughput
+
+.. py:data:: default_latencies
+   :canonical: slothy.targets.aarch64.cortex_a55.default_latencies
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.default_latencies
+
+.. py:function:: get_latency(src, out_idx, dst)
+   :canonical: slothy.targets.aarch64.cortex_a55.get_latency
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.get_latency
+
+.. py:function:: get_units(src)
+   :canonical: slothy.targets.aarch64.cortex_a55.get_units
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.get_units
+
+.. py:function:: get_inverse_throughput(src)
+   :canonical: slothy.targets.aarch64.cortex_a55.get_inverse_throughput
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.get_inverse_throughput

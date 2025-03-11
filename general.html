@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About SLOTHY &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SLOTHY Tutorial" href="tutorial/README.html" />
+    <link rel="prev" title="Slothy documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">About SLOTHY</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#goal">Goal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performance">Performance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#applications">Applications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-check">Quick check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/README.html">SLOTHY Tutorial</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently asked questions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="apidocs/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">About SLOTHY</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/general.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="about-slothy">
+<h1>About SLOTHY<a class="headerlink" href="#about-slothy" title="Link to this heading"></a></h1>
+<p><strong>SLOTHY</strong> - <strong>S</strong>uper <strong>L</strong>azy <strong>O</strong>ptimization of <strong>T</strong>ricky <strong>H</strong>andwritten assembl<strong>Y</strong> - is an assembly-level superoptimizer
+for:</p>
+<ol class="arabic simple">
+<li><p>Instruction scheduling</p></li>
+<li><p>Register allocation</p></li>
+<li><p>Software pipelining (= periodic loop interleaving)</p></li>
+</ol>
+<p>SLOTHY is generic in the target architecture and microarchitecture. This repository provides instantiations for:</p>
+<ul class="simple">
+<li><p>Armv8.1-M+Helium: Cortex-M55, Cortex-M85</p></li>
+<li><p>AArch64: Cortex-A55, and experimentally Cortex-A72, Cortex-X/Neoverse-V, Apple M1 (Firestorm, Icestorm)</p></li>
+</ul>
+<p>SLOTHY is discussed in <a class="reference external" href="https://eprint.iacr.org/2022/1303">Fast and Clean: Auditable high-performance assembly via constraint solving</a>.</p>
+<section id="goal">
+<h2>Goal<a class="headerlink" href="#goal" title="Link to this heading"></a></h2>
+<p>SLOTHY enables a development workflow where developers write ‘clean’ assembly by hand, emphasizing the logic of the computation, while SLOTHY automates microarchitecture-specific micro-optimizations. This accelerates development, keeps manually written code artifacts maintainable, and allows to split efforts for formal verification into the separate verification of the clean code and the micro-optimizations.</p>
+</section>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
+<p>SLOTHY is essentially a constraint solver frontend: It converts the input source into a data flow graph and
+builds a constraint model capturing valid instruction schedulings, register renamings, and periodic loop
+interleavings. The model is passed to an external constraint solver and, upon success,
+a satisfying assignment converted back into the final code. Currently, SLOTHY uses
+<a class="reference external" href="https://developers.google.com/optimization">Google OR-Tools</a> as its constraint solver backend.</p>
+</section>
+<section id="performance">
+<h2>Performance<a class="headerlink" href="#performance" title="Link to this heading"></a></h2>
+<p>As a rough rule of thumb, SLOTHY typically optimizes workloads of &lt;50 instructions in seconds to minutes, workloads
+up to 150 instructions in minutes to hours, while for larger kernels some heuristics are necessary.</p>
+</section>
+<section id="applications">
+<h2>Applications<a class="headerlink" href="#applications" title="Link to this heading"></a></h2>
+<p>SLOTHY has been used to provide the fastest known implementations of various cryptographic and DSP primitives:
+For example, the <a class="reference external" href="https://eprint.iacr.org/2022/1303">SLOTHY paper</a> discusses the NTTs underlying ML-KEM and ML-DSA for
+Cortex-{A55, A72, M55, M85}, the FFT for Cortex-{M55,M85}, and the X25519 scalar multiplication for Cortex-A55. You find
+the clean and optimized source code for those examples in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/tree/main/paper"><code class="docutils literal notranslate"><span class="pre">paper/</span></code></a>.</p>
+</section>
+</section>
+<section id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<p>Have a look at the <a class="reference internal" href="tutorial/README.html"><span class="std std-doc">SLOTHY tutorial</span></a> for a hands-on and example-based introduction to SLOTHY.</p>
+</section>
+<section id="real-world-uses">
+<h1>Real world uses<a class="headerlink" href="#real-world-uses" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/aws/aws-lc">AWS libcrypto (AWS-LC)</a>: SLOTHY-optimized X25519 code based on our un-interleaved form of the <a class="reference external" href="https://github.com/Emill/X25519-AArch64">original code by Emil
+Lenngren</a> has been <a class="reference external" href="https://github.com/awslabs/s2n-bignum/pull/108">formally verified and
+included</a> in
+<a class="reference external" href="https://github.com/awslabs/s2n-bignum/">s2n-bignum</a> (the bignum component of AWS-LC) and <a class="reference external" href="https://github.com/aws/aws-lc/pull/1469">merged</a> into
+AWS-LC. This was the topic of a <a class="reference external" href="https://iacr.org/submit/files/slides/2024/rwc/rwc2024/38/slides.pdf">Real World Crypto 2024
+talk</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/awslabs/s2n-bignum/">s2n-bignum</a> routinely employs SLOTHY for finding
+further highly optimized ECC implementations (e.g., <a class="reference external" href="https://github.com/awslabs/s2n-bignum/pull/118">P256</a>,
+<a class="reference external" href="https://github.com/awslabs/s2n-bignum/pull/122">P384</a>, <a class="reference external" href="https://github.com/awslabs/s2n-bignum/pull/130">P521</a> and
+verifies them through automated equivalence-checking in <a class="reference external" href="https://hol-light.github.io/">HOL-Light</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/ARM-software/EndpointAI">Arm EndpointAI</a>: SLOTHY-optimized code has been deployed to the CMSIS DSP Library for the radix-4 CFFT routines as part
+of the Arm EndpointAI project in <a class="reference external" href="https://github.com/ARM-software/EndpointAI/commit/817bb57d8a4a604538a04627851f5e9adb5f08fc">this
+commit</a>.</p></li>
+</ul>
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<p>SLOTHY has been successfully used on</p>
+<ul class="simple">
+<li><p>Ubuntu-21.10 and up (64-bit),</p></li>
+<li><p>macOS Monterey 12.6 and up.</p></li>
+</ul>
+<p>SLOTHY requires Python &gt;= 3.10. See <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/requirements.txt">requirements.txt</a> for package requirements, and install via <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code>.</p>
+<p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> pins versions for reproducibility. If you already have newer versions of some dependencies
+installed and don’t want them downgraded, consider using a virtual environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">venv</span>
+<span class="o">./</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Then, enter the virtual environment via <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">venv/bin/activate</span></code> prior to running SLOTHY.</p>
+</section>
+<section id="docker">
+<h2>Docker<a class="headerlink" href="#docker" title="Link to this heading"></a></h2>
+<p>A dockerfile for an Ubuntu-22.04 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
+environments setup can be found in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/paper/artifact/slothy.Dockerfile">paper/artifact/slothy.dockerfile</a>. See
+<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/paper/artifact/README.md">paper/artifact/README.md</a> for instructions.</p>
+</section>
+<section id="quick-check">
+<h2>Quick check<a class="headerlink" href="#quick-check" title="Link to this heading"></a></h2>
+<p>To check that your setup is complete, try the following from the base directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">python3</span> <span class="n">example</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">examples</span> <span class="n">aarch64_simple0_a55</span>
+</pre></div>
+</div>
+<p>You should see something like the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>* Example: aarch64_simple0_a55...
+INFO:aarch64_simple0_a55:Instructions in body: 20
+INFO:aarch64_simple0_a55.slothy:Perform internal binary search for minimal number of stalls...
+INFO:aarch64_simple0_a55.slothy:Attempt optimization with max 32 stalls...
+INFO:aarch64_simple0_a55.slothy:Objective: minimize number of stalls
+INFO:aarch64_simple0_a55.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:aarch64_simple0_a55.slothy:[0.0721s]: Found 1 solutions so far... objective 19.0, bound 8.0 (minimize number of stalls)
+INFO:aarch64_simple0_a55.slothy:[0.0765s]: Found 2 solutions so far... objective 18.0, bound 12.0 (minimize number of stalls)
+INFO:aarch64_simple0_a55.slothy:OPTIMAL, wall time: 0.155224 s
+INFO:aarch64_simple0_a55.slothy:Booleans in result: 509
+INFO:aarch64_simple0_a55.slothy.selfcheck:OK!
+INFO:aarch64_simple0_a55.slothy:Minimum number of stalls: 18
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="tutorial/README.html"><span class="std std-doc">SLOTHY Tutorial</span></a> and the <a class="reference external" href="https://github.com/slothy-optimizer/slothy/tree/main/examples/naive">examples</a> directory contain numerous exemplary
+assembly snippets. To try them, use <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">example.py</span> <span class="pre">--examples={YOUR_EXAMPLE}</span></code>. See <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">example.py</span> <span class="pre">--help</span></code> for
+the list of all available examples.</p>
+<p>The use of SLOTHY from the command line is illustrated in <a class="reference internal" href="#scripts/"><span class="xref myst">scripts/</span></a> supporting the real-world optimizations
+for the NTT, FFT and X25519 discussed in <a class="reference external" href="https://eprint.iacr.org/2022/1303">Fast and Clean: Auditable high-performance assembly via constraint
+solving</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Slothy documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial/README.html" class="btn btn-neutral float-right" title="SLOTHY Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

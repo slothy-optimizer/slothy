@@ -1,0 +1,1131 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SLOTHY Tutorial &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Frequently asked questions" href="../faq.html" />
+    <link rel="prev" title="About SLOTHY" href="../general.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../general.html">About SLOTHY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../general.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../general.html#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../general.html#installation">Installation</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SLOTHY Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-to-slothy">Introduction to SLOTHY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#table-of-contents">Table of contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">1. Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">2. Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-your-own-calling-code">3. Writing your own calling code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#software-pipelining">4. Software Pipelining</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checking-the-quality-of-slothy-optimizations">5. Checking the quality of SLOTHY optimizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optimizing-a-full-neon-ntt">6. Optimizing a full Neon NTT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optimizing-larger-pieces-of-code">7. Optimizing larger pieces of code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-a-new-microarchitecture">8. Adding a new microarchitecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently asked questions</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apidocs/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SLOTHY Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorial/README.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="slothy-tutorial">
+<h1>SLOTHY Tutorial<a class="headerlink" href="#slothy-tutorial" title="Link to this heading"></a></h1>
+<p>This tutorial introduces you to using the SLOTHY superoptimizer for optimizing assembly programs for a specific microarchitecture.
+It goes beyond what is written in the <span class="xref myst">README</span> or the <a class="reference external" href="https://eprint.iacr.org/2022/1303.pdf">SLOTHY
+paper</a> in that it gives more examples on how we, the developers of SLOTHY,
+typically use SLOTHY to optimize cryptographic code. At the end of the tutorial, you should be familiar with
+the workflow of using SLOTHY as well as a number of common ways to debug or improve your results.</p>
+<section id="introduction-to-slothy">
+<h2>Introduction to SLOTHY<a class="headerlink" href="#introduction-to-slothy" title="Link to this heading"></a></h2>
+<p>SLOTHY is a fixed instruction superoptimizer: Its input is assembly and its output is semantically-equivalent optimized
+assembly using the same instructions and data flow. The fact that SLOTHY does not change instructions is very important
+both theoretically (in terms of complexity of optimization) and practically (in terms of developer control) and sets SLOTHY apart from
+<em>synthesizing</em> superoptimizers like <a class="reference external" href="https://github.com/google/souper">souper</a>.</p>
+<p>Concretely, SLOTHY performs three main jobs:</p>
+<ol class="arabic simple">
+<li><p>(Re-)schedule instructions to hide latencies and improve utilization of all execution units.</p></li>
+<li><p>Rename registers in case this enables a better scheduling.</p></li>
+<li><p>Perform software pipelining (aka periodic loop interleaving). We will cover software pipelining in more depth later in this tutorial.</p></li>
+</ol>
+<p>SLOTHY performs these jobs by first lifting the input assembly into a data-flow graph (DFG) modelling dependencies
+between instructions. At this level, the ordering of instructions and the choice of register names is no longer visible.
+The goal of SLOTHY, then, is to find a traversal/lowering of the DFG that results in the least
+number of pipeline stalls. A traversal/lowering of the graph is assigning to each instruction an index at which
+the instruction will be in the output, plus a choice of registers to be used for its outputs. SLOTHY does so by turning
+the graph together with information about the (micro)architecture into constraints that are fed into an external constraint
+solver; so far, we have been using Google OR-tools, but in principle one can use other solvers as well.
+Constraints come in two flavours: Architectural and microarchitectural. Architectural constraints simply ensure that the
+resulting code is architecturally valid (e.g. SLOTHY does not use a vector register in a scalar instruction) and
+functionally correct (it has the same DFG). Microarchitectural constraints imply (hopefully) that the code will run fast
+on the target; SLOTHY models microarchitectures in terms of issue width, instruction latencies, throughput, forwarding
+paths, and the number of execution units able to execute certain instructions. We refer to the <a class="reference external" href="https://eprint.iacr.org/2022/1303.pdf">SLOTHY
+paper</a> for details of the constraint model, which are not relevant here.</p>
+<p>Note again that SLOTHY does (largely) not change instructions: Instruction selection is left to the developer.
+For cryptographic code – which is what SLOTHY was developed for – instruction selection is a core focus of research
+and highly-optimized instruction sequences implementing a cryptographic (sub-)routine usually exist. Tight control over
+the choice of instructions is also important from a security perspective, as variable-time instructions have to be
+avoided.</p>
+<p><strong>High-assurance cryptography</strong>: While formal verification is not part of SLOTHY itself, there is potential for
+combining existing formal verification tools with SLOTHY. From a high level, formal verification should be relatively
+simple, owing to the fact that SLOTHY does not change the DFG: In fact, SLOTHY itself includes a selfcheck that
+lifts the output assembly back into a DFG and confirms that it is isomorphic to the input DFG via the permutation found by
+SLOTHY. However, while this is a strong indicator of correctness of the output assembly, it does <em>not</em> amount to a
+formal verification, as pitfalls do remain (notably bad user configurations and subtleties around modelling
+memory and load/store offsets which we will not discuss in this tutorial). Research into combining SLOTHY with trusted
+verification infrastructure is therefore needed. As a first promising example, AWS-LC has recently
+<a class="reference external" href="https://github.com/aws/aws-lc/pull/1478">integrated</a> an implementation of X25519 that was auto-generated by SLOTHY and
+formally verified using the <a class="reference external" href="https://github.com/jrh13/hol-light">HOL-Light</a> proof assistant.</p>
+</section>
+<section id="table-of-contents">
+<h2>Table of contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#installation"><span class="xref myst">Installation</span></a>. This is limited to the fastest way of installing SLOTHY using pip. For more complete instructions, see the <span class="xref myst">README</span>.</p></li>
+<li><p><a class="reference internal" href="#getting-started"><span class="xref myst">Getting started</span></a></p></li>
+<li><p><a class="reference internal" href="#writing-your-own-calling-code"><span class="xref myst">Using SLOTHY for your own code</span></a></p></li>
+<li><p><a class="reference internal" href="#software-pipelining"><span class="xref myst">Using SLOTHY’s Software Pipelining</span></a></p></li>
+<li><p><a class="reference internal" href="#checking-the-quality-of-slothy-optimizations"><span class="xref myst">Checking the quality of SLOTHY optimizations</span></a></p></li>
+<li><p><a class="reference internal" href="#optimizing-a-full-neon-ntt"><span class="xref myst">Optimizing a full Neon NTT</span></a></p></li>
+<li><p><a class="reference internal" href="#optimizing-larger-pieces-of-code"><span class="xref myst">Optimizing larger pieces of code</span></a></p></li>
+<li><p><a class="reference internal" href="#adding-a-new-microarchitecture"><span class="xref myst">Adding a new microarchitecture</span></a></p></li>
+</ol>
+<p>The SLOTHY calling code used for the parts 3-7 is located in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/tree/main/tutorial_files">tutorial-files/tuturial-{3a,3b,4,5,6,7}.py</a>.</p>
+</section>
+<section id="installation">
+<h2>1. Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>SLOTHY requires python3 (&gt;= 3.10).
+The easiest way to install the dependencies of SLOTHY is using pip.
+It’s advised to make use of <a class="reference external" href="https://docs.python.org/3/library/venv.html">virtual environment</a>.</p>
+<p>The following steps should get you started:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/slothy-optimizer/slothy
+<span class="nb">cd</span><span class="w"> </span>slothy
+<span class="c1"># setup venv</span>
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate
+<span class="c1"># install dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<p>You can try to run SLOTHY on one of the examples that come with SLOTHY to make sure it runs without errors:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">example</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">examples</span> <span class="n">simple0</span>
+</pre></div>
+</div>
+<p>We will look into more examples shortly and discuss input, output, and available flags.</p>
+</section>
+<section id="getting-started">
+<h2>2. Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
+Once you work on your own code, you will likely be using the <code class="docutils literal notranslate"><span class="pre">slothy-cli</span></code> command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has.
+However, for now we will be using the <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.pyy">example.py</a> script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
+You can run <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">example.py</span> <span class="pre">--help</span></code> to see all examples available.</p>
+<p>Let’s look at a very simple example from the previous section called <code class="docutils literal notranslate"><span class="pre">aarch64_simple0</span></code>.
+You can find the corresponding code in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/aarch64_simple0.s">examples/naive/aarch64/aarch64_simple0.s</a>:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nf">ldr</span><span class="w"> </span><span class="no">q0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x2</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
+
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q8</span><span class="p">,</span><span class="w">  </span><span class="p">[</span><span class="no">x0</span><span class="p">]</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q9</span><span class="p">,</span><span class="w">  </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q10</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q11</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+
+<span class="nf">mul</span><span class="w"> </span><span class="no">v24.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v9.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v0.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v9.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v9.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v0.h</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="nf">mls</span><span class="w"> </span><span class="no">v24.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v9.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v1.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nf">sub</span><span class="w">     </span><span class="no">v9.8h</span><span class="p">,</span><span class="w">    </span><span class="no">v8.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v24.8h</span>
+<span class="nf">add</span><span class="w">     </span><span class="no">v8.8h</span><span class="p">,</span><span class="w">    </span><span class="no">v8.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v24.8h</span>
+
+<span class="nf">mul</span><span class="w"> </span><span class="no">v24.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v11.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v0.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v11.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v11.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v0.h</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="nf">mls</span><span class="w"> </span><span class="no">v24.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v11.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v1.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nf">sub</span><span class="w">     </span><span class="no">v11.8h</span><span class="p">,</span><span class="w">    </span><span class="no">v10.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v24.8h</span>
+<span class="nf">add</span><span class="w">     </span><span class="no">v10.8h</span><span class="p">,</span><span class="w">    </span><span class="no">v10.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v24.8h</span>
+
+<span class="nf">str</span><span class="w"> </span><span class="no">q8</span><span class="p">,</span><span class="w">  </span><span class="p">[</span><span class="no">x0</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">q9</span><span class="p">,</span><span class="w">  </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">q10</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">q11</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>It contains a straight-line piece of assembly for the Armv8-A architecture. This architecture implements the Neon vector instruction extension and all the instructions in this example are Neon vector instructions.
+If you have never written Neon assembly before, you do not have to worry about it at this point.
+All you need to know about the code is that it loads some vectors from memory, performs some arithmetic operations, and writes back the result to memory.
+Note that there are two independent streams of computation on the four vectors loaded from memory, and, hence, there is quite some possibilities to re-order this code without affecting its semantics.
+This code is able to run on a variety of different microarchitectures, ranging from low-end energy efficient in-order cores like the Arm Cortex-A55 to high-end out-of-order CPUs with very complex pipelines like the Apple M1 or Arm Neoverse server CPUs.
+For the in-order cores, the instruction scheduling plays the most essential role as poorly scheduled code is very likely to have poor performance, and hence, we will focus on the Cortex-A55 architecture in the following.
+Note, however, that SLOTHY has been used to also obtain significant speed-ups for out-of-order cores.</p>
+<p>SLOTHY comes with models for various Arm architectures, including the power-efficient, in-order
+<a class="reference external" href="https://developer.arm.com/Processors/Cortex-A55">Cortex-A55</a>, so we can now optimize this piece of code for that
+microarchitecture. <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.py">example.py</a> contains the needed SLOTHY incarnations for convenience, so we can simply run <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">example.py</span> <span class="pre">--examples</span> <span class="pre">aarch64_simple0_a55</span></code> which will optimize for the Cortex-A55 microarchitecture. You can check
+<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.pyy">example.py</a> for the details. This will optimize the piece of code above and write the output code to
+<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/aarch64_simple0_opt_a55.s">examples/opt/aarch64/aarch64_simple0_opt_a55.s</a>.
+SLOTHY should print something similar to this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>INFO:aarch64_simple0_a55:Instructions in body: 20
+INFO:aarch64_simple0_a55.slothy:Perform internal binary search for minimal number of stalls...
+INFO:aarch64_simple0_a55.slothy:Attempt optimization with max 32 stalls...
+INFO:aarch64_simple0_a55.slothy:Objective: minimize number of stalls
+INFO:aarch64_simple0_a55.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:aarch64_simple0_a55.slothy:[0.0653s]: Found 1 solutions so far... objective 19.0, bound 12.0 (minimize number of stalls)
+INFO:aarch64_simple0_a55.slothy:[0.0801s]: Found 2 solutions so far... objective 18.0, bound 12.0 (minimize number of stalls)
+INFO:aarch64_simple0_a55.slothy:OPTIMAL, wall time: 0.180540 s
+INFO:aarch64_simple0_a55.slothy:Booleans in result: 449
+INFO:aarch64_simple0_a55.slothy.selfcheck:OK!
+INFO:aarch64_simple0_a55.slothy:Minimum number of stalls: 18
+</pre></div>
+</div>
+<p>You can follow the steps SLOTHY performs and see the calls the constraint solver trying to find a re-scheduling of this code containing at most 32 stalls (a default starting point we have set here to speed up the example).
+At the same time it is trying to minimize the number of stalls. This is passed as an objective to the constraint solver (OR-tools) which tries to find a solution with the minimum number of stalls.
+The best solution it can find has 16 stalls – which is guaranteed to be the minimum number of stalls given this piece of code and the model of the microarchitecture in SLOTHY.
+In the last step, SLOTHY will transform the found traversal of the DFG into actual assembly and write it to the file.
+To make sure everything worked out as expected, it will perform a selfcheck which consists of transforming the output assembly into a DFG again and testing that the resulting graph is isomorphic to the input DFG.</p>
+<p>We can now take a look at the output assembly in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/aarch64_simple0_opt_a55.s">examples/opt/aarch64/aarch64_simple0_opt_a55.s</a>:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nf">ldr</span><span class="w"> </span><span class="no">q8</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span><span class="w">                        </span><span class="c1">// *...................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q30</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#16</span><span class="p">]</span><span class="w">                      </span><span class="c1">// ...*................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q25</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">]</span><span class="w">                           </span><span class="c1">// ..*.................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">mul</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v30.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v8.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">             </span><span class="c1">// ......*.............</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v21.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v30.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v8.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">        </span><span class="c1">// .......*............</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q30</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#48</span><span class="p">]</span><span class="w">                      </span><span class="c1">// .....*..............</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x2</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span><span class="w">                        </span><span class="c1">// .*..................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v5.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v30.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v8.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">         </span><span class="c1">// ............*.......</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">mul</span><span class="w"> </span><span class="no">v30.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v30.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v8.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">             </span><span class="c1">// ...........*........</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">mls</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v21.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">             </span><span class="c1">// ........*...........</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">q15</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#32</span><span class="p">]</span><span class="w">                      </span><span class="c1">// ....*...............</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">mls</span><span class="w"> </span><span class="no">v30.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v5.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">              </span><span class="c1">// .............*......</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">add</span><span class="w"> </span><span class="no">v8.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v25.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v13.8H</span><span class="w">               </span><span class="c1">// ..........*.........</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">sub</span><span class="w"> </span><span class="no">v20.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v25.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v13.8H</span><span class="w">              </span><span class="c1">// .........*..........</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">q8</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span><span class="w">                     </span><span class="c1">// ................*...</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">add</span><span class="w"> </span><span class="no">v26.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v30.8H</span><span class="w">              </span><span class="c1">// ...............*....</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">q20</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-48</span><span class="p">]</span><span class="w">                     </span><span class="c1">// .................*..</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">sub</span><span class="w"> </span><span class="no">v5.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v30.8H</span><span class="w">               </span><span class="c1">// ..............*.....</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">q26</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-32</span><span class="p">]</span><span class="w">                     </span><span class="c1">// ..................*.</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="c1">// gap                                  // ....................</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">q5</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-16</span><span class="p">]</span><span class="w">                      </span><span class="c1">// ...................*</span>
+<span class="c1">// gap                                  // ....................</span>
+
+<span class="c1">// original source code</span>
+<span class="c1">// ldr q0, [x1, #0]                       // *...................</span>
+<span class="c1">// ldr q1, [x2, #0]                       // ......*.............</span>
+<span class="c1">// ldr q8,  [x0]                          // ..*.................</span>
+<span class="c1">// ldr q9,  [x0, #1*16]                   // .*..................</span>
+<span class="c1">// ldr q10, [x0, #2*16]                   // ..........*.........</span>
+<span class="c1">// ldr q11, [x0, #3*16]                   // .....*..............</span>
+<span class="c1">// mul v24.8h, v9.8h, v0.h[0]             // ...*................</span>
+<span class="c1">// sqrdmulh v9.8h, v9.8h, v0.h[1]         // ....*...............</span>
+<span class="c1">// mls v24.8h, v9.8h, v1.h[0]             // .........*..........</span>
+<span class="c1">// sub     v9.8h,    v8.8h, v24.8h        // .............*......</span>
+<span class="c1">// add     v8.8h,    v8.8h, v24.8h        // ............*.......</span>
+<span class="c1">// mul v24.8h, v11.8h, v0.h[0]            // ........*...........</span>
+<span class="c1">// sqrdmulh v11.8h, v11.8h, v0.h[1]       // .......*............</span>
+<span class="c1">// mls v24.8h, v11.8h, v1.h[0]            // ...........*........</span>
+<span class="c1">// sub     v11.8h,    v10.8h, v24.8h      // .................*..</span>
+<span class="c1">// add     v10.8h,    v10.8h, v24.8h      // ...............*....</span>
+<span class="c1">// str q8,  [x0], #4*16                   // ..............*.....</span>
+<span class="c1">// str q9,  [x0, #-3*16]                  // ................*...</span>
+<span class="c1">// str q10, [x0, #-2*16]                  // ..................*.</span>
+<span class="c1">// str q11, [x0, #-1*16]                  // ...................*</span>
+</pre></div>
+</div>
+<p>At the top you can see the re-scheduled assembly and at the bottom you find the original source code as a comment.
+As comments next to the two sections, you can also see a visual representation on how these instructions have been rescheduled.
+You can see that various instructions have been moved around to achieve fewer stalls.</p>
+<p>Note that if you do run SLOTHY again, it may produce a different scheduling with the same minimal number of stalls.
+This is expected and due to the constraint solver not producing deterministic outputs.</p>
+<p>In the scheduled code, you can see <code class="docutils literal notranslate"><span class="pre">//</span> <span class="pre">gap</span></code> where SLOTHY would expect a “gap” in the current model:
+This is not a pipeline stall in the sense of a wasted cycle, but rather an issue slot of
+the CPU that was not used. The Cortex-A55 is a dual-issue CPU meaning in ideal circumstances 2 instructions can be issued per cycle.
+However, the Neon pipeline can only issue a single (128-bit/q-form) Neon instruction per cycle.
+Since our code only consists of (128-bit/q-form) Neon instructions, the best we can hope for is a single <code class="docutils literal notranslate"><span class="pre">gap</span></code> after each instruction.
+To make use of these issue slots one would have to mix in scalar instructions (or use 64-bit (d-form) Neon instructions).</p>
+<p>Also note the registers used: In the original code <code class="docutils literal notranslate"><span class="pre">v24</span></code> was as a temporary register in both computation streams preventing to effectively interleave them.
+SLOTHY renamed those registers to be able to interleave both computations. Other registers have also been arbitrarily
+renamed, but without any specific reason.</p>
+</section>
+<section id="writing-your-own-calling-code">
+<h2>3. Writing your own calling code<a class="headerlink" href="#writing-your-own-calling-code" title="Link to this heading"></a></h2>
+<p>When writing your own calls to SLOTHY, there are generally two options:
+(1) Using SLOTHY as a Python module, or (2) using <code class="docutils literal notranslate"><span class="pre">slothy-cli</span></code> using command line options. We will continue with (1) to demonstrate some features.
+To reproduce the example above, you can place the following code into your own Python script in the root directory of SLOTHY:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">slothy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Slothy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">slothy.targets.aarch64.aarch64_neon</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">AArch64_Neon</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">slothy.targets.aarch64.cortex_a55</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">Target_CortexA55</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="n">arch</span> <span class="o">=</span> <span class="n">AArch64_Neon</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">Target_CortexA55</span>
+
+<span class="n">slothy</span> <span class="o">=</span> <span class="n">Slothy</span><span class="p">(</span><span class="n">arch</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+<span class="c1"># example</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;examples/naive/aarch64/aarch64_simple0.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
+
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/aarch64_simple0_a55.s&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You will need to pass to SLOTHY both the architecture model (containing the instruction mnemonics and which registers
+are input and outputs for each instruction) and the microarchitectual model (containing latencies, throughputs,
+execution units, etc.). In this case, we use the AArch64+Neon architecture model and the Arm Cortex-A55
+microarchitecture model that come with SLOTHY.</p>
+<p>The calls to SLOTHY should be self-explanatory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">load_source_from_file</span></code> loads an assembly file to be optimized.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slothy.config</span></code> can be used to configure SLOTHY. For the documentation of the configuration options, see the comments in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/slothy/core/config.py">config.py</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">optimize</span></code> performs the actual optimizations by calling the external constraint solver.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">write_source_to_file</span></code> writes back the optimized assembly to a file.</p></li>
+</ul>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">slothy.config.variable_size</span></code> results in the number of stalls being a parameter of the model that the constraint
+solver is trying to minimize within a static ‘stall budget’. By default, SLOTHY would start with a stall budget of 0 and
+exponentially increase until a solution is found. To speed this process up, we set <code class="docutils literal notranslate"><span class="pre">stalls_first_attempt=32</span></code>, starting
+the search with a sufficient stall budget of 32 cycles.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">variable_size</span></code> may not perform well for large examples. The default strategy (<code class="docutils literal notranslate"><span class="pre">variable_size=False</span></code>) is, hence, to
+pass a fixed number of allowed stalls to the constraint solver and to have SLOTHY perform an ‘external’ binary search to
+find the minimum number of stalls for which a solution exists.</p>
+<p>Even with this small Neon example, you can see that understanding the input code is much easier than the output code. In
+fact, the input code can be further clarified through the use of macros and register aliases, leading to the following
+‘clean’ version from
+<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/aarch64_simple0_macros.s">examples/naive/aarch64/aarch64_simple0_macros.s</a> which makes it
+apparent that our example is just a pair of NTT butterflies using Barrett multiplication. Note that the <code class="docutils literal notranslate"><span class="pre">.req</span></code> and
+<code class="docutils literal notranslate"><span class="pre">.macro</span></code> directives used here are commonly supported <a class="reference external" href="https://www.sourceware.org/binutils/docs/as/ARM-Directives.html">assembly
+directives</a>.</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="nf">qdata0</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">q8</span>
+<span class="w">    </span><span class="nf">qdata1</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">q9</span>
+<span class="w">    </span><span class="nf">qdata2</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">q10</span>
+<span class="w">    </span><span class="nf">qdata3</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">q11</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="nf">qtwiddle</span><span class="w"> </span><span class="no">.req</span><span class="w"> </span><span class="no">q0</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="na">data0</span><span class="w">    </span><span class="na">.req</span><span class="w"> </span><span class="no">v8</span>
+<span class="w">    </span><span class="na">data1</span><span class="w">    </span><span class="na">.req</span><span class="w"> </span><span class="no">v9</span>
+<span class="w">    </span><span class="na">data2</span><span class="w">    </span><span class="na">.req</span><span class="w"> </span><span class="no">v10</span>
+<span class="w">    </span><span class="na">data3</span><span class="w">    </span><span class="na">.req</span><span class="w"> </span><span class="no">v11</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="nf">twiddle</span><span class="w">  </span><span class="no">.req</span><span class="w"> </span><span class="no">v0</span>
+<span class="w">    </span><span class="nf">modulus</span><span class="w">  </span><span class="no">.req</span><span class="w"> </span><span class="no">v1</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="nf">tmp</span><span class="w">      </span><span class="no">.req</span><span class="w"> </span><span class="no">v12</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="nf">data_ptr</span><span class="w">      </span><span class="no">.req</span><span class="w"> </span><span class="no">x0</span>
+<span class="w">    </span><span class="nf">twiddle_ptr</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">x1</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="na">.macro</span><span class="w"> </span><span class="no">barmul</span><span class="w"> </span><span class="no">out</span><span class="p">,</span><span class="w"> </span><span class="no">in</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
+<span class="w">        </span><span class="nf">mul</span><span class="w">      </span><span class="err">\</span><span class="no">out.8h</span><span class="p">,</span><span class="w">   </span><span class="err">\</span><span class="no">in.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">twiddle.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="err">\</span><span class="no">in.8h</span><span class="p">,</span><span class="w">    </span><span class="err">\</span><span class="no">in.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">twiddle.h</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">mls</span><span class="w">      </span><span class="err">\</span><span class="no">out.8h</span><span class="p">,</span><span class="w">   </span><span class="err">\</span><span class="no">in.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">modulus.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">    </span><span class="na">.endm</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="na">.macro</span><span class="w"> </span><span class="no">butterfly</span><span class="w"> </span><span class="no">data0</span><span class="p">,</span><span class="w"> </span><span class="no">data1</span><span class="p">,</span><span class="w"> </span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
+<span class="w">        </span><span class="nf">barmul</span><span class="w"> </span><span class="err">\</span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">data1</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">modulus</span>
+<span class="w">        </span><span class="nf">sub</span><span class="w">    </span><span class="err">\</span><span class="no">data1.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">data0.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">tmp.8h</span>
+<span class="w">        </span><span class="nf">add</span><span class="w">    </span><span class="err">\</span><span class="no">data0.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">data0.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">tmp.8h</span>
+<span class="w">    </span><span class="na">.endm</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="nl">start:</span>
+<span class="w">    </span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qtwiddle</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">twiddle_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
+<span class="w">    </span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata2</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">    </span>
+<span class="w">        </span><span class="nf">butterfly</span><span class="w"> </span><span class="no">data0</span><span class="p">,</span><span class="w"> </span><span class="no">data1</span><span class="p">,</span><span class="w"> </span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
+<span class="w">        </span><span class="nf">butterfly</span><span class="w"> </span><span class="no">data2</span><span class="p">,</span><span class="w"> </span><span class="no">data3</span><span class="p">,</span><span class="w"> </span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
+<span class="w">    </span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata2</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="nl">end:</span>
+</pre></div>
+</div>
+<p>SLOTHY will then internally expand all macros and the resulting DFG will be exactly the same as before.
+To make this work, we have to slightly change the SLOTHY code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># example</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../examples/naive/aarch64/aarch64_simple0_macros.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
+
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;end&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/aarch64_simple0_macros_a55.s&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The difference is that, we have to explicitly pass <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> labels to SLOTHY.
+This is because SLOTHY does not understand the code before that and the parsing would fail if run on that part of the code.</p>
+<p>We have found it very useful to base assembly optimization on a ‘clean’ version as above and automate its optimization
+using SLOTHY, which is the reason why we believe that SLOTHY can help with the development of auditable and maintainable
+high-performance assembly.</p>
+</section>
+<section id="software-pipelining">
+<h2>4. Software Pipelining<a class="headerlink" href="#software-pipelining" title="Link to this heading"></a></h2>
+<p>One of the most powerful features of SLOTHY is <a class="reference external" href="https://en.wikipedia.org/wiki/Software_pipelining">software
+pipelining</a>. The core idea of software pipelining is that loop
+scheduling can be improved by moving some instructions to earlier or later iterations of the loop, that is, by
+interleaving loop iterations. Note that this does not mean that the loop has to be unrolled: By maintaining
+the periodicity of the interleaved code, it is possible to keep it within a loop, thereby retaining code compactness.
+Only the first and last iteration(s) may require to be treated separately; those are called the preamble and
+postamble, respectively.</p>
+<p>Let’s look at an example demonstrating how SLOTHY can perform software pipelining for you.
+Consider the simple case of performing the code from the previous example within a loop with a fixed number of iterations (&gt;=2). This is exactly what the
+<code class="docutils literal notranslate"><span class="pre">aarch64_simple0_loop</span></code> example in SLOTHY does:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="na">...</span><span class="w"> </span><span class="c1">// .req and .macro as above</span>
+
+<span class="nf">count</span><span class="w"> </span><span class="no">.req</span><span class="w"> </span><span class="no">x2</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">qtwiddle</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">twiddle_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">qmodulus</span><span class="p">,</span><span class="w"> </span><span class="no">modulus_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span>
+
+<span class="nf">mov</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="mi">#16</span>
+<span class="nl">start:</span>
+
+<span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qtwiddle</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">twiddle_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
+
+<span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata2</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+
+<span class="w">    </span><span class="nf">butterfly</span><span class="w"> </span><span class="no">data0</span><span class="p">,</span><span class="w"> </span><span class="no">data1</span><span class="p">,</span><span class="w"> </span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
+<span class="w">    </span><span class="nf">butterfly</span><span class="w"> </span><span class="no">data2</span><span class="p">,</span><span class="w"> </span><span class="no">data3</span><span class="p">,</span><span class="w"> </span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
+
+<span class="w">    </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span>
+<span class="w">    </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata2</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+<span class="w">    </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
+
+<span class="w">    </span><span class="nf">subs</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="mi">#1</span>
+<span class="w">    </span><span class="nf">cbnz</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="no">start</span>
+</pre></div>
+</div>
+<p>Let’s use SLOTHY to superoptimize this loop:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;examples/naive/aarch64/aarch64_simple0_loop.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
+
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">optimize_preamble</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">optimize_postamble</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/aarch64_simple0_loop_a55.s&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Software pipelining needs to be enabled by setting <code class="docutils literal notranslate"><span class="pre">slothy.config.sw_pipelining.enabled</span> <span class="pre">=</span> <span class="pre">True</span></code>.
+We also need to specifically tell SLOTHY that we would like to optimize the loop starting at <code class="docutils literal notranslate"><span class="pre">start</span></code> – SLOTHY will
+automatically detect that the loop ends at <code class="docutils literal notranslate"><span class="pre">cbnz</span> <span class="pre">count,</span> <span class="pre">start</span></code>. Finally, <code class="docutils literal notranslate"><span class="pre">optimize_preamble</span> <span class="pre">=</span> <span class="pre">False</span></code> and
+<code class="docutils literal notranslate"><span class="pre">optimize_preamble</span> <span class="pre">=</span> <span class="pre">False</span></code> prevent SLOTHY from optimizing the loop preamble and postamble (first/last iteration), which
+it would by default – you normally want this set, but we unset it here to simplify the output. This is what it will
+look like:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="c1">// ...</span>
+<span class="nf">count</span><span class="w"> </span><span class="no">.req</span><span class="w"> </span><span class="no">x2</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">qtwiddle</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">twiddle_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">qmodulus</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">modulus_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
+<span class="nf">mov</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="mi">#16</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#16</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v0.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">sub</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="mi">#1</span>
+<span class="nl">start:</span>
+<span class="w">        </span><span class="nf">mul</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v0.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">               </span><span class="c1">// ....*.............</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q19</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#48</span><span class="p">]</span><span class="w">                      </span><span class="c1">// ...*..............</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q15</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span><span class="w">                       </span><span class="c1">// *.................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">mls</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v1.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">               </span><span class="c1">// ......*...........</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">mul</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v19.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v0.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">             </span><span class="c1">// .........*........</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v19.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v19.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v0.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">        </span><span class="c1">// ..........*.......</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q7</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#32</span><span class="p">]</span><span class="w">                       </span><span class="c1">// ..*...............</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">sub</span><span class="w"> </span><span class="no">v17.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span><span class="w">               </span><span class="c1">// .......*..........</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">add</span><span class="w"> </span><span class="no">v10.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span><span class="w">               </span><span class="c1">// ........*.........</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">mls</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v19.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v1.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">             </span><span class="c1">// ...........*......</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">q17</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#16</span><span class="p">]</span><span class="w">                      </span><span class="c1">// ...............*..</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#80</span><span class="p">]</span><span class="w">                       </span><span class="c1">// .e................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">add</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v13.8H</span><span class="w">               </span><span class="c1">// .............*....</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">q10</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span><span class="w">                    </span><span class="c1">// ..............*...</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">sub</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v13.8H</span><span class="w">               </span><span class="c1">// ............*.....</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">q15</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-32</span><span class="p">]</span><span class="w">                     </span><span class="c1">// ................*.</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v0.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">          </span><span class="c1">// .....e............</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">q13</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-16</span><span class="p">]</span><span class="w">                     </span><span class="c1">// .................*</span>
+<span class="w">        </span><span class="c1">// gap                                  // ..................</span>
+
+<span class="w">        </span><span class="c1">// original source code</span>
+<span class="w">        </span><span class="c1">// ldr q8, [x0, #0*16]                      // .......|.*...............</span>
+<span class="w">        </span><span class="c1">// ldr q9, [x0, #1*16]                      // e......|..........e......</span>
+<span class="w">        </span><span class="c1">// ldr q10, [x0, #2*16]                     // .......|.....*...........</span>
+<span class="w">        </span><span class="c1">// ldr q11, [x0, #3*16]                     // .......|*................</span>
+<span class="w">        </span><span class="c1">// mul      v12.8h,   v9.8h, v0.h[0]        // .......*.................</span>
+<span class="w">        </span><span class="c1">// sqrdmulh v9.8h,    v9.8h, v0.h[1]        // .....e.|...............e.</span>
+<span class="w">        </span><span class="c1">// mls      v12.8h,   v9.8h, v1.h[0]        // .......|..*..............</span>
+<span class="w">        </span><span class="c1">// sub    v9.8h, v8.8h, v12.8h              // .......|......*..........</span>
+<span class="w">        </span><span class="c1">// add    v8.8h, v8.8h, v12.8h              // .......|.......*.........</span>
+<span class="w">        </span><span class="c1">// mul      v12.8h,   v11.8h, v0.h[0]       // .......|...*.............</span>
+<span class="w">        </span><span class="c1">// sqrdmulh v11.8h,    v11.8h, v0.h[1]      // .......|....*............</span>
+<span class="w">        </span><span class="c1">// mls      v12.8h,   v11.8h, v1.h[0]       // .......|........*........</span>
+<span class="w">        </span><span class="c1">// sub    v11.8h, v10.8h, v12.8h            // ...*...|.............*...</span>
+<span class="w">        </span><span class="c1">// add    v10.8h, v10.8h, v12.8h            // .*.....|...........*.....</span>
+<span class="w">        </span><span class="c1">// str q8, [x0], #4*16                      // ..*....|............*....</span>
+<span class="w">        </span><span class="c1">// str q9, [x0, #-3*16]                     // .......|.........*.......</span>
+<span class="w">        </span><span class="c1">// str q10, [x0, #-2*16]                    // ....*..|..............*..</span>
+<span class="w">        </span><span class="c1">// str q11, [x0, #-1*16]                    // ......*|................*</span>
+
+<span class="w">        </span><span class="nf">sub</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="mi">#1</span>
+<span class="w">        </span><span class="nf">cbnz</span><span class="w"> </span><span class="no">count</span><span class="p">,</span><span class="w"> </span><span class="no">start</span>
+<span class="w">        </span><span class="nf">mul</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v0.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q19</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#48</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q15</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">mls</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v1.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">mul</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v19.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v0.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v19.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v19.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v0.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q7</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#32</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">sub</span><span class="w"> </span><span class="no">v17.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span>
+<span class="w">        </span><span class="nf">add</span><span class="w"> </span><span class="no">v10.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span>
+<span class="w">        </span><span class="nf">mls</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v19.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v1.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">q17</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#16</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">add</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v13.8H</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">q10</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span>
+<span class="w">        </span><span class="nf">sub</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v13.8H</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">q15</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-32</span><span class="p">]</span>
+<span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">q13</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-16</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Let’s start by looking at the optimized loop body going from <code class="docutils literal notranslate"><span class="pre">start:</span></code> to <code class="docutils literal notranslate"><span class="pre">cbnz</span> <span class="pre">count,</span> <span class="pre">start</span></code>:
+We see that the loop now has 4 blocks of 3 <code class="docutils literal notranslate"><span class="pre">gap</span></code>s meaning that SLOTHY predicts 4 stalls of 1 cycle each. This compares
+to 7 stalls in the version without software pipelining. We see that 2 load instructions are marked as early instructions
+(annotated <code class="docutils literal notranslate"><span class="pre">(e)</span></code>), meaning they have been moved into the previous iteration: Intuitively, this makes sense: We know
+statically what data we need to load for the next iteration, and loads have a fairly long latency, so we can improve
+performance by issuing loads early. For the code to still be correct, SLOTHY decreases the number of iterations by one
+(<code class="docutils literal notranslate"><span class="pre">sub</span> <span class="pre">count,</span> <span class="pre">count,</span> <span class="pre">#1</span></code>), adds the missing early-instructions for the first iteration before the loop, and finally adds
+the non-early instructions of the last iteration after the loop.</p>
+<p>Another experimental feature that can be witnessed in this example is <em>address offset fixup</em>. The two <code class="docutils literal notranslate"><span class="pre">ldr</span></code>s that
+were moved into the previous iteration have been reordered with the <code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">_,</span> <span class="pre">[x0],</span> <span class="pre">#64</span></code> which modifies the address
+register. SLOTHY is aware of this and has adjusted the immediate offsets in <code class="docutils literal notranslate"><span class="pre">ldr</span></code> accordingly. Without this, software
+pipelining would not be possible here. Address offset fixup is an important yet somewhat subtle feature, and mistakes
+in its handling are currently not caught by SLOTHY’s selfcheck. Going into the details of why that is goes too far for
+this tutorial, but it is one of the reasons why the selfcheck does, as it stands, not replace a formal verification.</p>
+</section>
+<section id="checking-the-quality-of-slothy-optimizations">
+<h2>5. Checking the quality of SLOTHY optimizations<a class="headerlink" href="#checking-the-quality-of-slothy-optimizations" title="Link to this heading"></a></h2>
+<p>You may ask how we know that SLOTHY has actually done something useful here? Sure enough, the interleaving in the above
+example looks somewhat sensible, and SLOTHY’s model predicts only few full-cycle stalls. However, at this point we don’t
+have any indicator of the impact of SLOTHY’s optimizations on real hardware.</p>
+<p>Indeed, developing accurate microarchitectural models for SLOTHY is a time-consuming and iterative process:
+It usually takes a while until you have refined things to the point where SLOTHY’s prediction closely relates to
+performance on real hardware. The most common refinement steps are:</p>
+<ol class="arabic simple">
+<li><p>There is a mistake in the microarchitectural model mismatching what is written in the Software Optimization Guide (SWOG);</p></li>
+<li><p>Some aspect of the microarchtecture (e.g., certain forwarding paths or other latency exceptions) is not documented in the SWOG.</p></li>
+</ol>
+<p>We briefly discuss two ways that we found useful to evaluate the quality SLOTHY’s optimizations and drive the
+refinement of microarchitectural models.</p>
+<p>First, one useful tool for approximate but independent (of SLOTHY) performance evaluation is LLVM’s <a class="reference external" href="https://llvm.org/docs/CommandGuide/llvm-mca.html">Machine Code
+Analyzer</a>. If you have <code class="docutils literal notranslate"><span class="pre">llvm-mca</span></code> available in your PATH (you may have
+to compile LLVM &gt;= 18 yourself), you can make use of it in SLOTHY by setting the <code class="docutils literal notranslate"><span class="pre">with_llvm_mca</span></code> flag.
+Let’s look at the last example and enable LLVM MCA:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../examples/naive/aarch64/aarch64_simple0_loop.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
+
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">optimize_preamble</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">optimize_postamble</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">with_llvm_mca</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;./aarch64_simple0_loop_mca_a55.s&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will call LLVM MCA on both the original code and the optimized code and append the LLVM MCA statistics as a comment to the output.
+Somewhere in the code you will see:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="c1">// LLVM MCA STATISTICS (ORIGINAL) BEGIN</span>
+<span class="c1">//</span>
+<span class="c1">// Iterations:        100</span>
+<span class="c1">// Instructions:      2000</span>
+<span class="c1">// Total Cycles:      3102</span>
+<span class="c1">// Total uOps:        2100</span>
+<span class="c1">//</span>
+<span class="c1">// Dispatch Width:    2</span>
+<span class="c1">// uOps Per Cycle:    0.68</span>
+<span class="c1">// IPC:               0.64</span>
+<span class="c1">// Block RThroughput: 10.5</span>
+
+<span class="na">...</span>
+
+<span class="c1">// LLVM MCA STATISTICS (OPTIMIZED) BEGIN</span>
+<span class="c1">//</span>
+<span class="c1">// Iterations:        100</span>
+<span class="c1">// Instructions:      2000</span>
+<span class="c1">// Total Cycles:      2102</span>
+<span class="c1">// Total uOps:        2100</span>
+<span class="c1">//</span>
+<span class="c1">// Dispatch Width:    2</span>
+<span class="c1">// uOps Per Cycle:    1.00</span>
+<span class="c1">// IPC:               0.95</span>
+<span class="c1">// Block RThroughput: 10.5</span>
+</pre></div>
+</div>
+<p>This suggests that our optimizations were actually useful: With respect to LLVM-MCA’s scheduling model of Cortex-A55, the
+cycle count per iteration was reduced from 31 cycles to 21 cycles.</p>
+<p>But LLVM MCA gives you more: It outputs a timeline view showing how each instruction travels through the pipeline:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="c1">// Timeline view (ORIGINAL):</span>
+<span class="c1">//                     0123456789          0123456789          0123456789          0123456789          01234</span>
+<span class="c1">// Index     0123456789          0123456789          0123456789          0123456789          0123456789</span>
+<span class="c1">//</span>
+<span class="c1">// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q0, [x1]</span>
+<span class="c1">// [0,1]     .DeeE.    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q1, [x2]</span>
+<span class="c1">// [0,2]     . DeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q8, [x0]</span>
+<span class="c1">// [0,3]     .  DeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q9, [x0, #16]</span>
+<span class="c1">// [0,4]     .   DeeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q10, [x0, #32]</span>
+<span class="c1">// [0,5]     .    DeeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q11, [x0, #48]</span>
+<span class="c1">// [0,6]     .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   mul	v24.8h, v9.8h, v0.h[0]</span>
+<span class="c1">// [0,7]     .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v9.8h, v9.8h, v0.h[1]</span>
+<span class="c1">// [0,8]     .    .    .DeeeE    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   mls	v24.8h, v9.8h, v1.h[0]</span>
+<span class="c1">// [0,9]     .    .    .    DeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   sub	v9.8h, v8.8h, v24.8h</span>
+<span class="c1">// [0,10]    .    .    .    .DeE .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   add	v8.8h, v8.8h, v24.8h</span>
+<span class="c1">// [0,11]    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   mul	v24.8h, v11.8h, v0.h[0]</span>
+<span class="c1">// [0,12]    .    .    .    .  DeeeE  .    .    .    .    .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v11.8h, v11.8h, v0.h[1]</span>
+<span class="c1">// [0,13]    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .    .    .    .   .   mls	v24.8h, v11.8h, v1.h[0]</span>
+<span class="c1">// [0,14]    .    .    .    .    .    .DeE .    .    .    .    .    .    .    .    .    .    .    .    .   .   sub	v11.8h, v10.8h, v24.8h</span>
+<span class="c1">// [0,15]    .    .    .    .    .    . DeE.    .    .    .    .    .    .    .    .    .    .    .    .   .   add	v10.8h, v10.8h, v24.8h</span>
+<span class="c1">// [0,16]    .    .    .    .    .    .  DE.    .    .    .    .    .    .    .    .    .    .    .    .   .   str	q8, [x0], #64</span>
+<span class="c1">// [0,17]    .    .    .    .    .    .   DE    .    .    .    .    .    .    .    .    .    .    .    .   .   stur	q9, [x0, #-48]</span>
+<span class="c1">// [0,18]    .    .    .    .    .    .    DE   .    .    .    .    .    .    .    .    .    .    .    .   .   stur	q10, [x0, #-32]</span>
+<span class="c1">// [0,19]    .    .    .    .    .    .    .DE  .    .    .    .    .    .    .    .    .    .    .    .   .   stur	q11, [x0, #-16]</span>
+<span class="c1">// [1,0]     .    .    .    .    .    .    .DeeE.    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q0, [x1]</span>
+<span class="c1">// [1,1]     .    .    .    .    .    .    . DeeE    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q1, [x2]</span>
+<span class="c1">// [1,2]     .    .    .    .    .    .    .  DeeE   .    .    .    .    .    .    .    .    .    .    .   .   ldr	q8, [x0]</span>
+<span class="c1">// [1,3]     .    .    .    .    .    .    .   DeeE  .    .    .    .    .    .    .    .    .    .    .   .   ldr	q9, [x0, #16]</span>
+<span class="c1">// [1,4]     .    .    .    .    .    .    .    DeeE .    .    .    .    .    .    .    .    .    .    .   .   ldr	q10, [x0, #32]</span>
+<span class="c1">// [1,5]     .    .    .    .    .    .    .    .DeeE.    .    .    .    .    .    .    .    .    .    .   .   ldr	q11, [x0, #48]</span>
+<span class="c1">// [1,6]     .    .    .    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .    .   .   mul	v24.8h, v9.8h, v0.h[0]</span>
+<span class="c1">// [1,7]     .    .    .    .    .    .    .    .  DeeeE  .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v9.8h, v9.8h, v0.h[1]</span>
+<span class="c1">// [1,8]     .    .    .    .    .    .    .    .    . DeeeE   .    .    .    .    .    .    .    .    .   .   mls	v24.8h, v9.8h, v1.h[0]</span>
+<span class="c1">// [1,9]     .    .    .    .    .    .    .    .    .    .DeE .    .    .    .    .    .    .    .    .   .   sub	v9.8h, v8.8h, v24.8h</span>
+<span class="c1">// [1,10]    .    .    .    .    .    .    .    .    .    . DeE.    .    .    .    .    .    .    .    .   .   add	v8.8h, v8.8h, v24.8h</span>
+<span class="c1">// [1,11]    .    .    .    .    .    .    .    .    .    .  DeeeE  .    .    .    .    .    .    .    .   .   mul	v24.8h, v11.8h, v0.h[0]</span>
+<span class="c1">// [1,12]    .    .    .    .    .    .    .    .    .    .   DeeeE .    .    .    .    .    .    .    .   .   sqrdmulh	v11.8h, v11.8h, v0.h[1]</span>
+<span class="c1">// [1,13]    .    .    .    .    .    .    .    .    .    .    .  DeeeE  .    .    .    .    .    .    .   .   mls	v24.8h, v11.8h, v1.h[0]</span>
+<span class="c1">// [1,14]    .    .    .    .    .    .    .    .    .    .    .    . DeE.    .    .    .    .    .    .   .   sub	v11.8h, v10.8h, v24.8h</span>
+<span class="c1">// [1,15]    .    .    .    .    .    .    .    .    .    .    .    .  DeE    .    .    .    .    .    .   .   add	v10.8h, v10.8h, v24.8h</span>
+<span class="c1">// [1,16]    .    .    .    .    .    .    .    .    .    .    .    .   DE    .    .    .    .    .    .   .   str	q8, [x0], #64</span>
+<span class="c1">// [1,17]    .    .    .    .    .    .    .    .    .    .    .    .    DE   .    .    .    .    .    .   .   stur	q9, [x0, #-48]</span>
+<span class="c1">// [1,18]    .    .    .    .    .    .    .    .    .    .    .    .    .DE  .    .    .    .    .    .   .   stur	q10, [x0, #-32]</span>
+<span class="c1">// [1,19]    .    .    .    .    .    .    .    .    .    .    .    .    . DE .    .    .    .    .    .   .   stur	q11, [x0, #-16]</span>
+<span class="c1">// [2,0]     .    .    .    .    .    .    .    .    .    .    .    .    . DeeE    .    .    .    .    .   .   ldr	q0, [x1]</span>
+<span class="c1">// [2,1]     .    .    .    .    .    .    .    .    .    .    .    .    .  DeeE   .    .    .    .    .   .   ldr	q1, [x2]</span>
+<span class="c1">// [2,2]     .    .    .    .    .    .    .    .    .    .    .    .    .   DeeE  .    .    .    .    .   .   ldr	q8, [x0]</span>
+<span class="c1">// [2,3]     .    .    .    .    .    .    .    .    .    .    .    .    .    DeeE .    .    .    .    .   .   ldr	q9, [x0, #16]</span>
+<span class="c1">// [2,4]     .    .    .    .    .    .    .    .    .    .    .    .    .    .DeeE.    .    .    .    .   .   ldr	q10, [x0, #32]</span>
+<span class="c1">// [2,5]     .    .    .    .    .    .    .    .    .    .    .    .    .    . DeeE    .    .    .    .   .   ldr	q11, [x0, #48]</span>
+<span class="c1">// [2,6]     .    .    .    .    .    .    .    .    .    .    .    .    .    .  DeeeE  .    .    .    .   .   mul	v24.8h, v9.8h, v0.h[0]</span>
+<span class="c1">// [2,7]     .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeeeE .    .    .    .   .   sqrdmulh	v9.8h, v9.8h, v0.h[1]</span>
+<span class="c1">// [2,8]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DeeeE  .    .    .   .   mls	v24.8h, v9.8h, v1.h[0]</span>
+<span class="c1">// [2,9]     .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DeE.    .    .   .   sub	v9.8h, v8.8h, v24.8h</span>
+<span class="c1">// [2,10]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DeE    .    .   .   add	v8.8h, v8.8h, v24.8h</span>
+<span class="c1">// [2,11]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeeeE .    .   .   mul	v24.8h, v11.8h, v0.h[0]</span>
+<span class="c1">// [2,12]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DeeeE.    .   .   sqrdmulh	v11.8h, v11.8h, v0.h[1]</span>
+<span class="c1">// [2,13]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeeeE .   .   mls	v24.8h, v11.8h, v1.h[0]</span>
+<span class="c1">// [2,14]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DeE   .   sub	v11.8h, v10.8h, v24.8h</span>
+<span class="c1">// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .   DeE  .   add	v10.8h, v10.8h, v24.8h</span>
+<span class="c1">// [2,16]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    DE  .   str	q8, [x0], #64</span>
+<span class="c1">// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .DE .   stur	q9, [x0, #-48]</span>
+<span class="c1">// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    . DE.   stur	q10, [x0, #-32]</span>
+<span class="c1">// [2,19]    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .    .  DE   stur	q11, [x0, #-16]</span>
+<span class="na">...</span>
+
+<span class="c1">// Timeline view (OPTIMIZED):</span>
+<span class="c1">//                     0123456789          0123456789          0123456789</span>
+<span class="c1">// Index     0123456789          0123456789          0123456789          01234</span>
+<span class="c1">//</span>
+<span class="c1">// [0,0]     DeeE .    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q7, [x1]</span>
+<span class="c1">// [0,1]     .DeeE.    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q31, [x0, #16]</span>
+<span class="c1">// [0,2]     . DeeE    .    .    .    .    .    .    .    .    .    .    .   .   ldr	q11, [x0, #48]</span>
+<span class="c1">// [0,3]     .   DeeeE .    .    .    .    .    .    .    .    .    .    .   .   mul	v20.8h, v31.8h, v7.h[0]</span>
+<span class="c1">// [0,4]     .    DeeeE.    .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v31.8h, v31.8h, v7.h[1]</span>
+<span class="c1">// [0,5]     .    .DeeeE    .    .    .    .    .    .    .    .    .    .   .   mul	v18.8h, v11.8h, v7.h[0]</span>
+<span class="c1">// [0,6]     .    . DeeeE   .    .    .    .    .    .    .    .    .    .   .   sqrdmulh	v7.8h, v11.8h, v7.h[1]</span>
+<span class="c1">// [0,7]     .    .  DeeE   .    .    .    .    .    .    .    .    .    .   .   ldr	q11, [x2]</span>
+<span class="c1">// [0,8]     .    .   DeeE  .    .    .    .    .    .    .    .    .    .   .   ldr	q8, [x0]</span>
+<span class="c1">// [0,9]     .    .    .DeeeE    .    .    .    .    .    .    .    .    .   .   mls	v20.8h, v31.8h, v11.h[0]</span>
+<span class="c1">// [0,10]    .    .    . DeeeE   .    .    .    .    .    .    .    .    .   .   mls	v18.8h, v7.8h, v11.h[0]</span>
+<span class="c1">// [0,11]    .    .    .  DeeE   .    .    .    .    .    .    .    .    .   .   ldr	q7, [x0, #32]</span>
+<span class="c1">// [0,12]    .    .    .    DeE  .    .    .    .    .    .    .    .    .   .   sub	v31.8h, v8.8h, v20.8h</span>
+<span class="c1">// [0,13]    .    .    .    .DeE .    .    .    .    .    .    .    .    .   .   add	v11.8h, v8.8h, v20.8h</span>
+<span class="c1">// [0,14]    .    .    .    . DeE.    .    .    .    .    .    .    .    .   .   sub	v20.8h, v7.8h, v18.8h</span>
+<span class="c1">// [0,15]    .    .    .    . DE .    .    .    .    .    .    .    .    .   .   str	q31, [x0, #16]</span>
+<span class="c1">// [0,16]    .    .    .    .  DeE    .    .    .    .    .    .    .    .   .   add	v7.8h, v7.8h, v18.8h</span>
+<span class="c1">// [0,17]    .    .    .    .   DE    .    .    .    .    .    .    .    .   .   str	q11, [x0], #64</span>
+<span class="c1">// [0,18]    .    .    .    .    DE   .    .    .    .    .    .    .    .   .   stur	q7, [x0, #-32]</span>
+<span class="c1">// [0,19]    .    .    .    .    .DE  .    .    .    .    .    .    .    .   .   stur	q20, [x0, #-16]</span>
+<span class="c1">// [1,0]     .    .    .    .    .DeeE.    .    .    .    .    .    .    .   .   ldr	q7, [x1]</span>
+<span class="c1">// [1,1]     .    .    .    .    . DeeE    .    .    .    .    .    .    .   .   ldr	q31, [x0, #16]</span>
+<span class="c1">// [1,2]     .    .    .    .    .  DeeE   .    .    .    .    .    .    .   .   ldr	q11, [x0, #48]</span>
+<span class="c1">// [1,3]     .    .    .    .    .    DeeeE.    .    .    .    .    .    .   .   mul	v20.8h, v31.8h, v7.h[0]</span>
+<span class="c1">// [1,4]     .    .    .    .    .    .DeeeE    .    .    .    .    .    .   .   sqrdmulh	v31.8h, v31.8h, v7.h[1]</span>
+<span class="c1">// [1,5]     .    .    .    .    .    . DeeeE   .    .    .    .    .    .   .   mul	v18.8h, v11.8h, v7.h[0]</span>
+<span class="c1">// [1,6]     .    .    .    .    .    .  DeeeE  .    .    .    .    .    .   .   sqrdmulh	v7.8h, v11.8h, v7.h[1]</span>
+<span class="c1">// [1,7]     .    .    .    .    .    .   DeeE  .    .    .    .    .    .   .   ldr	q11, [x2]</span>
+<span class="c1">// [1,8]     .    .    .    .    .    .    DeeE .    .    .    .    .    .   .   ldr	q8, [x0]</span>
+<span class="c1">// [1,9]     .    .    .    .    .    .    . DeeeE   .    .    .    .    .   .   mls	v20.8h, v31.8h, v11.h[0]</span>
+<span class="c1">// [1,10]    .    .    .    .    .    .    .  DeeeE  .    .    .    .    .   .   mls	v18.8h, v7.8h, v11.h[0]</span>
+<span class="c1">// [1,11]    .    .    .    .    .    .    .   DeeE  .    .    .    .    .   .   ldr	q7, [x0, #32]</span>
+<span class="c1">// [1,12]    .    .    .    .    .    .    .    .DeE .    .    .    .    .   .   sub	v31.8h, v8.8h, v20.8h</span>
+<span class="c1">// [1,13]    .    .    .    .    .    .    .    . DeE.    .    .    .    .   .   add	v11.8h, v8.8h, v20.8h</span>
+<span class="c1">// [1,14]    .    .    .    .    .    .    .    .  DeE    .    .    .    .   .   sub	v20.8h, v7.8h, v18.8h</span>
+<span class="c1">// [1,15]    .    .    .    .    .    .    .    .  DE.    .    .    .    .   .   str	q31, [x0, #16]</span>
+<span class="c1">// [1,16]    .    .    .    .    .    .    .    .   DeE   .    .    .    .   .   add	v7.8h, v7.8h, v18.8h</span>
+<span class="c1">// [1,17]    .    .    .    .    .    .    .    .    DE   .    .    .    .   .   str	q11, [x0], #64</span>
+<span class="c1">// [1,18]    .    .    .    .    .    .    .    .    .DE  .    .    .    .   .   stur	q7, [x0, #-32]</span>
+<span class="c1">// [1,19]    .    .    .    .    .    .    .    .    . DE .    .    .    .   .   stur	q20, [x0, #-16]</span>
+<span class="c1">// [2,0]     .    .    .    .    .    .    .    .    . DeeE    .    .    .   .   ldr	q7, [x1]</span>
+<span class="c1">// [2,1]     .    .    .    .    .    .    .    .    .  DeeE   .    .    .   .   ldr	q31, [x0, #16]</span>
+<span class="c1">// [2,2]     .    .    .    .    .    .    .    .    .   DeeE  .    .    .   .   ldr	q11, [x0, #48]</span>
+<span class="c1">// [2,3]     .    .    .    .    .    .    .    .    .    .DeeeE    .    .   .   mul	v20.8h, v31.8h, v7.h[0]</span>
+<span class="c1">// [2,4]     .    .    .    .    .    .    .    .    .    . DeeeE   .    .   .   sqrdmulh	v31.8h, v31.8h, v7.h[1]</span>
+<span class="c1">// [2,5]     .    .    .    .    .    .    .    .    .    .  DeeeE  .    .   .   mul	v18.8h, v11.8h, v7.h[0]</span>
+<span class="c1">// [2,6]     .    .    .    .    .    .    .    .    .    .   DeeeE .    .   .   sqrdmulh	v7.8h, v11.8h, v7.h[1]</span>
+<span class="c1">// [2,7]     .    .    .    .    .    .    .    .    .    .    DeeE .    .   .   ldr	q11, [x2]</span>
+<span class="c1">// [2,8]     .    .    .    .    .    .    .    .    .    .    .DeeE.    .   .   ldr	q8, [x0]</span>
+<span class="c1">// [2,9]     .    .    .    .    .    .    .    .    .    .    .  DeeeE  .   .   mls	v20.8h, v31.8h, v11.h[0]</span>
+<span class="c1">// [2,10]    .    .    .    .    .    .    .    .    .    .    .   DeeeE .   .   mls	v18.8h, v7.8h, v11.h[0]</span>
+<span class="c1">// [2,11]    .    .    .    .    .    .    .    .    .    .    .    DeeE .   .   ldr	q7, [x0, #32]</span>
+<span class="c1">// [2,12]    .    .    .    .    .    .    .    .    .    .    .    . DeE.   .   sub	v31.8h, v8.8h, v20.8h</span>
+<span class="c1">// [2,13]    .    .    .    .    .    .    .    .    .    .    .    .  DeE   .   add	v11.8h, v8.8h, v20.8h</span>
+<span class="c1">// [2,14]    .    .    .    .    .    .    .    .    .    .    .    .   DeE  .   sub	v20.8h, v7.8h, v18.8h</span>
+<span class="c1">// [2,15]    .    .    .    .    .    .    .    .    .    .    .    .   DE   .   str	q31, [x0, #16]</span>
+<span class="c1">// [2,16]    .    .    .    .    .    .    .    .    .    .    .    .    DeE .   add	v7.8h, v7.8h, v18.8h</span>
+<span class="c1">// [2,17]    .    .    .    .    .    .    .    .    .    .    .    .    .DE .   str	q11, [x0], #64</span>
+<span class="c1">// [2,18]    .    .    .    .    .    .    .    .    .    .    .    .    . DE.   stur	q7, [x0, #-32]</span>
+<span class="c1">// [2,19]    .    .    .    .    .    .    .    .    .    .    .    .    .  DE   stur	q20, [x0, #-16]</span>
+</pre></div>
+</div>
+<p>However, LLVM MCA’s model might not be accurate either and cannot replacement measurements on real hardware – so let’s
+do that. Here, we use a <a class="reference external" href="https://github.com/slothy-optimizer/pqax/tree/main/tests/profiling">profiling tool</a> we wrote
+as part of the <a class="reference external" href="https://github.com/slothy-optimizer/pqax">pqax</a> benchmarking framework. It takes an assembly snippet as
+input and automatically generates a program running and benchmarking prefixes of the input, and combining them into a
+performance diagram similar to the one generated by LLVM-MCA. Here’s the output in our case:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="err">=====</span><span class="w"> </span><span class="nf">Stepwise</span><span class="w"> </span><span class="no">profiling</span><span class="w"> </span><span class="err">=======</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">0]:</span><span class="w">                     </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span><span class="w"> </span><span class="no">......</span><span class="p">*.....................................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">1]:</span><span class="w">                  </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q8</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">.......</span><span class="p">*....................................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">2]:</span><span class="w">                  </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q9</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">.........</span><span class="p">*..................................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">3]:</span><span class="w">                 </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q10</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">...........</span><span class="p">*................................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">4]:</span><span class="w">                 </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q11</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">.............</span><span class="p">*..............................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">5]:</span><span class="w">    </span><span class="nf">mul</span><span class="w">      </span><span class="no">v12.8h</span><span class="p">,</span><span class="w">   </span><span class="no">v9.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v0.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="no">...............</span><span class="p">*............................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">6]:</span><span class="w">    </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v9.8h</span><span class="p">,</span><span class="w">    </span><span class="no">v9.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v0.h</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="no">................</span><span class="p">*...........................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">7]:</span><span class="w">    </span><span class="nf">mls</span><span class="w">      </span><span class="no">v12.8h</span><span class="p">,</span><span class="w">   </span><span class="no">v9.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v1.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="no">.................</span><span class="p">*..........................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">8]:</span><span class="w">          </span><span class="nf">sub</span><span class="w">    </span><span class="no">v9.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v8.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v12.8h</span><span class="w"> </span><span class="no">.....................</span><span class="p">*......................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">9]:</span><span class="w">          </span><span class="nf">add</span><span class="w">    </span><span class="no">v8.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v8.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v12.8h</span><span class="w"> </span><span class="no">........................</span><span class="p">*...................</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">10]:</span><span class="w">   </span><span class="nf">mul</span><span class="w">      </span><span class="no">v12.8h</span><span class="p">,</span><span class="w">   </span><span class="no">v11.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v0.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="no">.........................</span><span class="p">*..................</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">11]:</span><span class="w">  </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v11.8h</span><span class="p">,</span><span class="w">    </span><span class="no">v11.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v0.h</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="no">..........................</span><span class="p">*.................</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">12]:</span><span class="w">   </span><span class="nf">mls</span><span class="w">      </span><span class="no">v12.8h</span><span class="p">,</span><span class="w">   </span><span class="no">v11.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v1.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="no">...........................</span><span class="p">*................</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">13]:</span><span class="w">        </span><span class="nf">sub</span><span class="w">    </span><span class="no">v11.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v10.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v12.8h</span><span class="w"> </span><span class="no">...............................</span><span class="p">*............</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">14]:</span><span class="w">        </span><span class="nf">add</span><span class="w">    </span><span class="no">v10.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v10.8h</span><span class="p">,</span><span class="w"> </span><span class="no">v12.8h</span><span class="w"> </span><span class="no">..................................</span><span class="p">*.........</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">15]:</span><span class="w">                  </span><span class="nf">str</span><span class="w"> </span><span class="no">q8</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span><span class="w"> </span><span class="no">...................................</span><span class="p">*........</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">16]:</span><span class="w">                 </span><span class="nf">str</span><span class="w"> </span><span class="no">q9</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">.....................................</span><span class="p">*......</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">17]:</span><span class="w">                </span><span class="nf">str</span><span class="w"> </span><span class="no">q10</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">.....................................</span><span class="p">*......</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">18]:</span><span class="w">                </span><span class="nf">str</span><span class="w"> </span><span class="no">q11</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">........................................</span><span class="p">*...</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="err">=====</span><span class="w"> </span><span class="nf">Stepwise</span><span class="w"> </span><span class="no">profiling</span><span class="w"> </span><span class="p">(</span><span class="no">OPTIMIZED</span><span class="p">)</span><span class="w"> </span><span class="err">=======</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">0]:</span><span class="w">  </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q18</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#16</span><span class="p">]</span><span class="w">              </span><span class="c1">// .*........................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">1]:</span><span class="w">  </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v8.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v6.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v2.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">  </span><span class="c1">// ..*.......................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">2]:</span><span class="w">  </span><span class="nf">mul</span><span class="w"> </span><span class="no">v23.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v6.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v2.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">      </span><span class="c1">// ...*......................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">3]:</span><span class="w">  </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q31</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#32</span><span class="p">]</span><span class="w">              </span><span class="c1">// ....*.....................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">4]:</span><span class="w">  </span><span class="nf">mul</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v18.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v2.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">      </span><span class="c1">// ......*...................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">5]:</span><span class="w">  </span><span class="nf">mls</span><span class="w"> </span><span class="no">v23.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v8.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v1.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">      </span><span class="c1">// .......*..................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">6]:</span><span class="w">  </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v9.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v18.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v2.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="c1">// ........*.................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">7]:</span><span class="w">  </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q15</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span><span class="w">               </span><span class="c1">// .........*................</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">8]:</span><span class="w">  </span><span class="nf">sub</span><span class="w"> </span><span class="no">v11.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v31.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v23.8H</span><span class="w">      </span><span class="c1">// ...........*..............</span>
+<span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">9]:</span><span class="w">  </span><span class="nf">mls</span><span class="w"> </span><span class="no">v3.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v9.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v1.H</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">       </span><span class="c1">// ............*.............</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">10]:</span><span class="w">  </span><span class="nf">add</span><span class="w"> </span><span class="no">v16.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v31.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v23.8H</span><span class="w">      </span><span class="c1">// .............*............</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">11]:</span><span class="w">  </span><span class="nf">str</span><span class="w"> </span><span class="no">q11</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#48</span><span class="p">]</span><span class="w">              </span><span class="c1">// ..............*...........</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">12]:</span><span class="w">  </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q2</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span><span class="w">                </span><span class="c1">// ...............*..........</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">13]:</span><span class="w">  </span><span class="nf">add</span><span class="w"> </span><span class="no">v13.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span><span class="w">       </span><span class="c1">// .................*........</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">14]:</span><span class="w">  </span><span class="nf">str</span><span class="w"> </span><span class="no">q16</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#32</span><span class="p">]</span><span class="w">              </span><span class="c1">// ..................*.......</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">15]:</span><span class="w">  </span><span class="nf">sub</span><span class="w"> </span><span class="no">v7.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v15.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v3.8H</span><span class="w">        </span><span class="c1">// ...................*......</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">16]:</span><span class="w">  </span><span class="nf">str</span><span class="w"> </span><span class="no">q13</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span><span class="w">            </span><span class="c1">// ....................*.....</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">17]:</span><span class="w">  </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q6</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#48</span><span class="p">]</span><span class="w">               </span><span class="c1">// .....................*....</span>
+<span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">18]:</span><span class="w">  </span><span class="nf">str</span><span class="w"> </span><span class="no">q7</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-48</span><span class="p">]</span><span class="w">              </span><span class="c1">// .......................*..</span>
+</pre></div>
+</div>
+<p>We can see that SLOTHY’s predictions were exactly right, and that LLVM-MCA’s model is off in a few places.
+So, in a nutshell, we’d say that LLVM-MCA is great for quick evaluation of performance, but when you get down
+to the last cycle and fine-tuning your model, there is no way around measurements on real hardware.</p>
+</section>
+<section id="optimizing-a-full-neon-ntt">
+<h2>6. Optimizing a full Neon NTT<a class="headerlink" href="#optimizing-a-full-neon-ntt" title="Link to this heading"></a></h2>
+<p>The examples previously considered were all toy examples, so you may wonder how to apply SLOTHY to actual cryptographic code.
+Let’s look at a real-world example: The Kyber number-theoretic transform – a core arithmetic function of the Kyber key-encapsulation mechanism making up a large chunk of the total run-time.
+The target platform is again the Arm Cortex-A55 and the code primarily consists of
+Neon vector instructions.
+We’ll consider a straightforward implementation available here: <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/ntt_kyber_123_4567.s">ntt_kyber_123_4567.s</a>.
+If you have ever written an NTT, it should be fairly easy to understand what the code is doing.
+The code consists of 2 main loops implementing layers 1+2+3 and 4+5+6+7 of the NTT.
+The actual operations are wrapped in macros implementing butterflies on single vector registers.
+Note that this code performs very poorly: No consideration was given to the intricacies of the microarchitecture.</p>
+<p>Let’s run SLOTHY on this code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;examples/naive/aarch64/ntt_kyber_123_4567.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">inputs_are_outputs</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">minimize_overlapping</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">reserved_regs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;x</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;x30&quot;</span><span class="p">,</span> <span class="s2">&quot;sp&quot;</span><span class="p">]</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">&quot;layer123_start&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">&quot;layer4567_start&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/ntt_kyber_123_4567_opt_a55.s&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We simply optimize both loops separately.
+You will notice some additional flags we have set. To read the documentation of those, please have a look at <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/slothy/core/config.py">config.py</a>.
+We have set an additional flag: <code class="docutils literal notranslate"><span class="pre">inputs_are_outputs</span> <span class="pre">=</span> <span class="pre">True</span></code>. This tells SLOTHY that the registers that are used as
+inputs to the loop (e.g., the pointer to the polynomial input) are also outputs of the entire loop; otherwise, SLOTHY
+could overwrite them in the postamble once they are no longer needed. You most likely want <code class="docutils literal notranslate"><span class="pre">inputs_are_outputs=True</span></code>
+whenever you are optimizing a loop. We also use the <code class="docutils literal notranslate"><span class="pre">reserved_regs</span></code> option to tell SLOTHY that registers <code class="docutils literal notranslate"><span class="pre">x0,</span> <span class="pre">...,</span> <span class="pre">x7,</span> <span class="pre">x30,</span> <span class="pre">sp</span></code> are used for other purposes and should not be used by SLOTHY. When optimizing only parts of a function, it is
+essential to tell SLOTHY which registers should not be used: By default SLOTHY will use any of the architectural
+registers. If you are familiar with inline assembly, SLOTHY’s <code class="docutils literal notranslate"><span class="pre">reserved_regs</span></code> are essentially the complement of the
+‘clobber list’.</p>
+<p>When running this example, you will notice that it has a significantly longer runtime.
+On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
+You may instead look at an optimized version of the same code <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s">examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s</a>.
+You notice that both loops have many early instructions, and coming up with this code by hand would be tedious, time-consuming and error-prone.</p>
+</section>
+<section id="optimizing-larger-pieces-of-code">
+<h2>7. Optimizing larger pieces of code<a class="headerlink" href="#optimizing-larger-pieces-of-code" title="Link to this heading"></a></h2>
+<p>We’ve seen that the code above can be optimized relatively fast (within seconds to minutes on a laptop).
+When using a more powerful machine and allowing optimization times of hours, one can scale this up to larger examples.
+We’ve successfully used (vanilla) SLOTHY for optimized code snippets of up to 180 instructions.
+However, for larger code at a certain point the constraint solving becomes prohibitively expensive and we need to use a different strategy.</p>
+<p>One such example is the X25519 implementation we looked at in the <a class="reference external" href="https://eprint.iacr.org/2022/1303">SLOTHY paper</a> available in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/X25519-AArch64-simple.s">X25519-AArch64-simple.s</a>
+It is a hybrid vector-scalar implementation based on an <a class="reference external" href="https://github.com/Emill/X25519-AArch64">implementation</a> by Lenngren.
+Its core loop consists of 958 instructions which well exceeds what SLOTHY can currently optimize in a single pass.</p>
+<p>However, we can still make use of SLOTHY to optimize this code by employing heuristics.
+One particularly useful heuristics supported by SLOTHY is the <code class="docutils literal notranslate"><span class="pre">splitting</span></code> heuristic.
+When a piece of code is too large to be optimized at once, it splits it into multiple overlapping pieces that are optimized separately.
+With this approach one loses the optimality guarantees as it may be that there is a solution that SLOTHY cannot find due to the splitting.
+However, by repeatedly running SLOTHY using the <code class="docutils literal notranslate"><span class="pre">splitting</span></code> heuristic, we managed to outperform the state-of-the-art and get very close to optimal results (in terms of IPC).</p>
+<p>To demonstrate the splitting heuristic we can use the following SLOTHY call:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># example</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../examples/naive/aarch64/X25519-AArch64-simple.s&quot;</span><span class="p">)</span>
+
+<span class="c1"># first pass: replace symbolic register names by architectural registers</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">inputs_are_outputs</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x0&quot;</span><span class="p">]</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">functional_only</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">allow_reordering</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;mainloop&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;end_label&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">functional_only</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">allow_reordering</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># second pass: splitting heuristic</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">split_heuristic</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">split_heuristic_stepsize</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">split_heuristic_factor</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">split_heuristic_repeat</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">split_heuristic_estimate_performance</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;mainloop&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;end_label&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/X25519-AArch64-simple_opt.s&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">splitting</span></code> heuristic can be turned on by setting <code class="docutils literal notranslate"><span class="pre">slothy.config.split_heuristic</span> <span class="pre">=</span> <span class="pre">True</span></code>.
+It has three main parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">split_heuristic_factor</span></code> : Determines the size of each split. In this case, 10 means that we will be optimizing 10% of the original code at a time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">split_heuristic_stepsize</span></code> : Controls the degree of overlapping of the sliding window. Setting it to 0.05 means the sliding window moves by 5% every time. We will start with optimizing the first 10% ([0,0.1]) of the code, then [0.05,0.15], [0.1,0.20], …</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">split_heuristic_repeat</span></code>: The number of times the optimization should be repeated.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">split_heuristic_estimate_performance</span></code>: After running the split heuristic, don’t attempt to estimate the stalls in the
+final code (that tends to be quite slow).</p></li>
+</ul>
+<p>You will notice in the example above, that there is another call to <code class="docutils literal notranslate"><span class="pre">slothy.optimize()</span></code> prior to that.
+This is needed as the input implementation is using symbolic register names which is a feature unrelated to the splitting heuristic that we want to demonstrate here.
+It allows a developer of the code to leave the register allocation up to SLOTHY.
+Unfortunately, it is not compatible with the splitting heuristic (as register allocation can’t be performed locally), and hence we first need to do the register allocation on the full code before we continue.
+We can configure SLOTHY to only consider register allocation by setting the <code class="docutils literal notranslate"><span class="pre">allow_reordering=False</span></code> (disabling the ordering constraints) and <code class="docutils literal notranslate"><span class="pre">functional_only=True</span></code> (disabling the microarchitectural constraints).
+In this way, the constraints remain manageable, and SLOTHY finds a register allocation within a few minutes.</p>
+<p>Running this example takes around 15 minutes.
+You can instead look at the output available in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/tree/main/tutorial_files/opt/X25519-AArch64-simple_opt.s">opt/X25519-AArch64-simple_opt.s</a>
+The output will look similar to the previous examples and contains significantly less pipeline stalls than the input.
+For achieving the best performance, we require a few more calls to SLOTHY. You can find the script we used <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/paper/scripts/slothy_x25519.sh">here</a> - it runs around 1.5 hours.</p>
+</section>
+<section id="adding-a-new-microarchitecture">
+<h2>8. Adding a new microarchitecture<a class="headerlink" href="#adding-a-new-microarchitecture" title="Link to this heading"></a></h2>
+<p>You may wonder how to extend SLOTHY to include a new microarchitecture.
+For example, you may want to optimize code for a newer iteration of the Arm Cortex-A55, e.g., the Arm Cortex-A510.
+To understand what is needed for that, let’s look at the microarchitectural model for the Cortex-A55 available in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/slothy/targets/aarch64/cortex_a55.py">slothy/targets/aarch64/cortex_a55.py</a>.</p>
+<p>Skipping some boilerplate code, you will see the following structure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slothy.targets.aarch64.aarch64_neon</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">issue_rate</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExecutionUnit</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of execution units in Cortex-A55 model&quot;&quot;&quot;</span>
+    <span class="n">SCALAR_ALU0</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">SCALAR_ALU1</span><span class="o">=</span><span class="mi">2</span>
+    <span class="n">SCALAR_MAC</span><span class="o">=</span><span class="mi">3</span>
+    <span class="n">SCALAR_LOAD</span><span class="o">=</span><span class="mi">4</span>
+    <span class="n">SCALAR_STORE</span><span class="o">=</span><span class="mi">5</span>
+    <span class="n">VEC0</span><span class="o">=</span><span class="mi">6</span>
+    <span class="n">VEC1</span><span class="o">=</span><span class="mi">7</span>
+    <span class="c1"># ...</span>
+
+<span class="n">execution_units</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="n">inverse_throughput</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="n">default_latencies</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="o">...</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_latency</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">out_idx</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+    <span class="o">//</span> <span class="o">...</span>
+    <span class="n">latency</span> <span class="o">=</span> <span class="n">lookup_multidict</span><span class="p">(</span>
+        <span class="n">default_latencies</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+    <span class="o">//</span> <span class="o">...</span>
+    <span class="k">return</span> <span class="n">latency</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_units</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="n">lookup_multidict</span><span class="p">(</span><span class="n">execution_units</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">units</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">units</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">units</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_inverse_throughput</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">lookup_multidict</span><span class="p">(</span>
+        <span class="n">inverse_throughput</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Going through the snippet, we can see the core components:</p>
+<ul class="simple">
+<li><p>Definition of the <code class="docutils literal notranslate"><span class="pre">issue_rate</span></code> corresponding to the number of issue slots available per cycle. Since the Cortex-A55 is a dual-issue CPU, this is two.</p></li>
+<li><p>Definition of an <code class="docutils literal notranslate"><span class="pre">Enum</span></code> modelling the different execution units available. In this case, we model 2 scalar units, one
+MAC unit, 2 64-bit vector units, one load unit, and one store unit.</p></li>
+<li><p>Finally, we need to implement the functions <code class="docutils literal notranslate"><span class="pre">get_latency</span></code>, <code class="docutils literal notranslate"><span class="pre">get_units</span></code>, <code class="docutils literal notranslate"><span class="pre">get_inverse_throughput</span></code> returning the
+latency, occupied execution units, and throughputs. The input to these functions is a class from the architectural
+model representing the instruction in question. For example, the class <code class="docutils literal notranslate"><span class="pre">vmull</span></code> in
+<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/slothy/targets/aarch64/aarch64_neon.py">aarch64_neon.py</a> corresponds to the <code class="docutils literal notranslate"><span class="pre">umull</span></code> instruction. We commonly
+implement this using dictionaries above.</p></li>
+</ul>
+<p>For example, for the (128-bit/qform) <code class="docutils literal notranslate"><span class="pre">vmull</span></code> instruction, we can find in the <a class="reference external" href="https://developer.arm.com/documentation/EPM128372/latest/">Arm Cortex-A55 Software Optimization
+Guide</a> that it occupies both vector execution units, has an
+inverse throughput of 1, and a latency of 4 cycles. We can model this in the following way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execution_units</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span> <span class="n">vmull</span> <span class="p">):</span> <span class="p">[[</span><span class="n">ExecutionUnit</span><span class="o">.</span><span class="n">VEC0</span><span class="p">,</span> <span class="n">ExecutionUnit</span><span class="o">.</span><span class="n">VEC1</span><span class="p">]],</span>
+<span class="p">}</span>
+
+<span class="n">inverse_throughput</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span> <span class="n">vmull</span> <span class="p">)</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">default_latencies</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span> <span class="n">vmull</span> <span class="p">)</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We mostly use the tuple-syntax, so we can group together instructions that belong together.
+For example, later we may want to add the Neon <code class="docutils literal notranslate"><span class="pre">add</span></code>. From the SWOG we can see that (128-bit/qform) <code class="docutils literal notranslate"><span class="pre">add</span></code> occupies both
+64-bit vector execution units, has a latency of 3 cycles, and throughput of 1 cycle.
+We can extend the above model as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">execution_units</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span> <span class="n">vmull</span><span class="p">,</span> <span class="n">vadd</span> <span class="p">):</span> <span class="p">[[</span><span class="n">ExecutionUnit</span><span class="o">.</span><span class="n">VEC0</span><span class="p">,</span> <span class="n">ExecutionUnit</span><span class="o">.</span><span class="n">VEC1</span><span class="p">]],</span>
+<span class="p">}</span>
+
+<span class="n">inverse_throughput</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span> <span class="n">vmull</span><span class="p">,</span> <span class="n">vadd</span> <span class="p">)</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">default_latencies</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span> <span class="n">vmull</span> <span class="p">)</span> <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">(</span> <span class="n">vadd</span> <span class="p">)</span> <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>(When looking at the actual model, you will notice that this is not quite how it is modelled. You will see that for some
+instructions, we have to distinguish between the q-form (128-bit) and the d-form (64-bit) of the instruction. Q-form
+instructions occupy both vector execution units, while most D-form instructions occupy only 1. Latencies also vary
+depending on the actual form.)</p>
+<p>Note that both the architectural model and the micro-architectural model can be built lazily: As long as the
+corresponding instruction do not appear in your input, you may leave out their description.
+As soon as you hit an instruction that is not part of the architectural or micro-architectural model, you will see an
+error.</p>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>ModuleNotFoundError: No module named ‘ortools’</p></li>
+</ul>
+<p>This suggests that you have not installed the required dependencies needed by SLOTHY.
+Either you need to follow the installation instructions, or if you have done that already, you likely forgot to enter the virtual environment you have installed them in using <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">venv/bin/activate</span></code>. You will have to run this every time you open a new terminal.</p>
+<ul class="simple">
+<li><p>The selfcheck passes but the code is functionally incorrect!</p></li>
+</ul>
+<p>The most common reason for this is a bad configuration: Check that you all registers that must be kept for the sake of
+the surrounding code are marked as <code class="docutils literal notranslate"><span class="pre">reserved_regs</span></code>.</p>
+<p>Another possibility, albeit hopefully rare by now, is a failure during address offset fixup: This feature is not yet
+stable, and the selfcheck is currently blind to erroneous calculations here. If you are sure your configuration is correct, you might
+want to check the adjusted address offsets manually. If you find a bug, let us know!</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../general.html" class="btn btn-neutral float-left" title="About SLOTHY" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../faq.html" class="btn btn-neutral float-right" title="Frequently asked questions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

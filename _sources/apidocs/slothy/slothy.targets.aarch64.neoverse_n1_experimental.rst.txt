@@ -1,0 +1,227 @@
+:py:mod:`slothy.targets.aarch64.neoverse_n1_experimental`
+=========================================================
+
+.. py:module:: slothy.targets.aarch64.neoverse_n1_experimental
+
+.. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ExecutionUnit <slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`add_further_constraints <slothy.targets.aarch64.neoverse_n1_experimental.add_further_constraints>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.add_further_constraints
+          :summary:
+   * - :py:obj:`has_min_max_objective <slothy.targets.aarch64.neoverse_n1_experimental.has_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.has_min_max_objective
+          :summary:
+   * - :py:obj:`get_min_max_objective <slothy.targets.aarch64.neoverse_n1_experimental.get_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.get_min_max_objective
+          :summary:
+   * - :py:obj:`get_latency <slothy.targets.aarch64.neoverse_n1_experimental.get_latency>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.get_latency
+          :summary:
+   * - :py:obj:`get_units <slothy.targets.aarch64.neoverse_n1_experimental.get_units>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.get_units
+          :summary:
+   * - :py:obj:`get_inverse_throughput <slothy.targets.aarch64.neoverse_n1_experimental.get_inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.get_inverse_throughput
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`issue_rate <slothy.targets.aarch64.neoverse_n1_experimental.issue_rate>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.issue_rate
+          :summary:
+   * - :py:obj:`llvm_mca_target <slothy.targets.aarch64.neoverse_n1_experimental.llvm_mca_target>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.llvm_mca_target
+          :summary:
+   * - :py:obj:`execution_units <slothy.targets.aarch64.neoverse_n1_experimental.execution_units>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.execution_units
+          :summary:
+   * - :py:obj:`inverse_throughput <slothy.targets.aarch64.neoverse_n1_experimental.inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.inverse_throughput
+          :summary:
+   * - :py:obj:`default_latencies <slothy.targets.aarch64.neoverse_n1_experimental.default_latencies>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.default_latencies
+          :summary:
+
+API
+~~~
+
+.. py:data:: issue_rate
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.issue_rate
+   :value: 4
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.issue_rate
+
+.. py:data:: llvm_mca_target
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.llvm_mca_target
+   :value: 'neoverse-n1'
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.llvm_mca_target
+
+.. py:class:: ExecutionUnit
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit
+
+   Bases: :py:obj:`enum.Enum`
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit
+
+   .. py:attribute:: SCALAR_I0
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.SCALAR_I0
+      :value: 0
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.SCALAR_I0
+
+   .. py:attribute:: SCALAR_I1
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.SCALAR_I1
+      :value: 1
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.SCALAR_I1
+
+   .. py:attribute:: SCALAR_I2
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.SCALAR_I2
+      :value: 2
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.SCALAR_I2
+
+   .. py:attribute:: SCALAR_M
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.SCALAR_M
+      :value: 2
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.SCALAR_M
+
+   .. py:attribute:: LSU0
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.LSU0
+      :value: 3
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.LSU0
+
+   .. py:attribute:: LSU1
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.LSU1
+      :value: 4
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.LSU1
+
+   .. py:attribute:: VEC0
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.VEC0
+      :value: 5
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.VEC0
+
+   .. py:attribute:: VEC1
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.VEC1
+      :value: 6
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.VEC1
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.__repr__
+
+   .. py:method:: I()
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.I
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.I
+
+   .. py:method:: M()
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.M
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.M
+
+   .. py:method:: V()
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.V
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.V
+
+   .. py:method:: V0()
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.V0
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.V0
+
+   .. py:method:: V1()
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.V1
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.V1
+
+   .. py:method:: LSU()
+      :canonical: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.LSU
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.ExecutionUnit.LSU
+
+.. py:function:: add_further_constraints(slothy)
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.add_further_constraints
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.add_further_constraints
+
+.. py:function:: has_min_max_objective(config)
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.has_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.has_min_max_objective
+
+.. py:function:: get_min_max_objective(slothy)
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.get_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.get_min_max_objective
+
+.. py:data:: execution_units
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.execution_units
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.execution_units
+
+.. py:data:: inverse_throughput
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.inverse_throughput
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.inverse_throughput
+
+.. py:data:: default_latencies
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.default_latencies
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.default_latencies
+
+.. py:function:: get_latency(src, out_idx, dst)
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.get_latency
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.get_latency
+
+.. py:function:: get_units(src)
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.get_units
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.get_units
+
+.. py:function:: get_inverse_throughput(src)
+   :canonical: slothy.targets.aarch64.neoverse_n1_experimental.get_inverse_throughput
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.neoverse_n1_experimental.get_inverse_throughput

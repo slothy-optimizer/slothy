@@ -1,0 +1,544 @@
+:py:mod:`slothy.core.config`
+============================
+
+.. py:module:: slothy.core.config
+
+.. autodoc2-docstring:: slothy.core.config
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`Config <slothy.core.config.Config>`
+     - .. autodoc2-docstring:: slothy.core.config.Config
+          :summary:
+
+API
+~~~
+
+.. py:exception:: InvalidConfig()
+   :canonical: slothy.core.config.InvalidConfig
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.core.config.InvalidConfig
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.config.InvalidConfig.__init__
+
+.. py:class:: Config(Arch, Target)
+   :canonical: slothy.core.config.Config
+
+   Bases: :py:obj:`slothy.helper.NestedPrint`, :py:obj:`slothy.helper.LockAttributes`
+
+   .. autodoc2-docstring:: slothy.core.config.Config
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.config.Config.__init__
+
+   .. py:property:: arch
+      :canonical: slothy.core.config.Config.arch
+
+      .. autodoc2-docstring:: slothy.core.config.Config.arch
+
+   .. py:property:: target
+      :canonical: slothy.core.config.Config.target
+
+      .. autodoc2-docstring:: slothy.core.config.Config.target
+
+   .. py:property:: outputs
+      :canonical: slothy.core.config.Config.outputs
+
+      .. autodoc2-docstring:: slothy.core.config.Config.outputs
+
+   .. py:property:: reserved_regs
+      :canonical: slothy.core.config.Config.reserved_regs
+
+      .. autodoc2-docstring:: slothy.core.config.Config.reserved_regs
+
+   .. py:property:: reserved_regs_are_locked
+      :canonical: slothy.core.config.Config.reserved_regs_are_locked
+
+      .. autodoc2-docstring:: slothy.core.config.Config.reserved_regs_are_locked
+
+   .. py:property:: selftest
+      :canonical: slothy.core.config.Config.selftest
+
+      .. autodoc2-docstring:: slothy.core.config.Config.selftest
+
+   .. py:property:: selftest_iterations
+      :canonical: slothy.core.config.Config.selftest_iterations
+
+      .. autodoc2-docstring:: slothy.core.config.Config.selftest_iterations
+
+   .. py:property:: selftest_address_registers
+      :canonical: slothy.core.config.Config.selftest_address_registers
+
+      .. autodoc2-docstring:: slothy.core.config.Config.selftest_address_registers
+
+   .. py:property:: selftest_default_memory_size
+      :canonical: slothy.core.config.Config.selftest_default_memory_size
+
+      .. autodoc2-docstring:: slothy.core.config.Config.selftest_default_memory_size
+
+   .. py:property:: selfcheck
+      :canonical: slothy.core.config.Config.selfcheck
+
+      .. autodoc2-docstring:: slothy.core.config.Config.selfcheck
+
+   .. py:property:: selfcheck_failure_logfile
+      :canonical: slothy.core.config.Config.selfcheck_failure_logfile
+
+      .. autodoc2-docstring:: slothy.core.config.Config.selfcheck_failure_logfile
+
+   .. py:property:: unsafe_address_offset_fixup
+      :canonical: slothy.core.config.Config.unsafe_address_offset_fixup
+
+      .. autodoc2-docstring:: slothy.core.config.Config.unsafe_address_offset_fixup
+
+   .. py:property:: allow_useless_instructions
+      :canonical: slothy.core.config.Config.allow_useless_instructions
+
+      .. autodoc2-docstring:: slothy.core.config.Config.allow_useless_instructions
+
+   .. py:property:: variable_size
+      :canonical: slothy.core.config.Config.variable_size
+
+      .. autodoc2-docstring:: slothy.core.config.Config.variable_size
+
+   .. py:property:: keep_tags
+      :canonical: slothy.core.config.Config.keep_tags
+
+      .. autodoc2-docstring:: slothy.core.config.Config.keep_tags
+
+   .. py:property:: inherit_macro_comments
+      :canonical: slothy.core.config.Config.inherit_macro_comments
+
+      .. autodoc2-docstring:: slothy.core.config.Config.inherit_macro_comments
+
+   .. py:property:: ignore_tags
+      :canonical: slothy.core.config.Config.ignore_tags
+
+      .. autodoc2-docstring:: slothy.core.config.Config.ignore_tags
+
+   .. py:property:: register_aliases
+      :canonical: slothy.core.config.Config.register_aliases
+
+      .. autodoc2-docstring:: slothy.core.config.Config.register_aliases
+
+   .. py:method:: add_aliases(new_aliases)
+      :canonical: slothy.core.config.Config.add_aliases
+
+      .. autodoc2-docstring:: slothy.core.config.Config.add_aliases
+
+   .. py:property:: rename_inputs
+      :canonical: slothy.core.config.Config.rename_inputs
+
+      .. autodoc2-docstring:: slothy.core.config.Config.rename_inputs
+
+   .. py:property:: rename_outputs
+      :canonical: slothy.core.config.Config.rename_outputs
+
+      .. autodoc2-docstring:: slothy.core.config.Config.rename_outputs
+
+   .. py:property:: inputs_are_outputs
+      :canonical: slothy.core.config.Config.inputs_are_outputs
+
+      .. autodoc2-docstring:: slothy.core.config.Config.inputs_are_outputs
+
+   .. py:property:: locked_registers
+      :canonical: slothy.core.config.Config.locked_registers
+
+      .. autodoc2-docstring:: slothy.core.config.Config.locked_registers
+
+   .. py:property:: sw_pipelining
+      :canonical: slothy.core.config.Config.sw_pipelining
+
+      .. autodoc2-docstring:: slothy.core.config.Config.sw_pipelining
+
+   .. py:property:: constraints
+      :canonical: slothy.core.config.Config.constraints
+
+      .. autodoc2-docstring:: slothy.core.config.Config.constraints
+
+   .. py:property:: hints
+      :canonical: slothy.core.config.Config.hints
+
+      .. autodoc2-docstring:: slothy.core.config.Config.hints
+
+   .. py:property:: max_solutions
+      :canonical: slothy.core.config.Config.max_solutions
+
+      .. autodoc2-docstring:: slothy.core.config.Config.max_solutions
+
+   .. py:property:: with_preprocessor
+      :canonical: slothy.core.config.Config.with_preprocessor
+
+      .. autodoc2-docstring:: slothy.core.config.Config.with_preprocessor
+
+   .. py:property:: with_llvm_mca
+      :canonical: slothy.core.config.Config.with_llvm_mca
+
+      .. autodoc2-docstring:: slothy.core.config.Config.with_llvm_mca
+
+   .. py:property:: llvm_mca_full
+      :canonical: slothy.core.config.Config.llvm_mca_full
+
+      .. autodoc2-docstring:: slothy.core.config.Config.llvm_mca_full
+
+   .. py:property:: llvm_mca_issue_width_overwrite
+      :canonical: slothy.core.config.Config.llvm_mca_issue_width_overwrite
+
+      .. autodoc2-docstring:: slothy.core.config.Config.llvm_mca_issue_width_overwrite
+
+   .. py:property:: with_llvm_mca_before
+      :canonical: slothy.core.config.Config.with_llvm_mca_before
+
+      .. autodoc2-docstring:: slothy.core.config.Config.with_llvm_mca_before
+
+   .. py:property:: with_llvm_mca_after
+      :canonical: slothy.core.config.Config.with_llvm_mca_after
+
+      .. autodoc2-docstring:: slothy.core.config.Config.with_llvm_mca_after
+
+   .. py:property:: compiler_binary
+      :canonical: slothy.core.config.Config.compiler_binary
+
+      .. autodoc2-docstring:: slothy.core.config.Config.compiler_binary
+
+   .. py:property:: compiler_include_paths
+      :canonical: slothy.core.config.Config.compiler_include_paths
+
+      .. autodoc2-docstring:: slothy.core.config.Config.compiler_include_paths
+
+   .. py:property:: timeout
+      :canonical: slothy.core.config.Config.timeout
+
+      .. autodoc2-docstring:: slothy.core.config.Config.timeout
+
+   .. py:property:: retry_timeout
+      :canonical: slothy.core.config.Config.retry_timeout
+
+      .. autodoc2-docstring:: slothy.core.config.Config.retry_timeout
+
+   .. py:property:: do_address_fixup
+      :canonical: slothy.core.config.Config.do_address_fixup
+
+      .. autodoc2-docstring:: slothy.core.config.Config.do_address_fixup
+
+   .. py:property:: ignore_objective
+      :canonical: slothy.core.config.Config.ignore_objective
+
+      .. autodoc2-docstring:: slothy.core.config.Config.ignore_objective
+
+   .. py:property:: objective_precision
+      :canonical: slothy.core.config.Config.objective_precision
+
+      .. autodoc2-docstring:: slothy.core.config.Config.objective_precision
+
+   .. py:property:: objective_lower_bound
+      :canonical: slothy.core.config.Config.objective_lower_bound
+
+      .. autodoc2-docstring:: slothy.core.config.Config.objective_lower_bound
+
+   .. py:property:: has_objective
+      :canonical: slothy.core.config.Config.has_objective
+
+      .. autodoc2-docstring:: slothy.core.config.Config.has_objective
+
+   .. py:property:: absorb_spills
+      :canonical: slothy.core.config.Config.absorb_spills
+
+      .. autodoc2-docstring:: slothy.core.config.Config.absorb_spills
+
+   .. py:property:: split_heuristic
+      :canonical: slothy.core.config.Config.split_heuristic
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic
+
+   .. py:property:: split_heuristic_factor
+      :canonical: slothy.core.config.Config.split_heuristic_factor
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_factor
+
+   .. py:property:: split_heuristic_abort_cycle_at_high
+      :canonical: slothy.core.config.Config.split_heuristic_abort_cycle_at_high
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_abort_cycle_at_high
+
+   .. py:property:: split_heuristic_abort_cycle_at_low
+      :canonical: slothy.core.config.Config.split_heuristic_abort_cycle_at_low
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_abort_cycle_at_low
+
+   .. py:property:: split_heuristic_stepsize
+      :canonical: slothy.core.config.Config.split_heuristic_stepsize
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_stepsize
+
+   .. py:property:: split_heuristic_optimize_seam
+      :canonical: slothy.core.config.Config.split_heuristic_optimize_seam
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_optimize_seam
+
+   .. py:property:: split_heuristic_chunks
+      :canonical: slothy.core.config.Config.split_heuristic_chunks
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_chunks
+
+   .. py:property:: split_heuristic_bottom_to_top
+      :canonical: slothy.core.config.Config.split_heuristic_bottom_to_top
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_bottom_to_top
+
+   .. py:property:: split_heuristic_region
+      :canonical: slothy.core.config.Config.split_heuristic_region
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_region
+
+   .. py:property:: split_heuristic_preprocess_naive_interleaving
+      :canonical: slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving
+
+   .. py:property:: split_heuristic_preprocess_naive_interleaving_by_latency
+      :canonical: slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_by_latency
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_by_latency
+
+   .. py:property:: split_heuristic_estimate_performance
+      :canonical: slothy.core.config.Config.split_heuristic_estimate_performance
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_estimate_performance
+
+   .. py:property:: split_heuristic_repeat
+      :canonical: slothy.core.config.Config.split_heuristic_repeat
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_repeat
+
+   .. py:property:: split_heuristic_preprocess_naive_interleaving_strategy
+      :canonical: slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_strategy
+
+      .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_strategy
+
+   .. py:method:: copy()
+      :canonical: slothy.core.config.Config.copy
+
+      .. autodoc2-docstring:: slothy.core.config.Config.copy
+
+   .. py:class:: SoftwarePipelining()
+      :canonical: slothy.core.config.Config.SoftwarePipelining
+
+      Bases: :py:obj:`slothy.helper.NestedPrint`, :py:obj:`slothy.helper.LockAttributes`
+
+      .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining
+
+      .. rubric:: Initialization
+
+      .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.__init__
+
+      .. py:property:: enabled
+         :canonical: slothy.core.config.Config.SoftwarePipelining.enabled
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.enabled
+
+      .. py:property:: unroll
+         :canonical: slothy.core.config.Config.SoftwarePipelining.unroll
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.unroll
+
+      .. py:property:: pre_before_post
+         :canonical: slothy.core.config.Config.SoftwarePipelining.pre_before_post
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.pre_before_post
+
+      .. py:property:: allow_pre
+         :canonical: slothy.core.config.Config.SoftwarePipelining.allow_pre
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.allow_pre
+
+      .. py:property:: allow_post
+         :canonical: slothy.core.config.Config.SoftwarePipelining.allow_post
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.allow_post
+
+      .. py:property:: unknown_iteration_count
+         :canonical: slothy.core.config.Config.SoftwarePipelining.unknown_iteration_count
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.unknown_iteration_count
+
+      .. py:property:: minimize_overlapping
+         :canonical: slothy.core.config.Config.SoftwarePipelining.minimize_overlapping
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.minimize_overlapping
+
+      .. py:property:: optimize_preamble
+         :canonical: slothy.core.config.Config.SoftwarePipelining.optimize_preamble
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.optimize_preamble
+
+      .. py:property:: optimize_postamble
+         :canonical: slothy.core.config.Config.SoftwarePipelining.optimize_postamble
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.optimize_postamble
+
+      .. py:property:: max_overlapping
+         :canonical: slothy.core.config.Config.SoftwarePipelining.max_overlapping
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.max_overlapping
+
+      .. py:property:: min_overlapping
+         :canonical: slothy.core.config.Config.SoftwarePipelining.min_overlapping
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.min_overlapping
+
+      .. py:property:: halving_heuristic
+         :canonical: slothy.core.config.Config.SoftwarePipelining.halving_heuristic
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.halving_heuristic
+
+      .. py:property:: halving_heuristic_periodic
+         :canonical: slothy.core.config.Config.SoftwarePipelining.halving_heuristic_periodic
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.halving_heuristic_periodic
+
+      .. py:property:: halving_heuristic_split_only
+         :canonical: slothy.core.config.Config.SoftwarePipelining.halving_heuristic_split_only
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.halving_heuristic_split_only
+
+      .. py:property:: max_pre
+         :canonical: slothy.core.config.Config.SoftwarePipelining.max_pre
+
+         .. autodoc2-docstring:: slothy.core.config.Config.SoftwarePipelining.max_pre
+
+   .. py:class:: Constraints()
+      :canonical: slothy.core.config.Config.Constraints
+
+      Bases: :py:obj:`slothy.helper.NestedPrint`, :py:obj:`slothy.helper.LockAttributes`
+
+      .. autodoc2-docstring:: slothy.core.config.Config.Constraints
+
+      .. rubric:: Initialization
+
+      .. autodoc2-docstring:: slothy.core.config.Config.Constraints.__init__
+
+      .. py:property:: stalls_allowed
+         :canonical: slothy.core.config.Config.Constraints.stalls_allowed
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.stalls_allowed
+
+      .. py:property:: stalls_maximum_attempt
+         :canonical: slothy.core.config.Config.Constraints.stalls_maximum_attempt
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.stalls_maximum_attempt
+
+      .. py:property:: stalls_minimum_attempt
+         :canonical: slothy.core.config.Config.Constraints.stalls_minimum_attempt
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.stalls_minimum_attempt
+
+      .. py:property:: stalls_first_attempt
+         :canonical: slothy.core.config.Config.Constraints.stalls_first_attempt
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.stalls_first_attempt
+
+      .. py:property:: stalls_precision
+         :canonical: slothy.core.config.Config.Constraints.stalls_precision
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.stalls_precision
+
+      .. py:property:: stalls_timeout_below_precision
+         :canonical: slothy.core.config.Config.Constraints.stalls_timeout_below_precision
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.stalls_timeout_below_precision
+
+      .. py:property:: model_latencies
+         :canonical: slothy.core.config.Config.Constraints.model_latencies
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.model_latencies
+
+      .. py:property:: model_functional_units
+         :canonical: slothy.core.config.Config.Constraints.model_functional_units
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.model_functional_units
+
+      .. py:property:: functional_only
+         :canonical: slothy.core.config.Config.Constraints.functional_only
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.functional_only
+
+      .. py:property:: allow_reordering
+         :canonical: slothy.core.config.Config.Constraints.allow_reordering
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.allow_reordering
+
+      .. py:property:: allow_renaming
+         :canonical: slothy.core.config.Config.Constraints.allow_renaming
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.allow_renaming
+
+      .. py:property:: allow_spills
+         :canonical: slothy.core.config.Config.Constraints.allow_spills
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.allow_spills
+
+      .. py:property:: spill_type
+         :canonical: slothy.core.config.Config.Constraints.spill_type
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.spill_type
+
+      .. py:property:: minimize_spills
+         :canonical: slothy.core.config.Config.Constraints.minimize_spills
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.minimize_spills
+
+      .. py:property:: max_displacement
+         :canonical: slothy.core.config.Config.Constraints.max_displacement
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.max_displacement
+
+   .. py:class:: Hints()
+      :canonical: slothy.core.config.Config.Hints
+
+      Bases: :py:obj:`slothy.helper.NestedPrint`, :py:obj:`slothy.helper.LockAttributes`
+
+      .. autodoc2-docstring:: slothy.core.config.Config.Hints
+
+      .. rubric:: Initialization
+
+      .. autodoc2-docstring:: slothy.core.config.Config.Hints.__init__
+
+      .. py:property:: all_core
+         :canonical: slothy.core.config.Config.Hints.all_core
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Hints.all_core
+
+      .. py:property:: order_hint_orig_order
+         :canonical: slothy.core.config.Config.Hints.order_hint_orig_order
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Hints.order_hint_orig_order
+
+      .. py:property:: rename_hint_orig_rename
+         :canonical: slothy.core.config.Config.Hints.rename_hint_orig_rename
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Hints.rename_hint_orig_rename
+
+      .. py:property:: ext_bsearch_remember_successes
+         :canonical: slothy.core.config.Config.Hints.ext_bsearch_remember_successes
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Hints.ext_bsearch_remember_successes
+
+   .. py:method:: _check_rename_config(lst)
+      :canonical: slothy.core.config.Config._check_rename_config
+
+      .. autodoc2-docstring:: slothy.core.config.Config._check_rename_config

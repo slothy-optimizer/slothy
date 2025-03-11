@@ -1,0 +1,1120 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>slothy.core.config &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="slothy.core.slothy" href="slothy.core.slothy.html" />
+    <link rel="prev" title="slothy.core.heuristics" href="slothy.core.heuristics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html">About SLOTHY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#installation">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/README.html">SLOTHY Tutorial</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="slothy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a></li>
+          <li class="breadcrumb-item"><a href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core.config</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/apidocs/slothy/slothy.core.config.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-slothy.core.config">
+<span id="slothy-core-config"></span><h1><a class="reference internal" href="#module-slothy.core.config" title="slothy.core.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core.config</span></code></a><a class="headerlink" href="#module-slothy.core.config" title="Link to this heading"></a></h1>
+<p>SLOTHY configuration</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.core.config.Config" title="slothy.core.config.Config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code></a></p></td>
+<td><p>Configuration for Slothy.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
+<dl class="py exception">
+<dt class="sig sig-object py" id="slothy.core.config.InvalidConfig">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.config.</span></span><span class="sig-name descname"><span class="pre">InvalidConfig</span></span><a class="headerlink" href="#slothy.core.config.InvalidConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when an invalid SLOTHY configuration is detected</p>
+<p class="rubric">Initialization</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.config.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Arch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.config.Config" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.NestedPrint" title="slothy.helper.NestedPrint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.NestedPrint</span></code></a>, <a class="reference internal" href="slothy.helper.html#slothy.helper.LockAttributes" title="slothy.helper.LockAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.LockAttributes</span></code></a></p>
+<p>Configuration for Slothy.</p>
+<p>This configuration object is used both for one-shot optimizations using
+SlothyBase, as well as stateful multi-pass optimizations using Slothy.</p>
+<p class="rubric">Initialization</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.arch">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#slothy.core.config.Config.arch" title="Link to this definition"></a></dt>
+<dd><p>The module defining the underlying architecture used by Slothy.</p>
+<p>TODO: Add details on what exactly is assumed about this module.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.target">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target</span></span><a class="headerlink" href="#slothy.core.config.Config.target" title="Link to this definition"></a></dt>
+<dd><p>The module defining the target microarchitecture used by Slothy.</p>
+<p>TODO: Add details on what exactly is assumed about this module.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outputs</span></span><a class="headerlink" href="#slothy.core.config.Config.outputs" title="Link to this definition"></a></dt>
+<dd><p>List defining of architectural or symbolic registers that should
+be considered as outputs of the input snippet.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.reserved_regs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reserved_regs</span></span><a class="headerlink" href="#slothy.core.config.Config.reserved_regs" title="Link to this definition"></a></dt>
+<dd><p>Set of architectural registers _not_ available for register renaming.
+May be unset (None) to pick the default reserved registers for the target
+architecture.</p>
+<p>In the lingo of inline assembly, this can be seen as the complement of
+the clobber list.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Reserved registers are, by default, considered  “locked”: They
+will not be _introduced_ during renaming, but existing uses will not
+be touched. If you want to remove existing uses of reserved registers
+through renaming, you should disable <cite>reserved_regs_are_locked</cite>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When this is set, it _overwrites_ the default reserved registers for
+the target architecture. If you still want the default reserved
+registers to remain reserved, you have to explicitly list them!</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.reserved_regs_are_locked">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reserved_regs_are_locked</span></span><a class="headerlink" href="#slothy.core.config.Config.reserved_regs_are_locked" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether reserved registers should be locked by default.</p>
+<p>Reserved registers are not introduced during renaming. However, where
+they are already used by the input assembly, their use will not be
+eliminated or altered – that is, reserved registers are ‘locked’ by
+default.</p>
+<p>Disable this configuration option to allow (in fact, force) renaming
+of existing uses of reserved registers. This can be useful when trying
+to eliminate uses of particular registers from some piece of assembly.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.selftest">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selftest</span></span><a class="headerlink" href="#slothy.core.config.Config.selftest" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether SLOTHY performs an empirical equivalence-test on the
+optimization results.</p>
+<p>When this is set, and if the target architecture and host platform support it,
+this will run an empirical equivalence checker trying to confirm that the
+input and output of SLOTHY are likely functionally equivalent.</p>
+<p>The primary purpose of this checker is to detect issue that would presently
+be overlooked by the selfcheck:</p>
+<ul class="simple">
+<li><p>The selfcheck is currently blind to address offset fixup. If something goes
+wrong, the input and output will not be functionally equivalent, but we would
+only notice once we actually compile and run the code. The selftest will
+likely catch issues.</p></li>
+<li><p>When using software pipelining, the selfcheck reduces to a straightline check
+for a bounded unrolling of the loop. An unbounded selfcheck is currently not
+implemented. With the selftest, you still need to fix a loop bound, but at least you can
+equivalence-check the loop-form (including the compare+branch instructions
+at the loop boundary) rather than the unrolled code.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To run this, you need <cite>llvm-nm</cite>, <cite>llvm-readobj</cite>, <cite>llvm-mc</cite>
+in your PATH. Those are part of a standard LLVM setup.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is so far implemented as a repeated randomized test – nothing clever.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.selftest_iterations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selftest_iterations</span></span><a class="headerlink" href="#slothy.core.config.Config.selftest_iterations" title="Link to this definition"></a></dt>
+<dd><p>If selftest is set, indicates the number of random selftest to conduct</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.selftest_address_registers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selftest_address_registers</span></span><a class="headerlink" href="#slothy.core.config.Config.selftest_address_registers" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of (reg, sz) items indicating which registers are assumed to be
+pointers to memory, and if so, of what size.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.selftest_default_memory_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selftest_default_memory_size</span></span><a class="headerlink" href="#slothy.core.config.Config.selftest_default_memory_size" title="Link to this definition"></a></dt>
+<dd><p>Default buffer size to use for registers which are automatically inferred to be
+used as pointers and for which no memory size has been configured via <cite>address_registers</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.selfcheck">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selfcheck</span></span><a class="headerlink" href="#slothy.core.config.Config.selfcheck" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether SLOTHY performs a self-check on the optimization result.</p>
+<p>The selfcheck confirms that the scheduling permutation found by SLOTHY yields
+an isomorphism between the data flow graphs of the original and optimized code.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do not unset this option unless you know what you are doing.
+It is vital in catching bugs in the model generation early.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The selfcheck is not a formal verification of SLOTHY’s output!
+There are at least two classes of bugs uncaught by the selfcheck:</p>
+<ul>
+<li><p>User configuration issues: The selfcheck validates SLOTHY’s optimization
+in the context of the provided configuration. Validation of the configuration
+is the user’s responsibility. Two common pitfalls include missing reserved
+registers (allowing SLOTHY to clobber more registers than intended), or
+missing output registers (allowing SLOTHY to overwrite an output register
+in subsequent instructions).</p>
+<p>This is the most common source of issues for code passing the selfcheck
+but remaining functionally incorrect.</p>
+</li>
+<li><p>Bugs in address offset fixup: SLOTHY’s modelling of post-load/store address
+increments is deliberately inaccurate to allow for reordering of such instructions
+leveraging commutativity relations such as</p></li>
+</ul>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nf">LDR</span><span class="w"> </span><span class="no">X</span><span class="p">,[</span><span class="no">A</span><span class="p">],</span><span class="c1">#imm;  STR Y,[A]    ===     STR Y,[A, #imm];  LDR X,[A],#imm</span>
+</pre></div>
+</div>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>See also section “Address offset rewrites” in the SLOTHY paper</p>
+</div>
+<p>Bugs in SLOTHY’s address fixup logic would not be caught by the selfcheck.
+If your code doesn’t work and you are sure to have configured SLOTHY correctly,
+you may therefore want to double-check that address offsets have been adjusted
+correctly by SLOTHY.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.selfcheck_failure_logfile">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selfcheck_failure_logfile</span></span><a class="headerlink" href="#slothy.core.config.Config.selfcheck_failure_logfile" title="Link to this definition"></a></dt>
+<dd><p>The filename for the log of a failing selfcheck.</p>
+<p>This is printed in the terminal as well, but difficult to analyze for its
+sheer size.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.unsafe_address_offset_fixup">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unsafe_address_offset_fixup</span></span><a class="headerlink" href="#slothy.core.config.Config.unsafe_address_offset_fixup" title="Link to this definition"></a></dt>
+<dd><p>Whether address offset fixup is enabled</p>
+<p>Address offset fixup is a feature which leverages commutativity relations
+such as</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nf">ldr</span><span class="w"> </span><span class="no">X</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">A</span><span class="p">],</span><span class="w"> </span><span class="c1">#immA;</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">Y</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">A</span><span class="p">,</span><span class="w"> </span><span class="c1">#immB]</span>
+<span class="err">==</span>
+<span class="nf">str</span><span class="w"> </span><span class="no">Y</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">A</span><span class="p">,</span><span class="w"> </span><span class="c1">#(immB+immA)]</span>
+<span class="nf">ldr</span><span class="w"> </span><span class="no">X</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">A</span><span class="p">],</span><span class="w"> </span><span class="c1">#immA</span>
+</pre></div>
+</div>
+<p>to achieve greater instruction scheduling flexibility in SLOTHY.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When you enable this feature, you MUST ensure that registers which are
+used for addresses are not used in any other instruction than load and
+stores. OTHERWISE, THE USE OF THIS FEATURE IS UNSOUND (you may see ldr/
+str instructions with increment reordered with instructions depending
+on the address register).</p>
+</div>
+<p>By default, this is enabled for backwards compatibility.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For historical reason, this feature cannot be disabled for
+the Armv8.1-M architecture model. A refactoring of that model is needed
+to make address offset fixup configurable.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The user-imposed safety constraint is not a necessity – in principle,
+SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
+It just hasn’t been implemented yet.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.allow_useless_instructions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_useless_instructions</span></span><a class="headerlink" href="#slothy.core.config.Config.allow_useless_instructions" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether SLOTHY should abort upon encountering unused instructions.</p>
+<p>SLOTHY requires explicit knowledge of the intended output registers of its
+input assembly. If this option is set, and an instruction is encountered which
+writes to a register which (a) is not an output register, (b) is not used by
+any later instruction, then SLOTHY will flag this instruction and abort.</p>
+<p>The reason for this behaviour is that such unused instructions are usually
+a sign of a buggy configuration, which would likely lead to intended output
+registers being clobbered by later instructions.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Don’t disable this option unless you know what you are doing!
+Disabling this option makes it much easier to overlook configuration
+issues in SLOTHY and can lead to hard-to-debug optimization failures.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.variable_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variable_size</span></span><a class="headerlink" href="#slothy.core.config.Config.variable_size" title="Link to this definition"></a></dt>
+<dd><p>Model number of stalls as a parameter in the constraint model.</p>
+<p>If this is set, one-shot SLOTHY optimization will make the number of stalls
+flexible in the model and, by default, task the underlying constraint solver
+to minimize it.</p>
+<p>If this is not set, one-shot SLOTHY optimizations will search for solutions
+with a fixed number of stalls, and an external binary search be used to
+find the minimum number of stalls.</p>
+<p>For small-to-medium sizes assembly input, this option should be set, and will
+lead to faster optimization. For large assembly input, the user should experiment
+and consider unsetting it to reduce model complexity.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.keep_tags">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">keep_tags</span></span><a class="headerlink" href="#slothy.core.config.Config.keep_tags" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether tags in the input source should be kept or removed.</p>
+<p>Tags include pre/core/post or ordering annotations that usually become meaningless
+post-optimization. However, for preprocessing runs that do not reorder code, it makes
+sense to keep them.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.inherit_macro_comments">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inherit_macro_comments</span></span><a class="headerlink" href="#slothy.core.config.Config.inherit_macro_comments" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether comments at macro invocations should be inherited to instructions
+in the macro body.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.ignore_tags">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ignore_tags</span></span><a class="headerlink" href="#slothy.core.config.Config.ignore_tags" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether tags in the input source should be ignored.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.register_aliases">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register_aliases</span></span><a class="headerlink" href="#slothy.core.config.Config.register_aliases" title="Link to this definition"></a></dt>
+<dd><p>Dictionary mapping symbolic register names to architectural register names.
+When using Slothy, this can be indirectly populated by placing <cite>.req</cite> expressions
+in the input assembly. When using SlothyBase directly, this needs to be filled
+in by hand.</p>
+<p>This is always joined with a list of default aliases (such as lr mapping to r14)
+specified in the target architecture.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.config.Config.add_aliases">
+<span class="sig-name descname"><span class="pre">add_aliases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_aliases</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.config.Config.add_aliases" title="Link to this definition"></a></dt>
+<dd><p>Add further register aliases to the configuration</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.rename_inputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rename_inputs</span></span><a class="headerlink" href="#slothy.core.config.Config.rename_inputs" title="Link to this definition"></a></dt>
+<dd><p>A dictionary mapping input register names (symbolic or architectural) to their
+renaming configuration.</p>
+<p>There are three supported renaming configurations per input: “static”, “any”, or
+a fixed architectural register. The configuration “any” means that the input may
+be freely renamed, and that the renaming is chosen at model solving time. This is
+the most flexible, but also the most demanding option. The configuration “static”
+means that the renaming is chosen at model construction time, as follows: If the
+input does already have an architectural name, it will keep it. If, otherwise, it
+is a symbolic input, it will be statically assigned an architectural name at model
+construction time. Finally, if the input is explicitly assigned an architectural
+register name, this name will be enforced. Note that this even applies to inputs
+which already have an architectural name – that is, you can use this option to
+change the architectural allocation of inputs.</p>
+<p>The special keys “symbolic”, “arch” apply to all symbolic and architectural
+inputs, respectively. The key “other” applies to all inputs for which no other
+key matches.</p>
+<p>The default value is { “symbolic”: “any”, “arch” : “static” } – that is, architectural
+inputs are not renamed, while symbolic inputs are dynamically renamed.</p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p>Generally, unless you are prepared to modify surrounding code, you should
+have “arch” : “static”, which will not rename inputs which already have
+architectural register names.</p></li>
+<li><p>Config.rename_inputs = { “other” : “any” }
+This would rename _all_ inputs, regardless of whether they’re symbolic or not.
+Thus, you’d likely need to modify surrounding code.</p></li>
+<li><p>Config.rename_inputs = { “in” : “r0”, “arch” : “static”, “symbolic” : “any” }
+This would rename the symbolic input GPR ‘in’ to ‘r0’, keep all other inputs which
+already have an architectural name, while dynamically assigning suitable registers
+for symbolic inputs.</p></li>
+</ul>
+<p>In case of a successful optimization, the assignment of input registers to architectural
+registers is given by the dictionary Result.input_renaming.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.rename_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rename_outputs</span></span><a class="headerlink" href="#slothy.core.config.Config.rename_outputs" title="Link to this definition"></a></dt>
+<dd><p>A dictionary mapping output register names (symbolic or architectural) to their
+renaming configuration.</p>
+<p>Analogous to Config.rename_inputs.</p>
+<p>The default value is { “symbolic”: “any”, “arch” : “static” } – that is, architectural
+outputs are not renamed, while symbolic outputs are dynamically renamed.</p>
+<p>In case of a successful optimization, the assignment of input registers to architectural
+registers is given by the dictionary Result.input_renaming.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.inputs_are_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inputs_are_outputs</span></span><a class="headerlink" href="#slothy.core.config.Config.inputs_are_outputs" title="Link to this definition"></a></dt>
+<dd><p>If set, any input in the assembly to be optimized (that is, every register
+that is used as an input before it has been written to) is treated as an output.
+_Moreover_, such simultaneous input-outputs are forced to reside in the same
+architectural register at the beginning and end of the snippet.</p>
+<p>This should usually be set when optimizing loops.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.locked_registers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">locked_registers</span></span><a class="headerlink" href="#slothy.core.config.Config.locked_registers" title="Link to this definition"></a></dt>
+<dd><p>List of architectural registers that should not be renamed when they are
+used as output registers. Reserved registers are treated as locked if
+the option <cite>reserved_regs_are_locked</cite> is set.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.sw_pipelining">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sw_pipelining</span></span><a class="headerlink" href="#slothy.core.config.Config.sw_pipelining" title="Link to this definition"></a></dt>
+<dd><p>Subconfiguration for software pipelining. Enabled/Disabled
+via the sub-field sw_pipelining.enabled. See Config.SoftwarePipelining
+for more information.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.constraints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">constraints</span></span><a class="headerlink" href="#slothy.core.config.Config.constraints" title="Link to this definition"></a></dt>
+<dd><p>Subconfiguration for constraints to be considered by SLOTHY,
+e.g. whether latencies or functional units are modelled.
+See Config.Constraints for more information.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.hints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hints</span></span><a class="headerlink" href="#slothy.core.config.Config.hints" title="Link to this definition"></a></dt>
+<dd><p>Subconfiguration for hints to be considered by SLOTHY.
+See Config.Hints for more information.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.max_solutions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_solutions</span></span><a class="headerlink" href="#slothy.core.config.Config.max_solutions" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of solution found by the underlying constraint
+solver before it stops the search.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.with_preprocessor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_preprocessor</span></span><a class="headerlink" href="#slothy.core.config.Config.with_preprocessor" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the C preprocessor is run prior to optimization.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.with_llvm_mca">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_llvm_mca</span></span><a class="headerlink" href="#slothy.core.config.Config.with_llvm_mca" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether LLVM MCA should be run prior and after optimization
+to obtain approximate performance data based on LLVM’s scheduling models.</p>
+<p>If this is set, Config.compiler_binary need to be set, and llcm-mca in
+your PATH.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.llvm_mca_full">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_mca_full</span></span><a class="headerlink" href="#slothy.core.config.Config.llvm_mca_full" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether all available statistics from LLVM MCA should be printed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.llvm_mca_issue_width_overwrite">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_mca_issue_width_overwrite</span></span><a class="headerlink" href="#slothy.core.config.Config.llvm_mca_issue_width_overwrite" title="Link to this definition"></a></dt>
+<dd><p>Overwrite LLVM MCA’s in-built issue width with the one SLOTHY uses</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.with_llvm_mca_before">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_llvm_mca_before</span></span><a class="headerlink" href="#slothy.core.config.Config.with_llvm_mca_before" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether LLVM MCA should be run prior to optimization
+to obtain approximate performance data based on LLVM’s scheduling models.</p>
+<p>If this is set, Config.compiler_binary need to be set, and llcm-mca in
+your PATH.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.with_llvm_mca_after">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_llvm_mca_after</span></span><a class="headerlink" href="#slothy.core.config.Config.with_llvm_mca_after" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether LLVM MCA should be run after optimization
+to obtain approximate performance data based on LLVM’s scheduling models.</p>
+<p>If this is set, Config.compiler_binary need to be set, and llcm-mca in
+your PATH.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.compiler_binary">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compiler_binary</span></span><a class="headerlink" href="#slothy.core.config.Config.compiler_binary" title="Link to this definition"></a></dt>
+<dd><p>The compiler binary to be used.</p>
+<p>This is only relevant if <cite>with_preprocessor</cite> or <cite>with_llvm_mca_before</cite>
+or <cite>with_llvm_mca_after</cite> are set.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.compiler_include_paths">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compiler_include_paths</span></span><a class="headerlink" href="#slothy.core.config.Config.compiler_include_paths" title="Link to this definition"></a></dt>
+<dd><p>Include path to add to compiler invocations</p>
+<p>This is only relevant if <cite>with_preprocessor</cite> or <cite>with_llvm_mca_before</cite>
+or <cite>with_llvm_mca_after</cite> are set.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.timeout">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">timeout</span></span><a class="headerlink" href="#slothy.core.config.Config.timeout" title="Link to this definition"></a></dt>
+<dd><p>The timeout in seconds after which the underlying constraint solver stops
+its search.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.retry_timeout">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">retry_timeout</span></span><a class="headerlink" href="#slothy.core.config.Config.retry_timeout" title="Link to this definition"></a></dt>
+<dd><p>The timeout in seconds after which the underlying constraint solver stops
+its search, in case of secondary optimization passes for other objectives than
+performance optimization (e.g., minimization of iteration overlapping).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.do_address_fixup">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">do_address_fixup</span></span><a class="headerlink" href="#slothy.core.config.Config.do_address_fixup" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether post-optimization address fixup should be conducted.</p>
+<p>SLOTHY’s modelling of post-load/store address increments is deliberately
+inaccurate to allow for reordering of such instructions leveraging commutativity
+relations such as:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">LDR</span> <span class="pre">X,[A],#imm;</span>&#160; <span class="pre">STR</span> <span class="pre">Y,[A]</span>&#160;&#160;&#160; <span class="pre">===</span>&#160;&#160;&#160;&#160; <span class="pre">STR</span> <span class="pre">Y,[A,</span> <span class="pre">#imm];</span>&#160; <span class="pre">LDR</span> <span class="pre">X,[A],#imm</span>
+<span class="pre">`</span></code></p>
+<p>When such reordering happens, a “post-optimization address fixup” of immediate
+load/store offsets is necessary. See also section “Address offset rewrites” in
+the SLOTHY paper.</p>
+<p>Disabling this option will skip post-optimization address fixup and put the
+burden of post-optimization address fixup on the user.
+Disabling this option does NOT tighten the constraint model to forbid reorderings
+such as the above.</p>
+<dl class="simple">
+<dt>WARNING: Don’t disable this option unless you know what you are doing!</dt><dd><p>Disabling this will likely lead to optimized code that is functionally incorrect
+and needing manual address offset fixup!</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.ignore_objective">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ignore_objective</span></span><a class="headerlink" href="#slothy.core.config.Config.ignore_objective" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the secondary objective (such as minimization of iteration
+overlapping) should be ignored.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.objective_precision">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objective_precision</span></span><a class="headerlink" href="#slothy.core.config.Config.objective_precision" title="Link to this definition"></a></dt>
+<dd><p>The proximity to the estimated optimum solution at which the solver will
+stop its search.</p>
+<p>For example, a value of 0.05 means that the solver will stop when the current
+solution is within 5% of the current estimate for the optimal solution.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.objective_lower_bound">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objective_lower_bound</span></span><a class="headerlink" href="#slothy.core.config.Config.objective_lower_bound" title="Link to this definition"></a></dt>
+<dd><p>A lower bound for the objective at which to stop the search.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.has_objective">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_objective</span></span><a class="headerlink" href="#slothy.core.config.Config.has_objective" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether a different objective than minimization of stalls
+has been registered.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.absorb_spills">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">absorb_spills</span></span><a class="headerlink" href="#slothy.core.config.Config.absorb_spills" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic" title="Link to this definition"></a></dt>
+<dd><p>Trade-off between runtime and optimality: Split each code block
+to be optimized into a fixed number of subchunks and optimize them
+one by one, rather than attempting a single large optimization.</p>
+<p>If enabled, the numeric option split_heuristic_factor determines the
+number of factors to split each block of code into.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_factor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_factor</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_factor" title="Link to this definition"></a></dt>
+<dd><p>If split_heuristic is enabled, the number of factors to split each
+code block into prior to passing it to the core of Slothy.</p>
+<p>The value of this option is irrelevant if split_heuristic is False.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_abort_cycle_at_high">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_abort_cycle_at_high</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_abort_cycle_at_high" title="Link to this definition"></a></dt>
+<dd><p>During the split heuristic, a threshold for the number of stalls in the current
+optimization window above which the current pass of the split heuristic should stop.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_abort_cycle_at_low">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_abort_cycle_at_low</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_abort_cycle_at_low" title="Link to this definition"></a></dt>
+<dd><p>During the split heuristic, a threshold for the number of stalls in the current
+optimization window below which the current pass of the split heuristic should stop.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_stepsize">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_stepsize</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_stepsize" title="Link to this definition"></a></dt>
+<dd><p>If split heuristic is used, the increment for the sliding window. By default,
+this is twice the split factor. For example, a split factor of 5 means that the
+window size is 0.2 of the overall code size, and the default step size of 0.1 means
+that the sliding windows will be [0,0.2], [0.1,0.3], …</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_optimize_seam">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_optimize_seam</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_optimize_seam" title="Link to this definition"></a></dt>
+<dd><p>If the split heuristic is used, the number of instructions above and beyond
+the current sliding window that should be fixed but taken into account during
+optimization.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_chunks">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_chunks</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_chunks" title="Link to this definition"></a></dt>
+<dd><p>If split heuristic is used, explicitly lists the optimization windows to be used.
+If unset, a sliding or adaptive optimization window will be used.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_bottom_to_top">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_bottom_to_top</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_bottom_to_top" title="Link to this definition"></a></dt>
+<dd><p>If the split heuristic is used, move the sliding window from bottom to top
+rather than from top to bottom.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_region">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_region</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_region" title="Link to this definition"></a></dt>
+<dd><p>Restrict the split heuristic to a sub-region of the code.</p>
+<p>For example, if this is set to [0.25,0.75], only the middle half of the input will
+be optimized through the split heuristic.</p>
+<p>This option can be combined with other options such as the split factor. For example,
+if the split region is set fo [0.25, 0.75] and the split factor is 5, then optimization
+windows of size .1 will be considered within [0.25, 0.75].</p>
+<p>Note that even if this option is used, the specification of inputs and outputs is still
+with respect to the entire code; SLOTHY will automatically derive the outputs of the
+subregion configured here.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_preprocess_naive_interleaving</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving" title="Link to this definition"></a></dt>
+<dd><p>Prior to applying the split heuristic, interleave instructions according according
+to lowest depth, without applying register renaming.</p>
+<p>This can be useful if the code to be optimized is comprised of independent computations
+operating on different architectural state (e.g. scalar vs. SIMD); in this case, the
+naive preprocessing will ‘zip’ the different computations prior to applying the core
+optimization.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_by_latency">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_preprocess_naive_interleaving_by_latency</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_by_latency" title="Link to this definition"></a></dt>
+<dd><p>If split heuristic with naive preprocessing is used, this option causes
+the naive interleaving to be by latency-depth rather than latency.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_estimate_performance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_estimate_performance</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_estimate_performance" title="Link to this definition"></a></dt>
+<dd><p>After applying the split heuristic, run SLOTHY again on the entire code to estimate the
+performance and display un-used issue slots in the output.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_repeat">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_repeat</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_repeat" title="Link to this definition"></a></dt>
+<dd><p>If split_heuristic is enabled, the number of times the splitting heuristic
+should be repeated.</p>
+<p>Note: This is an experimental option the practical value of which has not yet
+been thoroughly studied. Try if you like, but beware the bump in runtime for
+the optimization.</p>
+<p>The value of this option is irrelevant if split_heuristic is False.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_strategy">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_preprocess_naive_interleaving_strategy</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_strategy" title="Link to this definition"></a></dt>
+<dd><p>Strategy for naive interleaving preprocessing step</p>
+<p>Supported values are:</p>
+<ul class="simple">
+<li><p>“depth”: Always pick the instruction with the lower possible
+depth in the DFG first.</p></li>
+<li><p>“alternate”: Try to evenly alternate between instructions tagged with
+“interleaving_class=0/1”.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.config.Config.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.config.Config.copy" title="Link to this definition"></a></dt>
+<dd><p>Make a deep copy of the configuration</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SoftwarePipelining</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.NestedPrint" title="slothy.helper.NestedPrint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.NestedPrint</span></code></a>, <a class="reference internal" href="slothy.helper.html#slothy.helper.LockAttributes" title="slothy.helper.LockAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.LockAttributes</span></code></a></p>
+<p>Subconfiguration for software pipelining</p>
+<p class="rubric">Initialization</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.enabled">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.enabled" title="Link to this definition"></a></dt>
+<dd><p>Determines whether software pipelining should be enabled.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.unroll">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unroll</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.unroll" title="Link to this definition"></a></dt>
+<dd><p>The number of times the loop body should be unrolled.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.pre_before_post">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pre_before_post</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.pre_before_post" title="Link to this definition"></a></dt>
+<dd><p>If both early and late instructions are allowed, force late instructions
+of iteration N to come _before_ early instructions of iteration N+2.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.allow_pre">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_pre</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.allow_pre" title="Link to this definition"></a></dt>
+<dd><p>Allow ‘early’ instructions, that is, instructions that are pulled forward
+from iteration N+1 to iteration N. A typical example would be an early load.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.allow_post">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_post</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.allow_post" title="Link to this definition"></a></dt>
+<dd><p>Allow ‘late’ instructions, that is, instructions that are deferred from iteration N
+to iteration N+1. A typical example would be a late store.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.unknown_iteration_count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unknown_iteration_count</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.unknown_iteration_count" title="Link to this definition"></a></dt>
+<dd><p>Determines whether the number of iterations is statically known and larger than
+the number of exceptional iterations hoisted out by SLOTHY (at most 2).</p>
+<p>Set this to <cite>True</cite> if the loop can have any number of iterations.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.minimize_overlapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">minimize_overlapping</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.minimize_overlapping" title="Link to this definition"></a></dt>
+<dd><p>Set the objective to minimize the amount of iteration overlapping</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.optimize_preamble">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize_preamble</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.optimize_preamble" title="Link to this definition"></a></dt>
+<dd><p>Perform a separate optimization pass for the loop preamble.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.optimize_postamble">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimize_postamble</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.optimize_postamble" title="Link to this definition"></a></dt>
+<dd><p>Perform a separate optimization pass for the loop postamble.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.max_overlapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_overlapping</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.max_overlapping" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of early or late instructions.
+<cite>None</cite> means that any number of early/late instructions is allowed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.min_overlapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_overlapping</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.min_overlapping" title="Link to this definition"></a></dt>
+<dd><p>The minimum number of early or late instructions.
+<cite>None</cite> means that any number of early/late instructions is allowed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.halving_heuristic">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">halving_heuristic</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.halving_heuristic" title="Link to this definition"></a></dt>
+<dd><p>Performance improvement heuristic: Rather than running a
+general software pipelining optimization, proceed in two steps:
+First, optimize loop body _without_ software pipelining. Then,
+split it as [A;B] and optimize [B;A]. The final result is then
+<cite>A; optimized([B;A]); B</cite>, with <cite>A</cite> being the preamble, <cite>B</cite> the
+postamble, and <cite>optimized([B;A])</cite> the loop kernel.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.halving_heuristic_periodic">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">halving_heuristic_periodic</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.halving_heuristic_periodic" title="Link to this definition"></a></dt>
+<dd><p>Variant of the halving heuristic: Consider loop boundary when
+optimizing [B;A] in the second step of the halving heuristic.
+This is computationally more expensive but avoids bottlenecks
+at the loop boundary that could otherwise ensue.</p>
+<p>This is only meaningful is the halving heuristic is enabled.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.halving_heuristic_split_only">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">halving_heuristic_split_only</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.halving_heuristic_split_only" title="Link to this definition"></a></dt>
+<dd><p>Cut-down version of halving-heuristic which only splits the loop
+<cite>[A;B]</cite> into <cite>A; [B;A]; B</cite> but does not perform optimizations.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.max_pre">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_pre</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.max_pre" title="Link to this definition"></a></dt>
+<dd><p>The maximum relative position (between 0 and 1) of an instruction
+that should be considered as a potential early instruction.
+For example, a value of 0.5 means that only instruction in the
+first half of the original loop body are considered as potential
+early instructions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Constraints</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.NestedPrint" title="slothy.helper.NestedPrint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.NestedPrint</span></code></a>, <a class="reference internal" href="slothy.helper.html#slothy.helper.LockAttributes" title="slothy.helper.LockAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.LockAttributes</span></code></a></p>
+<p>Subconfiguration for performance constraints</p>
+<p class="rubric">Initialization</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.stalls_allowed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stalls_allowed</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.stalls_allowed" title="Link to this definition"></a></dt>
+<dd><p>The number of stalls allowed. Internally, this is the number of NOP
+instructions that SLOTHY introduces before attempting to find a stall-free
+version of the code (or, more precisely: a version matching all constraints,
+which may be weaker than stall-free).</p>
+<p>This is only meaningful for direct invocations to SlothyBase. You should not
+set this field when interfacing with Slothy.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.stalls_maximum_attempt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stalls_maximum_attempt</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.stalls_maximum_attempt" title="Link to this definition"></a></dt>
+<dd><p>The maximum number of stalls to attempt before aborting the optimization
+and reporting it as infeasible.</p>
+<p>Note that since SLOTHY does not (yet?) introduce stack spills, a symbolic
+assembly snippet may be impossible to even concretize with architectural
+register names, regardless of the number of stalls one allows.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.stalls_minimum_attempt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stalls_minimum_attempt</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.stalls_minimum_attempt" title="Link to this definition"></a></dt>
+<dd><p>The minimum number of stalls to attempt.</p>
+<p>This may be useful if it’s known for external reasons that searching for
+optimiztions with less stalls is infeasible.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.stalls_first_attempt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stalls_first_attempt</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.stalls_first_attempt" title="Link to this definition"></a></dt>
+<dd><p>The first number of stalls to attempt.</p>
+<p>This may be useful if it’s known for external reasons that searching for
+optimization with less stalls is infeasible.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.stalls_precision">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stalls_precision</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.stalls_precision" title="Link to this definition"></a></dt>
+<dd><p>The precision of the binary search for the minimum number of stalls</p>
+<p>SLOTHY will stop searching if it can narrow down the minimum number
+of stalls to an interval of the length provided by this variable.
+In particular, a value of 1 means the true minimum if searched for.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.stalls_timeout_below_precision">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stalls_timeout_below_precision</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.stalls_timeout_below_precision" title="Link to this definition"></a></dt>
+<dd><p>If this variable is set to a non-None value, SLOTHY does not abort
+optimization once binary search is operating on an interval smaller than
+the stall precision, but instead sets a different (typically smaller) timeout.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.model_latencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_latencies</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.model_latencies" title="Link to this definition"></a></dt>
+<dd><p>Determines whether instruction latencies should be modelled.</p>
+<p>When set, SLOTHY will enforce that instructions are placed in accordance
+with the latency of the instructions that they depend on.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.model_functional_units">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_functional_units</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.model_functional_units" title="Link to this definition"></a></dt>
+<dd><p>Determines whether functional units should be modelled.</p>
+<p>When set, SLOTHY will enforce that instructions are placed in accordance
+with the presence and throughput of functional units that they depend on.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.functional_only">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">functional_only</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.functional_only" title="Link to this definition"></a></dt>
+<dd><p>Limit Slothy to register renaming</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.allow_reordering">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_reordering</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.allow_reordering" title="Link to this definition"></a></dt>
+<dd><p>Allow Slothy to reorder instructions</p>
+<p>Disabling this may be useful to e.g. reassign register names
+in code that has already been scheduled properly.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.allow_renaming">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_renaming</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.allow_renaming" title="Link to this definition"></a></dt>
+<dd><p>Allow Slothy to rename registers</p>
+<p>Disabling this may be useful in conjunction with !allow_reordering
+in order to find the number of model violations in a piece of code.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.allow_spills">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_spills</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.allow_spills" title="Link to this definition"></a></dt>
+<dd><p>Allow Slothy to introduce stack spills</p>
+<p>When this option is enabled, Slothy will consider the introduction
+of stack spills to reduce register pressure.</p>
+<p>This option should only be disabled if it is known that the input
+assembly suffers from high register pressure. For example, this can
+be the case for symbolic input assembly.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.spill_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spill_type</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.spill_type" title="Link to this definition"></a></dt>
+<dd><p>The type of spills to generate</p>
+<p>This is usually spilling to the stack, but other options may exist.
+For example, on Armv7-M microcontrollers it can be useful to spill
+from the GPR file to the FPR file.</p>
+<p>It is expected that this option is set as a dictionary, for example,
+with the key determining whether the spills are supposed to be to
+the stack or to the FPR file, and the value defining a starting
+index for the FPRs in the latter case.</p>
+<p>The exact influence of this option is architecture dependent. You
+should consult the <cite>Spill</cite> class in the target architecture model to
+understand the options.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.minimize_spills">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">minimize_spills</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.minimize_spills" title="Link to this definition"></a></dt>
+<dd><p>Minimize number of stack spills</p>
+<p>When this option is enabled, the Slothy will pass minimization of
+stack spills as the optimization objective to the solver.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.max_displacement">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_displacement</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.max_displacement" title="Link to this definition"></a></dt>
+<dd><p>The maximum relative displacement of an instruction.</p>
+<p>Examples:</p>
+<ul class="simple">
+<li><p>If set to 1, instructions can be reordered freely.</p></li>
+<li><p>If set to 0, no reordering will happen.</p></li>
+<li><p>If set to 0.5, an instruction will not move by more than N/2
+places between original and re-scheduled source code.</p></li>
+</ul>
+<p>This is an experimental feature for the purpose of speeding
+up otherwise intractable optimization tasks.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This only takes effect in straightline optimization (no software pipelining).</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Hints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Hints</span></span><a class="headerlink" href="#slothy.core.config.Config.Hints" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.NestedPrint" title="slothy.helper.NestedPrint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.NestedPrint</span></code></a>, <a class="reference internal" href="slothy.helper.html#slothy.helper.LockAttributes" title="slothy.helper.LockAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.LockAttributes</span></code></a></p>
+<p>Subconfiguration for solver hints</p>
+<p class="rubric">Initialization</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Hints.all_core">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_core</span></span><a class="headerlink" href="#slothy.core.config.Config.Hints.all_core" title="Link to this definition"></a></dt>
+<dd><p>When SW pipelining is used, hint that all instructions
+should be ‘core’ instructions (not early/late).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Hints.order_hint_orig_order">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">order_hint_orig_order</span></span><a class="headerlink" href="#slothy.core.config.Config.Hints.order_hint_orig_order" title="Link to this definition"></a></dt>
+<dd><p>Hint at using the initial program order for the
+program order variables.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Hints.rename_hint_orig_rename">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rename_hint_orig_rename</span></span><a class="headerlink" href="#slothy.core.config.Config.Hints.rename_hint_orig_rename" title="Link to this definition"></a></dt>
+<dd><p>Hint at using the initial program order for the
+program order variables.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Hints.ext_bsearch_remember_successes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ext_bsearch_remember_successes</span></span><a class="headerlink" href="#slothy.core.config.Config.Hints.ext_bsearch_remember_successes" title="Link to this definition"></a></dt>
+<dd><p>When using an external binary search, hint previous successful optimization.</p>
+<p>See also Config.variable_size.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.config.Config._check_rename_config">
+<span class="sig-name descname"><span class="pre">_check_rename_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.config.Config._check_rename_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="slothy.core.heuristics.html" class="btn btn-neutral float-left" title="slothy.core.heuristics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="slothy.core.slothy.html" class="btn btn-neutral float-right" title="slothy.core.slothy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+:py:mod:`slothy.targets.arm_v81m`
+=================================
+
+.. py:module:: slothy.targets.arm_v81m
+
+.. autodoc2-docstring:: slothy.targets.arm_v81m
+   :allowtitles:
+
+Submodules
+----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   slothy.targets.arm_v81m.cortex_m85r1
+   slothy.targets.arm_v81m.cortex_m55r1
+   slothy.targets.arm_v81m.arch_v81m
+   slothy.targets.arm_v81m.helium_experimental

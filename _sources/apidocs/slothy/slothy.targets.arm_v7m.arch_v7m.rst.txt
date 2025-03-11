@@ -1,0 +1,3089 @@
+:py:mod:`slothy.targets.arm_v7m.arch_v7m`
+=========================================
+
+.. py:module:: slothy.targets.arm_v7m.arch_v7m
+
+.. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`RegisterType <slothy.targets.arm_v7m.arch_v7m.RegisterType>`
+     -
+   * - :py:obj:`Branch <slothy.targets.arm_v7m.arch_v7m.Branch>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Branch
+          :summary:
+   * - :py:obj:`VmovCmpLoop <slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop
+          :summary:
+   * - :py:obj:`BranchLoop <slothy.targets.arm_v7m.arch_v7m.BranchLoop>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.BranchLoop
+          :summary:
+   * - :py:obj:`CmpLoop <slothy.targets.arm_v7m.arch_v7m.CmpLoop>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.CmpLoop
+          :summary:
+   * - :py:obj:`SubsLoop <slothy.targets.arm_v7m.arch_v7m.SubsLoop>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.SubsLoop
+          :summary:
+   * - :py:obj:`Instruction <slothy.targets.arm_v7m.arch_v7m.Instruction>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction
+          :summary:
+   * - :py:obj:`Armv7mInstruction <slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction
+          :summary:
+   * - :py:obj:`Armv7mBranch <slothy.targets.arm_v7m.arch_v7m.Armv7mBranch>`
+     -
+   * - :py:obj:`Armv7mBasicArithmetic <slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic>`
+     -
+   * - :py:obj:`Armv7mShiftedArithmetic <slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedArithmetic>`
+     -
+   * - :py:obj:`Armv7mMultiplication <slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication>`
+     -
+   * - :py:obj:`Armv7mLogical <slothy.targets.arm_v7m.arch_v7m.Armv7mLogical>`
+     -
+   * - :py:obj:`Armv7mShiftedLogical <slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedLogical>`
+     -
+   * - :py:obj:`Armv7mLoadInstruction <slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction>`
+     -
+   * - :py:obj:`Armv7mStoreInstruction <slothy.targets.arm_v7m.arch_v7m.Armv7mStoreInstruction>`
+     -
+   * - :py:obj:`Armv7mFPInstruction <slothy.targets.arm_v7m.arch_v7m.Armv7mFPInstruction>`
+     -
+   * - :py:obj:`vmov_gpr <slothy.targets.arm_v7m.arch_v7m.vmov_gpr>`
+     -
+   * - :py:obj:`vmov_gpr2 <slothy.targets.arm_v7m.arch_v7m.vmov_gpr2>`
+     -
+   * - :py:obj:`vmov_gpr2_dual <slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual>`
+     -
+   * - :py:obj:`movw_imm <slothy.targets.arm_v7m.arch_v7m.movw_imm>`
+     -
+   * - :py:obj:`movt_imm <slothy.targets.arm_v7m.arch_v7m.movt_imm>`
+     -
+   * - :py:obj:`add <slothy.targets.arm_v7m.arch_v7m.add>`
+     -
+   * - :py:obj:`add_short <slothy.targets.arm_v7m.arch_v7m.add_short>`
+     -
+   * - :py:obj:`add_imm <slothy.targets.arm_v7m.arch_v7m.add_imm>`
+     -
+   * - :py:obj:`add_imm_short <slothy.targets.arm_v7m.arch_v7m.add_imm_short>`
+     -
+   * - :py:obj:`add_shifted <slothy.targets.arm_v7m.arch_v7m.add_shifted>`
+     -
+   * - :py:obj:`adds <slothy.targets.arm_v7m.arch_v7m.adds>`
+     -
+   * - :py:obj:`uadd16 <slothy.targets.arm_v7m.arch_v7m.uadd16>`
+     -
+   * - :py:obj:`sadd16 <slothy.targets.arm_v7m.arch_v7m.sadd16>`
+     -
+   * - :py:obj:`sub <slothy.targets.arm_v7m.arch_v7m.sub>`
+     -
+   * - :py:obj:`sub_shifted <slothy.targets.arm_v7m.arch_v7m.sub_shifted>`
+     -
+   * - :py:obj:`sub_short <slothy.targets.arm_v7m.arch_v7m.sub_short>`
+     -
+   * - :py:obj:`sub_imm_short <slothy.targets.arm_v7m.arch_v7m.sub_imm_short>`
+     -
+   * - :py:obj:`subs_imm <slothy.targets.arm_v7m.arch_v7m.subs_imm>`
+     -
+   * - :py:obj:`subs_imm_short <slothy.targets.arm_v7m.arch_v7m.subs_imm_short>`
+     -
+   * - :py:obj:`usub16 <slothy.targets.arm_v7m.arch_v7m.usub16>`
+     -
+   * - :py:obj:`ssub16 <slothy.targets.arm_v7m.arch_v7m.ssub16>`
+     -
+   * - :py:obj:`mul <slothy.targets.arm_v7m.arch_v7m.mul>`
+     -
+   * - :py:obj:`mul_short <slothy.targets.arm_v7m.arch_v7m.mul_short>`
+     -
+   * - :py:obj:`mla <slothy.targets.arm_v7m.arch_v7m.mla>`
+     -
+   * - :py:obj:`mls <slothy.targets.arm_v7m.arch_v7m.mls>`
+     -
+   * - :py:obj:`smulwb <slothy.targets.arm_v7m.arch_v7m.smulwb>`
+     -
+   * - :py:obj:`smulwt <slothy.targets.arm_v7m.arch_v7m.smulwt>`
+     -
+   * - :py:obj:`smultb <slothy.targets.arm_v7m.arch_v7m.smultb>`
+     -
+   * - :py:obj:`smultt <slothy.targets.arm_v7m.arch_v7m.smultt>`
+     -
+   * - :py:obj:`smulbb <slothy.targets.arm_v7m.arch_v7m.smulbb>`
+     -
+   * - :py:obj:`smlabt <slothy.targets.arm_v7m.arch_v7m.smlabt>`
+     -
+   * - :py:obj:`smlabb <slothy.targets.arm_v7m.arch_v7m.smlabb>`
+     -
+   * - :py:obj:`smlatt <slothy.targets.arm_v7m.arch_v7m.smlatt>`
+     -
+   * - :py:obj:`smlatb <slothy.targets.arm_v7m.arch_v7m.smlatb>`
+     -
+   * - :py:obj:`smull <slothy.targets.arm_v7m.arch_v7m.smull>`
+     -
+   * - :py:obj:`smlal <slothy.targets.arm_v7m.arch_v7m.smlal>`
+     -
+   * - :py:obj:`smlad <slothy.targets.arm_v7m.arch_v7m.smlad>`
+     -
+   * - :py:obj:`smladx <slothy.targets.arm_v7m.arch_v7m.smladx>`
+     -
+   * - :py:obj:`smmulr <slothy.targets.arm_v7m.arch_v7m.smmulr>`
+     -
+   * - :py:obj:`smuad <slothy.targets.arm_v7m.arch_v7m.smuad>`
+     -
+   * - :py:obj:`smuadx <slothy.targets.arm_v7m.arch_v7m.smuadx>`
+     -
+   * - :py:obj:`neg_short <slothy.targets.arm_v7m.arch_v7m.neg_short>`
+     -
+   * - :py:obj:`log_and <slothy.targets.arm_v7m.arch_v7m.log_and>`
+     -
+   * - :py:obj:`log_and_shifted <slothy.targets.arm_v7m.arch_v7m.log_and_shifted>`
+     -
+   * - :py:obj:`log_or <slothy.targets.arm_v7m.arch_v7m.log_or>`
+     -
+   * - :py:obj:`log_or_shifted <slothy.targets.arm_v7m.arch_v7m.log_or_shifted>`
+     -
+   * - :py:obj:`eor <slothy.targets.arm_v7m.arch_v7m.eor>`
+     -
+   * - :py:obj:`eor_short <slothy.targets.arm_v7m.arch_v7m.eor_short>`
+     -
+   * - :py:obj:`eors <slothy.targets.arm_v7m.arch_v7m.eors>`
+     -
+   * - :py:obj:`eors_short <slothy.targets.arm_v7m.arch_v7m.eors_short>`
+     -
+   * - :py:obj:`eor_shifted <slothy.targets.arm_v7m.arch_v7m.eor_shifted>`
+     -
+   * - :py:obj:`bic <slothy.targets.arm_v7m.arch_v7m.bic>`
+     -
+   * - :py:obj:`bics <slothy.targets.arm_v7m.arch_v7m.bics>`
+     -
+   * - :py:obj:`bic_shifted <slothy.targets.arm_v7m.arch_v7m.bic_shifted>`
+     -
+   * - :py:obj:`ubfx_imm <slothy.targets.arm_v7m.arch_v7m.ubfx_imm>`
+     -
+   * - :py:obj:`ror <slothy.targets.arm_v7m.arch_v7m.ror>`
+     -
+   * - :py:obj:`ror_short <slothy.targets.arm_v7m.arch_v7m.ror_short>`
+     -
+   * - :py:obj:`rors_short <slothy.targets.arm_v7m.arch_v7m.rors_short>`
+     -
+   * - :py:obj:`lsl <slothy.targets.arm_v7m.arch_v7m.lsl>`
+     -
+   * - :py:obj:`asr <slothy.targets.arm_v7m.arch_v7m.asr>`
+     -
+   * - :py:obj:`asrs <slothy.targets.arm_v7m.arch_v7m.asrs>`
+     -
+   * - :py:obj:`pkhtb <slothy.targets.arm_v7m.arch_v7m.pkhtb>`
+     -
+   * - :py:obj:`pkhbt <slothy.targets.arm_v7m.arch_v7m.pkhbt>`
+     -
+   * - :py:obj:`pkhbt_shifted <slothy.targets.arm_v7m.arch_v7m.pkhbt_shifted>`
+     -
+   * - :py:obj:`ldr <slothy.targets.arm_v7m.arch_v7m.ldr>`
+     -
+   * - :py:obj:`ldr_with_imm <slothy.targets.arm_v7m.arch_v7m.ldr_with_imm>`
+     -
+   * - :py:obj:`ldrb_with_imm <slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm>`
+     -
+   * - :py:obj:`ldrh_with_imm <slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm>`
+     -
+   * - :py:obj:`ldr_with_imm_stack <slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack>`
+     -
+   * - :py:obj:`ldr_with_postinc <slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc>`
+     -
+   * - :py:obj:`ldrh_with_postinc <slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc>`
+     -
+   * - :py:obj:`ldrb_with_postinc <slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc>`
+     -
+   * - :py:obj:`Ldrd <slothy.targets.arm_v7m.arch_v7m.Ldrd>`
+     -
+   * - :py:obj:`ldrd_imm <slothy.targets.arm_v7m.arch_v7m.ldrd_imm>`
+     -
+   * - :py:obj:`ldrd_with_postinc <slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc>`
+     -
+   * - :py:obj:`ldr_with_inc_writeback <slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback>`
+     -
+   * - :py:obj:`ldm_interval <slothy.targets.arm_v7m.arch_v7m.ldm_interval>`
+     -
+   * - :py:obj:`ldm_interval_inc_writeback <slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback>`
+     -
+   * - :py:obj:`vldr_with_imm <slothy.targets.arm_v7m.arch_v7m.vldr_with_imm>`
+     -
+   * - :py:obj:`vldr_with_postinc <slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc>`
+     -
+   * - :py:obj:`vldm_interval_inc_writeback <slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback>`
+     -
+   * - :py:obj:`str_no_off <slothy.targets.arm_v7m.arch_v7m.str_no_off>`
+     -
+   * - :py:obj:`strh_with_imm <slothy.targets.arm_v7m.arch_v7m.strh_with_imm>`
+     -
+   * - :py:obj:`str_with_imm <slothy.targets.arm_v7m.arch_v7m.str_with_imm>`
+     -
+   * - :py:obj:`str_with_imm_stack <slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack>`
+     -
+   * - :py:obj:`str_with_postinc <slothy.targets.arm_v7m.arch_v7m.str_with_postinc>`
+     -
+   * - :py:obj:`strh_with_postinc <slothy.targets.arm_v7m.arch_v7m.strh_with_postinc>`
+     -
+   * - :py:obj:`stm_interval_inc_writeback <slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback>`
+     -
+   * - :py:obj:`cmp <slothy.targets.arm_v7m.arch_v7m.cmp>`
+     -
+   * - :py:obj:`cmp_imm <slothy.targets.arm_v7m.arch_v7m.cmp_imm>`
+     -
+   * - :py:obj:`bne <slothy.targets.arm_v7m.arch_v7m.bne>`
+     -
+   * - :py:obj:`Spill <slothy.targets.arm_v7m.arch_v7m.Spill>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Spill
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ldm_interval_splitting_cb <slothy.targets.arm_v7m.arch_v7m.ldm_interval_splitting_cb>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval_splitting_cb
+          :summary:
+   * - :py:obj:`stm_interval_inc_writeback_splitting_cb <slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback_splitting_cb>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback_splitting_cb
+          :summary:
+   * - :py:obj:`ldm_interval_inc_writeback_splitting_cb <slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback_splitting_cb>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback_splitting_cb
+          :summary:
+   * - :py:obj:`vldm_interval_inc_writeback_splitting_cb <slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback_splitting_cb>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback_splitting_cb
+          :summary:
+   * - :py:obj:`ldrd_postinc_splitting_cb <slothy.targets.arm_v7m.arch_v7m.ldrd_postinc_splitting_cb>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_postinc_splitting_cb
+          :summary:
+   * - :py:obj:`ldrd_imm_splitting_cb <slothy.targets.arm_v7m.arch_v7m.ldrd_imm_splitting_cb>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_imm_splitting_cb
+          :summary:
+   * - :py:obj:`all_subclass_leaves <slothy.targets.arm_v7m.arch_v7m.all_subclass_leaves>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.all_subclass_leaves
+          :summary:
+   * - :py:obj:`iter_armv7m_instructions <slothy.targets.arm_v7m.arch_v7m.iter_armv7m_instructions>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.iter_armv7m_instructions
+          :summary:
+   * - :py:obj:`find_class <slothy.targets.arm_v7m.arch_v7m.find_class>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.find_class
+          :summary:
+   * - :py:obj:`lookup_multidict <slothy.targets.arm_v7m.arch_v7m.lookup_multidict>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.lookup_multidict
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`arch_name <slothy.targets.arm_v7m.arch_v7m.arch_name>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.arch_name
+          :summary:
+   * - :py:obj:`llvm_mca_arch <slothy.targets.arm_v7m.arch_v7m.llvm_mca_arch>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.llvm_mca_arch
+          :summary:
+   * - :py:obj:`llvm_mc_arch <slothy.targets.arm_v7m.arch_v7m.llvm_mc_arch>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.llvm_mc_arch
+          :summary:
+   * - :py:obj:`llvm_mc_attr <slothy.targets.arm_v7m.arch_v7m.llvm_mc_attr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.llvm_mc_attr
+          :summary:
+   * - :py:obj:`unicorn_arch <slothy.targets.arm_v7m.arch_v7m.unicorn_arch>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.unicorn_arch
+          :summary:
+   * - :py:obj:`unicorn_mode <slothy.targets.arm_v7m.arch_v7m.unicorn_mode>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.unicorn_mode
+          :summary:
+
+API
+~~~
+
+.. py:data:: arch_name
+   :canonical: slothy.targets.arm_v7m.arch_v7m.arch_name
+   :value: 'Arm_v7M'
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.arch_name
+
+.. py:data:: llvm_mca_arch
+   :canonical: slothy.targets.arm_v7m.arch_v7m.llvm_mca_arch
+   :value: 'arm'
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.llvm_mca_arch
+
+.. py:data:: llvm_mc_arch
+   :canonical: slothy.targets.arm_v7m.arch_v7m.llvm_mc_arch
+   :value: 'thumb'
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.llvm_mc_arch
+
+.. py:data:: llvm_mc_attr
+   :canonical: slothy.targets.arm_v7m.arch_v7m.llvm_mc_attr
+   :value: 'armv7e-m,thumb2,dsp,fpregs'
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.llvm_mc_attr
+
+.. py:data:: unicorn_arch
+   :canonical: slothy.targets.arm_v7m.arch_v7m.unicorn_arch
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.unicorn_arch
+
+.. py:data:: unicorn_mode
+   :canonical: slothy.targets.arm_v7m.arch_v7m.unicorn_mode
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.unicorn_mode
+
+.. py:class:: RegisterType
+   :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType
+
+   Bases: :py:obj:`enum.Enum`
+
+   .. py:attribute:: GPR
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.GPR
+      :value: 1
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.GPR
+
+   .. py:attribute:: FPR
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.FPR
+      :value: 2
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.FPR
+
+   .. py:attribute:: FLAGS
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.FLAGS
+      :value: 3
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.FLAGS
+
+   .. py:attribute:: HINT
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.HINT
+      :value: 4
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.HINT
+
+   .. py:method:: __str__()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.__str__
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.__repr__
+
+   .. py:method:: spillable(reg_type)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.spillable
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.spillable
+
+   .. py:method:: callee_saved_registers()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.callee_saved_registers
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.callee_saved_registers
+
+   .. py:method:: unicorn_link_register()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_link_register
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_link_register
+
+   .. py:method:: unicorn_program_counter()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_program_counter
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_program_counter
+
+   .. py:method:: unicorn_stack_pointer()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_stack_pointer
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_stack_pointer
+
+   .. py:method:: unicorn_reg_by_name(reg)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_reg_by_name
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_reg_by_name
+
+   .. py:method:: list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.list_registers
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.list_registers
+
+   .. py:method:: find_type(r)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.find_type
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.find_type
+
+   .. py:method:: is_renamed(ty)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.is_renamed
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.is_renamed
+
+   .. py:method:: from_string(string)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.from_string
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.from_string
+
+   .. py:method:: default_reserved()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.default_reserved
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.default_reserved
+
+   .. py:method:: default_aliases()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType.default_aliases
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.RegisterType.default_aliases
+
+.. py:class:: Branch
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Branch
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Branch
+
+   .. py:method:: if_equal(cnt, val, lbl)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Branch.if_equal
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Branch.if_equal
+
+   .. py:method:: if_greater_equal(cnt, val, lbl)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Branch.if_greater_equal
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Branch.if_greater_equal
+
+   .. py:method:: unconditional(lbl)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Branch.unconditional
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Branch.unconditional
+
+.. py:class:: VmovCmpLoop(lbl='lbl', lbl_start='1', lbl_end='2', loop_init='lr')
+   :canonical: slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.VmovCmpLoop.end
+
+.. py:class:: BranchLoop(lbl='lbl', lbl_start='1', lbl_end='2', loop_init='lr')
+   :canonical: slothy.targets.arm_v7m.arch_v7m.BranchLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.BranchLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.BranchLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.BranchLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.BranchLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.BranchLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.BranchLoop.end
+
+.. py:class:: CmpLoop(lbl='lbl', lbl_start='1', lbl_end='2', loop_init='lr')
+   :canonical: slothy.targets.arm_v7m.arch_v7m.CmpLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.CmpLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.CmpLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.CmpLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.CmpLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.CmpLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.CmpLoop.end
+
+.. py:class:: SubsLoop(lbl_start='1', lbl_end='2', loop_init='lr')
+   :canonical: slothy.targets.arm_v7m.arch_v7m.SubsLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.SubsLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.SubsLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.SubsLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.SubsLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.SubsLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.SubsLoop.end
+
+.. py:exception:: FatalParsingException()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.FatalParsingException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.FatalParsingException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.FatalParsingException.__init__
+
+.. py:exception:: UnknownInstruction()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.UnknownInstruction
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.UnknownInstruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.UnknownInstruction.__init__
+
+.. py:exception:: UnknownRegister()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.UnknownRegister
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.UnknownRegister
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.UnknownRegister.__init__
+
+.. py:class:: Instruction(*, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.__init__
+
+   .. py:method:: extract_read_writes()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.extract_read_writes
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.extract_read_writes
+
+   .. py:method:: global_parsing_cb(a, log=None)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.global_parsing_cb
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.global_parsing_cb
+
+   .. py:method:: global_fusion_cb(a, log=None)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.global_fusion_cb
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.global_fusion_cb
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.write
+
+   .. py:method:: unfold_abbrevs(mnemonic)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.unfold_abbrevs
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.unfold_abbrevs
+
+   .. py:method:: _is_instance_of(inst_list)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction._is_instance_of
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction._is_instance_of
+
+   .. py:method:: is_ldr()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.is_ldr
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.is_ldr
+
+   .. py:method:: is_load()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.is_load
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.is_load
+
+   .. py:method:: is_store()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.is_store
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.is_store
+
+   .. py:method:: is_load_store_instruction()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.is_load_store_instruction
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.is_load_store_instruction
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.make
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.make
+
+   .. py:method:: build(c, src, mnemonic, **kwargs)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.build
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.build
+
+   .. py:method:: parser(src_line)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.parser
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.parser
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.__repr__
+
+.. py:class:: Armv7mInstruction(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.__init__
+
+   .. py:attribute:: PARSERS
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.PARSERS
+      :value: None
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.PARSERS
+
+   .. py:method:: _unfold_pattern(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._unfold_pattern
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._unfold_pattern
+
+   .. py:method:: _build_parser(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._build_parser
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._build_parser
+
+   .. py:method:: get_parser(pattern)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.get_parser
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.get_parser
+
+   .. py:method:: _infer_register_type(ptrn)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._infer_register_type
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._infer_register_type
+
+   .. py:method:: _to_reg(ty, s)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._to_reg
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._to_reg
+
+   .. py:method:: _build_pattern_replacement(s, ty, arg)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._build_pattern_replacement
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._build_pattern_replacement
+
+   .. py:method:: _instantiate_pattern(s, ty, arg, out)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._instantiate_pattern
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._instantiate_pattern
+
+   .. py:method:: _expand_reg_list(reg_list)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._expand_reg_list
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._expand_reg_list
+
+   .. py:method:: build_core(obj, res)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.build_core
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.build_core
+
+   .. py:method:: build(c, src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.build
+      :staticmethod:
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.write
+
+.. py:class:: Armv7mBranch(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mBranch
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: Armv7mBasicArithmetic(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: Armv7mShiftedArithmetic(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedArithmetic
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: Armv7mMultiplication(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: Armv7mLogical(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mLogical
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: Armv7mShiftedLogical(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedLogical
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: Armv7mLoadInstruction(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: Armv7mStoreInstruction(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mStoreInstruction
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: Armv7mFPInstruction(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Armv7mFPInstruction
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction`
+
+.. py:class:: vmov_gpr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mFPInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr.pattern
+      :value: 'vmov<width> <Rd>, <Sa>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr.inputs
+      :value: ['Sa']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr.outputs
+
+.. py:class:: vmov_gpr2(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mFPInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2.pattern
+      :value: 'vmov<width> <Sd>, <Ra>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2.outputs
+      :value: ['Sd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2.outputs
+
+.. py:class:: vmov_gpr2_dual(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mFPInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual.pattern
+      :value: 'vmov<width> <Sd1>, <Sd2>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual.outputs
+      :value: ['Sd1', 'Sd2']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vmov_gpr2_dual.make
+      :classmethod:
+
+.. py:class:: movw_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.movw_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.movw_imm.pattern
+      :value: 'movw <Rd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.movw_imm.pattern
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.movw_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.movw_imm.outputs
+
+.. py:class:: movt_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.movt_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.movt_imm.pattern
+      :value: 'movt <Rd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.movt_imm.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.movt_imm.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.movt_imm.in_outs
+
+.. py:class:: add(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.add
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add.pattern
+      :value: 'add<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add.outputs
+
+.. py:class:: add_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.add_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_short.pattern
+      :value: 'add<width> <Rd>, <Ra>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_short.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_short.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_short.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_short.in_outs
+
+.. py:class:: add_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.add_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_imm.pattern
+      :value: 'add<width> <Rd>, <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_imm.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_imm.outputs
+
+.. py:class:: add_imm_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.add_imm_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_imm_short.pattern
+      :value: 'add<width> <Rd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_imm_short.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_imm_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_imm_short.in_outs
+
+.. py:class:: add_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.add_shifted
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_shifted.pattern
+      :value: 'add<width> <Rd>, <Ra>, <Rb>, <barrel><imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_shifted.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_shifted.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_shifted.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.add_shifted.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.add_shifted.outputs
+
+.. py:class:: adds(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.adds
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.adds.pattern
+      :value: 'adds<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.adds.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.adds.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.adds.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.adds.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.adds.outputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.adds.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.adds.modifiesFlags
+
+.. py:class:: uadd16(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.uadd16
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.uadd16.pattern
+      :value: 'uadd16<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.uadd16.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.uadd16.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.uadd16.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.uadd16.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.uadd16.outputs
+
+.. py:class:: sadd16(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.sadd16
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sadd16.pattern
+      :value: 'sadd16<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sadd16.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sadd16.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sadd16.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sadd16.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sadd16.outputs
+
+.. py:class:: sub(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.sub
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub.pattern
+      :value: 'sub<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub.outputs
+
+.. py:class:: sub_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.sub_shifted
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub_shifted.pattern
+      :value: 'sub<width> <Rd>, <Ra>, <Rb>, <barrel><imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub_shifted.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub_shifted.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub_shifted.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub_shifted.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub_shifted.outputs
+
+.. py:class:: sub_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.sub_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub_short.pattern
+      :value: 'sub<width> <Rd>, <Ra>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub_short.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub_short.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub_short.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub_short.in_outs
+
+.. py:class:: sub_imm_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.sub_imm_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub_imm_short.pattern
+      :value: 'sub<width> <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub_imm_short.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.sub_imm_short.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.sub_imm_short.in_outs
+
+.. py:class:: subs_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm.pattern
+      :value: 'subs<width> <Rd>, <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.subs_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.subs_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.subs_imm.outputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.subs_imm.modifiesFlags
+
+.. py:class:: subs_imm_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm_short.pattern
+      :value: 'subs<width> <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.subs_imm_short.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm_short.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.subs_imm_short.in_outs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.subs_imm_short.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.subs_imm_short.modifiesFlags
+
+.. py:class:: usub16(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.usub16
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.usub16.pattern
+      :value: 'usub16<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.usub16.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.usub16.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.usub16.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.usub16.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.usub16.outputs
+
+.. py:class:: ssub16(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ssub16
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ssub16.pattern
+      :value: 'ssub16<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ssub16.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ssub16.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ssub16.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ssub16.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ssub16.outputs
+
+.. py:class:: mul(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.mul
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mul.pattern
+      :value: 'mul<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mul.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mul.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mul.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mul.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mul.outputs
+
+.. py:class:: mul_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.mul_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mul_short.pattern
+      :value: 'mul<width> <Rd>, <Ra>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mul_short.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mul_short.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mul_short.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mul_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mul_short.in_outs
+
+.. py:class:: mla(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.mla
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mla.pattern
+      :value: 'mla<width> <Rd>, <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mla.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mla.inputs
+      :value: ['Ra', 'Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mla.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mla.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mla.outputs
+
+.. py:class:: mls(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.mls
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mls.pattern
+      :value: 'mls<width> <Rd>, <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mls.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mls.inputs
+      :value: ['Ra', 'Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mls.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.mls.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.mls.outputs
+
+.. py:class:: smulwb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smulwb
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulwb.pattern
+      :value: 'smulwb<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulwb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulwb.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulwb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulwb.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulwb.outputs
+
+.. py:class:: smulwt(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smulwt
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulwt.pattern
+      :value: 'smulwt<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulwt.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulwt.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulwt.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulwt.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulwt.outputs
+
+.. py:class:: smultb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smultb
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smultb.pattern
+      :value: 'smultb<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smultb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smultb.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smultb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smultb.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smultb.outputs
+
+.. py:class:: smultt(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smultt
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smultt.pattern
+      :value: 'smultt<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smultt.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smultt.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smultt.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smultt.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smultt.outputs
+
+.. py:class:: smulbb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smulbb
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulbb.pattern
+      :value: 'smulbb<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulbb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulbb.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulbb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smulbb.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smulbb.outputs
+
+.. py:class:: smlabt(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smlabt
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlabt.pattern
+      :value: 'smlabt<width> <Rd>, <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlabt.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlabt.inputs
+      :value: ['Ra', 'Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlabt.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlabt.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlabt.outputs
+
+.. py:class:: smlabb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smlabb
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlabb.pattern
+      :value: 'smlabb<width> <Rd>, <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlabb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlabb.inputs
+      :value: ['Ra', 'Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlabb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlabb.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlabb.outputs
+
+.. py:class:: smlatt(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smlatt
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlatt.pattern
+      :value: 'smlatt<width> <Rd>, <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlatt.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlatt.inputs
+      :value: ['Ra', 'Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlatt.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlatt.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlatt.outputs
+
+.. py:class:: smlatb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smlatb
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlatb.pattern
+      :value: 'smlatb<width> <Rd>, <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlatb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlatb.inputs
+      :value: ['Ra', 'Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlatb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlatb.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlatb.outputs
+
+.. py:class:: smull(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smull
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smull.pattern
+      :value: 'smull<width> <Ra>, <Rb>, <Rc>, <Rd>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smull.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smull.inputs
+      :value: ['Rc', 'Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smull.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smull.outputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smull.outputs
+
+.. py:class:: smlal(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smlal
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlal.pattern
+      :value: 'smlal<width> <Ra>, <Rb>, <Rc>, <Rd>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlal.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlal.inputs
+      :value: ['Rc', 'Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlal.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlal.in_outs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlal.in_outs
+
+.. py:class:: smlad(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smlad
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlad.pattern
+      :value: 'smlad<width> <Ra>, <Rb>, <Rc>, <Rd>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlad.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlad.inputs
+      :value: ['Rb', 'Rc', 'Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlad.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smlad.outputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smlad.outputs
+
+.. py:class:: smladx(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smladx
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smladx.pattern
+      :value: 'smladx<width> <Ra>, <Rb>, <Rc>, <Rd>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smladx.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smladx.inputs
+      :value: ['Rb', 'Rc', 'Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smladx.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smladx.outputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smladx.outputs
+
+.. py:class:: smmulr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smmulr
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smmulr.pattern
+      :value: 'smmulr<width> <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smmulr.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smmulr.inputs
+      :value: ['Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smmulr.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smmulr.outputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smmulr.outputs
+
+.. py:class:: smuad(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smuad
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smuad.pattern
+      :value: 'smuad<width> <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smuad.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smuad.inputs
+      :value: ['Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smuad.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smuad.outputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smuad.outputs
+
+.. py:class:: smuadx(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.smuadx
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mMultiplication`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smuadx.pattern
+      :value: 'smuadx<width> <Ra>, <Rb>, <Rc>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smuadx.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smuadx.inputs
+      :value: ['Rb', 'Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smuadx.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.smuadx.outputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.smuadx.outputs
+
+.. py:class:: neg_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.neg_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.neg_short.pattern
+      :value: 'neg<width> <Rd>, <Ra>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.neg_short.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.neg_short.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.neg_short.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.neg_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.neg_short.in_outs
+
+.. py:class:: log_and(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.log_and
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_and.pattern
+      :value: 'and<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_and.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_and.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_and.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_and.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_and.outputs
+
+.. py:class:: log_and_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.log_and_shifted
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_and_shifted.pattern
+      :value: 'and<width> <Rd>, <Ra>, <Rb>, <barrel><imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_and_shifted.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_and_shifted.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_and_shifted.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_and_shifted.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_and_shifted.outputs
+
+.. py:class:: log_or(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.log_or
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_or.pattern
+      :value: 'orr<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_or.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_or.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_or.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_or.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_or.outputs
+
+.. py:class:: log_or_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.log_or_shifted
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_or_shifted.pattern
+      :value: 'orr<width> <Rd>, <Ra>, <Rb>, <barrel><imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_or_shifted.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_or_shifted.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_or_shifted.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.log_or_shifted.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.log_or_shifted.outputs
+
+.. py:class:: eor(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.eor
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor.pattern
+      :value: 'eor<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor.outputs
+
+.. py:class:: eor_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.eor_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor_short.pattern
+      :value: 'eor<width> <Rd>, <Ra>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor_short.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor_short.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor_short.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor_short.in_outs
+
+.. py:class:: eors(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.eors
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eors.pattern
+      :value: 'eors<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eors.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eors.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eors.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eors.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eors.outputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eors.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eors.modifiesFlags
+
+.. py:class:: eors_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.eors_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eors_short.pattern
+      :value: 'eors<width> <Rd>, <Ra>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eors_short.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eors_short.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eors_short.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eors_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eors_short.in_outs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eors_short.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eors_short.modifiesFlags
+
+.. py:class:: eor_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.eor_shifted
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor_shifted.pattern
+      :value: 'eor<width> <Rd>, <Ra>, <Rb>, <barrel><imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor_shifted.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor_shifted.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor_shifted.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor_shifted.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.eor_shifted.outputs
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.eor_shifted.write
+
+.. py:class:: bic(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.bic
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bic.pattern
+      :value: 'bic<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bic.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bic.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bic.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bic.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bic.outputs
+
+.. py:class:: bics(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.bics
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bics.pattern
+      :value: 'bics<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bics.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bics.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bics.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bics.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bics.outputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bics.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bics.modifiesFlags
+
+.. py:class:: bic_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.bic_shifted
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bic_shifted.pattern
+      :value: 'bic<width> <Rd>, <Ra>, <Rb>, <barrel><imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bic_shifted.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bic_shifted.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bic_shifted.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bic_shifted.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bic_shifted.outputs
+
+.. py:class:: ubfx_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ubfx_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ubfx_imm.pattern
+      :value: 'ubfx<width> <Rd>, <Ra>, <imm0>, <imm1>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ubfx_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ubfx_imm.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ubfx_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ubfx_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ubfx_imm.outputs
+
+.. py:class:: ror(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ror
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ror.pattern
+      :value: 'ror<width> <Rd>, <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ror.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ror.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ror.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ror.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ror.outputs
+
+.. py:class:: ror_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ror_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ror_short.pattern
+      :value: 'ror<width> <Rd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ror_short.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ror_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ror_short.in_outs
+
+.. py:class:: rors_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.rors_short
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.rors_short.pattern
+      :value: 'rors<width> <Rd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.rors_short.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.rors_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.rors_short.in_outs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.rors_short.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.rors_short.modifiesFlags
+
+.. py:class:: lsl(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.lsl
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.lsl.pattern
+      :value: 'lsl<width> <Rd>, <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.lsl.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.lsl.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.lsl.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.lsl.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.lsl.outputs
+
+.. py:class:: asr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.asr
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.asr.pattern
+      :value: 'asr<width> <Rd>, <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.asr.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.asr.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.asr.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.asr.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.asr.outputs
+
+.. py:class:: asrs(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.asrs
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.asrs.pattern
+      :value: 'asrs<width> <Rd>, <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.asrs.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.asrs.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.asrs.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.asrs.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.asrs.outputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.asrs.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.asrs.modifiesFlags
+
+.. py:class:: pkhtb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.pkhtb
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhtb.pattern
+      :value: 'pkhtb<width> <Rd>, <Ra>, <Rb>, <barrel><imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhtb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhtb.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhtb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhtb.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhtb.outputs
+
+.. py:class:: pkhbt(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.pkhbt
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhbt.pattern
+      :value: 'pkhbt<width> <Rd>, <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhbt.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhbt.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhbt.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhbt.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhbt.outputs
+
+.. py:class:: pkhbt_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.pkhbt_shifted
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mShiftedLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhbt_shifted.pattern
+      :value: 'pkhbt<width> <Rd>, <Ra>, <Rb>, <barrel><imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhbt_shifted.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhbt_shifted.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhbt_shifted.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.pkhbt_shifted.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.pkhbt_shifted.outputs
+
+.. py:class:: ldr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldr
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr.pattern
+      :value: 'ldr<width> <Rd>, [<Ra>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr.write
+
+.. py:class:: ldr_with_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm.pattern
+      :value: 'ldr<width> <Rd>, [<Ra>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm.write
+
+.. py:class:: ldrb_with_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm.pattern
+      :value: 'ldrb<width> <Rd>, [<Ra>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_imm.write
+
+.. py:class:: ldrh_with_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm.pattern
+      :value: 'ldrh<width> <Rd>, [<Ra>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_imm.write
+
+.. py:class:: ldr_with_imm_stack(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack.pattern
+      :value: 'ldr<width> <Rd>, [sp, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack.inputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_imm_stack.write
+
+.. py:class:: ldr_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc.pattern
+      :value: 'ldr<width> <Rd>, [<Ra>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_postinc.make
+      :classmethod:
+
+.. py:class:: ldrh_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc.pattern
+      :value: 'ldrh<width> <Rd>, [<Ra>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrh_with_postinc.make
+      :classmethod:
+
+.. py:class:: ldrb_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc.pattern
+      :value: 'ldrb<width> <Rd>, [<Ra>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrb_with_postinc.make
+      :classmethod:
+
+.. py:class:: Ldrd(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Ldrd
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+.. py:class:: ldrd_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Ldrd`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.pattern
+      :value: 'ldrd<width> <Ra>, <Rb>, [<Rc>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.in_outs
+      :value: ['Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.outputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.make
+      :classmethod:
+
+.. py:class:: ldrd_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Ldrd`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc.pattern
+      :value: 'ldrd<width> <Ra>, <Rb>, [<Rc>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc.in_outs
+      :value: ['Rc']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc.outputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc.make
+      :classmethod:
+
+.. py:class:: ldr_with_inc_writeback(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback.pattern
+      :value: 'ldr<width> <Rd>, [<Ra>, <imm>]!'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldr_with_inc_writeback.make
+      :classmethod:
+
+.. py:class:: ldm_interval(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval.pattern
+      :value: 'ldm<width> <Ra>, <reg_list>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval.outputs
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval.write
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval.make
+      :classmethod:
+
+.. py:class:: ldm_interval_inc_writeback(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback.pattern
+      :value: 'ldm<width> <Ra>!, <reg_list>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback.outputs
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback.write
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback.make
+      :classmethod:
+
+.. py:class:: vldr_with_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm.pattern
+      :value: 'vldr<width> <Sd>, [<Ra>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm.outputs
+      :value: ['Sd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_imm.write
+
+.. py:class:: vldr_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc.pattern
+      :value: 'vldr<width> <Sd>, [<Ra>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc.outputs
+      :value: ['Sd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldr_with_postinc.make
+      :classmethod:
+
+.. py:class:: vldm_interval_inc_writeback(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback.pattern
+      :value: 'vldm<width> <Ra>!, <reg_list>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback.outputs
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback.write
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback.make
+      :classmethod:
+
+.. py:class:: str_no_off(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.str_no_off
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mStoreInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_no_off.pattern
+      :value: 'str<width> <Rd>, [<Ra>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_no_off.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_no_off.inputs
+      :value: ['Ra', 'Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_no_off.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_no_off.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_no_off.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_no_off.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_no_off.write
+
+.. py:class:: strh_with_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mStoreInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_imm.pattern
+      :value: 'strh<width> <Rd>, [<Ra>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.strh_with_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_imm.inputs
+      :value: ['Ra', 'Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.strh_with_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_imm.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.strh_with_imm.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_imm.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_imm.write
+
+.. py:class:: str_with_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mStoreInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm.pattern
+      :value: 'str<width> <Rd>, [<Ra>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm.inputs
+      :value: ['Ra', 'Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_imm.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm.write
+
+.. py:class:: str_with_imm_stack(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mStoreInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack.pattern
+      :value: 'str<width> <Rd>, [sp, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack.inputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_imm_stack.write
+
+.. py:class:: str_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_postinc
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mStoreInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_postinc.pattern
+      :value: 'str<width> <Rd>, [<Ra>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_postinc.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_postinc.inputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_postinc.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_postinc.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.str_with_postinc.in_outs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.str_with_postinc.make
+      :classmethod:
+
+.. py:class:: strh_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_postinc
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mStoreInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_postinc.pattern
+      :value: 'strh<width> <Rd>, [<Ra>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.strh_with_postinc.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_postinc.inputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.strh_with_postinc.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_postinc.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.strh_with_postinc.in_outs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.strh_with_postinc.make
+      :classmethod:
+
+.. py:class:: stm_interval_inc_writeback(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mLoadInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback.pattern
+      :value: 'stm<width> <Ra>!, <reg_list>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback.in_outs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback.outputs
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback.write
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback.make
+      :classmethod:
+
+.. py:class:: cmp(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.cmp
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.cmp.pattern
+      :value: 'cmp<width> <Ra>, <Rb>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.cmp.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.cmp.inputs
+      :value: ['Ra', 'Rb']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.cmp.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.cmp.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.cmp.modifiesFlags
+
+   .. py:attribute:: dependsOnFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.cmp.dependsOnFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.cmp.dependsOnFlags
+
+.. py:class:: cmp_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.cmp_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBasicArithmetic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.cmp_imm.pattern
+      :value: 'cmp<width> <Ra>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.cmp_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v7m.arch_v7m.cmp_imm.inputs
+      :value: ['Ra']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.cmp_imm.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.cmp_imm.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.cmp_imm.modifiesFlags
+
+.. py:class:: bne(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.bne
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Armv7mBranch`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bne.pattern
+      :value: 'bne<width> <label>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bne.pattern
+
+   .. py:attribute:: dependsOnFlags
+      :canonical: slothy.targets.arm_v7m.arch_v7m.bne.dependsOnFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.bne.dependsOnFlags
+
+.. py:class:: Spill
+   :canonical: slothy.targets.arm_v7m.arch_v7m.Spill
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Spill
+
+   .. py:method:: spill(loc, spill_to_vreg=None)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Spill.spill
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Spill.spill
+
+   .. py:method:: restore(loc, spill_to_vreg=None)
+      :canonical: slothy.targets.arm_v7m.arch_v7m.Spill.restore
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Spill.restore
+
+.. py:function:: ldm_interval_splitting_cb()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval_splitting_cb
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval_splitting_cb
+
+.. py:function:: stm_interval_inc_writeback_splitting_cb()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback_splitting_cb
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.stm_interval_inc_writeback_splitting_cb
+
+.. py:function:: ldm_interval_inc_writeback_splitting_cb()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback_splitting_cb
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldm_interval_inc_writeback_splitting_cb
+
+.. py:function:: vldm_interval_inc_writeback_splitting_cb()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback_splitting_cb
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.vldm_interval_inc_writeback_splitting_cb
+
+.. py:function:: ldrd_postinc_splitting_cb()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_postinc_splitting_cb
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_postinc_splitting_cb
+
+.. py:function:: ldrd_imm_splitting_cb()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_imm_splitting_cb
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.ldrd_imm_splitting_cb
+
+.. py:function:: all_subclass_leaves(c)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.all_subclass_leaves
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.all_subclass_leaves
+
+.. py:function:: iter_armv7m_instructions()
+   :canonical: slothy.targets.arm_v7m.arch_v7m.iter_armv7m_instructions
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.iter_armv7m_instructions
+
+.. py:function:: find_class(src)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.find_class
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.find_class
+
+.. py:function:: lookup_multidict(d, inst, default=None)
+   :canonical: slothy.targets.arm_v7m.arch_v7m.lookup_multidict
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.lookup_multidict

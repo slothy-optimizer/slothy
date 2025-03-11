@@ -1,0 +1,20 @@
+:py:mod:`slothy.core`
+=====================
+
+.. py:module:: slothy.core
+
+.. autodoc2-docstring:: slothy.core
+   :allowtitles:
+
+Submodules
+----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   slothy.core.dataflow
+   slothy.core.core
+   slothy.core.heuristics
+   slothy.core.config
+   slothy.core.slothy

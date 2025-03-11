@@ -1,0 +1,1654 @@
+:py:mod:`slothy.targets.arm_v81m.arch_v81m`
+===========================================
+
+.. py:module:: slothy.targets.arm_v81m.arch_v81m
+
+.. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`RegisterType <slothy.targets.arm_v81m.arch_v81m.RegisterType>`
+     -
+   * - :py:obj:`LeLoop <slothy.targets.arm_v81m.arch_v81m.LeLoop>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.LeLoop
+          :summary:
+   * - :py:obj:`Instruction <slothy.targets.arm_v81m.arch_v81m.Instruction>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction
+          :summary:
+   * - :py:obj:`qsave <slothy.targets.arm_v81m.arch_v81m.qsave>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.qsave
+          :summary:
+   * - :py:obj:`qrestore <slothy.targets.arm_v81m.arch_v81m.qrestore>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.qrestore
+          :summary:
+   * - :py:obj:`save <slothy.targets.arm_v81m.arch_v81m.save>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.save
+          :summary:
+   * - :py:obj:`restore <slothy.targets.arm_v81m.arch_v81m.restore>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.restore
+          :summary:
+   * - :py:obj:`saved <slothy.targets.arm_v81m.arch_v81m.saved>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.saved
+          :summary:
+   * - :py:obj:`restored <slothy.targets.arm_v81m.arch_v81m.restored>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.restored
+          :summary:
+   * - :py:obj:`add <slothy.targets.arm_v81m.arch_v81m.add>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add
+          :summary:
+   * - :py:obj:`sub <slothy.targets.arm_v81m.arch_v81m.sub>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sub
+          :summary:
+   * - :py:obj:`vmulh <slothy.targets.arm_v81m.arch_v81m.vmulh>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulh
+          :summary:
+   * - :py:obj:`vmul_T2 <slothy.targets.arm_v81m.arch_v81m.vmul_T2>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmul_T2
+          :summary:
+   * - :py:obj:`vmul_T1 <slothy.targets.arm_v81m.arch_v81m.vmul_T1>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmul_T1
+          :summary:
+   * - :py:obj:`vmulf_T2 <slothy.targets.arm_v81m.arch_v81m.vmulf_T2>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulf_T2
+          :summary:
+   * - :py:obj:`vmulf_T1 <slothy.targets.arm_v81m.arch_v81m.vmulf_T1>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulf_T1
+          :summary:
+   * - :py:obj:`vqrdmulh_T1 <slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T1>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T1
+          :summary:
+   * - :py:obj:`vqrdmulh_T2 <slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T2>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T2
+          :summary:
+   * - :py:obj:`vqdmlah <slothy.targets.arm_v81m.arch_v81m.vqdmlah>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlah
+          :summary:
+   * - :py:obj:`vqdmlsdh <slothy.targets.arm_v81m.arch_v81m.vqdmlsdh>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh
+          :summary:
+   * - :py:obj:`vqdmladhx <slothy.targets.arm_v81m.arch_v81m.vqdmladhx>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmladhx
+          :summary:
+   * - :py:obj:`vqrdmlah <slothy.targets.arm_v81m.arch_v81m.vqrdmlah>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmlah
+          :summary:
+   * - :py:obj:`vqdmulh_sv <slothy.targets.arm_v81m.arch_v81m.vqdmulh_sv>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmulh_sv
+          :summary:
+   * - :py:obj:`vqdmulh_vv <slothy.targets.arm_v81m.arch_v81m.vqdmulh_vv>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmulh_vv
+          :summary:
+   * - :py:obj:`ldrd <slothy.targets.arm_v81m.arch_v81m.ldrd>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrd
+          :summary:
+   * - :py:obj:`ldr <slothy.targets.arm_v81m.arch_v81m.ldr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldr
+          :summary:
+   * - :py:obj:`strd <slothy.targets.arm_v81m.arch_v81m.strd>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.strd
+          :summary:
+   * - :py:obj:`vrshr <slothy.targets.arm_v81m.arch_v81m.vrshr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrshr
+          :summary:
+   * - :py:obj:`vrshl <slothy.targets.arm_v81m.arch_v81m.vrshl>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrshl
+          :summary:
+   * - :py:obj:`vshlc <slothy.targets.arm_v81m.arch_v81m.vshlc>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshlc
+          :summary:
+   * - :py:obj:`vmov_imm <slothy.targets.arm_v81m.arch_v81m.vmov_imm>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_imm
+          :summary:
+   * - :py:obj:`vmullbt <slothy.targets.arm_v81m.arch_v81m.vmullbt>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmullbt
+          :summary:
+   * - :py:obj:`vdup <slothy.targets.arm_v81m.arch_v81m.vdup>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vdup
+          :summary:
+   * - :py:obj:`vmov_double_v2r <slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r
+          :summary:
+   * - :py:obj:`mov_imm <slothy.targets.arm_v81m.arch_v81m.mov_imm>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mov_imm
+          :summary:
+   * - :py:obj:`mvn_imm <slothy.targets.arm_v81m.arch_v81m.mvn_imm>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mvn_imm
+          :summary:
+   * - :py:obj:`pkhbt <slothy.targets.arm_v81m.arch_v81m.pkhbt>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt
+          :summary:
+   * - :py:obj:`mov <slothy.targets.arm_v81m.arch_v81m.mov>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mov
+          :summary:
+   * - :py:obj:`add_imm <slothy.targets.arm_v81m.arch_v81m.add_imm>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_imm
+          :summary:
+   * - :py:obj:`sub_imm <slothy.targets.arm_v81m.arch_v81m.sub_imm>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sub_imm
+          :summary:
+   * - :py:obj:`vshr <slothy.targets.arm_v81m.arch_v81m.vshr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshr
+          :summary:
+   * - :py:obj:`vshrnbt <slothy.targets.arm_v81m.arch_v81m.vshrnbt>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshrnbt
+          :summary:
+   * - :py:obj:`vshllbt <slothy.targets.arm_v81m.arch_v81m.vshllbt>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshllbt
+          :summary:
+   * - :py:obj:`vmovlbt <slothy.targets.arm_v81m.arch_v81m.vmovlbt>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmovlbt
+          :summary:
+   * - :py:obj:`vrev <slothy.targets.arm_v81m.arch_v81m.vrev>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrev
+          :summary:
+   * - :py:obj:`vshl <slothy.targets.arm_v81m.arch_v81m.vshl>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshl
+          :summary:
+   * - :py:obj:`vshl_T3 <slothy.targets.arm_v81m.arch_v81m.vshl_T3>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshl_T3
+          :summary:
+   * - :py:obj:`vfma <slothy.targets.arm_v81m.arch_v81m.vfma>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vfma
+          :summary:
+   * - :py:obj:`vmla <slothy.targets.arm_v81m.arch_v81m.vmla>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmla
+          :summary:
+   * - :py:obj:`vmlaldava <slothy.targets.arm_v81m.arch_v81m.vmlaldava>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmlaldava
+          :summary:
+   * - :py:obj:`vaddva <slothy.targets.arm_v81m.arch_v81m.vaddva>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vaddva
+          :summary:
+   * - :py:obj:`vadd_vv <slothy.targets.arm_v81m.arch_v81m.vadd_vv>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vadd_vv
+          :summary:
+   * - :py:obj:`vadd_sv <slothy.targets.arm_v81m.arch_v81m.vadd_sv>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vadd_sv
+          :summary:
+   * - :py:obj:`vhadd <slothy.targets.arm_v81m.arch_v81m.vhadd>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhadd
+          :summary:
+   * - :py:obj:`vsub <slothy.targets.arm_v81m.arch_v81m.vsub>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsub
+          :summary:
+   * - :py:obj:`vhsub <slothy.targets.arm_v81m.arch_v81m.vhsub>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhsub
+          :summary:
+   * - :py:obj:`vand <slothy.targets.arm_v81m.arch_v81m.vand>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vand
+          :summary:
+   * - :py:obj:`vorr <slothy.targets.arm_v81m.arch_v81m.vorr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vorr
+          :summary:
+   * - :py:obj:`nop <slothy.targets.arm_v81m.arch_v81m.nop>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.nop
+          :summary:
+   * - :py:obj:`vstr <slothy.targets.arm_v81m.arch_v81m.vstr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vstr
+          :summary:
+   * - :py:obj:`vldr <slothy.targets.arm_v81m.arch_v81m.vldr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr
+          :summary:
+   * - :py:obj:`vldr_gather <slothy.targets.arm_v81m.arch_v81m.vldr_gather>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr_gather
+          :summary:
+   * - :py:obj:`vld2 <slothy.targets.arm_v81m.arch_v81m.vld2>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vld2
+          :summary:
+   * - :py:obj:`vld4 <slothy.targets.arm_v81m.arch_v81m.vld4>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vld4
+          :summary:
+   * - :py:obj:`vst2 <slothy.targets.arm_v81m.arch_v81m.vst2>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vst2
+          :summary:
+   * - :py:obj:`vst4 <slothy.targets.arm_v81m.arch_v81m.vst4>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vst4
+          :summary:
+   * - :py:obj:`vsubf <slothy.targets.arm_v81m.arch_v81m.vsubf>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsubf
+          :summary:
+   * - :py:obj:`vaddf <slothy.targets.arm_v81m.arch_v81m.vaddf>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vaddf
+          :summary:
+   * - :py:obj:`vcmla <slothy.targets.arm_v81m.arch_v81m.vcmla>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcmla
+          :summary:
+   * - :py:obj:`vcmul <slothy.targets.arm_v81m.arch_v81m.vcmul>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcmul
+          :summary:
+   * - :py:obj:`vcadd <slothy.targets.arm_v81m.arch_v81m.vcadd>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcadd
+          :summary:
+   * - :py:obj:`vhcadd <slothy.targets.arm_v81m.arch_v81m.vhcadd>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcadd
+          :summary:
+   * - :py:obj:`vhcsub <slothy.targets.arm_v81m.arch_v81m.vhcsub>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcsub
+          :summary:
+   * - :py:obj:`vcaddf <slothy.targets.arm_v81m.arch_v81m.vcaddf>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcaddf
+          :summary:
+   * - :py:obj:`vcsubf <slothy.targets.arm_v81m.arch_v81m.vcsubf>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcsubf
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`write <slothy.targets.arm_v81m.arch_v81m.write>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.write
+          :summary:
+   * - :py:obj:`vqdmlsdh_vqdmladhx_parsing_cb <slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb
+          :summary:
+   * - :py:obj:`lookup_multidict <slothy.targets.arm_v81m.arch_v81m.lookup_multidict>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lookup_multidict
+          :summary:
+   * - :py:obj:`find_class <slothy.targets.arm_v81m.arch_v81m.find_class>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.find_class
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`arch_name <slothy.targets.arm_v81m.arch_v81m.arch_name>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.arch_name
+          :summary:
+   * - :py:obj:`llvm_mca_arch <slothy.targets.arm_v81m.arch_v81m.llvm_mca_arch>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.llvm_mca_arch
+          :summary:
+   * - :py:obj:`llvm_mc_arch <slothy.targets.arm_v81m.arch_v81m.llvm_mc_arch>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.llvm_mc_arch
+          :summary:
+   * - :py:obj:`llvm_mc_attr <slothy.targets.arm_v81m.arch_v81m.llvm_mc_attr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.llvm_mc_attr
+          :summary:
+   * - :py:obj:`unicorn_arch <slothy.targets.arm_v81m.arch_v81m.unicorn_arch>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.unicorn_arch
+          :summary:
+   * - :py:obj:`unicorn_mode <slothy.targets.arm_v81m.arch_v81m.unicorn_mode>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.unicorn_mode
+          :summary:
+
+API
+~~~
+
+.. py:data:: arch_name
+   :canonical: slothy.targets.arm_v81m.arch_v81m.arch_name
+   :value: 'Arm_v81M'
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.arch_name
+
+.. py:data:: llvm_mca_arch
+   :canonical: slothy.targets.arm_v81m.arch_v81m.llvm_mca_arch
+   :value: 'arm'
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.llvm_mca_arch
+
+.. py:data:: llvm_mc_arch
+   :canonical: slothy.targets.arm_v81m.arch_v81m.llvm_mc_arch
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.llvm_mc_arch
+
+.. py:data:: llvm_mc_attr
+   :canonical: slothy.targets.arm_v81m.arch_v81m.llvm_mc_attr
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.llvm_mc_attr
+
+.. py:data:: unicorn_arch
+   :canonical: slothy.targets.arm_v81m.arch_v81m.unicorn_arch
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.unicorn_arch
+
+.. py:data:: unicorn_mode
+   :canonical: slothy.targets.arm_v81m.arch_v81m.unicorn_mode
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.unicorn_mode
+
+.. py:class:: RegisterType
+   :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType
+
+   Bases: :py:obj:`enum.Enum`
+
+   .. py:attribute:: GPR
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.GPR
+      :value: (1,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.GPR
+
+   .. py:attribute:: MVE
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.MVE
+      :value: (2,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.MVE
+
+   .. py:attribute:: StackMVE
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.StackMVE
+      :value: (3,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.StackMVE
+
+   .. py:attribute:: StackGPR
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.StackGPR
+      :value: (4,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.StackGPR
+
+   .. py:method:: __str__()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.__str__
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.__repr__
+
+   .. py:method:: is_renamed(ty)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.is_renamed
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.is_renamed
+
+   .. py:method:: list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.list_registers
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.list_registers
+
+   .. py:method:: find_type(r)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.find_type
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.find_type
+
+   .. py:method:: from_string()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.from_string
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.from_string
+
+   .. py:method:: default_aliases()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.default_aliases
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.default_aliases
+
+   .. py:method:: default_reserved()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.default_reserved
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.default_reserved
+
+.. py:class:: LeLoop(lbl_start='1', lbl_end='2')
+   :canonical: slothy.targets.arm_v81m.arch_v81m.LeLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.LeLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.LeLoop.__init__
+
+   .. py:method:: start(reg, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.LeLoop.start
+
+   .. py:method:: end(unused, indentation=0)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.LeLoop.end
+
+.. py:exception:: FatalParsingException()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.FatalParsingException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.FatalParsingException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.FatalParsingException.__init__
+
+.. py:class:: Instruction(*, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.__init__
+
+   .. py:method:: global_parsing_cb(a, log=None)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.global_parsing_cb
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.global_parsing_cb
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.write
+
+   .. py:method:: unfold_abbrevs()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.unfold_abbrevs
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.unfold_abbrevs
+
+   .. py:method:: _is_instance_of(inst_list)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction._is_instance_of
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction._is_instance_of
+
+   .. py:method:: is_load_store_instruction()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.is_load_store_instruction
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.is_load_store_instruction
+
+   .. py:method:: is_vector_load()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.is_vector_load
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.is_vector_load
+
+   .. py:method:: is_scalar_load()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.is_scalar_load
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.is_scalar_load
+
+   .. py:method:: is_load()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.is_load
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.is_load
+
+   .. py:method:: is_vector_store()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.is_vector_store
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.is_vector_store
+
+   .. py:method:: is_stack_store()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.is_stack_store
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.is_stack_store
+
+   .. py:method:: is_stack_load()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.is_stack_load
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.is_stack_load
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.parse
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.parse
+
+   .. py:method:: parser(src_line)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.parser
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.Instruction.parser
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction.__repr__
+
+.. py:class:: qsave()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.qsave
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.qsave
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.qsave.__init__
+
+.. py:class:: qrestore()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.qrestore
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.qrestore
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.qrestore.__init__
+
+.. py:class:: save()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.save
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.save
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.save.__init__
+
+.. py:class:: restore()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.restore
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.restore
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.restore.__init__
+
+.. py:class:: saved()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.saved
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.saved
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.saved.__init__
+
+.. py:class:: restored()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.restored
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.restored
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.restored.__init__
+
+.. py:class:: add()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.add
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add.__init__
+
+.. py:class:: sub()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.sub
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sub
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sub.__init__
+
+.. py:class:: vmulh()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmulh
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulh
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulh.__init__
+
+.. py:class:: vmul_T2()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmul_T2
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmul_T2
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmul_T2.__init__
+
+.. py:class:: vmul_T1()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmul_T1
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmul_T1
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmul_T1.__init__
+
+.. py:class:: vmulf_T2()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmulf_T2
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulf_T2
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulf_T2.__init__
+
+.. py:function:: write(self)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.write
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.write
+
+.. py:class:: vmulf_T1()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmulf_T1
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulf_T1
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulf_T1.__init__
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmulf_T1.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmulf_T1.write
+
+.. py:class:: vqrdmulh_T1()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T1
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T1
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T1.__init__
+
+.. py:class:: vqrdmulh_T2()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T2
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T2
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmulh_T2.__init__
+
+.. py:class:: vqdmlah()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqdmlah
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlah
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlah.__init__
+
+.. py:class:: vqdmlsdh()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh.__init__
+
+.. py:class:: vqdmladhx()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqdmladhx
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmladhx
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmladhx.__init__
+
+.. py:class:: vqrdmlah()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqrdmlah
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmlah
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqrdmlah.__init__
+
+.. py:class:: vqdmulh_sv()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqdmulh_sv
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmulh_sv
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmulh_sv.__init__
+
+.. py:class:: vqdmulh_vv()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqdmulh_vv
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmulh_vv
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmulh_vv.__init__
+
+.. py:class:: ldrd()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ldrd
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrd
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrd.__init__
+
+   .. py:method:: _simplify()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrd._simplify
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrd._simplify
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrd.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrd.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrd.write
+
+.. py:class:: ldr()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ldr
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldr
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldr.__init__
+
+   .. py:method:: _simplify()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldr._simplify
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldr._simplify
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldr.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldr.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldr.write
+
+.. py:class:: strd()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.strd
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.strd
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.strd.__init__
+
+   .. py:method:: _simplify()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.strd._simplify
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.strd._simplify
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.strd.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.strd.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.strd.write
+
+.. py:class:: vrshr()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vrshr
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrshr
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrshr.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vrshr.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vrshr.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrshr.write
+
+.. py:class:: vrshl()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vrshl
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrshl
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrshl.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vrshl.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vrshl.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrshl.write
+
+.. py:class:: vshlc()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vshlc
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshlc
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshlc.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshlc.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshlc.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshlc.write
+
+.. py:class:: vmov_imm()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_imm
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_imm.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_imm.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_imm.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_imm.write
+
+.. py:class:: vmullbt()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmullbt
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmullbt
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmullbt.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmullbt.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmullbt.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmullbt.write
+
+.. py:class:: vdup()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vdup
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vdup
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vdup.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vdup.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vdup.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vdup.write
+
+.. py:class:: vmov_double_v2r()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r.write
+
+.. py:class:: mov_imm()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.mov_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mov_imm
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mov_imm.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.mov_imm.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.mov_imm.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mov_imm.write
+
+.. py:class:: mvn_imm()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.mvn_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mvn_imm
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mvn_imm.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.mvn_imm.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.mvn_imm.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mvn_imm.write
+
+.. py:class:: pkhbt()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt.write
+
+.. py:class:: mov()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.mov
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mov
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mov.__init__
+
+.. py:class:: add_imm()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.add_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_imm
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_imm.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.add_imm.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.add_imm.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_imm.write
+
+.. py:class:: sub_imm()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.sub_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sub_imm
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sub_imm.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.sub_imm.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.sub_imm.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sub_imm.write
+
+.. py:class:: vshr()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vshr
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshr
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshr.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshr.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshr.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshr.write
+
+.. py:class:: vshrnbt()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vshrnbt
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshrnbt
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshrnbt.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshrnbt.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshrnbt.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshrnbt.write
+
+.. py:class:: vshllbt()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vshllbt
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshllbt
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshllbt.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshllbt.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshllbt.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshllbt.write
+
+.. py:class:: vmovlbt()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmovlbt
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmovlbt
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmovlbt.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmovlbt.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmovlbt.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmovlbt.write
+
+.. py:class:: vrev()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vrev
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrev
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrev.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vrev.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vrev.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vrev.write
+
+.. py:class:: vshl()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vshl
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshl
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshl.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshl.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshl.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshl.write
+
+.. py:class:: vshl_T3()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vshl_T3
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshl_T3
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshl_T3.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshl_T3.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vshl_T3.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshl_T3.write
+
+.. py:class:: vfma()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vfma
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vfma
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vfma.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vfma.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vfma.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vfma.write
+
+.. py:class:: vmla()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmla
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmla
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmla.__init__
+
+.. py:class:: vmlaldava()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmlaldava
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmlaldava
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmlaldava.__init__
+
+.. py:class:: vaddva()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vaddva
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vaddva
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vaddva.__init__
+
+.. py:class:: vadd_vv()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vadd_vv
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vadd_vv
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vadd_vv.__init__
+
+.. py:class:: vadd_sv()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vadd_sv
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vadd_sv
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vadd_sv.__init__
+
+.. py:class:: vhadd()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vhadd
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhadd
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhadd.__init__
+
+.. py:class:: vsub()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vsub
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsub
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsub.__init__
+
+.. py:class:: vhsub()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vhsub
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhsub
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhsub.__init__
+
+.. py:class:: vand()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vand
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vand
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vand.__init__
+
+.. py:class:: vorr()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vorr
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vorr
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vorr.__init__
+
+.. py:class:: nop()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.nop
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.nop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.nop.__init__
+
+.. py:class:: vstr()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vstr
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vstr
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vstr.__init__
+
+   .. py:method:: _simplify()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vstr._simplify
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vstr._simplify
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vstr.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vstr.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vstr.write
+
+.. py:class:: vldr()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vldr
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr.__init__
+
+   .. py:method:: _simplify()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vldr._simplify
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr._simplify
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vldr.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vldr.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr.write
+
+.. py:class:: vldr_gather()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vldr_gather
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr_gather
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr_gather.__init__
+
+   .. py:method:: _simplify()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vldr_gather._simplify
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr_gather._simplify
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vldr_gather.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vldr_gather.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vldr_gather.write
+
+.. py:class:: vld2()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vld2
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vld2
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vld2.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vld2.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vld2.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vld2.write
+
+.. py:class:: vld4()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vld4
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vld4
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vld4.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vld4.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vld4.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vld4.write
+
+.. py:class:: vst2()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vst2
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vst2
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vst2.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vst2.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vst2.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vst2.write
+
+.. py:class:: vst4()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vst4
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vst4
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vst4.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vst4.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vst4.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vst4.write
+
+.. py:class:: vsubf()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vsubf
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsubf
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsubf.__init__
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vsubf.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsubf.write
+
+.. py:class:: vaddf()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vaddf
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vaddf
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vaddf.__init__
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vaddf.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vaddf.write
+
+.. py:class:: vcmla()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vcmla
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcmla
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcmla.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcmla.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcmla.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcmla.write
+
+.. py:class:: vcmul()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vcmul
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcmul
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcmul.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcmul.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcmul.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcmul.write
+
+.. py:class:: vcadd()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vcadd
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcadd
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcadd.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcadd.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcadd.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcadd.write
+
+.. py:class:: vhcadd()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vhcadd
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcadd
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcadd.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vhcadd.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vhcadd.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcadd.write
+
+.. py:class:: vhcsub()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vhcsub
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcsub
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcsub.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vhcsub.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vhcsub.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcsub.write
+
+.. py:class:: vcaddf()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vcaddf
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcaddf
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcaddf.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcaddf.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcaddf.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcaddf.write
+
+.. py:class:: vcsubf()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vcsubf
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcsubf
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcsubf.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcsubf.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vcsubf.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcsubf.write
+
+.. py:function:: vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb
+
+.. py:function:: lookup_multidict(d, inst, default=None)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.lookup_multidict
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lookup_multidict
+
+.. py:function:: find_class(src)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.find_class
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.find_class

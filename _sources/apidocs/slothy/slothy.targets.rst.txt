@@ -1,0 +1,28 @@
+:py:mod:`slothy.targets`
+========================
+
+.. py:module:: slothy.targets
+
+.. autodoc2-docstring:: slothy.targets
+   :allowtitles:
+
+Subpackages
+-----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   slothy.targets.arm_v7m
+   slothy.targets.aarch64
+   slothy.targets.arm_v81m
+
+Submodules
+----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   slothy.targets.query
+   slothy.targets.common

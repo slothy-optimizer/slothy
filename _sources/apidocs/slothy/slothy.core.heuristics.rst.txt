@@ -1,0 +1,119 @@
+:py:mod:`slothy.core.heuristics`
+================================
+
+.. py:module:: slothy.core.heuristics
+
+.. autodoc2-docstring:: slothy.core.heuristics
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`Heuristics <slothy.core.heuristics.Heuristics>`
+     - .. autodoc2-docstring:: slothy.core.heuristics.Heuristics
+          :summary:
+
+API
+~~~
+
+.. py:class:: Heuristics
+   :canonical: slothy.core.heuristics.Heuristics
+
+   .. autodoc2-docstring:: slothy.core.heuristics.Heuristics
+
+   .. py:method:: _optimize_binsearch_core(source, logger, conf, **kwargs)
+      :canonical: slothy.core.heuristics.Heuristics._optimize_binsearch_core
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._optimize_binsearch_core
+
+   .. py:method:: optimize_binsearch(source, logger, conf, **kwargs)
+      :canonical: slothy.core.heuristics.Heuristics.optimize_binsearch
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics.optimize_binsearch
+
+   .. py:method:: _log_reoptimization_failure(log)
+      :canonical: slothy.core.heuristics.Heuristics._log_reoptimization_failure
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._log_reoptimization_failure
+
+   .. py:method:: _log_input_output_warning(log)
+      :canonical: slothy.core.heuristics.Heuristics._log_input_output_warning
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._log_input_output_warning
+
+   .. py:method:: optimize_binsearch_external(source, logger, conf, flexible=True, **kwargs)
+      :canonical: slothy.core.heuristics.Heuristics.optimize_binsearch_external
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics.optimize_binsearch_external
+
+   .. py:method:: optimize_binsearch_internal(source, logger, conf, flexible=True, **kwargs)
+      :canonical: slothy.core.heuristics.Heuristics.optimize_binsearch_internal
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics.optimize_binsearch_internal
+
+   .. py:method:: periodic(body, logger, conf)
+      :canonical: slothy.core.heuristics.Heuristics.periodic
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics.periodic
+
+   .. py:method:: linear(body, logger, conf)
+      :canonical: slothy.core.heuristics.Heuristics.linear
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics.linear
+
+   .. py:method:: _naive_reordering(body, logger, conf, use_latency_depth=False)
+      :canonical: slothy.core.heuristics.Heuristics._naive_reordering
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._naive_reordering
+
+   .. py:method:: _idxs_from_fractions(fraction_lst, body)
+      :canonical: slothy.core.heuristics.Heuristics._idxs_from_fractions
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._idxs_from_fractions
+
+   .. py:method:: _get_ssa_form(body, logger, conf)
+      :canonical: slothy.core.heuristics.Heuristics._get_ssa_form
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._get_ssa_form
+
+   .. py:method:: _split_inner(body, logger, conf, ssa=False)
+      :canonical: slothy.core.heuristics.Heuristics._split_inner
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._split_inner
+
+   .. py:method:: _split(body, logger, conf)
+      :canonical: slothy.core.heuristics.Heuristics._split
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._split
+
+   .. py:method:: _dump(name, s, logger, err=False, no_comments=False)
+      :canonical: slothy.core.heuristics.Heuristics._dump
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._dump
+
+   .. py:method:: _periodic_halving(body, logger, conf)
+      :canonical: slothy.core.heuristics.Heuristics._periodic_halving
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._periodic_halving

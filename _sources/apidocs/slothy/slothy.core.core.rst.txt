@@ -1,0 +1,940 @@
+:py:mod:`slothy.core.core`
+==========================
+
+.. py:module:: slothy.core.core
+
+.. autodoc2-docstring:: slothy.core.core
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`Result <slothy.core.core.Result>`
+     - .. autodoc2-docstring:: slothy.core.core.Result
+          :summary:
+   * - :py:obj:`SlothyBase <slothy.core.core.SlothyBase>`
+     - .. autodoc2-docstring:: slothy.core.core.SlothyBase
+          :summary:
+
+API
+~~~
+
+.. py:exception:: SlothyException()
+   :canonical: slothy.core.core.SlothyException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.core.core.SlothyException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.core.SlothyException.__init__
+
+.. py:exception:: SlothySelfCheckException()
+   :canonical: slothy.core.core.SlothySelfCheckException
+
+   Bases: :py:obj:`slothy.core.core.SlothyException`
+
+   .. autodoc2-docstring:: slothy.core.core.SlothySelfCheckException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.core.SlothySelfCheckException.__init__
+
+.. py:class:: Result(config)
+   :canonical: slothy.core.core.Result
+
+   Bases: :py:obj:`slothy.helper.LockAttributes`
+
+   .. autodoc2-docstring:: slothy.core.core.Result
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.core.Result.__init__
+
+   .. py:property:: orig_code
+      :canonical: slothy.core.core.Result.orig_code
+
+      .. autodoc2-docstring:: slothy.core.core.Result.orig_code
+
+   .. py:method:: _gen_orig_code_visualized_perf()
+      :canonical: slothy.core.core.Result._gen_orig_code_visualized_perf
+
+      .. autodoc2-docstring:: slothy.core.core.Result._gen_orig_code_visualized_perf
+
+   .. py:method:: _gen_orig_code_visualized_perm()
+      :canonical: slothy.core.core.Result._gen_orig_code_visualized_perm
+
+      .. autodoc2-docstring:: slothy.core.core.Result._gen_orig_code_visualized_perm
+
+   .. py:method:: _gen_orig_code_visualized()
+      :canonical: slothy.core.core.Result._gen_orig_code_visualized
+
+      .. autodoc2-docstring:: slothy.core.core.Result._gen_orig_code_visualized
+
+   .. py:property:: cycles
+      :canonical: slothy.core.core.Result.cycles
+
+      .. autodoc2-docstring:: slothy.core.core.Result.cycles
+
+   .. py:property:: cycles_bound
+      :canonical: slothy.core.core.Result.cycles_bound
+
+      .. autodoc2-docstring:: slothy.core.core.Result.cycles_bound
+
+   .. py:property:: ipc_bound
+      :canonical: slothy.core.core.Result.ipc_bound
+
+      .. autodoc2-docstring:: slothy.core.core.Result.ipc_bound
+
+   .. py:property:: optimization_wall_time
+      :canonical: slothy.core.core.Result.optimization_wall_time
+
+      .. autodoc2-docstring:: slothy.core.core.Result.optimization_wall_time
+
+   .. py:property:: optimization_user_time
+      :canonical: slothy.core.core.Result.optimization_user_time
+
+      .. autodoc2-docstring:: slothy.core.core.Result.optimization_user_time
+
+   .. py:property:: ipc
+      :canonical: slothy.core.core.Result.ipc
+
+      .. autodoc2-docstring:: slothy.core.core.Result.ipc
+
+   .. py:property:: orig_code_visualized
+      :canonical: slothy.core.core.Result.orig_code_visualized
+
+      .. autodoc2-docstring:: slothy.core.core.Result.orig_code_visualized
+
+   .. py:property:: orig_inputs
+      :canonical: slothy.core.core.Result.orig_inputs
+
+      .. autodoc2-docstring:: slothy.core.core.Result.orig_inputs
+
+   .. py:property:: orig_outputs
+      :canonical: slothy.core.core.Result.orig_outputs
+
+      .. autodoc2-docstring:: slothy.core.core.Result.orig_outputs
+
+   .. py:property:: codesize
+      :canonical: slothy.core.core.Result.codesize
+
+      .. autodoc2-docstring:: slothy.core.core.Result.codesize
+
+   .. py:property:: codesize_with_bubbles
+      :canonical: slothy.core.core.Result.codesize_with_bubbles
+
+      .. autodoc2-docstring:: slothy.core.core.Result.codesize_with_bubbles
+
+   .. py:property:: pre_core_post_dict
+      :canonical: slothy.core.core.Result.pre_core_post_dict
+
+      .. autodoc2-docstring:: slothy.core.core.Result.pre_core_post_dict
+
+   .. py:method:: is_pre(i, original_program_order=True)
+      :canonical: slothy.core.core.Result.is_pre
+
+      .. autodoc2-docstring:: slothy.core.core.Result.is_pre
+
+   .. py:method:: is_core(i, original_program_order=True)
+      :canonical: slothy.core.core.Result.is_core
+
+      .. autodoc2-docstring:: slothy.core.core.Result.is_core
+
+   .. py:method:: is_post(i, original_program_order=True)
+      :canonical: slothy.core.core.Result.is_post
+
+      .. autodoc2-docstring:: slothy.core.core.Result.is_post
+
+   .. py:method:: num_pre()
+      :canonical: slothy.core.core.Result.num_pre
+
+      .. autodoc2-docstring:: slothy.core.core.Result.num_pre
+
+   .. py:method:: num_core()
+      :canonical: slothy.core.core.Result.num_core
+
+      .. autodoc2-docstring:: slothy.core.core.Result.num_core
+
+   .. py:method:: num_post()
+      :canonical: slothy.core.core.Result.num_post
+
+      .. autodoc2-docstring:: slothy.core.core.Result.num_post
+
+   .. py:method:: num_prepost()
+      :canonical: slothy.core.core.Result.num_prepost
+
+      .. autodoc2-docstring:: slothy.core.core.Result.num_prepost
+
+   .. py:method:: num_exceptional_iterations()
+      :canonical: slothy.core.core.Result.num_exceptional_iterations
+
+      .. autodoc2-docstring:: slothy.core.core.Result.num_exceptional_iterations
+
+   .. py:property:: reordering_with_bubbles
+      :canonical: slothy.core.core.Result.reordering_with_bubbles
+
+      .. autodoc2-docstring:: slothy.core.core.Result.reordering_with_bubbles
+
+   .. py:method:: cycle_position_with_bubbles()
+      :canonical: slothy.core.core.Result.cycle_position_with_bubbles
+
+      .. autodoc2-docstring:: slothy.core.core.Result.cycle_position_with_bubbles
+
+   .. py:method:: reordering_with_bubbles_inv()
+      :canonical: slothy.core.core.Result.reordering_with_bubbles_inv
+
+      .. autodoc2-docstring:: slothy.core.core.Result.reordering_with_bubbles_inv
+
+   .. py:method:: get_reordering_with_bubbles(copies)
+      :canonical: slothy.core.core.Result.get_reordering_with_bubbles
+
+      .. autodoc2-docstring:: slothy.core.core.Result.get_reordering_with_bubbles
+
+   .. py:method:: get_periodic_reordering_with_bubbles(copies)
+      :canonical: slothy.core.core.Result.get_periodic_reordering_with_bubbles
+
+      .. autodoc2-docstring:: slothy.core.core.Result.get_periodic_reordering_with_bubbles
+
+   .. py:method:: get_periodic_reordering_with_bubbles_inv(copies)
+      :canonical: slothy.core.core.Result.get_periodic_reordering_with_bubbles_inv
+
+      .. autodoc2-docstring:: slothy.core.core.Result.get_periodic_reordering_with_bubbles_inv
+
+   .. py:method:: get_periodic_reordering(copies)
+      :canonical: slothy.core.core.Result.get_periodic_reordering
+
+      .. autodoc2-docstring:: slothy.core.core.Result.get_periodic_reordering
+
+   .. py:method:: get_periodic_reordering_inv(copies)
+      :canonical: slothy.core.core.Result.get_periodic_reordering_inv
+
+      .. autodoc2-docstring:: slothy.core.core.Result.get_periodic_reordering_inv
+
+   .. py:method:: get_reordering(copies, no_gaps)
+      :canonical: slothy.core.core.Result.get_reordering
+
+      .. autodoc2-docstring:: slothy.core.core.Result.get_reordering
+
+   .. py:method:: get_fully_unrolled_loop(iterations)
+      :canonical: slothy.core.core.Result.get_fully_unrolled_loop
+
+      .. autodoc2-docstring:: slothy.core.core.Result.get_fully_unrolled_loop
+
+   .. py:method:: get_unrolled_kernel(iterations)
+      :canonical: slothy.core.core.Result.get_unrolled_kernel
+
+      .. autodoc2-docstring:: slothy.core.core.Result.get_unrolled_kernel
+
+   .. py:method:: reordering()
+      :canonical: slothy.core.core.Result.reordering
+
+      .. autodoc2-docstring:: slothy.core.core.Result.reordering
+
+   .. py:method:: periodic_reordering_with_bubbles()
+      :canonical: slothy.core.core.Result.periodic_reordering_with_bubbles
+
+      .. autodoc2-docstring:: slothy.core.core.Result.periodic_reordering_with_bubbles
+
+   .. py:method:: periodic_reordering_with_bubbles_inv()
+      :canonical: slothy.core.core.Result.periodic_reordering_with_bubbles_inv
+
+      .. autodoc2-docstring:: slothy.core.core.Result.periodic_reordering_with_bubbles_inv
+
+   .. py:method:: periodic_reordering()
+      :canonical: slothy.core.core.Result.periodic_reordering
+
+      .. autodoc2-docstring:: slothy.core.core.Result.periodic_reordering
+
+   .. py:method:: periodic_reordering_inv()
+      :canonical: slothy.core.core.Result.periodic_reordering_inv
+
+      .. autodoc2-docstring:: slothy.core.core.Result.periodic_reordering_inv
+
+   .. py:method:: reordering_inv()
+      :canonical: slothy.core.core.Result.reordering_inv
+
+      .. autodoc2-docstring:: slothy.core.core.Result.reordering_inv
+
+   .. py:property:: fixlen
+      :canonical: slothy.core.core.Result.fixlen
+
+      .. autodoc2-docstring:: slothy.core.core.Result.fixlen
+
+   .. py:property:: code_raw
+      :canonical: slothy.core.core.Result.code_raw
+
+      .. autodoc2-docstring:: slothy.core.core.Result.code_raw
+
+   .. py:method:: _get_code(visualize_reordering)
+      :canonical: slothy.core.core.Result._get_code
+
+      .. autodoc2-docstring:: slothy.core.core.Result._get_code
+
+   .. py:property:: code
+      :canonical: slothy.core.core.Result.code
+
+      .. autodoc2-docstring:: slothy.core.core.Result.code
+
+   .. py:method:: _get_full_code(log)
+      :canonical: slothy.core.core.Result._get_full_code
+
+      .. autodoc2-docstring:: slothy.core.core.Result._get_full_code
+
+   .. py:method:: selfcheck(log)
+      :canonical: slothy.core.core.Result.selfcheck
+
+      .. autodoc2-docstring:: slothy.core.core.Result.selfcheck
+
+   .. py:method:: selftest(log)
+      :canonical: slothy.core.core.Result.selftest
+
+      .. autodoc2-docstring:: slothy.core.core.Result.selftest
+
+   .. py:method:: selfcheck_with_fixup(log)
+      :canonical: slothy.core.core.Result.selfcheck_with_fixup
+
+      .. autodoc2-docstring:: slothy.core.core.Result.selfcheck_with_fixup
+
+   .. py:method:: _selfcheck_core(log)
+      :canonical: slothy.core.core.Result._selfcheck_core
+
+      .. autodoc2-docstring:: slothy.core.core.Result._selfcheck_core
+
+   .. py:property:: inputs
+      :canonical: slothy.core.core.Result.inputs
+
+      .. autodoc2-docstring:: slothy.core.core.Result.inputs
+
+   .. py:property:: outputs
+      :canonical: slothy.core.core.Result.outputs
+
+      .. autodoc2-docstring:: slothy.core.core.Result.outputs
+
+   .. py:property:: input_renamings
+      :canonical: slothy.core.core.Result.input_renamings
+
+      .. autodoc2-docstring:: slothy.core.core.Result.input_renamings
+
+   .. py:property:: output_renamings
+      :canonical: slothy.core.core.Result.output_renamings
+
+      .. autodoc2-docstring:: slothy.core.core.Result.output_renamings
+
+   .. py:property:: stalls
+      :canonical: slothy.core.core.Result.stalls
+
+      .. autodoc2-docstring:: slothy.core.core.Result.stalls
+
+   .. py:method:: _build_stalls_idxs()
+      :canonical: slothy.core.core.Result._build_stalls_idxs
+
+      .. autodoc2-docstring:: slothy.core.core.Result._build_stalls_idxs
+
+   .. py:property:: stall_positions
+      :canonical: slothy.core.core.Result.stall_positions
+
+      .. autodoc2-docstring:: slothy.core.core.Result.stall_positions
+
+   .. py:property:: kernel
+      :canonical: slothy.core.core.Result.kernel
+
+      .. autodoc2-docstring:: slothy.core.core.Result.kernel
+
+   .. py:property:: kernel_input_output
+      :canonical: slothy.core.core.Result.kernel_input_output
+
+      .. autodoc2-docstring:: slothy.core.core.Result.kernel_input_output
+
+   .. py:property:: preamble
+      :canonical: slothy.core.core.Result.preamble
+
+      .. autodoc2-docstring:: slothy.core.core.Result.preamble
+
+   .. py:property:: postamble
+      :canonical: slothy.core.core.Result.postamble
+
+      .. autodoc2-docstring:: slothy.core.core.Result.postamble
+
+   .. py:property:: config
+      :canonical: slothy.core.core.Result.config
+
+      .. autodoc2-docstring:: slothy.core.core.Result.config
+
+   .. py:property:: success
+      :canonical: slothy.core.core.Result.success
+
+      .. autodoc2-docstring:: slothy.core.core.Result.success
+
+   .. py:method:: __bool__()
+      :canonical: slothy.core.core.Result.__bool__
+
+      .. autodoc2-docstring:: slothy.core.core.Result.__bool__
+
+   .. py:property:: valid
+      :canonical: slothy.core.core.Result.valid
+
+      .. autodoc2-docstring:: slothy.core.core.Result.valid
+
+   .. py:method:: _require_sw_pipelining()
+      :canonical: slothy.core.core.Result._require_sw_pipelining
+
+      .. autodoc2-docstring:: slothy.core.core.Result._require_sw_pipelining
+
+   .. py:method:: _fixup_reordered_pair(t0, t1, logger)
+      :canonical: slothy.core.core.Result._fixup_reordered_pair
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.core.Result._fixup_reordered_pair
+
+   .. py:method:: _fixup_reset(nodes)
+      :canonical: slothy.core.core.Result._fixup_reset
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.core.Result._fixup_reset
+
+   .. py:method:: _fixup_finish(nodes, logger)
+      :canonical: slothy.core.core.Result._fixup_finish
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.core.core.Result._fixup_finish
+
+   .. py:method:: _offset_fixup_sw(log)
+      :canonical: slothy.core.core.Result._offset_fixup_sw
+
+      .. autodoc2-docstring:: slothy.core.core.Result._offset_fixup_sw
+
+   .. py:method:: _offset_fixup_straightline(log)
+      :canonical: slothy.core.core.Result._offset_fixup_straightline
+
+      .. autodoc2-docstring:: slothy.core.core.Result._offset_fixup_straightline
+
+   .. py:method:: offset_fixup(log)
+      :canonical: slothy.core.core.Result.offset_fixup
+
+      .. autodoc2-docstring:: slothy.core.core.Result.offset_fixup
+
+   .. py:method:: fixup_preamble_postamble(log)
+      :canonical: slothy.core.core.Result.fixup_preamble_postamble
+
+      .. autodoc2-docstring:: slothy.core.core.Result.fixup_preamble_postamble
+
+.. py:class:: SlothyBase(Arch, Target, *, logger=None, config=None)
+   :canonical: slothy.core.core.SlothyBase
+
+   Bases: :py:obj:`slothy.helper.LockAttributes`
+
+   .. autodoc2-docstring:: slothy.core.core.SlothyBase
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.core.SlothyBase.__init__
+
+   .. py:property:: arch
+      :canonical: slothy.core.core.SlothyBase.arch
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.arch
+
+   .. py:property:: target
+      :canonical: slothy.core.core.SlothyBase.target
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.target
+
+   .. py:property:: result
+      :canonical: slothy.core.core.SlothyBase.result
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.result
+
+   .. py:property:: success
+      :canonical: slothy.core.core.SlothyBase.success
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.success
+
+   .. py:method:: _reset()
+      :canonical: slothy.core.core.SlothyBase._reset
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._reset
+
+   .. py:method:: _set_timeout(timeout)
+      :canonical: slothy.core.core.SlothyBase._set_timeout
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._set_timeout
+
+   .. py:method:: optimize(source, prefix_len=0, suffix_len=0, log_model=None, retry=False)
+      :canonical: slothy.core.core.SlothyBase.optimize
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.optimize
+
+   .. py:method:: _load_source(source, prefix_len=0, suffix_len=0)
+      :canonical: slothy.core.core.SlothyBase._load_source
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._load_source
+
+   .. py:method:: _mark_loop_siblings()
+      :canonical: slothy.core.core.SlothyBase._mark_loop_siblings
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._mark_loop_siblings
+
+   .. py:method:: _init_model_internals()
+      :canonical: slothy.core.core.SlothyBase._init_model_internals
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._init_model_internals
+
+   .. py:method:: _usage_check()
+      :canonical: slothy.core.core.SlothyBase._usage_check
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._usage_check
+
+   .. py:method:: _reg_is_architectural(reg, ty)
+      :canonical: slothy.core.core.SlothyBase._reg_is_architectural
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._reg_is_architectural
+
+   .. py:method:: _restrict_input_output_renaming()
+      :canonical: slothy.core.core.SlothyBase._restrict_input_output_renaming
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._restrict_input_output_renaming
+
+   .. py:method:: _set_avail_renaming_registers()
+      :canonical: slothy.core.core.SlothyBase._set_avail_renaming_registers
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._set_avail_renaming_registers
+
+   .. py:method:: _dump_avail_renaming_registers()
+      :canonical: slothy.core.core.SlothyBase._dump_avail_renaming_registers
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._dump_avail_renaming_registers
+
+   .. py:method:: _add_register_usage(t, reg, reg_ty, var, start_var, dur_var, end_var, spill_var)
+      :canonical: slothy.core.core.SlothyBase._add_register_usage
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_register_usage
+
+   .. py:method:: _backup_original_code()
+      :canonical: slothy.core.core.SlothyBase._backup_original_code
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._backup_original_code
+
+   .. py:class:: CpSatSolutionCb(logger, objective_description, max_solutions=32, is_good_enough=None, printer=None, variables=None)
+      :canonical: slothy.core.core.SlothyBase.CpSatSolutionCb
+
+      Bases: :py:obj:`ortools.sat.python.cp_model.CpSolverSolutionCallback`
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.CpSatSolutionCb
+
+      .. rubric:: Initialization
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.CpSatSolutionCb.__init__
+
+      .. py:method:: on_solution_callback()
+         :canonical: slothy.core.core.SlothyBase.CpSatSolutionCb.on_solution_callback
+
+         .. autodoc2-docstring:: slothy.core.core.SlothyBase.CpSatSolutionCb.on_solution_callback
+
+      .. py:method:: solution_count()
+         :canonical: slothy.core.core.SlothyBase.CpSatSolutionCb.solution_count
+
+         .. autodoc2-docstring:: slothy.core.core.SlothyBase.CpSatSolutionCb.solution_count
+
+   .. py:method:: fixup_preamble_postamble()
+      :canonical: slothy.core.core.SlothyBase.fixup_preamble_postamble
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.fixup_preamble_postamble
+
+   .. py:method:: _extract_result()
+      :canonical: slothy.core.core.SlothyBase._extract_result
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._extract_result
+
+   .. py:method:: _extract_positions(get_value)
+      :canonical: slothy.core.core.SlothyBase._extract_positions
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._extract_positions
+
+   .. py:method:: _extract_input_output_renaming()
+      :canonical: slothy.core.core.SlothyBase._extract_input_output_renaming
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._extract_input_output_renaming
+
+   .. py:method:: _extract_register_renamings(get_value)
+      :canonical: slothy.core.core.SlothyBase._extract_register_renamings
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._extract_register_renamings
+
+   .. py:method:: _extract_kernel_input_output()
+      :canonical: slothy.core.core.SlothyBase._extract_kernel_input_output
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._extract_kernel_input_output
+
+   .. py:method:: _extract_spills()
+      :canonical: slothy.core.core.SlothyBase._extract_spills
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._extract_spills
+
+   .. py:method:: _extract_code()
+      :canonical: slothy.core.core.SlothyBase._extract_code
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._extract_code
+
+   .. py:method:: _add_path_constraint(consumer, producer, cb)
+      :canonical: slothy.core.core.SlothyBase._add_path_constraint
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_path_constraint
+
+   .. py:method:: _add_path_constraint_from(consumer, producer, cb_lst)
+      :canonical: slothy.core.core.SlothyBase._add_path_constraint_from
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_path_constraint_from
+
+   .. py:method:: _get_nodes_by_program_order(low=False, high=False, allnodes=False, inputs=False, outputs=False)
+      :canonical: slothy.core.core.SlothyBase._get_nodes_by_program_order
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._get_nodes_by_program_order
+
+   .. py:method:: _get_nodes_by_depth(**kwargs)
+      :canonical: slothy.core.core.SlothyBase._get_nodes_by_depth
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._get_nodes_by_depth
+
+   .. py:method:: _get_nodes(by_depth=False, **kwargs)
+      :canonical: slothy.core.core.SlothyBase._get_nodes
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._get_nodes
+
+   .. py:method:: _add_variables_scheduling()
+      :canonical: slothy.core.core.SlothyBase._add_variables_scheduling
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_variables_scheduling
+
+   .. py:method:: _add_variables_functional_units()
+      :canonical: slothy.core.core.SlothyBase._add_variables_functional_units
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_variables_functional_units
+
+   .. py:method:: _add_variables_dependencies()
+      :canonical: slothy.core.core.SlothyBase._add_variables_dependencies
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_variables_dependencies
+
+   .. py:method:: _add_variables_register_renaming()
+      :canonical: slothy.core.core.SlothyBase._add_variables_register_renaming
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_variables_register_renaming
+
+   .. py:method:: _add_variables_loop_rolling()
+      :canonical: slothy.core.core.SlothyBase._add_variables_loop_rolling
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_variables_loop_rolling
+
+   .. py:method:: _is_low(t)
+      :canonical: slothy.core.core.SlothyBase._is_low
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._is_low
+
+   .. py:method:: _is_high(t)
+      :canonical: slothy.core.core.SlothyBase._is_high
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._is_high
+
+   .. py:method:: _is_input(t)
+      :canonical: slothy.core.core.SlothyBase._is_input
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._is_input
+
+   .. py:method:: _is_output(t)
+      :canonical: slothy.core.core.SlothyBase._is_output
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._is_output
+
+   .. py:method:: _iter_dependencies(with_virt=True, with_duals=True)
+      :canonical: slothy.core.core.SlothyBase._iter_dependencies
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._iter_dependencies
+
+   .. py:method:: _iter_dependencies_with_lifetime()
+      :canonical: slothy.core.core.SlothyBase._iter_dependencies_with_lifetime
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._iter_dependencies_with_lifetime
+
+   .. py:method:: _iter_cross_iteration_dependencies()
+      :canonical: slothy.core.core.SlothyBase._iter_cross_iteration_dependencies
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._iter_cross_iteration_dependencies
+
+   .. py:method:: _has_cross_iteration_dependencies()
+      :canonical: slothy.core.core.SlothyBase._has_cross_iteration_dependencies
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._has_cross_iteration_dependencies
+
+   .. py:method:: _add_constraints_lifetime_bounds_single(t)
+      :canonical: slothy.core.core.SlothyBase._add_constraints_lifetime_bounds_single
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_lifetime_bounds_single
+
+   .. py:method:: _add_constraints_lifetime_bounds()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_lifetime_bounds
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_lifetime_bounds
+
+   .. py:method:: _force_allocation_variant(alloc_dict, combinations, combination_vars)
+      :canonical: slothy.core.core.SlothyBase._force_allocation_variant
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._force_allocation_variant
+
+   .. py:method:: _forbid_renaming_collision_single(var_dic_a, var_dic_b, condition=None)
+      :canonical: slothy.core.core.SlothyBase._forbid_renaming_collision_single
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._forbid_renaming_collision_single
+
+   .. py:method:: _forbid_renaming_collision_many(idx_pairs, var_dic_a, var_dic_b)
+      :canonical: slothy.core.core.SlothyBase._forbid_renaming_collision_many
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._forbid_renaming_collision_many
+
+   .. py:method:: _force_renaming_collision(var_dic_a, var_dic_b)
+      :canonical: slothy.core.core.SlothyBase._force_renaming_collision
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._force_renaming_collision
+
+   .. py:method:: _force_allocation_restriction_single(valid_allocs, var_dict)
+      :canonical: slothy.core.core.SlothyBase._force_allocation_restriction_single
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._force_allocation_restriction_single
+
+   .. py:method:: _force_allocation_restriction_many(restriction_lst, var_dict_lst)
+      :canonical: slothy.core.core.SlothyBase._force_allocation_restriction_many
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._force_allocation_restriction_many
+
+   .. py:method:: _add_constraints_register_renaming()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_register_renaming
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_register_renaming
+
+   .. py:method:: _add_constraints_loop_optimization()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_loop_optimization
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_loop_optimization
+
+   .. py:method:: _add_constraints_n_issue()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_n_issue
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_n_issue
+
+   .. py:method:: _add_constraints_locked_ordering()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_locked_ordering
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_locked_ordering
+
+   .. py:method:: _add_constraints_scheduling()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_scheduling
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_scheduling
+
+   .. py:method:: _add_constraints_dependency_order()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_dependency_order
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_dependency_order
+
+   .. py:method:: _add_constraints_latencies()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_latencies
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_latencies
+
+   .. py:method:: _add_constraints_register_usage()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_register_usage
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_register_usage
+
+   .. py:method:: _add_constraints_misc()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_misc
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_misc
+
+   .. py:method:: get_inst_pairs(cond_fst=None, cond_snd=None, cond=None)
+      :canonical: slothy.core.core.SlothyBase.get_inst_pairs
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.get_inst_pairs
+
+   .. py:method:: _add_constraints_functional_units()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_functional_units
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_functional_units
+
+   .. py:method:: _add_constraints_loop_periodic()
+      :canonical: slothy.core.core.SlothyBase._add_constraints_loop_periodic
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_constraints_loop_periodic
+
+   .. py:method:: restrict_early_late_instructions(filter_func)
+      :canonical: slothy.core.core.SlothyBase.restrict_early_late_instructions
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.restrict_early_late_instructions
+
+   .. py:method:: force_early(filter_func, early=True)
+      :canonical: slothy.core.core.SlothyBase.force_early
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.force_early
+
+   .. py:method:: restrict_slots_for_instruction(t, slots)
+      :canonical: slothy.core.core.SlothyBase.restrict_slots_for_instruction
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.restrict_slots_for_instruction
+
+   .. py:method:: restrict_slots_for_instructions(ts, slots)
+      :canonical: slothy.core.core.SlothyBase.restrict_slots_for_instructions
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.restrict_slots_for_instructions
+
+   .. py:method:: filter_instructions_by_property(filter_func)
+      :canonical: slothy.core.core.SlothyBase.filter_instructions_by_property
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.filter_instructions_by_property
+
+   .. py:method:: filter_instructions_by_class(cls_lst)
+      :canonical: slothy.core.core.SlothyBase.filter_instructions_by_class
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.filter_instructions_by_class
+
+   .. py:method:: restrict_slots_for_instructions_by_class(cls_lst, slots)
+      :canonical: slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_class
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_class
+
+   .. py:method:: restrict_slots_for_instructions_by_property(filter_func, slots)
+      :canonical: slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_property
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_property
+
+   .. py:method:: _stalls_to_stats(stalls)
+      :canonical: slothy.core.core.SlothyBase._stalls_to_stats
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._stalls_to_stats
+
+   .. py:method:: _print_stalls(stalls)
+      :canonical: slothy.core.core.SlothyBase._print_stalls
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._print_stalls
+
+   .. py:method:: _print_stalls_and_spills(bound, variables)
+      :canonical: slothy.core.core.SlothyBase._print_stalls_and_spills
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._print_stalls_and_spills
+
+   .. py:method:: _add_objective(force_objective=False)
+      :canonical: slothy.core.core.SlothyBase._add_objective
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_objective
+
+   .. py:method:: _describe_solver()
+      :canonical: slothy.core.core.SlothyBase._describe_solver
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._describe_solver
+
+   .. py:method:: _init_external_model_and_solver()
+      :canonical: slothy.core.core.SlothyBase._init_external_model_and_solver
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._init_external_model_and_solver
+
+   .. py:method:: _NewIntVar(minval, maxval, name='')
+      :canonical: slothy.core.core.SlothyBase._NewIntVar
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._NewIntVar
+
+   .. py:method:: _NewIntervalVar(base, dur, end, name='')
+      :canonical: slothy.core.core.SlothyBase._NewIntervalVar
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._NewIntervalVar
+
+   .. py:method:: _NewOptionalIntervalVar(base, dur, end, cond, name='')
+      :canonical: slothy.core.core.SlothyBase._NewOptionalIntervalVar
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._NewOptionalIntervalVar
+
+   .. py:method:: _NewBoolVar(name='')
+      :canonical: slothy.core.core.SlothyBase._NewBoolVar
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._NewBoolVar
+
+   .. py:method:: _NewConstant(val)
+      :canonical: slothy.core.core.SlothyBase._NewConstant
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._NewConstant
+
+   .. py:method:: _Add(c)
+      :canonical: slothy.core.core.SlothyBase._Add
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._Add
+
+   .. py:method:: _AddNoOverlap(lst)
+      :canonical: slothy.core.core.SlothyBase._AddNoOverlap
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddNoOverlap
+
+   .. py:method:: _AddExactlyOne(lst)
+      :canonical: slothy.core.core.SlothyBase._AddExactlyOne
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddExactlyOne
+
+   .. py:method:: _AddMultiplicationEquality(lst, res)
+      :canonical: slothy.core.core.SlothyBase._AddMultiplicationEquality
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddMultiplicationEquality
+
+   .. py:method:: _AddImplication(a, b)
+      :canonical: slothy.core.core.SlothyBase._AddImplication
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddImplication
+
+   .. py:method:: _AddAtLeastOne(lst)
+      :canonical: slothy.core.core.SlothyBase._AddAtLeastOne
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddAtLeastOne
+
+   .. py:method:: _AddAbsEq(dst, expr)
+      :canonical: slothy.core.core.SlothyBase._AddAbsEq
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddAbsEq
+
+   .. py:method:: _AddAllDifferent(lst)
+      :canonical: slothy.core.core.SlothyBase._AddAllDifferent
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddAllDifferent
+
+   .. py:method:: _AddHint(var, val)
+      :canonical: slothy.core.core.SlothyBase._AddHint
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddHint
+
+   .. py:method:: _AddMaxEquality(varlist, var)
+      :canonical: slothy.core.core.SlothyBase._AddMaxEquality
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddMaxEquality
+
+   .. py:method:: _export_model()
+      :canonical: slothy.core.core.SlothyBase._export_model
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._export_model
+
+   .. py:method:: _solve()
+      :canonical: slothy.core.core.SlothyBase._solve
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._solve
+
+   .. py:method:: retry(fix_stalls=None)
+      :canonical: slothy.core.core.SlothyBase.retry
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase.retry
+
+   .. py:method:: _dump_model_statistics()
+      :canonical: slothy.core.core.SlothyBase._dump_model_statistics
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._dump_model_statistics

@@ -1,0 +1,149 @@
+:py:mod:`slothy.targets.arm_v7m.cortex_m4`
+==========================================
+
+.. py:module:: slothy.targets.arm_v7m.cortex_m4
+
+.. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ExecutionUnit <slothy.targets.arm_v7m.cortex_m4.ExecutionUnit>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.ExecutionUnit
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`add_further_constraints <slothy.targets.arm_v7m.cortex_m4.add_further_constraints>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.add_further_constraints
+          :summary:
+   * - :py:obj:`has_min_max_objective <slothy.targets.arm_v7m.cortex_m4.has_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.has_min_max_objective
+          :summary:
+   * - :py:obj:`get_min_max_objective <slothy.targets.arm_v7m.cortex_m4.get_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.get_min_max_objective
+          :summary:
+   * - :py:obj:`get_latency <slothy.targets.arm_v7m.cortex_m4.get_latency>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.get_latency
+          :summary:
+   * - :py:obj:`get_units <slothy.targets.arm_v7m.cortex_m4.get_units>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.get_units
+          :summary:
+   * - :py:obj:`get_inverse_throughput <slothy.targets.arm_v7m.cortex_m4.get_inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.get_inverse_throughput
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`issue_rate <slothy.targets.arm_v7m.cortex_m4.issue_rate>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.issue_rate
+          :summary:
+   * - :py:obj:`llvm_mca_target <slothy.targets.arm_v7m.cortex_m4.llvm_mca_target>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.llvm_mca_target
+          :summary:
+   * - :py:obj:`execution_units <slothy.targets.arm_v7m.cortex_m4.execution_units>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.execution_units
+          :summary:
+   * - :py:obj:`inverse_throughput <slothy.targets.arm_v7m.cortex_m4.inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.inverse_throughput
+          :summary:
+   * - :py:obj:`default_latencies <slothy.targets.arm_v7m.cortex_m4.default_latencies>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.default_latencies
+          :summary:
+
+API
+~~~
+
+.. py:data:: issue_rate
+   :canonical: slothy.targets.arm_v7m.cortex_m4.issue_rate
+   :value: 1
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.issue_rate
+
+.. py:data:: llvm_mca_target
+   :canonical: slothy.targets.arm_v7m.cortex_m4.llvm_mca_target
+   :value: 'cortex-m4'
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.llvm_mca_target
+
+.. py:class:: ExecutionUnit
+   :canonical: slothy.targets.arm_v7m.cortex_m4.ExecutionUnit
+
+   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Enum`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.ExecutionUnit
+
+   .. py:attribute:: UNIT
+      :canonical: slothy.targets.arm_v7m.cortex_m4.ExecutionUnit.UNIT
+      :value: 0
+
+      .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.ExecutionUnit.UNIT
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.arm_v7m.cortex_m4.ExecutionUnit.__repr__
+
+.. py:function:: add_further_constraints(slothy)
+   :canonical: slothy.targets.arm_v7m.cortex_m4.add_further_constraints
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.add_further_constraints
+
+.. py:function:: has_min_max_objective(config)
+   :canonical: slothy.targets.arm_v7m.cortex_m4.has_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.has_min_max_objective
+
+.. py:function:: get_min_max_objective(slothy)
+   :canonical: slothy.targets.arm_v7m.cortex_m4.get_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.get_min_max_objective
+
+.. py:data:: execution_units
+   :canonical: slothy.targets.arm_v7m.cortex_m4.execution_units
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.execution_units
+
+.. py:data:: inverse_throughput
+   :canonical: slothy.targets.arm_v7m.cortex_m4.inverse_throughput
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.inverse_throughput
+
+.. py:data:: default_latencies
+   :canonical: slothy.targets.arm_v7m.cortex_m4.default_latencies
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.default_latencies
+
+.. py:function:: get_latency(src, out_idx, dst)
+   :canonical: slothy.targets.arm_v7m.cortex_m4.get_latency
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.get_latency
+
+.. py:function:: get_units(src)
+   :canonical: slothy.targets.arm_v7m.cortex_m4.get_units
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.get_units
+
+.. py:function:: get_inverse_throughput(src)
+   :canonical: slothy.targets.arm_v7m.cortex_m4.get_inverse_throughput
+
+   .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.get_inverse_throughput

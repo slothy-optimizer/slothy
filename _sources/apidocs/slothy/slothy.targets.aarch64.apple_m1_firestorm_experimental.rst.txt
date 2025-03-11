@@ -1,0 +1,282 @@
+:py:mod:`slothy.targets.aarch64.apple_m1_firestorm_experimental`
+================================================================
+
+.. py:module:: slothy.targets.aarch64.apple_m1_firestorm_experimental
+
+.. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ExecutionUnit <slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit>`
+     -
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`add_further_constraints <slothy.targets.aarch64.apple_m1_firestorm_experimental.add_further_constraints>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.add_further_constraints
+          :summary:
+   * - :py:obj:`has_min_max_objective <slothy.targets.aarch64.apple_m1_firestorm_experimental.has_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.has_min_max_objective
+          :summary:
+   * - :py:obj:`get_min_max_objective <slothy.targets.aarch64.apple_m1_firestorm_experimental.get_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_min_max_objective
+          :summary:
+   * - :py:obj:`get_latency <slothy.targets.aarch64.apple_m1_firestorm_experimental.get_latency>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_latency
+          :summary:
+   * - :py:obj:`get_units <slothy.targets.aarch64.apple_m1_firestorm_experimental.get_units>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_units
+          :summary:
+   * - :py:obj:`get_inverse_throughput <slothy.targets.aarch64.apple_m1_firestorm_experimental.get_inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_inverse_throughput
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`issue_rate <slothy.targets.aarch64.apple_m1_firestorm_experimental.issue_rate>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.issue_rate
+          :summary:
+   * - :py:obj:`execution_units <slothy.targets.aarch64.apple_m1_firestorm_experimental.execution_units>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.execution_units
+          :summary:
+   * - :py:obj:`inverse_throughput <slothy.targets.aarch64.apple_m1_firestorm_experimental.inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.inverse_throughput
+          :summary:
+   * - :py:obj:`default_latencies <slothy.targets.aarch64.apple_m1_firestorm_experimental.default_latencies>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.default_latencies
+          :summary:
+
+API
+~~~
+
+.. py:data:: issue_rate
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.issue_rate
+   :value: 8
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.issue_rate
+
+.. py:class:: ExecutionUnit
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit
+
+   Bases: :py:obj:`enum.Enum`
+
+   .. py:attribute:: SCALAR_I0
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I0
+      :value: (0,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I0
+
+   .. py:attribute:: SCALAR_I1
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I1
+      :value: (1,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I1
+
+   .. py:attribute:: SCALAR_I2
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I2
+      :value: (2,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I2
+
+   .. py:attribute:: SCALAR_I3
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I3
+      :value: (3,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I3
+
+   .. py:attribute:: SCALAR_I4
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I4
+      :value: (4,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I4
+
+   .. py:attribute:: SCALAR_I5
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I5
+      :value: (5,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_I5
+
+   .. py:attribute:: SCALAR_M0
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_M0
+      :value: (4,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_M0
+
+   .. py:attribute:: SCALAR_M1
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_M1
+      :value: (5,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SCALAR_M1
+
+   .. py:attribute:: SU0
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SU0
+      :value: (6,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.SU0
+
+   .. py:attribute:: LSU0
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LSU0
+      :value: (7,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LSU0
+
+   .. py:attribute:: LU0
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LU0
+      :value: (8,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LU0
+
+   .. py:attribute:: LU1
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LU1
+      :value: (9,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LU1
+
+   .. py:attribute:: VEC0
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.VEC0
+      :value: (10,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.VEC0
+
+   .. py:attribute:: VEC1
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.VEC1
+      :value: (11,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.VEC1
+
+   .. py:attribute:: VEC2
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.VEC2
+      :value: (12,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.VEC2
+
+   .. py:attribute:: VEC3
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.VEC3
+      :value: (13,)
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.VEC3
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.__repr__
+
+   .. py:method:: I()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.I
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.I
+
+   .. py:method:: M()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.M
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.M
+
+   .. py:method:: V()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V
+
+   .. py:method:: V0()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V0
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V0
+
+   .. py:method:: V1()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V1
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V1
+
+   .. py:method:: V13()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V13
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V13
+
+   .. py:method:: V01()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V01
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V01
+
+   .. py:method:: V02()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V02
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.V02
+
+   .. py:method:: LSU()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LSU
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LSU
+
+   .. py:method:: LOAD()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LOAD
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.LOAD
+
+   .. py:method:: STORE()
+      :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.STORE
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.ExecutionUnit.STORE
+
+.. py:function:: add_further_constraints(slothy)
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.add_further_constraints
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.add_further_constraints
+
+.. py:function:: has_min_max_objective(config)
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.has_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.has_min_max_objective
+
+.. py:function:: get_min_max_objective(slothy)
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_min_max_objective
+
+.. py:data:: execution_units
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.execution_units
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.execution_units
+
+.. py:data:: inverse_throughput
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.inverse_throughput
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.inverse_throughput
+
+.. py:data:: default_latencies
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.default_latencies
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.default_latencies
+
+.. py:function:: get_latency(src, out_idx, dst)
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_latency
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_latency
+
+.. py:function:: get_units(src)
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_units
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_units
+
+.. py:function:: get_inverse_throughput(src)
+   :canonical: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_inverse_throughput
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_firestorm_experimental.get_inverse_throughput

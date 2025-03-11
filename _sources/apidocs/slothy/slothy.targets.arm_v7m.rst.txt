@@ -1,0 +1,18 @@
+:py:mod:`slothy.targets.arm_v7m`
+================================
+
+.. py:module:: slothy.targets.arm_v7m
+
+.. autodoc2-docstring:: slothy.targets.arm_v7m
+   :allowtitles:
+
+Submodules
+----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   slothy.targets.arm_v7m.arch_v7m
+   slothy.targets.arm_v7m.cortex_m7
+   slothy.targets.arm_v7m.cortex_m4

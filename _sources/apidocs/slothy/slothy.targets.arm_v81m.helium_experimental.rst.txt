@@ -1,0 +1,189 @@
+:py:mod:`slothy.targets.arm_v81m.helium_experimental`
+=====================================================
+
+.. py:module:: slothy.targets.arm_v81m.helium_experimental
+
+.. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ExecutionUnit <slothy.targets.arm_v81m.helium_experimental.ExecutionUnit>`
+     -
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`add_further_constraints <slothy.targets.arm_v81m.helium_experimental.add_further_constraints>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.add_further_constraints
+          :summary:
+   * - :py:obj:`has_min_max_objective <slothy.targets.arm_v81m.helium_experimental.has_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.has_min_max_objective
+          :summary:
+   * - :py:obj:`get_min_max_objective <slothy.targets.arm_v81m.helium_experimental.get_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_min_max_objective
+          :summary:
+   * - :py:obj:`find_class <slothy.targets.arm_v81m.helium_experimental.find_class>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.find_class
+          :summary:
+   * - :py:obj:`lookup_multidict <slothy.targets.arm_v81m.helium_experimental.lookup_multidict>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.lookup_multidict
+          :summary:
+   * - :py:obj:`get_latency <slothy.targets.arm_v81m.helium_experimental.get_latency>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_latency
+          :summary:
+   * - :py:obj:`get_units <slothy.targets.arm_v81m.helium_experimental.get_units>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_units
+          :summary:
+   * - :py:obj:`get_inverse_throughput <slothy.targets.arm_v81m.helium_experimental.get_inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_inverse_throughput
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`issue_rate <slothy.targets.arm_v81m.helium_experimental.issue_rate>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.issue_rate
+          :summary:
+   * - :py:obj:`execution_units <slothy.targets.arm_v81m.helium_experimental.execution_units>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.execution_units
+          :summary:
+   * - :py:obj:`inverse_throughput <slothy.targets.arm_v81m.helium_experimental.inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.inverse_throughput
+          :summary:
+   * - :py:obj:`default_latencies <slothy.targets.arm_v81m.helium_experimental.default_latencies>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.default_latencies
+          :summary:
+
+API
+~~~
+
+.. py:data:: issue_rate
+   :canonical: slothy.targets.arm_v81m.helium_experimental.issue_rate
+   :value: 1
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.issue_rate
+
+.. py:class:: ExecutionUnit
+   :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Enum`
+
+   .. py:attribute:: SCALAR
+      :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.SCALAR
+      :value: (0,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.SCALAR
+
+   .. py:attribute:: LOAD
+      :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.LOAD
+      :value: (1,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.LOAD
+
+   .. py:attribute:: STORE
+      :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.STORE
+      :value: (1,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.STORE
+
+   .. py:attribute:: VEC_INT
+      :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.VEC_INT
+      :value: (2,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.VEC_INT
+
+   .. py:attribute:: VEC_MUL
+      :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.VEC_MUL
+      :value: (3,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.VEC_MUL
+
+   .. py:attribute:: VEC_FPU
+      :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.VEC_FPU
+      :value: (3,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.VEC_FPU
+
+   .. py:attribute:: STACK
+      :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.STACK
+      :value: (1,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.STACK
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.__repr__
+
+.. py:function:: add_further_constraints(slothy)
+   :canonical: slothy.targets.arm_v81m.helium_experimental.add_further_constraints
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.add_further_constraints
+
+.. py:function:: has_min_max_objective(slothy)
+   :canonical: slothy.targets.arm_v81m.helium_experimental.has_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.has_min_max_objective
+
+.. py:function:: get_min_max_objective(slothy)
+   :canonical: slothy.targets.arm_v81m.helium_experimental.get_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_min_max_objective
+
+.. py:data:: execution_units
+   :canonical: slothy.targets.arm_v81m.helium_experimental.execution_units
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.execution_units
+
+.. py:data:: inverse_throughput
+   :canonical: slothy.targets.arm_v81m.helium_experimental.inverse_throughput
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.inverse_throughput
+
+.. py:data:: default_latencies
+   :canonical: slothy.targets.arm_v81m.helium_experimental.default_latencies
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.default_latencies
+
+.. py:function:: find_class(src)
+   :canonical: slothy.targets.arm_v81m.helium_experimental.find_class
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.find_class
+
+.. py:function:: lookup_multidict(d, k, default=None)
+   :canonical: slothy.targets.arm_v81m.helium_experimental.lookup_multidict
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.lookup_multidict
+
+.. py:function:: get_latency(src, out_idx, dst)
+   :canonical: slothy.targets.arm_v81m.helium_experimental.get_latency
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_latency
+
+.. py:function:: get_units(src)
+   :canonical: slothy.targets.arm_v81m.helium_experimental.get_units
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_units
+
+.. py:function:: get_inverse_throughput(src)
+   :canonical: slothy.targets.arm_v81m.helium_experimental.get_inverse_throughput
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_inverse_throughput

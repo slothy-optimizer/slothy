@@ -1,0 +1,769 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>slothy.core.dataflow &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="slothy.core.core" href="slothy.core.core.html" />
+    <link rel="prev" title="slothy.core" href="slothy.core.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html">About SLOTHY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#installation">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/README.html">SLOTHY Tutorial</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="slothy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a></li>
+          <li class="breadcrumb-item"><a href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core.dataflow</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/apidocs/slothy/slothy.core.dataflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-slothy.core.dataflow">
+<span id="slothy-core-dataflow"></span><h1><a class="reference internal" href="#module-slothy.core.dataflow" title="slothy.core.dataflow"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core.dataflow</span></code></a><a class="headerlink" href="#module-slothy.core.dataflow" title="Link to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.core.dataflow.RegisterSource" title="slothy.core.dataflow.RegisterSource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegisterSource</span></code></a></p></td>
+<td><p>Representation of the output of an instruction</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.core.dataflow.InstructionOutput" title="slothy.core.dataflow.InstructionOutput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InstructionOutput</span></code></a></p></td>
+<td><p>Represents an output of a node in the data flow graph</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.core.dataflow.InstructionInOut" title="slothy.core.dataflow.InstructionInOut"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InstructionInOut</span></code></a></p></td>
+<td><p>Represents an input/output of a node in the data flow graph</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.core.dataflow.VirtualInstruction" title="slothy.core.dataflow.VirtualInstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualInstruction</span></code></a></p></td>
+<td><p>A ‘virtual’ instruction node for inputs and outputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.core.dataflow.VirtualOutputInstruction" title="slothy.core.dataflow.VirtualOutputInstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualOutputInstruction</span></code></a></p></td>
+<td><p>A virtual instruction node for outputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.core.dataflow.VirtualInputInstruction" title="slothy.core.dataflow.VirtualInputInstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VirtualInputInstruction</span></code></a></p></td>
+<td><p>A virtual instruction node for inputs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.core.dataflow.ComputationNode" title="slothy.core.dataflow.ComputationNode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ComputationNode</span></code></a></p></td>
+<td><p>A node in a data flow graph</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.core.dataflow.Config" title="slothy.core.dataflow.Config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Config</span></code></a></p></td>
+<td><p>Configuration for parsing of data flow graphs</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.core.dataflow.DataFlowGraph" title="slothy.core.dataflow.DataFlowGraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFlowGraph</span></code></a></p></td>
+<td><p>The data flow graph associated with a piece of assembly.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
+<dl class="py exception">
+<dt class="sig sig-object py" id="slothy.core.dataflow.SlothyUselessInstructionException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">SlothyUselessInstructionException</span></span><a class="headerlink" href="#slothy.core.dataflow.SlothyUselessInstructionException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>An instruction was found whose outputs are neither used by a subsequent instruction
+nor declared as global outputs of the code under consideration. The instruction is therefore
+useless according to the architecture model given to SLOTHY. Consider removing the instruction
+or refining the architecture model.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.RegisterSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">RegisterSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.RegisterSource" title="Link to this definition"></a></dt>
+<dd><p>Representation of the output of an instruction</p>
+<p>This is used when iterating over dependencies in the data flow graph.
+This class is abstract and implemented by InstructionOutput and
+InstructionInOut below, represention outputs and input/outputs,
+respectively.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.RegisterSource.get_type">
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.RegisterSource.get_type" title="Link to this definition"></a></dt>
+<dd><p>The register type of the dependency</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.RegisterSource.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.RegisterSource.name" title="Link to this definition"></a></dt>
+<dd><p>The name of the register used to carry the dependency.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.RegisterSource.alloc">
+<span class="sig-name descname"><span class="pre">alloc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.RegisterSource.alloc" title="Link to this definition"></a></dt>
+<dd><p>The variable governing the choice of register renaming for this output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.RegisterSource.reduce">
+<span class="sig-name descname"><span class="pre">reduce</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.RegisterSource.reduce" title="Link to this definition"></a></dt>
+<dd><p>In case of input/output arguments, the transitively computed RegisterSource
+producing the register as a pure _output_.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionOutput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">InstructionOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionOutput" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.core.dataflow.RegisterSource" title="slothy.core.dataflow.RegisterSource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.core.dataflow.RegisterSource</span></code></a></p>
+<p>Represents an output of a node in the data flow graph</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionOutput.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionOutput.__repr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionOutput.get_type">
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionOutput.get_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionOutput.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionOutput.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionOutput.alloc">
+<span class="sig-name descname"><span class="pre">alloc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionOutput.alloc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionOutput.reduce">
+<span class="sig-name descname"><span class="pre">reduce</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionOutput.reduce" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionOutput.sibling">
+<span class="sig-name descname"><span class="pre">sibling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionOutput.sibling" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionInOut">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">InstructionInOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionInOut" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.core.dataflow.RegisterSource" title="slothy.core.dataflow.RegisterSource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.core.dataflow.RegisterSource</span></code></a></p>
+<p>Represents an input/output of a node in the data flow graph</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionInOut.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionInOut.__repr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionInOut.get_type">
+<span class="sig-name descname"><span class="pre">get_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionInOut.get_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionInOut.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionInOut.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionInOut.alloc">
+<span class="sig-name descname"><span class="pre">alloc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionInOut.alloc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionInOut.reduce">
+<span class="sig-name descname"><span class="pre">reduce</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionInOut.reduce" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.InstructionInOut.sibling">
+<span class="sig-name descname"><span class="pre">sibling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.InstructionInOut.sibling" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.VirtualInstruction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">VirtualInstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ty</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.VirtualInstruction" title="Link to this definition"></a></dt>
+<dd><p>A ‘virtual’ instruction node for inputs and outputs.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.VirtualInstruction.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.VirtualInstruction.write" title="Link to this definition"></a></dt>
+<dd><p>Provide a string description of the virtual instruction</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.VirtualOutputInstruction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">VirtualOutputInstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_ty</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.VirtualOutputInstruction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.core.dataflow.VirtualInstruction" title="slothy.core.dataflow.VirtualInstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.core.dataflow.VirtualInstruction</span></code></a></p>
+<p>A virtual instruction node for outputs.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.VirtualOutputInstruction.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.VirtualOutputInstruction.write" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.VirtualOutputInstruction.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.VirtualOutputInstruction.__repr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.VirtualInputInstruction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">VirtualInputInstruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reg_ty</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.VirtualInputInstruction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.core.dataflow.VirtualInstruction" title="slothy.core.dataflow.VirtualInstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.core.dataflow.VirtualInstruction</span></code></a></p>
+<p>A virtual instruction node for inputs.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.VirtualInputInstruction.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.VirtualInputInstruction.write" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.VirtualInputInstruction.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.VirtualInputInstruction.__repr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">ComputationNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orig_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src_in_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode" title="Link to this definition"></a></dt>
+<dd><p>A node in a data flow graph</p>
+<p class="rubric">Initialization</p>
+<p>A node in a data flow graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – A unique identifier for the node</p></li>
+<li><p><strong>inst</strong> – The instruction which the node represents
+Must be an instance of Instruction</p></li>
+<li><p><strong>src_in</strong> – A list of RegisterSource instances representing
+the inputs to the instruction. Inputs which are
+also written to should not be listed here, but in
+the separate src_in_out argument.</p></li>
+<li><p><strong>src_in_out</strong> – A list of RegisterSource instances representing the inputs to the instruction which are
+also written to.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode.to_source_line">
+<span class="sig-name descname"><span class="pre">to_source_line</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode.to_source_line" title="Link to this definition"></a></dt>
+<dd><p>Convert node in data flor graph to source line.</p>
+<p>This keeps original tags and comments from the source line that
+gave rise to the node, but updates the text with the stringification
+of the instruction underlying the node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode.is_virtual_input">
+<span class="sig-name descname"><span class="pre">is_virtual_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode.is_virtual_input" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the node is an input node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode.is_virtual_output">
+<span class="sig-name descname"><span class="pre">is_virtual_output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode.is_virtual_output" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the node is an output node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode.is_virtual">
+<span class="sig-name descname"><span class="pre">is_virtual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode.is_virtual" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the node is an input or output node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode.is_not_virtual">
+<span class="sig-name descname"><span class="pre">is_not_virtual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode.is_not_virtual" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the node is neither an input nor an output node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode.varname">
+<span class="sig-name descname"><span class="pre">varname</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode.varname" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode.__repr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.ComputationNode.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.ComputationNode.describe" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slothy_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.Config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for parsing of data flow graphs</p>
+<p class="rubric">Initialization</p>
+<p>Create a DataFlowGraph config from a Slothy config</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slothy_config</strong> – The Slothy configuration to reference.</p></li>
+<li><p><strong>kwargs</strong> – An optional list of modifications of the Slothy config</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.Config.arch">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#slothy.core.dataflow.Config.arch" title="Link to this definition"></a></dt>
+<dd><p>The underlying architecture model</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.Config.typing_hints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">typing_hints</span></span><a class="headerlink" href="#slothy.core.dataflow.Config.typing_hints" title="Link to this definition"></a></dt>
+<dd><p>A dictionary of ‘typing hints’ explicitly assigning to symbolic register names
+a register type.</p>
+<p>This can be necessary to disambiguate the type of symbolic registers.
+For example, the Helium vector extension has various instructions which
+accept either vector or GPR arguments.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.Config.outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outputs</span></span><a class="headerlink" href="#slothy.core.dataflow.Config.outputs" title="Link to this definition"></a></dt>
+<dd><p>The global outputs of the data flow graph.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.Config.inputs_are_outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inputs_are_outputs</span></span><a class="headerlink" href="#slothy.core.dataflow.Config.inputs_are_outputs" title="Link to this definition"></a></dt>
+<dd><p>Every input is automatically treated as an output.
+This is typically set for loop kernels.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.Config.allow_useless_instructions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_useless_instructions</span></span><a class="headerlink" href="#slothy.core.dataflow.Config.allow_useless_instructions" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether data flow creation should raise SlothyUselessInstructionException
+when a useless instruction is detected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.Config._load_slothy_config">
+<span class="sig-name descname"><span class="pre">_load_slothy_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slothy_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.Config._load_slothy_config" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraphException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">DataFlowGraphException</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraphException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>An exception triggered during parsing a data flow graph</p>
+<p class="rubric">Initialization</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.dataflow.</span></span><span class="sig-name descname"><span class="pre">DataFlowGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parsing_cb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph" title="Link to this definition"></a></dt>
+<dd><p>The data flow graph associated with a piece of assembly.</p>
+<p class="rubric">Initialization</p>
+<p>Compute a data flow graph from a source code snippet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arch</strong> – The underlying architecture.</p></li>
+<li><p><strong>src</strong> – The source code to be converted into a data flow graph.</p></li>
+<li><p><strong>logger</strong> – The logger to be used.</p></li>
+<li><p><strong>typing_hints</strong> – String-indexed dictionary mapping symbolic register names
+to types. Types are members of the RegisterType enum from the
+arch module.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The symbolic or architectural registers that the code produces.
+Dictionary indexed by the RegisterType enum from the the arch module.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.nodes_all">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes_all</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.nodes_all" title="Link to this definition"></a></dt>
+<dd><p>The list of all ComputationNodes contained in the DataFlowGraph.</p>
+<p>This includes “virtual” computation nodes for inputs and outputs.
+Those nose are added for each input and output, respectively, to
+(a) make the graph self-contained in the sense that there are no
+external inputs to the graph, (b) makes it easier to track where
+outputs are written, (c) automatically creates input nodes for
+outputs which are never written to.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.nodes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.nodes" title="Link to this definition"></a></dt>
+<dd><p>The list of all ComputationNodes corresonding to instructions in
+the original source code. Compared to DataFlowGraph.nodes_all, this
+omits “virtual” computation nodes.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.num_nodes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_nodes</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.num_nodes" title="Link to this definition"></a></dt>
+<dd><p>The number of nodes in the data flow graph.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.nodes_input">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes_input</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.nodes_input" title="Link to this definition"></a></dt>
+<dd><p>The list of all virtual input ComputationNodes</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.nodes_output">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes_output</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.nodes_output" title="Link to this definition"></a></dt>
+<dd><p>The list of all virtual output ComputationNodes</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.inputs_typed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inputs_typed</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.inputs_typed" title="Link to this definition"></a></dt>
+<dd><p>The type-indexed dictionary of input registers</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.outputs_typed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outputs_typed</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.outputs_typed" title="Link to this definition"></a></dt>
+<dd><p>The type-indexed dictionary of output registers</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.input_by_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_by_name</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.input_by_name" title="Link to this definition"></a></dt>
+<dd><p>Dictionary mapping input names to their virtual input ComputationNode</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.output_by_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_by_name</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.output_by_name" title="Link to this definition"></a></dt>
+<dd><p>Dictionary mapping output names to their virtual output ComputationNode</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.inputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inputs</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.inputs" title="Link to this definition"></a></dt>
+<dd><p>The (untyped) set of input registers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.outputs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outputs</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.outputs" title="Link to this definition"></a></dt>
+<dd><p>The (untyped) set of output registers.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.nodes_by_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes_by_id</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.nodes_by_id" title="Link to this definition"></a></dt>
+<dd><p>Dictionary mapping ComputationNode IDs to computation nodes</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.nodes_low">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes_low</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.nodes_low" title="Link to this definition"></a></dt>
+<dd><p>For a source with an even number of instructions, the lower half of the
+data flow graph, excluding virtual instructions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.nodes_high">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nodes_high</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.nodes_high" title="Link to this definition"></a></dt>
+<dd><p>For a source with an even number of instructions, the upper half of the
+data flow graph, excluding virtual instructions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._remember_type">
+<span class="sig-name descname"><span class="pre">_remember_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ty</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._remember_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.edges">
+<span class="sig-name descname"><span class="pre">edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.edges" title="Link to this definition"></a></dt>
+<dd><p>Return the set of labelled edges in the data flow graph.
+Each labelled edge is represented as a triple of (src_id, dst_id, label).</p>
+<p>The ID of a virtual input/output node is “input/output_{name}” (as a string),
+while the ID of computation nodes corresponding to instructions in the input
+source is their original position, as an integer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.depth">
+<span class="sig-name descname"><span class="pre">depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.depth" title="Link to this definition"></a></dt>
+<dd><p>The depth of the data flow graph.</p>
+<p>Equivalently, the maximum length of a dependency chain in the assembly source
+represented by the graph.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._dump_instructions">
+<span class="sig-name descname"><span class="pre">_dump_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">txt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._dump_instructions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.arch">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.arch" title="Link to this definition"></a></dt>
+<dd><p>The underlying architecturel model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.apply_cbs">
+<span class="sig-name descname"><span class="pre">apply_cbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_a_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.apply_cbs" title="Link to this definition"></a></dt>
+<dd><p>Apply callback to all nodes in the graph</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.apply_parsing_cbs">
+<span class="sig-name descname"><span class="pre">apply_parsing_cbs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.apply_parsing_cbs" title="Link to this definition"></a></dt>
+<dd><p>Apply parsing callbacks to all nodes in the graph.</p>
+<p>Typically, we only build the computation flow graph once. However, sometimes we make
+retrospective modifications to instructions afterwards, and then need to reparse.</p>
+<p>An example for this are jointly destructive instruction patterns: A sequence of
+instructions where each instruction individually overwrites only part of a register,
+but jointly they overwrite the register as a whole. In this case, we can remove the
+output register as an input dependency for the first instruction in the sequence,
+thereby creating more reordering and renaming flexibility. In this case, we change
+the instruction and then rebuild the computation flow graph.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.apply_fusion_cbs">
+<span class="sig-name descname"><span class="pre">apply_fusion_cbs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.apply_fusion_cbs" title="Link to this definition"></a></dt>
+<dd><p>Apply fusion callbacks to nodes in the graph</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._address_offset_fixup_cbs">
+<span class="sig-name descname"><span class="pre">_address_offset_fixup_cbs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._address_offset_fixup_cbs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._selfcheck_outputs">
+<span class="sig-name descname"><span class="pre">_selfcheck_outputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._selfcheck_outputs" title="Link to this definition"></a></dt>
+<dd><p>Checks whether there are instructions whose output(s) are never used, but also
+not declared as outputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._parse_line">
+<span class="sig-name descname"><span class="pre">_parse_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._parse_line" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._parse_source">
+<span class="sig-name descname"><span class="pre">_parse_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._parse_source" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.iter_dependencies">
+<span class="sig-name descname"><span class="pre">iter_dependencies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.iter_dependencies" title="Link to this definition"></a></dt>
+<dd><p>Returns an iterator over all dependencies in the data flow graph.</p>
+<p>Each returned element has the form (consumer, producer, ty, idx), representing a dependency
+from output producer to the idx-th input (if ty==”in”) or input/output (if ty==”inout”) of
+consumer. The producer field is an instance of RegisterSource and contains the output index
+and source instruction as producer.idx and producer.src, respectively.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._typecheck_node">
+<span class="sig-name descname"><span class="pre">_typecheck_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._typecheck_node" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.describe" title="Link to this definition"></a></dt>
+<dd><p>Send a description of the data flow graph to the logger</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.update_inputs">
+<span class="sig-name descname"><span class="pre">update_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.update_inputs" title="Link to this definition"></a></dt>
+<dd><p>After change to output registers of some nodes, update all
+dependent nodes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.has_symbolic_registers">
+<span class="sig-name descname"><span class="pre">has_symbolic_registers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.has_symbolic_registers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.find_all_predecessors_input_registers">
+<span class="sig-name descname"><span class="pre">find_all_predecessors_input_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">consumer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.find_all_predecessors_input_registers" title="Link to this definition"></a></dt>
+<dd><p>recursively finds the set of input registers registers that a certain value depends on.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph.ssa">
+<span class="sig-name descname"><span class="pre">ssa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph.ssa" title="Link to this definition"></a></dt>
+<dd><p>Transform data flow graph into single static assignment (SSA) form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._build_graph">
+<span class="sig-name descname"><span class="pre">_build_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._build_graph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._add_node_from_candidates">
+<span class="sig-name descname"><span class="pre">_add_node_from_candidates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sourceline</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._add_node_from_candidates" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._find_source_single">
+<span class="sig-name descname"><span class="pre">_find_source_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ty</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._find_source_single" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._process_restore_instruction">
+<span class="sig-name descname"><span class="pre">_process_restore_instruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._process_restore_instruction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._process_spill_instruction">
+<span class="sig-name descname"><span class="pre">_process_spill_instruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ty</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._process_spill_instruction" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.core.dataflow.DataFlowGraph._add_node">
+<span class="sig-name descname"><span class="pre">_add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.dataflow.DataFlowGraph._add_node" title="Link to this definition"></a></dt>
+<dd><p>Add a node to the dataflow graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>s</strong> – Instruction to be added to the graph. This may be a single
+instruction of a list of candidate instructions, in case the
+parsing wasn’t unambiguous.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="slothy.core.html" class="btn btn-neutral float-left" title="slothy.core" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="slothy.core.core.html" class="btn btn-neutral float-right" title="slothy.core.core" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

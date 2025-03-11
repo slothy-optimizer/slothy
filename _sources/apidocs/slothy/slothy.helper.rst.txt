@@ -1,0 +1,841 @@
+:py:mod:`slothy.helper`
+=======================
+
+.. py:module:: slothy.helper
+
+.. autodoc2-docstring:: slothy.helper
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`SourceLine <slothy.helper.SourceLine>`
+     - .. autodoc2-docstring:: slothy.helper.SourceLine
+          :summary:
+   * - :py:obj:`NestedPrint <slothy.helper.NestedPrint>`
+     - .. autodoc2-docstring:: slothy.helper.NestedPrint
+          :summary:
+   * - :py:obj:`LockAttributes <slothy.helper.LockAttributes>`
+     - .. autodoc2-docstring:: slothy.helper.LockAttributes
+          :summary:
+   * - :py:obj:`AsmHelper <slothy.helper.AsmHelper>`
+     - .. autodoc2-docstring:: slothy.helper.AsmHelper
+          :summary:
+   * - :py:obj:`AsmAllocation <slothy.helper.AsmAllocation>`
+     - .. autodoc2-docstring:: slothy.helper.AsmAllocation
+          :summary:
+   * - :py:obj:`AsmMacro <slothy.helper.AsmMacro>`
+     - .. autodoc2-docstring:: slothy.helper.AsmMacro
+          :summary:
+   * - :py:obj:`AsmIfElse <slothy.helper.AsmIfElse>`
+     - .. autodoc2-docstring:: slothy.helper.AsmIfElse
+          :summary:
+   * - :py:obj:`CPreprocessor <slothy.helper.CPreprocessor>`
+     - .. autodoc2-docstring:: slothy.helper.CPreprocessor
+          :summary:
+   * - :py:obj:`LLVM_Mc <slothy.helper.LLVM_Mc>`
+     - .. autodoc2-docstring:: slothy.helper.LLVM_Mc
+          :summary:
+   * - :py:obj:`LLVM_Mca <slothy.helper.LLVM_Mca>`
+     - .. autodoc2-docstring:: slothy.helper.LLVM_Mca
+          :summary:
+   * - :py:obj:`SelfTest <slothy.helper.SelfTest>`
+     - .. autodoc2-docstring:: slothy.helper.SelfTest
+          :summary:
+   * - :py:obj:`Permutation <slothy.helper.Permutation>`
+     - .. autodoc2-docstring:: slothy.helper.Permutation
+          :summary:
+   * - :py:obj:`DeferHandler <slothy.helper.DeferHandler>`
+     - .. autodoc2-docstring:: slothy.helper.DeferHandler
+          :summary:
+   * - :py:obj:`Loop <slothy.helper.Loop>`
+     -
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`binary_search <slothy.helper.binary_search>`
+     - .. autodoc2-docstring:: slothy.helper.binary_search
+          :summary:
+
+API
+~~~
+
+.. py:class:: SourceLine(s, reduce=True)
+   :canonical: slothy.helper.SourceLine
+
+   .. autodoc2-docstring:: slothy.helper.SourceLine
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.SourceLine.__init__
+
+   .. py:method:: _extract_comments_from_text()
+      :canonical: slothy.helper.SourceLine._extract_comments_from_text
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine._extract_comments_from_text
+
+   .. py:method:: _extract_indentation_from_text()
+      :canonical: slothy.helper.SourceLine._extract_indentation_from_text
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine._extract_indentation_from_text
+
+   .. py:method:: _parse_tags_in_string(s, tags)
+      :canonical: slothy.helper.SourceLine._parse_tags_in_string
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine._parse_tags_in_string
+
+   .. py:method:: _strip_comments()
+      :canonical: slothy.helper.SourceLine._strip_comments
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine._strip_comments
+
+   .. py:method:: _trim_comments()
+      :canonical: slothy.helper.SourceLine._trim_comments
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine._trim_comments
+
+   .. py:method:: _extract_tags_from_comments()
+      :canonical: slothy.helper.SourceLine._extract_tags_from_comments
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine._extract_tags_from_comments
+
+   .. py:method:: reduce()
+      :canonical: slothy.helper.SourceLine.reduce
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.reduce
+
+   .. py:method:: add_comment(comment)
+      :canonical: slothy.helper.SourceLine.add_comment
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.add_comment
+
+   .. py:method:: add_comments(comments)
+      :canonical: slothy.helper.SourceLine.add_comments
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.add_comments
+
+   .. py:method:: set_comments(comments)
+      :canonical: slothy.helper.SourceLine.set_comments
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.set_comments
+
+   .. py:method:: set_comment(comment)
+      :canonical: slothy.helper.SourceLine.set_comment
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.set_comment
+
+   .. py:method:: set_tag(tag, value=True)
+      :canonical: slothy.helper.SourceLine.set_tag
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.set_tag
+
+   .. py:method:: set_length(length)
+      :canonical: slothy.helper.SourceLine.set_length
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.set_length
+
+   .. py:property:: tags
+      :canonical: slothy.helper.SourceLine.tags
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.tags
+
+   .. py:property:: comments
+      :canonical: slothy.helper.SourceLine.comments
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.comments
+
+   .. py:method:: has_text()
+      :canonical: slothy.helper.SourceLine.has_text
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.has_text
+
+   .. py:property:: indentation
+      :canonical: slothy.helper.SourceLine.indentation
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.indentation
+
+   .. py:property:: text
+      :canonical: slothy.helper.SourceLine.text
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.text
+
+   .. py:method:: to_string(indentation=True, comments=True, tags=True)
+      :canonical: slothy.helper.SourceLine.to_string
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.to_string
+
+   .. py:method:: __str__()
+      :canonical: slothy.helper.SourceLine.__str__
+
+   .. py:method:: reduce_source(src)
+      :canonical: slothy.helper.SourceLine.reduce_source
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.reduce_source
+
+   .. py:method:: log(name, s, logger=None, err=False)
+      :canonical: slothy.helper.SourceLine.log
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.log
+
+   .. py:method:: set_text(s)
+      :canonical: slothy.helper.SourceLine.set_text
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.set_text
+
+   .. py:method:: transform_text(f)
+      :canonical: slothy.helper.SourceLine.transform_text
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.transform_text
+
+   .. py:method:: add_text(s)
+      :canonical: slothy.helper.SourceLine.add_text
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.add_text
+
+   .. py:property:: is_escaped
+      :canonical: slothy.helper.SourceLine.is_escaped
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.is_escaped
+
+   .. py:method:: remove_escaping()
+      :canonical: slothy.helper.SourceLine.remove_escaping
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.remove_escaping
+
+   .. py:method:: __len__()
+      :canonical: slothy.helper.SourceLine.__len__
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.__len__
+
+   .. py:method:: copy()
+      :canonical: slothy.helper.SourceLine.copy
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.copy
+
+   .. py:method:: read_multiline(s, reduce=True)
+      :canonical: slothy.helper.SourceLine.read_multiline
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.read_multiline
+
+   .. py:method:: merge_escaped_lines(s)
+      :canonical: slothy.helper.SourceLine.merge_escaped_lines
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.merge_escaped_lines
+
+   .. py:method:: copy_source(s)
+      :canonical: slothy.helper.SourceLine.copy_source
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.copy_source
+
+   .. py:method:: write_multiline(s, comments=True, indentation=True, tags=True)
+      :canonical: slothy.helper.SourceLine.write_multiline
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.write_multiline
+
+   .. py:method:: set_indentation(indentation)
+      :canonical: slothy.helper.SourceLine.set_indentation
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.set_indentation
+
+   .. py:method:: add_tags(tags)
+      :canonical: slothy.helper.SourceLine.add_tags
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.add_tags
+
+   .. py:method:: add_tag(tag, value)
+      :canonical: slothy.helper.SourceLine.add_tag
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.add_tag
+
+   .. py:method:: inherit_tags(l)
+      :canonical: slothy.helper.SourceLine.inherit_tags
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.inherit_tags
+
+   .. py:method:: inherit_comments(l)
+      :canonical: slothy.helper.SourceLine.inherit_comments
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.inherit_comments
+
+   .. py:method:: apply_indentation(source, indentation)
+      :canonical: slothy.helper.SourceLine.apply_indentation
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.apply_indentation
+
+   .. py:method:: drop_tags(source)
+      :canonical: slothy.helper.SourceLine.drop_tags
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.drop_tags
+
+   .. py:method:: split_semicolons(s)
+      :canonical: slothy.helper.SourceLine.split_semicolons
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.split_semicolons
+
+   .. py:method:: is_source(s)
+      :canonical: slothy.helper.SourceLine.is_source
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.is_source
+
+   .. py:method:: is_source_line(s)
+      :canonical: slothy.helper.SourceLine.is_source_line
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.is_source_line
+
+.. py:class:: NestedPrint
+   :canonical: slothy.helper.NestedPrint
+
+   .. autodoc2-docstring:: slothy.helper.NestedPrint
+
+   .. py:method:: __str__()
+      :canonical: slothy.helper.NestedPrint.__str__
+
+   .. py:method:: log(fun)
+      :canonical: slothy.helper.NestedPrint.log
+
+      .. autodoc2-docstring:: slothy.helper.NestedPrint.log
+
+.. py:class:: LockAttributes()
+   :canonical: slothy.helper.LockAttributes
+
+   .. autodoc2-docstring:: slothy.helper.LockAttributes
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.LockAttributes.__init__
+
+   .. py:method:: lock()
+      :canonical: slothy.helper.LockAttributes.lock
+
+      .. autodoc2-docstring:: slothy.helper.LockAttributes.lock
+
+   .. py:method:: __setattr__(attr, val)
+      :canonical: slothy.helper.LockAttributes.__setattr__
+
+.. py:exception:: AsmHelperException()
+   :canonical: slothy.helper.AsmHelperException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.helper.AsmHelperException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.AsmHelperException.__init__
+
+.. py:class:: AsmHelper
+   :canonical: slothy.helper.AsmHelper
+
+   .. autodoc2-docstring:: slothy.helper.AsmHelper
+
+   .. py:attribute:: _REGEXP_ALIGN_TXT
+      :canonical: slothy.helper.AsmHelper._REGEXP_ALIGN_TXT
+      :value: '^\\s*\\.(?:p2)?align'
+
+      .. autodoc2-docstring:: slothy.helper.AsmHelper._REGEXP_ALIGN_TXT
+
+   .. py:attribute:: _REGEXP_ALIGN
+      :canonical: slothy.helper.AsmHelper._REGEXP_ALIGN
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmHelper._REGEXP_ALIGN
+
+   .. py:method:: find_indentation(source)
+      :canonical: slothy.helper.AsmHelper.find_indentation
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmHelper.find_indentation
+
+   .. py:method:: rename_function(source, old_funcname, new_funcname)
+      :canonical: slothy.helper.AsmHelper.rename_function
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmHelper.rename_function
+
+   .. py:method:: is_alignment_directive(line)
+      :canonical: slothy.helper.AsmHelper.is_alignment_directive
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmHelper.is_alignment_directive
+
+   .. py:method:: is_allocation_directive(line)
+      :canonical: slothy.helper.AsmHelper.is_allocation_directive
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmHelper.is_allocation_directive
+
+   .. py:method:: extract(source, lbl_start=None, lbl_end=None)
+      :canonical: slothy.helper.AsmHelper.extract
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmHelper.extract
+
+   .. py:method:: _extract_core(source, lbl_start=None, lbl_end=None)
+      :canonical: slothy.helper.AsmHelper._extract_core
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmHelper._extract_core
+
+.. py:class:: AsmAllocation()
+   :canonical: slothy.helper.AsmAllocation
+
+   .. autodoc2-docstring:: slothy.helper.AsmAllocation
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.AsmAllocation.__init__
+
+   .. py:attribute:: _REGEXP_EQU_TXT
+      :canonical: slothy.helper.AsmAllocation._REGEXP_EQU_TXT
+      :value: '\\s*\\.equ\\s+(?P<key>[A-Za-z0-9\\_]+)\\s*,\\s*(?P<val>[A-Za-z0-9()*/+-]+)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation._REGEXP_EQU_TXT
+
+   .. py:attribute:: _REGEXP_REQ_TXT
+      :canonical: slothy.helper.AsmAllocation._REGEXP_REQ_TXT
+      :value: '\\s*(?P<alias>\\w+)\\s+\\.req\\s+(?P<reg>\\w+)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation._REGEXP_REQ_TXT
+
+   .. py:attribute:: _REGEXP_UNREQ_TXT
+      :canonical: slothy.helper.AsmAllocation._REGEXP_UNREQ_TXT
+      :value: '\\s*\\.unreq\\s+(?P<alias>\\w+)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation._REGEXP_UNREQ_TXT
+
+   .. py:attribute:: _REGEXP_EQU
+      :canonical: slothy.helper.AsmAllocation._REGEXP_EQU
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation._REGEXP_EQU
+
+   .. py:attribute:: _REGEXP_REQ
+      :canonical: slothy.helper.AsmAllocation._REGEXP_REQ
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation._REGEXP_REQ
+
+   .. py:attribute:: _REGEXP_UNREQ
+      :canonical: slothy.helper.AsmAllocation._REGEXP_UNREQ
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation._REGEXP_UNREQ
+
+   .. py:method:: _add_allocation(alias, reg)
+      :canonical: slothy.helper.AsmAllocation._add_allocation
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation._add_allocation
+
+   .. py:method:: _remove_allocation(alias)
+      :canonical: slothy.helper.AsmAllocation._remove_allocation
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation._remove_allocation
+
+   .. py:method:: check_allocation(line)
+      :canonical: slothy.helper.AsmAllocation.check_allocation
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation.check_allocation
+
+   .. py:method:: check_deallocation(line)
+      :canonical: slothy.helper.AsmAllocation.check_deallocation
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation.check_deallocation
+
+   .. py:method:: is_allocation(line)
+      :canonical: slothy.helper.AsmAllocation.is_allocation
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation.is_allocation
+
+   .. py:method:: is_deallocation(line)
+      :canonical: slothy.helper.AsmAllocation.is_deallocation
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation.is_deallocation
+
+   .. py:method:: parse_line(line)
+      :canonical: slothy.helper.AsmAllocation.parse_line
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation.parse_line
+
+   .. py:method:: parse(src)
+      :canonical: slothy.helper.AsmAllocation.parse
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation.parse
+
+   .. py:method:: parse_allocs(src)
+      :canonical: slothy.helper.AsmAllocation.parse_allocs
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation.parse_allocs
+
+   .. py:method:: unfold_all_aliases(aliases, src)
+      :canonical: slothy.helper.AsmAllocation.unfold_all_aliases
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmAllocation.unfold_all_aliases
+
+.. py:exception:: BinarySearchLimitException()
+   :canonical: slothy.helper.BinarySearchLimitException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.helper.BinarySearchLimitException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.BinarySearchLimitException.__init__
+
+.. py:function:: binary_search(func, threshold=256, minimum=-1, start=0, precision=1, timeout_below_precision=None)
+   :canonical: slothy.helper.binary_search
+
+   .. autodoc2-docstring:: slothy.helper.binary_search
+
+.. py:class:: AsmMacro(name, args, body)
+   :canonical: slothy.helper.AsmMacro
+
+   .. autodoc2-docstring:: slothy.helper.AsmMacro
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.AsmMacro.__init__
+
+   .. py:method:: __call__(args_dict)
+      :canonical: slothy.helper.AsmMacro.__call__
+
+      .. autodoc2-docstring:: slothy.helper.AsmMacro.__call__
+
+   .. py:method:: __repr__()
+      :canonical: slothy.helper.AsmMacro.__repr__
+
+   .. py:method:: unfold_in(source, change_callback=None, inherit_comments=False)
+      :canonical: slothy.helper.AsmMacro.unfold_in
+
+      .. autodoc2-docstring:: slothy.helper.AsmMacro.unfold_in
+
+   .. py:method:: unfold_all_macros(macros, source, **kwargs)
+      :canonical: slothy.helper.AsmMacro.unfold_all_macros
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmMacro.unfold_all_macros
+
+   .. py:method:: extract(source)
+      :canonical: slothy.helper.AsmMacro.extract
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmMacro.extract
+
+   .. py:method:: extract_from_file(filename)
+      :canonical: slothy.helper.AsmMacro.extract_from_file
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmMacro.extract_from_file
+
+.. py:class:: AsmIfElse
+   :canonical: slothy.helper.AsmIfElse
+
+   .. autodoc2-docstring:: slothy.helper.AsmIfElse
+
+   .. py:attribute:: _REGEXP_IF_TXT
+      :canonical: slothy.helper.AsmIfElse._REGEXP_IF_TXT
+      :value: '\\s*\\.if\\s+(?P<cond>.*)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse._REGEXP_IF_TXT
+
+   .. py:attribute:: _REGEXP_ELSE_TXT
+      :canonical: slothy.helper.AsmIfElse._REGEXP_ELSE_TXT
+      :value: '\\s*\\.else'
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse._REGEXP_ELSE_TXT
+
+   .. py:attribute:: _REGEXP_ENDIF_TXT
+      :canonical: slothy.helper.AsmIfElse._REGEXP_ENDIF_TXT
+      :value: '\\s*\\.endif'
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse._REGEXP_ENDIF_TXT
+
+   .. py:attribute:: _REGEXP_IF
+      :canonical: slothy.helper.AsmIfElse._REGEXP_IF
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse._REGEXP_IF
+
+   .. py:attribute:: _REGEXP_ELSE
+      :canonical: slothy.helper.AsmIfElse._REGEXP_ELSE
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse._REGEXP_ELSE
+
+   .. py:attribute:: _REGEXP_ENDIF
+      :canonical: slothy.helper.AsmIfElse._REGEXP_ENDIF
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse._REGEXP_ENDIF
+
+   .. py:method:: check_if(line)
+      :canonical: slothy.helper.AsmIfElse.check_if
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse.check_if
+
+   .. py:method:: is_if(line)
+      :canonical: slothy.helper.AsmIfElse.is_if
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse.is_if
+
+   .. py:method:: check_else(line)
+      :canonical: slothy.helper.AsmIfElse.check_else
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse.check_else
+
+   .. py:method:: is_else(line)
+      :canonical: slothy.helper.AsmIfElse.is_else
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse.is_else
+
+   .. py:method:: check_endif(line)
+      :canonical: slothy.helper.AsmIfElse.check_endif
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse.check_endif
+
+   .. py:method:: is_endif(line)
+      :canonical: slothy.helper.AsmIfElse.is_endif
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse.is_endif
+
+   .. py:method:: evaluate_condition(condition)
+      :canonical: slothy.helper.AsmIfElse.evaluate_condition
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse.evaluate_condition
+
+   .. py:method:: process_instructions(instructions)
+      :canonical: slothy.helper.AsmIfElse.process_instructions
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIfElse.process_instructions
+
+.. py:class:: CPreprocessor
+   :canonical: slothy.helper.CPreprocessor
+
+   .. autodoc2-docstring:: slothy.helper.CPreprocessor
+
+   .. py:attribute:: magic_string_start
+      :canonical: slothy.helper.CPreprocessor.magic_string_start
+      :value: 'SLOTHY_PREPROCESSED_REGION_BEGIN'
+
+      .. autodoc2-docstring:: slothy.helper.CPreprocessor.magic_string_start
+
+   .. py:attribute:: magic_string_end
+      :canonical: slothy.helper.CPreprocessor.magic_string_end
+      :value: 'SLOTHY_PREPROCESSED_REGION_END'
+
+      .. autodoc2-docstring:: slothy.helper.CPreprocessor.magic_string_end
+
+   .. py:method:: unfold(header, body, post, gcc, include=None)
+      :canonical: slothy.helper.CPreprocessor.unfold
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.CPreprocessor.unfold
+
+.. py:exception:: LLVM_Mc_Error()
+   :canonical: slothy.helper.LLVM_Mc_Error
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.helper.LLVM_Mc_Error
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.LLVM_Mc_Error.__init__
+
+.. py:class:: LLVM_Mc
+   :canonical: slothy.helper.LLVM_Mc
+
+   .. autodoc2-docstring:: slothy.helper.LLVM_Mc
+
+   .. py:method:: llvm_mc_output_extract_text_section(objfile)
+      :canonical: slothy.helper.LLVM_Mc.llvm_mc_output_extract_text_section
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.LLVM_Mc.llvm_mc_output_extract_text_section
+
+   .. py:method:: llvm_mc_output_extract_symbol(objfile, symbol)
+      :canonical: slothy.helper.LLVM_Mc.llvm_mc_output_extract_symbol
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.LLVM_Mc.llvm_mc_output_extract_symbol
+
+   .. py:method:: assemble(source, arch, attr, log, symbol=None, preprocessor=None, include_paths=None)
+      :canonical: slothy.helper.LLVM_Mc.assemble
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.LLVM_Mc.assemble
+
+.. py:exception:: LLVM_Mca_Error()
+   :canonical: slothy.helper.LLVM_Mca_Error
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.helper.LLVM_Mca_Error
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.LLVM_Mca_Error.__init__
+
+.. py:class:: LLVM_Mca
+   :canonical: slothy.helper.LLVM_Mca
+
+   .. autodoc2-docstring:: slothy.helper.LLVM_Mca
+
+   .. py:method:: run(header, body, arch, cpu, log, full=False, issue_width=None)
+      :canonical: slothy.helper.LLVM_Mca.run
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.LLVM_Mca.run
+
+.. py:exception:: SelfTestException()
+   :canonical: slothy.helper.SelfTestException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.helper.SelfTestException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.SelfTestException.__init__
+
+.. py:class:: SelfTest
+   :canonical: slothy.helper.SelfTest
+
+   .. autodoc2-docstring:: slothy.helper.SelfTest
+
+   .. py:method:: run(config, log, codeA, codeB, address_registers, output_registers, iterations, fnsym=None)
+      :canonical: slothy.helper.SelfTest.run
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SelfTest.run
+
+.. py:class:: Permutation
+   :canonical: slothy.helper.Permutation
+
+   .. autodoc2-docstring:: slothy.helper.Permutation
+
+   .. py:method:: is_permutation(perm, sz)
+      :canonical: slothy.helper.Permutation.is_permutation
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Permutation.is_permutation
+
+   .. py:method:: permutation_id(sz)
+      :canonical: slothy.helper.Permutation.permutation_id
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Permutation.permutation_id
+
+   .. py:method:: permutation_comp(p_b, p_a)
+      :canonical: slothy.helper.Permutation.permutation_comp
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Permutation.permutation_comp
+
+   .. py:method:: permutation_pad(perm, pre, post)
+      :canonical: slothy.helper.Permutation.permutation_pad
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Permutation.permutation_pad
+
+   .. py:method:: permutation_move_entry_forward(l, idx_from, idx_to)
+      :canonical: slothy.helper.Permutation.permutation_move_entry_forward
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Permutation.permutation_move_entry_forward
+
+   .. py:method:: iter_swaps(p, n)
+      :canonical: slothy.helper.Permutation.iter_swaps
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Permutation.iter_swaps
+
+.. py:class:: DeferHandler()
+   :canonical: slothy.helper.DeferHandler
+
+   Bases: :py:obj:`logging.Handler`
+
+   .. autodoc2-docstring:: slothy.helper.DeferHandler
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.DeferHandler.__init__
+
+   .. py:method:: emit(record)
+      :canonical: slothy.helper.DeferHandler.emit
+
+   .. py:method:: forward(logger)
+      :canonical: slothy.helper.DeferHandler.forward
+
+      .. autodoc2-docstring:: slothy.helper.DeferHandler.forward
+
+   .. py:method:: forward_to_file(log_label, filename, lvl=logging.DEBUG)
+      :canonical: slothy.helper.DeferHandler.forward_to_file
+
+      .. autodoc2-docstring:: slothy.helper.DeferHandler.forward_to_file
+
+.. py:class:: Loop(lbl_start='1', lbl_end='2', loop_init='lr')
+   :canonical: slothy.helper.Loop
+
+   Bases: :py:obj:`abc.ABC`
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None)
+      :canonical: slothy.helper.Loop.start
+      :abstractmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Loop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.helper.Loop.end
+      :abstractmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Loop.end
+
+   .. py:method:: _extract(source, lbl)
+      :canonical: slothy.helper.Loop._extract
+
+      .. autodoc2-docstring:: slothy.helper.Loop._extract
+
+   .. py:method:: extract(source, lbl, forced_loop_type=None)
+      :canonical: slothy.helper.Loop.extract
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.Loop.extract

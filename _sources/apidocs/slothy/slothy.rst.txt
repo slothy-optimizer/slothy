@@ -1,0 +1,26 @@
+:py:mod:`slothy`
+================
+
+.. py:module:: slothy
+
+.. autodoc2-docstring:: slothy
+   :allowtitles:
+
+Subpackages
+-----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   slothy.targets
+   slothy.core
+
+Submodules
+----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   slothy.helper

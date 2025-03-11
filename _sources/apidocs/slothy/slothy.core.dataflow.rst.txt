@@ -1,0 +1,499 @@
+:py:mod:`slothy.core.dataflow`
+==============================
+
+.. py:module:: slothy.core.dataflow
+
+.. autodoc2-docstring:: slothy.core.dataflow
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`RegisterSource <slothy.core.dataflow.RegisterSource>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.RegisterSource
+          :summary:
+   * - :py:obj:`InstructionOutput <slothy.core.dataflow.InstructionOutput>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.InstructionOutput
+          :summary:
+   * - :py:obj:`InstructionInOut <slothy.core.dataflow.InstructionInOut>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.InstructionInOut
+          :summary:
+   * - :py:obj:`VirtualInstruction <slothy.core.dataflow.VirtualInstruction>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.VirtualInstruction
+          :summary:
+   * - :py:obj:`VirtualOutputInstruction <slothy.core.dataflow.VirtualOutputInstruction>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.VirtualOutputInstruction
+          :summary:
+   * - :py:obj:`VirtualInputInstruction <slothy.core.dataflow.VirtualInputInstruction>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.VirtualInputInstruction
+          :summary:
+   * - :py:obj:`ComputationNode <slothy.core.dataflow.ComputationNode>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode
+          :summary:
+   * - :py:obj:`Config <slothy.core.dataflow.Config>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.Config
+          :summary:
+   * - :py:obj:`DataFlowGraph <slothy.core.dataflow.DataFlowGraph>`
+     - .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph
+          :summary:
+
+API
+~~~
+
+.. py:exception:: SlothyUselessInstructionException()
+   :canonical: slothy.core.dataflow.SlothyUselessInstructionException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.core.dataflow.SlothyUselessInstructionException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.SlothyUselessInstructionException.__init__
+
+.. py:class:: RegisterSource(src, idx)
+   :canonical: slothy.core.dataflow.RegisterSource
+
+   .. autodoc2-docstring:: slothy.core.dataflow.RegisterSource
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.RegisterSource.__init__
+
+   .. py:method:: get_type()
+      :canonical: slothy.core.dataflow.RegisterSource.get_type
+
+      .. autodoc2-docstring:: slothy.core.dataflow.RegisterSource.get_type
+
+   .. py:method:: name()
+      :canonical: slothy.core.dataflow.RegisterSource.name
+
+      .. autodoc2-docstring:: slothy.core.dataflow.RegisterSource.name
+
+   .. py:method:: alloc()
+      :canonical: slothy.core.dataflow.RegisterSource.alloc
+
+      .. autodoc2-docstring:: slothy.core.dataflow.RegisterSource.alloc
+
+   .. py:method:: reduce()
+      :canonical: slothy.core.dataflow.RegisterSource.reduce
+
+      .. autodoc2-docstring:: slothy.core.dataflow.RegisterSource.reduce
+
+.. py:class:: InstructionOutput(src, idx)
+   :canonical: slothy.core.dataflow.InstructionOutput
+
+   Bases: :py:obj:`slothy.core.dataflow.RegisterSource`
+
+   .. autodoc2-docstring:: slothy.core.dataflow.InstructionOutput
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.InstructionOutput.__init__
+
+   .. py:method:: __repr__()
+      :canonical: slothy.core.dataflow.InstructionOutput.__repr__
+
+   .. py:method:: get_type()
+      :canonical: slothy.core.dataflow.InstructionOutput.get_type
+
+   .. py:method:: name()
+      :canonical: slothy.core.dataflow.InstructionOutput.name
+
+   .. py:method:: alloc()
+      :canonical: slothy.core.dataflow.InstructionOutput.alloc
+
+   .. py:method:: reduce()
+      :canonical: slothy.core.dataflow.InstructionOutput.reduce
+
+   .. py:method:: sibling()
+      :canonical: slothy.core.dataflow.InstructionOutput.sibling
+
+      .. autodoc2-docstring:: slothy.core.dataflow.InstructionOutput.sibling
+
+.. py:class:: InstructionInOut(src, idx)
+   :canonical: slothy.core.dataflow.InstructionInOut
+
+   Bases: :py:obj:`slothy.core.dataflow.RegisterSource`
+
+   .. autodoc2-docstring:: slothy.core.dataflow.InstructionInOut
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.InstructionInOut.__init__
+
+   .. py:method:: __repr__()
+      :canonical: slothy.core.dataflow.InstructionInOut.__repr__
+
+   .. py:method:: get_type()
+      :canonical: slothy.core.dataflow.InstructionInOut.get_type
+
+   .. py:method:: name()
+      :canonical: slothy.core.dataflow.InstructionInOut.name
+
+   .. py:method:: alloc()
+      :canonical: slothy.core.dataflow.InstructionInOut.alloc
+
+   .. py:method:: reduce()
+      :canonical: slothy.core.dataflow.InstructionInOut.reduce
+
+   .. py:method:: sibling()
+      :canonical: slothy.core.dataflow.InstructionInOut.sibling
+
+      .. autodoc2-docstring:: slothy.core.dataflow.InstructionInOut.sibling
+
+.. py:class:: VirtualInstruction(reg, ty)
+   :canonical: slothy.core.dataflow.VirtualInstruction
+
+   .. autodoc2-docstring:: slothy.core.dataflow.VirtualInstruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.VirtualInstruction.__init__
+
+   .. py:method:: write()
+      :canonical: slothy.core.dataflow.VirtualInstruction.write
+
+      .. autodoc2-docstring:: slothy.core.dataflow.VirtualInstruction.write
+
+.. py:class:: VirtualOutputInstruction(reg, reg_ty)
+   :canonical: slothy.core.dataflow.VirtualOutputInstruction
+
+   Bases: :py:obj:`slothy.core.dataflow.VirtualInstruction`
+
+   .. autodoc2-docstring:: slothy.core.dataflow.VirtualOutputInstruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.VirtualOutputInstruction.__init__
+
+   .. py:method:: write()
+      :canonical: slothy.core.dataflow.VirtualOutputInstruction.write
+
+   .. py:method:: __repr__()
+      :canonical: slothy.core.dataflow.VirtualOutputInstruction.__repr__
+
+.. py:class:: VirtualInputInstruction(reg, reg_ty)
+   :canonical: slothy.core.dataflow.VirtualInputInstruction
+
+   Bases: :py:obj:`slothy.core.dataflow.VirtualInstruction`
+
+   .. autodoc2-docstring:: slothy.core.dataflow.VirtualInputInstruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.VirtualInputInstruction.__init__
+
+   .. py:method:: write()
+      :canonical: slothy.core.dataflow.VirtualInputInstruction.write
+
+   .. py:method:: __repr__()
+      :canonical: slothy.core.dataflow.VirtualInputInstruction.__repr__
+
+.. py:class:: ComputationNode(*, node_id, inst, orig_pos=None, src_in=None, src_in_out=None)
+   :canonical: slothy.core.dataflow.ComputationNode
+
+   .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.__init__
+
+   .. py:method:: to_source_line()
+      :canonical: slothy.core.dataflow.ComputationNode.to_source_line
+
+      .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.to_source_line
+
+   .. py:method:: is_virtual_input()
+      :canonical: slothy.core.dataflow.ComputationNode.is_virtual_input
+
+      .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.is_virtual_input
+
+   .. py:method:: is_virtual_output()
+      :canonical: slothy.core.dataflow.ComputationNode.is_virtual_output
+
+      .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.is_virtual_output
+
+   .. py:method:: is_virtual()
+      :canonical: slothy.core.dataflow.ComputationNode.is_virtual
+
+      .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.is_virtual
+
+   .. py:method:: is_not_virtual()
+      :canonical: slothy.core.dataflow.ComputationNode.is_not_virtual
+
+      .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.is_not_virtual
+
+   .. py:method:: varname()
+      :canonical: slothy.core.dataflow.ComputationNode.varname
+
+      .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.varname
+
+   .. py:method:: __repr__()
+      :canonical: slothy.core.dataflow.ComputationNode.__repr__
+
+   .. py:method:: describe()
+      :canonical: slothy.core.dataflow.ComputationNode.describe
+
+      .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.describe
+
+.. py:class:: Config(slothy_config=None, **kwargs)
+   :canonical: slothy.core.dataflow.Config
+
+   .. autodoc2-docstring:: slothy.core.dataflow.Config
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.Config.__init__
+
+   .. py:property:: arch
+      :canonical: slothy.core.dataflow.Config.arch
+
+      .. autodoc2-docstring:: slothy.core.dataflow.Config.arch
+
+   .. py:property:: typing_hints
+      :canonical: slothy.core.dataflow.Config.typing_hints
+
+      .. autodoc2-docstring:: slothy.core.dataflow.Config.typing_hints
+
+   .. py:property:: outputs
+      :canonical: slothy.core.dataflow.Config.outputs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.Config.outputs
+
+   .. py:property:: inputs_are_outputs
+      :canonical: slothy.core.dataflow.Config.inputs_are_outputs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.Config.inputs_are_outputs
+
+   .. py:property:: allow_useless_instructions
+      :canonical: slothy.core.dataflow.Config.allow_useless_instructions
+
+      .. autodoc2-docstring:: slothy.core.dataflow.Config.allow_useless_instructions
+
+   .. py:method:: _load_slothy_config(slothy_config)
+      :canonical: slothy.core.dataflow.Config._load_slothy_config
+
+      .. autodoc2-docstring:: slothy.core.dataflow.Config._load_slothy_config
+
+.. py:exception:: DataFlowGraphException()
+   :canonical: slothy.core.dataflow.DataFlowGraphException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraphException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraphException.__init__
+
+.. py:class:: DataFlowGraph(src, logger, config, parsing_cb=True)
+   :canonical: slothy.core.dataflow.DataFlowGraph
+
+   .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.__init__
+
+   .. py:property:: nodes_all
+      :canonical: slothy.core.dataflow.DataFlowGraph.nodes_all
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.nodes_all
+
+   .. py:property:: nodes
+      :canonical: slothy.core.dataflow.DataFlowGraph.nodes
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.nodes
+
+   .. py:property:: num_nodes
+      :canonical: slothy.core.dataflow.DataFlowGraph.num_nodes
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.num_nodes
+
+   .. py:property:: nodes_input
+      :canonical: slothy.core.dataflow.DataFlowGraph.nodes_input
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.nodes_input
+
+   .. py:property:: nodes_output
+      :canonical: slothy.core.dataflow.DataFlowGraph.nodes_output
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.nodes_output
+
+   .. py:property:: inputs_typed
+      :canonical: slothy.core.dataflow.DataFlowGraph.inputs_typed
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.inputs_typed
+
+   .. py:property:: outputs_typed
+      :canonical: slothy.core.dataflow.DataFlowGraph.outputs_typed
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.outputs_typed
+
+   .. py:property:: input_by_name
+      :canonical: slothy.core.dataflow.DataFlowGraph.input_by_name
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.input_by_name
+
+   .. py:property:: output_by_name
+      :canonical: slothy.core.dataflow.DataFlowGraph.output_by_name
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.output_by_name
+
+   .. py:property:: inputs
+      :canonical: slothy.core.dataflow.DataFlowGraph.inputs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.inputs
+
+   .. py:property:: outputs
+      :canonical: slothy.core.dataflow.DataFlowGraph.outputs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.outputs
+
+   .. py:property:: nodes_by_id
+      :canonical: slothy.core.dataflow.DataFlowGraph.nodes_by_id
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.nodes_by_id
+
+   .. py:property:: nodes_low
+      :canonical: slothy.core.dataflow.DataFlowGraph.nodes_low
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.nodes_low
+
+   .. py:property:: nodes_high
+      :canonical: slothy.core.dataflow.DataFlowGraph.nodes_high
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.nodes_high
+
+   .. py:method:: _remember_type(reg, ty)
+      :canonical: slothy.core.dataflow.DataFlowGraph._remember_type
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._remember_type
+
+   .. py:method:: edges()
+      :canonical: slothy.core.dataflow.DataFlowGraph.edges
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.edges
+
+   .. py:method:: depth()
+      :canonical: slothy.core.dataflow.DataFlowGraph.depth
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.depth
+
+   .. py:method:: _dump_instructions(txt, error=False)
+      :canonical: slothy.core.dataflow.DataFlowGraph._dump_instructions
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._dump_instructions
+
+   .. py:property:: arch
+      :canonical: slothy.core.dataflow.DataFlowGraph.arch
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.arch
+
+   .. py:method:: apply_cbs(cb, logger, one_a_time=False)
+      :canonical: slothy.core.dataflow.DataFlowGraph.apply_cbs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.apply_cbs
+
+   .. py:method:: apply_parsing_cbs()
+      :canonical: slothy.core.dataflow.DataFlowGraph.apply_parsing_cbs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.apply_parsing_cbs
+
+   .. py:method:: apply_fusion_cbs()
+      :canonical: slothy.core.dataflow.DataFlowGraph.apply_fusion_cbs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.apply_fusion_cbs
+
+   .. py:method:: _address_offset_fixup_cbs()
+      :canonical: slothy.core.dataflow.DataFlowGraph._address_offset_fixup_cbs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._address_offset_fixup_cbs
+
+   .. py:method:: _selfcheck_outputs()
+      :canonical: slothy.core.dataflow.DataFlowGraph._selfcheck_outputs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._selfcheck_outputs
+
+   .. py:method:: _parse_line(l)
+      :canonical: slothy.core.dataflow.DataFlowGraph._parse_line
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._parse_line
+
+   .. py:method:: _parse_source(src)
+      :canonical: slothy.core.dataflow.DataFlowGraph._parse_source
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._parse_source
+
+   .. py:method:: iter_dependencies()
+      :canonical: slothy.core.dataflow.DataFlowGraph.iter_dependencies
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.iter_dependencies
+
+   .. py:method:: _typecheck_node(s)
+      :canonical: slothy.core.dataflow.DataFlowGraph._typecheck_node
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._typecheck_node
+
+   .. py:method:: describe(*, error=False)
+      :canonical: slothy.core.dataflow.DataFlowGraph.describe
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.describe
+
+   .. py:method:: update_inputs()
+      :canonical: slothy.core.dataflow.DataFlowGraph.update_inputs
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.update_inputs
+
+   .. py:method:: has_symbolic_registers()
+      :canonical: slothy.core.dataflow.DataFlowGraph.has_symbolic_registers
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.has_symbolic_registers
+
+   .. py:method:: find_all_predecessors_input_registers(consumer, register_name)
+      :canonical: slothy.core.dataflow.DataFlowGraph.find_all_predecessors_input_registers
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.find_all_predecessors_input_registers
+
+   .. py:method:: ssa(filter_func=None)
+      :canonical: slothy.core.dataflow.DataFlowGraph.ssa
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph.ssa
+
+   .. py:method:: _build_graph()
+      :canonical: slothy.core.dataflow.DataFlowGraph._build_graph
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._build_graph
+
+   .. py:method:: _add_node_from_candidates(candidates, sourceline)
+      :canonical: slothy.core.dataflow.DataFlowGraph._add_node_from_candidates
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._add_node_from_candidates
+
+   .. py:method:: _find_source_single(ty, name)
+      :canonical: slothy.core.dataflow.DataFlowGraph._find_source_single
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._find_source_single
+
+   .. py:method:: _process_restore_instruction(reg, loc)
+      :canonical: slothy.core.dataflow.DataFlowGraph._process_restore_instruction
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._process_restore_instruction
+
+   .. py:method:: _process_spill_instruction(reg, loc, ty)
+      :canonical: slothy.core.dataflow.DataFlowGraph._process_spill_instruction
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._process_spill_instruction
+
+   .. py:method:: _add_node(s)
+      :canonical: slothy.core.dataflow.DataFlowGraph._add_node
+
+      .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._add_node
