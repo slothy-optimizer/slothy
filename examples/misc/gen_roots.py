@@ -134,7 +134,7 @@ class NttRootGen():
 
         # Force _signed_ representation of root?
         if root > self.modulus // 2:
-           root -= self.modulus
+            root -= self.modulus
 
         def round_to_even(x):
             rx = round(x)

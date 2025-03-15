@@ -315,4 +315,4 @@ def main():
             run_example(e, silent=args.silent)
 
 if __name__ == "__main__":
-   main()
+    main()

@@ -2236,7 +2236,7 @@ class SlothyBase(LockAttributes):
 
         if self.config.sw_pipelining.enabled is True and \
            self._is_low(consumer) and self._is_high(producer):
-           raise Exception("Not yet implemented")
+            raise Exception("Not yet implemented")
 
         if not self.config.sw_pipelining.enabled or producer.is_virtual or consumer.is_virtual:
             for (cb, bvar) in zip(cb_lst, bvars, strict=True):

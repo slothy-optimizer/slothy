@@ -79,7 +79,7 @@ def _add_st_ld_hazard(slothy):
             return False
         if slothy.config.constraints.st_ld_hazard_ignore_stack and \
            (instB.inst.is_stack_load() or instA.inst.is_stack_store()):
-           return False
+            return False
         return True
 
     slothy._model.st_ld_hazard_vars = {}

@@ -670,7 +670,7 @@ class Instruction:
         return False
 
     def is_ldr(self):
-         return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback,])
+        return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback,])
 
     def is_load(self):
         """Indicates if an instruction is a load instruction"""

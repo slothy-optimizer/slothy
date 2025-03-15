@@ -3173,7 +3173,7 @@ class ld2_with_inc(Ld2): # pylint: disable=missing-docstring,invalid-name
 
 
 class ASimdCompare(AArch64Instruction):
-   """Parent class for ASIMD compare instructions"""
+    """Parent class for ASIMD compare instructions"""
 
 class cmge(ASimdCompare): # pylint: disable=missing-docstring,invalid-name
     pattern = "cmge <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
