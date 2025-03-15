@@ -80,8 +80,6 @@ ignore =
     E711
     #  test for object identity should be 'is not'
     E714
-    # test for membership should be 'not in'
-    E713
     # undefined name 's'
     F821
     # local variable is assigned to but never used

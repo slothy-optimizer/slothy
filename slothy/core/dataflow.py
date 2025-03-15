@@ -462,7 +462,7 @@ class DataFlowGraph:
         return self.nodes[num_nodes//2:]
 
     def _remember_type(self, reg, ty):
-        if not reg in self._typing_dict:
+        if reg not in self._typing_dict:
             self._typing_dict[reg] = ty
             return
 

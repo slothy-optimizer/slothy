@@ -177,7 +177,7 @@ class NttRootGen():
 
     def _roots_of_unity_for_layer_core(self, layer, merged):
 
-        if not merged in [1,2,3,4]:
+        if merged not in [1,2,3,4]:
             raise NttRootGenInvalidParameters("Invalid layer merge")
 
         for cur_block in range(0,2**layer):

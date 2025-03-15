@@ -44,7 +44,7 @@ class SourceLine:
     """Representation of a single line of source code"""
 
     def _extract_comments_from_text(self):
-        if not "//" in self._raw:
+        if "//" not in self._raw:
             return
         s = list(self._raw.split("//"))
         self._raw = s[0]
@@ -625,7 +625,7 @@ class AsmAllocation():
         self.allocations[alias] = reg_name
 
     def _remove_allocation(self, alias):
-        if not alias in self.allocations:
+        if alias not in self.allocations:
             raise AsmHelperException(f"Couldn't find alias {alias} --"
                                      " .unreq without .req in your source?")
         del self.allocations[alias]
@@ -778,7 +778,7 @@ class AsmMacro():
         def prepare_value(a):
             a = a.strip()
             a = a.replace("\\","\\\\")
-            if a.startswith("\\") and not "\\\\()" in a:
+            if a.startswith("\\") and "\\\\()" not in a:
                 a = a + "\\\\()"
             return a
 

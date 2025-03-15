@@ -974,9 +974,9 @@ class Result(LockAttributes):
 
         def apply_reordering(x):
             src,dst,lbl=x
-            if not src in reordering.keys():
+            if src not in reordering.keys():
                 raise SlothyException(f"Source ID {src} not in remapping {reordering.items()}")
-            if not dst in reordering:
+            if dst not in reordering:
                 raise SlothyException(f"Destination ID {dst} not in remapping {reordering.items()}")
             return (reordering[src], reordering[dst], lbl)
 

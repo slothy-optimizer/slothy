@@ -140,7 +140,7 @@ class LeLoop(Loop):
         assert reg == "lr"
         indent = ' ' * indentation
         if unroll > 1:
-            if not unroll in [1,2,4,8,16,32]:
+            if unroll not in [1,2,4,8,16,32]:
                 raise Exception("unsupported unrolling")
             yield f"{indent}lsr lr, lr, #{int(math.log2(unroll))}"
         if fixup != 0:
