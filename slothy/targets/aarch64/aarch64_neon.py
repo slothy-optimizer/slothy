@@ -295,7 +295,7 @@ class SubsLoop(Loop):
         self.lbl = lbl
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
-                               rf"^\s*(cbnz|bnz|bne)\s+(?P<cnt>\w+),\s*{lbl}")
+                          rf"^\s*(cbnz|bnz|bne)\s+(?P<cnt>\w+),\s*{lbl}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -560,7 +560,7 @@ class Instruction:
 
         if not len(obj.args_in) == obj.num_in:
             raise FatalParsingException(f"Something wrong parsing {src}: Expect {obj.num_in} input,"
-                f" but got {len(obj.args_in)} ({obj.args_in})")
+                                        f" but got {len(obj.args_in)} ({obj.args_in})")
 
         return obj
 
@@ -725,9 +725,9 @@ class AArch64Instruction(Instruction):
             inputs += ["flags"]
 
         super().__init__(mnemonic=pattern,
-                     arg_types_in=arg_types_in,
-                     arg_types_out=arg_types_out,
-                     arg_types_in_out=arg_types_in_out)
+                         arg_types_in=arg_types_in,
+                         arg_types_out=arg_types_out,
+                         arg_types_in_out=arg_types_in_out)
 
         self.inputs = inputs
         self.outputs = outputs
@@ -889,8 +889,8 @@ class qsave(Instruction): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = Instruction.build(cls, src, mnemonic="qsave",
-                               arg_types_in=[RegisterType.NEON],
-                               arg_types_out=[RegisterType.STACK_NEON])
+                                arg_types_in=[RegisterType.NEON],
+                                arg_types_out=[RegisterType.STACK_NEON])
         obj.addr = "sp"
         obj.increment = None
         return obj
@@ -899,8 +899,8 @@ class qrestore(Instruction): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = Instruction.build(cls, src, mnemonic="qrestore",
-                               arg_types_in=[RegisterType.STACK_NEON],
-                               arg_types_out=[RegisterType.NEON])
+                                arg_types_in=[RegisterType.STACK_NEON],
+                                arg_types_out=[RegisterType.NEON])
         obj.addr = "sp"
         obj.increment = None
         return obj
@@ -909,8 +909,8 @@ class save(Instruction): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = Instruction.build(cls, src, mnemonic="save",
-                               arg_types_in=[RegisterType.GPR],
-                               arg_types_out=[RegisterType.STACK_GPR])
+                                arg_types_in=[RegisterType.GPR],
+                                arg_types_out=[RegisterType.STACK_GPR])
         obj.addr = "sp"
         obj.increment = None
         return obj
@@ -919,8 +919,8 @@ class restore(Instruction): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = Instruction.build(cls, src, mnemonic="restore",
-                               arg_types_in=[RegisterType.STACK_GPR],
-                               arg_types_out=[RegisterType.GPR])
+                                arg_types_in=[RegisterType.STACK_GPR],
+                                arg_types_out=[RegisterType.GPR])
         obj.addr = "sp"
         obj.increment = None
         return obj
@@ -1055,8 +1055,8 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc): # pylint: disable=missing-docstr
         obj = AArch64Instruction.build(cls, src)
         obj.detected_q_ld2_lane_post_inc_pair = False
         obj.args_in_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
-            ]
+            ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+        ]
         return obj
 
     def write(self):
@@ -1074,8 +1074,8 @@ class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc): # pylint: disable=m
 
         obj = AArch64Instruction.build(cls, src)
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
-            ]
+            ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,30) ] )
+        ]
         return obj
 
     def write(self):
@@ -2318,7 +2318,7 @@ class vqrdmulh_lane(Vqdmulh): # pylint: disable=missing-docstring,invalid-name
         obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
-                                          [ f"v{i}" for i in range(0,16) ]]
+                                         [ f"v{i}" for i in range(0,16) ]]
         return obj
 
 class vqdmulh_lane(Vqdmulh): # pylint: disable=missing-docstring,invalid-name
@@ -2330,7 +2330,7 @@ class vqdmulh_lane(Vqdmulh): # pylint: disable=missing-docstring,invalid-name
         obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
-                                          [ f"v{i}" for i in range(0,16) ]]
+                                         [ f"v{i}" for i in range(0,16) ]]
 
         return obj
 
@@ -2338,8 +2338,8 @@ class fcsel_dform(Instruction): # pylint: disable=missing-docstring,invalid-name
     @classmethod
     def make(cls, src):
         obj = Instruction.build(cls, src, mnemonic="fcsel_dform",
-                         arg_types_in=[RegisterType.NEON, RegisterType.NEON, RegisterType.FLAGS],
-                         arg_types_out=[RegisterType.NEON])
+                                arg_types_in=[RegisterType.NEON, RegisterType.NEON, RegisterType.FLAGS],
+                                arg_types_out=[RegisterType.NEON])
 
         regexp_txt = r"fcsel_dform\s+(?P<dst>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<src2>\w+)\s*,\s*eq"
         regexp_txt = Instruction.unfold_abbrevs(regexp_txt)
@@ -2463,7 +2463,7 @@ class vmla_lane(Vmla): # pylint: disable=missing-docstring,invalid-name
         obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
-                                          [ f"v{i}" for i in range(0,16) ]]
+                                         [ f"v{i}" for i in range(0,16) ]]
         return obj
 
 class vmls(Vmla): # pylint: disable=missing-docstring,invalid-name
@@ -2480,7 +2480,7 @@ class vmls_lane(Vmla): # pylint: disable=missing-docstring,invalid-name
         obj = AArch64Instruction.build(cls, src)
         if obj.datatype[0] == "8h":
             obj.args_in_restrictions = [ [ f"v{i}" for i in range(0,32) ],
-                                          [ f"v{i}" for i in range(0,16) ]]
+                                         [ f"v{i}" for i in range(0,16) ]]
         return obj
 
 class vdup(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
@@ -2994,8 +2994,8 @@ class st4_base(St4): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
-            ]
+            ( [1,2,3,4], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
+        ]
         return obj
 
 class st4_with_inc(St4): # pylint: disable=missing-docstring,invalid-name
@@ -3009,8 +3009,8 @@ class st4_with_inc(St4): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
-            ]
+            ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
+        ]
         return obj
 
 class St3(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
@@ -3025,8 +3025,8 @@ class st3_base(St3): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
-            ]
+            ( [1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
+        ]
         return obj
 
 class st3_with_inc(St3): # pylint: disable=missing-docstring,invalid-name
@@ -3040,8 +3040,8 @@ class st3_with_inc(St3): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
-            ]
+            ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
+        ]
         return obj
 
 class St2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
@@ -3056,8 +3056,8 @@ class st2_base(St2): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-                ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
-            ]
+            ( [1,2], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
+        ]
         return obj
 
 class st2_with_inc(St2): # pylint: disable=missing-docstring,invalid-name
@@ -3071,8 +3071,8 @@ class st2_with_inc(St2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
-            ]
+            ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
+        ]
         return obj
 
 class Ld4(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
@@ -3088,8 +3088,8 @@ class ld4_base(Ld4): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
-            ]
+            ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
+        ]
         return obj
 
 class ld4_with_inc(Ld4): # pylint: disable=missing-docstring,invalid-name
@@ -3103,8 +3103,8 @@ class ld4_with_inc(Ld4): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
-            ]
+            ( [0,1,2,3], [ [ f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}" ] for i in range(0,29) ] )
+        ]
         return obj
 
 class Ld3(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
@@ -3120,8 +3120,8 @@ class ld3_base(Ld3): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
-            ]
+            ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}" ] for i in range(0,30) ] )
+        ]
         return obj
 
 class ld3_with_inc(Ld3): # pylint: disable=missing-docstring,invalid-name
@@ -3135,8 +3135,8 @@ class ld3_with_inc(Ld3): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0,30) ] )
-            ]
+            ( [0,1,2], [ [ f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0,30) ] )
+        ]
         return obj
 
 class Ld2(AArch64Instruction): # pylint: disable=missing-docstring,invalid-name
@@ -3152,8 +3152,8 @@ class ld2_base(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
-            ]
+            ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
+        ]
         return obj
 
 class ld2_with_inc(Ld2): # pylint: disable=missing-docstring,invalid-name
@@ -3167,8 +3167,8 @@ class ld2_with_inc(Ld2): # pylint: disable=missing-docstring,invalid-name
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
-            ]
+            ( [0,1], [ [ f"v{i}", f"v{i+1}" ] for i in range(0,31) ] )
+        ]
         return obj
 
 

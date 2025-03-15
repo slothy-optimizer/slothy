@@ -257,8 +257,8 @@ inverse_throughput = {
 }
 
 default_latencies = {
-      ldrd : 2,
-      restored : 2,
+    ldrd : 2,
+    restored : 2,
     ( ldr,
       mov_imm,
       mvn_imm,
@@ -325,7 +325,7 @@ default_latencies = {
       vmulf_T1,
       vmulf_T2,
       vfma)         : 2,
-   vmlaldava : 3
+    vmlaldava : 3
 }
 
 def get_latency(src, out_idx, dst):

@@ -139,7 +139,7 @@ execution_units = {
     (St4, St3, St2) : [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 
     (Ld3, Ld4) : [[ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
-           [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]]
+                  [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]]
 }
 
 inverse_throughput = {
@@ -165,7 +165,7 @@ inverse_throughput = {
     ( Ldr_Q,
       Str_Q,
       Ldr_X, Str_X )
-      : 1,
+    : 1,
 
     (VShiftImmediateRounding,
      VShiftImmediateBasic): 1,
@@ -196,7 +196,7 @@ default_latencies = {
 
     ( Ldr_Q, Ldr_X,
       Str_Q, Str_X )
-      : 4, # approx
+    : 4, # approx
 
     Vins : 6, # approx
     umov_d : 4, # approx

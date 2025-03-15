@@ -103,7 +103,7 @@ class SourceLine:
     def _extract_tags_from_comments(self):
         tags = {}
         self._comments = list(map(lambda c: SourceLine._parse_tags_in_string(c, tags),
-            self._comments))
+                                  self._comments))
         self._trim_comments()
         self.add_tags(tags)
 
@@ -305,11 +305,11 @@ class SourceLine:
 
     def copy(self):
         """Create a copy of a source line"""
-        return SourceLine(self._raw)                \
-                .add_tags(self._tags.copy())        \
-                .set_indentation(self._indentation) \
-                .add_comments(self._comments.copy())\
-                .set_length(self._fixlength)
+        return SourceLine(self._raw)            \
+            .add_tags(self._tags.copy())        \
+            .set_indentation(self._indentation) \
+            .add_comments(self._comments.copy())\
+            .set_length(self._fixlength)
 
     @staticmethod
     def read_multiline(s, reduce=True):
@@ -1268,13 +1268,13 @@ class LLVM_Mca():
         try:
             if full is False:
                 args = ["--instruction-info=0", "--dispatch-stats=0", "--timeline=1", "--timeline-max-cycles=0",
-                            "--timeline-max-iterations=3"]
+                        "--timeline-max-iterations=3"]
             else:
                 args = ["--all-stats", "--all-views", "--bottleneck-analysis", "--timeline=1", "--timeline-max-cycles=0", "--timeline-max-iterations=3"]
             if issue_width is not None:
                 args += ["--dispatch", str(issue_width)]
             r = subprocess.run([mca_binary, f"--mcpu={cpu}", f"--march={arch}"] + args,
-                            input=data, text=True, capture_output=True, check=True)
+                               input=data, text=True, capture_output=True, check=True)
         except subprocess.CalledProcessError as exc:
             raise LLVM_Mca_Error from exc
         res = r.stdout.split('\n')
@@ -1297,15 +1297,15 @@ class SelfTest():
         STACK_TOP = STACK_BASE + STACK_SZ
 
         regs = [r for ty in config.arch.RegisterType for r in \
-            config.arch.RegisterType.list_registers(ty)]
+                config.arch.RegisterType.list_registers(ty)]
 
         def run_code(code, txt=None):
             objcode, offset = LLVM_Mc.assemble(code,
-                                       config.arch.llvm_mc_arch,
-                                       config.arch.llvm_mc_attr,
-                                       log, symbol=fnsym,
-                                       preprocessor=config.compiler_binary,
-                                       include_paths=config.compiler_include_paths)
+                                               config.arch.llvm_mc_arch,
+                                               config.arch.llvm_mc_attr,
+                                               log, symbol=fnsym,
+                                               preprocessor=config.compiler_binary,
+                                               include_paths=config.compiler_include_paths)
             # Setup emulator
             mu = Uc(config.arch.unicorn_arch, config.arch.unicorn_mode)
             # Copy initial register contents into emulator
@@ -1461,7 +1461,7 @@ class Permutation():
         """Iterate over all inputs that have their order reversed by
         the permutation."""
         return ((i,j,p[i],p[j]) for i in range(n) for j in range(n) \
-            if i < j and p[j] < p[i])
+                if i < j and p[j] < p[i])
 
 
 class DeferHandler(logging.Handler):

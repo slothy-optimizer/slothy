@@ -407,8 +407,8 @@ def _main():
 
     # For intt_kyber_123_4567.s
     intt_kyber_l123 = NttRootGen(size=256,modulus=3329,root=17,layers=7,iters=[(0,3),(3,2),(5,2)], 
-                                pad=[0,3], print_label=True, widen_single_twiddles_to_words=False,
-                                inverse=True)
+                                 pad=[0,3], print_label=True, widen_single_twiddles_to_words=False,
+                                 inverse=True)
     intt_kyber_l123.export("../naive/aarch64/intt_kyber_123_45_67_twiddles.s")
     intt_kyber_l123.export("../opt/aarch64/intt_kyber_123_45_67_twiddles.s")
 
@@ -431,12 +431,12 @@ def _main():
     ntt_dilithium_l1234.export("../opt/aarch64/ntt_dilithium_1234_5678_twiddles.s")
 
     ntt_dilithium_l123 = NttRootGen(size=256,bitsize=32,modulus=8380417,root=1753,layers=8,
-                               iters=[(0,3),(3,3),(6,2)])
+                                    iters=[(0,3),(3,3),(6,2)])
     ntt_dilithium_l123.export("../naive/ntt_dilithium_123_456_78_twiddles.s")
     ntt_dilithium_l123.export("../opt/ntt_dilithium_123_456_78_twiddles.s")
 
     intt_dilithium_l123 = NttRootGen(size=256,inverse=True,bitsize=32,modulus=8380417,root=1753,layers=8,
-                                    print_label=True, pad=[0,3], iters=[(0,3),(3,3),(6,2)])
+                                     print_label=True, pad=[0,3], iters=[(0,3),(3,3),(6,2)])
     intt_dilithium_l123.export("../naive/aarch64/intt_dilithium_123_456_78_twiddles.s")
     intt_dilithium_l123.export("../opt/aarch64/intt_dilithium_123_456_78_twiddles.s")
 
@@ -450,11 +450,11 @@ def _main():
     intt_dilithium.export("../opt/intt_dilithium_twiddles.s")
 
     ntt_n256_s32_l6_test = NttRootGen(size=256,
-                                         modulus=33556993,
-                                         root=28678040,
-                                         layers=6,
-                                         bitsize=32,
-                                         incomplete_root=False)
+                                      modulus=33556993,
+                                      root=28678040,
+                                      layers=6,
+                                      bitsize=32,
+                                      incomplete_root=False)
     ntt_n256_s32_l6_test.export("../naive/ntt_n256_l6_s32_twiddles.s")
     ntt_n256_s32_l6_test.export("../opt/ntt_n256_l6_s32_twiddles.s")
 
@@ -469,21 +469,21 @@ def _main():
     intt_n256_s32_l6_test.export("../opt/intt_n256_l6_s32_twiddles.s")
 
     ntt_n256_s32_l8_test = NttRootGen(size=256,
-                                         modulus=33556993,
-                                         root=28678040,
-                                         layers=8,
-                                         bitsize=32,
-                                         incomplete_root=False)
+                                      modulus=33556993,
+                                      root=28678040,
+                                      layers=8,
+                                      bitsize=32,
+                                      incomplete_root=False)
     ntt_n256_s32_l8_test.export("../naive/ntt_n256_l8_s32_twiddles.s")
     ntt_n256_s32_l8_test.export("../opt/ntt_n256_l8_s32_twiddles.s")
 
     intt_n256_s32_l8_test = NttRootGen(size=256,
-                                          inverse=True,
-                                          modulus=33556993,
-                                          root=28678040,
-                                          layers=8,
-                                          bitsize=32,
-                                          incomplete_root=False)
+                                       inverse=True,
+                                       modulus=33556993,
+                                       root=28678040,
+                                       layers=8,
+                                       bitsize=32,
+                                       incomplete_root=False)
     intt_n256_s32_l8_test.export("../naive/intt_n256_l8_s32_twiddles.s")
     intt_n256_s32_l8_test.export("../opt/intt_n256_l8_s32_twiddles.s")
 

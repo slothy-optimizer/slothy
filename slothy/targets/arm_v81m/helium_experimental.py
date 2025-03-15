@@ -201,8 +201,8 @@ inverse_throughput = {
 }
 
 default_latencies = {
-      ldrd : 2,
-      restored : 2,
+    ldrd : 2,
+    restored : 2,
     ( ldr,
       mov_imm,
       mvn_imm,

@@ -301,7 +301,7 @@ class Config:
         accept either vector or GPR arguments.
         """
         typing_hints = { name : ty for ty in self.arch.RegisterType \
-               for name in self.arch.RegisterType.list_registers(ty, with_variants=True) }
+                         for name in self.arch.RegisterType.list_registers(ty, with_variants=True) }
         return { **self._typing_hints, **typing_hints }
     @property
     def outputs(self):
@@ -468,7 +468,7 @@ class DataFlowGraph:
 
         if not self._typing_dict[reg] == ty:
             self.logger.warning("You're using the same variable %s for registers of "
-                "different types -- this may confuse the tool...", reg)
+                                "different types -- this may confuse the tool...", reg)
 
     def edges(self):
         """Return the set of labelled edges in the data flow graph.
@@ -684,8 +684,8 @@ class DataFlowGraph:
                 raise SlothyUselessInstructionException("Useless instruction detected")
 
             self.logger.warning(f"The result registers {t.inst.args_out + t.inst.args_in_out} "
-                              f"of instruction {t.id}:[{t.inst}] are neither used "
-                              "nor declared as global outputs.")
+                                f"of instruction {t.id}:[{t.inst}] are neither used "
+                                "nor declared as global outputs.")
             self.logger.warning("Ignoring this as requested by `config.allow_useless_instructions`!")
 
     def _parse_line(self, l):
@@ -754,7 +754,7 @@ class DataFlowGraph:
                     return False
             return True
         return _check_list(s.arg_types_in, s.args_in) and \
-               _check_list(s.arg_types_in_out, s.args_in_out)
+            _check_list(s.arg_types_in_out, s.args_in_out)
 
     def describe(self, *, error=False):
         """Send a description of the data flow graph to the logger"""
@@ -868,7 +868,7 @@ class DataFlowGraph:
         num_valid_candidates = len(valid_candidates)
         if num_valid_candidates == 0:
             raise DataFlowGraphException(f"None of the candidate parsings for {sourceline} type checks!"\
-                            f"\nCandidates\n{candidates}")
+                                         f"\nCandidates\n{candidates}")
         # If we have more than one instruction passing the type check,
         # then we need more typing information from the user.
         #

@@ -78,11 +78,11 @@ class ExecutionUnit(Enum):
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
     t0_t1 = slothy.get_inst_pairs(
-            cond_fst=lambda t: not t.inst.is_load_store_instruction(),
-            cond_snd=lambda t: t.inst.is_vector_load())
+        cond_fst=lambda t: not t.inst.is_load_store_instruction(),
+        cond_snd=lambda t: t.inst.is_vector_load())
     t2_t3 = slothy.get_inst_pairs(
-            cond_fst=lambda t: t.inst.is_vector_store(),
-            cond_snd=lambda t: t.inst.is_vector_load())
+        cond_fst=lambda t: t.inst.is_vector_store(),
+        cond_snd=lambda t: t.inst.is_vector_load())
     for t0, t1 in t0_t1:
         for t2, t3 in t2_t3:
             b = [ slothy._NewBoolVar("") for _ in range(0,3) ]
@@ -138,7 +138,7 @@ execution_units = {
     vshllbt     : ExecutionUnit.VEC_SHFT,
     vmovlbt     : ExecutionUnit.VEC_VMOVLN,
     vrev        : [ ExecutionUnit.VEC_BITWA,
-                        ExecutionUnit.VEC_BITWB ],
+                    ExecutionUnit.VEC_BITWB ],
     vdup        : ExecutionUnit.VEC_INT,
     vmov_imm    : [ ExecutionUnit.VEC_VMOVA,
                     ExecutionUnit.VEC_VMOVB ],
@@ -152,9 +152,9 @@ execution_units = {
     vhcadd      : ExecutionUnit.VEC_INT,
     vhcsub      : ExecutionUnit.VEC_INT,
     vand        : [ ExecutionUnit.VEC_BITWA,
-                        ExecutionUnit.VEC_BITWB ],
+                    ExecutionUnit.VEC_BITWB ],
     vorr        : [ ExecutionUnit.VEC_BITWA,
-                        ExecutionUnit.VEC_BITWB ],
+                    ExecutionUnit.VEC_BITWB ],
     vmulh       : ExecutionUnit.VEC_MUL,
     vmul_T1     : ExecutionUnit.VEC_MUL,
     vmul_T2     : ExecutionUnit.VEC_MUL,
@@ -259,16 +259,16 @@ inverse_throughput = {
       vsubf,
       vhcadd,
       vhcsub )   : 2,
-     ( vmulf_T1,
-       vmulf_T2) : 2,
-     # MACs
-     ( vfma,
-       vcmla)    : 2,
+    ( vmulf_T1,
+      vmulf_T2) : 2,
+    # MACs
+    ( vfma,
+      vcmla)    : 2,
 }
 
 default_latencies = {
-      ldrd : 2,
-      restored : 2,
+    ldrd : 2,
+    restored : 2,
     ( ldr,
       mov_imm,
       mvn_imm,
@@ -327,13 +327,13 @@ default_latencies = {
       vsubf,
       vhcadd,
       vhcsub )    : 2,
-      ( vmulf_T1,
-        vmulf_T2,
-        vcmul)    : 3,
-      ( vld2,
-        vld4,
-        vfma,
-        vcmla)    : 4,
+    ( vmulf_T1,
+      vmulf_T2,
+      vcmul)    : 3,
+    ( vld2,
+      vld4,
+      vfma,
+      vcmla)    : 4,
 }
 
 def get_latency(src, out_idx, dst):

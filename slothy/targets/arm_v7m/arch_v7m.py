@@ -179,9 +179,7 @@ class RegisterType(Enum):
     @staticmethod
     def default_aliases():
         "Register aliases used by the architecture"
-        return {
-                 "lr": "r14",
-                }
+        return { "lr": "r14", }
 
 # TODO: Comparison can also be done with {add,sub,...}s
 class Branch:
@@ -239,7 +237,7 @@ class VmovCmpLoop(Loop):
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*vmov(?:\.w)?\s+(?P<end>\w+),\s*(?P<endf>\w+)",
                           r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
-                               rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
+                          rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -429,7 +427,7 @@ class CmpLoop(Loop):
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
-                               rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
+                          rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -504,7 +502,7 @@ class SubsLoop(Loop):
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*sub[s]?(?:\.w)?\s+(?P<cnt>\w+),(?:\s*(?P<reg1>\w+),)?\s*(?P<imm>#1)",
-                               rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl_start}")
+                          rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl_start}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -759,7 +757,7 @@ class Instruction:
 
         if not len(obj.args_in) == obj.num_in:
             raise FatalParsingException(f"Something wrong parsing {src}: Expect {obj.num_in} input,"
-                f" but got {len(obj.args_in)} ({obj.args_in})")
+                                        f" but got {len(obj.args_in)} ({obj.args_in})")
 
         return obj
 
@@ -941,9 +939,9 @@ class Armv7mInstruction(Instruction):
             inputs += ["flags"]
 
         super().__init__(mnemonic=pattern,
-                     arg_types_in=arg_types_in,
-                     arg_types_out=arg_types_out,
-                     arg_types_in_out=arg_types_in_out)
+                         arg_types_in=arg_types_in,
+                         arg_types_out=arg_types_out,
+                         arg_types_in_out=arg_types_in_out)
 
         self.inputs = inputs
         self.outputs = outputs
@@ -1166,8 +1164,8 @@ class vmov_gpr2_dual(Armv7mFPInstruction): # pylint: disable=missing-docstring,i
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"s{i}", f"s{i+1}" ] for i in range(0,len(RegisterType.list_registers(RegisterType.FPR))) ] )
-            ]
+            ( [0,1], [ [ f"s{i}", f"s{i+1}" ] for i in range(0,len(RegisterType.list_registers(RegisterType.FPR))) ] )
+        ]
         return obj
 
 # movs
@@ -1980,7 +1978,7 @@ def stm_interval_inc_writeback_splitting_cb():
             offset -= 4
         # Final store includes increment
         store = Armv7mInstruction.build(
-                str_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
+            str_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
         strs.append(store)
 
         for store in strs:
@@ -2017,7 +2015,7 @@ def ldm_interval_inc_writeback_splitting_cb():
             offset -= 4
         # Final load includes increment
         ldr = Armv7mInstruction.build(
-                ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
+            ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
         ldrs.append(ldr)
 
         for ldr in ldrs:
@@ -2054,7 +2052,7 @@ def vldm_interval_inc_writeback_splitting_cb():
             offset += 4
 
         add_ptr = Armv7mInstruction.build(
-                add_imm, {"width": width, "Rd": ptr, "Ra": ptr, "imm": f"#{offset}"})
+            add_imm, {"width": width, "Rd": ptr, "Ra": ptr, "imm": f"#{offset}"})
         ldrs.append(add_ptr)
 
         for ldr in ldrs:
@@ -2089,7 +2087,7 @@ def ldrd_postinc_splitting_cb():
         ldrs.append(ldr)
         # Final load includes increment
         ldr = Armv7mInstruction.build(
-                ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": "#8"})
+            ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": "#8"})
         ldr.increment = 8
         ldr.pre_index = None
         ldr.addr = ptr
@@ -2129,7 +2127,7 @@ def ldrd_imm_splitting_cb():
         ldrs.append(ldr)
         # Final load includes increment
         ldr = Armv7mInstruction.build(
-                ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": f"{inst.pre_index}+4"})
+            ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": f"{inst.pre_index}+4"})
         ldr.pre_index = f"{inst.pre_index}+4"
         ldr.addr = ptr
         ldrs.append(ldr)

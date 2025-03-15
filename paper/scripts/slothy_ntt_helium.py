@@ -163,7 +163,7 @@ class ntt_kyber_12_345_67(Example):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
-                                               [ "STACK0" ] )
+                                              [ "STACK0" ] )
         slothy.config.sw_pipelining.enabled = False
         slothy.optimize_loop("layer345_loop")
 
@@ -243,7 +243,7 @@ class ntt_dilithium_123_456_78(Example):
             "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
         }
         slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
-                                              [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
+                                             [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
         slothy.config.sw_pipelining.enabled=False
         slothy.optimize_loop("layer123_loop")
         slothy.optimize_loop("layer456_loop")
@@ -275,7 +275,7 @@ def main():
                  ntt_dilithium_12_34_56_78(target=Target_CortexM85r1),
                  ntt_dilithium_12_34_56_78(var="no_trans_vld4", target=Target_CortexM85r1),
                  ntt_dilithium_123_456_78(target=Target_CortexM85r1),
-                ]
+    ]
 
     all_example_names = [ e.name for e in examples ]
 

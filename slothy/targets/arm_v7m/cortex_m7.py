@@ -66,7 +66,7 @@ def add_dsp_slot_constraint(slothy):
 def add_mac_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
         [mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
-     smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr], [1])
+         smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr], [1])
 
 def add_st_hazard(slothy):
     def is_st_ld_pair(inst_a, inst_b):
@@ -120,7 +120,7 @@ execution_units = {
         ldrh_with_postinc,
         ldrb_with_postinc,
         vldr_with_imm, vldr_with_postinc  # TODO: also FPU?
-        ): ExecutionUnit.LOAD(),
+    ): ExecutionUnit.LOAD(),
     (
         Ldrd,
         ldm_interval,
@@ -307,7 +307,7 @@ def get_latency(src, out_idx, dst):
 
     # Load latency is 1 cycle if the destination is an arithmetic/logical instruction
     if instclass_src in [ldr_with_imm, ldr_with_imm_stack, ldr_with_inc_writeback] and \
-    sum([issubclass(instclass_dst, pc) for pc in [Armv7mBasicArithmetic, Armv7mLogical]]) and \
+        sum([issubclass(instclass_dst, pc) for pc in [Armv7mBasicArithmetic, Armv7mLogical]]) and \
        src.args_out[0] in dst.args_in:
         latency = latency - 1
 

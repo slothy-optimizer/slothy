@@ -619,7 +619,7 @@ class Config(NestedPrint, LockAttributes):
         """
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_factor otherwise.")
+                                "Shouldn't read config.split_heuristic_factor otherwise.")
         return self._split_heuristic_factor
 
     @property
@@ -628,7 +628,7 @@ class Config(NestedPrint, LockAttributes):
         optimization window above which the current pass of the split heuristic should stop."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
+                                "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
         return self._split_heuristic_abort_cycle_at_high
 
     @property
@@ -637,7 +637,7 @@ class Config(NestedPrint, LockAttributes):
         optimization window below which the current pass of the split heuristic should stop."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
+                                "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
         return self._split_heuristic_abort_cycle_at_low
 
     @property
@@ -648,7 +648,7 @@ class Config(NestedPrint, LockAttributes):
         that the sliding windows will be [0,0.2], [0.1,0.3], ..."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_stepsize otherwise.")
+                                "Shouldn't read config.split_heuristic_stepsize otherwise.")
         return self._split_heuristic_stepsize
 
     @property
@@ -658,7 +658,7 @@ class Config(NestedPrint, LockAttributes):
         optimization."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_optimize_seam otherwise.")
+                                "Shouldn't read config.split_heuristic_optimize_seam otherwise.")
         return self._split_heuristic_optimize_seam
 
     @property
@@ -667,7 +667,7 @@ class Config(NestedPrint, LockAttributes):
         If unset, a sliding or adaptive optimization window will be used."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_chunks otherwise.")
+                                "Shouldn't read config.split_heuristic_chunks otherwise.")
         return self._split_heuristic_chunks
 
     @property
@@ -676,7 +676,7 @@ class Config(NestedPrint, LockAttributes):
         rather than from top to bottom."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_bottom_to_top otherwise.")
+                                "Shouldn't read config.split_heuristic_bottom_to_top otherwise.")
         return self._split_heuristic_bottom_to_top
 
     @property
@@ -695,7 +695,7 @@ class Config(NestedPrint, LockAttributes):
         subregion configured here."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_region otherwise.")
+                                "Shouldn't read config.split_heuristic_region otherwise.")
         return self._split_heuristic_region
 
     @property
@@ -709,7 +709,7 @@ class Config(NestedPrint, LockAttributes):
         optimization."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise.")
+                                "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise.")
         return self._split_heuristic_preprocess_naive_interleaving
 
     @property
@@ -718,7 +718,7 @@ class Config(NestedPrint, LockAttributes):
         the naive interleaving to be by latency-depth rather than latency."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? Shouldn't"    \
-                "read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
+                                "read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
         return self._split_heuristic_preprocess_naive_interleaving_by_latency
 
     @property
@@ -727,7 +727,7 @@ class Config(NestedPrint, LockAttributes):
            performance and display un-used issue slots in the output."""
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? Shouldn't"    \
-                "read config.split_heuristic_estimate_performance otherwise.")
+                                "read config.split_heuristic_estimate_performance otherwise.")
         return self._split_heuristic_estimate_performance
 
     @property
@@ -743,7 +743,7 @@ class Config(NestedPrint, LockAttributes):
         """
         if not self.split_heuristic:
             raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_repeat otherwise.")
+                                "Shouldn't read config.split_heuristic_repeat otherwise.")
         return self._split_heuristic_repeat
 
     @property

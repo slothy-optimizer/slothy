@@ -106,22 +106,22 @@ def get_min_max_objective(slothy):
 
 execution_units = {
     # q-form vector instructions
-        (vmls, vmls_lane,
-        vmul, vmul_lane,
-        vmla, vmla_lane,
-        vqrdmulh, vqrdmulh_lane,
-        vqdmulh_lane,
-        vand, vbic,
-        Ldr_Q,
-        Str_Q,
-        q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
-        Vmull, Vmlal, vusra,
-        vushr, vsshr,
-        vshrn,
-        vshli,
-        vxtn,
-        VShiftImmediateRounding,
-    ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
+    ( vmls, vmls_lane,
+      vmul, vmul_lane,
+      vmla, vmla_lane,
+      vqrdmulh, vqrdmulh_lane,
+      vqdmulh_lane,
+      vand, vbic,
+      Ldr_Q,
+      Str_Q,
+      q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
+      Vmull, Vmlal, vusra,
+      vushr, vsshr,
+      vshrn,
+      vshli,
+      vxtn,
+      VShiftImmediateRounding,
+      ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
     St4 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
             ExecutionUnit.SCALAR_STORE] + ExecutionUnit.SCALAR()],
@@ -143,7 +143,7 @@ execution_units = {
       VecToGprMov, Mov_xtov_d,
       d_stp_stack_with_inc, d_str_stack_with_inc, b_ldr_stack_with_inc, d_ldr_stack_with_inc,
       q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
-    ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],  # these instructions use VEC0 or VEC1
+      ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],  # these instructions use VEC0 or VEC1
 
     is_qform_form_of(vmov) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vmov) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
@@ -300,12 +300,10 @@ def get_latency(src, out_idx, dst):
        and latency < 3:
         latency += 1
 
-    if [instclass_src, instclass_dst] in   \
-       [
-            [lsr, mul_wform],
-            [lsr, umaddl_wform],
-            [vbic, vusra]
-       ]:
+    if [instclass_src, instclass_dst] in [
+        [lsr, mul_wform],
+        [lsr, umaddl_wform],
+        [vbic, vusra]]:
         latency += 1
 
     if instclass_src == vmlal and instclass_dst == vmlal and \

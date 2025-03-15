@@ -85,7 +85,7 @@ class Archery:
         arch = Archery._archs.get(name,None)
         if arch is None:
             raise UnknownTarget(f"Could not find architecture {name}. "\
-                            f"Known architectures are {list(Archery._archs.keys())}")
+                                f"Known architectures are {list(Archery._archs.keys())}")
         return arch
 
     @staticmethod
@@ -94,5 +94,5 @@ class Archery:
         target = Archery._targets.get(name,None)
         if target is None:
             raise UnknownTarget(f"Could not find target {name}. "\
-                            f"Known targets are {list(Archery._targets.keys())}")
+                                f"Known targets are {list(Archery._targets.keys())}")
         return target

@@ -2733,11 +2733,11 @@ def main():
 
                  AArch64Split0(),
 
-                # Armv7m examples
+                 # Armv7m examples
                  Armv7mExample0(),
                  Armv7mExample0Func(),
 
-                # Loop examples
+                 # Loop examples
                  AArch64LoopSubs(),
                  LoopLe(),
                  Armv7mLoopSubs(),
@@ -2787,7 +2787,7 @@ def main():
                  ntt_kyber_1234_567(target=Target_CortexA72),
                  intt_kyber_123_4567(target=Target_CortexA72),
                  intt_kyber_123_4567(var="manual_ld4", target=Target_CortexA72),
-                #  # Apple M1 Firestorm
+                 # Apple M1 Firestorm
                  ntt_kyber_123_4567(target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_kyber_123_4567(var="scalar_load", target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_kyber_123_4567(var="scalar_store", target=Target_AppleM1_firestorm, timeout=3600),
@@ -2843,7 +2843,7 @@ def main():
                  intt_dilithium_1234_5678(target=Target_CortexA72),
                  intt_dilithium_1234_5678(var="manual_ld4", target=Target_CortexA72),
                  # Apple M1 Firestorm
-                ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
+                 ntt_dilithium_123_45678(target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_dilithium_123_45678(var="w_scalar", target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_dilithium_123_45678(var="manual_st4", target=Target_AppleM1_firestorm, timeout=3600),
                  ntt_dilithium_1234_5678(target=Target_AppleM1_firestorm, timeout=300),
