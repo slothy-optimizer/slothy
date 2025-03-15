@@ -2585,7 +2585,7 @@ class SlothyBase(LockAttributes):
                 yield t
 
         def is_cross_iteration_dependency(producer, consumer):
-            if not self.config.sw_pipelining.enabled is True:
+            if self.config.sw_pipelining.enabled is not True:
                 return False
             return self._is_low(producer.src) and self._is_high(consumer)
 

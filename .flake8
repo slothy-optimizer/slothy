@@ -76,10 +76,6 @@ ignore =
     F602
     # comparison to False should be 'if cond is False:' or 'if not cond:'
     E712
-    # comparison to None should be 'if cond is None:'
-    E711
-    #  test for object identity should be 'is not'
-    E714
     # undefined name 's'
     F821
     # local variable is assigned to but never used

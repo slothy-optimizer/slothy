@@ -306,7 +306,7 @@ def main():
             if e.name == name:
                 ex = e
                 break
-        if ex == None:
+        if ex is None:
             raise Exception(f"Could not find example {name} (known: {list(e.name for e in examples)}")
         ex.run(silent=silent, no_log=args.no_log, log_model=args.log_model)
 
