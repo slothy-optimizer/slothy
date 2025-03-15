@@ -171,6 +171,7 @@ class Example():
         if dry_run is False:
             slothy.write_source_to_file(self.outfile_full)
 
+
 class Example0(Example):
     def __init__(self):
         super().__init__("simple0")
@@ -201,6 +202,7 @@ class Example3(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("start")
 
+
 class LoopLe(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
         name = "loop_le"
@@ -217,6 +219,7 @@ class LoopLe(Example):
         slothy.config.variable_size=True
         slothy.optimize_loop("start")
 
+
 class AArch64LoopSubs(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_loop_subs"
@@ -232,6 +235,7 @@ class AArch64LoopSubs(Example):
     def core(self,slothy):
         slothy.config.variable_size=True
         slothy.optimize_loop("start")
+
 
 class CRT(Example):
     def __init__(self):
@@ -345,6 +349,7 @@ class ntt_kyber_1_23_45_67(Example):
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
         self.timeout = timeout
+
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
@@ -566,6 +571,7 @@ class ntt_kyber_l345_symbolic(Example):
         slothy.config.sw_pipelining.halving_heuristic_periodic = True
         slothy.optimize_loop("layer345_loop")
 
+
 class AArch64Example0(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_simple0"
@@ -582,6 +588,7 @@ class AArch64Example0(Example):
         slothy.config.variable_size=True
         slothy.config.constraints.stalls_first_attempt=32
         slothy.optimize()
+
 
 class AArch64Example0Equ(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
@@ -639,6 +646,7 @@ class AArch64Example2(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("start")
 
+
 class AArch64ExampleLdSt(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_ldst"
@@ -671,6 +679,8 @@ class AArch64Split0(Example):
     def core(self,slothy):
         slothy.config.allow_useless_instructions = True
         slothy.fusion_region("start", "end", ssa=False)
+
+
 class Armv7mExample0(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "armv7m_simple0"
@@ -687,6 +697,7 @@ class Armv7mExample0(Example):
         slothy.config.variable_size=True
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="start", end="end")
+
 
 class Armv7mExample0Func(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
@@ -705,6 +716,7 @@ class Armv7mExample0Func(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize(start="start", end="end")
         slothy.global_selftest("my_func", {"r0": 1024 })
+
 
 class Armv7mLoopSubs(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
@@ -725,6 +737,7 @@ class Armv7mLoopSubs(Example):
         slothy.config.outputs = ["r0", "r1", "r2", "r5", "flags"]
         slothy.optimize_loop("start2", forced_loop_type=Arch_Armv7M.BranchLoop)
 
+
 class Armv7mLoopCmp(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_cmp"
@@ -742,6 +755,7 @@ class Armv7mLoopCmp(Example):
         slothy.config.outputs = ["r6"]
         slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.CmpLoop)
 
+
 class Armv7mLoopVmovCmp(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_vmov_cmp"
@@ -758,7 +772,8 @@ class Armv7mLoopVmovCmp(Example):
         slothy.config.variable_size=True
         slothy.config.outputs = ["r6"]
         slothy.optimize_loop("start")
-        
+
+
 class Armv7mLoopVmovCmpForced(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_vmov_cmp_forced"
@@ -776,6 +791,7 @@ class Armv7mLoopVmovCmpForced(Example):
         slothy.config.outputs = ["r5", "r6"]
         slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.CmpLoop)
 
+
 class AArch64IfElse(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_ifelse"
@@ -790,6 +806,7 @@ class AArch64IfElse(Example):
 
     def core(self,slothy):
         slothy.optimize()
+
 
 class ntt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
@@ -819,6 +836,7 @@ class ntt_kyber_123_4567(Example):
         if self.var == "":
             slothy.global_selftest("ntt_kyber_123_4567",
                                    {"x0": 1024, "x1": 1024, "x3": 1024, "x4": 1024, "x5": 1024})
+
 
 class intt_kyber_123_4567(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None):
@@ -1302,8 +1320,6 @@ class intt_dilithium_123_45678(Example):
         slothy.optimize_loop("layer123_start")
 
 
-
-
 class ntt_dilithium_123(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "ntt_dilithium_123"
@@ -1570,6 +1586,7 @@ class fft_floatingpoint_radix4(Example):
 
 #############################################################################################
 
+
 class ntt_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"ntt_dilithium"
@@ -1606,6 +1623,7 @@ class ntt_dilithium(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer78_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
 
+
 class intt_dilithium_123_456_78(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "intt_dilithium_123_456_78"
@@ -1624,7 +1642,6 @@ class intt_dilithium_123_456_78(Example):
 
         slothy.config.unsafe_address_offset_fixup = True
 
-
         slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
@@ -1639,6 +1656,7 @@ class intt_dilithium_123_456_78(Example):
 
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer78_loop", forced_loop_type=Arch_Armv7M.BranchLoop)
+
 
 class pointwise_montgomery_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1660,6 +1678,7 @@ class pointwise_montgomery_dilithium(Example):
 
         slothy.optimize_loop("1")
 
+
 class pointwise_acc_montgomery_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "pointwise_acc_montgomery_dilithium"
@@ -1679,6 +1698,7 @@ class pointwise_acc_montgomery_dilithium(Example):
         slothy.config.sw_pipelining.enabled = True
 
         slothy.optimize_loop("1")
+
 
 class fnt_257_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1730,6 +1750,7 @@ class fnt_257_dilithium(Example):
         # Due dependencies in the memory between loads and stores, skip this for now
         # slothy.optimize_loop("_fnt_to_16_bit")
 
+
 class ifnt_257_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "ifnt_257_dilithium"
@@ -1745,7 +1766,7 @@ class ifnt_257_dilithium(Example):
 
     def core(self, slothy):
         slothy.config.timeout = 300
-        
+
         slothy.config.unsafe_address_offset_fixup = False
 
         slothy.config.outputs = ["r14", "s1", "r12"]
@@ -1787,6 +1808,7 @@ class basemul_257_dilithium(Example):
         slothy.config.unsafe_address_offset_fixup = False
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("_point_mul_16_loop")
+
 
 class basemul_257_asymmetric_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -1870,6 +1892,7 @@ class ntt_769_dilithium(Example):
         slothy.config.split_heuristic_optimize_seam = 6
         slothy.optimize_loop("layer567_loop")
 
+
 class intt_769_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "intt_769_dilithium"
@@ -1885,7 +1908,7 @@ class intt_769_dilithium(Example):
 
     def core(self, slothy):
         slothy.config.timeout = 180
-        
+
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
@@ -1968,6 +1991,7 @@ class pointwise_769_asymmetric_dilithium(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("_asymmetric_mul_16_loop")
 
+
 class reduce32_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "reduce32_dilithium"
@@ -1988,6 +2012,7 @@ class reduce32_dilithium(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("1")
 
+
 class caddq_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "caddq_dilithium"
@@ -2006,13 +2031,13 @@ class caddq_dilithium(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("1")
-        
+
+
 class Keccak(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = f"keccakf1600"
         infile = name
         funcname = "KeccakF1600_StatePermute"
-        
 
         if var != "":
             name += f"_{var}"
@@ -2028,7 +2053,7 @@ class Keccak(Example):
         slothy.config.reserved_regs = ["sp", "r13"]
         slothy.config.locked_registers = ["sp", "r13"]
         slothy.config.unsafe_address_offset_fixup = False
-        
+
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_preprocess_naive_interleaving = True
         slothy.config.split_heuristic_repeat = 2
@@ -2037,17 +2062,17 @@ class Keccak(Example):
 
         if "adomnicai_m7" in self.name:
             slothy.config.split_heuristic_factor = 6
-            
+
             slothy.config.outputs = ['hint_spEga0', 'hint_spEge0', 'hint_spEgi0', 'hint_spEgo0', 'hint_spEgu0', 'hint_spEka1', 'hint_spEke1', 'hint_spEki1', 'hint_spEko1', 'hint_spEku1', 'hint_spEma0', 'hint_spEme0', 'hint_spEmi0', 'hint_spEmo0', 'hint_spEmu0', 'hint_spEsa1', 'hint_spEse1', 'hint_spEsi1', 'hint_spEso1', 'hint_spEsu1', 'hint_spEbe0', 'hint_spEbi0', 'hint_spEbo0', 'hint_spEbu0', 'hint_spEba0', 'hint_spEga1', 'hint_spEge1', 'hint_spEgi1', 'hint_spEgo1', 'hint_spEgu1', 'hint_spEka0', 'hint_spEke0', 'hint_spEki0', 'hint_spEko0', 'hint_spEku0', 'hint_spEma1', 'hint_spEme1', 'hint_spEmi1', 'hint_spEmo1', 'hint_spEmu1', 'hint_spEsa0', 'hint_spEse0', 'hint_spEsi0', 'hint_spEso0', 'hint_spEsu0', 'hint_spEbe1', 'hint_spEbi1', 'hint_spEbo1', 'hint_spEbu1', 'hint_spEba1']
             slothy.optimize(start="slothy_start_round0", end="slothy_end_round0")
             slothy.config.outputs = ['flags', 'hint_r0Aba0', 'hint_r0Aba1', 'hint_r0Abe0', 'hint_r0Abe1', 'hint_r0Abi0', 'hint_r0Abi1', 'hint_r0Abo0', 'hint_r0Abo1', 'hint_r0Abu0', 'hint_r0Abu1', 'hint_r0Aga0', 'hint_r0Aga1', 'hint_r0Age0', 'hint_r0Age1', 'hint_r0Agi0', 'hint_r0Agi1', 'hint_r0Ago0', 'hint_r0Ago1', 'hint_r0Agu0', 'hint_r0Agu1', 'hint_r0Aka0', 'hint_r0Aka1', 'hint_r0Ake0', 'hint_r0Ake1', 'hint_r0Aki0', 'hint_r0Aki1', 'hint_r0Ako0', 'hint_r0Ako1', 'hint_r0Aku0', 'hint_r0Aku1', 'hint_r0Ama0', 'hint_r0Ama1', 'hint_r0Ame0', 'hint_r0Ame1', 'hint_r0Ami0', 'hint_r0Ami1', 'hint_r0Amo0', 'hint_r0Amo1', 'hint_r0Amu0', 'hint_r0Amu1', 'hint_r0Asa0', 'hint_r0Asa1', 'hint_r0Ase0', 'hint_r0Ase1', 'hint_r0Asi0', 'hint_r0Asi1', 'hint_r0Aso0', 'hint_r0Aso1', 'hint_r0Asu0', 'hint_r0Asu1']
             slothy.optimize(start="slothy_start_round1", end="slothy_end_round1")
-        else: 
+        else:
             if "xkcp" in self.name:
                 slothy.config.outputs = ['flags', 'hint_spEba0', 'hint_spEba1', 'hint_spEbe0', 'hint_spEbe1', 'hint_spEbi0', 'hint_spEbi1', 'hint_spEbo0', 'hint_spEbo1', 'hint_spEbu0', 'hint_spEbu1', 'hint_spEga0', 'hint_spEga1', 'hint_spEge0', 'hint_spEge1', 'hint_spEgi0', 'hint_spEgi1', 'hint_spEgo0', 'hint_spEgo1', 'hint_spEgu0', 'hint_spEgu1', 'hint_spEka0', 'hint_spEka1', 'hint_spEke0', 'hint_spEke1', 'hint_spEki0', 'hint_spEki1', 'hint_spEko0', 'hint_spEko1', 'hint_spEku0', 'hint_spEku1', 'hint_spEma0', 'hint_spEma1', 'hint_spEme0', 'hint_spEme1', 'hint_spEmi0', 'hint_spEmi1', 'hint_spEmo0', 'hint_spEmo1', 'hint_spEmu0', 'hint_spEmu1', 'hint_spEsa0', 'hint_spEsa1', 'hint_spEse0', 'hint_spEse1', 'hint_spEsi0', 'hint_spEsi1', 'hint_spEso0', 'hint_spEso1', 'hint_spEsu0', 'hint_spEsu1']
             if "adomnicai_m4" in self.name:
                 slothy.config.outputs = ['flags', 'hint_r0Aba1', 'hint_r0Aka1', 'hint_spEba0', 'hint_spEba1', 'hint_spEbe0', 'hint_spEbe1', 'hint_spEbi0', 'hint_spEbi1', 'hint_spEbo0', 'hint_spEbo1', 'hint_spEbu0', 'hint_spEbu1', 'hint_spEga0', 'hint_spEga1', 'hint_spEge0', 'hint_spEge1', 'hint_spEgi0', 'hint_spEgi1', 'hint_spEgo0', 'hint_spEgo1', 'hint_spEgu0', 'hint_spEgu1', 'hint_spEka0', 'hint_spEka1', 'hint_spEke0', 'hint_spEke1', 'hint_spEki0', 'hint_spEki1', 'hint_spEko0', 'hint_spEko1', 'hint_spEku0', 'hint_spEku1', 'hint_spEma0', 'hint_spEma1', 'hint_spEme0', 'hint_spEme1', 'hint_spEmi0', 'hint_spEmi1', 'hint_spEmo0', 'hint_spEmo1', 'hint_spEmu0', 'hint_spEmu1', 'hint_spEsa0', 'hint_spEsa1', 'hint_spEse0', 'hint_spEse1', 'hint_spEsi0', 'hint_spEsi1', 'hint_spEso0', 'hint_spEso1', 'hint_spEsu0', 'hint_spEsu1', 'hint_spmDa0']
-            
+
             slothy.config.split_heuristic_factor = 22
             slothy.config.constraints.stalls_first_attempt = 16
 
@@ -2178,6 +2203,7 @@ class basemul_16_32_kyber(Example):
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
 
+
 class basemul_acc_32_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "basemul_acc_32_32_kyber"
@@ -2201,6 +2227,7 @@ class basemul_acc_32_32_kyber(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
+
 
 class basemul_acc_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2227,6 +2254,7 @@ class basemul_acc_32_16_kyber(Example):
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
 
+
 class frombytes_mul_16_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "frombytes_mul_16_32_kyber"
@@ -2251,6 +2279,7 @@ class frombytes_mul_16_32_kyber(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
+
 
 class frombytes_mul_acc_32_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2277,6 +2306,7 @@ class frombytes_mul_acc_32_32_kyber(Example):
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
 
+
 class frombytes_mul_acc_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "frombytes_mul_acc_32_16_kyber"
@@ -2298,6 +2328,7 @@ class frombytes_mul_acc_32_16_kyber(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
+
 
 class add_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2323,6 +2354,7 @@ class add_kyber(Example):
         slothy.config.sw_pipelining.enabled = False
         slothy.fusion_region(start="pointwise_add_final_start", end="pointwise_add_final_end", ssa=False)
         slothy.optimize(start="pointwise_add_final_start", end="pointwise_add_final_end")
+
 
 class sub_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2350,6 +2382,7 @@ class sub_kyber(Example):
         slothy.fusion_region(start="pointwise_sub_final_start", end="pointwise_sub_final_end", ssa=False)
         slothy.optimize(start="pointwise_sub_final_start", end="pointwise_sub_final_end")
 
+
 class barrett_reduce_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "barrett_reduce_kyber"
@@ -2374,7 +2407,6 @@ class barrett_reduce_kyber(Example):
         slothy.optimize_loop("1")
 
 
-
 class fromplant_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "fromplant_kyber"
@@ -2396,6 +2428,7 @@ class fromplant_kyber(Example):
         slothy.config.constraints.stalls_first_attempt = 4
         slothy.fusion_loop("1", ssa=False)
         slothy.optimize_loop("1")
+
 
 class basemul_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2424,6 +2457,7 @@ class basemul_kyber(Example):
         slothy.fusion_loop("1", ssa=False)
         slothy.config.unsafe_address_offset_fixup = False
         slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.SubsLoop)
+
 
 class basemul_acc_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2454,6 +2488,7 @@ class basemul_acc_kyber(Example):
         slothy.config.unsafe_address_offset_fixup = False
         slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.SubsLoop)
 
+
 class frombytes_mul_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "frombytes_mul_kyber"
@@ -2480,6 +2515,7 @@ class frombytes_mul_kyber(Example):
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1")
 
+
 class frombytes_mul_acc_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "frombytes_mul_acc_kyber"
@@ -2504,6 +2540,7 @@ class frombytes_mul_acc_kyber(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.BranchLoop)
+
 
 class matacc_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2559,7 +2596,6 @@ class matacc_acc_kyber(Example):
         slothy.optimize(start="slothy_start_2", end="slothy_end_2")
 
 
-
 class matacc_asm_opt_16_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "matacc_asm_opt_16_32_kyber"
@@ -2585,6 +2621,7 @@ class matacc_asm_opt_16_32_kyber(Example):
         slothy.optimize(start="slothy_start_1", end="slothy_end_1")
         slothy.config.outputs = ["r9"]
         slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
 
 class matacc_asm_opt_32_32_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
@@ -2690,6 +2727,7 @@ class matacc_asm_cache_32_32_kyber(Example):
         slothy.config.outputs = ["r9"]
         slothy.optimize(start="slothy_start_2", end="slothy_end_2")
 
+
 class matacc_asm_cache_32_16_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
         name = "matacc_asm_cache_32_16_kyber"
@@ -2714,6 +2752,7 @@ class matacc_asm_cache_32_16_kyber(Example):
         slothy.optimize(start="slothy_start_1", end="slothy_end_1")
         slothy.config.outputs = ["r9"]
         slothy.optimize(start="slothy_start_2", end="slothy_end_2")
+
 
 def main():
     examples = [ Example0(),
@@ -2871,7 +2910,7 @@ def main():
                  fft_floatingpoint_radix4(),
                  # Fixed point
                  fft_fixedpoint_radix4(),
-                 
+
                  ntt_dilithium(),
                  intt_dilithium_123_456_78(),
                  pointwise_montgomery_dilithium(),
@@ -2886,7 +2925,7 @@ def main():
                  pointwise_769_asymmetric_dilithium(),
                  reduce32_dilithium(),
                  caddq_dilithium(),
-                 
+
                  Keccak(var="xkcp"),
                  Keccak(var="adomnicai_m4"),
                  Keccak(var="adomnicai_m7"),
@@ -2964,6 +3003,7 @@ def main():
                         debug_logfile=args.debug_logfile,
                         log_model_dir=args.log_model_dir, timeout=args.timeout,
                         only_target=args.only_target)
+
 
 if __name__ == "__main__":
     main()

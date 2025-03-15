@@ -36,6 +36,7 @@ from slothy.targets.aarch64.aarch64_neon import *
 issue_rate = 4
 llvm_mca_target="neoverse-n1"
 
+
 class ExecutionUnit(Enum):
     """Enumeration of execution units in approximative Neoverse-N1 SLOTHY model"""
     SCALAR_I0=0
@@ -46,26 +47,34 @@ class ExecutionUnit(Enum):
     LSU1=4
     VEC0=5
     VEC1=6
+
     def __repr__(self):
         return self.name
+
     @classmethod
     def I(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.SCALAR_I0, ExecutionUnit.SCALAR_I1, ExecutionUnit.SCALAR_I2]
+
     @classmethod
     def M(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.SCALAR_M]
+
     @classmethod
     def V(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
+
     @classmethod
     def V0(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.VEC0]
+
     @classmethod
     def V1(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.VEC1]
+
     @classmethod
     def LSU(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.LSU0, ExecutionUnit.LSU1]
+
 
 # Opaque functions called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
@@ -77,11 +86,15 @@ def add_further_constraints(slothy):
     slothy.restrict_slots_for_instructions_by_property(
         lambda t: is_neon_instruction(t) is False, [1,2,3])
 
+
 def has_min_max_objective(config):
     _ = config
     return False
+
+
 def get_min_max_objective(slothy):
     _ = slothy
+
 
 execution_units = {
     (Ldp_X, Ldr_X,
@@ -200,6 +213,7 @@ default_latencies = {
     umull_wform               : 2,
 }
 
+
 def get_latency(src, out_idx, dst):
     _ = out_idx # out_idx unused
 
@@ -231,11 +245,13 @@ def get_latency(src, out_idx, dst):
 
     return latency
 
+
 def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     return [units]
+
 
 def get_inverse_throughput(src):
     return lookup_multidict(inverse_throughput, src)

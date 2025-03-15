@@ -55,5 +55,3 @@ html_theme_options = { 'logo_only': True, }
 html_css_files = [
     'css/style.css',
 ]
-
-

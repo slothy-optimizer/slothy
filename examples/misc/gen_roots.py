@@ -25,8 +25,10 @@
 
 import math
 
+
 class NttRootGenInvalidParameters(Exception):
     """Invalid parameters for NTT root generation"""
+
 
 class NttRootGen():
     """Helper class for the generation of NTT twiddle factors"""
@@ -393,6 +395,7 @@ class NttRootGen():
             f.write(license_text)
             f.write('\n'.join(self._get_roots_of_unity_asm()))
 
+
 def _main():
 
     ntt_kyber_l345 = NttRootGen(size=256,modulus=3329,root=17,layers=7,iters=[(0,2),(2,3),(5,2)],
@@ -486,6 +489,7 @@ def _main():
                                        incomplete_root=False)
     intt_n256_s32_l8_test.export("../naive/intt_n256_l8_s32_twiddles.s")
     intt_n256_s32_l8_test.export("../opt/intt_n256_l8_s32_twiddles.s")
+
 
 if __name__ == "__main__":
     _main()

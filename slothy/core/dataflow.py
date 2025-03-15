@@ -28,12 +28,14 @@
 from functools import cached_property
 from slothy.helper import SourceLine
 
+
 class SlothyUselessInstructionException(Exception):
     """An instruction was found whose outputs are neither used by a subsequent instruction
     nor declared as global outputs of the code under consideration. The instruction is therefore
     useless according to the architecture model given to SLOTHY. Consider removing the instruction
     or refining the architecture model.
     """
+
 
 class RegisterSource:
     """Representation of the output of an instruction
@@ -63,35 +65,48 @@ class RegisterSource:
         """In case of input/output arguments, the transitively computed RegisterSource
         producing the register as a pure _output_."""
 
+
 class InstructionOutput(RegisterSource):
     """Represents an output of a node in the data flow graph"""
     def __repr__(self):
         return f"({self.src}).out[{self.idx}]"
+
     def get_type(self):
         return self.src.inst.arg_types_out[self.idx]
+
     def name(self):
         return self.src.inst.args_out[self.idx]
+
     def alloc(self):
         return self.src.alloc_out_var[self.idx]
+
     def reduce(self):
         return self
+
     def sibling(self):
         return InstructionOutput(self.src.sibling, self.idx)
+
 
 class InstructionInOut(RegisterSource):
     """Represents an input/output of a node in the data flow graph"""
     def __repr__(self):
         return f"({self.src}).inout[{self.idx}]"
+
     def get_type(self):
         return self.src.inst.arg_types_in_out[self.idx]
+
     def name(self):
         return self.src.inst.args_in_out[self.idx]
+
     def alloc(self):
         return self.src.alloc_in_out_var[self.idx]
+
     def reduce(self):
         return self.src.src_in_out[self.idx].reduce()
+
     def sibling(self):
         return InstructionInOut(self.src.sibling, self.idx)
+
 
 class VirtualInstruction:
     """A 'virtual' instruction node for inputs and outputs."""
@@ -125,6 +140,7 @@ class VirtualInstruction:
     def write(self):
         """Provide a string description of the virtual instruction"""
 
+
 class VirtualOutputInstruction(VirtualInstruction):
     """A virtual instruction node for outputs."""
     def __init__(self, reg, reg_ty):
@@ -140,6 +156,7 @@ class VirtualOutputInstruction(VirtualInstruction):
     def __repr__(self):
         return f"<output:{self.orig_reg}:{self.arg_types_in[0]}>"
 
+
 class VirtualInputInstruction(VirtualInstruction):
     """A virtual instruction node for inputs."""
     def __init__(self, reg, reg_ty):
@@ -154,6 +171,7 @@ class VirtualInputInstruction(VirtualInstruction):
 
     def __repr__(self):
         return f"<input:{self.orig_reg}:{self.arg_types_out[0]}>"
+
 
 class ComputationNode:
     """A node in a data flow graph"""
@@ -261,6 +279,7 @@ class ComputationNode:
             ret.append(f"* {name}")
             for idx, src in enumerate(src_lst):
                 ret.append(f" + {idx}: {src}")
+
         def _append_deps( name, dep_lst ):
             if len(dep_lst) == 0:
                 return
@@ -284,6 +303,7 @@ class ComputationNode:
         _append_deps("In/Out dependants", self.dst_in_out)
         return ret
 
+
 class Config:
     """Configuration for parsing of data flow graphs"""
 
@@ -291,6 +311,7 @@ class Config:
     def arch(self):
         """The underlying architecture model"""
         return self._arch
+
     @property
     def typing_hints(self):
         """A dictionary of 'typing hints' explicitly assigning to symbolic register names
@@ -303,16 +324,19 @@ class Config:
         typing_hints = { name : ty for ty in self.arch.RegisterType \
                          for name in self.arch.RegisterType.list_registers(ty, with_variants=True) }
         return { **self._typing_hints, **typing_hints }
+
     @property
     def outputs(self):
         """The global outputs of the data flow graph."""
         return self._outputs
+
     @property
     def inputs_are_outputs(self):
         """Every input is automatically treated as an output.
         This is typically set for loop kernels.
         """
         return self._inputs_are_outputs
+
     @property
     def allow_useless_instructions(self):
         """Indicates whether data flow creation should raise SlothyUselessInstructionException
@@ -323,12 +347,15 @@ class Config:
     @typing_hints.setter
     def typing_hints(self,val):
         self._typing_hints = val
+
     @outputs.setter
     def outputs(self,val):
         self._outputs = val
+
     @inputs_are_outputs.setter
     def inputs_are_outputs(self,val):
         self._inputs_are_outputs = val
+
     @allow_useless_instructions.setter
     def allow_useless_instructions(self,val):
         self._allow_useless_instructions = val
@@ -363,8 +390,10 @@ class Config:
         self._absorb_spills = self._slothy_config.absorb_spills
         self._unsafe_address_offset_fixup = self._slothy_config.unsafe_address_offset_fixup
 
+
 class DataFlowGraphException(Exception):
     """An exception triggered during parsing a data flow graph"""
+
 
 class DataFlowGraph:
     """The data flow graph associated with a piece of assembly."""
@@ -394,14 +423,17 @@ class DataFlowGraph:
     def num_nodes(self):
         """The number of nodes in the data flow graph."""
         return len(self.nodes)
+
     @property
     def nodes_input(self):
         """The list of all virtual input ComputationNodes"""
         return [ t for t in self.nodes_all if t.is_virtual_input ]
+
     @property
     def nodes_output(self):
         """The list of all virtual output ComputationNodes"""
         return [ t for t in self.nodes_all if t.is_virtual_output ]
+
     @property
     def inputs_typed(self):
         """The type-indexed dictionary of input registers"""
@@ -411,6 +443,7 @@ class DataFlowGraph:
             reg = t.inst.args_out[0]
             res[ty].append(reg)
         return res
+
     @property
     def outputs_typed(self):
         """The type-indexed dictionary of output registers"""
@@ -422,18 +455,22 @@ class DataFlowGraph:
                 res[ty] = []
             res[ty].append(reg)
         return res
+
     @property
     def input_by_name(self):
         """Dictionary mapping input names to their virtual input ComputationNode"""
         return { t.inst.args_out[0] : t for t in self.nodes_input }
+
     @property
     def output_by_name(self):
         """Dictionary mapping output names to their virtual output ComputationNode"""
         return { t.inst.args_in[0] : t for t in self.nodes_output }
+
     @property
     def inputs(self):
         """The (untyped) set of input registers."""
         return set(self.input_by_name.keys())
+
     @property
     def outputs(self):
         """The (untyped) set of output registers."""
@@ -452,6 +489,7 @@ class DataFlowGraph:
         num_nodes = len(self.nodes)
         assert num_nodes % 2 == 0
         return self.nodes[:num_nodes//2]
+
     @property
     def nodes_high(self):
         """For a source with an even number of instructions, the upper half of the
@@ -536,11 +574,13 @@ class DataFlowGraph:
 
             def pair_with_source(i):
                 return ([i], i.source_line)
+
             def map_node(t):
                 s = t.inst
                 if not isinstance(t.inst, list):
                     s = [s]
                 return map(pair_with_source, s)
+
             def flatten(llst):
                 return [x for y in llst for x in y]
 
@@ -575,6 +615,7 @@ class DataFlowGraph:
         the instruction and then rebuild the computation flow graph.
         """
         logger = self.logger.getChild("parsing_cbs")
+
         def parsing_cb(t):
             return t.inst.global_parsing_cb(t, log=logger.info)
         return self.apply_cbs(parsing_cb, logger)
@@ -582,12 +623,14 @@ class DataFlowGraph:
     def apply_fusion_cbs(self):
         """Apply fusion callbacks to nodes in the graph"""
         logger = self.logger.getChild("fusion_cbs")
+
         def fusion_cb(t):
             return t.inst.global_fusion_cb(t, log=logger.info)
         return self.apply_cbs(fusion_cb, logger, one_a_time=True)
 
     def _address_offset_fixup_cbs(self):
         logger = self.logger.getChild("address_fixup_cbs")
+
         def address_offset_cb(t, log=None):
             # Address offset fixup relaxes scheduling constraints
             # for load/store instructions with increment.
@@ -667,6 +710,7 @@ class DataFlowGraph:
 
         def flatten(llst):
             return [x for y in llst for x in y]
+
         def outputs_unused(t):
             has_outputs = t.inst.num_out + t.inst.num_in_out > 0
             outputs_unused = len(flatten(t.dst_out + t.dst_in_out)) == 0
@@ -724,6 +768,7 @@ class DataFlowGraph:
         # variant of vmul, while attempting to parse it as an instance of the
         # vector-vector variant would fail the type check.
         self.logger.debug("Typecheck instruction %s", s)
+
         def _check_list(types, names):
             for ty, name in zip(types,names):
                 self.logger.debug(" - argument %s of type %s", name, ty)
@@ -813,6 +858,7 @@ class DataFlowGraph:
         # Go through non-virtual instruction nodes and assign unique names to
         # output registers which are not global outputs.
         out_cnt = 0
+
         def get_fresh_reg():
             nonlocal out_cnt
             res = f"ssa_{out_cnt}"

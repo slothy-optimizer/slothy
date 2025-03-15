@@ -42,6 +42,7 @@ from slothy.targets.arm_v81m.arch_v81m import *
 issue_rate = 1
 llvm_mca_target = "cortex-m55"
 
+
 class ExecutionUnit(Enum):
     SCALAR=0,
     LOAD=1,
@@ -50,13 +51,16 @@ class ExecutionUnit(Enum):
     VEC_MUL=3,
     VEC_FPU=3,
     STACK=1,
+
     def __repr__(self):
         return self.name
+
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
     _add_st_ld_hazard(slothy)
+
 
 # ===============================================================#
 #                   CONSTRAINT (Performance)                     #
@@ -97,16 +101,19 @@ def _add_st_ld_hazard(slothy):
         slothy._Add( t_ld.cycle_start_var != t_st.cycle_start_var + 2 ).OnlyEnforceIf(
             slothy._model.st_ld_hazard_vars[t_st,t_ld] )
 
+
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
 def has_min_max_objective(config):
     return all([ not config.constraints.st_ld_hazard,
                  config.constraints.minimize_st_ld_hazards ])
 
+
 def get_min_max_objective(slothy):
     if not has_min_max_objective(slothy.config):
         return
     return (slothy._model.st_ld_hazard_vars, "minimize", "ST-LD hazard risks")
+
 
 execution_units = {
     nop         : ExecutionUnit.SCALAR,
@@ -328,6 +335,7 @@ default_latencies = {
     vmlaldava : 3
 }
 
+
 def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
@@ -415,12 +423,14 @@ def get_latency(src, out_idx, dst):
 
     return default_latency
 
+
 def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     else:
         return [units]
+
 
 def get_inverse_throughput(src):
     return lookup_multidict(

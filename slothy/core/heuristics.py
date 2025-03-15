@@ -42,6 +42,7 @@ from slothy.core.core import SlothyBase, Result, SlothyException
 from slothy.helper import Permutation, SourceLine
 from slothy.helper import binary_search, BinarySearchLimitException
 
+
 class Heuristics():
     """Break down large optimization problems into smaller ones.
 
@@ -416,6 +417,7 @@ class Heuristics():
             nodes_by_depth.sort(key=lambda t: t.depth)
             for t in dfg.nodes_all:
                 t.latency_depth = 0
+
             def get_latency(tp,t):
                 if tp.src.is_virtual:
                     return 0
@@ -443,6 +445,7 @@ class Heuristics():
 
         def get_inputs(inst):
             return set(inst.args_in + inst.args_in_out)
+
         def get_outputs(inst):
             return set(inst.args_out + inst.args_in_out)
 
@@ -713,6 +716,7 @@ class Heuristics():
                 end_pos.append(cur_end)
 
                 cur_start += increment
+
             def not_empty(x):
                 return x[0] != x[1]
             idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
@@ -754,6 +758,7 @@ class Heuristics():
                 end_pos   = [ x[1] for x in conf.split_heuristic_chunks ]
                 idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
                               Heuristics._idxs_from_fractions(end_pos, cur_body))
+
                 def not_empty(x):
                     return x[0] != x[1]
                 idx_lst = list(filter(not_empty, idx_lst))
@@ -806,7 +811,6 @@ class Heuristics():
                 res = res2
 
         return res
-
 
     @staticmethod
     def _split(body, logger, conf):
@@ -903,8 +907,10 @@ class Heuristics():
             # TODO: The 2nd optimization step below does not yet produce a Result structure.
             reordering = res_halving_0.reordering
             codesize = res_halving_0.codesize
+
             def rotate_pos(p):
                 return p - (codesize // 2)
+
             def is_pre(i):
                 return rotate_pos(reordering[i]) < 0
 

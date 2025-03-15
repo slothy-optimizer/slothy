@@ -41,10 +41,13 @@ class ExecutionUnit(Enum):
 
     def __repr__(self):
         return self.name
+
     def ALU(): # pylint: disable=invalid-name
         return [ExecutionUnit.ALU0, ExecutionUnit.ALU1]
+
     def SHIFT(): # pylint: disable=invalid-name
         return [ExecutionUnit.SHIFT0, ExecutionUnit.SHIFT1]
+
     def LOAD(): # pylint: disable=invalid-name
         return [ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]
 
@@ -59,14 +62,17 @@ def add_further_constraints(slothy):
     add_dsp_slot_constraint(slothy)
     add_mac_slot_constraint(slothy)
 
+
 def add_dsp_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
         [pkhbt, pkhtb, pkhbt_shifted, ubfx_imm, uadd16, usub16, sadd16, ssub16], [0])
+
 
 def add_mac_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
         [mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
          smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr], [1])
+
 
 def add_st_hazard(slothy):
     def is_st_ld_pair(inst_a, inst_b):
@@ -319,11 +325,10 @@ def get_latency(src, out_idx, dst):
             dst.args_in[0] in src.args_out:
         return latency + 1
 
-
     # Load and store multiples take a long time to complete
     if instclass_src in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
         latency = src.num_out
-        
+
     # Flag setting -> branch has at least 3 latency
     if instclass_src in [subs_imm, subs_imm_short, cmp, cmp_imm] and instclass_dst == bne:
         latency = 2
@@ -338,7 +343,6 @@ def get_latency(src, out_idx, dst):
 
 def get_units(src):
     units = lookup_multidict(execution_units, src)
-
 
     def evaluate_immediate(string_expr):
         if string_expr is None:
@@ -361,6 +365,7 @@ def get_units(src):
     if isinstance(units, list):
         return units
     return [units]
+
 
 def get_inverse_throughput(src):
     itp = lookup_multidict(inverse_throughput, src)

@@ -52,11 +52,14 @@ from slothy.core.dataflow import Config as DFGConfig
 from slothy.core.dataflow import InstructionOutput, InstructionInOut, ComputationNode
 from slothy.core.dataflow import SlothyUselessInstructionException
 
+
 class SlothyException(Exception):
     """Generic exception thrown by SLOTHY"""
 
+
 class SlothySelfCheckException(SlothyException):
     """Exception thrown by SLOTHY during tht selfcheck """
+
 
 class Result(LockAttributes):
     """The results of a one-shot SLOTHY optimization run"""
@@ -65,6 +68,7 @@ class Result(LockAttributes):
     def orig_code(self):
         """Optimization input: Source code"""
         return self._orig_code
+
     @orig_code.setter
     def orig_code(self, val):
         assert self._orig_code is None
@@ -292,6 +296,7 @@ class Result(LockAttributes):
     def orig_inputs(self):
         """The list of input registers in the _original_ source code."""
         return list(self.input_renamings.keys())
+
     @property
     def orig_outputs(self):
         """The list of output registers in the _original_ source code."""
@@ -313,6 +318,7 @@ class Result(LockAttributes):
         It is also the codomain of the xxx_with_bubbles dictionaries.
         """
         return self._codesize_with_bubbles
+
     @codesize_with_bubbles.setter
     def codesize_with_bubbles(self, v):
         assert self._codesize_with_bubbles is None
@@ -347,6 +353,7 @@ class Result(LockAttributes):
         """
         self._require_sw_pipelining()
         return self._pre_core_post_dict
+
     @pre_core_post_dict.setter
     def pre_core_post_dict(self, v):
         self._require_sw_pipelining()
@@ -384,6 +391,7 @@ class Result(LockAttributes):
             i = self.periodic_reordering_inv[i]
 
         return self.pre_core_post_dict[i][1]
+
     def is_post(self, i, original_program_order=True):
         """Indicates if the instruction in original program order position i (starting at 0)
            was marked 'late' and thereby pulled into the next iteration.
@@ -402,17 +410,20 @@ class Result(LockAttributes):
         """In a software pipelining result, the number of 'early' instructions."""
         self._require_sw_pipelining()
         return sum(pre for (pre,_,_) in self.pre_core_post_dict.values())
+
     @cached_property
     def num_core(self):
         """In a software pipelining result, the number of 'late' instructions."""
         self._require_sw_pipelining()
         return sum(core for (_,core,_) in self.pre_core_post_dict.values())
+
     @cached_property
     def num_post(self):
         """In a software pipelining result, the number of 'core' instructions
            (neither early nor late)."""
         self._require_sw_pipelining()
         return sum(post for (_,_,post) in self.pre_core_post_dict.values())
+
     @cached_property
     def num_prepost(self):
         """In a software pipelining result, the number of early or late instructions.
@@ -447,6 +458,7 @@ class Result(LockAttributes):
         # TODO: Clarify how early and late instructions are treated in the case
         # of software pipelining
         return self._reordering_with_bubbles
+
     @reordering_with_bubbles.setter
     def reordering_with_bubbles(self, v):
         assert self._reordering_with_bubbles is None
@@ -1032,6 +1044,7 @@ class Result(LockAttributes):
         code via Result.input_renaming. For the list of original input register names,
         use Result.orig_inputs."""
         return list(self.input_renamings.values())
+
     @property
     def outputs(self):
         """The list of output registers in the _optimized_ source code. This is a list
@@ -1039,20 +1052,24 @@ class Result(LockAttributes):
         code via Result.output_renaming. For the list of original output register names,
         use Result.orig_outputs."""
         return list(self.output_renamings.values())
+
     @property
     def input_renamings(self):
         """Dictionary mapping original input names to architectural register names
         used in the optimized source code. See also Config.rename_inputs."""
         return self._input_renamings
+
     @input_renamings.setter
     def input_renamings(self, v):
         assert self._input_renamings is None
         self._input_renamings = v
+
     @property
     def output_renamings(self):
         """Dictionary mapping original output names to architectural register names
         used in the optimized source code. See also Config.rename_outputs."""
         return self._output_renamings
+
     @output_renamings.setter
     def output_renamings(self, v):
         assert self._output_renamings is None
@@ -1065,6 +1082,7 @@ class Result(LockAttributes):
         More precisely: The number of cycles c such that optimization succeeded with
         up to c * issue_width unused issue slots."""
         return self._stalls
+
     @stalls.setter
     def stalls(self, v):
         assert self._stalls is None
@@ -1079,6 +1097,7 @@ class Result(LockAttributes):
         self._stalls_idxs = { j for (i,j) in self.reordering.items() if
                               self.reordering_with_bubbles[i] + 1 not in
                               self.reordering_with_bubbles.values() }
+
     @property
     def stall_positions(self):
         """The positions of instructions in the optimized assembly where SLOTHY
@@ -1086,11 +1105,13 @@ class Result(LockAttributes):
         if self._stalls_idxs is None:
             self._build_stalls_idxs()
         return self._stalls_idxs
+
     @property
     def kernel(self):
         """When using software pipelining, the loop kernel of the optimized loop."""
         self._require_sw_pipelining()
         return self.code
+
     @property
     def kernel_input_output(self):
         """When using software pipelining, the dependencies between successive loop iterations.
@@ -1099,23 +1120,28 @@ class Result(LockAttributes):
         preceeding it), because the kernel dependencies are the output of the preamble."""
         self._require_sw_pipelining()
         return self._kernel_input_output
+
     @kernel_input_output.setter
     def kernel_input_output(self, val):
         assert self._kernel_input_output is None
         self._kernel_input_output = val
+
     @property
     def preamble(self):
         """When using software pipelining, the preamble of the optimized loop."""
         self._require_sw_pipelining()
         return self._preamble
+
     @preamble.setter
     def preamble(self, val):
         self._preamble = val
+
     @property
     def postamble(self):
         """When using software pipelining, the postamble of the optimized loop."""
         self._require_sw_pipelining()
         return self._postamble
+
     @postamble.setter
     def postamble(self, val):
         self._postamble = val
@@ -1131,6 +1157,7 @@ class Result(LockAttributes):
         if not self._valid:
             raise SlothyException("Querying not-yet-populated result object")
         return self._success
+
     def __bool__(self):
         return self.success
 
@@ -1143,6 +1170,7 @@ class Result(LockAttributes):
     def valid(self):
         """Indicates whether the result object is valid."""
         return self._valid
+
     @valid.setter
     def valid(self, val):
         self._valid = val
@@ -1371,7 +1399,6 @@ class Result(LockAttributes):
         dfgc_postamble = DFGConfig(self.config, outputs=self.orig_outputs)
         DFG(self.postamble, log.getChild("new_postamble"), dfgc_postamble)
 
-
     def __init__(self, config):
         super().__init__()
 
@@ -1400,6 +1427,7 @@ class Result(LockAttributes):
 
         self.lock()
 
+
 class SlothyBase(LockAttributes):
     """Stateless core of SLOTHY.
 
@@ -1419,6 +1447,7 @@ class SlothyBase(LockAttributes):
         """The underlying architecture used by SLOTHY, as a read-only reference
         to the corresponding field in the configuration."""
         return self.config.arch
+
     @property
     def target(self):
         """The underlying microarchitecture used by SLOTHY, as a read-only reference
@@ -1559,7 +1588,6 @@ class SlothyBase(LockAttributes):
         self.result.success = self._solve()
         self.result.valid = True
 
-
         if not retry and self.success:
             self.logger.info("Booleans in result: %d", self._model.cp_solver.NumBooleans())
 
@@ -1691,6 +1719,7 @@ class SlothyBase(LockAttributes):
             static, val = static_renaming(self.config.rename_inputs, t)
             return SimpleNamespace(**{"node": t, "static" : static, "reg" : val,
                                       "name" : t.inst.orig_reg, "ty" : t.inst.orig_ty })
+
         def tag_output(t):
             static, val = static_renaming(self.config.rename_outputs, t)
             return SimpleNamespace(**{"node": t, "static" : static, "reg" : val,
@@ -1708,6 +1737,7 @@ class SlothyBase(LockAttributes):
 
         class OutOfRegisters(Exception):
             pass
+
         def get_fresh_renaming_reg(ty):
             if len(avail_renaming_regs[ty]) == 0:
                 raise OutOfRegisters
@@ -1801,6 +1831,7 @@ class SlothyBase(LockAttributes):
             self.__printer = printer
             self.__objective_desc = objective_description
             self.variables = variables
+
         def on_solution_callback(self):
             """Triggered when OR-Tools finds a solution to the current constraint problem"""
             self.__solution_count += 1
@@ -1826,6 +1857,7 @@ class SlothyBase(LockAttributes):
                     self.StopSearch()
             if self.__solution_count >= self.__max_solutions:
                 self.StopSearch()
+
         def solution_count(self):
             """The number of solutions found so far"""
             return self.__solution_count
@@ -2027,6 +2059,7 @@ class SlothyBase(LockAttributes):
                                           for n in self._model.tree.nodes_input }
         self._result.output_renamings = { n.inst.orig_reg : n.inst.args_in[0]  \
                                           for n in self._model.tree.nodes_output }
+
         def _dump_renaming(name,dic):
             for k,v in ((k,v) for k,v in dic.items() if k != v):
                 self.logger.debug("%s %s renamed to %s", name, k, v)
@@ -2050,6 +2083,7 @@ class SlothyBase(LockAttributes):
             t.in_out_spills = [(get_value(v) == 1) for v in t.in_out_spill_vars ]
             t.out_lifetime_start = list(map(get_value, t.out_lifetime_start))
             t.inout_lifetime_start = list(map(get_value, t.inout_lifetime_start))
+
             def _dump_renaming(name,lst,inst):
                 for idx, reg in enumerate(lst):
                     self.logger.debug("%s %s of '%s' renamed to %s", name, idx, inst, reg)
@@ -2077,6 +2111,7 @@ class SlothyBase(LockAttributes):
         restores = self._result._restores
         for t in self._model.tree.nodes:
             p = t.real_pos_program
+
             def remember_spill(i, spilled, restore, arg, txt):
                 if spilled is True:
                     spills.setdefault(p, [])
@@ -2372,6 +2407,7 @@ class SlothyBase(LockAttributes):
 
         def make_var(name=""):
             return self._NewIntVar(0,self._model.program_horizon, name)
+
         def make_start_var(name=""):
             return self._NewIntVar(-1,self._model.program_horizon, name)
 
@@ -2813,7 +2849,6 @@ class SlothyBase(LockAttributes):
                 if t.inst.source_line.tags.get("branch", []):
                     self._Add( t.program_start_var ==
                                self._model.program_padded_size_half - 1 )
-                
 
             self._AddExactlyOne([t.pre_var, t.post_var, t.core_var])
 
@@ -2981,7 +3016,7 @@ class SlothyBase(LockAttributes):
                         continue
                     else:
                         raise e
-   
+
             force_after_last = t1.inst.source_line.tags.get("after_last", False)
             if force_after_last is True:
                 if i == 0:
@@ -3005,7 +3040,7 @@ class SlothyBase(LockAttributes):
                 # snippet of code. Thus, no constraint needs to be added because
                 # it does not affect this step right now, therefore we continue
                 # despite the exception.
-                try: 
+                try:
                     t1 = find_node_by_source_id(t1_id)
                 except SlothyException as e:
                     if self.config.split_heuristic:
@@ -3459,37 +3494,52 @@ class SlothyBase(LockAttributes):
         r = self._model.cp_model.NewIntVar(minval,maxval, name)
         self._model.variables.append(r)
         return r
+
     def _NewIntervalVar(self, base, dur, end, name=""): # pylint:disable=invalid-name
         return self._model.cp_model.NewIntervalVar(base,dur,end,name)
+
     def _NewOptionalIntervalVar(self, base, dur, end, cond,name=""): # pylint:disable=invalid-name
         return self._model.cp_model.NewOptionalIntervalVar(base,dur,end,cond,name)
+
     def _NewBoolVar(self, name=""): # pylint:disable=invalid-name
         r = self._model.cp_model.NewBoolVar(name)
         self._model.variables.append(r)
         return r
+
     def _NewConstant(self, val): # pylint:disable=invalid-name
         r = self._model.cp_model.NewConstant(val)
         return r
+
     def _Add(self,c): # pylint:disable=invalid-name
         return self._model.cp_model.Add(c)
+
     def _AddNoOverlap(self,lst): # pylint:disable=invalid-name
         return self._model.cp_model.AddNoOverlap(lst)
+
     def _AddExactlyOne(self,lst): # pylint:disable=invalid-name
         return self._model.cp_model.AddExactlyOne(lst)
+
     def _AddMultiplicationEquality(self,lst,res): # pylint:disable=invalid-name
         return self._model.cp_model.AddMultiplicationEquality(res,lst)
+
     def _AddImplication(self,a,b): # pylint:disable=invalid-name
         return self._model.cp_model.AddImplication(a,b)
+
     def _AddAtLeastOne(self,lst): # pylint:disable=invalid-name
         return self._model.cp_model.AddAtLeastOne(lst)
+
     def _AddAbsEq(self,dst,expr): # pylint:disable=invalid-name
         return self._model.cp_model.AddAbsEquality(dst,expr)
+
     def _AddAllDifferent(self,lst): # pylint:disable=invalid-name
         return self._model.cp_model.AddAllDifferent(lst)
+
     def _AddHint(self,var,val): # pylint:disable=invalid-name
         return self._model.cp_model.AddHint(var,val)
+
     def _AddNoOverlap(self,interval_list): # pylint:disable=invalid-name
         return self._model.cp_model.AddNoOverlap(interval_list)
+
     def _AddMaxEquality(self,varlist,var): # pylint:disable=invalid-name
         return self._model.cp_model.AddMaxEquality(varlist, var)
 

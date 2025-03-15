@@ -36,9 +36,11 @@ import os
 
 from slothy.helper import LockAttributes, NestedPrint
 
+
 class InvalidConfig(Exception):
     """Exception raised when an invalid SLOTHY configuration is detected
     """
+
 
 class Config(NestedPrint, LockAttributes):
     """Configuration for Slothy.
@@ -895,45 +897,59 @@ class Config(NestedPrint, LockAttributes):
         @enabled.setter
         def enabled(self,val):
             self._enabled = val
+
         @unroll.setter
         def unroll(self,val):
             self._unroll = val
+
         @pre_before_post.setter
         def pre_before_post(self,val):
             self._pre_before_post = val
+
         @allow_pre.setter
         def allow_pre(self,val):
             self._allow_pre = val
+
         @allow_post.setter
         def allow_post(self,val):
             self._allow_post = val
+
         @unknown_iteration_count.setter
         def unknown_iteration_count(self,val):
             self._unknown_iteration_count = val
+
         @minimize_overlapping.setter
         def minimize_overlapping(self,val):
             self._minimize_overlapping = val
+
         @optimize_preamble.setter
         def optimize_preamble(self,val):
             self._optimize_preamble = val
+
         @optimize_postamble.setter
         def optimize_postamble(self,val):
             self._optimize_postamble = val
+
         @max_overlapping.setter
         def max_overlapping(self,val):
             self._max_overlapping = val
+
         @min_overlapping.setter
         def min_overlapping(self,val):
             self._min_overlapping = val
+
         @halving_heuristic.setter
         def halving_heuristic(self,val):
             self._halving_heuristic = val
+
         @halving_heuristic_periodic.setter
         def halving_heuristic_periodic(self,val):
             self._halving_heuristic_periodic = val
+
         @halving_heuristic_split_only.setter
         def halving_heuristic_split_only(self,val):
             self._halving_heuristic_split_only = val
+
         @max_pre.setter
         def max_pre(self,val):
             self._max_pre = val
@@ -1142,45 +1158,59 @@ class Config(NestedPrint, LockAttributes):
         @max_displacement.setter
         def max_displacement(self,val):
             self._max_displacement = val
+
         @stalls_allowed.setter
         def stalls_allowed(self,val):
             self._stalls_allowed = val
+
         @stalls_maximum_attempt.setter
         def stalls_maximum_attempt(self,val):
             self._stalls_maximum_attempt = val
+
         @stalls_minimum_attempt.setter
         def stalls_minimum_attempt(self,val):
             self._stalls_minimum_attempt = val
+
         @stalls_first_attempt.setter
         def stalls_first_attempt(self,val):
             self._stalls_first_attempt = val
+
         @stalls_precision.setter
         def stalls_precision(self,val):
             self._stalls_precision = val
+
         @stalls_timeout_below_precision.setter
         def stalls_timeout_below_precision(self,val):
             self._stalls_timeout_below_precision = val
+
         @model_latencies.setter
         def model_latencies(self,val):
             self._model_latencies = val
+
         @model_functional_units.setter
         def model_functional_units(self,val):
             self._model_functional_units = val
+
         @allow_reordering.setter
         def allow_reordering(self,val):
             self._allow_reordering = val
+
         @allow_renaming.setter
         def allow_renaming(self,val):
             self._allow_renaming = val
+
         @allow_spills.setter
         def allow_spills(self,val):
             self._allow_spills = val
+
         @spill_type.setter
         def spill_type(self,val):
             self._spill_type = val
+
         @minimize_spills.setter
         def minimize_spills(self,val):
             self._minimize_spills = val
+
         @functional_only.setter
         def functional_only(self,val):
             self._model_latencies = val is False
@@ -1227,9 +1257,11 @@ class Config(NestedPrint, LockAttributes):
         @all_core.setter
         def all_core(self,val):
             self._all_core = val
+
         @rename_hint_orig_rename.setter
         def rename_hint_orig_rename(self,val):
             self._rename_hint_orig_rename = val
+
         @order_hint_orig_order.setter
         def order_hint_orig_order(self,val):
             self._order_hint_orig_order = val
@@ -1340,169 +1372,223 @@ class Config(NestedPrint, LockAttributes):
     @arch.setter
     def arch(self,val):
         self._arch = val
+
     @target.setter
     def target(self,val):
         self._target = val
+
     @sw_pipelining.setter
     def sw_pipelining(self,val):
         self._sw_pipelining = val
+
     @constraints.setter
     def constraints(self,val):
         self._constraints = val
+
     @register_aliases.setter
     def register_aliases(self,val):
         self._register_aliases = val
+
     @outputs.setter
     def outputs(self,val):
         self._outputs = val
+
     @inputs_are_outputs.setter
     def inputs_are_outputs(self,val):
         self._inputs_are_outputs = val
+
     @rename_inputs.setter
     def rename_inputs(self,val):
         self._rename_inputs = val
         self._check_rename_config(self._rename_inputs)
+
     @rename_outputs.setter
     def rename_outputs(self,val):
         self._rename_outputs = val
         self._check_rename_config(self._rename_outputs)
+
     def _check_rename_config(self, lst):
         assert isinstance(lst,dict)
+
     @reserved_regs.setter
     def reserved_regs(self,val):
         self._reserved_regs = val
+
     @reserved_regs_are_locked.setter
     def reserved_regs_are_locked(self,val):
         self._reserved_regs_are_locked = val
+
     @variable_size.setter
     def variable_size(self,val):
         self._variable_size = val
+
     @selftest.setter
     def selftest(self,val):
         self._selftest = val
+
     @selftest_iterations.setter
     def selftest_iterations(self,val):
         self._selftest_iterations = val
+
     @selftest_address_registers.setter
     def selftest_address_registers(self,val):
         self._selftest_address_registers = val
+
     @selftest_default_memory_size.setter
     def selftest_default_memory_size(self,val):
         self._selftest_default_memory_size = val
+
     @selfcheck.setter
     def selfcheck(self,val):
         self._selfcheck = val
+
     @selfcheck_failure_logfile.setter
     def selfcheck_failure_logfile(self,val):
         self._selfcheck_failure_logfile = val
+
     @allow_useless_instructions.setter
     def allow_useless_instructions(self,val):
         self._allow_useless_instructions = val
+
     @unsafe_address_offset_fixup.setter
     def unsafe_address_offset_fixup(self,val):
         if val is False and self.arch.arch_name == "Arm_v81M":
             raise InvalidConfig("unsafe address offset fixup must be set for Armv8.1-M")
         self._unsafe_address_offset_fixup = val
+
     @locked_registers.setter
     def locked_registers(self,val):
         self._locked_registers = val
+
     @max_solutions.setter
     def max_solutions(self, val):
         self._max_solutions = val
+
     @with_preprocessor.setter
     def with_preprocessor(self, val):
         self._with_preprocessor = val
+
     @llvm_mca_issue_width_overwrite.setter
     def llvm_mca_issue_width_overwrite(self, val):
         self._llvm_mca_issue_width_overwrite = val
+
     @llvm_mca_full.setter
     def llvm_mca_full(self, val):
         self._llvm_mca_full = val
+
     @with_llvm_mca.setter
     def with_llvm_mca(self, val):
         self._with_llvm_mca_before = val
         self._with_llvm_mca_after = val
+
     @with_llvm_mca_after.setter
     def with_llvm_mca_after(self, val):
         self._with_llvm_mca_after = val
+
     @with_llvm_mca_before.setter
     def with_llvm_mca_before(self, val):
         self._with_llvm_mca_before = val
+
     @compiler_binary.setter
     def compiler_binary(self, val):
         self._compiler_binary = val
+
     @compiler_include_paths.setter
     def compiler_include_paths(self, val):
         self._compiler_include_paths = val
+
     @timeout.setter
     def timeout(self, val):
         self._timeout = val
+
     @retry_timeout.setter
     def retry_timeout(self, val):
         self._retry_timeout = val
+
     @keep_tags.setter
     def keep_tags(self, val):
         self._keep_tags = val
+
     @inherit_macro_comments.setter
     def inherit_macro_comments(self, val):
         self._inherit_macro_comments = val
+
     @ignore_tags.setter
     def ignore_tags(self, val):
         self._ignore_tags = val
+
     @do_address_fixup.setter
     def do_address_fixup(self, val):
         self._do_address_fixup = val
+
     @ignore_objective.setter
     def ignore_objective(self, val):
         self._ignore_objective = val
+
     @objective_precision.setter
     def objective_precision(self, val):
         self._objective_precision = val
+
     @objective_lower_bound.setter
     def objective_lower_bound(self, val):
         self._objective_lower_bound = val
+
     @absorb_spills.setter
     def absorb_spills(self, val):
         self._absorb_spills = val
+
     @split_heuristic.setter
     def split_heuristic(self, val):
         self._split_heuristic = val
+
     @split_heuristic_factor.setter
     def split_heuristic_factor(self, val):
         self._split_heuristic_factor = float(val)
+
     @split_heuristic_abort_cycle_at_high.setter
     def split_heuristic_abort_cycle_at_high(self, val):
         self._split_heuristic_abort_cycle_at_high = val
+
     @split_heuristic_abort_cycle_at_low.setter
     def split_heuristic_abort_cycle_at_low(self, val):
         self._split_heuristic_abort_cycle_at_low = val
+
     @split_heuristic_stepsize.setter
     def split_heuristic_stepsize(self, val):
         self._split_heuristic_stepsize = float(val)
+
     @split_heuristic_chunks.setter
     def split_heuristic_chunks(self, val):
         self._split_heuristic_chunks = val
+
     @split_heuristic_optimize_seam.setter
     def split_heuristic_optimize_seam(self, val):
         self._split_heuristic_optimize_seam = val
+
     @split_heuristic_bottom_to_top.setter
     def split_heuristic_bottom_to_top(self, val):
         self._split_heuristic_bottom_to_top = val
+
     @split_heuristic_region.setter
     def split_heuristic_region(self, val):
         self._split_heuristic_region = val
+
     @split_heuristic_preprocess_naive_interleaving.setter
     def split_heuristic_preprocess_naive_interleaving(self, val):
         self._split_heuristic_preprocess_naive_interleaving = val
+
     @split_heuristic_preprocess_naive_interleaving_by_latency.setter
     def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
         self._split_heuristic_preprocess_naive_interleaving_by_latency = val
+
     @split_heuristic_preprocess_naive_interleaving_strategy.setter
     def split_heuristic_preprocess_naive_interleaving_strategy(self, val):
         self._split_heuristic_preprocess_naive_interleaving_strategy = val
+
     @split_heuristic_estimate_performance.setter
     def split_heuristic_estimate_performance(self, val):
         self._split_heuristic_estimate_performance = val
+
     @split_heuristic_repeat.setter
     def split_heuristic_repeat(self, val):
         self._split_heuristic_repeat = val

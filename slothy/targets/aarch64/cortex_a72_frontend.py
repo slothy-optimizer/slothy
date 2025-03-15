@@ -63,6 +63,7 @@ from .aarch64_neon import *
 issue_rate = 3
 llvm_mca_target = "cortex-a72"
 
+
 class ExecutionUnit(Enum):
     """Enumeration of execution units in approximative Cortex-A72 SLOTHY model"""
     LOAD0=auto()
@@ -75,39 +76,51 @@ class ExecutionUnit(Enum):
     MINT1=auto()
     ASIMD0=auto()
     ASIMD1=auto()
+
     def __repr__(self):
         return self.name
+
     @classmethod
     def ASIMD(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]
+
     @classmethod
     def LOAD(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]
+
     @classmethod
     def STORE(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.STORE0, ExecutionUnit.STORE1]
+
     @classmethod
     def INT(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.INT0, ExecutionUnit.INT1]
+
     @classmethod
     def MINT(cls): # pylint: disable=missing-function-docstring,invalid-name
         return [ExecutionUnit.MINT0, ExecutionUnit.MINT1]
+
     @classmethod
     def SCALAR(cls): # pylint: disable=missing-function-docstring,invalid-name
         return ExecutionUnit.INT() + ExecutionUnit.MINT()
+
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
     _ = slothy
 
+
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
 def has_min_max_objective(slothy):
     _ = slothy
     return False
+
+
 def get_min_max_objective(slothy):
     _ = slothy
+
 
 execution_units = {
     (vmul, vmul_lane,
@@ -176,7 +189,7 @@ inverse_throughput = {
     St4 : 8,
     Ld3 : 3,
     Ld4 : 4,
-    
+
 }
 
 ### REVISIT
@@ -214,6 +227,7 @@ default_latencies = {
     Ld4 : 4
 }
 
+
 def get_latency(src, out_idx, dst):
     _ = out_idx # out_idx unused
 
@@ -245,11 +259,13 @@ def get_latency(src, out_idx, dst):
 
     return latency
 
+
 def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     return [units]
+
 
 def get_inverse_throughput(src):
     return lookup_multidict(inverse_throughput, src)

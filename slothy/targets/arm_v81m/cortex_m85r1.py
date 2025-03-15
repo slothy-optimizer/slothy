@@ -42,6 +42,7 @@ from slothy.targets.arm_v81m.arch_v81m import *
 issue_rate = 1
 llvm_mca_target = "cortex-m85"
 
+
 class ExecutionUnit(Enum):
     SCALAR=0,
     # LSU : load / store can overlap
@@ -74,6 +75,7 @@ class ExecutionUnit(Enum):
     def __repr__(self):
         return self.name
 
+
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
@@ -91,15 +93,14 @@ def add_further_constraints(slothy):
             slothy._Add(t2.program_start_var != t1.program_start_var + 1).OnlyEnforceIf(b[1])
             slothy._Add(t3.program_start_var != t2.program_start_var + 1).OnlyEnforceIf(b[2])
 
-
     for t0, t1 in slothy.get_inst_pairs():
         c0 = find_class(t0.inst)
         c1 = find_class(t1.inst)
         ## The intent is to have the 1st line capture VFMA-like instructions
         ## blocking the MAC pipe, while the second should capture instructions of different kind using this pipe, too.
-        if execution_units[c0] == [[ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]] and \
-           (execution_units[c1] != [[ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]] and
-            (execution_units[c1] == ExecutionUnit.VEC_FPMUL or execution_units[c1] == ExecutionUnit.VEC_FPADD)):
+        if (execution_units[c0] == [[ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]] and 
+           (execution_units[c1] != [[ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]] and 
+           (execution_units[c1] == ExecutionUnit.VEC_FPMUL or execution_units[c1] == ExecutionUnit.VEC_FPADD))):
             b0 = slothy._NewBoolVar("")
             b1 = slothy._NewBoolVar("")
             slothy._AddAtLeastOne([b0,b1]) # Create vars distinguishing t1 < t0 and t1 >= t0
@@ -111,6 +112,7 @@ def add_further_constraints(slothy):
 # specific objectives.
 def has_min_max_objective(slothy):
     return False
+
 
 def get_min_max_objective(slothy):
     # to be completed
@@ -336,6 +338,7 @@ default_latencies = {
       vcmla)    : 4,
 }
 
+
 def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
@@ -433,12 +436,14 @@ def get_latency(src, out_idx, dst):
 
     return default_latency
 
+
 def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     else:
         return [units]
+
 
 def get_inverse_throughput(src):
     return lookup_multidict(

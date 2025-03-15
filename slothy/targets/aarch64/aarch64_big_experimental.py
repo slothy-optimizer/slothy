@@ -34,6 +34,7 @@ from slothy.targets.aarch64.aarch64_neon import *
 
 issue_rate = 6
 
+
 class ExecutionUnit(Enum):
     SCALAR_I0=0,
     SCALAR_I1=1,
@@ -47,28 +48,39 @@ class ExecutionUnit(Enum):
     VEC1=7,
     VEC2=8,
     VEC3=9,
+
     def __repr__(self):
         return self.name
+
     def I():
         return [ExecutionUnit.SCALAR_I0, ExecutionUnit.SCALAR_I1,
                 ExecutionUnit.SCALAR_I2, ExecutionUnit.SCALAR_I3]
+
     def M():
         return [ExecutionUnit.SCALAR_M0, ExecutionUnit.SCALAR_M1]
+
     def V():
         return [ExecutionUnit.VEC0, ExecutionUnit.VEC1,
                 ExecutionUnit.VEC2, ExecutionUnit.VEC3]
+
     def V0():
         return [ExecutionUnit.VEC0]
+
     def V1():
         return [ExecutionUnit.VEC1]
+
     def V13():
         return [ExecutionUnit.VEC1, ExecutionUnit.VEC3]
+
     def V01():
         return [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
+
     def V02():
         return [ExecutionUnit.VEC0, ExecutionUnit.VEC2]
+
     def LSU():
         return [ExecutionUnit.LSU0, ExecutionUnit.LSU1]
+
 
 # Opaque functions called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
@@ -81,12 +93,16 @@ def add_further_constraints(slothy):
         [aesr_x4, aesr_x4], [0]
     )
 
+
 def has_min_max_objective(config):
     return False
+
+
 def get_min_max_objective(slothy):
     return
 
 ### TODO: Copy-pasted from N1 model -- adjust
+
 
 execution_units = {
     (Ldp_X, Ldr_X,
@@ -199,6 +215,7 @@ default_latencies = {
     (vdup)                    : 3,
 }
 
+
 def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
@@ -206,12 +223,14 @@ def get_latency(src, out_idx, dst):
     latency = lookup_multidict(default_latencies, src)
     return latency
 
+
 def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     else:
         return [units]
+
 
 def get_inverse_throughput(src):
     return lookup_multidict(inverse_throughput, src)

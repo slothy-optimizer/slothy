@@ -37,6 +37,7 @@ import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 target_label_dict = {Target_CortexM55r1: "m55",
                      Target_CortexM85r1: "m85"}
 
+
 class Example():
     def __init__(self, infile, name=None, funcname=None, suffix="opt",
                  rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
@@ -61,6 +62,7 @@ class Example():
         self.rename = rename
 
         self.extra_args = kwargs
+
     # By default, optimize the whole file
     def core(self, slothy):
         slothy.optimize()
@@ -107,6 +109,7 @@ class Example():
             slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
         slothy.write_source_to_file(self.outfile_full)
 
+
 class ntt_kyber_1_23_45_67(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1, timeout=None):
         name = "ntt_kyber_1_23_45_67"
@@ -118,6 +121,7 @@ class ntt_kyber_1_23_45_67(Example):
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
         self.timeout = timeout
+
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.variable_size = True
@@ -173,6 +177,7 @@ class ntt_kyber_12_345_67(Example):
         slothy.config.constraints.st_ld_hazard = False
         slothy.optimize_loop("layer67_loop")
 
+
 class ntt_dilithium_12_34_56_78(Example):
     def __init__(self, var="", target=Target_CortexM55r1, arch=Arch_Armv81M):
         infile = "ntt_dilithium_12_34_56_78"
@@ -183,6 +188,7 @@ class ntt_dilithium_12_34_56_78(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
+
     def core(self, slothy):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
@@ -214,6 +220,7 @@ class ntt_dilithium_12_34_56_78(Example):
         slothy.config.sw_pipelining.enabled = False
         slothy.optimize(start="layer56_loop_end", end="layer78_loop")
 
+
 class ntt_dilithium_123_456_78(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
         infile = "ntt_dilithium_123_456_78"
@@ -226,6 +233,7 @@ class ntt_dilithium_123_456_78(Example):
         super().__init__(infile, name=name,
                          suffix=suffix, arch=arch, target=target, rename=True)
         self.var = var
+
     def core(self, slothy):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
@@ -255,6 +263,7 @@ class ntt_dilithium_123_456_78(Example):
         slothy.optimize_loop("layer78_loop")
 
 #############################################################################################
+
 
 def main():
     examples = [ # Kyber NTT
@@ -313,6 +322,7 @@ def main():
     for e in todo:
         for _ in range(iterations):
             run_example(e, silent=args.silent)
+
 
 if __name__ == "__main__":
     main()

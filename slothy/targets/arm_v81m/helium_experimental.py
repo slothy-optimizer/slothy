@@ -35,6 +35,7 @@ from slothy.targets.arm_v81m.arch_v81m import *
 
 issue_rate = 1
 
+
 class ExecutionUnit(Enum):
     SCALAR=0,
     LOAD=1,
@@ -43,19 +44,26 @@ class ExecutionUnit(Enum):
     VEC_MUL=3,
     VEC_FPU=3,
     STACK=1,
+
     def __repr__(self):
         return self.name
+
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
     # See ST-LD hazard in M55 model for an example
     return
+
+
 def has_min_max_objective(slothy):
     # See minimization of ST-LD hazards in M55 model for an example
     return False
+
+
 def get_min_max_objective(slothy):
     return
+
 
 execution_units = {
     nop         : ExecutionUnit.SCALAR,
@@ -268,11 +276,13 @@ default_latencies = {
       vfma)         : 2,
 }
 
+
 def find_class(src):
     for inst_class in Instruction.__subclasses__():
         if isinstance(src,inst_class):
             return inst_class
     raise Exception("Couldn't find instruction class")
+
 
 def lookup_multidict(d, k, default=None):
     for l,v in d.items():
@@ -283,6 +293,7 @@ def lookup_multidict(d, k, default=None):
     if default is None:
         raise Exception(f"Couldn't find {k}")
     return default
+
 
 def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
@@ -371,6 +382,7 @@ def get_latency(src, out_idx, dst):
 
     return default_latency
 
+
 def get_units(src):
     instclass = find_class(src)
     units = execution_units[instclass]
@@ -378,6 +390,7 @@ def get_units(src):
         return units
     else:
         return [units]
+
 
 def get_inverse_throughput(src):
     instclass = find_class(src)

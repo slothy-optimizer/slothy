@@ -40,6 +40,7 @@ try:
 except ImportError:
     Uc = None
 
+
 class SourceLine:
     """Representation of a single line of source code"""
 
@@ -176,6 +177,7 @@ class SourceLine:
         Tags are source annotations of the form @slothy:(tag[=value]?).
         """
         return self._tags
+
     @tags.setter
     def tags(self, v):
         self._tags = v
@@ -184,6 +186,7 @@ class SourceLine:
     def comments(self):
         """Return the list of comments for the source line"""
         return self._comments
+
     @comments.setter
     def comments(self, v):
         self._comments = v
@@ -434,6 +437,7 @@ class SourceLine:
         """Checks if the parameter is a SourceLine instance"""
         return isinstance(s, SourceLine)
 
+
 class NestedPrint():
     """Helper for recursive printing of structures"""
     def __str__(self):
@@ -444,10 +448,12 @@ class NestedPrint():
             res += f"{name}: {value}".splitlines()
         res = top + [ indent + r for r in res ]
         return '\n'.join(res)
+
     def log(self, fun):
         """Pass self-description line-by-line to logging function"""
         for l in str(self).splitlines():
             fun(l)
+
 
 class LockAttributes:
     """Base class adding support for 'locking' the set of attributes, that is,
@@ -459,9 +465,11 @@ class LockAttributes:
     def __init__(self):
         self.__dict__["_locked"] = False
         self._locked = False
+
     def lock(self):
         """Lock set of attributes"""
         self._locked = True
+
     def __setattr__(self, attr, val):
         if self._locked and attr not in dir(self):
             varlist = [v for v in dir(self) if not v.startswith("_") ]
@@ -471,8 +479,10 @@ class LockAttributes:
             raise TypeError("Can't unlock an object")
         object.__setattr__(self,attr,val)
 
+
 class AsmHelperException(Exception):
     """An exception encountered during an assembly helper"""
+
 
 class AsmHelper():
     """Some helper functions for dealing with assembly"""
@@ -598,6 +608,7 @@ class AsmHelper():
 
         return pre, body, post
 
+
 class AsmAllocation():
     """Helper for tracking register aliases via .req and .unreq"""
 
@@ -708,6 +719,7 @@ class AsmAllocation():
         def _apply_single_alias_to_line(alias_from, alias_to, src):
             res = re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\g<1>{alias_to}\\2", src)
             return res
+
         def _apply_multiple_aliases_to_line(line):
             do_again = True
             while do_again:
@@ -725,8 +737,10 @@ class AsmAllocation():
             res.append(t)
         return res
 
+
 class BinarySearchLimitException(Exception):
     """Binary search has exceeded its limit without finding a solution"""
+
 
 def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
                   timeout_below_precision=None):
@@ -738,6 +752,7 @@ def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
     while True:
         if val > threshold:
             raise BinarySearchLimitException
+
         def double_val(val):
             if val == 0:
                 return 1
@@ -764,6 +779,7 @@ def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
         else:
             last_failure = val
     return last_success, last_success_core
+
 
 class AsmMacro():
     """Helper class for parsing and applying assembly macros"""
@@ -865,8 +881,10 @@ class AsmMacro():
         """Unfold list of macros in assembly source"""
         assert isinstance(macros, list)
         assert SourceLine.is_source(source)
+
         def list_of_instances(l,c):
             return isinstance(l,list) and all(map(lambda m: isinstance(m,c), l))
+
         def dict_of_instances(l,c):
             return isinstance(l,dict) and list_of_instances(list(l.values()), c)
         if SourceLine.is_source(macros):
@@ -877,6 +895,7 @@ class AsmMacro():
         change = True
         while change:
             change = False
+
             def cb():
                 nonlocal change
                 change = True
@@ -1090,8 +1109,10 @@ class CPreprocessor():
 
         return [SourceLine(r) for r in unfolded_code]
 
+
 class LLVM_Mc_Error(Exception):
     """Exception thrown if llvm-mc subprocess fails"""
+
 
 class LLVM_Mc():
     """Helper class for the application of the LLVM MC tool"""
@@ -1249,8 +1270,10 @@ class LLVM_Mc():
 
         return code, offset
 
+
 class LLVM_Mca_Error(Exception):
     """Exception thrown if llvm-mca subprocess fails"""
+
 
 class LLVM_Mca():
     """Helper class for the application of the LLVM MCA tool"""
@@ -1280,8 +1303,10 @@ class LLVM_Mca():
         res = r.stdout.split('\n')
         return res
 
+
 class SelfTestException(Exception):
     """Exception thrown upon selftest failures"""
+
 
 class SelfTest():
 
@@ -1400,6 +1425,7 @@ class SelfTest():
         else:
             log.info(f"Global selftest for {fnsym}: OK")
 
+
 class Permutation():
     """Helper class for manipulating permutations"""
 
@@ -1470,12 +1496,15 @@ class DeferHandler(logging.Handler):
     def __init__(self):
         super().__init__()
         self._records = []
+
     def emit(self, record):
         self._records.append(record)
+
     def forward(self, logger):
         """Send all captured records to the given logger."""
         for r in self._records:
             logger.handle(r)
+
     def forward_to_file(self, log_label, filename, lvl=logging.DEBUG):
         """Store all captured records in a file."""
         l = logging.getLogger(log_label)
