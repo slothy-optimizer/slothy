@@ -2876,9 +2876,9 @@ class SlothyBase(LockAttributes):
                 # on an instruction from a previous iteration cannot be late.
 
                 # pylint:disable=singleton-comparison
-               #  self._Add(producer.src.pre_var == False)
+                #  self._Add(producer.src.pre_var == False)
                 # pylint:disable=singleton-comparison
-               # self._Add(consumer.post_var == False)
+                # self._Add(consumer.post_var == False)
 
     # ================================================================
     #                  CONSTRAINTS (Single issuing)                  #

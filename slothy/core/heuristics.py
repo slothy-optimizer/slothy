@@ -992,7 +992,7 @@ class Heuristics():
             c.sw_pipelining.enabled=True      # SW pipelining enabled, but ...
             c.sw_pipelining.allow_pre=False   # - no early instructions
             c.sw_pipelining.allow_post=False  # - no late instructions
-                                              # Just make sure to consider loop boundary
+            # Just make sure to consider loop boundary
             kernel = Heuristics.optimize_binsearch( kernel, logger.
                                                     getChild("periodic heuristic"), conf=c).code
         elif not conf.sw_pipelining.halving_heuristic_split_only:
