@@ -46,9 +46,11 @@ from slothy.targets.aarch64 import aarch64_big_experimental as Target_Big_Experi
 from slothy.targets.aarch64 import apple_m1_firestorm_experimental as Target_AppleM1_Firestorm_Experimental
 from slothy.targets.aarch64 import apple_m1_icestorm_experimental as Target_AppleM1_Icestorm_Experimental
 
+
 class UnknownTarget(Exception):
     """Exception raised when an unknown architecture or microarchitecture
     is requested."""
+
 
 class Archery:
     """This is a small helper class for querying architectures"""
@@ -85,7 +87,7 @@ class Archery:
         arch = Archery._archs.get(name,None)
         if arch is None:
             raise UnknownTarget(f"Could not find architecture {name}. "\
-                            f"Known architectures are {list(Archery._archs.keys())}")
+                                f"Known architectures are {list(Archery._archs.keys())}")
         return arch
 
     @staticmethod
@@ -94,5 +96,5 @@ class Archery:
         target = Archery._targets.get(name,None)
         if target is None:
             raise UnknownTarget(f"Could not find target {name}. "\
-                            f"Known targets are {list(Archery._targets.keys())}")
+                                f"Known targets are {list(Archery._targets.keys())}")
         return target

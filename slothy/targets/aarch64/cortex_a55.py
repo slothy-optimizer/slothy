@@ -49,6 +49,7 @@ from slothy.targets.aarch64.aarch64_neon import *
 issue_rate = 2
 llvm_mca_target = "cortex-a55"
 
+
 class ExecutionUnit(Enum):
     """Enumeration of execution units in Cortex-A55 model"""
     SCALAR_ALU0=1
@@ -58,16 +59,20 @@ class ExecutionUnit(Enum):
     SCALAR_STORE=5
     VEC0=6
     VEC1=7
+
     def __repr__(self):
         return self.name
+
     @classmethod
     def SCALAR(cls): # pylint: disable=invalid-name
         """All scalar execution units"""
         return [ExecutionUnit.SCALAR_ALU0, ExecutionUnit.SCALAR_ALU1]
+
     @classmethod
     def SCALAR_MUL(cls): # pylint: disable=invalid-name
         """All multiply-capable scalar execution units"""
         return [ExecutionUnit.SCALAR_MAC]
+
 
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
@@ -77,6 +82,7 @@ def add_further_constraints(slothy):
     add_slot_constraints(slothy)
     add_st_hazard(slothy)
 
+
 def add_slot_constraints(slothy):
     # Q-Form vector instructions are on slot 0 only
     slothy.restrict_slots_for_instructions_by_property(
@@ -84,6 +90,7 @@ def add_slot_constraints(slothy):
     # fcsel and vld2 on slot 0 only
     slothy.restrict_slots_for_instructions_by_class(
         [fcsel_dform, Q_Ld2_Lane_Post_Inc], [0])
+
 
 def add_st_hazard(slothy):
     def is_vec_st_st_pair(inst_a, inst_b):
@@ -94,34 +101,38 @@ def add_st_hazard(slothy):
             continue
         slothy._Add( t0.cycle_start_var != t1.cycle_start_var + 1 )
 
+
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
 def has_min_max_objective(config):
     """Adds Cortex-"""
     _ = config
     return False
+
+
 def get_min_max_objective(slothy):
     _ = slothy
     return
 
+
 execution_units = {
     # q-form vector instructions
-        (vmls, vmls_lane,
-        vmul, vmul_lane,
-        vmla, vmla_lane,
-        vqrdmulh, vqrdmulh_lane,
-        vqdmulh_lane,
-        vand, vbic,
-        Ldr_Q,
-        Str_Q,
-        q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
-        Vmull, Vmlal, vusra,
-        vushr, vsshr,
-        vshrn,
-        vshli,
-        vxtn,
-        VShiftImmediateRounding,
-    ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
+    ( vmls, vmls_lane,
+      vmul, vmul_lane,
+      vmla, vmla_lane,
+      vqrdmulh, vqrdmulh_lane,
+      vqdmulh_lane,
+      vand, vbic,
+      Ldr_Q,
+      Str_Q,
+      q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
+      Vmull, Vmlal, vusra,
+      vushr, vsshr,
+      vshrn,
+      vshli,
+      vxtn,
+      VShiftImmediateRounding,
+      ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],  # these instructions use both VEC0 and VEC1
 
     St4 : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD,
             ExecutionUnit.SCALAR_STORE] + ExecutionUnit.SCALAR()],
@@ -143,7 +154,7 @@ execution_units = {
       VecToGprMov, Mov_xtov_d,
       d_stp_stack_with_inc, d_str_stack_with_inc, b_ldr_stack_with_inc, d_ldr_stack_with_inc,
       q_ldr1_stack, Q_Ld2_Lane_Post_Inc,
-    ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],  # these instructions use VEC0 or VEC1
+      ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],  # these instructions use VEC0 or VEC1
 
     is_qform_form_of(vmov) : [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vmov) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
@@ -287,6 +298,7 @@ default_latencies = {
     (bic) : 1
 }
 
+
 def get_latency(src, out_idx, dst):
     _ = out_idx # out_idx unused
 
@@ -300,12 +312,10 @@ def get_latency(src, out_idx, dst):
        and latency < 3:
         latency += 1
 
-    if [instclass_src, instclass_dst] in   \
-       [
-            [lsr, mul_wform],
-            [lsr, umaddl_wform],
-            [vbic, vusra]
-       ]:
+    if [instclass_src, instclass_dst] in [
+        [lsr, mul_wform],
+        [lsr, umaddl_wform],
+        [vbic, vusra]]:
         latency += 1
 
     if instclass_src == vmlal and instclass_dst == vmlal and \
@@ -318,11 +328,13 @@ def get_latency(src, out_idx, dst):
 
     return latency
 
+
 def get_units(src):
     units = lookup_multidict(execution_units, src)
     if isinstance(units,list):
         return units
     return [units]
+
 
 def get_inverse_throughput(src):
     return lookup_multidict(

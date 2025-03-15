@@ -441,7 +441,7 @@ class Slothy:
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
         body_ssa = [SourceLine(f"{start}:")] + \
-                   self._fusion_core(pre, body, post, logger, **kwargs) + \
+            self._fusion_core(pre, body, post, logger, **kwargs) + \
                    [SourceLine(f"{end}:")]
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
@@ -467,8 +467,8 @@ class Slothy:
         indentation = AsmHelper.find_indentation(body)
 
         body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
-                   SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
-                   SourceLine.read_multiline(loop.end(other_data))
+            SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
+            SourceLine.read_multiline(loop.end(other_data))
 
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)

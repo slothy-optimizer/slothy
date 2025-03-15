@@ -51,6 +51,7 @@ llvm_mc_attr = None
 unicorn_arch = None
 unicorn_mode = None
 
+
 class RegisterType(Enum):
     GPR = 1,
     MVE = 2,
@@ -59,6 +60,7 @@ class RegisterType(Enum):
 
     def __str__(self):
         return self.name
+
     def __repr__(self):
         return self.name
 
@@ -117,6 +119,7 @@ class RegisterType(Enum):
         """Return the list of registers that should be reserved by default"""
         return set(["r14"])
 
+
 class LeLoop(Loop):
     """
     Loop ending in a le instruction.
@@ -140,7 +143,7 @@ class LeLoop(Loop):
         assert reg == "lr"
         indent = ' ' * indentation
         if unroll > 1:
-            if not unroll in [1,2,4,8,16,32]:
+            if unroll not in [1,2,4,8,16,32]:
                 raise Exception("unsupported unrolling")
             yield f"{indent}lsr lr, lr, #{int(math.log2(unroll))}"
         if fixup != 0:
@@ -177,6 +180,7 @@ class Instruction:
             arg_types_in_out = []
 
         arg_types_all = arg_types_in + arg_types_in_out + arg_types_out
+
         def isinstancelist(l, c):
             return all( map( lambda e: isinstance(e,c), l ) )
         assert isinstancelist(arg_types_all, RegisterType)
@@ -226,16 +230,22 @@ class Instruction:
 
     def is_load_store_instruction(self):
         return self._is_instance_of([ vldr, vstr, vld2, vld4, vst2, vst4, ldrd, strd, qsave, qrestore, save, restore, saved, restored ])
+
     def is_vector_load(self):
         return self._is_instance_of([ vldr, vld2, vld4, qrestore ])
+
     def is_scalar_load(self):
         return self._is_instance_of([ ldrd, ldr, restore, restored ])
+
     def is_load(self):
         return self.is_vector_load() or self.is_scalar_load()
+
     def is_vector_store(self):
         return self._is_instance_of([ vstr, vst2, vst4, qsave ])
+
     def is_stack_store(self):
         return self._is_instance_of([ qsave, saved, save ])
+
     def is_stack_load(self):
         return self._is_instance_of([ qrestore, restored, restore ])
 
@@ -320,6 +330,8 @@ class Instruction:
         return self.write()
 
 # Virtual instruction to model pushing to stack locations without modelling memory
+
+
 class qsave(Instruction):
     def __init__(self):
         super().__init__(mnemonic="qsave",
@@ -327,6 +339,8 @@ class qsave(Instruction):
                          arg_types_out=[RegisterType.StackMVE])
         self.addr = "sp"
         self.increment = None
+
+
 class qrestore(Instruction):
     def __init__(self):
         super().__init__(mnemonic="qrestore",
@@ -334,6 +348,8 @@ class qrestore(Instruction):
                          arg_types_out=[RegisterType.MVE])
         self.addr = "sp"
         self.increment = None
+
+
 class save(Instruction):
     def __init__(self):
         super().__init__(mnemonic="save",
@@ -341,6 +357,8 @@ class save(Instruction):
                          arg_types_out=[RegisterType.StackGPR])
         self.addr = "sp"
         self.increment = None
+
+
 class restore(Instruction):
     def __init__(self):
         super().__init__(mnemonic="restore",
@@ -348,6 +366,8 @@ class restore(Instruction):
                          arg_types_out=[RegisterType.GPR])
         self.addr = "sp"
         self.increment = None
+
+
 class saved(Instruction):
     def __init__(self):
         super().__init__(mnemonic="saved",
@@ -355,6 +375,8 @@ class saved(Instruction):
                          arg_types_out=[RegisterType.StackGPR])
         self.addr = "sp"
         self.increment = None
+
+
 class restored(Instruction):
     def __init__(self):
         super().__init__(mnemonic="restored",
@@ -363,17 +385,20 @@ class restored(Instruction):
         self.addr = "sp"
         self.increment = None
 
+
 class add(Instruction):
     def __init__(self):
         super().__init__(mnemonic="add",
                          arg_types_in=[RegisterType.GPR, RegisterType.GPR],
                          arg_types_out=[RegisterType.GPR])
 
+
 class sub(Instruction):
     def __init__(self):
         super().__init__(mnemonic="sub",
                          arg_types_in=[RegisterType.GPR, RegisterType.GPR],
                          arg_types_out=[RegisterType.GPR])
+
 
 class vmulh(Instruction):
     def __init__(self):
@@ -382,33 +407,39 @@ class vmulh(Instruction):
                          arg_types_out=[RegisterType.MVE])
 
 
-
 class vmul_T2(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vmul.<dt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.GPR],
                          arg_types_out=[RegisterType.MVE])
+
+
 class vmul_T1(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vmul.<dt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                          arg_types_out=[RegisterType.MVE])
 
+
 class vmulf_T2(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vmul.<fdt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.GPR],
                          arg_types_out=[RegisterType.MVE])
-def write(self):
-    return f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+
+    def write(self):
+        return f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+
 
 class vmulf_T1(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vmul.<fdt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                          arg_types_out=[RegisterType.MVE])
+
     def write(self):
         return f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+
 
 class vqrdmulh_T1(Instruction):
     def __init__(self):
@@ -416,17 +447,20 @@ class vqrdmulh_T1(Instruction):
                          arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                          arg_types_out=[RegisterType.MVE])
 
+
 class vqrdmulh_T2(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vqrdmulh.<dt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.GPR],
                          arg_types_out=[RegisterType.MVE])
 
+
 class vqdmlah(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vqdmlah.<dt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.GPR],
                          arg_types_in_out=[RegisterType.MVE])
+
 
 class vqdmlsdh(Instruction):
     def __init__(self):
@@ -435,6 +469,7 @@ class vqdmlsdh(Instruction):
                          arg_types_in_out=[RegisterType.MVE])
         self.detected_vqdmlsdh_vqdmladhx_pair = False
 
+
 class vqdmladhx(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vqdmladhx.<dt>",
@@ -442,11 +477,13 @@ class vqdmladhx(Instruction):
                          arg_types_in_out=[RegisterType.MVE])
         self.detected_vqdmlsdh_vqdmladhx_pair = False
 
+
 class vqrdmlah(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vqrdmlah.<dt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.GPR],
                          arg_types_in_out=[RegisterType.MVE])
+
 
 class vqdmulh_sv(Instruction):
     def __init__(self):
@@ -454,11 +491,13 @@ class vqdmulh_sv(Instruction):
                          arg_types_in=[RegisterType.MVE, RegisterType.GPR],
                          arg_types_out=[RegisterType.MVE])
 
+
 class vqdmulh_vv(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vqdmulh.<dt>",
                          arg_types_in=[RegisterType.MVE, RegisterType.MVE],
                          arg_types_out=[RegisterType.MVE])
+
 
 class ldrd(Instruction):
     def __init__(self):
@@ -530,6 +569,7 @@ class ldrd(Instruction):
             post = ""
         return f"{self.mnemonic} {self.args_out[0]}, {self.args_out[1]}, {addr}{inc} {post}"
 
+
 class ldr(Instruction):
     def __init__(self):
         super().__init__(mnemonic="ldr",
@@ -600,6 +640,7 @@ class ldr(Instruction):
             post = ""
         return f"{self.mnemonic} {self.args_out[0]}, {addr}{inc} {post}"
 
+
 class strd(Instruction):
     def __init__(self):
         super().__init__(mnemonic="strd",
@@ -669,6 +710,7 @@ class strd(Instruction):
             post = ""
         return f"{self.mnemonic} {self.args_in[1]}, {self.args_in[2]}, {addr}{inc} {post}"
 
+
 class vrshr(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vrshr.<dt>",
@@ -691,6 +733,7 @@ class vrshr(Instruction):
     def write(self):
         return f"vrshr.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
 
+
 class vrshl(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vrshl.<dt>",
@@ -709,7 +752,6 @@ class vrshl(Instruction):
         self.args_in         = [ p.group("src") ]
         self.datatype = p.group("datatype")
 
-
     def write(self):
         return f"vrshl.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}"
 
@@ -717,7 +759,7 @@ class vrshl(Instruction):
 class vshlc(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vshlc",
-                arg_types_in_out=[RegisterType.MVE, RegisterType.GPR])
+                         arg_types_in_out=[RegisterType.MVE, RegisterType.GPR])
 
     def parse(self, src):
         vshlc_regexp_txt = r"vshlc\s+(?P<vec>\w+)\s*,\s*(?P<gpr>\w+)\s*,\s*(?P<shift>#.*)"
@@ -759,6 +801,7 @@ class vmov_imm(Instruction):
     def write(self):
         return f"vmov.{self.datatype} {self.args_out[0]}, #{self.immediate}"
 
+
 class vmullbt(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vmull.<dt>",
@@ -779,10 +822,8 @@ class vmullbt(Instruction):
         self.datatype = p.group("datatype")
         self.bt  = p.group("bt")
 
-
     def write(self):
         return f"vmull{self.bt}.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
-
 
 
 class vdup(Instruction):
@@ -807,6 +848,7 @@ class vdup(Instruction):
 
     def write(self):
         return f"vdup.{self.datatype} {self.args_out[0]}, {self.args_in[0]}"
+
 
 class vmov_double_v2r(Instruction):
     def __init__(self):
@@ -840,6 +882,7 @@ class vmov_double_v2r(Instruction):
     def write(self):
         return f"vmov {self.args_out[0]}, {self.args_out[1]}, {self.args_in[0]}[{self.idxs[0]}], {self.args_in[0]}[{self.idxs[1]}]"
 
+
 class mov_imm(Instruction):
     def __init__(self):
         super().__init__(mnemonic="mov",
@@ -860,6 +903,7 @@ class mov_imm(Instruction):
     def write(self):
         return f"mov {self.args_out[0]}, #{self.immediate}"
 
+
 class mvn_imm(Instruction):
     def __init__(self):
         super().__init__(mnemonic="mvn",
@@ -879,6 +923,7 @@ class mvn_imm(Instruction):
 
     def write(self):
         return f"mvn {self.args_out[0]}, #{self.immediate}"
+
 
 class pkhbt(Instruction):
     def __init__(self):
@@ -906,8 +951,9 @@ class pkhbt(Instruction):
 class mov(Instruction):
     def __init__(self):
         super().__init__(mnemonic="mov",
-                arg_types_in=[RegisterType.GPR],
-                arg_types_out=[RegisterType.GPR])
+                         arg_types_in=[RegisterType.GPR],
+                         arg_types_out=[RegisterType.GPR])
+
 
 class add_imm(Instruction):
     def __init__(self):
@@ -931,6 +977,7 @@ class add_imm(Instruction):
     def write(self):
         return f"add {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
 
+
 class sub_imm(Instruction):
     def __init__(self):
         super().__init__(mnemonic="sub",
@@ -952,6 +999,7 @@ class sub_imm(Instruction):
 
     def write(self):
         return f"sub {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
+
 
 class vshr(Instruction):
     def __init__(self):
@@ -975,6 +1023,7 @@ class vshr(Instruction):
 
     def write(self):
         return f"vshr.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
+
 
 class vshrnbt(Instruction):
     def __init__(self):
@@ -1000,6 +1049,7 @@ class vshrnbt(Instruction):
 
     def write(self):
         return f"v{self.round}shrn{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.shift}"
+
 
 class vshllbt(Instruction):
     def __init__(self):
@@ -1069,7 +1119,6 @@ class vrev(Instruction):
 
         self.datatypes   = [p.group("dt0"), p.group("dt1")]
 
-
     def write(self):
         return f"vrev{self.datatypes[0]}.{self.datatypes[1]} {self.args_out[0]}, {self.args_in[0]}"
 
@@ -1097,6 +1146,7 @@ class vshl(Instruction):
     def write(self):
         return f"vshl.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
 
+
 class vshl_T3(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vshl.<dt>",
@@ -1123,8 +1173,8 @@ class vshl_T3(Instruction):
 class vfma(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vfma.<fdt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-                arg_types_in_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_in_out=[RegisterType.MVE])
 
     def parse(self, src):
         vfma_regexp_txt = r"vfma\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
@@ -1142,74 +1192,86 @@ class vfma(Instruction):
     def write(self):
         return f"vfma.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
 
+
 class vmla(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vmla.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-                arg_types_in_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.GPR],
+                         arg_types_in_out=[RegisterType.MVE])
+
 
 class vmlaldava(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vmlaldava.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-                arg_types_in_out=[RegisterType.GPR, RegisterType.GPR])
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_in_out=[RegisterType.GPR, RegisterType.GPR])
+
 
 class vaddva(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vaddva.<dt>",
-                arg_types_in=[RegisterType.MVE],
-                arg_types_in_out=[RegisterType.GPR])
+                         arg_types_in=[RegisterType.MVE],
+                         arg_types_in_out=[RegisterType.GPR])
+
 
 class vadd_vv(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vadd.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-                arg_types_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
 
 class vadd_sv(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vadd.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-                arg_types_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.GPR],
+                         arg_types_out=[RegisterType.MVE])
+
 
 class vhadd(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vhadd.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-                arg_types_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
 
 class vsub(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vsub.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-                arg_types_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
 
 class vhsub(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vhsub.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-                arg_types_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
 
 class vand(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vand.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-                arg_types_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
 
 class vorr(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vorr.<dt>",
-                arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-                arg_types_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+                         arg_types_out=[RegisterType.MVE])
+
 
 class nop(Instruction):
     def __init__(self):
         super().__init__(mnemonic="nop")
 
+
 class vstr(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vstrw.u32",
-                arg_types_in=[RegisterType.MVE, RegisterType.GPR])
+                         arg_types_in=[RegisterType.MVE, RegisterType.GPR])
 
     def _simplify(self):
         if self.increment is not None:
@@ -1293,11 +1355,12 @@ class vstr(Instruction):
 
         return f"{self.mnemonic} {self.args_in[0]}, {addr}{inc} {post}{warning}"
 
+
 class vldr(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vldr",
-                arg_types_in=[RegisterType.GPR],
-                arg_types_out=[RegisterType.MVE])
+                         arg_types_in=[RegisterType.GPR],
+                         arg_types_out=[RegisterType.MVE])
 
     def _simplify(self):
         if self.increment is not None:
@@ -1380,6 +1443,7 @@ class vldr(Instruction):
 
         return f"vldr{self.width}.{self.datatype} {self.args_out[0]}, {addr}{inc} {post}{warning}"
 
+
 class vldr_gather(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vldrw.<dt>",
@@ -1443,6 +1507,7 @@ class vldr_gather(Instruction):
 
         return f"vldr{self.width}.{self.datatype} {self.args_out[0]}, {addr}"
 
+
 class vld2(Instruction):
     def __init__(self):
         pass
@@ -1450,7 +1515,7 @@ class vld2(Instruction):
     def parse(self, src):
 
         regexp = r"\s*(?P<variant>vld2(?P<idx>[0-1])\.<dt>)\s+"\
-                r"{\s*(?P<out0>\w+)\s*,"\
+                 r"{\s*(?P<out0>\w+)\s*,"\
                  r"\s*(?P<out1>\w+)\s*}"\
                  r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
         regexp = Instruction.unfold_abbrevs(regexp)
@@ -1532,7 +1597,7 @@ class vld4(Instruction):
     def parse(self, src):
 
         regexp = r"\s*(?P<variant>vld4(?P<idx>[0-3])\.<dt>)\s+"\
-                r"{\s*(?P<out0>\w+)\s*,"\
+                 r"{\s*(?P<out0>\w+)\s*,"\
                  r"\s*(?P<out1>\w+)\s*,"\
                  r"\s*(?P<out2>\w+)\s*,"\
                  r"\s*(?P<out3>\w+)\s*}"\
@@ -1618,16 +1683,17 @@ class vld4(Instruction):
         else:
             return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
 
+
 class vst2(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vst2",
-                arg_types_in=[RegisterType.GPR,
-                              RegisterType.MVE, RegisterType.MVE])
+                         arg_types_in=[RegisterType.GPR,
+                                       RegisterType.MVE, RegisterType.MVE])
 
     def parse(self, src):
 
         regexp = r"\s*(?P<variant>vst2(?P<idx>[0-1])\.<dt>)\s+"\
-                r"{\s*(?P<out0>\w+)\s*,"\
+                 r"{\s*(?P<out0>\w+)\s*,"\
                  r"\s*(?P<out1>\w+)\s*}"\
                  r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
         regexp = Instruction.unfold_abbrevs(regexp)
@@ -1651,7 +1717,6 @@ class vst2(Instruction):
             arg_types_in_out = [ RegisterType.MVE,
                                  RegisterType.MVE ]
 
-
         super().__init__(mnemonic="vst2",
                          arg_types_in=arg_types_in,
                          arg_types_out=arg_types_out,
@@ -1674,9 +1739,8 @@ class vst2(Instruction):
             ]
         else:
             self.args_in = [ self.addr ]
-            self.args_in_out = [
-                             p.group("out0"),
-                             p.group("out1") ]
+            self.args_in_out = [ p.group("out0"),
+                                 p.group("out1") ]
             self.args_out = []
 
         self.variant = p.group("variant")
@@ -1702,8 +1766,8 @@ class vst2(Instruction):
 class vst4(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vst4",
-                arg_types_in=[RegisterType.GPR,
-                              RegisterType.MVE, RegisterType.MVE, RegisterType.MVE, RegisterType.MVE])
+                         arg_types_in=[RegisterType.GPR,
+                                       RegisterType.MVE, RegisterType.MVE, RegisterType.MVE, RegisterType.MVE])
 
     def parse(self, src):
 
@@ -1738,7 +1802,6 @@ class vst4(Instruction):
                                  RegisterType.MVE,
                                  RegisterType.MVE ]
 
-
         super().__init__(mnemonic="vst4",
                          arg_types_in=arg_types_in,
                          arg_types_out=arg_types_out,
@@ -1763,11 +1826,10 @@ class vst4(Instruction):
             ]
         else:
             self.args_in = [ self.addr ]
-            self.args_in_out = [
-                             p.group("out0"),
-                             p.group("out1"),
-                             p.group("out2"),
-                             p.group("out3") ]
+            self.args_in_out = [ p.group("out0"),
+                                 p.group("out1"),
+                                 p.group("out2"),
+                                 p.group("out3") ]
             self.args_out = []
 
         self.variant = p.group("variant")
@@ -1789,6 +1851,7 @@ class vst4(Instruction):
         else:
             return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
 
+
 class vsubf(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vsub.<fdt>",
@@ -1798,6 +1861,7 @@ class vsubf(Instruction):
     def write(self):
         return f"vsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
 
+
 class vaddf(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vadd.<fdt>",
@@ -1806,6 +1870,7 @@ class vaddf(Instruction):
 
     def write(self):
         return f"vadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+
 
 class vcmla(Instruction):
     def __init__(self):
@@ -1832,6 +1897,7 @@ class vcmla(Instruction):
 
     def write(self):
         return f"vcmla.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+
 
 class vcmul(Instruction):
     def __init__(self):
@@ -1860,6 +1926,7 @@ class vcmul(Instruction):
     def write(self):
         return f"vcmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
 
+
 class vcadd(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vcadd.<dt>",
@@ -1884,9 +1951,9 @@ class vcadd(Instruction):
             # First index: output, Second index: Input
             self.args_in_out_different = [(0,0),(0,1)] # Output must not be the same as any of the inputs
 
-
     def write(self):
         return f"vcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+
 
 class vhcadd(Instruction):
     def __init__(self):
@@ -1915,6 +1982,7 @@ class vhcadd(Instruction):
     def write(self):
         return f"vhcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
 
+
 class vhcsub(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vhcsub.<dt>",
@@ -1942,6 +2010,7 @@ class vhcsub(Instruction):
     def write(self):
         return f"vhcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
 
+
 class vcaddf(Instruction):
     def __init__(self):
         super().__init__(mnemonic="vcaddf.<fdt>",
@@ -1966,10 +2035,10 @@ class vcaddf(Instruction):
             # First index: output, Second index: Input
             self.args_in_out_different = [(0,0),(0,1)] # Output must not be the same as any of the inputs
 
-
     def write(self):
         return f"vcadd.{self.datatype} {self.args_out[0]}, "\
             f"{self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+
 
 class vcsubf(Instruction):
     def __init__(self):
@@ -2008,7 +2077,6 @@ class vcsubf(Instruction):
 ## TODO: Move those into the instruction class definitions
 ##
 #############################################################
-
 
 
 # Called after a code snippet has been parsed which contains instances
@@ -2055,8 +2123,10 @@ def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
 
     return core
 
+
 vqdmlsdh.global_parsing_cb  = vqdmlsdh_vqdmladhx_parsing_cb(vqdmlsdh, vqdmladhx)
 vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
+
 
 def lookup_multidict(d, inst, default=None):
     instclass = find_class(inst)
@@ -2080,6 +2150,7 @@ def lookup_multidict(d, inst, default=None):
     if default is None:
         raise Exception(f"Couldn't find {k}")
     return default
+
 
 def find_class(src):
     for inst_class in Instruction.__subclasses__():

@@ -56,6 +56,7 @@ class ExecutionUnit(Enum):
     def I():
         return [ExecutionUnit.SCALAR_I0, ExecutionUnit.SCALAR_I1,
                 ExecutionUnit.SCALAR_I2]
+
     def M():
         return [ExecutionUnit.SCALAR_M]
 

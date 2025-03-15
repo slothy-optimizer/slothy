@@ -21,6 +21,7 @@ llvm_mc_attr = "armv7e-m,thumb2,dsp,fpregs"
 unicorn_arch = UC_ARCH_ARM
 unicorn_mode = UC_MODE_THUMB | UC_MODE_MCLASS
 
+
 class RegisterType(Enum):
     GPR = 1
     FPR = 2
@@ -29,6 +30,7 @@ class RegisterType(Enum):
 
     def __str__(self):
         return self.name
+
     def __repr__(self):
         return self.name
 
@@ -179,9 +181,8 @@ class RegisterType(Enum):
     @staticmethod
     def default_aliases():
         "Register aliases used by the architecture"
-        return {
-                 "lr": "r14",
-                }
+        return { "lr": "r14", }
+
 
 # TODO: Comparison can also be done with {add,sub,...}s
 class Branch:
@@ -239,7 +240,7 @@ class VmovCmpLoop(Loop):
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*vmov(?:\.w)?\s+(?P<end>\w+),\s*(?P<endf>\w+)",
                           r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
-                               rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
+                          rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -306,8 +307,8 @@ class VmovCmpLoop(Loop):
 class BranchLoop(Loop):
     """
     More general loop type that just considers the branch instruction as part of the boundary.
-    This can help to improve performance as the instructions that belong to handling the loop can be considered by SLOTHY aswell. 
-    
+    This can help to improve performance as the instructions that belong to handling the loop can be considered by SLOTHY aswell.
+
     .. note::
 
         This loop type is still rather experimental. It has a lot of logics inside as it needs to be able to "understand"
@@ -315,7 +316,7 @@ class BranchLoop(Loop):
         loop need to be modified in case of software pipelining etc. Currently, this type covers the three other types we offer
         above, namely `SubsLoop`, `CmpLoop`, and `VmovCmpLoop`.
 
-    For examples, we refer to the classes `SubsLoop`, `CmpLoop`, and `VmovCmpLoop`. 
+    For examples, we refer to the classes `SubsLoop`, `CmpLoop`, and `VmovCmpLoop`.
  """
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
@@ -407,6 +408,7 @@ class BranchLoop(Loop):
         """Nothing to do here"""
         yield ""
 
+
 class CmpLoop(Loop):
     """
     Loop ending in a compare and a branch.
@@ -429,7 +431,7 @@ class CmpLoop(Loop):
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
-                               rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
+                          rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -485,6 +487,7 @@ class CmpLoop(Loop):
         yield f'{indent}cmp {other["cnt"]}, {other["end"]}'
         yield f'{indent}bne {lbl_start}'
 
+
 class SubsLoop(Loop):
     """
     Loop ending in a flag setting subtraction and a branch.
@@ -504,7 +507,7 @@ class SubsLoop(Loop):
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (r"^\s*sub[s]?(?:\.w)?\s+(?P<cnt>\w+),(?:\s*(?P<reg1>\w+),)?\s*(?P<imm>#1)",
-                               rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl_start}")
+                          rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl_start}")
 
     def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
         """Emit starting instruction(s) and jump label for loop"""
@@ -530,14 +533,18 @@ class SubsLoop(Loop):
             yield f'{indent}subs {other["cnt"]}, {other["reg1"]}, {other["imm"]}'  # `subs` sets flags
         yield f'{indent}bne {lbl_start}'
 
+
 class FatalParsingException(Exception):
     """A fatal error happened during instruction parsing"""
+
 
 class UnknownInstruction(Exception):
     """The parent instruction class for the given object could not be found"""
 
+
 class UnknownRegister(Exception):
     """The register could not be found"""
+
 
 class Instruction:
 
@@ -670,7 +677,7 @@ class Instruction:
         return False
 
     def is_ldr(self):
-         return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback,])
+        return self._is_instance_of([ ldr, ldr_with_imm, ldr_with_imm_stack, ldr_with_postinc, ldr_with_inc_writeback,])
 
     def is_load(self):
         """Indicates if an instruction is a load instruction"""
@@ -690,6 +697,7 @@ class Instruction:
                                       vldr_with_imm,
                                       vldr_with_postinc,
                                       vldm_interval_inc_writeback])
+
     def is_store(self):
         """Indicates if an instruction is a store instruction"""
         return self._is_instance_of([ str_no_off,
@@ -699,6 +707,7 @@ class Instruction:
                                       str_with_postinc,
                                       strh_with_postinc,
                                       stm_interval_inc_writeback])
+
     def is_load_store_instruction(self):
         """Indicates if an instruction is a load or store instruction"""
         return self.is_load() or self.is_store()
@@ -759,7 +768,7 @@ class Instruction:
 
         if not len(obj.args_in) == obj.num_in:
             raise FatalParsingException(f"Something wrong parsing {src}: Expect {obj.num_in} input,"
-                f" but got {len(obj.args_in)} ({obj.args_in})")
+                                        f" but got {len(obj.args_in)} ({obj.args_in})")
 
         return obj
 
@@ -809,6 +818,7 @@ class Instruction:
     def __repr__(self):
         return self.write()
 
+
 class Armv7mInstruction(Instruction):
     """Abstract class representing Armv7m instructions"""
 
@@ -832,6 +842,7 @@ class Armv7mInstruction(Instruction):
         def replace_placeholders(src, mnemonic_key, regexp, group_name):
             prefix = f"<{mnemonic_key}"
             pattern = f"<{mnemonic_key}>"
+
             def pattern_i(i):
                 return f"<{mnemonic_key}{i}>"
 
@@ -941,9 +952,9 @@ class Armv7mInstruction(Instruction):
             inputs += ["flags"]
 
         super().__init__(mnemonic=pattern,
-                     arg_types_in=arg_types_in,
-                     arg_types_out=arg_types_out,
-                     arg_types_in_out=arg_types_in_out)
+                         arg_types_in=arg_types_in,
+                         arg_types_out=arg_types_out,
+                         arg_types_in_out=arg_types_in_out)
 
         self.inputs = inputs
         self.outputs = outputs
@@ -953,8 +964,6 @@ class Armv7mInstruction(Instruction):
         self.pattern_inputs = list(zip(inputs, arg_types_in, strict=True))
         self.pattern_outputs = list(zip(outputs, arg_types_out, strict=True))
         self.pattern_in_outs = list(zip(in_outs, arg_types_in_out, strict=True))
-
-
 
     @staticmethod
     def _to_reg(ty, s):
@@ -1026,6 +1035,7 @@ class Armv7mInstruction(Instruction):
         def group_to_attribute(group_name, attr_name, f=None):
             def f_default(x):
                 return x
+
             def group_name_i(i):
                 return f"{group_name}{i}"
             if f is None:
@@ -1127,24 +1137,42 @@ class Armv7mInstruction(Instruction):
         out = out.replace("\\]", "]")
         return out
 
+
 class Armv7mBranch(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
+
 class Armv7mBasicArithmetic(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
+
 class Armv7mShiftedArithmetic(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
+
 class Armv7mMultiplication(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
+
 class Armv7mLogical(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
+
 class Armv7mShiftedLogical(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
+
 class Armv7mLoadInstruction(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
+
 class Armv7mStoreInstruction(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
+
 class Armv7mFPInstruction(Armv7mInstruction): # pylint: disable=missing-docstring,invalid-name
     pass
+
 
 # FP
 class vmov_gpr(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid-name
@@ -1152,10 +1180,12 @@ class vmov_gpr(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid
     inputs = ["Sa"]
     outputs = ["Rd"]
 
+
 class vmov_gpr2(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vmov<width> <Sd>, <Ra>"
     inputs = ["Ra"]
     outputs = ["Sd"]
+
 
 class vmov_gpr2_dual(Armv7mFPInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vmov<width> <Sd1>, <Sd2>, <Ra>, <Rb>"
@@ -1166,18 +1196,21 @@ class vmov_gpr2_dual(Armv7mFPInstruction): # pylint: disable=missing-docstring,i
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
         obj.args_out_combinations = [
-                ( [0,1], [ [ f"s{i}", f"s{i+1}" ] for i in range(0,len(RegisterType.list_registers(RegisterType.FPR))) ] )
-            ]
+            ( [0,1], [ [ f"s{i}", f"s{i+1}" ] for i in range(0,len(RegisterType.list_registers(RegisterType.FPR))) ] )
+        ]
         return obj
+
 
 # movs
 class movw_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "movw <Rd>, <imm>"
     outputs = ["Rd"]
 
+
 class movt_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "movt <Rd>, <imm>"
     in_outs = ["Rd"]
+
 
 # Addition
 class add(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
@@ -1185,24 +1218,29 @@ class add(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-na
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
+
 class add_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "add<width> <Rd>, <Ra>"
     inputs = ["Ra"]
     in_outs = ["Rd"]
+
 
 class add_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "add<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
     outputs = ["Rd"]
 
+
 class add_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "add<width> <Rd>, <imm>"
     in_outs = ["Rd"]
+
 
 class add_shifted(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "add<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+
 
 class adds(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "adds<width> <Rd>, <Ra>, <Rb>"
@@ -1210,15 +1248,18 @@ class adds(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-n
     outputs = ["Rd"]
     modifiesFlags=True
 
+
 class uadd16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "uadd16<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
+
 class sadd16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sadd16<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+
 
 # Subtraction
 class sub(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
@@ -1226,19 +1267,23 @@ class sub(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-na
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
+
 class sub_shifted(Armv7mShiftedArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sub<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+
 
 class sub_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sub<width> <Rd>, <Ra>"
     inputs = ["Ra"]
     in_outs = ["Rd"]
 
+
 class sub_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "sub<width> <Ra>, <imm>"
     in_outs = ["Ra"]
+
 
 class subs_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "subs<width> <Rd>, <Ra>, <imm>"
@@ -1246,20 +1291,24 @@ class subs_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,inval
     outputs = ["Rd"]
     modifiesFlags = True
 
+
 class subs_imm_short(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "subs<width> <Ra>, <imm>"
     in_outs = ["Ra"]
     modifiesFlags = True
+
 
 class usub16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "usub16<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
+
 class ssub16(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "ssub16<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+
 
 # Multiplication
 class mul(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
@@ -1267,60 +1316,72 @@ class mul(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-nam
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
+
 class mul_short(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "mul<width> <Rd>, <Ra>"
     inputs = ["Ra"]
     in_outs = ["Rd"]
+
 
 class mla(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "mla<width> <Rd>, <Ra>, <Rb>, <Rc>"
     inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
 
+
 class mls(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "mls<width> <Rd>, <Ra>, <Rb>, <Rc>"
     inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
+
 
 class smulwb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smulwb<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
+
 class smulwt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smulwt<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+
 
 class smultb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smultb<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
+
 class smultt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smultt<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
+
 
 class smulbb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smulbb<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra","Rb"]
     outputs = ["Rd"]
 
+
 class smlabt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlabt<width> <Rd>, <Ra>, <Rb>, <Rc>"
     inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
+
 
 class smlabb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlabb<width> <Rd>, <Ra>, <Rb>, <Rc>"
     inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
 
+
 class smlatt(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlatt<width> <Rd>, <Ra>, <Rb>, <Rc>"
     inputs = ["Ra","Rb", "Rc"]
     outputs = ["Rd"]
+
 
 class smlatb(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlatb<width> <Rd>, <Ra>, <Rb>, <Rc>"
@@ -1333,30 +1394,36 @@ class smull(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-n
     inputs = ["Rc","Rd"]
     outputs = ["Ra", "Rb"]
 
+
 class smlal(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlal<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rc","Rd"]
     in_outs = ["Ra", "Rb"]
+
 
 class smlad(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smlad<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rb", "Rc","Rd"]
     outputs = ["Ra"]
 
+
 class smladx(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smladx<width> <Ra>, <Rb>, <Rc>, <Rd>"
     inputs = ["Rb", "Rc","Rd"]
     outputs = ["Ra"]
+
 
 class smmulr(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smmulr<width> <Ra>, <Rb>, <Rc>"
     inputs = ["Rb","Rc"]
     outputs = ["Ra"]
 
+
 class smuad(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smuad<width> <Ra>, <Rb>, <Rc>"
     inputs = ["Rb","Rc"]
     outputs = ["Ra"]
+
 
 class smuadx(Armv7mMultiplication): # pylint: disable=missing-docstring,invalid-name
     pattern = "smuadx<width> <Ra>, <Rb>, <Rc>"
@@ -1370,35 +1437,43 @@ class neg_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "neg<width> <Rd>, <Ra>"
     inputs = ["Ra"]
     in_outs = ["Rd"]
+
+
 class log_and(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "and<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
+
 
 class log_and_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "and<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
+
 class log_or(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "orr<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
+
 
 class log_or_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "orr<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
+
 class eor(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "eor<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
+
 class eor_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "eor<width> <Rd>, <Ra>"
     inputs = ["Ra"]
     in_outs = ["Rd"]
+
 
 class eors(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "eors<width> <Rd>, <Ra>, <Rb>"
@@ -1406,11 +1481,13 @@ class eors(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     outputs = ["Rd"]
     modifiesFlags = True
 
+
 class eors_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "eors<width> <Rd>, <Ra>"
     inputs = ["Ra"]
     in_outs = ["Rd"]
     modifiesFlags = True
+
 
 class eor_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "eor<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
@@ -1421,10 +1498,12 @@ class eor_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,inv
         self.immediate = simplify(self.immediate)
         return super().write()
 
+
 class bic(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "bic<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
+
 
 class bics(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "bics<width> <Rd>, <Ra>, <Rb>"
@@ -1432,39 +1511,47 @@ class bics(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     outputs = ["Rd"]
     modifiesFlags = True
 
+
 class bic_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "bic<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
+
 
 class ubfx_imm(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "ubfx<width> <Rd>, <Ra>, <imm0>, <imm1>"
     inputs = ["Ra"]
     outputs = ["Rd"]
 
+
 class ror(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "ror<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
     outputs = ["Rd"]
 
+
 class ror_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "ror<width> <Rd>, <imm>"
     in_outs = ["Rd"]
+
 
 class rors_short(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "rors<width> <Rd>, <imm>"
     in_outs = ["Rd"]
     modifiesFlags = True
 
+
 class lsl(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "lsl<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
     outputs = ["Rd"]
 
+
 class asr(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "asr<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
     outputs = ["Rd"]
+
 
 class asrs(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "asrs<width> <Rd>, <Ra>, <imm>"
@@ -1472,26 +1559,31 @@ class asrs(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     outputs = ["Rd"]
     modifiesFlags = True
 
+
 class pkhtb(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "pkhtb<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
+
 
 class pkhbt(Armv7mLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "pkhbt<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
 
+
 class pkhbt_shifted(Armv7mShiftedLogical): # pylint: disable=missing-docstring,invalid-name
     pattern = "pkhbt<width> <Rd>, <Ra>, <Rb>, <barrel><imm>"
     inputs = ["Ra", "Rb"]
     outputs = ["Rd"]
+
 
 # Load
 class ldr(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>]"
     inputs = ["Ra"]
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1507,10 +1599,12 @@ class ldr(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-na
             self.pattern = ldr_with_imm.pattern
         return super().write()
 
+
 class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra"]
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1531,10 +1625,12 @@ class ldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
             self.width = ""
         return super().write()
 
+
 class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrb<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra"]
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1547,11 +1643,13 @@ class ldrb_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
+
 
 class ldrh_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrh<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra"]
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1565,10 +1663,12 @@ class ldrh_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+
 class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [sp, <imm>]"
     inputs = []
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1581,10 +1681,12 @@ class ldr_with_imm_stack(Armv7mLoadInstruction): # pylint: disable=missing-docst
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+
 class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>], <imm>"
     in_outs = [ "Ra" ]
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
@@ -1594,10 +1696,12 @@ class ldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstri
         obj.addr = obj.args_in_out[0]
         return obj
 
+
 class ldrh_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrh<width> <Rd>, [<Ra>], <imm>"
     in_outs = [ "Ra" ]
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
@@ -1612,6 +1716,7 @@ class ldrb_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
     pattern = "ldrb<width> <Rd>, [<Ra>], <imm>"
     in_outs = [ "Ra" ]
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
@@ -1625,10 +1730,12 @@ class ldrb_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
 class Ldrd(Armv7mLoadInstruction):
     pass
 
+
 class ldrd_imm(Ldrd): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>, <imm>]"
     in_outs = [ "Rc" ]
     outputs = ["Ra", "Rb"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
@@ -1637,10 +1744,12 @@ class ldrd_imm(Ldrd): # pylint: disable=missing-docstring,invalid-name
         obj.addr = obj.args_in_out[0]
         return obj
 
+
 class ldrd_with_postinc(Ldrd): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>], <imm>"
     in_outs = [ "Rc" ]
     outputs = ["Ra", "Rb"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
@@ -1649,10 +1758,12 @@ class ldrd_with_postinc(Ldrd): # pylint: disable=missing-docstring,invalid-name
         obj.addr = obj.args_in_out[0]
         return obj
 
+
 class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldr<width> <Rd>, [<Ra>, <imm>]!"
     in_outs = [ "Ra" ]
     outputs = ["Rd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1660,6 +1771,7 @@ class ldr_with_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-d
         obj.pre_index = None
         obj.addr = obj.args_in_out[0]
         return obj
+
 
 class ldm_interval(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldm<width> <Ra>, <reg_list>"
@@ -1670,7 +1782,6 @@ class ldm_interval(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
         regs = ",".join(self.args_out)
         self.reg_list = f"{{{regs}}}"
         return super().write()
-
 
     @classmethod
     def make(cls, src):
@@ -1685,6 +1796,7 @@ class ldm_interval(Armv7mLoadInstruction): # pylint: disable=missing-docstring,i
         obj.args_out_restrictions = [ None for _ in range(obj.num_out)    ]
         return obj
 
+
 class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "ldm<width> <Ra>!, <reg_list>"
     in_outs = ["Ra"]
@@ -1694,7 +1806,6 @@ class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
         regs = ",".join(self.args_out)
         self.reg_list = f"{{{regs}}}"
         return super().write()
-
 
     @classmethod
     def make(cls, src):
@@ -1711,10 +1822,12 @@ class ldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
         obj.args_out_restrictions = [ None for _ in range(obj.num_out)    ]
         return obj
 
+
 class vldr_with_imm(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vldr<width> <Sd>, [<Ra>, <imm>]"
     inputs = ["Ra"]
     outputs = ["Sd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1732,6 +1845,7 @@ class vldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
     pattern = "vldr<width> <Sd>, [<Ra>], <imm>"
     in_outs = ["Ra"]
     outputs = ["Sd"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mLoadInstruction.build(cls, src)
@@ -1740,15 +1854,16 @@ class vldr_with_postinc(Armv7mLoadInstruction): # pylint: disable=missing-docstr
         obj.addr = obj.args_in_out[0]
         return obj
 
+
 class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "vldm<width> <Ra>!, <reg_list>"
     in_outs = ["Ra"]
     outputs = []
+
     def write(self):
         regs = ",".join(self.args_out)
         self.reg_list = f"{{{regs}}}"
         return super().write()
-
 
     @classmethod
     def make(cls, src):
@@ -1766,10 +1881,12 @@ class vldm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=miss
         return obj
 # Store
 
+
 class str_no_off(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>]"
     inputs = ["Ra", "Rd"]
     outputs = []
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1784,10 +1901,12 @@ class str_no_off(Armv7mStoreInstruction): # pylint: disable=missing-docstring,in
             self.pattern = str_with_imm.pattern
         return super().write()
 
+
 class strh_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "strh<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra", "Rd"]
     outputs = []
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1800,10 +1919,12 @@ class strh_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+
 class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>, <imm>]"
     inputs = ["Ra", "Rd"]
     outputs = []
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1824,10 +1945,12 @@ class str_with_imm(Armv7mStoreInstruction): # pylint: disable=missing-docstring,
 
         return super().write()
 
+
 class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [sp, <imm>]"
     inputs = ["Rd"]
     outputs = []
+
     @classmethod
     def make(cls, src):
         obj = Armv7mInstruction.build(cls, src)
@@ -1840,10 +1963,12 @@ class str_with_imm_stack(Armv7mStoreInstruction): # pylint: disable=missing-docs
         self.immediate = simplify(self.pre_index)
         return super().write()
 
+
 class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "str<width> <Rd>, [<Ra>], <imm>"
     inputs = ["Rd"]
     in_outs = ["Ra"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mStoreInstruction.build(cls, src)
@@ -1852,10 +1977,12 @@ class str_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstr
         obj.addr = obj.args_in_out[0]
         return obj
 
+
 class strh_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "strh<width> <Rd>, [<Ra>], <imm>"
     inputs = ["Rd"]
     in_outs = ["Ra"]
+
     @classmethod
     def make(cls, src):
         obj = Armv7mStoreInstruction.build(cls, src)
@@ -1863,6 +1990,7 @@ class strh_with_postinc(Armv7mStoreInstruction): # pylint: disable=missing-docst
         obj.pre_index = None
         obj.addr = obj.args_in_out[0]
         return obj
+
 
 class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missing-docstring,invalid-name
     pattern = "stm<width> <Ra>!, <reg_list>"
@@ -1889,6 +2017,8 @@ class stm_interval_inc_writeback(Armv7mLoadInstruction): # pylint: disable=missi
         obj.args_in_combinations =  [ ( list(range(0, obj.num_in)), [ [ f"s{i+j}" for i in range(0, obj.num_in)] for j in range(0, len(available_regs)-obj.num_in) ] )]
         obj.args_in_restrictions = [ None for _ in range(obj.num_in)    ]
         return obj
+
+
 # Other
 class cmp(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "cmp<width> <Ra>, <Rb>"
@@ -1896,14 +2026,17 @@ class cmp(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-na
     modifiesFlags=True
     dependsOnFlags=True
 
+
 class cmp_imm(Armv7mBasicArithmetic): # pylint: disable=missing-docstring,invalid-name
     pattern = "cmp<width> <Ra>, <imm>"
     inputs = ["Ra"]
     modifiesFlags=True
-    
+
+
 class bne(Armv7mBranch): # pylint: disable=missing-docstring,invalid-name
     pattern = "bne<width> <label>"
     dependsOnFlags=True
+
 
 class Spill:
     def spill(reg, loc, spill_to_vreg=None):
@@ -1918,6 +2051,7 @@ class Spill:
         else:
             vreg_base = int(spill_to_vreg)
             return f"vmov s{vreg_base+int(loc)}, {reg}"
+
     def restore(reg, loc, spill_to_vreg=None):
         """Generates the instruction text for a spill restore from either
         the stack or the FPR. If spill_to_vreg is None (default),
@@ -1930,6 +2064,7 @@ class Spill:
         else:
             vreg_base = int(spill_to_vreg)
             return f"vmov {reg}, s{vreg_base+int(loc)}"
+
 
 def ldm_interval_splitting_cb():
     def core(inst,t,log=None):
@@ -1961,7 +2096,9 @@ def ldm_interval_splitting_cb():
 
     return core
 
+
 ldm_interval.global_fusion_cb  = ldm_interval_splitting_cb()
+
 
 def stm_interval_inc_writeback_splitting_cb():
     def core(inst,t,log=None):
@@ -1980,7 +2117,7 @@ def stm_interval_inc_writeback_splitting_cb():
             offset -= 4
         # Final store includes increment
         store = Armv7mInstruction.build(
-                str_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
+            str_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
         strs.append(store)
 
         for store in strs:
@@ -1998,7 +2135,9 @@ def stm_interval_inc_writeback_splitting_cb():
 
     return core
 
+
 stm_interval_inc_writeback.global_fusion_cb  = stm_interval_inc_writeback_splitting_cb()
+
 
 def ldm_interval_inc_writeback_splitting_cb():
     def core(inst,t,log=None):
@@ -2017,7 +2156,7 @@ def ldm_interval_inc_writeback_splitting_cb():
             offset -= 4
         # Final load includes increment
         ldr = Armv7mInstruction.build(
-                ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
+            ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": f"#{len(regs) * 4}"})
         ldrs.append(ldr)
 
         for ldr in ldrs:
@@ -2035,7 +2174,9 @@ def ldm_interval_inc_writeback_splitting_cb():
 
     return core
 
+
 ldm_interval_inc_writeback.global_fusion_cb  = ldm_interval_inc_writeback_splitting_cb()
+
 
 def vldm_interval_inc_writeback_splitting_cb():
     def core(inst,t,log=None):
@@ -2054,7 +2195,7 @@ def vldm_interval_inc_writeback_splitting_cb():
             offset += 4
 
         add_ptr = Armv7mInstruction.build(
-                add_imm, {"width": width, "Rd": ptr, "Ra": ptr, "imm": f"#{offset}"})
+            add_imm, {"width": width, "Rd": ptr, "Ra": ptr, "imm": f"#{offset}"})
         ldrs.append(add_ptr)
 
         for ldr in ldrs:
@@ -2072,7 +2213,9 @@ def vldm_interval_inc_writeback_splitting_cb():
 
     return core
 
+
 vldm_interval_inc_writeback.global_fusion_cb  = vldm_interval_inc_writeback_splitting_cb()
+
 
 def ldrd_postinc_splitting_cb():
     def core(inst,t,log=None):
@@ -2089,7 +2232,7 @@ def ldrd_postinc_splitting_cb():
         ldrs.append(ldr)
         # Final load includes increment
         ldr = Armv7mInstruction.build(
-                ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": "#8"})
+            ldr_with_postinc, {"width": width, "Rd": regs[0], "Ra": ptr, "imm": "#8"})
         ldr.increment = 8
         ldr.pre_index = None
         ldr.addr = ptr
@@ -2110,8 +2253,8 @@ def ldrd_postinc_splitting_cb():
 
     return core
 
-ldrd_with_postinc.global_fusion_cb  = ldrd_postinc_splitting_cb()
 
+ldrd_with_postinc.global_fusion_cb  = ldrd_postinc_splitting_cb()
 
 
 def ldrd_imm_splitting_cb():
@@ -2129,7 +2272,7 @@ def ldrd_imm_splitting_cb():
         ldrs.append(ldr)
         # Final load includes increment
         ldr = Armv7mInstruction.build(
-                ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": f"{inst.pre_index}+4"})
+            ldr_with_imm, {"width": width, "Rd": regs[1], "Ra": ptr, "imm": f"{inst.pre_index}+4"})
         ldr.pre_index = f"{inst.pre_index}+4"
         ldr.addr = ptr
         ldrs.append(ldr)
@@ -2149,7 +2292,9 @@ def ldrd_imm_splitting_cb():
 
     return core
 
+
 ldrd_imm.global_fusion_cb = ldrd_imm_splitting_cb()
+
 
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
@@ -2157,6 +2302,7 @@ def all_subclass_leaves(c):
 
     def has_subclasses(cl):
         return len(cl.__subclasses__()) > 0
+
     def is_leaf(c):
         return not has_subclasses(c)
 
@@ -2171,16 +2317,20 @@ def all_subclass_leaves(c):
 
     return all_subclass_leaves_core([], [c])
 
+
 Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
+
 
 def iter_armv7m_instructions():
     yield from all_subclass_leaves(Instruction)
+
 
 def find_class(src):
     for inst_class in iter_armv7m_instructions():
         if isinstance(src,inst_class):
             return inst_class
     raise UnknownInstruction(f"Couldn't find instruction class for {src} (type {type(src)})")
+
 
 def lookup_multidict(d, inst, default=None):
     instclass = find_class(inst)

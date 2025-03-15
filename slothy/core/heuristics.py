@@ -42,6 +42,7 @@ from slothy.core.core import SlothyBase, Result, SlothyException
 from slothy.helper import Permutation, SourceLine
 from slothy.helper import binary_search, BinarySearchLimitException
 
+
 class Heuristics():
     """Break down large optimization problems into smaller ones.
 
@@ -85,18 +86,18 @@ class Heuristics():
 
         try:
             return binary_search(try_with_stalls,
-                minimum=conf.constraints.stalls_minimum_attempt - 1,
-                start=conf.constraints.stalls_first_attempt,
-                threshold=conf.constraints.stalls_maximum_attempt,
-                precision=conf.constraints.stalls_precision,
-                timeout_below_precision=conf.constraints.stalls_timeout_below_precision)
+                                 minimum=conf.constraints.stalls_minimum_attempt - 1,
+                                 start=conf.constraints.stalls_first_attempt,
+                                 threshold=conf.constraints.stalls_maximum_attempt,
+                                 precision=conf.constraints.stalls_precision,
+                                 timeout_below_precision=conf.constraints.stalls_timeout_below_precision)
 
         except BinarySearchLimitException:
             logger.error("Exceeded stall limit without finding a working solution")
             logger.error("Here's what you asked me to optimize:")
 
             Heuristics._dump("Original source code", source,
-                logger=logger, err=True, no_comments=True)
+                             logger=logger, err=True, no_comments=True)
             logger.error("Configuration:")
             conf.log(logger.error)
 
@@ -136,9 +137,9 @@ class Heuristics():
 
     @staticmethod
     def _log_reoptimization_failure(log):
-        log.warning("Re-optimization with objective at minimum number of stalls failed. "\
-            "By the non-deterministic nature of the optimization, this can happen. "     \
-            "Will just pick previous result...")
+        log.warning("Re-optimization with objective at minimum number of stalls failed. " \
+                    "By the non-deterministic nature of the optimization, this can happen. " \
+                    "Will just pick previous result...")
 
     @staticmethod
     def _log_input_output_warning(log):
@@ -188,7 +189,7 @@ class Heuristics():
             return core.result
 
         logger.info("Optimize again with minimal number of %d stalls, with objective...",
-            min_stalls)
+                    min_stalls)
         first_result = core.result
 
         core.config.ignore_objective = False
@@ -258,7 +259,7 @@ class Heuristics():
             return core.result
 
         logger.info("Optimize again with minimal number of %d stalls, with objective...",
-            min_stalls)
+                    min_stalls)
         first_result = core.result
 
         success = core.retry(fix_stalls=min_stalls)
@@ -361,7 +362,7 @@ class Heuristics():
             c = conf.copy()
             c.sw_pipelining.enabled=False
             res_postamble = Heuristics.linear(postamble, conf=c,
-                logger=logger.getChild("postamble"))
+                                              logger=logger.getChild("postamble"))
             postamble = res_postamble.code
 
         return preamble, kernel, postamble, num_exceptional_iterations
@@ -416,6 +417,7 @@ class Heuristics():
             nodes_by_depth.sort(key=lambda t: t.depth)
             for t in dfg.nodes_all:
                 t.latency_depth = 0
+
             def get_latency(tp,t):
                 if tp.src.is_virtual:
                     return 0
@@ -443,6 +445,7 @@ class Heuristics():
 
         def get_inputs(inst):
             return set(inst.args_in + inst.args_in_out)
+
         def get_outputs(inst):
             return set(inst.args_out + inst.args_in_out)
 
@@ -585,7 +588,7 @@ class Heuristics():
                 Heuristics._dump("Code in SSA form:", body, logger, err=True)
 
             body, perm = Heuristics._naive_reordering(body, log, conf,
-                use_latency_depth=conf.split_heuristic_preprocess_naive_interleaving_by_latency)
+                                                      use_latency_depth=conf.split_heuristic_preprocess_naive_interleaving_by_latency)
 
             if ssa:
                 log.debug("Remove symbolics after SSA...")
@@ -594,7 +597,7 @@ class Heuristics():
                 c.constraints.functional_only = True
                 body = SourceLine.reduce_source(body)
                 result = Heuristics.optimize_binsearch(body,
-                    log.getChild("remove_symbolics"),conf=c)
+                                                       log.getChild("remove_symbolics"),conf=c)
                 body = result.code
                 body = SourceLine.reduce_source(body)
         else:
@@ -619,7 +622,7 @@ class Heuristics():
             for v in stalls_arr:
                 assert v in {0,1}
             stalls_cumulative = [ sum(stalls_arr[max(0,i-math.floor(chunk_len/2))
-                :i+math.ceil(chunk_len/2)]) for i in range(l) ]
+                                  :i+math.ceil(chunk_len/2)]) for i in range(l) ]
             print_intarr(stalls_cumulative,l)
 
         def optimize_chunk(start_idx, end_idx, body, stalls,show_stalls=True):
@@ -647,7 +650,7 @@ class Heuristics():
             post_pad = len(cur_post)
 
             Heuristics._dump(f"Optimizing chunk [{start_idx}-{prefix_len}:{end_idx}+{suffix_len}]",
-                cur_body, log)
+                             cur_body, log)
             if prefix_len > 0:
                 Heuristics._dump("Using prefix", cur_prefix, log)
             if suffix_len > 0:
@@ -666,17 +669,17 @@ class Heuristics():
             c.outputs = cur_outputs
 
             result = Heuristics.optimize_binsearch(cur_body,
-                log.getChild(f"{start_idx}_{end_idx}"), c,
-                prefix_len=prefix_len, suffix_len=suffix_len)
+                                                   log.getChild(f"{start_idx}_{end_idx}"), c,
+                                                   prefix_len=prefix_len, suffix_len=suffix_len)
             Heuristics._dump(f"New chunk [{start_idx}:{end_idx}]", result.code, log)
             new_body = cur_pre + SourceLine.reduce_source(result.code) + cur_post
 
             perm = Permutation.permutation_pad(result.reordering, pre_pad, post_pad)
 
             keep_stalls = { i for i in stalls if i < start_idx - prefix_len or
-                i >= end_idx + suffix_len }
+                            i >= end_idx + suffix_len }
             new_stalls = keep_stalls.union(map(lambda i: i + start_idx - prefix_len,
-                                                    result.stall_positions))
+                                           result.stall_positions))
 
             if show_stalls:
                 print_stalls(new_stalls,l)
@@ -713,6 +716,7 @@ class Heuristics():
                 end_pos.append(cur_end)
 
                 cur_start += increment
+
             def not_empty(x):
                 return x[0] != x[1]
             idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
@@ -754,6 +758,7 @@ class Heuristics():
                 end_pos   = [ x[1] for x in conf.split_heuristic_chunks ]
                 idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
                               Heuristics._idxs_from_fractions(end_pos, cur_body))
+
                 def not_empty(x):
                     return x[0] != x[1]
                 idx_lst = list(filter(not_empty, idx_lst))
@@ -763,8 +768,8 @@ class Heuristics():
                     idx_lst.reverse()
 
             cur_body, stalls, local_perm = optimize_chunks_many(idx_lst, cur_body, stalls,
-                               abort_stall_threshold_high=conf.split_heuristic_abort_cycle_at_high,
-                               abort_stall_threshold_low=conf.split_heuristic_abort_cycle_at_low)
+                                                                abort_stall_threshold_high=conf.split_heuristic_abort_cycle_at_high,
+                                                                abort_stall_threshold_low=conf.split_heuristic_abort_cycle_at_low)
             perm = Permutation.permutation_comp(local_perm, perm)
 
         # Check complete result
@@ -786,7 +791,7 @@ class Heuristics():
             conf2.constraints.allow_reordering = False
             conf2.variable_size = True
             stall_res = Heuristics.optimize_binsearch(res.code,
-                logger.getChild("split_estimtate_perf"), conf2)
+                                                      logger.getChild("split_estimtate_perf"), conf2)
             if stall_res.success is False:
                 log.error("Stall-estimate for final code after split heuristic failed -- should not happen? Maybe increase timeout? Just returning the result without stall-estimate.")
             else:
@@ -806,7 +811,6 @@ class Heuristics():
                 res = res2
 
         return res
-
 
     @staticmethod
     def _split(body, logger, conf):
@@ -903,8 +907,10 @@ class Heuristics():
             # TODO: The 2nd optimization step below does not yet produce a Result structure.
             reordering = res_halving_0.reordering
             codesize = res_halving_0.codesize
+
             def rotate_pos(p):
                 return p - (codesize // 2)
+
             def is_pre(i):
                 return rotate_pos(reordering[i]) < 0
 
@@ -928,9 +934,9 @@ class Heuristics():
             c2.sw_pipelining.enabled = True
 
             reordering1 = { i : rotate_pos(reordering[i])
-                for i in range(codesize) }
+                            for i in range(codesize) }
             pre_core_post_dict1 = { i : (is_pre(i), not is_pre(i), False)
-                for i in range(codesize) }
+                                    for i in range(codesize) }
 
             res = Result(c2)
             res.orig_code = body
@@ -992,7 +998,7 @@ class Heuristics():
             c.sw_pipelining.enabled=True      # SW pipelining enabled, but ...
             c.sw_pipelining.allow_pre=False   # - no early instructions
             c.sw_pipelining.allow_post=False  # - no late instructions
-                                              # Just make sure to consider loop boundary
+            # Just make sure to consider loop boundary
             kernel = Heuristics.optimize_binsearch( kernel, logger.
                                                     getChild("periodic heuristic"), conf=c).code
         elif not conf.sw_pipelining.halving_heuristic_split_only:
@@ -1027,9 +1033,9 @@ class Heuristics():
             res2.output_renamings = res.output_renamings
 
             new_preamble = [ final_kernel[i] for i in range(res2.codesize)
-                if res2.is_pre(i, original_program_order=False) is True ]
+                             if res2.is_pre(i, original_program_order=False) is True ]
             new_postamble = [ final_kernel[i] for i in range(res2.codesize)
-                if res2.is_pre(i, original_program_order=False) is False ]
+                              if res2.is_pre(i, original_program_order=False) is False ]
 
             res2.preamble = new_preamble
             res2.postamble = new_postamble
