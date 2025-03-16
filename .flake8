@@ -1,13 +1,10 @@
 [flake8]
 extend-ignore =
-    # missing whitespace after ','
+    # black and flake8 don't agree on these - stick to black
+    # E203 whitespace before ':'
     E203
-    # inline comment should start with '# '
-    E262
-    # block comment should start with '# '
-    E265
-    # too many leading '#' for block comment
-    E266
+
+    # TODO: review those
     # multiple imports on one line
     E401
     # module level import not at top of file

@@ -35,13 +35,12 @@ Some latency exceptions were manually identified through microbenchmarks.
 
     The data in this module is approximate and may contain errors.
 """
-
-################################### NOTE ###############################################
-###                                                                                  ###
-### WARNING: The data in this module is approximate and may contain errors.          ###
-###          They are _NOT_ an official software optimization guide for Cortex-A55.  ###
-###                                                                                  ###
-########################################################################################
+# ################################ NOTE ############################################ #
+#                                                                                    #
+#  WARNING: The data in this module is approximate and may contain errors.           #
+#           They are _NOT_ an official software optimization guide for Cortex-A55.   #
+#                                                                                    #
+# ################################################################################## #
 
 from enum import Enum
 from slothy.targets.aarch64.aarch64_neon import *

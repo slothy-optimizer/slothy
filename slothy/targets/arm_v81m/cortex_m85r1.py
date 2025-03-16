@@ -25,16 +25,16 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-########################################################################################
-################################### NOTE ###############################################
-########################################################################################
-###                                                                                  ###
-### WARNING: The data in this module is approximate and may contain errors.          ###
-###          They are _NOT_ an official software optimization guide for Cortex-M85.  ###
-###                                                                                  ###
-########################################################################################
-########################################################################################
-########################################################################################
+# ##################################################################################
+# ################################ NOTE ############################################
+# ##################################################################################
+#                                                                                  #
+# WARNING: The data in this module is approximate and may contain errors.          #
+#          They are _NOT_ an official software optimization guide for Cortex-M85.  #
+#                                                                                  #
+# ##################################################################################
+# ##################################################################################
+# ##################################################################################
 
 from enum import Enum
 from slothy.targets.arm_v81m.arch_v81m import *
@@ -104,8 +104,8 @@ def add_further_constraints(slothy):
     for t0, t1 in slothy.get_inst_pairs():
         c0 = find_class(t0.inst)
         c1 = find_class(t1.inst)
-        ## The intent is to have the 1st line capture VFMA-like instructions
-        ## blocking the MAC pipe, while the second should capture instructions of different kind using this pipe, too.
+        # The intent is to have the 1st line capture VFMA-like instructions
+        # blocking the MAC pipe, while the second should capture instructions of different kind using this pipe, too.
         if execution_units[c0] == [
             [ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]
         ] and (

@@ -6,16 +6,16 @@ Experimental Cortex-M7 microarchitecture model for SLOTHY
     The data in this module is approximate and may contain errors.
 """
 
-################################### NOTE ###############################################
-###                                                                                  ###
-### WARNING: The data in this module is approximate and may contain errors.          ###
-###          They are _NOT_ an official software optimization guide for Cortex-M7.   ###
-###                                                                                  ###
-### Sources used in constructing this model:                                         ###
-### - ARMv7-M Architecture Reference Manual (ARM DDI 0403E.e)                        ###
-### - https://github.com/jnk0le/random/tree/master/pipeline%20cycle%20test#cortex-m7 ###
-### - https://www.quinapalus.com/cm7cycles.html                                      ###
-########################################################################################
+# ################################ NOTE ########################################## #
+#                                                                                  #
+# WARNING: The data in this module is approximate and may contain errors.          #
+#          They are _NOT_ an official software optimization guide for Cortex-M7.   #
+#                                                                                  #
+# Sources used in constructing this model:                                         #
+# - ARMv7-M Architecture Reference Manual (ARM DDI 0403E.e)                        #
+# - https://github.com/jnk0le/random/tree/master/pipeline%20cycle%20test#cortex-m7 #
+# - https://www.quinapalus.com/cm7cycles.html                                      #
+####################################################################################
 
 from enum import Enum
 from itertools import product

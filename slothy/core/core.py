@@ -2848,7 +2848,7 @@ class SlothyBase(LockAttributes):
                 t.inst.args_out_combinations, t.alloc_out_combinations_vars, "output"
             )
 
-        ## Create intervals tracking the usage of registers
+        # Create intervals tracking the usage of registers
 
         for t in self._get_nodes(allnodes=True):
             self.logger.debug("Create register usage intervals for %s", t)
@@ -3684,7 +3684,7 @@ class SlothyBase(LockAttributes):
                 t0.program_start_var
                 == t1.program_start_var + self._model.program_padded_size_half
             ).OnlyEnforceIf(t0.post_var)
-            ## Register allocations must be the same
+            # Register allocations must be the same
             assert t0.inst.arg_types_out == t1.inst.arg_types_out
             for o, _ in enumerate(t0.inst.arg_types_out):
                 t0_vars = set(t0.alloc_out_var[o].keys())

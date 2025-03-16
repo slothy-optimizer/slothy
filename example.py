@@ -2034,7 +2034,7 @@ class ntt_769_dilithium(Example):
         r = r.union(f"s{i}" for i in range(31))  # reserve FPR
         slothy.config.reserved_regs = r
 
-        ### TODO
+        # TODO
         # - Experiment with lower split factors
         # - Try to get stable performance: It currently varies a lot with each run
 
@@ -2549,7 +2549,7 @@ class ntt_kyber(Example):
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = True
 
-        ### TODO
+        # TODO
         # - Experiment with lower split factors
         # - Try to get stable performance: It currently varies a lot with each run
         slothy.config.constraints.stalls_first_attempt = 16

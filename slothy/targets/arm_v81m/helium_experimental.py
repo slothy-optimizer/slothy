@@ -23,11 +23,11 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-###
-### Playground for local microarchitectural explorations
-###
-### The baseline is just a copy of the Cortex-M55 model without ST-LD hazard
-###
+#
+# Playground for local microarchitectural explorations
+#
+# The baseline is just a copy of the Cortex-M55 model without ST-LD hazard
+#
 
 from enum import Enum
 

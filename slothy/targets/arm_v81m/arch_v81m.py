@@ -25,12 +25,12 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-###
-### WARNING: This module is highly incomplete and does not constitute a complete
-###          parser for the Armv8.1-M instruction set. So far, it merelly supports
-###          a minimal amount of Helium instructions to run HeLight in some chosen
-###          examples of interest.
-###
+#
+# WARNING: This module is highly incomplete and does not constitute a complete
+#          parser for the Armv8.1-M instruction set. So far, it merelly supports
+#          a minimal amount of Helium instructions to run HeLight in some chosen
+#          examples of interest.
+#
 
 import logging
 import inspect
@@ -1928,8 +1928,8 @@ class vst2(Instruction):
             arg_types_in_out = []
             arg_types_out = []
         else:
-            ### NOTE: We model VST20 as modifying the input vectors solely to enforce
-            ###       the ordering VST2{0,1} -- they of course don't actually modify the contents
+            # NOTE: We model VST20 as modifying the input vectors solely to enforce
+            #       the ordering VST2{0,1} -- they of course don't actually modify the contents
             arg_types_in = [RegisterType.GPR]
             arg_types_out = []
             arg_types_in_out = [RegisterType.MVE, RegisterType.MVE]
@@ -2020,8 +2020,8 @@ class vst4(Instruction):
             arg_types_in_out = []
             arg_types_out = []
         else:
-            ### NOTE: We model VST4{0,1,2} as modifying the input vectors solely to enforce
-            ###       the ordering VST4{0,1,2,3} -- they of course don't actually modify the contents
+            # NOTE: We model VST4{0,1,2} as modifying the input vectors solely to enforce
+            #       the ordering VST4{0,1,2,3} -- they of course don't actually modify the contents
             arg_types_in = [RegisterType.GPR]
             arg_types_out = []
             arg_types_in_out = [
@@ -2348,13 +2348,13 @@ class vcsubf(Instruction):
         return f"vcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
 
 
-#############################################################
-##
-## Postprocessing callbacks
-##
-## TODO: Move those into the instruction class definitions
-##
-#############################################################
+# ###########################################################
+#
+#  Postprocessing callbacks
+#
+#  TODO: Move those into the instruction class definitions
+#
+# ###########################################################
 
 
 # Called after a code snippet has been parsed which contains instances

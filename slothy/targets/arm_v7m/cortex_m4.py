@@ -4,12 +4,12 @@ Experimental Cortex-M4 microarchitecture model for SLOTHY
 WARNING: The data in this module is approximate and may contain errors.
 """
 
-################################### NOTE ###############################################
-###                                                                                  ###
-### WARNING: The data in this module is approximate and may contain errors.          ###
-###          They are _NOT_ an official software optimization guide for Cortex-M4.  ###
-###                                                                                  ###
-########################################################################################
+# ################################ NOTE #############################################
+#                                                                                   #
+#  WARNING: The data in this module is approximate and may contain errors.          #
+#           They are _NOT_ an official software optimization guide for Cortex-M4.   #
+#                                                                                   #
+# ###################################################################################
 
 from enum import Enum
 from slothy.targets.arm_v7m.arch_v7m import *

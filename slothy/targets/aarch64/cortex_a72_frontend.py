@@ -182,7 +182,7 @@ inverse_throughput = {
     Ld4: 4,
 }
 
-### REVISIT
+# REVISIT
 default_latencies = {
     (
         vmul,

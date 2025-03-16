@@ -2375,7 +2375,7 @@ class sbfx(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
     outputs = ["Xd"]
 
 
-class extr(AArch64Logical):  ### TODO! Review this...
+class extr(AArch64Logical):  # TODO! Review this...
     pattern = "extr <Xd>, <Xa>, <Xb>, <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
