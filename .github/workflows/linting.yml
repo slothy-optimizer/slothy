@@ -1,4 +1,4 @@
-name: flake8 Lint
+name: Linting
 
 on:
   push:
@@ -26,10 +26,9 @@ jobs:
         uses: py-actions/flake8@v2
         with:
           args: "--select=DOC --style=sphinx"
-
   flake8-lint:
     runs-on: ubuntu-latest
-    name: Lint
+    name: Flake8 Lint
     steps:
       - name: Check out source repository
         uses: actions/checkout@v3
@@ -39,3 +38,10 @@ jobs:
           python-version: "3.11"
       - name: flake8 Lint
         uses: py-actions/flake8@v2
+  black:
+    runs-on: ubuntu-latest
+    name: Black Lint
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+      - uses: psf/black@stable
