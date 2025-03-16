@@ -9,8 +9,6 @@ extend-ignore =
     E501
     # unable to detect undefined names
     F403
-    # do not assign a lambda expression, use a def
-    E731
     # ambiguous variable name
     E741
     # ambiguous function definition

@@ -3607,11 +3607,19 @@ class SlothyBase(LockAttributes):
         """
 
         if cond_fst is None:
-            cond_fst = lambda x: True
+
+            def cond_fst(_):
+                return True
+
         if cond_snd is None:
-            cond_snd = lambda x: True
+
+            def cond_snd(_):
+                return True
+
         if cond is None:
-            cond = lambda x, y: True
+
+            def cond(_x, _y):
+                return True
 
         fst = list(filter(cond_fst, self._model.tree.nodes))
         snd = list(filter(cond_snd, self._model.tree.nodes))
