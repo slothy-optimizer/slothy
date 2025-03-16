@@ -977,7 +977,6 @@ class DataFlowGraph:
         # An example from MVE would be `vmul q0, q0, const` if we do _not_ have any
         # information on the type of `const` -- it could be either a GPR or a vector.
         if num_valid_candidates > 1:
-            cnames = list(map(lambda c: type(c).__name__, candidates))
             self.logger.error(
                 "Source line %s can be parsed in multiple ways:", sourceline
             )

@@ -225,9 +225,6 @@ class Slothy:
 
     def unfold(self, start=None, end=None, macros=True, aliases=False):
         """Unfold macros and/or register aliases in specified region"""
-
-        logger = self.logger
-
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
         aliases = AsmAllocation.parse_allocs(pre)

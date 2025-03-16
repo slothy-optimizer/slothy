@@ -25,8 +25,6 @@ extend-ignore =
     E712
     # undefined name 's'
     F821
-    # local variable is assigned to but never used
-    F841
     # invalid escape sequence
     W605
 #

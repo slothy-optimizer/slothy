@@ -224,9 +224,6 @@ default_latencies = {
 
 
 def get_latency(src, out_idx, dst):
-    instclass_src = find_class(src)
-    instclass_dst = find_class(dst)
-
     latency = lookup_multidict(default_latencies, src)
     return latency
 

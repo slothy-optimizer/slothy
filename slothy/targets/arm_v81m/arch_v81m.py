@@ -2409,7 +2409,6 @@ vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 
 
 def lookup_multidict(d, inst, default=None):
-    instclass = find_class(inst)
     for l, v in d.items():
         # Multidict entries can be the following:
         # - An instruction class. It matches any instruction of that class.

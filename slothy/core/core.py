@@ -1003,7 +1003,7 @@ class Result(LockAttributes):
 
         exception = None
         try:
-            success = self.selfcheck(log)
+            self.selfcheck(log)
         except SlothySelfCheckException as e:
             exception = e
 
@@ -3491,7 +3491,7 @@ class SlothyBase(LockAttributes):
                     self.config.constraints.max_displacement
                     * self._model.program_padded_size_const
                 )
-                c = self._Add(t.program_displacement < max_disp)
+                self._Add(t.program_displacement < max_disp)
 
             if self.config.constraints.functional_only:
                 continue

@@ -880,9 +880,6 @@ class AsmMacro:
 
         output = []
 
-        indentation_regexp_txt = r"^(?P<whitespace>\s*)($|\S)"
-        indentation_regexp = re.compile(indentation_regexp_txt)
-
         # Go through source line by line and check if there's a macro invocation
         for l in source:
             assert SourceLine.is_source_line(l)
