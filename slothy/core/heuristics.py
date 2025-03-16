@@ -43,7 +43,7 @@ from slothy.helper import Permutation, SourceLine
 from slothy.helper import binary_search, BinarySearchLimitException
 
 
-class Heuristics():
+class Heuristics:
     """Break down large optimization problems into smaller ones.
 
     The one-shot SLOTHY approach tends to become computationally infeasible above
@@ -55,7 +55,7 @@ class Heuristics():
     @staticmethod
     def _optimize_binsearch_core(source, logger, conf, **kwargs):
 
-        logger_name = logger.name.replace(".","_")
+        logger_name = logger.name.replace(".", "_")
         last_successful = None
 
         def try_with_stalls(stalls, timeout=None):
@@ -85,26 +85,33 @@ class Heuristics():
             return success, core
 
         try:
-            return binary_search(try_with_stalls,
-                                 minimum=conf.constraints.stalls_minimum_attempt - 1,
-                                 start=conf.constraints.stalls_first_attempt,
-                                 threshold=conf.constraints.stalls_maximum_attempt,
-                                 precision=conf.constraints.stalls_precision,
-                                 timeout_below_precision=conf.constraints.stalls_timeout_below_precision)
+            return binary_search(
+                try_with_stalls,
+                minimum=conf.constraints.stalls_minimum_attempt - 1,
+                start=conf.constraints.stalls_first_attempt,
+                threshold=conf.constraints.stalls_maximum_attempt,
+                precision=conf.constraints.stalls_precision,
+                timeout_below_precision=conf.constraints.stalls_timeout_below_precision,
+            )
 
         except BinarySearchLimitException:
             logger.error("Exceeded stall limit without finding a working solution")
             logger.error("Here's what you asked me to optimize:")
 
-            Heuristics._dump("Original source code", source,
-                             logger=logger, err=True, no_comments=True)
+            Heuristics._dump(
+                "Original source code",
+                source,
+                logger=logger,
+                err=True,
+                no_comments=True,
+            )
             logger.error("Configuration:")
             conf.log(logger.error)
 
             err_file = conf.log_dir + f"/{logger_name}_ERROR.s"
             with open(err_file, "w", encoding="utf-8") as f:
                 conf.log(lambda l: f.write("// " + l + "\n"))
-                f.write('\n'.join(source))
+                f.write("\n".join(source))
 
             logger.error(f"Stored this information in {err_file}")
 
@@ -129,27 +136,33 @@ class Heuristics():
         flexible = not conf.constraints.functional_only
 
         if conf.variable_size:
-            return Heuristics.optimize_binsearch_internal(source, logger, conf,
-                                                          flexible=flexible, **kwargs)
+            return Heuristics.optimize_binsearch_internal(
+                source, logger, conf, flexible=flexible, **kwargs
+            )
 
-        return Heuristics.optimize_binsearch_external(source, logger, conf,
-                                                      flexible=flexible, **kwargs)
+        return Heuristics.optimize_binsearch_external(
+            source, logger, conf, flexible=flexible, **kwargs
+        )
 
     @staticmethod
     def _log_reoptimization_failure(log):
-        log.warning("Re-optimization with objective at minimum number of stalls failed. " \
-                    "By the non-deterministic nature of the optimization, this can happen. " \
-                    "Will just pick previous result...")
+        log.warning(
+            "Re-optimization with objective at minimum number of stalls failed. "
+            "By the non-deterministic nature of the optimization, this can happen. "
+            "Will just pick previous result..."
+        )
 
     @staticmethod
     def _log_input_output_warning(log):
-        log.warning("You are using SW pipelining without setting inputs_are_outputs=True."\
-                    "This means that the last iteration of the loop may overwrite inputs "\
-                    "to the loop (such as address registers), unless they are marked as " \
-                    "reserved registers. If this is intended, ignore this warning. "      \
-                    "Otherwise, consider setting inputs_are_outputs=True to ensure that " \
-                    "nothing that is used as an input to the loop is overwritten, "       \
-                    "not even in the last iteration.")
+        log.warning(
+            "You are using SW pipelining without setting inputs_are_outputs=True."
+            "This means that the last iteration of the loop may overwrite inputs "
+            "to the loop (such as address registers), unless they are marked as "
+            "reserved registers. If this is intended, ignore this warning. "
+            "Otherwise, consider setting inputs_are_outputs=True to ensure that "
+            "nothing that is used as an input to the loop is overwritten, "
+            "not even in the last iteration."
+        )
 
     @staticmethod
     def optimize_binsearch_external(source, logger, conf, flexible=True, **kwargs):
@@ -174,7 +187,7 @@ class Heuristics():
         """
 
         if not flexible:
-            core = SlothyBase(conf.arch, conf.target, logger=logger,config=conf)
+            core = SlothyBase(conf.arch, conf.target, logger=logger, config=conf)
             if not core.optimize(source):
                 raise SlothyException("Optimization failed")
             return core.result
@@ -183,13 +196,17 @@ class Heuristics():
 
         c = conf.copy()
         c.ignore_objective = True
-        min_stalls, core = Heuristics._optimize_binsearch_core(source, logger, c, **kwargs)
+        min_stalls, core = Heuristics._optimize_binsearch_core(
+            source, logger, c, **kwargs
+        )
 
         if conf.has_objective is False:
             return core.result
 
-        logger.info("Optimize again with minimal number of %d stalls, with objective...",
-                    min_stalls)
+        logger.info(
+            "Optimize again with minimal number of %d stalls, with objective...",
+            min_stalls,
+        )
         first_result = core.result
 
         core.config.ignore_objective = False
@@ -223,7 +240,7 @@ class Heuristics():
         """
 
         if not flexible:
-            core = SlothyBase(conf.arch, conf.target, logger=logger,config=conf)
+            core = SlothyBase(conf.arch, conf.target, logger=logger, config=conf)
             if not core.optimize(source):
                 raise SlothyException("Optimization failed")
             return core.result
@@ -247,7 +264,7 @@ class Heuristics():
                 min_stalls = core.result.stalls
                 break
 
-            cur_attempt = max(1,cur_attempt * 2)
+            cur_attempt = max(1, cur_attempt * 2)
             if cur_attempt > conf.constraints.stalls_maximum_attempt:
                 logger.error("Exceeded stall limit without finding a working solution")
                 raise SlothyException("No solution found")
@@ -258,8 +275,10 @@ class Heuristics():
         if conf.has_objective is False or conf.constraints.minimize_spills is True:
             return core.result
 
-        logger.info("Optimize again with minimal number of %d stalls, with objective...",
-                    min_stalls)
+        logger.info(
+            "Optimize again with minimal number of %d stalls, with objective...",
+            min_stalls,
+        )
         first_result = core.result
 
         success = core.retry(fix_stalls=min_stalls)
@@ -310,19 +329,20 @@ class Heuristics():
             body = body * conf.sw_pipelining.unroll
 
         if conf.inputs_are_outputs:
-            dfg = DFG(body, logger.getChild("dfg_generate_outputs"),
-                      DFGConfig(conf.copy()))
+            dfg = DFG(
+                body, logger.getChild("dfg_generate_outputs"), DFGConfig(conf.copy())
+            )
             conf.outputs = dfg.outputs
             conf.inputs_are_outputs = False
 
         # If we're not asked to do software pipelining, just forward to
         # the heuristics for linear optimization.
         if not conf.sw_pipelining.enabled:
-            res = Heuristics.linear( body, logger=logger, conf=conf)
+            res = Heuristics.linear(body, logger=logger, conf=conf)
             return [], res.code, [], 0
 
         if conf.sw_pipelining.halving_heuristic:
-            return Heuristics._periodic_halving( body, logger, conf)
+            return Heuristics._periodic_halving(body, logger, conf)
 
         # 'Normal' software pipelining
         #
@@ -334,9 +354,11 @@ class Heuristics():
         logger.debug("Optimize loop kernel...")
         c = conf.copy()
         c.inputs_are_outputs = True
-        result = Heuristics.optimize_binsearch(body,logger.getChild("slothy"),c)
+        result = Heuristics.optimize_binsearch(body, logger.getChild("slothy"), c)
 
-        conf.outputs = list(map(lambda o: result.output_renamings.get(o,o), conf.outputs))
+        conf.outputs = list(
+            map(lambda o: result.output_renamings.get(o, o), conf.outputs)
+        )
 
         num_exceptional_iterations = result.num_exceptional_iterations
         kernel = result.code
@@ -351,8 +373,10 @@ class Heuristics():
             logger.debug("Dependencies within kernel: %s", result.kernel_input_output)
             c = conf.copy()
             c.outputs = result.kernel_input_output
-            c.sw_pipelining.enabled=False
-            res_preamble = Heuristics.linear(preamble,conf=c, logger=logger.getChild("preamble"))
+            c.sw_pipelining.enabled = False
+            res_preamble = Heuristics.linear(
+                preamble, conf=c, logger=logger.getChild("preamble")
+            )
             preamble = res_preamble.code
 
         postamble = result.postamble
@@ -360,9 +384,10 @@ class Heuristics():
             logger.debug("Optimize postamble...")
             Heuristics._dump("Preamble", postamble, logger)
             c = conf.copy()
-            c.sw_pipelining.enabled=False
-            res_postamble = Heuristics.linear(postamble, conf=c,
-                                              logger=logger.getChild("postamble"))
+            c.sw_pipelining.enabled = False
+            res_postamble = Heuristics.linear(
+                postamble, conf=c, logger=logger.getChild("postamble")
+            )
             postamble = res_postamble.code
 
         return preamble, kernel, postamble, num_exceptional_iterations
@@ -385,15 +410,16 @@ class Heuristics():
         """
         assert SourceLine.is_source(body)
         if conf.sw_pipelining.enabled:
-            raise SlothyException("Linear heuristic should only be called "
-                                  "with SW pipelining disabled")
+            raise SlothyException(
+                "Linear heuristic should only be called " "with SW pipelining disabled"
+            )
 
         Heuristics._dump("Starting linear optimization...", body, logger)
 
         # So far, we only implement one heuristic: The splitting heuristic --
         # If that's disabled, just forward to the core optimization
         if not conf.split_heuristic:
-            return Heuristics.optimize_binsearch(body,logger.getChild("slothy"), conf)
+            return Heuristics.optimize_binsearch(body, logger.getChild("slothy"), conf)
 
         return Heuristics._split(body, logger, conf)
 
@@ -418,25 +444,29 @@ class Heuristics():
             for t in dfg.nodes_all:
                 t.latency_depth = 0
 
-            def get_latency(tp,t):
+            def get_latency(tp, t):
                 if tp.src.is_virtual:
                     return 0
                 return conf.target.get_latency(tp.src.inst, tp.idx, t.inst)
+
             for t in nodes_by_depth:
                 srcs = t.src_in + t.src_in_out
-                t.latency_depth = max(map(lambda tp, t=t: tp.src.latency_depth +
-                                          get_latency(tp, t), srcs),
-                                      default=0)
+                t.latency_depth = max(
+                    map(
+                        lambda tp, t=t: tp.src.latency_depth + get_latency(tp, t), srcs
+                    ),
+                    default=0,
+                )
 
         def get_depth(t):
             if use_latency_depth is False:
                 pre_depth = t.depth
             else:
                 pre_depth = t.latency_depth
-            scale = float(t.inst.source_line.tags.get("naive_interleaving_scale",1.0))
+            scale = float(t.inst.source_line.tags.get("naive_interleaving_scale", 1.0))
             return int(pre_depth * scale)
 
-        depths = [get_depth(dfg.nodes_by_id[i]) for i in range(l) ]
+        depths = [get_depth(dfg.nodes_by_id[i]) for i in range(l)]
 
         inputs = dfg.inputs.copy()
         outputs = conf.outputs.copy()
@@ -459,19 +489,27 @@ class Heuristics():
 
         if strategy == "alternate":
             # Compute target ratio between code classes
-            sz_0 = max(len(list(filter(lambda j: get_interleaving_class(j) == 0, range(l)))), 1)
-            sz_1 = max(len(list(filter(lambda j: get_interleaving_class(j) == 1, range(l)))), 1)
+            sz_0 = max(
+                len(list(filter(lambda j: get_interleaving_class(j) == 0, range(l)))), 1
+            )
+            sz_1 = max(
+                len(list(filter(lambda j: get_interleaving_class(j) == 1, range(l)))), 1
+            )
             target_ratio = sz_0 / sz_1
 
         for i in range(l):
             cur_joint_prev_inputs = set()
             cur_joint_prev_outputs = set()
-            for j in range(i,l):
+            for j in range(i, l):
                 joint_prev_inputs[j] = cur_joint_prev_inputs
-                cur_joint_prev_inputs = cur_joint_prev_inputs.union(get_inputs(insts[j].inst))
+                cur_joint_prev_inputs = cur_joint_prev_inputs.union(
+                    get_inputs(insts[j].inst)
+                )
 
                 joint_prev_outputs[j] = cur_joint_prev_outputs
-                cur_joint_prev_outputs = cur_joint_prev_outputs.union(get_outputs(insts[j].inst))
+                cur_joint_prev_outputs = cur_joint_prev_outputs.union(
+                    get_outputs(insts[j].inst)
+                )
 
             # Find instructions which could, in principle, come next, without
             # any renaming
@@ -482,11 +520,14 @@ class Heuristics():
                 cur_inputs = get_inputs(insts[j].inst)
                 prev_outputs = joint_prev_outputs[j]
 
-                ok =     len(cur_outputs.intersection(prev_inputs)) == 0 \
-                    and  len(cur_inputs.intersection(prev_outputs)) == 0
+                ok = (
+                    len(cur_outputs.intersection(prev_inputs)) == 0
+                    and len(cur_inputs.intersection(prev_outputs)) == 0
+                )
 
                 return ok
-            candidate_idxs = list(filter(could_come_next, range(i,l)))
+
+            candidate_idxs = list(filter(could_come_next, range(i, l)))
             logger.debug(f"Potential next candidates: {candidate_idxs}")
 
             def pick_candidate(candidate_idxs):
@@ -494,16 +535,40 @@ class Heuristics():
                 if strategy == "depth":
                     candidate_depths = list(map(lambda j: depths[j], candidate_idxs))
                     logger.debug("Candidate %s: %s", depth_str, candidate_depths)
-                    choice_idx = candidate_idxs[candidate_depths.index(min(candidate_depths))]
+                    choice_idx = candidate_idxs[
+                        candidate_depths.index(min(candidate_depths))
+                    ]
 
                 else:
                     assert strategy == "alternate"
 
-                    sz_0 = max(len(list(filter(lambda j: get_interleaving_class(j) == 0, range(i)))), 1)
-                    sz_1 = max(len(list(filter(lambda j: get_interleaving_class(j) == 1, range(i)))), 1)
+                    sz_0 = max(
+                        len(
+                            list(
+                                filter(
+                                    lambda j: get_interleaving_class(j) == 0, range(i)
+                                )
+                            )
+                        ),
+                        1,
+                    )
+                    sz_1 = max(
+                        len(
+                            list(
+                                filter(
+                                    lambda j: get_interleaving_class(j) == 1, range(i)
+                                )
+                            )
+                        ),
+                        1,
+                    )
 
-                    candidates_0 = filter(lambda j: get_interleaving_class(j) == 0, candidate_idxs)
-                    candidates_1 = filter(lambda j: get_interleaving_class(j) == 1, candidate_idxs)
+                    candidates_0 = filter(
+                        lambda j: get_interleaving_class(j) == 0, candidate_idxs
+                    )
+                    candidates_1 = filter(
+                        lambda j: get_interleaving_class(j) == 1, candidate_idxs
+                    )
 
                     current_ratio = sz_0 / sz_1
 
@@ -530,7 +595,7 @@ class Heuristics():
                 insts = move_entry_forward(insts, choice_idx, i)
 
             local_perm = Permutation.permutation_move_entry_forward(l, choice_idx, i)
-            perm = Permutation.permutation_comp (local_perm, perm)
+            perm = Permutation.permutation_comp(local_perm, perm)
 
             body = list(map(ComputationNode.to_source_line, insts))
             depths = move_entry_forward(depths, choice_idx, i)
@@ -544,8 +609,8 @@ class Heuristics():
         res.codesize_with_bubbles = l
         res.success = True
         res.reordering_with_bubbles = perm
-        res.input_renamings = { s:s for s in inputs }
-        res.output_renamings = { s:s for s in outputs }
+        res.input_renamings = {s: s for s in inputs}
+        res.output_renamings = {s: s for s in outputs}
         res.valid = True
         res.selfcheck(logger.getChild("naive_interleaving_selfcheck"))
 
@@ -558,14 +623,16 @@ class Heuristics():
 
     @staticmethod
     def _idxs_from_fractions(fraction_lst, body):
-        return [ round(f * len(body)) for f in fraction_lst ]
+        return [round(f * len(body)) for f in fraction_lst]
 
     @staticmethod
     def _get_ssa_form(body, logger, conf):
         logger.info("Transform DFG into SSA...")
-        dfg = DFG(body, logger.getChild("dfg_ssa"), DFGConfig(conf.copy()), parsing_cb=True)
+        dfg = DFG(
+            body, logger.getChild("dfg_ssa"), DFGConfig(conf.copy()), parsing_cb=True
+        )
         dfg.ssa()
-        ssa = [ ComputationNode.to_source_line(t) for t in dfg.nodes ]
+        ssa = [ComputationNode.to_source_line(t) for t in dfg.nodes]
         return ssa
 
     @staticmethod
@@ -587,8 +654,12 @@ class Heuristics():
                 body = Heuristics._get_ssa_form(body, logger, conf)
                 Heuristics._dump("Code in SSA form:", body, logger, err=True)
 
-            body, perm = Heuristics._naive_reordering(body, log, conf,
-                                                      use_latency_depth=conf.split_heuristic_preprocess_naive_interleaving_by_latency)
+            body, perm = Heuristics._naive_reordering(
+                body,
+                log,
+                conf,
+                use_latency_depth=conf.split_heuristic_preprocess_naive_interleaving_by_latency,
+            )
 
             if ssa:
                 log.debug("Remove symbolics after SSA...")
@@ -596,41 +667,49 @@ class Heuristics():
                 c.constraints.allow_reordering = False
                 c.constraints.functional_only = True
                 body = SourceLine.reduce_source(body)
-                result = Heuristics.optimize_binsearch(body,
-                                                       log.getChild("remove_symbolics"),conf=c)
+                result = Heuristics.optimize_binsearch(
+                    body, log.getChild("remove_symbolics"), conf=c
+                )
                 body = result.code
                 body = SourceLine.reduce_source(body)
         else:
             perm = Permutation.permutation_id(l)
 
-        def print_intarr(arr, l,vals=50):
-            m = max(10, max(arr)) # pylint:disable=nested-min-max
-            start_idxs = [ (l * i)     // vals for i in range(vals) ]
-            end_idxs   = [ (l * (i+1)) // vals for i in range(vals) ]
+        def print_intarr(arr, l, vals=50):
+            m = max(10, max(arr))  # pylint:disable=nested-min-max
+            start_idxs = [(l * i) // vals for i in range(vals)]
+            end_idxs = [(l * (i + 1)) // vals for i in range(vals)]
             avgs = []
-            for (s,e) in zip(start_idxs, end_idxs):
+            for s, e in zip(start_idxs, end_idxs):
                 if s == e:
                     continue
-                avg = sum(arr[s:e]) // (e-s)
+                avg = sum(arr[s:e]) // (e - s)
                 avgs.append(avg)
                 log.info(f"[{s:3d}-{e:3d}]: {'*'*avg}{'.'*(m-avg)} ({avg})")
 
-        def print_stalls(stalls,l):
+        def print_stalls(stalls, l):
             chunk_len = int(l // split_factor)
             # Convert stalls into 01 valued function
-            stalls_arr = [ i in stalls for i in range(l) ]
+            stalls_arr = [i in stalls for i in range(l)]
             for v in stalls_arr:
-                assert v in {0,1}
-            stalls_cumulative = [ sum(stalls_arr[max(0,i-math.floor(chunk_len/2))
-                                  :i+math.ceil(chunk_len/2)]) for i in range(l) ]
-            print_intarr(stalls_cumulative,l)
+                assert v in {0, 1}
+            stalls_cumulative = [
+                sum(
+                    stalls_arr[
+                        max(0, i - math.floor(chunk_len / 2)) : i
+                        + math.ceil(chunk_len / 2)
+                    ]
+                )
+                for i in range(l)
+            ]
+            print_intarr(stalls_cumulative, l)
 
-        def optimize_chunk(start_idx, end_idx, body, stalls,show_stalls=True):
+        def optimize_chunk(start_idx, end_idx, body, stalls, show_stalls=True):
             """Optimizes a sub-chunks of the given snippet, delimited by pairs
             of start and end indices provided as arguments. Input/output register
             names stay intact -- in particular, overlapping chunks are allowed."""
 
-            cur_pre  = body[:start_idx]
+            cur_pre = body[:start_idx]
             cur_body = body[start_idx:end_idx]
             cur_post = body[end_idx:]
 
@@ -649,8 +728,11 @@ class Heuristics():
             pre_pad = len(cur_pre)
             post_pad = len(cur_post)
 
-            Heuristics._dump(f"Optimizing chunk [{start_idx}-{prefix_len}:{end_idx}+{suffix_len}]",
-                             cur_body, log)
+            Heuristics._dump(
+                f"Optimizing chunk [{start_idx}-{prefix_len}:{end_idx}+{suffix_len}]",
+                cur_body,
+                log,
+            )
             if prefix_len > 0:
                 Heuristics._dump("Using prefix", cur_prefix, log)
             if suffix_len > 0:
@@ -660,44 +742,63 @@ class Heuristics():
 
             dfgc = DFGConfig(conf.copy())
             dfgc.outputs = set(dfgc.outputs).union(conf.outputs)
-            cur_outputs = DFG(cur_post, log.getChild("dfg_infer_outputs"),dfgc).inputs
+            cur_outputs = DFG(cur_post, log.getChild("dfg_infer_outputs"), dfgc).inputs
 
             c = conf.copy()
-            c.rename_inputs  = { "other" : "static" } # No renaming
-            c.rename_outputs = { "other" : "static" } # No renaming
+            c.rename_inputs = {"other": "static"}  # No renaming
+            c.rename_outputs = {"other": "static"}  # No renaming
             c.inputs_are_outputs = False
             c.outputs = cur_outputs
 
-            result = Heuristics.optimize_binsearch(cur_body,
-                                                   log.getChild(f"{start_idx}_{end_idx}"), c,
-                                                   prefix_len=prefix_len, suffix_len=suffix_len)
+            result = Heuristics.optimize_binsearch(
+                cur_body,
+                log.getChild(f"{start_idx}_{end_idx}"),
+                c,
+                prefix_len=prefix_len,
+                suffix_len=suffix_len,
+            )
             Heuristics._dump(f"New chunk [{start_idx}:{end_idx}]", result.code, log)
             new_body = cur_pre + SourceLine.reduce_source(result.code) + cur_post
 
             perm = Permutation.permutation_pad(result.reordering, pre_pad, post_pad)
 
-            keep_stalls = { i for i in stalls if i < start_idx - prefix_len or
-                            i >= end_idx + suffix_len }
-            new_stalls = keep_stalls.union(map(lambda i: i + start_idx - prefix_len,
-                                           result.stall_positions))
+            keep_stalls = {
+                i
+                for i in stalls
+                if i < start_idx - prefix_len or i >= end_idx + suffix_len
+            }
+            new_stalls = keep_stalls.union(
+                map(lambda i: i + start_idx - prefix_len, result.stall_positions)
+            )
 
             if show_stalls:
-                print_stalls(new_stalls,l)
+                print_stalls(new_stalls, l)
 
             return new_body, new_stalls, len(result.stall_positions), perm
 
-        def optimize_chunks_many(start_end_idx_lst, body, stalls,
-                                 abort_stall_threshold_high=None,
-                                 abort_stall_threshold_low=None,
-                                 **kwargs):
+        def optimize_chunks_many(
+            start_end_idx_lst,
+            body,
+            stalls,
+            abort_stall_threshold_high=None,
+            abort_stall_threshold_low=None,
+            **kwargs,
+        ):
             perm = Permutation.permutation_id(len(body))
             for start_idx, end_idx in start_end_idx_lst:
-                body, stalls, cur_stalls, local_perm = optimize_chunk(start_idx, end_idx, body,
-                                                                      stalls, **kwargs)
+                body, stalls, cur_stalls, local_perm = optimize_chunk(
+                    start_idx, end_idx, body, stalls, **kwargs
+                )
                 perm = Permutation.permutation_comp(local_perm, perm)
-                if abort_stall_threshold_high is not None and cur_stalls > abort_stall_threshold_high:
+                if (
+                    abort_stall_threshold_high is not None
+                    and cur_stalls > abort_stall_threshold_high
+                ):
                     break
-                if abort_stall_threshold_low is not None and cur_stalls < abort_stall_threshold_low:
+                if (
+                    abort_stall_threshold_low is not None
+                    and cur_stalls < abort_stall_threshold_low
+                ):
                     break
             return body, stalls, perm
 
@@ -719,57 +820,69 @@ class Heuristics():
 
             def not_empty(x):
                 return x[0] != x[1]
-            idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
-                          Heuristics._idxs_from_fractions(end_pos, cur_body))
+
+            idx_lst = zip(
+                Heuristics._idxs_from_fractions(start_pos, cur_body),
+                Heuristics._idxs_from_fractions(end_pos, cur_body),
+            )
             idx_lst = list(filter(not_empty, idx_lst))
             return idx_lst
 
         stalls = set()
         increment = 1 / split_factor
 
-        # First, do a 'dry run' solely for finding the initial 'stall map'
+        # First, do a 'dry run' solely for finding the initial 'stall map'
         if conf.split_heuristic_repeat > 0:
             orig_conf = conf.copy()
             conf.constraints.allow_reordering = False
             conf.constraints.allow_renaming = False
             idx_lst = make_idx_list_consecutive(split_factor, increment)
-            cur_body, stalls, _ = optimize_chunks_many(idx_lst, cur_body, stalls,show_stalls=False)
+            cur_body, stalls, _ = optimize_chunks_many(
+                idx_lst, cur_body, stalls, show_stalls=False
+            )
             conf = orig_conf.copy()
 
             log.info("Initial stalls")
-            print_stalls(stalls,l)
+            print_stalls(stalls, l)
 
         if conf.split_heuristic_stepsize is None:
-            increment = 1 / (2*split_factor)
+            increment = 1 / (2 * split_factor)
         else:
             increment = conf.split_heuristic_stepsize
 
         # Remember inputs and outputs
         dfgc = DFGConfig(conf.copy())
         outputs = conf.outputs.copy()
-        inputs = DFG(orig_body, log.getChild("dfg_infer_inputs"),dfgc).inputs.copy()
+        inputs = DFG(orig_body, log.getChild("dfg_infer_inputs"), dfgc).inputs.copy()
 
         for _ in range(conf.split_heuristic_repeat):
 
             cur_body = SourceLine.reduce_source(cur_body)
 
             if conf.split_heuristic_chunks:
-                start_pos = [ x[0] for x in conf.split_heuristic_chunks ]
-                end_pos   = [ x[1] for x in conf.split_heuristic_chunks ]
-                idx_lst = zip(Heuristics._idxs_from_fractions(start_pos, cur_body),
-                              Heuristics._idxs_from_fractions(end_pos, cur_body))
+                start_pos = [x[0] for x in conf.split_heuristic_chunks]
+                end_pos = [x[1] for x in conf.split_heuristic_chunks]
+                idx_lst = zip(
+                    Heuristics._idxs_from_fractions(start_pos, cur_body),
+                    Heuristics._idxs_from_fractions(end_pos, cur_body),
+                )
 
                 def not_empty(x):
                     return x[0] != x[1]
+
                 idx_lst = list(filter(not_empty, idx_lst))
             else:
                 idx_lst = make_idx_list_consecutive(split_factor, increment)
                 if conf.split_heuristic_bottom_to_top is True:
                     idx_lst.reverse()
 
-            cur_body, stalls, local_perm = optimize_chunks_many(idx_lst, cur_body, stalls,
-                                                                abort_stall_threshold_high=conf.split_heuristic_abort_cycle_at_high,
-                                                                abort_stall_threshold_low=conf.split_heuristic_abort_cycle_at_low)
+            cur_body, stalls, local_perm = optimize_chunks_many(
+                idx_lst,
+                cur_body,
+                stalls,
+                abort_stall_threshold_high=conf.split_heuristic_abort_cycle_at_high,
+                abort_stall_threshold_low=conf.split_heuristic_abort_cycle_at_low,
+            )
             perm = Permutation.permutation_comp(local_perm, perm)
 
         # Check complete result
@@ -779,8 +892,8 @@ class Heuristics():
         res.codesize_with_bubbles = res.codesize
         res.success = True
         res.reordering_with_bubbles = perm
-        res.input_renamings = { s:s for s in inputs }
-        res.output_renamings = { s:s for s in outputs }
+        res.input_renamings = {s: s for s in inputs}
+        res.output_renamings = {s: s for s in outputs}
         res.valid = True
         res.selfcheck(log.getChild("split_heuristic_full"))
 
@@ -790,10 +903,13 @@ class Heuristics():
             conf2.constraints.allow_renaming = False
             conf2.constraints.allow_reordering = False
             conf2.variable_size = True
-            stall_res = Heuristics.optimize_binsearch(res.code,
-                                                      logger.getChild("split_estimtate_perf"), conf2)
+            stall_res = Heuristics.optimize_binsearch(
+                res.code, logger.getChild("split_estimtate_perf"), conf2
+            )
             if stall_res.success is False:
-                log.error("Stall-estimate for final code after split heuristic failed -- should not happen? Maybe increase timeout? Just returning the result without stall-estimate.")
+                log.error(
+                    "Stall-estimate for final code after split heuristic failed -- should not happen? Maybe increase timeout? Just returning the result without stall-estimate."
+                )
             else:
                 res2 = Result(conf2)
                 res2.orig_code = orig_body
@@ -801,10 +917,12 @@ class Heuristics():
                 res2.codesize_with_bubbles = stall_res.codesize_with_bubbles
                 res2.success = True
                 # Compose actual code reordering from split heuristic with bubble-introducing (order-preserving) map
-                res2.reordering_with_bubbles = { i: stall_res.reordering_with_bubbles[
-                    res.reordering_with_bubbles[i]] for i in range(res.codesize) }
-                res2.input_renamings = { s:s for s in inputs }
-                res2.output_renamings = { s:s for s in outputs }
+                res2.reordering_with_bubbles = {
+                    i: stall_res.reordering_with_bubbles[res.reordering_with_bubbles[i]]
+                    for i in range(res.codesize)
+                }
+                res2.input_renamings = {s: s for s in inputs}
+                res2.output_renamings = {s: s for s in outputs}
                 res2.valid = True
                 res2.selfcheck(log.getChild("split_heuristic_full_with_stalls"))
 
@@ -833,7 +951,9 @@ class Heuristics():
         post = body[end_idx:]
 
         # Adjust the outputs
-        c.outputs = DFG(post, logger.getChild("dfg_generate_outputs"), DFGConfig(c)).inputs
+        c.outputs = DFG(
+            post, logger.getChild("dfg_generate_outputs"), DFGConfig(c)
+        ).inputs
         c.inputs_are_outputs = False
 
         res = Heuristics._split_inner(partial_body, logger, c)
@@ -851,8 +971,8 @@ class Heuristics():
         res2.codesize_with_bubbles = pre_pad + post_pad + res.codesize_with_bubbles
         res2.success = True
         res2.reordering_with_bubbles = perm
-        res2.input_renamings = { s:s for s in inputs }
-        res2.output_renamings = { s:s for s in conf.outputs }
+        res2.input_renamings = {s: s for s in inputs}
+        res2.output_renamings = {s: s for s in conf.outputs}
         res2.valid = True
         res2.selfcheck(logger.getChild("split"))
 
@@ -861,10 +981,10 @@ class Heuristics():
     @staticmethod
     def _dump(name, s, logger, err=False, no_comments=False):
         assert SourceLine.is_source(s)
-        s = [ l.to_string() for l in s]
+        s = [l.to_string() for l in s]
 
         def strip_comments(sl):
-            return [ s.split("//")[0].strip() for s in sl ]
+            return [s.split("//")[0].strip() for s in sl]
 
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name} (size {len(s)})")
@@ -883,8 +1003,9 @@ class Heuristics():
         body = SourceLine.reduce_source(body)
 
         # Find kernel dependencies
-        kernel_deps = DFG(body, logger.getChild("dfg_kernel_deps"),
-                          DFGConfig(conf.copy())).inputs
+        kernel_deps = DFG(
+            body, logger.getChild("dfg_kernel_deps"), DFGConfig(conf.copy())
+        ).inputs
 
         # First step: Optimize loop kernel, but without software pipelining
         c = conf.copy()
@@ -893,7 +1014,7 @@ class Heuristics():
         c.outputs = c.outputs.union(kernel_deps)
 
         if not conf.sw_pipelining.halving_heuristic_split_only:
-            res_halving_0 = Heuristics.linear(body,logger.getChild("slothy"),conf=c)
+            res_halving_0 = Heuristics.linear(body, logger.getChild("slothy"), conf=c)
 
             # Split resulting kernel as [A;B] and synthesize result structure
             # as if SW pipelining has been used and the result would have been
@@ -915,28 +1036,30 @@ class Heuristics():
                 return rotate_pos(reordering[i]) < 0
 
             kernel = SourceLine.reduce_source(res_halving_0.code)
-            preamble = kernel[:codesize//2]
-            postamble = kernel[codesize//2:]
+            preamble = kernel[: codesize // 2]
+            postamble = kernel[codesize // 2 :]
 
             # Swap halves around and consider new kernel [B;A]
             kernel = postamble + preamble
 
             dfgc = DFGConfig(c.copy())
             dfgc.inputs_are_outputs = False
-            core_out = DFG(postamble, logger.getChild("dfg_kernel_deps"),dfgc).inputs
+            core_out = DFG(postamble, logger.getChild("dfg_kernel_deps"), dfgc).inputs
 
             dfgc = DFGConfig(conf.copy())
             dfgc.inputs_are_outputs = True
             dfgc.outputs = core_out
-            new_kernel_deps = DFG(kernel, logger.getChild("dfg_kernel_deps"),dfgc).inputs
+            new_kernel_deps = DFG(
+                kernel, logger.getChild("dfg_kernel_deps"), dfgc
+            ).inputs
 
             c2 = c.copy()
             c2.sw_pipelining.enabled = True
 
-            reordering1 = { i : rotate_pos(reordering[i])
-                            for i in range(codesize) }
-            pre_core_post_dict1 = { i : (is_pre(i), not is_pre(i), False)
-                                    for i in range(codesize) }
+            reordering1 = {i: rotate_pos(reordering[i]) for i in range(codesize)}
+            pre_core_post_dict1 = {
+                i: (is_pre(i), not is_pre(i), False) for i in range(codesize)
+            }
 
             res = Result(c2)
             res.orig_code = body
@@ -947,8 +1070,8 @@ class Heuristics():
             res.codesize_with_bubbles = res_halving_0.codesize_with_bubbles
             res.reordering_with_bubbles = reordering1
             res.pre_core_post_dict = pre_core_post_dict1
-            res.input_renamings = { s:s for s in kernel_deps }
-            res.output_renamings = { s:s for s in c.outputs }
+            res.input_renamings = {s: s for s in kernel_deps}
+            res.output_renamings = {s: s for s in c.outputs}
             res.success = True
             res.valid = True
 
@@ -958,17 +1081,19 @@ class Heuristics():
         else:
             logger.info("Halving heuristic: Split-only -- no optimization")
             codesize = len(body)
-            preamble = body[:codesize//2]
-            postamble = body[codesize//2:]
+            preamble = body[: codesize // 2]
+            postamble = body[codesize // 2 :]
             kernel = postamble + preamble
 
             dfgc = DFGConfig(c.copy())
             dfgc.inputs_are_outputs = False
-            kernel_deps = DFG(postamble, logger.getChild("dfg_kernel_deps"),dfgc).inputs
+            kernel_deps = DFG(
+                postamble, logger.getChild("dfg_kernel_deps"), dfgc
+            ).inputs
 
             dfgc = DFGConfig(conf.copy())
             dfgc.inputs_are_outputs = True
-            kernel_deps = DFG(kernel, logger.getChild("dfg_kernel_deps"),dfgc).inputs
+            kernel_deps = DFG(kernel, logger.getChild("dfg_kernel_deps"), dfgc).inputs
 
         #
         # Second step:
@@ -986,7 +1111,9 @@ class Heuristics():
         # iteration followed by the early half of the successive iteration. The hope is that this
         # enables good interleaving even without calling SLOTHY in SW pipelining mode.
 
-        logger.info("Apply halving heuristic to optimize two halves of consecutive loop kernels...")
+        logger.info(
+            "Apply halving heuristic to optimize two halves of consecutive loop kernels..."
+        )
 
         # The 'periodic' version considers the 'seam' between iterations; otherwise, we consider
         # [B;A] as a non-periodic snippet, which may still lead to stalls at the loop boundary.
@@ -995,19 +1122,22 @@ class Heuristics():
             c = conf.copy()
             c.inputs_are_outputs = True
             c.sw_pipelining.minimize_overlapping = False
-            c.sw_pipelining.enabled=True      # SW pipelining enabled, but ...
-            c.sw_pipelining.allow_pre=False   # - no early instructions
-            c.sw_pipelining.allow_post=False  # - no late instructions
+            c.sw_pipelining.enabled = True  # SW pipelining enabled, but ...
+            c.sw_pipelining.allow_pre = False  # - no early instructions
+            c.sw_pipelining.allow_post = False  # - no late instructions
             # Just make sure to consider loop boundary
-            kernel = Heuristics.optimize_binsearch( kernel, logger.
-                                                    getChild("periodic heuristic"), conf=c).code
+            kernel = Heuristics.optimize_binsearch(
+                kernel, logger.getChild("periodic heuristic"), conf=c
+            ).code
         elif not conf.sw_pipelining.halving_heuristic_split_only:
             c = conf.copy()
             c.outputs = new_kernel_deps
             c.inputs_are_outputs = True
             c.sw_pipelining.enabled = False
 
-            res_halving_1 = Heuristics.linear(kernel, logger.getChild("heuristic"), conf=c)
+            res_halving_1 = Heuristics.linear(
+                kernel, logger.getChild("heuristic"), conf=c
+            )
             final_kernel = res_halving_1.code
 
             reordering2 = res_halving_1.reordering_with_bubbles
@@ -1020,7 +1150,8 @@ class Heuristics():
                 if is_pre:
                     p -= res_halving_1.codesize_with_bubbles
                 return p
-            reordering2 = { i : get_reordering2(i) for i in range(codesize) }
+
+            reordering2 = {i: get_reordering2(i) for i in range(codesize)}
 
             res2 = Result(c2)
             res2.orig_code = body
@@ -1032,10 +1163,16 @@ class Heuristics():
             res2.input_renamings = res.input_renamings
             res2.output_renamings = res.output_renamings
 
-            new_preamble = [ final_kernel[i] for i in range(res2.codesize)
-                             if res2.is_pre(i, original_program_order=False) is True ]
-            new_postamble = [ final_kernel[i] for i in range(res2.codesize)
-                              if res2.is_pre(i, original_program_order=False) is False ]
+            new_preamble = [
+                final_kernel[i]
+                for i in range(res2.codesize)
+                if res2.is_pre(i, original_program_order=False) is True
+            ]
+            new_postamble = [
+                final_kernel[i]
+                for i in range(res2.codesize)
+                if res2.is_pre(i, original_program_order=False) is False
+            ]
 
             res2.preamble = new_preamble
             res2.postamble = new_postamble

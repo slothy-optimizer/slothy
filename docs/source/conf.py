@@ -8,9 +8,11 @@
 
 import os, sys
 
-project = 'SLOTHY'
-copyright = '2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann'
-author = 'Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann'
+project = "SLOTHY"
+copyright = (
+    "2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann"
+)
+author = "Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -18,26 +20,21 @@ author = 'Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergerman
 sys.path.insert(0, os.path.abspath("../../slothy"))
 
 suppress_warnings = [
-    'misc.highlighting_failure',
-    'myst.xref_missing',
-    'autodoc2.dup_item'
+    "misc.highlighting_failure",
+    "myst.xref_missing",
+    "autodoc2.dup_item",
 ]
 
-extensions = [
-    'sphinx.ext.imgmath',
-    'sphinx_rtd_theme',
-    'myst_parser',
-    'autodoc2'
-]
+extensions = ["sphinx.ext.imgmath", "sphinx_rtd_theme", "myst_parser", "autodoc2"]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
-master_doc = 'index'
+master_doc = "index"
 
 
 autodoc2_packages = [
@@ -49,9 +46,11 @@ autodoc2_packages = [
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "sphinx_rtd_theme"
-html_static_path = ['_static']
+html_static_path = ["_static"]
 html_logo = "../slothy_logo.png"
-html_theme_options = { 'logo_only': True, }
+html_theme_options = {
+    "logo_only": True,
+}
 html_css_files = [
-    'css/style.css',
+    "css/style.css",
 ]

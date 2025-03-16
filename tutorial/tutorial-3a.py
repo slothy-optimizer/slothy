@@ -16,8 +16,8 @@ slothy = Slothy(arch, target)
 
 # example
 slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0.s")
-slothy.config.variable_size=True
-slothy.config.constraints.stalls_first_attempt=32
+slothy.config.variable_size = True
+slothy.config.constraints.stalls_first_attempt = 32
 
 slothy.optimize()
 slothy.write_source_to_file("opt/aarch64_simple0_opt_a55.s")

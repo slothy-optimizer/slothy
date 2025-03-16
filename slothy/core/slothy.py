@@ -56,7 +56,14 @@ from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
 from slothy.helper import CPreprocessor, SourceLine
 from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, AsmIfElse
-from slothy.helper import CPreprocessor, LLVM_Mca, LLVM_Mc, LLVM_Mca_Error, SelfTest, SelfTestException
+from slothy.helper import (
+    CPreprocessor,
+    LLVM_Mca,
+    LLVM_Mc,
+    LLVM_Mca_Error,
+    SelfTest,
+    SelfTestException,
+)
 
 try:
     from unicorn import *
@@ -133,13 +140,15 @@ class Slothy:
 
     def get_source_as_string(self, comments=True, indentation=True, tags=True):
         """Retrieve current source code as multi-line string"""
-        return SourceLine.write_multiline(self.source, comments=comments,
-                                          indentation=indentation, tags=tags)
+        return SourceLine.write_multiline(
+            self.source, comments=comments, indentation=indentation, tags=tags
+        )
 
     def get_original_source_as_string(self, comments=True, indentation=True, tags=True):
         """Retrieve original source code as multi-line string"""
-        return SourceLine.write_multiline(self.original_source, comments=comments,
-                                          indentation=indentation, tags=tags)
+        return SourceLine.write_multiline(
+            self.original_source, comments=comments, indentation=indentation, tags=tags
+        )
 
     def set_source_as_string(self, s):
         """Provide input source code as multi-line string"""
@@ -169,7 +178,9 @@ class Slothy:
     def rename_function(self, old_funcname, new_funcname):
         """Rename a function in the current source code"""
         self.source = AsmHelper.rename_function(self.source, old_funcname, new_funcname)
-        self.source = AsmHelper.rename_function(self.source, "_" + old_funcname, "_" + new_funcname)
+        self.source = AsmHelper.rename_function(
+            self.source, "_" + old_funcname, "_" + new_funcname
+        )
 
     @staticmethod
     def _dump(name, s, logger, err=False):
@@ -197,19 +208,30 @@ class Slothy:
         log = self.logger.getChild(f"global_selftest_{funcname}")
 
         if Uc is None:
-            raise SelfTestException("Cannot run selftest -- unicorn-engine is not available.")
+            raise SelfTestException(
+                "Cannot run selftest -- unicorn-engine is not available."
+            )
 
-        if self.config.arch.unicorn_arch is None or \
-                self.config.arch.llvm_mc_arch is None:
+        if (
+            self.config.arch.unicorn_arch is None
+            or self.config.arch.llvm_mc_arch is None
+        ):
             log.warning("Selftest not supported on target architecture")
             return
 
         old_source = self.original_source
         new_source = self.source
 
-        SelfTest.run(self.config, log, old_source, new_source, address_registers,
-                     self.config.arch.RegisterType.callee_saved_registers(), 5,
-                     fnsym=funcname)
+        SelfTest.run(
+            self.config,
+            log,
+            old_source,
+            new_source,
+            address_registers,
+            self.config.arch.RegisterType.callee_saved_registers(),
+            5,
+            fnsym=funcname,
+        )
 
     #
     # Stateful wrappers around heuristics
@@ -228,8 +250,9 @@ class Slothy:
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(pre, body, post, c.compiler_binary,
-                                        include=c.compiler_include_paths)
+            body = CPreprocessor.unfold(
+                pre, body, post, c.compiler_binary, include=c.compiler_include_paths
+            )
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
@@ -237,7 +260,9 @@ class Slothy:
 
         # Unfold macros
         if macros is True:
-            body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
+            body = AsmMacro.unfold_all_macros(
+                pre, body, inherit_comments=c.inherit_macro_comments
+            )
 
         # Unfold register aliases
         if aliases is True:
@@ -253,19 +278,31 @@ class Slothy:
 
     def _make_llvm_mca_stats(self, pre, code, post, txt, indentation):
         try:
-            code = CPreprocessor.unfold(pre, code, post, self.config.compiler_binary,
-                                        include=self.config.compiler_include_paths)
+            code = CPreprocessor.unfold(
+                pre,
+                code,
+                post,
+                self.config.compiler_binary,
+                include=self.config.compiler_include_paths,
+            )
             if self.config.llvm_mca_issue_width_overwrite is True:
                 issue_width = self.config.target.issue_rate
             else:
                 issue_width = None
-            stats = LLVM_Mca.run(pre, code,
-                                 self.config.arch.llvm_mca_arch,
-                                 self.config.target.llvm_mca_target, self.logger,
-                                 full=self.config.llvm_mca_full,
-                                 issue_width=issue_width)
-            stats = ["", f"LLVM MCA STATISTICS ({txt}) BEGIN", ""] + stats + \
-                    ["", f"ORIGINAL LLVM MCA STATISTICS ({txt}) END", ""]
+            stats = LLVM_Mca.run(
+                pre,
+                code,
+                self.config.arch.llvm_mca_arch,
+                self.config.target.llvm_mca_target,
+                self.logger,
+                full=self.config.llvm_mca_full,
+                issue_width=issue_width,
+            )
+            stats = (
+                ["", f"LLVM MCA STATISTICS ({txt}) BEGIN", ""]
+                + stats
+                + ["", f"ORIGINAL LLVM MCA STATISTICS ({txt}) END", ""]
+            )
             stats = [SourceLine("").add_comment(r) for r in stats]
             stats = SourceLine.apply_indentation(stats, indentation)
         except LLVM_Mca_Error:
@@ -311,20 +348,25 @@ class Slothy:
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(pre, body, post, c.compiler_binary,
-                                        include=c.compiler_include_paths)
+            body = CPreprocessor.unfold(
+                pre, body, post, c.compiler_binary, include=c.compiler_include_paths
+            )
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
         body = SourceLine.split_semicolons(body)
-        body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
+        body = AsmMacro.unfold_all_macros(
+            pre, body, inherit_comments=c.inherit_macro_comments
+        )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = AsmIfElse.process_instructions(body)
         body = SourceLine.apply_indentation(body, indentation)
         self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
 
         if self.config.with_llvm_mca_before is True:
-            orig_stats = self._make_llvm_mca_stats(pre, body, post, "ORIGINAL", indentation)
+            orig_stats = self._make_llvm_mca_stats(
+                pre, body, post, "ORIGINAL", indentation
+            )
 
         early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
 
@@ -332,8 +374,9 @@ class Slothy:
             core = core + orig_stats
 
         if self.config.with_llvm_mca_after is True:
-            new_stats_kernel = self._make_llvm_mca_stats(pre, core, post, "OPTIMIZED",
-                                                         indentation)
+            new_stats_kernel = self._make_llvm_mca_stats(
+                pre, core, post, "OPTIMIZED", indentation
+            )
 
             core = core + new_stats_kernel
 
@@ -355,8 +398,9 @@ class Slothy:
             optimized_source = loop_synthesis_cb(pre, core, post, num_exceptional)
         else:
             optimized_source = []
-            optimized_source += indented([f"// Exceptional iterations: {num_exceptional}",
-                                          "// Preamble"])
+            optimized_source += indented(
+                [f"// Exceptional iterations: {num_exceptional}", "// Preamble"]
+            )
             optimized_source += early
             optimized_source += indented(["// Kernel"])
             optimized_source += core
@@ -373,7 +417,9 @@ class Slothy:
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
         """
         logger = self.logger.getChild(loop_lbl)
-        _, body, _, _, _ = self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
+        _, body, _, _, _ = self.arch.Loop.extract(
+            self.source, loop_lbl, forced_loop_type=forced_loop_type
+        )
 
         c = self.config.copy()
         dfgc = DFGConfig(c)
@@ -392,7 +438,9 @@ class Slothy:
         c.add_aliases(aliases)
         c.outputs = outputs
 
-        body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
+        body = AsmMacro.unfold_all_macros(
+            pre, body, inherit_comments=c.inherit_macro_comments
+        )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
@@ -402,8 +450,9 @@ class Slothy:
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(pre, body, post, c.compiler_binary,
-                                        include=c.compiler_include_paths)
+            body = CPreprocessor.unfold(
+                pre, body, post, c.compiler_binary, include=c.compiler_include_paths
+            )
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
         body = SourceLine.split_semicolons(body)
@@ -411,7 +460,9 @@ class Slothy:
         aliases = AsmAllocation.parse_allocs(pre)
         c.add_aliases(aliases)
 
-        body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=c.inherit_macro_comments)
+        body = AsmMacro.unfold_all_macros(
+            pre, body, inherit_comments=c.inherit_macro_comments
+        )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         dfgc = DFGConfig(c)
 
@@ -427,7 +478,7 @@ class Slothy:
         return body
 
     def fusion_region(self, start, end, **kwargs):
-        """ Run fusion callbacks on straightline code replacing certain
+        """Run fusion callbacks on straightline code replacing certain
         instruction (sequences) with an alternative. These replacements are
         defined in the architectural model by setting an instruction class'
         global_fusion_cb.
@@ -440,9 +491,11 @@ class Slothy:
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
 
-        body_ssa = [SourceLine(f"{start}:")] + \
-            self._fusion_core(pre, body, post, logger, **kwargs) + \
-                   [SourceLine(f"{end}:")]
+        body_ssa = (
+            [SourceLine(f"{start}:")]
+            + self._fusion_core(pre, body, post, logger, **kwargs)
+            + [SourceLine(f"{end}:")]
+        )
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
@@ -456,19 +509,24 @@ class Slothy:
         """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
-        pre, body, post, _, other_data, loop = \
-            self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
+        pre, body, post, _, other_data, loop = self.arch.Loop.extract(
+            self.source, loop_lbl, forced_loop_type=forced_loop_type
+        )
 
         try:
-            loop_cnt = other_data['cnt']
+            loop_cnt = other_data["cnt"]
         except KeyError:
             loop_cnt = None
 
         indentation = AsmHelper.find_indentation(body)
 
-        body_ssa = SourceLine.read_multiline(loop.start(loop_cnt)) + \
-            SourceLine.apply_indentation(self._fusion_core(pre, body, post, logger, **kwargs), indentation) + \
-            SourceLine.read_multiline(loop.end(other_data))
+        body_ssa = (
+            SourceLine.read_multiline(loop.start(loop_cnt))
+            + SourceLine.apply_indentation(
+                self._fusion_core(pre, body, post, logger, **kwargs), indentation
+            )
+            + SourceLine.read_multiline(loop.end(other_data))
+        )
 
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
@@ -482,11 +540,12 @@ class Slothy:
 
         logger = self.logger.getChild(loop_lbl)
 
-        early, body, late, _, other_data, loop = \
-            self.arch.Loop.extract(self.source, loop_lbl, forced_loop_type=forced_loop_type)
+        early, body, late, _, other_data, loop = self.arch.Loop.extract(
+            self.source, loop_lbl, forced_loop_type=forced_loop_type
+        )
 
         try:
-            loop_cnt = other_data['cnt']
+            loop_cnt = other_data["cnt"]
         except KeyError:
             loop_cnt = None
 
@@ -499,46 +558,60 @@ class Slothy:
 
         if c.with_preprocessor:
             self.logger.info("Apply C preprocessor...")
-            body = CPreprocessor.unfold(early, body, late, c.compiler_binary,
-                                        include=c.compiler_include_paths)
+            body = CPreprocessor.unfold(
+                early, body, late, c.compiler_binary, include=c.compiler_include_paths
+            )
             self.logger.debug("Code after preprocessor:")
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
         body = SourceLine.split_semicolons(body)
-        body = AsmMacro.unfold_all_macros(early, body, inherit_comments=c.inherit_macro_comments)
+        body = AsmMacro.unfold_all_macros(
+            early, body, inherit_comments=c.inherit_macro_comments
+        )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
-        self.logger.info("Optimizing loop %s (%d instructions) ...",
-                         loop_lbl, len(body))
+        self.logger.info(
+            "Optimizing loop %s (%d instructions) ...", loop_lbl, len(body)
+        )
 
         if self.config.with_llvm_mca_before is True:
-            orig_stats = self._make_llvm_mca_stats(early, body, late, "ORIGINAL", indentation)
+            orig_stats = self._make_llvm_mca_stats(
+                early, body, late, "ORIGINAL", indentation
+            )
 
-        preamble_code, kernel_code, postamble_code, num_exceptional = \
+        preamble_code, kernel_code, postamble_code, num_exceptional = (
             Heuristics.periodic(body, logger, c)
+        )
 
         # Remove branch instructions from preamble and postamble
-        postamble_code = [l for l in postamble_code if not l.tags.get('branch')]
-        postamble_code = [l for l in postamble_code if not l.tags.get('branch')]
+        postamble_code = [l for l in postamble_code if not l.tags.get("branch")]
+        postamble_code = [l for l in postamble_code if not l.tags.get("branch")]
 
         if self.config.with_llvm_mca_before is True:
             kernel_code = kernel_code + orig_stats
 
         if self.config.with_llvm_mca_after is True:
-            new_stats_kernel = self._make_llvm_mca_stats(early, kernel_code, late, "OPTIMIZED",
-                                                         indentation)
+            new_stats_kernel = self._make_llvm_mca_stats(
+                early, kernel_code, late, "OPTIMIZED", indentation
+            )
             kernel_code = kernel_code + new_stats_kernel
 
-            if self.config.sw_pipelining.optimize_preamble is True \
-                    and len(preamble_code) > 0:
-                new_stats_preamble = self._make_llvm_mca_stats(early, preamble_code, late, "PREAMBLE",
-                                                               indentation)
+            if (
+                self.config.sw_pipelining.optimize_preamble is True
+                and len(preamble_code) > 0
+            ):
+                new_stats_preamble = self._make_llvm_mca_stats(
+                    early, preamble_code, late, "PREAMBLE", indentation
+                )
                 preamble_code = preamble_code + new_stats_preamble
 
-            if self.config.sw_pipelining.optimize_postamble is True \
-                    and len(postamble_code) > 0:
-                new_stats_postamble = self._make_llvm_mca_stats(early, postamble_code, late, "POSTAMBLE",
-                                                                indentation)
+            if (
+                self.config.sw_pipelining.optimize_postamble is True
+                and len(postamble_code) > 0
+            ):
+                new_stats_postamble = self._make_llvm_mca_stats(
+                    early, postamble_code, late, "POSTAMBLE", indentation
+                )
                 postamble_code = postamble_code + new_stats_postamble
 
         def indented(code):
@@ -555,7 +628,9 @@ class Slothy:
 
         if self.config.sw_pipelining.unknown_iteration_count:
             for i in range(1, num_exceptional):
-                optimized_code += indented(self.arch.Branch.if_equal(loop_cnt, i, loop_lbl_iter(i)))
+                optimized_code += indented(
+                    self.arch.Branch.if_equal(loop_cnt, i, loop_lbl_iter(i))
+                )
 
         optimized_code += indented(preamble_code)
 
@@ -566,22 +641,27 @@ class Slothy:
         else:
             jump_if_empty = None
 
-        optimized_code += SourceLine.read_multiline(loop.start(
-            loop_cnt,
-            indentation=self.config.indentation,
-            fixup=num_exceptional,
-            unroll=self.config.sw_pipelining.unroll,
-            jump_if_empty=jump_if_empty,
-            preamble_code=preamble_code,
-            body_code=kernel_code,
-            postamble_code=postamble_code,
-            register_aliases=c.register_aliases))
+        optimized_code += SourceLine.read_multiline(
+            loop.start(
+                loop_cnt,
+                indentation=self.config.indentation,
+                fixup=num_exceptional,
+                unroll=self.config.sw_pipelining.unroll,
+                jump_if_empty=jump_if_empty,
+                preamble_code=preamble_code,
+                body_code=kernel_code,
+                postamble_code=postamble_code,
+                register_aliases=c.register_aliases,
+            )
+        )
         optimized_code += indented(kernel_code)
-        optimized_code += SourceLine.read_multiline(loop.end(other_data,
-                                                             indentation=self.config.indentation))
+        optimized_code += SourceLine.read_multiline(
+            loop.end(other_data, indentation=self.config.indentation)
+        )
         if postamble_label is not None:
-            optimized_code += [SourceLine(f"{postamble_label}:")
-                               .add_comment("end of loop kernel")]
+            optimized_code += [
+                SourceLine(f"{postamble_label}:").add_comment("end of loop kernel")
+            ]
         optimized_code += indented(postamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:
@@ -590,19 +670,24 @@ class Slothy:
                 exceptional = i * body
                 c2 = c.copy()
                 c2.sw_pipelining.enabled = False
-                res = Heuristics.linear(exceptional, logger.getChild(f"exceptional_{i}"), c2)
+                res = Heuristics.linear(
+                    exceptional, logger.getChild(f"exceptional_{i}"), c2
+                )
                 optimized_code += [SourceLine(f"{loop_lbl_iter(i)}:")]
                 optimized_code += indented(res.code)
                 optimized_code += [SourceLine(f"{loop_lbl_iter(i)}_end:")]
                 if i != num_exceptional - 1:
-                    optimized_code += indented(self.arch.Branch.unconditional(loop_lbl_end))
+                    optimized_code += indented(
+                        self.arch.Branch.unconditional(loop_lbl_end)
+                    )
             optimized_code += [SourceLine(f"{loop_lbl_end}:")]
 
         self.last_result = SimpleNamespace()
         dfgc = DFGConfig(c)
         dfgc.inputs_are_outputs = True
-        self.last_result.kernel_input_output = \
-            list(DFG(kernel_code, logger.getChild("dfg_kernel_deps"), dfgc).inputs)
+        self.last_result.kernel_input_output = list(
+            DFG(kernel_code, logger.getChild("dfg_kernel_deps"), dfgc).inputs
+        )
 
         self.source = early + optimized_code + late
         self.success = True

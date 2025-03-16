@@ -1,43 +1,13 @@
 [flake8]
 extend-ignore =
-    # whitespace after '['
-    E201
-    # whitespace before ']'
-    E202
     # missing whitespace after ','
     E203
-    # whitespace before '('
-    E211
-    # visually indented line with same indent as next logical line
-    E129, 
-    # multiple spaces before operator
-    E221
-    # multiple spaces after operator
-    E222
-    # missing whitespace around operator
-    E225
-    # missing whitespace around arithmetic operator
-    E226
-    # whitespace before ','
-    E231
-    # multiple spaces after ':'
-    E241
-    # unexpected spaces around keyword / parameter equals
-    E251
-    # at least two spaces before inline comment
-    E261
     # inline comment should start with '# '
     E262
     # block comment should start with '# '
     E265
     # too many leading '#' for block comment
     E266
-    # multiple spaces after keyword 
-    E271
-    # multiple spaces before keyword
-    E272
-    # missing whitespace after keyword
-    E275
     # multiple imports on one line
     E401
     # module level import not at top of file
@@ -46,8 +16,6 @@ extend-ignore =
     E501
     # unable to detect undefined names
     F403
-    # the backslash is redundant between brackets
-    E502
     # do not assign a lambda expression, use a def
     E731
     # ambiguous variable name
@@ -70,11 +38,9 @@ extend-ignore =
     F821
     # local variable is assigned to but never used
     F841
-    # trailing whitespace
-    W291
     # invalid escape sequence
     W605
-
+#
     DOC101
     DOC103
     DOC106
