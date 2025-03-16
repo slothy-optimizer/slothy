@@ -204,8 +204,8 @@ class Instruction:
 
         arg_types_all = arg_types_in + arg_types_in_out + arg_types_out
 
-        def isinstancelist(l, c):
-            return all(map(lambda e: isinstance(e, c), l))
+        def isinstancelist(ll, c):
+            return all(map(lambda e: isinstance(e, c), ll))
 
         assert isinstancelist(arg_types_all, RegisterType)
 
@@ -2409,7 +2409,7 @@ vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 
 
 def lookup_multidict(d, inst, default=None):
-    for l, v in d.items():
+    for ll, v in d.items():
         # Multidict entries can be the following:
         # - An instruction class. It matches any instruction of that class.
         # - A callable. It matches any instruction returning `True` when passed
@@ -2422,9 +2422,9 @@ def lookup_multidict(d, inst, default=None):
             assert callable(x)
             return x(inst)
 
-        if not isinstance(l, tuple):
-            l = [l]
-        for lp in l:
+        if not isinstance(ll, tuple):
+            ll = [ll]
+        for lp in ll:
             if match(lp):
                 return v
     if default is None:

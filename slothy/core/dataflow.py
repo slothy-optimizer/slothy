@@ -196,8 +196,8 @@ class ComputationNode:
             also written to.
         """
 
-        def isinstancelist(l, c):
-            return all(map(lambda e: isinstance(e, c), l))
+        def isinstancelist(ll, c):
+            return all(map(lambda e: isinstance(e, c), ll))
 
         if src_in is None:
             src_in = []
@@ -773,14 +773,14 @@ class DataFlowGraph:
                 "Ignoring this as requested by `config.allow_useless_instructions`!"
             )
 
-    def _parse_line(self, l):
-        assert SourceLine.is_source_line(l)
-        insts = self.arch.Instruction.parser(l)
+    def _parse_line(self, line):
+        assert SourceLine.is_source_line(line)
+        insts = self.arch.Instruction.parser(line)
         # Remember options from source line
         # TODO: Might not be the right place to remember options
         for inst in insts:
-            inst.source_line = l
-        return (insts, l)
+            inst.source_line = line
+        return (insts, line)
 
     def _parse_source(self, src):
         return list(map(self._parse_line, SourceLine.reduce_source(src)))

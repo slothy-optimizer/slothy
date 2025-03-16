@@ -254,14 +254,14 @@ class SourceLine:
     def reduce_source(src):
         """Extract metadata (e.g. indentation, tags, comments) from source lines"""
         assert SourceLine.is_source(src)
-        for l in src:
-            l.reduce()
+        for line in src:
+            line.reduce()
         return [
-            l
-            for l in src
-            if l.has_text()
-            and not AsmHelper.is_alignment_directive(l)
-            and not AsmHelper.is_allocation_directive(l)
+            line
+            for line in src
+            if line.has_text()
+            and not AsmHelper.is_alignment_directive(line)
+            and not AsmHelper.is_allocation_directive(line)
         ]
 
     @staticmethod
@@ -275,8 +275,8 @@ class SourceLine:
         if len(s) == 0:
             return
         fun(f"Dump: {name}")
-        for l in s:
-            fun(f"> {l.to_string()}")
+        for line in s:
+            fun(f"> {line.to_string()}")
 
     def set_text(self, s):
         """Set the text of the source line
@@ -333,7 +333,9 @@ class SourceLine:
             if terminated_by_newline:
                 s.append("")
 
-        return SourceLine.merge_escaped_lines([SourceLine(l, reduce=reduce) for l in s])
+        return SourceLine.merge_escaped_lines(
+            [SourceLine(line, reduce=reduce) for line in s]
+        )
 
     @staticmethod
     def merge_escaped_lines(s):
@@ -341,13 +343,13 @@ class SourceLine:
         assert SourceLine.is_source(s)
         res = []
         cur = None
-        for l in s:
+        for line in s:
             if cur is not None:
-                cur.add_text(l.text)
-                cur.add_tags(l.tags)
-                cur.add_comments(l.comments)
+                cur.add_text(line.text)
+                cur.add_tags(line.tags)
+                cur.add_comments(line.comments)
             else:
-                cur = l.copy()
+                cur = line.copy()
             if cur.is_escaped:
                 cur.remove_escaping()
             else:
@@ -360,7 +362,7 @@ class SourceLine:
     def copy_source(s):
         """Create a copy of a list of source lines"""
         assert SourceLine.is_source(s)
-        return [l.copy() for l in s]
+        return [line.copy() for line in s]
 
     @staticmethod
     def write_multiline(s, comments=True, indentation=True, tags=True):
@@ -392,18 +394,18 @@ class SourceLine:
         If a tag is already specified, it is overwritten."""
         return self.add_tags({tag: value})
 
-    def inherit_tags(self, l):
-        """Inhertis the tags from another source line
+    def inherit_tags(self, line):
+        """Inherits the tags from another source line
 
         In case of overlapping tags, source line l takes precedence."""
-        assert SourceLine.is_source_line(l)
-        self.add_tags(l.tags)
+        assert SourceLine.is_source_line(line)
+        self.add_tags(line.tags)
         return self
 
-    def inherit_comments(self, l):
-        """Inhertis the comments from another source line"""
-        assert SourceLine.is_source_line(l)
-        self.add_comments(l.comments)
+    def inherit_comments(self, line):
+        """Inherits the comments from another source line"""
+        assert SourceLine.is_source_line(line)
+        self.add_comments(line.comments)
         return self
 
     @staticmethod
@@ -413,14 +415,14 @@ class SourceLine:
         if indentation is None:
             return source
         assert isinstance(indentation, int)
-        return [l.copy().set_indentation(indentation) for l in source]
+        return [line.copy().set_indentation(indentation) for line in source]
 
     @staticmethod
     def drop_tags(source):
         """Drop all tags from a source"""
         assert SourceLine.is_source(source)
-        for l in source:
-            l.tags = {}
+        for line in source:
+            line.tags = {}
         return source
 
     @staticmethod
@@ -431,9 +433,9 @@ class SourceLine:
         assert SourceLine.is_source(s)
         res = []
         for line in s:
-            for l in line.text.split(";"):
+            for ll in line.text.split(";"):
                 t = line.copy()
-                t.set_text(l)
+                t.set_text(ll)
                 res.append(t)
         return res
 
@@ -467,8 +469,8 @@ class NestedPrint:
 
     def log(self, fun):
         """Pass self-description line-by-line to logging function"""
-        for l in str(self).splitlines():
-            fun(l)
+        for line in str(self).splitlines():
+            fun(line)
 
 
 class LockAttributes:
@@ -513,23 +515,23 @@ class AsmHelper:
     def find_indentation(source):
         """Attempts to find the prevailing indentation in a piece of assembly"""
 
-        def get_indentation(l):
-            return len(l) - len(l.lstrip())
+        def get_indentation(line):
+            return len(line) - len(line.lstrip())
 
         source = map(SourceLine.to_string, source)
 
         # Remove empty lines
         source = list(filter(lambda t: t.strip() != "", source))
-        l = len(source)
+        le = len(source)
 
-        if l == 0:
+        if le == 0:
             return None
 
         indentations = list(map(get_indentation, source))
 
         # Some labels may use a different indentation -- here, we just check if
         # there's a dominant indentation
-        top_start = (3 * l) // 4
+        top_start = (3 * le) // 4
         indentations.sort()
         indentations = indentations[top_start:]
 
@@ -588,7 +590,7 @@ class AsmHelper:
 
         loop_lbl_regexp_txt = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
-        l = None
+        line = None
         keep = False
         state = 0  # 0: haven't found initial label yet, 1: between labels, 2: after snd label
 
@@ -600,23 +602,23 @@ class AsmHelper:
         while True:
             idx += 1
             if not keep:
-                l = next(lines, None)
-            if l is None:
+                line = next(lines, None)
+            if line is None:
                 break
-            l_str = l.text
+            l_str = line.text
             keep = False
             if state == 2:
-                post.append(l)
+                post.append(line)
                 continue
             expect_label = [lbl_start, lbl_end][state]
             cur_buf = [pre, body][state]
             p = loop_lbl_regexp.match(l_str)
             if p is not None and p.group("label") == expect_label:
-                l = l.copy().set_text(p.group("remainder"))
+                line = line.copy().set_text(p.group("remainder"))
                 keep = True
                 state += 1
                 continue
-            cur_buf.append(l)
+            cur_buf.append(line)
             continue
 
         if state < 2:
@@ -830,23 +832,23 @@ class AsmMacro:
                 a = a + "\\\\()"
             return a
 
-        def apply_arg(l, arg, val):
+        def apply_arg(ll, arg, val):
             # This function is also called on the values of tags, which may not be strings.
-            if isinstance(l, str) is False:
-                return l
-            l = re.sub(f"\\\\{arg}\\\\\\(\\)", val, l)
-            l = re.sub(f"\\\\{arg}(\\W|$)", val + "\\1", l)
-            l = l.replace("\\()\\()", "\\()")
-            return l
+            if isinstance(ll, str) is False:
+                return ll
+            ll = re.sub(f"\\\\{arg}\\\\\\(\\)", val, ll)
+            ll = re.sub(f"\\\\{arg}(\\W|$)", val + "\\1", ll)
+            ll = ll.replace("\\()\\()", "\\()")
+            return ll
 
-        def apply_args(l):
+        def apply_args(ll):
             for arg in self.args:
                 val = prepare_value(args_dict[arg])
-                if not isinstance(l, list):
-                    l = apply_arg(l, arg, val)
+                if not isinstance(ll, list):
+                    ll = apply_arg(ll, arg, val)
                 else:
-                    l = list(map(lambda x: apply_arg(x, arg, val), l))
-            return l
+                    ll = list(map(lambda x: apply_arg(x, arg, val), ll))
+            return ll
 
         output = []
         for line in self.body:
@@ -881,26 +883,26 @@ class AsmMacro:
         output = []
 
         # Go through source line by line and check if there's a macro invocation
-        for l in source:
-            assert SourceLine.is_source_line(l)
+        for line in source:
+            assert SourceLine.is_source_line(line)
 
-            if l.has_text():
-                p = macro_regexp.match(l.text)
+            if line.has_text():
+                p = macro_regexp.match(line.text)
             else:
                 p = None
 
             if p is None:
-                output.append(l)
+                output.append(line)
                 continue
             if change_callback:
                 change_callback()
             # Try to keep indentation
             repl = self(p.groupdict())
             for l0 in repl:
-                l0.set_indentation(l.indentation)
-                l0.inherit_tags(l)
+                l0.set_indentation(line.indentation)
+                l0.inherit_tags(line)
                 if inherit_comments is True:
-                    l0.inherit_comments(l)
+                    l0.inherit_comments(line)
             output += repl
 
         return output
@@ -911,11 +913,11 @@ class AsmMacro:
         assert isinstance(macros, list)
         assert SourceLine.is_source(source)
 
-        def list_of_instances(l, c):
-            return isinstance(l, list) and all(map(lambda m: isinstance(m, c), l))
+        def list_of_instances(line, c):
+            return isinstance(line, list) and all(map(lambda m: isinstance(m, c), line))
 
-        def dict_of_instances(l, c):
-            return isinstance(l, dict) and list_of_instances(list(l.values()), c)
+        def dict_of_instances(line, c):
+            return isinstance(line, dict) and list_of_instances(list(line.values()), c)
 
         if SourceLine.is_source(macros):
             macros = AsmMacro.extract(macros)
@@ -1211,19 +1213,21 @@ class LLVM_Mc:
             else:
                 return int(s, base=10)
 
-        sections = filter(lambda l: l.strip().startswith("Name: "), objfile_txt)
+        sections = filter(lambda line: line.strip().startswith("Name: "), objfile_txt)
         sections = list(
             map(
-                lambda l: l.strip().removeprefix("Name: ").split(" ")[0].strip(),
+                lambda line: line.strip().removeprefix("Name: ").split(" ")[0].strip(),
                 sections,
             )
         )
-        offsets = filter(lambda l: l.strip().startswith("Offset: "), objfile_txt)
+        offsets = filter(lambda line: line.strip().startswith("Offset: "), objfile_txt)
         offsets = map(
-            lambda l: parse_as_int(l.strip().removeprefix("Offset: ")), offsets
+            lambda line: parse_as_int(line.strip().removeprefix("Offset: ")), offsets
         )
-        sizes = filter(lambda l: l.strip().startswith("Size: "), objfile_txt)
-        sizes = map(lambda l: parse_as_int(l.strip().removeprefix("Size: ")), sizes)
+        sizes = filter(lambda line: line.strip().startswith("Size: "), objfile_txt)
+        sizes = map(
+            lambda line: parse_as_int(line.strip().removeprefix("Size: ")), sizes
+        )
         sections_with_offsets = {
             s: (o, sz) for (s, o, sz) in zip(sections, offsets, sizes)
         }
@@ -1251,15 +1255,17 @@ class LLVM_Mc:
             else:
                 return int(s, base=10)
 
-        symbols = filter(lambda l: l.strip().startswith("Name: "), objfile_txt)
+        symbols = filter(lambda line: line.strip().startswith("Name: "), objfile_txt)
         symbols = list(
             map(
-                lambda l: l.strip().removeprefix("Name: ").split(" ")[0].strip(),
+                lambda line: line.strip().removeprefix("Name: ").split(" ")[0].strip(),
                 symbols,
             )
         )
-        values = filter(lambda l: l.strip().startswith("Value: "), objfile_txt)
-        values = map(lambda l: parse_as_int(l.strip().removeprefix("Value: ")), values)
+        values = filter(lambda line: line.strip().startswith("Value: "), objfile_txt)
+        values = map(
+            lambda line: parse_as_int(line.strip().removeprefix("Value: ")), values
+        )
         symbols_with_values = {s: val for (s, val) in zip(symbols, values)}
         matching_symbols = list(filter(lambda s: s.endswith(symbol), symbols))
         # Sometimes assemble functions are named both `_foo` and `foo`, in which case we'd find
@@ -1586,14 +1592,14 @@ class Permutation:
         return r
 
     @staticmethod
-    def permutation_move_entry_forward(l, idx_from, idx_to):
+    def permutation_move_entry_forward(ll, idx_from, idx_to):
         """Create transposition permutation"""
         assert idx_to <= idx_from
         res = {}
         res = res | {i: i for i in range(idx_to)}
         res = res | {i: i + 1 for i in range(idx_to, idx_from)}
         res = res | {idx_from: idx_to}
-        res = res | {i: i for i in range(idx_from + 1, l)}
+        res = res | {i: i for i in range(idx_from + 1, ll)}
         return res
 
     @staticmethod
@@ -1626,12 +1632,12 @@ class DeferHandler(logging.Handler):
 
     def forward_to_file(self, log_label, filename, lvl=logging.DEBUG):
         """Store all captured records in a file."""
-        l = logging.getLogger(log_label)
-        l.setLevel(lvl)
+        logger = logging.getLogger(log_label)
+        logger.setLevel(lvl)
         h = logging.FileHandler(filename)
         h.setLevel(lvl)
-        l.addHandler(h)
-        self.forward(l)
+        logger.addHandler(h)
+        self.forward(logger)
 
 
 class Loop(ABC):
@@ -1674,26 +1680,26 @@ class Loop(ABC):
         ]
         loop_end_regexp = [re.compile(txt[0]) for txt in loop_end_regexp_txt]
         lines = iter(source)
-        l = None
+        line = None
         keep = False
         state = 0  # 0: haven't found loop yet, 1: extracting loop, 2: after loop
         loop_end_ctr = 0
         while True:
             if not keep:
-                l = next(lines, None)
+                line = next(lines, None)
             keep = False
-            if l is None:
+            if line is None:
                 break
-            l_str = l.text
-            assert isinstance(l, str) is False
+            l_str = line.text
+            assert isinstance(line, str) is False
             if state == 0:
                 p = loop_lbl_regexp.match(l_str)
                 if p is not None and p.group("label") == lbl:
-                    l = l.copy().set_text(p.group("remainder"))
+                    line = line.copy().set_text(p.group("remainder"))
                     keep = True
                     state = 1
                 else:
-                    pre.append(l)
+                    pre.append(line)
                 continue
             if state == 1:
                 p = loop_end_regexp[loop_end_ctr].match(l_str)
@@ -1703,9 +1709,9 @@ class Loop(ABC):
                     self.additional_data = self.additional_data | p.groupdict()
                     if loop_end_regexp_txt[loop_end_ctr][1]:
                         # Put all instructions into the loop body, there won't be a boundary.
-                        body.append(l)
+                        body.append(line)
                     else:
-                        loop_end_candidates.append(l)
+                        loop_end_candidates.append(line)
                     loop_end_ctr += 1
                     if loop_end_ctr == len(loop_end_regexp):
                         state = 2
@@ -1720,11 +1726,11 @@ class Loop(ABC):
                     self.additional_data = {}
                     loop_end_ctr = 0
                     loop_end_candidates = []
-                body.append(l)
+                body.append(line)
                 continue
             if state == 2:
                 loop_end_candidates = []
-                post.append(l)
+                post.append(line)
                 continue
         if state < 2:
             raise FatalParsingException(f"Couldn't identify loop {lbl}")
@@ -1746,11 +1752,11 @@ class Loop(ABC):
             loop_types = Loop.__subclasses__()
         for loop_type in loop_types:
             try:
-                l = loop_type(lbl)
+                lt = loop_type(lbl)
                 # concatenate the extracted loop with an instance of the
                 # identified loop_type, (l,) creates a tuple with one element to
                 # merge with the tuple retuned by _extract
-                return l._extract(source, lbl) + (l,)
+                return lt._extract(source, lbl) + (lt,)
             except FatalParsingException:
                 logging.debug("Parsing loop type '%s'failed", loop_type)
                 pass

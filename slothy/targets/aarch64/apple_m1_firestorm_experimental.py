@@ -151,15 +151,15 @@ execution_units = {
     # Neon Load/Store
     St4: list(map(list, product(ExecutionUnit.STORE(), ExecutionUnit.V()))),
     Ld4: [
-        list(l[0] + (l[1],))
-        for l in map(
+        list(ll[0] + (ll[1],))
+        for ll in map(
             list, (product(combinations(ExecutionUnit.LOAD(), 2), ExecutionUnit.V()))
         )
     ],
     St3: list(map(list, product(ExecutionUnit.STORE(), ExecutionUnit.V()))),
     Ld3: [
-        list(l[0] + (l[1],))
-        for l in map(
+        list(ll[0] + (ll[1],))
+        for ll in map(
             list, (product(combinations(ExecutionUnit.LOAD(), 2), ExecutionUnit.V()))
         )
     ],
@@ -172,8 +172,8 @@ execution_units = {
     # guessed
     d_stp_stack_with_inc: list(map(list, combinations(ExecutionUnit.STORE(), 2))),
     d_str_stack_with_inc: [
-        list(l[0] + (l[1],))
-        for l in map(
+        list(ll[0] + (ll[1],))
+        for ll in map(
             list, (product(combinations(ExecutionUnit.STORE(), 2), ExecutionUnit.I()))
         )
     ],

@@ -279,10 +279,10 @@ class VmovCmpLoop(Loop):
                 loop_cnt_reg = register_aliases[loop_cnt]
             except KeyError:
                 loop_cnt_reg = loop_cnt
-            for l in body_code:
-                if l.text == "":
+            for line in body_code:
+                if line.text == "":
                     continue
-                inst = Instruction.parser(l)
+                inst = Instruction.parser(line)
                 if (
                     loop_cnt_reg.lower() == inst[0].addr
                     and inst[0].increment is not None
@@ -374,9 +374,9 @@ class BranchLoop(Loop):
             yield f"{self.lbl}:"
             return
         # Identify the register that is used as a loop counter
-        body_code = [l for l in body_code if l.text != ""]
-        for l in body_code:
-            inst = Instruction.parser(l)
+        body_code = [line for line in body_code if line.text != ""]
+        for line in body_code:
+            inst = Instruction.parser(line)
             # Flags are set through cmp
             # LIMITATION: By convention, we require the first argument to be the
             # "counter" and the second the one marking the iteration end.
@@ -420,8 +420,8 @@ class BranchLoop(Loop):
             yield f"{indent}lsr {loop_end_reg}, {loop_end_reg}, #{int(math.log2(unroll))}"
 
         inc_per_iter = 0
-        for l in body_code:
-            inst = Instruction.parser(l)
+        for line in body_code:
+            inst = Instruction.parser(line)
             # Increment happens through pointer modification
             if loop_cnt_reg.lower() == inst[0].addr and inst[0].increment is not None:
                 inc_per_iter = inc_per_iter + simplify(inst[0].increment)
@@ -508,10 +508,10 @@ class CmpLoop(Loop):
                 loop_cnt_reg = register_aliases[loop_cnt]
             except KeyError:
                 loop_cnt_reg = loop_cnt
-            for l in body_code:
-                if l.text == "":
+            for line in body_code:
+                if line.text == "":
                     continue
-                inst = Instruction.parser(l)
+                inst = Instruction.parser(line)
                 if (
                     loop_cnt_reg.lower() == inst[0].addr
                     and inst[0].increment is not None
@@ -1025,12 +1025,12 @@ class Armv7mInstruction(Instruction):
             res = regexp.match(line).groupdict()
             items = list(res.items())
             for k, v in items:
-                for l in ["symbol_", "raw_"]:
-                    if k.startswith(l):
+                for prefix in ["symbol_", "raw_"]:
+                    if k.startswith(prefix):
                         del res[k]
                         if v is None:
                             continue
-                        k = k[len(l) :]
+                        k = k[len(prefix) :]
                         res[k] = v
             return res
 
@@ -1248,12 +1248,12 @@ class Armv7mInstruction(Instruction):
 
     def write(self):
         out = self.pattern
-        l = (
+        ll = (
             list(zip(self.args_in, self.pattern_inputs))
             + list(zip(self.args_out, self.pattern_outputs))
             + list(zip(self.args_in_out, self.pattern_in_outs))
         )
-        for arg, (s, ty) in l:
+        for arg, (s, ty) in ll:
             out = Armv7mInstruction._instantiate_pattern(s, ty, arg, out)
 
         def replace_pattern(txt, attr_name, mnemonic_key, t=None):
@@ -2635,7 +2635,7 @@ def find_class(src):
 
 def lookup_multidict(d, inst, default=None):
     instclass = find_class(inst)
-    for l, v in d.items():
+    for ll, v in d.items():
         # Multidict entries can be the following:
         # - An instruction class. It matches any instruction of that class.
         # - A callable. It matches any instruction returning `True` when passed
@@ -2648,9 +2648,9 @@ def lookup_multidict(d, inst, default=None):
             assert callable(x)
             return x(inst)
 
-        if not isinstance(l, tuple):
-            l = [l]
-        for lp in l:
+        if not isinstance(ll, tuple):
+            ll = [ll]
+        for lp in ll:
             if match(lp):
                 return v
     if default is None:

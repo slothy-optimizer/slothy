@@ -96,9 +96,9 @@ class Result(LockAttributes):
 
         def center_str_fixlen(txt, fixlen, char="-"):
             txt = " " + txt + " "
-            l = min(len(txt), fixlen)
-            lpad = (fixlen - l) // 2
-            rpad = (fixlen - l) - lpad
+            le = min(len(txt), fixlen)
+            lpad = (fixlen - le) // 2
+            rpad = (fixlen - le) - lpad
             return char * lpad + txt + char * rpad
 
         block_size = 25
@@ -181,9 +181,9 @@ class Result(LockAttributes):
 
         def center_str_fixlen(txt, fixlen, char="-"):
             txt = " " + txt + " "
-            l = min(len(txt), fixlen)
-            lpad = (fixlen - l) // 2
-            rpad = (fixlen - l) - lpad
+            le = min(len(txt), fixlen)
+            lpad = (fixlen - le) // 2
+            rpad = (fixlen - le) - lpad
             return char * lpad + txt + char * rpad
 
         min_pos, width = arr_width(self.reordering.values())
@@ -622,8 +622,8 @@ class Result(LockAttributes):
         ri = self.periodic_reordering_with_bubbles_inv
 
         fixlen = self.fixlen
-        for l in code:
-            l.set_length(fixlen)
+        for line in code:
+            line.set_length(fixlen)
 
         if visualize_reordering is False:
             return code
@@ -653,9 +653,9 @@ class Result(LockAttributes):
 
         def center_str_fixlen(txt, fixlen, char="-"):
             txt = " " + txt + " "
-            l = min(len(txt), fixlen)
-            lpad = (fixlen - l) // 2
-            rpad = (fixlen - l) - lpad
+            le = min(len(txt), fixlen)
+            lpad = (fixlen - le) // 2
+            rpad = (fixlen - le) - lpad
             return char * lpad + txt + char * rpad
 
         def gen_visualized_code_perm():
@@ -975,8 +975,8 @@ class Result(LockAttributes):
         )
 
         # filter out branches
-        old_source = [l for l in old_source if not l.tags.get("branch")]
-        new_source = [l for l in new_source if not l.tags.get("branch")]
+        old_source = [line for line in old_source if not line.tags.get("branch")]
+        new_source = [line for line in new_source if not line.tags.get("branch")]
 
         SelfTest.run(
             self.config,

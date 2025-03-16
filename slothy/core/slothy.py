@@ -178,8 +178,8 @@ class Slothy:
         assert isinstance(s, list)
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
-        for l in s:
-            fun(f"> {l}")
+        for line in s:
+            fun(f"> {line}")
 
     def global_selftest(self, funcname, address_registers, iterations=5):
         """Conduct a function-level selftest
@@ -364,7 +364,7 @@ class Slothy:
             core = core + new_stats_kernel
 
         def indented(code):
-            return [SourceLine(l).set_indentation(indentation) for l in code]
+            return [SourceLine(line).set_indentation(indentation) for line in code]
 
         if start is not None:
             core = [SourceLine(f"{start}:")] + core
@@ -567,8 +567,12 @@ class Slothy:
         )
 
         # Remove branch instructions from preamble and postamble
-        postamble_code = [l for l in postamble_code if not l.tags.get("branch")]
-        postamble_code = [l for l in postamble_code if not l.tags.get("branch")]
+        postamble_code = [
+            line for line in postamble_code if not line.tags.get("branch")
+        ]
+        postamble_code = [
+            line for line in postamble_code if not line.tags.get("branch")
+        ]
 
         if self.config.with_llvm_mca_before is True:
             kernel_code = kernel_code + orig_stats

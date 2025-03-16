@@ -732,12 +732,12 @@ class AArch64Instruction(Instruction):
             res = regexp.match(line).groupdict()
             items = list(res.items())
             for k, v in items:
-                for l in ["symbol_", "raw_"]:
-                    if k.startswith(l):
+                for prefix in ["symbol_", "raw_"]:
+                    if k.startswith(prefix):
                         del res[k]
                         if v is None:
                             continue
-                        k = k[len(l) :]
+                        k = k[len(prefix) :]
                         res[k] = v
             return res
 
@@ -927,12 +927,12 @@ class AArch64Instruction(Instruction):
 
     def write(self):
         out = self.pattern
-        l = (
+        ll = (
             list(zip(self.args_in, self.pattern_inputs))
             + list(zip(self.args_out, self.pattern_outputs))
             + list(zip(self.args_in_out, self.pattern_in_outs))
         )
-        for arg, (s, ty) in l:
+        for arg, (s, ty) in ll:
             out = AArch64Instruction._instantiate_pattern(s, ty, arg, out)
 
         def replace_pattern(txt, attr_name, mnemonic_key, t=None):
@@ -4181,7 +4181,7 @@ Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 def lookup_multidict(d, inst, default=None):
     instclass = find_class(inst)
-    for l, v in d.items():
+    for ll, v in d.items():
         # Multidict entries can be the following:
         # - An instruction class. It matches any instruction of that class.
         # - A callable. It matches any instruction returning `True` when passed
@@ -4194,9 +4194,9 @@ def lookup_multidict(d, inst, default=None):
             assert callable(x)
             return x(inst)
 
-        if not isinstance(l, tuple):
-            l = [l]
-        for lp in l:
+        if not isinstance(ll, tuple):
+            ll = [ll]
+        for lp in ll:
             if match(lp):
                 return v
     if default is None:

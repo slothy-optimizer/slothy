@@ -9,8 +9,6 @@ extend-ignore =
     E501
     # unable to detect undefined names
     F403
-    # ambiguous variable name
-    E741
     # ambiguous function definition
     E743
     # redefinition of unused  

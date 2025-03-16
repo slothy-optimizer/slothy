@@ -124,15 +124,15 @@ execution_units = {
     # Neon Load/Store
     St4: list(map(list, product(ExecutionUnit.STORE(), ExecutionUnit.V()))),  # guessed
     Ld4: [
-        list(l[0] + (l[1],))
-        for l in map(
+        list(ll[0] + (ll[1],))
+        for ll in map(
             list, (product(combinations(ExecutionUnit.LOAD(), 2), ExecutionUnit.V()))
         )
     ],  # guessed
     St3: list(map(list, product(ExecutionUnit.STORE(), ExecutionUnit.V()))),  # guessed
     Ld3: [
-        list(l[0] + (l[1],))
-        for l in map(
+        list(ll[0] + (ll[1],))
+        for ll in map(
             list, (product(combinations(ExecutionUnit.LOAD(), 2), ExecutionUnit.V()))
         )
     ],  # guessed

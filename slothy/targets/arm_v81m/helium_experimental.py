@@ -297,10 +297,10 @@ def find_class(src):
 
 
 def lookup_multidict(d, k, default=None):
-    for l, v in d.items():
-        if k == l:
+    for ll, v in d.items():
+        if k == ll:
             return v
-        if isinstance(l, tuple) and k in l:
+        if isinstance(ll, tuple) and k in ll:
             return v
     if default is None:
         raise Exception(f"Couldn't find {k}")

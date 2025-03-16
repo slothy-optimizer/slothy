@@ -109,7 +109,7 @@ class Heuristics:
 
             err_file = conf.log_dir + f"/{logger_name}_ERROR.s"
             with open(err_file, "w", encoding="utf-8") as f:
-                conf.log(lambda l: f.write("// " + l + "\n"))
+                conf.log(lambda line: f.write("// " + line + "\n"))
                 f.write("\n".join(source))
 
             logger.error(f"Stored this information in {err_file}")
@@ -432,9 +432,9 @@ class Heuristics:
 
         logger.info(f"Perform naive interleaving by {depth_str}... ")
         old = body.copy()
-        l = len(body)
+        le = len(body)
         dfg = DFG(body, logger.getChild("dfg"), DFGConfig(conf.copy()), parsing_cb=True)
-        insts = [dfg.nodes[i] for i in range(l)]
+        insts = [dfg.nodes[i] for i in range(le)]
 
         if use_latency_depth is True:
             # Calculate latency-depth of instruction nodes
@@ -465,12 +465,12 @@ class Heuristics:
             scale = float(t.inst.source_line.tags.get("naive_interleaving_scale", 1.0))
             return int(pre_depth * scale)
 
-        depths = [get_depth(dfg.nodes_by_id[i]) for i in range(l)]
+        depths = [get_depth(dfg.nodes_by_id[i]) for i in range(le)]
 
         inputs = dfg.inputs.copy()
         outputs = conf.outputs.copy()
 
-        perm = Permutation.permutation_id(l)
+        perm = Permutation.permutation_id(le)
 
         def get_inputs(inst):
             return set(inst.args_in + inst.args_in_out)
@@ -489,17 +489,19 @@ class Heuristics:
         if strategy == "alternate":
             # Compute target ratio between code classes
             sz_0 = max(
-                len(list(filter(lambda j: get_interleaving_class(j) == 0, range(l)))), 1
+                len(list(filter(lambda j: get_interleaving_class(j) == 0, range(le)))),
+                1,
             )
             sz_1 = max(
-                len(list(filter(lambda j: get_interleaving_class(j) == 1, range(l)))), 1
+                len(list(filter(lambda j: get_interleaving_class(j) == 1, range(le)))),
+                1,
             )
             target_ratio = sz_0 / sz_1
 
-        for i in range(l):
+        for i in range(le):
             cur_joint_prev_inputs = set()
             cur_joint_prev_outputs = set()
-            for j in range(i, l):
+            for j in range(i, le):
                 joint_prev_inputs[j] = cur_joint_prev_inputs
                 cur_joint_prev_inputs = cur_joint_prev_inputs.union(
                     get_inputs(insts[j].inst)
@@ -526,7 +528,7 @@ class Heuristics:
 
                 return ok
 
-            candidate_idxs = list(filter(could_come_next, range(i, l)))
+            candidate_idxs = list(filter(could_come_next, range(i, le)))
             logger.debug(f"Potential next candidates: {candidate_idxs}")
 
             def pick_candidate(candidate_idxs):
@@ -593,7 +595,7 @@ class Heuristics:
                 choice_idx = pick_candidate(candidate_idxs)
                 insts = move_entry_forward(insts, choice_idx, i)
 
-            local_perm = Permutation.permutation_move_entry_forward(l, choice_idx, i)
+            local_perm = Permutation.permutation_move_entry_forward(le, choice_idx, i)
             perm = Permutation.permutation_comp(local_perm, perm)
 
             body = list(map(ComputationNode.to_source_line, insts))
@@ -605,7 +607,7 @@ class Heuristics:
         res = Result(conf)
         res.orig_code = old
         res.code = body.copy()
-        res.codesize_with_bubbles = l
+        res.codesize_with_bubbles = le
         res.success = True
         res.reordering_with_bubbles = perm
         res.input_renamings = {s: s for s in inputs}
@@ -637,8 +639,8 @@ class Heuristics:
     @staticmethod
     def _split_inner(body, logger, conf, ssa=False):
 
-        l = len(body)
-        if l == 0:
+        le = len(body)
+        if le == 0:
             return body
         log = logger.getChild("split")
 
@@ -672,12 +674,12 @@ class Heuristics:
                 body = result.code
                 body = SourceLine.reduce_source(body)
         else:
-            perm = Permutation.permutation_id(l)
+            perm = Permutation.permutation_id(le)
 
-        def print_intarr(arr, l, vals=50):
+        def print_intarr(arr, ll, vals=50):
             m = max(10, max(arr))  # pylint:disable=nested-min-max
-            start_idxs = [(l * i) // vals for i in range(vals)]
-            end_idxs = [(l * (i + 1)) // vals for i in range(vals)]
+            start_idxs = [(ll * i) // vals for i in range(vals)]
+            end_idxs = [(ll * (i + 1)) // vals for i in range(vals)]
             avgs = []
             for s, e in zip(start_idxs, end_idxs):
                 if s == e:
@@ -686,10 +688,10 @@ class Heuristics:
                 avgs.append(avg)
                 log.info(f"[{s:3d}-{e:3d}]: {'*'*avg}{'.'*(m-avg)} ({avg})")
 
-        def print_stalls(stalls, l):
-            chunk_len = int(l // split_factor)
+        def print_stalls(stalls, le):
+            chunk_len = int(le // split_factor)
             # Convert stalls into 01 valued function
-            stalls_arr = [i in stalls for i in range(l)]
+            stalls_arr = [i in stalls for i in range(le)]
             for v in stalls_arr:
                 assert v in {0, 1}
             stalls_cumulative = [
@@ -699,9 +701,9 @@ class Heuristics:
                         + math.ceil(chunk_len / 2)
                     ]
                 )
-                for i in range(l)
+                for i in range(le)
             ]
-            print_intarr(stalls_cumulative, l)
+            print_intarr(stalls_cumulative, le)
 
         def optimize_chunk(start_idx, end_idx, body, stalls, show_stalls=True):
             """Optimizes a sub-chunks of the given snippet, delimited by pairs
@@ -771,7 +773,7 @@ class Heuristics:
             )
 
             if show_stalls:
-                print_stalls(new_stalls, l)
+                print_stalls(new_stalls, le)
 
             return new_body, new_stalls, len(result.stall_positions), perm
 
@@ -842,7 +844,7 @@ class Heuristics:
             conf = orig_conf.copy()
 
             log.info("Initial stalls")
-            print_stalls(stalls, l)
+            print_stalls(stalls, le)
 
         if conf.split_heuristic_stepsize is None:
             increment = 1 / (2 * split_factor)
@@ -980,7 +982,7 @@ class Heuristics:
     @staticmethod
     def _dump(name, s, logger, err=False, no_comments=False):
         assert SourceLine.is_source(s)
-        s = [l.to_string() for l in s]
+        s = [line.to_string() for line in s]
 
         def strip_comments(sl):
             return [s.split("//")[0].strip() for s in sl]
@@ -989,8 +991,8 @@ class Heuristics:
         fun(f"Dump: {name} (size {len(s)})")
         if no_comments:
             s = strip_comments(s)
-        for l in s:
-            fun(f"> {l}")
+        for line in s:
+            fun(f"> {line}")
 
     @staticmethod
     def _periodic_halving(body, logger, conf):
