@@ -25,10 +25,13 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import argparse, logging, sys, os, time
-from io import StringIO
+import argparse
+import logging
+import sys
+import os
+import time
 
-from slothy import Slothy, Config
+from slothy import Slothy
 
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1

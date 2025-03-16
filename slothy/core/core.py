@@ -27,7 +27,6 @@
 
 import logging
 import math
-import os
 import time
 
 from types import SimpleNamespace
@@ -44,9 +43,7 @@ from slothy.helper import (
     Permutation,
     DeferHandler,
     SourceLine,
-    LLVM_Mc,
     SelfTest,
-    SelfTestException,
 )
 
 try:

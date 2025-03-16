@@ -40,10 +40,7 @@ similar to those used in the Arm ARM.
 import logging
 import inspect
 import re
-import os
 import math
-import platform
-import subprocess
 from enum import Enum
 from functools import cache
 from sympy import simplify
@@ -52,7 +49,7 @@ from unicorn import *
 from unicorn.arm64_const import *
 
 from slothy.targets.common import *
-from slothy.helper import Loop, LLVM_Mc, SourceLine
+from slothy.helper import Loop, SourceLine
 
 arch_name = "Arm_AArch64"
 

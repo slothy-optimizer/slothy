@@ -1,7 +1,9 @@
 import logging
 import sys
 
-sys.path.append("../")
+if __name__ == "__main__":
+    sys.path.append("../")
+
 from slothy import Slothy
 
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon

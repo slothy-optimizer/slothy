@@ -46,7 +46,6 @@ This module provides the Slothy class, which is a stateful interface to both
 one-shot and heuristic optimiations using SLOTHY.
 """
 
-import os
 import logging
 from types import SimpleNamespace
 
@@ -59,17 +58,9 @@ from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, AsmIfElse
 from slothy.helper import (
     CPreprocessor,
     LLVM_Mca,
-    LLVM_Mc,
     LLVM_Mca_Error,
     SelfTest,
-    SelfTestException,
 )
-
-try:
-    from unicorn import *
-    from unicorn.arm64_const import *
-except ImportError:
-    Uc = None
 
 
 class Slothy:
@@ -206,11 +197,6 @@ class Slothy:
         """
 
         log = self.logger.getChild(f"global_selftest_{funcname}")
-
-        if Uc is None:
-            raise SelfTestException(
-                "Cannot run selftest -- unicorn-engine is not available."
-            )
 
         if (
             self.config.arch.unicorn_arch is None

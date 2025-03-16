@@ -29,7 +29,7 @@ import argparse
 import logging
 import sys
 
-from slothy import Slothy, Config
+from slothy import Slothy
 
 import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M

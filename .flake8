@@ -5,10 +5,6 @@ extend-ignore =
     E203
 
     # TODO: review those
-    # multiple imports on one line
-    E401
-    # module level import not at top of file
-    E402
     # line too long
     E501
     # unable to detect undefined names
@@ -21,8 +17,6 @@ extend-ignore =
     E743
     # redefinition of unused  
     F811
-    # imported but unused
-    F401
     # may be undefined, or defined from star imports
     F405
     # f-string is missing placeholders

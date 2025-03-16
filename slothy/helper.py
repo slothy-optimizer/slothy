@@ -34,11 +34,8 @@ from abc import ABC, abstractmethod
 from sympy import simplify
 from slothy.targets.common import *
 
-try:
-    from unicorn import *
-    from unicorn.arm64_const import *
-except ImportError:
-    Uc = None
+from unicorn import *
+from unicorn.arm64_const import *
 
 
 class SourceLine:

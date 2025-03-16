@@ -20,7 +20,6 @@ Experimental Cortex-M7 microarchitecture model for SLOTHY
 from enum import Enum
 from itertools import product
 from slothy.targets.arm_v7m.arch_v7m import *
-import re
 from sympy import simplify
 
 issue_rate = 2

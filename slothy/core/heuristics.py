@@ -34,7 +34,6 @@ smaller-sizes problems amenable to one-shot SLOTHY.
 """
 
 import math
-import random
 
 from slothy.core.dataflow import DataFlowGraph as DFG
 from slothy.core.dataflow import Config as DFGConfig, ComputationNode

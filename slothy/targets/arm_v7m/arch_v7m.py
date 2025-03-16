@@ -1,6 +1,5 @@
 import logging
 import inspect
-import os
 import re
 import math
 import itertools
@@ -10,7 +9,7 @@ from functools import cache
 from unicorn import *
 from unicorn.arm_const import *
 
-from slothy.helper import SourceLine, Loop, LLVM_Mc
+from slothy.helper import SourceLine, Loop
 from sympy import simplify
 
 arch_name = "Arm_v7M"
