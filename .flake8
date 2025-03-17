@@ -13,8 +13,6 @@ extend-ignore =
     F405
     # comparison to False should be 'if cond is False:' or 'if not cond:'
     E712
-    # undefined name 's'
-    F821
     # invalid escape sequence
     W605
 #

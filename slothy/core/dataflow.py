@@ -1009,7 +1009,7 @@ class DataFlowGraph:
         if origin.get_type() != ty:
             warnstr = (
                 f"Type mismatch: Output {name} of {type(origin.src.inst).__name__} has "
-                f"type {origin.get_type()} but {type(s).__name__} expects it to have type {ty}"
+                f"type {origin.get_type()} but {type(self).__name__} expects it to have type {ty}"
             )
             self.logger.debug(warnstr)
             raise DataFlowGraphException(warnstr)
