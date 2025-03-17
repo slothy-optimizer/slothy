@@ -992,7 +992,7 @@ class Armv7mInstruction(Instruction):
         # reg_list is <range>(,<range>)*
         # range is [rs]NN(-rsMM)?
         range_pat = "([rs]\\\\d+)(-[rs](\\\\d+))?"
-        reg_list_pattern = "\{" + range_pat + "(," + range_pat + ")*" + "\}"
+        reg_list_pattern = "{" + range_pat + "(," + range_pat + ")*" + "}"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)

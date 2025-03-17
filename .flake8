@@ -13,9 +13,7 @@ extend-ignore =
     F405
     # comparison to False should be 'if cond is False:' or 'if not cond:'
     E712
-    # invalid escape sequence
-    W605
-#
+
     DOC101
     DOC103
     DOC106

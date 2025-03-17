@@ -40,7 +40,6 @@ import math
 from sympy import simplify
 from enum import Enum
 
-from slothy.targets.common import *
 from slothy.helper import Loop
 
 arch_name = "Arm_v81M"
@@ -1284,7 +1283,7 @@ class vshl(Instruction):
 
     def parse(self, src):
         vshl_regexp_txt = (
-            "vshl\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+            r"vshl\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
         )
         vshl_regexp_txt = Instruction.unfold_abbrevs(vshl_regexp_txt)
         vshl_regexp = re.compile(vshl_regexp_txt)
@@ -2428,7 +2427,7 @@ def lookup_multidict(d, inst, default=None):
             if match(lp):
                 return v
     if default is None:
-        raise Exception(f"Couldn't find {k}")
+        raise Exception(f"Couldn't find {inst}")
     return default
 
 
