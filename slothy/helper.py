@@ -1537,7 +1537,8 @@ class SelfTest:
                 if final_regs_old[r] != final_regs_new[r]:
                     failure_dump()
                     raise SelfTestException(
-                        f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}"
+                        f"Selftest failed: Register mismatch for {r}: "
+                        f"{hex(final_regs_old[r])} != {hex(final_regs_new[r])}"
                     )
 
         if fnsym is None:

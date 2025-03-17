@@ -909,7 +909,9 @@ class Heuristics:
             )
             if stall_res.success is False:
                 log.error(
-                    "Stall-estimate for final code after split heuristic failed -- should not happen? Maybe increase timeout? Just returning the result without stall-estimate."
+                    "Stall-estimate for final code after split heuristic failed"
+                    " -- should not happen? Maybe increase timeout?"
+                    " Just returning the result without stall-estimate."
                 )
             else:
                 res2 = Result(conf2)

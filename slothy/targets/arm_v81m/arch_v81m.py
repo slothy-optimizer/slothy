@@ -975,7 +975,10 @@ class vmov_double_v2r(Instruction):
         )
 
     def parse(self, src):
-        vmov_regexp_txt = r"vmov\s+(?P<gpr0>\w+)\s*,\s*(?P<gpr1>\w+)\s*,\s*(?P<vec0>\w+)\s*\[\s*(?P<idx0>[23])\s*\]\s*,\s*(?P<vec1>\w+)\s*\[\s*(?P<idx1>[01])\s*\]\s*"
+        vmov_regexp_txt = (
+            r"vmov\s+(?P<gpr0>\w+)\s*,\s*(?P<gpr1>\w+)\s*,\s*(?P<vec0>\w+)\s*"
+            r"\[\s*(?P<idx0>[23])\s*\]\s*,\s*(?P<vec1>\w+)\s*\[\s*(?P<idx1>[01])\s*\]\s*"
+        )
         vmov_regexp_txt = Instruction.unfold_abbrevs(vmov_regexp_txt)
         vmov_regexp = re.compile(vmov_regexp_txt)
         p = vmov_regexp.match(src)
@@ -998,7 +1001,11 @@ class vmov_double_v2r(Instruction):
         self.idxs = (idx0, idx1)
 
     def write(self):
-        return f"vmov {self.args_out[0]}, {self.args_out[1]}, {self.args_in[0]}[{self.idxs[0]}], {self.args_in[0]}[{self.idxs[1]}]"
+        return (
+            f"vmov {self.args_out[0]}, {self.args_out[1]}, "
+            f"{self.args_in[0]}[{self.idxs[0]}], "
+            f"{self.args_in[0]}[{self.idxs[1]}]"
+        )
 
 
 class mov_imm(Instruction):
@@ -2122,7 +2129,10 @@ class vcmla(Instruction):
         )
 
     def parse(self, src):
-        vcmla_regexp_txt = r"vcmla\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcmla_regexp_txt = (
+            r"vcmla\.<fdt>\s+(?P<dst>\w+)\s*,"
+            r"\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        )
         vcmla_regexp_txt = Instruction.unfold_abbrevs(vcmla_regexp_txt)
         vcmla_regexp = re.compile(vcmla_regexp_txt)
         p = vcmla_regexp.match(src)
@@ -2154,7 +2164,10 @@ class vcmul(Instruction):
         )
 
     def parse(self, src):
-        vcmul_regexp_txt = r"vcmul\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcmul_regexp_txt = (
+            r"vcmul\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
+            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        )
         vcmul_regexp_txt = Instruction.unfold_abbrevs(vcmul_regexp_txt)
         vcmul_regexp = re.compile(vcmul_regexp_txt)
         p = vcmul_regexp.match(src)
@@ -2220,7 +2233,10 @@ class vhcadd(Instruction):
         )
 
     def parse(self, src):
-        vhcadd_regexp_txt = r"vhcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vhcadd_regexp_txt = (
+            r"vhcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
+            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        )
         vhcadd_regexp_txt = Instruction.unfold_abbrevs(vhcadd_regexp_txt)
         vhcadd_regexp = re.compile(vhcadd_regexp_txt)
         p = vhcadd_regexp.match(src)
@@ -2253,7 +2269,10 @@ class vhcsub(Instruction):
         )
 
     def parse(self, src):
-        vhcsub_regexp_txt = r"vhcsub\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vhcsub_regexp_txt = (
+            r"vhcsub\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
+            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        )
         vhcsub_regexp_txt = Instruction.unfold_abbrevs(vhcsub_regexp_txt)
         vhcsub_regexp = re.compile(vhcsub_regexp_txt)
         p = vhcsub_regexp.match(src)
@@ -2286,7 +2305,10 @@ class vcaddf(Instruction):
         )
 
     def parse(self, src):
-        vcaddf_regexp_txt = r"vcadd\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcaddf_regexp_txt = (
+            r"vcadd\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
+            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        )
         vcaddf_regexp_txt = Instruction.unfold_abbrevs(vcaddf_regexp_txt)
         vcaddf_regexp = re.compile(vcaddf_regexp_txt)
         p = vcaddf_regexp.match(src)

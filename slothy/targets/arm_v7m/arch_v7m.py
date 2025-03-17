@@ -334,17 +334,23 @@ class VmovCmpLoop(Loop):
 
 class BranchLoop(Loop):
     """
-    More general loop type that just considers the branch instruction as part of the boundary.
-    This can help to improve performance as the instructions that belong to handling the loop can be considered by SLOTHY aswell.
+    More general loop type that just considers the branch instruction as part
+    of the boundary.
+    This can help to improve performance as the instructions that belong to
+    handling the loop can be considered by SLOTHY as well.
 
     .. note::
 
-        This loop type is still rather experimental. It has a lot of logics inside as it needs to be able to "understand"
-        a variety of different ways to express loops, e.g., how counters get incremented, how registers marking the end of the
-        loop need to be modified in case of software pipelining etc. Currently, this type covers the three other types we offer
+        This loop type is still rather experimental. It has a lot of logics
+        inside as it needs to be able to "understand" a variety of different
+        ways to express loops, e.g., how counters get incremented, how
+        registers marking the end of the
+        loop need to be modified in case of software pipelining etc.
+        Currently, this type covers the three other types we offer
         above, namely `SubsLoop`, `CmpLoop`, and `VmovCmpLoop`.
 
-    For examples, we refer to the classes `SubsLoop`, `CmpLoop`, and `VmovCmpLoop`.
+    For examples, we refer to the classes `SubsLoop`, `CmpLoop`, and
+    `VmovCmpLoop`.
     """
 
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
@@ -982,7 +988,8 @@ class Armv7mInstruction(Instruction):
         ]
 
         flag_pattern = "|".join(flaglist)
-        dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"  # TODO: Notion of dt can be placed with notion for size in FP instructions
+        # TODO: Notion of dt can be placed with notion for size in FP instructions
+        dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
         width_pattern = r"(?:\.w|\.n|)"
