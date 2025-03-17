@@ -123,6 +123,7 @@ class Heuristics:
         :param logger: The logger to be used
         :param conf: The configuration to apply. This fixed for all one-shot SLOTHY
             runs invoked by this call, except for the variation of the stall count.
+        :param kwargs: An optional list of parameters to the core optimize routine
         :returns: The Result object for the succceeding optimization with the smallest number of stalls.
 
         The `variable_size` configuration option determines whether the minimiation of
@@ -181,7 +182,7 @@ class Heuristics:
             through a binary search, or whether a single one-shot SLOTHY optimization
             for a fixed number of stalls (encoded in the configuration) should be
             conducted.
-
+        :param kwargs: An optional list of parameters to the core optimize routine
         :return: A Result object representing the final optimization result.
         """
 
@@ -234,6 +235,7 @@ class Heuristics:
             through a binary search, or whether a single one-shot SLOTHY optimization
             for a fixed number of stalls (encoded in the configuration) should be
             conducted.
+        :param kwargs: An optional list of parameters to the core optimize routine
         :return: A Result object representing the final optimization result.
 
         """
@@ -403,6 +405,7 @@ class Heuristics:
 
         :param body: The assembly input to be optimized. This must be a list of
             SourceLine objects.
+        :param logger: The logger to be used.
         :param conf: The configuration to be applied. Software pipelining must be disabled.
 
         :raises: Raises a SlothyException if software pipelining is enabled.

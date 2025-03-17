@@ -883,6 +883,7 @@ class Instruction:
         :param c: The target instruction the string should be attempted to be parsed as.
         :param src: The string to parse.
         :param mnemonic: The mnemonic of instruction c
+        :param kwargs: Additional arguments to pass to the constructor of c.
 
         :return: Upon success, the result of parsing src as an instance of c.
 

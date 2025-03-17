@@ -188,10 +188,11 @@ class Slothy:
         """Conduct a function-level selftest
 
         :param funcname: Name of function to be called. Must be exposed as a symbol
-        :param address_prs: Dictionary indicating which GPRs are pointers to buffers of which size.
+        :param address_registers: Dictionary indicating which GPRs are pointers to buffers of which size.
             For example, `{ "x0": 1024, "x4": 1024 }` would indicate that both x0 and x4
             point to buffers of size 1024 bytes. The global selftest needs to know this to
             setup valid calls to the assembly routine.
+        :param iterations: Number of iterations to run the selftest for.
 
         .. important::
 
@@ -314,6 +315,7 @@ class Slothy:
               This cannot be used together with the 'loop' argument.
         :param loop_synthesis_cb: Optional (None by default) callback synthesis final source code
               from tuple of (preamble, kernel, postamble, # exceptional iterations).
+        :param logname: Optional name of the logger.
         """
         if logname is None and start is not None:
             logname = start
@@ -471,6 +473,7 @@ class Slothy:
               apply fusion to.
         :param end: The label marking the end of the part of the code to apply
               fusion to.
+        :param kwargs: Additional arguments to pass to the fusion callbacks.
         """
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
@@ -490,6 +493,7 @@ class Slothy:
 
         :param loop_lbl: Label of loop to which the fusions are applied to.
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
+        :param kwargs: Additional arguments to pass to the fusion callbacks.
         """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
@@ -518,6 +522,7 @@ class Slothy:
     def optimize_loop(self, loop_lbl, postamble_label=None, forced_loop_type=None):
         """Optimize the loop starting at a given label
 
+        :param loop_lbl: Label of loop to optimize.
         :param postamble_label: Marks end of loop kernel.
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
         """

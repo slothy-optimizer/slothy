@@ -7,20 +7,44 @@ extend-ignore =
     # E203 whitespace before ':'
     E203
 
-    # TODO: review those
-    DOC101
+    # TODO: Fix those
+    # Docstring arguments are different from function arguments. (Or could be
+    # other formatting issues:
+    # https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103)
     DOC103
+    # The option --arg-type-hints-in-signature is True but there are no argument
+    # type hints in the signature
     DOC106
+    # The option --arg-type-hints-in-signature is True but not all args in the
+    # signature have type hints
     DOC107
+    # The option --arg-type-hints-in-docstring is True but there are no type
+    # hints in the docstring arg list
     DOC109
+    # The option --arg-type-hints-in-docstring is True but not all args in the
+    # docstring arg list have type hints
     DOC110
+    # Function/method does not have a return section in docstring
     DOC201
+    # Function/method has a return section in docstring, but there are no return
+    # statements or annotations
     DOC202
+    # Return type(s) in the docstring not consistent with the return annotation
     DOC203
+    # __init__() should not have a docstring; please combine it with the
+    # docstring of the class
     DOC301
+    # Function/method has “yield” statements, but the docstring does not have a
+    # “Yields” section
     DOC402
+    # The types in the docstring’s Yields section and the return annotation in
+    # the signature are not consistent
     DOC404
+    # Function/method has raise statements, but the docstring does not have a
+    # “Raises” section
     DOC501
+    # Exceptions in the “Raises” section in the docstring do not match those in
+    # the function body
     DOC503
 
 
