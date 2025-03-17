@@ -53,7 +53,7 @@ class ExecutionUnit(Enum):
         return self.name
 
     @classmethod
-    def I(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def I(cls):  # noqa: E743
         return [
             ExecutionUnit.SCALAR_I0,
             ExecutionUnit.SCALAR_I1,

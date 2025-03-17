@@ -53,7 +53,7 @@ class ExecutionUnit(Enum):
     def __repr__(self):
         return self.name
 
-    def I():
+    def I():  # noqa: E743
         return [
             ExecutionUnit.SCALAR_I0,
             ExecutionUnit.SCALAR_I1,
