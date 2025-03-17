@@ -45,10 +45,80 @@ from enum import Enum
 from functools import cache
 from sympy import simplify
 
-from unicorn import *
-from unicorn.arm64_const import *
+from unicorn import (
+    UC_ARCH_ARM64,
+    UC_MODE_ARM,
+)
+from unicorn.arm64_const import (
+    UC_ARM64_REG_X0,
+    UC_ARM64_REG_X1,
+    UC_ARM64_REG_X2,
+    UC_ARM64_REG_X3,
+    UC_ARM64_REG_X4,
+    UC_ARM64_REG_X5,
+    UC_ARM64_REG_X6,
+    UC_ARM64_REG_X7,
+    UC_ARM64_REG_X8,
+    UC_ARM64_REG_X9,
+    UC_ARM64_REG_X10,
+    UC_ARM64_REG_X11,
+    UC_ARM64_REG_X12,
+    UC_ARM64_REG_X13,
+    UC_ARM64_REG_X14,
+    UC_ARM64_REG_X15,
+    UC_ARM64_REG_X16,
+    UC_ARM64_REG_X17,
+    UC_ARM64_REG_X18,
+    UC_ARM64_REG_X19,
+    UC_ARM64_REG_X20,
+    UC_ARM64_REG_X21,
+    UC_ARM64_REG_X22,
+    UC_ARM64_REG_X23,
+    UC_ARM64_REG_X24,
+    UC_ARM64_REG_X25,
+    UC_ARM64_REG_X26,
+    UC_ARM64_REG_X27,
+    UC_ARM64_REG_X28,
+    UC_ARM64_REG_X29,
+    UC_ARM64_REG_X30,
+    UC_ARM64_REG_SP,
+    UC_ARM64_REG_PC,
+    UC_ARM64_REG_V0,
+    UC_ARM64_REG_V1,
+    UC_ARM64_REG_V2,
+    UC_ARM64_REG_V3,
+    UC_ARM64_REG_V4,
+    UC_ARM64_REG_V5,
+    UC_ARM64_REG_V6,
+    UC_ARM64_REG_V7,
+    UC_ARM64_REG_V8,
+    UC_ARM64_REG_V9,
+    UC_ARM64_REG_V10,
+    UC_ARM64_REG_V11,
+    UC_ARM64_REG_V12,
+    UC_ARM64_REG_V13,
+    UC_ARM64_REG_V14,
+    UC_ARM64_REG_V15,
+    UC_ARM64_REG_V16,
+    UC_ARM64_REG_V17,
+    UC_ARM64_REG_V18,
+    UC_ARM64_REG_V19,
+    UC_ARM64_REG_V20,
+    UC_ARM64_REG_V21,
+    UC_ARM64_REG_V22,
+    UC_ARM64_REG_V23,
+    UC_ARM64_REG_V24,
+    UC_ARM64_REG_V25,
+    UC_ARM64_REG_V26,
+    UC_ARM64_REG_V27,
+    UC_ARM64_REG_V28,
+    UC_ARM64_REG_V29,
+    UC_ARM64_REG_V30,
+    UC_ARM64_REG_V31,
+)
 
-from slothy.targets.common import *
+
+from slothy.targets.common import FatalParsingException, UnknownInstruction
 from slothy.helper import Loop, SourceLine
 
 arch_name = "Arm_AArch64"

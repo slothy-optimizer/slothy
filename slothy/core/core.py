@@ -46,12 +46,6 @@ from slothy.helper import (
     SelfTest,
 )
 
-try:
-    from unicorn import *
-    from unicorn.arm_const import *
-except ImportError:
-    Uc = None
-
 from slothy.core.dataflow import DataFlowGraph as DFG
 from slothy.core.dataflow import Config as DFGConfig
 from slothy.core.dataflow import InstructionOutput, InstructionInOut, ComputationNode
@@ -891,11 +885,6 @@ class Result(LockAttributes):
         """Run empirical self test, if it exists for the target architecture"""
         if self._config.selftest is False:
             return
-
-        if Uc is None:
-            raise SlothySelfTestException(
-                "Cannot run selftest -- unicorn-engine is not available."
-            )
 
         if (
             self._config.arch.unicorn_arch is None

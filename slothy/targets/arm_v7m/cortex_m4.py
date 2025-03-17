@@ -12,7 +12,29 @@ WARNING: The data in this module is approximate and may contain errors.
 # ###################################################################################
 
 from enum import Enum
-from slothy.targets.arm_v7m.arch_v7m import *
+from slothy.targets.arm_v7m.arch_v7m import (
+    lookup_multidict,
+    ldr_with_imm,
+    str_with_imm,
+    adds,
+    add,
+    add_short,
+    add_imm,
+    add_imm_short,
+    mul,
+    smull,
+    smlal,
+    log_and,
+    log_or,
+    eor,
+    bic,
+    sub_imm_short,
+    ror,
+    add_shifted,
+    sub_shifted,
+    eor_shifted,
+    bic_shifted,
+)
 
 issue_rate = 1
 llvm_mca_target = "cortex-m4"

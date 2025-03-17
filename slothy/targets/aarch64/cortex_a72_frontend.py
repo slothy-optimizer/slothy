@@ -53,7 +53,45 @@ alongside instruction latencies, both taken from the Cortex-A72 Software Optimiz
 """
 
 from enum import Enum, auto
-from .aarch64_neon import *
+from slothy.targets.aarch64.aarch64_neon import (
+    lookup_multidict,
+    find_class,
+    all_subclass_leaves,
+    Ldr_X,
+    Str_X,
+    Ldr_Q,
+    Str_Q,
+    vadd,
+    vmul,
+    St4,
+    Vzip,
+    vsub,
+    Vmull,
+    Vmlal,
+    vmul_lane,
+    vmla,
+    vmla_lane,
+    vmls,
+    vmls_lane,
+    vqrdmulh,
+    vqrdmulh_lane,
+    vqdmulh_lane,
+    trn1,
+    trn2,
+    ASimdCompare,
+    Vins,
+    umov_d,
+    add,
+    add_imm,
+    add_lsl,
+    add_lsr,
+    VShiftImmediateRounding,
+    VShiftImmediateBasic,
+    St3,
+    St2,
+    Ld3,
+    Ld4,
+)
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
 # "The dispatch stage can process up to three µops per cycle"

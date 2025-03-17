@@ -32,10 +32,9 @@ import platform
 import logging
 from abc import ABC, abstractmethod
 from sympy import simplify
-from slothy.targets.common import *
+from slothy.targets.common import FatalParsingException
 
-from unicorn import *
-from unicorn.arm64_const import *
+from unicorn import Uc, UcError
 
 
 class SourceLine:

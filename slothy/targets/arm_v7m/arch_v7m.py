@@ -6,8 +6,62 @@ import itertools
 from enum import Enum
 from functools import cache
 
-from unicorn import *
-from unicorn.arm_const import *
+from unicorn import (
+    UC_ARCH_ARM,
+    UC_MODE_THUMB,
+    UC_MODE_MCLASS,
+)
+
+from unicorn.arm_const import (
+    UC_ARM_REG_LR,
+    UC_ARM_REG_PC,
+    UC_ARM_REG_SP,
+    UC_ARM_REG_R0,
+    UC_ARM_REG_R1,
+    UC_ARM_REG_R2,
+    UC_ARM_REG_R3,
+    UC_ARM_REG_R4,
+    UC_ARM_REG_R5,
+    UC_ARM_REG_R6,
+    UC_ARM_REG_R7,
+    UC_ARM_REG_R8,
+    UC_ARM_REG_R9,
+    UC_ARM_REG_R10,
+    UC_ARM_REG_R11,
+    UC_ARM_REG_R12,
+    UC_ARM_REG_S0,
+    UC_ARM_REG_S1,
+    UC_ARM_REG_S2,
+    UC_ARM_REG_S3,
+    UC_ARM_REG_S4,
+    UC_ARM_REG_S5,
+    UC_ARM_REG_S6,
+    UC_ARM_REG_S7,
+    UC_ARM_REG_S8,
+    UC_ARM_REG_S9,
+    UC_ARM_REG_S10,
+    UC_ARM_REG_S11,
+    UC_ARM_REG_S12,
+    UC_ARM_REG_S13,
+    UC_ARM_REG_S14,
+    UC_ARM_REG_S15,
+    UC_ARM_REG_S16,
+    UC_ARM_REG_S17,
+    UC_ARM_REG_S18,
+    UC_ARM_REG_S19,
+    UC_ARM_REG_S20,
+    UC_ARM_REG_S21,
+    UC_ARM_REG_S22,
+    UC_ARM_REG_S23,
+    UC_ARM_REG_S24,
+    UC_ARM_REG_S25,
+    UC_ARM_REG_S26,
+    UC_ARM_REG_S27,
+    UC_ARM_REG_S28,
+    UC_ARM_REG_S29,
+    UC_ARM_REG_S30,
+    UC_ARM_REG_S31,
+)
 
 from slothy.helper import SourceLine, Loop
 from sympy import simplify
