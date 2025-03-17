@@ -274,8 +274,8 @@ default_latencies = {
     (Str_Q): 4,  # guessed
     St4: 4,  # guessed
     Ld4: 6,  # guessed
-    St4: 3,  # guessed
-    Ld4: 4,  # guessed
+    St3: 3,  # guessed
+    Ld3: 4,  # guessed
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc): 4,  # guessed
     Mov_xtov_d: 4,  # <=7, based on FMOV
     d_stp_stack_with_inc: 4,  # guessed
