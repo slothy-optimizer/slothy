@@ -969,7 +969,7 @@ class AArch64Instruction(Instruction):
 ####################################################################################
 
 
-class qsave(Instruction):  # pylint: disable=missing-docstring,invalid-name
+class qsave(Instruction):
     @classmethod
     def make(cls, src):
         obj = Instruction.build(
@@ -984,7 +984,7 @@ class qsave(Instruction):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class qrestore(Instruction):  # pylint: disable=missing-docstring,invalid-name
+class qrestore(Instruction):
     @classmethod
     def make(cls, src):
         obj = Instruction.build(
@@ -999,7 +999,7 @@ class qrestore(Instruction):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class save(Instruction):  # pylint: disable=missing-docstring,invalid-name
+class save(Instruction):
     @classmethod
     def make(cls, src):
         obj = Instruction.build(
@@ -1014,7 +1014,7 @@ class save(Instruction):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class restore(Instruction):  # pylint: disable=missing-docstring,invalid-name
+class restore(Instruction):
     @classmethod
     def make(cls, src):
         obj = Instruction.build(
@@ -1029,17 +1029,17 @@ class restore(Instruction):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class nop(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class nop(AArch64Instruction):
     pattern = "nop"
 
 
-class vadd(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vadd(AArch64Instruction):
     pattern = "add <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>"
     inputs = ["Vb", "Vc"]
     outputs = ["Va"]
 
 
-class vsub(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vsub(AArch64Instruction):
     pattern = "sub <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>"
     inputs = ["Vb", "Vc"]
     outputs = ["Va"]
@@ -1052,15 +1052,15 @@ class vsub(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-nam
 ############################
 
 
-class Ldr_Q(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Ldr_Q(AArch64Instruction):
     pass
 
 
-class Ldp_Q(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Ldp_Q(AArch64Instruction):
     pass
 
 
-class d_ldp_sp_imm(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class d_ldp_sp_imm(Ldr_Q):
     pattern = "ldp <Da>, <Db>, [sp, <imm>]"
     outputs = ["Da", "Db"]
 
@@ -1073,7 +1073,7 @@ class d_ldp_sp_imm(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class q_ldr(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ldr(Ldr_Q):
     pattern = "ldr <Qa>, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Qa"]
@@ -1087,7 +1087,7 @@ class q_ldr(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class q_ld1(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ld1(Ldr_Q):
     pattern = "ld1 {<Va>.<dt>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va"]
@@ -1101,7 +1101,7 @@ class q_ld1(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class prefetch(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class prefetch(Ldr_Q):
     pattern = "prfm pld1lkeep, [<Xc>, <imm>]"
     inputs = ["Xc"]
 
@@ -1114,7 +1114,7 @@ class prefetch(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class q_ldr_with_imm_hint(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ldr_with_imm_hint(Ldr_Q):
     pattern = "ldrh <Qa>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Th"]
     outputs = ["Qa"]
@@ -1132,9 +1132,7 @@ class q_ldr_with_imm_hint(Ldr_Q):  # pylint: disable=missing-docstring,invalid-n
         return super().write()
 
 
-class b_ldr_stack_with_inc(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class b_ldr_stack_with_inc(AArch64Instruction):
     pattern = "ldr <Ba>, [sp, <imm>]"
     # TODO: Model sp dependency
     outputs = ["Ba"]
@@ -1152,9 +1150,7 @@ class b_ldr_stack_with_inc(
         return super().write()
 
 
-class d_ldr_stack_with_inc(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class d_ldr_stack_with_inc(AArch64Instruction):
     pattern = "ldr <Da>, [sp, <imm>]"
     # TODO: Model sp dependency
     outputs = ["Da"]
@@ -1176,9 +1172,7 @@ class Q_Ld2_Lane_Post_Inc(AArch64Instruction):
     pass
 
 
-class q_ld2_lane_post_inc(
-    Q_Ld2_Lane_Post_Inc
-):  # pylint: disable=missing-docstring,invalid-name
+class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
     pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
     in_outs = ["Va", "Vb", "Xa"]
 
@@ -1195,9 +1189,7 @@ class q_ld2_lane_post_inc(
         return super().write()
 
 
-class q_ld2_lane_post_inc_force_output(
-    Q_Ld2_Lane_Post_Inc
-):  # pylint: disable=missing-docstring,invalid-name
+class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
     pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
     # TODO: Model sp dependency
     in_outs = ["Xa"]
@@ -1218,9 +1210,7 @@ class q_ld2_lane_post_inc_force_output(
         return super().write()
 
 
-class q_ldr1_stack(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class q_ldr1_stack(AArch64Instruction):
     pattern = "ld1r {<Va>.<dt>}, [sp]"
     # TODO: Model sp dependency
     outputs = ["Va"]
@@ -1237,7 +1227,7 @@ class q_ldr1_stack(
         return super().write()
 
 
-class q_ldr_stack_with_inc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ldr_stack_with_inc(Ldr_Q):
     pattern = "ldr <Qa>, [sp, <imm>]"
     # TODO: Model sp dependency
     outputs = ["Qa"]
@@ -1255,7 +1245,7 @@ class q_ldr_stack_with_inc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-
         return super().write()
 
 
-class q_ldr_with_inc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ldr_with_inc(Ldr_Q):
     pattern = "ldr <Qa>, [<Xc>, <imm>]"
     inputs = ["Xc"]
     outputs = ["Qa"]
@@ -1273,7 +1263,7 @@ class q_ldr_with_inc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class q_ld1_with_inc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ld1_with_inc(Ldr_Q):
     pattern = "ld1 {<Va>.<dt>}, [<Xc>, <imm>]"
     inputs = ["Xc"]
     outputs = ["Va"]
@@ -1291,7 +1281,7 @@ class q_ld1_with_inc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class q_ldp_with_inc(Ldp_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ldp_with_inc(Ldp_Q):
     pattern = "ldp <Qa>, <Qb>, [<Xc>, <imm>]"
     inputs = ["Xc"]
     outputs = ["Qa", "Qb"]
@@ -1309,7 +1299,7 @@ class q_ldp_with_inc(Ldp_Q):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class q_ldr_with_inc_writeback(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ldr_with_inc_writeback(Ldr_Q):
     pattern = "ldr <Qa>, [<Xc>, <imm>]!"
     in_outs = ["Xc"]
     outputs = ["Qa"]
@@ -1323,7 +1313,7 @@ class q_ldr_with_inc_writeback(Ldr_Q):  # pylint: disable=missing-docstring,inva
         return obj
 
 
-class q_ldr_with_postinc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ldr_with_postinc(Ldr_Q):
     pattern = "ldr <Qa>, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Qa"]
@@ -1337,7 +1327,7 @@ class q_ldr_with_postinc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-na
         return obj
 
 
-class q_ld1_with_postinc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ld1_with_postinc(Ldr_Q):
     pattern = "ld1 {<Va>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va"]
@@ -1351,7 +1341,7 @@ class q_ld1_with_postinc(Ldr_Q):  # pylint: disable=missing-docstring,invalid-na
         return obj
 
 
-class q_ldp_with_postinc(Ldp_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_ldp_with_postinc(Ldp_Q):
     pattern = "ldp <Qa>, <Qb>, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Qa", "Qb"]
@@ -1365,15 +1355,15 @@ class q_ldp_with_postinc(Ldp_Q):  # pylint: disable=missing-docstring,invalid-na
         return obj
 
 
-class Str_Q(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Str_Q(AArch64Instruction):
     pass
 
 
-class Stp_Q(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Stp_Q(AArch64Instruction):
     pass
 
 
-class q_str(Str_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_str(Str_Q):
     pattern = "str <Qa>, [<Xc>]"
     inputs = ["Qa", "Xc"]
 
@@ -1386,7 +1376,7 @@ class q_str(Str_Q):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class q_str_with_imm_hint(Str_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_str_with_imm_hint(Str_Q):
     pattern = "strh <Qa>, <Xc>, <imm>, <Th>"
     inputs = ["Qa", "Xc"]
     outputs = ["Th"]
@@ -1404,7 +1394,7 @@ class q_str_with_imm_hint(Str_Q):  # pylint: disable=missing-docstring,invalid-n
         return super().write()
 
 
-class q_str_with_inc(Str_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_str_with_inc(Str_Q):
     pattern = "str <Qa>, [<Xc>, <imm>]"
     inputs = ["Qa", "Xc"]
 
@@ -1421,9 +1411,7 @@ class q_str_with_inc(Str_Q):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class d_str_stack_with_inc(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class d_str_stack_with_inc(AArch64Instruction):
     pattern = "str <Da>, [sp, <imm>]"
     inputs = ["Da"]  # TODO: Model sp dependency
 
@@ -1440,7 +1428,7 @@ class d_str_stack_with_inc(
         return super().write()
 
 
-class q_str_stack_with_inc(Str_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_str_stack_with_inc(Str_Q):
     pattern = "str <Qa>, [sp, <imm>]"
     inputs = ["Qa"]  # TODO: Model sp dependency
 
@@ -1457,9 +1445,7 @@ class q_str_stack_with_inc(Str_Q):  # pylint: disable=missing-docstring,invalid-
         return super().write()
 
 
-class d_stp_stack_with_inc(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class d_stp_stack_with_inc(AArch64Instruction):
     pattern = "stp <Da>, <Db>, [sp, <imm>]"
     inputs = ["Da", "Db"]  # TODO: Model sp dependency
 
@@ -1476,9 +1462,7 @@ class d_stp_stack_with_inc(
         return super().write()
 
 
-class q_stp_stack_with_inc(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class q_stp_stack_with_inc(AArch64Instruction):
     pattern = "stp <Qa>, <Qb>, [sp, <imm>]"
     inputs = ["Qa", "Qb"]  # TODO: Model sp dependency
 
@@ -1495,7 +1479,7 @@ class q_stp_stack_with_inc(
         return super().write()
 
 
-class q_stp_with_inc(Stp_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_stp_with_inc(Stp_Q):
     pattern = "stp <Qa>, <Qb>, [<Xc>, <imm>]"
     inputs = ["Qa", "Qb", "Xc"]
 
@@ -1512,7 +1496,7 @@ class q_stp_with_inc(Stp_Q):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class q_str_with_inc_writeback(Str_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_str_with_inc_writeback(Str_Q):
     pattern = "str <Qa>, [<Xc>, <imm>]!"
     in_outs = ["Xc"]
     inputs = ["Qa"]
@@ -1526,7 +1510,7 @@ class q_str_with_inc_writeback(Str_Q):  # pylint: disable=missing-docstring,inva
         return obj
 
 
-class q_str_with_postinc(Str_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_str_with_postinc(Str_Q):
     pattern = "str <Qa>, [<Xc>], <imm>"
     in_outs = ["Xc"]
     inputs = ["Qa"]
@@ -1540,7 +1524,7 @@ class q_str_with_postinc(Str_Q):  # pylint: disable=missing-docstring,invalid-na
         return obj
 
 
-class q_stp_with_postinc(Stp_Q):  # pylint: disable=missing-docstring,invalid-name
+class q_stp_with_postinc(Stp_Q):
     pattern = "stp <Qa>, <Qb>, [<Xc>], <imm>"
     inputs = ["Qa", "Qb"]
     in_outs = ["Xc"]
@@ -1554,11 +1538,11 @@ class q_stp_with_postinc(Stp_Q):  # pylint: disable=missing-docstring,invalid-na
         return obj
 
 
-class Ldr_X(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Ldr_X(AArch64Instruction):
     pass
 
 
-class x_ldr(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldr(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Xa"]
@@ -1579,7 +1563,7 @@ class x_ldr(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_ldr_with_imm(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldr_with_imm(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>, <imm>]"
     inputs = ["Xc"]
     outputs = ["Xa"]
@@ -1597,7 +1581,7 @@ class x_ldr_with_imm(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_ldr_with_postinc(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldr_with_postinc(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Xa"]
@@ -1611,7 +1595,7 @@ class x_ldr_with_postinc(Ldr_X):  # pylint: disable=missing-docstring,invalid-na
         return obj
 
 
-class x_ldr_stack(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldr_stack(Ldr_X):
     pattern = "ldr <Xa>, [sp]"
     outputs = ["Xa"]
 
@@ -1631,7 +1615,7 @@ class x_ldr_stack(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_ldr_stack_imm(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldr_stack_imm(Ldr_X):
     pattern = "ldr <Xa>, [sp, <imm>]"
     outputs = ["Xa"]
 
@@ -1648,9 +1632,7 @@ class x_ldr_stack_imm(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_ldr_stack_imm_with_hint(
-    Ldr_X
-):  # pylint: disable=missing-docstring,invalid-name
+class x_ldr_stack_imm_with_hint(Ldr_X):
     pattern = "ldrh <Xa>, sp, <imm>, <Th>"
     inputs = ["Th"]
     outputs = ["Xa"]
@@ -1668,7 +1650,7 @@ class x_ldr_stack_imm_with_hint(
         return super().write()
 
 
-class x_ldr_imm_with_hint(Ldr_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldr_imm_with_hint(Ldr_X):
     pattern = "ldrh <Xa>, <Xb>, <imm>, <Th>"
     inputs = ["Xb", "Th"]
     outputs = ["Xa"]
@@ -1686,11 +1668,11 @@ class x_ldr_imm_with_hint(Ldr_X):  # pylint: disable=missing-docstring,invalid-n
         return super().write()
 
 
-class Ldp_X(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Ldp_X(AArch64Instruction):
     pass
 
 
-class x_ldp(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp(Ldp_X):
     pattern = "ldp <Xa>, <Xb>, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Xa", "Xb"]
@@ -1711,7 +1693,7 @@ class x_ldp(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_ldp_with_imm_sp_xzr(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_imm_sp_xzr(Ldp_X):
     pattern = "ldp <Xa>, xzr, [sp, <imm>]"
     outputs = ["Xa"]
 
@@ -1728,7 +1710,7 @@ class x_ldp_with_imm_sp_xzr(Ldp_X):  # pylint: disable=missing-docstring,invalid
         return super().write()
 
 
-class x_ldp_with_imm_sp(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_imm_sp(Ldp_X):
     pattern = "ldp <Xa>, <Xb>, [sp, <imm>]"
     outputs = ["Xa", "Xb"]
 
@@ -1745,7 +1727,7 @@ class x_ldp_with_imm_sp(Ldp_X):  # pylint: disable=missing-docstring,invalid-nam
         return super().write()
 
 
-class x_ldp_with_sp(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_sp(Ldp_X):
     pattern = "ldp <Xa>, <Xb>, [sp]"
     outputs = ["Xa", "Xb"]
 
@@ -1761,7 +1743,7 @@ class x_ldp_with_sp(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_ldp_with_inc(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_inc(Ldp_X):
     pattern = "ldp <Xa>, <Xb>, [<Xc>, <imm>]"
     inputs = ["Xc"]
     outputs = ["Xa", "Xb"]
@@ -1779,7 +1761,7 @@ class x_ldp_with_inc(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_ldp_with_inc_writeback(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_inc_writeback(Ldp_X):
     pattern = "ldp <Xa>, <Xb>, [<Xc>, <imm>]!"
     in_outs = ["Xc"]
     outputs = ["Xa", "Xb"]
@@ -1793,9 +1775,7 @@ class x_ldp_with_inc_writeback(Ldp_X):  # pylint: disable=missing-docstring,inva
         return obj
 
 
-class x_ldp_with_postinc_writeback(
-    Ldp_X
-):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_postinc_writeback(Ldp_X):
     pattern = "ldp <Xa>, <Xb>, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Xa", "Xb"]
@@ -1809,7 +1789,7 @@ class x_ldp_with_postinc_writeback(
         return obj
 
 
-class x_ldp_with_imm_hint(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_imm_hint(Ldp_X):
     pattern = "ldph <Xa>, <Xb>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Th"]
     outputs = ["Xa", "Xb"]
@@ -1827,7 +1807,7 @@ class x_ldp_with_imm_hint(Ldp_X):  # pylint: disable=missing-docstring,invalid-n
         return super().write()
 
 
-class x_ldp_sp_with_imm_hint(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_sp_with_imm_hint(Ldp_X):
     pattern = "ldph <Xa>, <Xb>, sp, <imm>, <Th>"
     inputs = ["Th"]
     outputs = ["Xa", "Xb"]
@@ -1845,7 +1825,7 @@ class x_ldp_sp_with_imm_hint(Ldp_X):  # pylint: disable=missing-docstring,invali
         return super().write()
 
 
-class x_ldp_sp_with_imm_hint2(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_sp_with_imm_hint2(Ldp_X):
     pattern = "ldphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>"
     inputs = ["Th0", "Th1"]
     outputs = ["Xa", "Xb"]
@@ -1863,7 +1843,7 @@ class x_ldp_sp_with_imm_hint2(Ldp_X):  # pylint: disable=missing-docstring,inval
         return super().write()
 
 
-class x_ldp_with_imm_hint2(Ldp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_ldp_with_imm_hint2(Ldp_X):
     pattern = "ldphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>"
     inputs = ["Xc", "Th0", "Th1"]
     outputs = ["Xa", "Xb"]
@@ -1881,9 +1861,7 @@ class x_ldp_with_imm_hint2(Ldp_X):  # pylint: disable=missing-docstring,invalid-
         return super().write()
 
 
-class ldr_sxtw_wform(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class ldr_sxtw_wform(AArch64Instruction):
     pattern = "ldr <Wd>, [<Xa>, <Wb>, SXTW <imm>]"
     inputs = ["Xa", "Wb"]
     outputs = ["Wd"]
@@ -1896,90 +1874,80 @@ class ldr_sxtw_wform(
 ############################
 
 
-class lsr_wform(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class lsr_wform(AArch64Instruction):
     pattern = "lsr <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
 
 
-class asr_wform(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class asr_wform(AArch64Instruction):
     pattern = "asr <Wd>, <Wa>, <imm>"
     inputs = ["Wa"]
     outputs = ["Wd"]
 
 
-class eor_wform(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class eor_wform(AArch64Instruction):
     pattern = "eor <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
 
 
-class AArch64BasicArithmetic(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64BasicArithmetic(AArch64Instruction):
     pass
 
 
-class subs_wform(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class subs_wform(AArch64BasicArithmetic):
     pattern = "subs <Wd>, <Wa>, <imm>"
     inputs = ["Wa"]
     outputs = ["Wd"]
     modifiesFlags = True
 
 
-class subs_imm(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class subs_imm(AArch64BasicArithmetic):
     pattern = "subs <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class sub_imm(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class sub_imm(AArch64BasicArithmetic):
     pattern = "sub <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class add_imm(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class add_imm(AArch64BasicArithmetic):
     pattern = "add <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class add_sp_imm(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class add_sp_imm(AArch64BasicArithmetic):
     pattern = "add <Xd>, sp, <imm>"
     outputs = ["Xd"]
 
 
-class neg(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class neg(AArch64BasicArithmetic):
     pattern = "neg <Xd>, <Xa>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class negs(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class negs(AArch64BasicArithmetic):
     pattern = "negs <Xd>, <Xa>"
     inputs = ["Xa"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class ngc_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class ngc_zero(AArch64BasicArithmetic):
     pattern = "ngc <Xd>, xzr"
     inputs = []
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class ngcs(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class ngcs(AArch64BasicArithmetic):
     pattern = "ngcs <Xd>, <Xa>"
     inputs = ["Xa"]
     outputs = ["Xd"]
@@ -1987,9 +1955,7 @@ class ngcs(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid
     dependsOnFlags = True
 
 
-class ngcs_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class ngcs_zero(AArch64BasicArithmetic):
     pattern = "ngcs <Xd>, xzr"
     inputs = []
     outputs = ["Xd"]
@@ -1997,48 +1963,40 @@ class ngcs_zero(
     dependsOnFlags = True
 
 
-class adds(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class adds(AArch64BasicArithmetic):
     pattern = "adds <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class adds_to_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adds_to_zero(AArch64BasicArithmetic):
     pattern = "adds xzr, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     modifiesFlags = True
 
 
-class adds_imm_to_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adds_imm_to_zero(AArch64BasicArithmetic):
     pattern = "adds xzr, <Xa>, <imm>"
     inputs = ["Xa"]
     modifiesFlags = True
 
 
-class subs_twoarg(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class subs_twoarg(AArch64BasicArithmetic):
     pattern = "subs <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class adds_twoarg(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adds_twoarg(AArch64BasicArithmetic):
     pattern = "adds <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class adcs(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class adcs(AArch64BasicArithmetic):
     pattern = "adcs <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
@@ -2046,7 +2004,7 @@ class adcs(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid
     dependsOnFlags = True
 
 
-class sbcs(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class sbcs(AArch64BasicArithmetic):
     pattern = "sbcs <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
@@ -2054,9 +2012,7 @@ class sbcs(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid
     dependsOnFlags = True
 
 
-class sbcs_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class sbcs_zero(AArch64BasicArithmetic):
     pattern = "sbcs <Xd>, <Xa>, xzr"
     inputs = ["Xa"]
     outputs = ["Xd"]
@@ -2064,9 +2020,7 @@ class sbcs_zero(
     dependsOnFlags = True
 
 
-class sbcs_to_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class sbcs_to_zero(AArch64BasicArithmetic):
     pattern = "sbcs xzr, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = []
@@ -2074,9 +2028,7 @@ class sbcs_to_zero(
     dependsOnFlags = True
 
 
-class sbcs_zero_to_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class sbcs_zero_to_zero(AArch64BasicArithmetic):
     pattern = "sbcs xzr, <Xa>, xzr"
     inputs = ["Xa"]
     outputs = []
@@ -2084,25 +2036,21 @@ class sbcs_zero_to_zero(
     dependsOnFlags = True
 
 
-class sbc(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class sbc(AArch64BasicArithmetic):
     pattern = "sbc <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class sbc_zero_r(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class sbc_zero_r(AArch64BasicArithmetic):
     pattern = "sbc <Xd>, <Xa>, xzr"
     inputs = ["Xa"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class adcs_zero_r(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adcs_zero_r(AArch64BasicArithmetic):
     pattern = "adcs <Xd>, <Xa>, xzr"
     inputs = ["Xa"]
     outputs = ["Xd"]
@@ -2110,9 +2058,7 @@ class adcs_zero_r(
     dependsOnFlags = True
 
 
-class adcs_zero_l(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adcs_zero_l(AArch64BasicArithmetic):
     pattern = "adcs <Xd>, xzr, <Xb>"
     inputs = ["Xb"]
     outputs = ["Xd"]
@@ -2120,253 +2066,221 @@ class adcs_zero_l(
     dependsOnFlags = True
 
 
-class adcs_zero2(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adcs_zero2(AArch64BasicArithmetic):
     pattern = "adcs <Xd>, xzr, xzr"
     outputs = ["Xd"]
     modifiesFlags = True
     dependsOnFlags = True
 
 
-class adcs_to_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adcs_to_zero(AArch64BasicArithmetic):
     pattern = "adcs xzr, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     modifiesFlags = True
     dependsOnFlags = True
 
 
-class adcs_zero_r_to_zero(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adcs_zero_r_to_zero(AArch64BasicArithmetic):
     pattern = "adcs xzr, <Xa>, xzr"
     inputs = ["Xa"]
     modifiesFlags = True
     dependsOnFlags = True
 
 
-class adc(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class adc(AArch64BasicArithmetic):
     pattern = "adc <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class adc_zero2(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adc_zero2(AArch64BasicArithmetic):
     pattern = "adc <Xd>, xzr, xzr"
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class adc_zero_r(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adc_zero_r(AArch64BasicArithmetic):
     pattern = "adc <Xd>, <Xa>, xzr"
     inputs = ["Xa"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class adc_zero_l(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adc_zero_l(AArch64BasicArithmetic):
     pattern = "adc <Xd>, xzr, <Xa>"
     inputs = ["Xa"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class add(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class add(AArch64BasicArithmetic):
     pattern = "add <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class add2(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class add2(AArch64BasicArithmetic):
     pattern = "add <Xd>, <Xa>, <Xb>, <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class add_w_imm(
-    AArch64BasicArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class add_w_imm(AArch64BasicArithmetic):
     pattern = "add <Wd>, <Wa>, <imm>"
     inputs = ["Wa"]
     outputs = ["Wd"]
 
 
-class sub(AArch64BasicArithmetic):  # pylint: disable=missing-docstring,invalid-name
+class sub(AArch64BasicArithmetic):
     pattern = "sub <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class AArch64ShiftedArithmetic(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64ShiftedArithmetic(AArch64Instruction):
     pass
 
 
-class add_lsl(
-    AArch64ShiftedArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class add_lsl(AArch64ShiftedArithmetic):
     pattern = "add <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class add_lsr(
-    AArch64ShiftedArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class add_lsr(AArch64ShiftedArithmetic):
     pattern = "add <Xd>, <Xa>, <Xb>, lsr <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class adds_lsl(
-    AArch64ShiftedArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adds_lsl(AArch64ShiftedArithmetic):
     pattern = "adds <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class adds_lsr(
-    AArch64ShiftedArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class adds_lsr(AArch64ShiftedArithmetic):
     pattern = "adds <Xd>, <Xa>, <Xb>, lsr <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class add_asr(
-    AArch64ShiftedArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class add_asr(AArch64ShiftedArithmetic):
     pattern = "add <Xd>, <Xa>, <Xb>, asr <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class add_imm_lsl(
-    AArch64ShiftedArithmetic
-):  # pylint: disable=missing-docstring,invalid-name
+class add_imm_lsl(AArch64ShiftedArithmetic):
     pattern = "add <Xd>, <Xa>, <imm0>, lsl <imm1>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class AArch64Shift(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64Shift(AArch64Instruction):
     pass
 
 
-class lsr(AArch64Shift):  # pylint: disable=missing-docstring,invalid-name
+class lsr(AArch64Shift):
     pattern = "lsr <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
 # TODO: This likely has different perf characteristics!
-class lsr_variable(AArch64Shift):  # pylint: disable=missing-docstring,invalid-name
+class lsr_variable(AArch64Shift):
     pattern = "lsr <Xd>, <Xa>, <Xc>"
     inputs = ["Xa", "Xc"]
     outputs = ["Xd"]
 
 
-class lsl(AArch64Shift):  # pylint: disable=missing-docstring,invalid-name
+class lsl(AArch64Shift):
     pattern = "lsl <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class asr(AArch64Shift):  # pylint: disable=missing-docstring,invalid-name
+class asr(AArch64Shift):
     pattern = "asr <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class AArch64Logical(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64Logical(AArch64Instruction):
     pass
 
 
-class rev_w(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class rev_w(AArch64Logical):
     pattern = "rev <Wd>, <Wa>"
     inputs = ["Wa"]
     outputs = ["Wd"]
 
 
-class eor(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class eor(AArch64Logical):
     pattern = "eor <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class orr(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class orr(AArch64Logical):
     pattern = "orr <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class orr_w(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class orr_w(AArch64Logical):
     pattern = "orr <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
 
 
-class bfi(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class bfi(AArch64Logical):
     pattern = "bfi <Xd>, <Xa>, <imm0>, <imm1>"
     inputs = ["Xa"]
     in_outs = ["Xd"]
 
 
-class and_imm(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class and_imm(AArch64Logical):
     pattern = "and <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class ands_imm(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class ands_imm(AArch64Logical):
     pattern = "ands <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class ands_xzr_imm(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class ands_xzr_imm(AArch64Logical):
     pattern = "ands xzr, <Xa>, <imm>"
     inputs = ["Xa"]
     modifiesFlags = True
 
 
-class and_twoarg(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class and_twoarg(AArch64Logical):
     pattern = "and <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class bic(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class bic(AArch64Logical):
     pattern = "bic <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class orr_imm(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class orr_imm(AArch64Logical):
     pattern = "orr <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class sbfx(AArch64Logical):  # pylint: disable=missing-docstring,invalid-name
+class sbfx(AArch64Logical):
     pattern = "sbfx <Xd>, <Xa>, <imm0>, <imm1>"
     inputs = ["Xa"]
     outputs = ["Xd"]
@@ -2378,283 +2292,253 @@ class extr(AArch64Logical):  # TODO! Review this...
     outputs = ["Xd"]
 
 
-class AArch64LogicalShifted(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64LogicalShifted(AArch64Instruction):
     pass
 
 
-class orr_shifted(
-    AArch64LogicalShifted
-):  # pylint: disable=missing-docstring,invalid-name
+class orr_shifted(AArch64LogicalShifted):
     pattern = "orr <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class AArch64ConditionalCompare(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64ConditionalCompare(AArch64Instruction):
     pass
 
 
-class ccmp_xzr(
-    AArch64ConditionalCompare
-):  # pylint: disable=missing-docstring,invalid-name
+class ccmp_xzr(AArch64ConditionalCompare):
     pattern = "ccmp <Xa>, xzr, <imm>, <flag>"
     inputs = ["Xa"]
     modifiesFlags = True
     dependsOnFlags = True
 
 
-class ccmp(AArch64ConditionalCompare):  # pylint: disable=missing-docstring,invalid-name
+class ccmp(AArch64ConditionalCompare):
     pattern = "ccmp <Xa>, <Xb>, <imm>, <flag>"
     inputs = ["Xa", "Xb"]
     modifiesFlags = True
     dependsOnFlags = True
 
 
-class AArch64ConditionalSelect(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64ConditionalSelect(AArch64Instruction):
     pass
 
 
-class cneg(AArch64ConditionalSelect):  # pylint: disable=missing-docstring,invalid-name
+class cneg(AArch64ConditionalSelect):
     pattern = "cneg <Xd>, <Xe>, <flag>"
     inputs = ["Xe"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class csel_xzr_ne(
-    AArch64ConditionalSelect
-):  # pylint: disable=missing-docstring,invalid-name
+class csel_xzr_ne(AArch64ConditionalSelect):
     pattern = "csel <Xd>, <Xe>, xzr, <flag>"
     inputs = ["Xe"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class csel_xzr2_ne(
-    AArch64ConditionalSelect
-):  # pylint: disable=missing-docstring,invalid-name
+class csel_xzr2_ne(AArch64ConditionalSelect):
     pattern = "csel <Xd>, xzr, <Xe>, <flag>"
     inputs = ["Xe"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class csel_ne(
-    AArch64ConditionalSelect
-):  # pylint: disable=missing-docstring,invalid-name
+class csel_ne(AArch64ConditionalSelect):
     pattern = "csel <Xd>, <Xe>, <Xf>, <flag>"
     inputs = ["Xe", "Xf"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class cinv(AArch64ConditionalSelect):  # pylint: disable=missing-docstring,invalid-name
+class cinv(AArch64ConditionalSelect):
     pattern = "cinv <Xd>, <Xe>, <flag>"
     inputs = ["Xe"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class cinc(AArch64ConditionalSelect):  # pylint: disable=missing-docstring,invalid-name
+class cinc(AArch64ConditionalSelect):
     pattern = "cinc <Xd>, <Xe>, <flag>"
     inputs = ["Xe"]
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class csetm(AArch64ConditionalSelect):  # pylint: disable=missing-docstring,invalid-name
+class csetm(AArch64ConditionalSelect):
     pattern = "csetm <Xd>, <flag>"
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class cset(AArch64ConditionalSelect):  # pylint: disable=missing-docstring,invalid-name
+class cset(AArch64ConditionalSelect):
     pattern = "cset <Xd>, <flag>"
     outputs = ["Xd"]
     dependsOnFlags = True
 
 
-class cmn(AArch64ConditionalSelect):  # pylint: disable=missing-docstring,invalid-name
+class cmn(AArch64ConditionalSelect):
     pattern = "cmn <Xd>, <Xe>"
     inputs = ["Xd", "Xe"]
     modifiesFlags = True
 
 
-class cmn_imm(
-    AArch64ConditionalSelect
-):  # pylint: disable=missing-docstring,invalid-name
+class cmn_imm(AArch64ConditionalSelect):
     pattern = "cmn <Xd>, <imm>"
     inputs = ["Xd"]
     modifiesFlags = True
 
 
-class ldr_const(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class ldr_const(AArch64Instruction):
     pattern = "ldr <Xd>, <imm>"
     inputs = []
     outputs = ["Xd"]
 
 
-class movk_imm(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class movk_imm(AArch64Instruction):
     pattern = "movk <Xd>, <imm>"
     inputs = []
     in_outs = ["Xd"]
 
 
-class mov(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class mov(AArch64Instruction):
     pattern = "mov <Wd>, <Wa>"
     inputs = ["Wa"]
     outputs = ["Wd"]
 
 
-class AArch64Move(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class AArch64Move(AArch64Instruction):
     pass
 
 
-class mov_imm(AArch64Move):  # pylint: disable=missing-docstring,invalid-name
+class mov_imm(AArch64Move):
     pattern = "mov <Xd>, <imm>"
     inputs = []
     outputs = ["Xd"]
 
 
-class mvn_xzr(AArch64Move):  # pylint: disable=missing-docstring,invalid-name
+class mvn_xzr(AArch64Move):
     pattern = "mvn <Xd>, xzr"
     inputs = []
     outputs = ["Xd"]
 
 
-class mov_xform(AArch64Move):  # pylint: disable=missing-docstring,invalid-name
+class mov_xform(AArch64Move):
     pattern = "mov <Xd>, <Xa>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
 
-class umull_wform(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class umull_wform(AArch64Instruction):
     pattern = "umull <Xd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
     outputs = ["Xd"]
 
 
-class umaddl_wform(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class umaddl_wform(AArch64Instruction):
     pattern = "umaddl <Xn>, <Wa>, <Wb>, <Xacc>"
     inputs = ["Wa", "Wb", "Xacc"]
     outputs = ["Xn"]
 
 
-class mul_wform(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class mul_wform(AArch64Instruction):
     pattern = "mul <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
 
 
-class AArch64HighMultiply(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64HighMultiply(AArch64Instruction):
     pass
 
 
-class umulh_xform(
-    AArch64HighMultiply
-):  # pylint: disable=missing-docstring,invalid-name
+class umulh_xform(AArch64HighMultiply):
     pattern = "umulh <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class smulh_xform(
-    AArch64HighMultiply
-):  # pylint: disable=missing-docstring,invalid-name
+class smulh_xform(AArch64HighMultiply):
     pattern = "smulh <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class AArch64Multiply(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64Multiply(AArch64Instruction):
     pass
 
 
-class mul_xform(AArch64Multiply):  # pylint: disable=missing-docstring,invalid-name
+class mul_xform(AArch64Multiply):
     pattern = "mul <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class madd_xform(AArch64Multiply):  # pylint: disable=missing-docstring,invalid-name
+class madd_xform(AArch64Multiply):
     pattern = "madd <Xd>, <Xacc>, <Xa>, <Xb>"
     inputs = ["Xacc", "Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class mneg_xform(AArch64Multiply):  # pylint: disable=missing-docstring,invalid-name
+class mneg_xform(AArch64Multiply):
     pattern = "mneg <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class msub_xform(AArch64Multiply):  # pylint: disable=missing-docstring,invalid-name
+class msub_xform(AArch64Multiply):
     pattern = "msub <Xd>, <Xacc>, <Xa>, <Xb>"
     inputs = ["Xacc", "Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class and_imm_wform(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class and_imm_wform(AArch64Instruction):
     pattern = "and <Wd>, <Wa>, <imm>"
     inputs = ["Wa"]
     outputs = ["Wd"]
 
 
-class Tst(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Tst(AArch64Instruction):
     pass
 
 
-class tst_wform(Tst):  # pylint: disable=missing-docstring,invalid-name
+class tst_wform(Tst):
     pattern = "tst <Wa>, <imm>"
     inputs = ["Wa"]
     modifiesFlags = True
 
 
-class tst_imm_xform(Tst):  # pylint: disable=missing-docstring,invalid-name
+class tst_imm_xform(Tst):
     pattern = "tst <Xa>, <imm>"
     inputs = ["Xa"]
     modifiesFlags = True
 
 
-class tst_xform(Tst):  # pylint: disable=missing-docstring,invalid-name
+class tst_xform(Tst):
     pattern = "tst <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     modifiesFlags = True
 
 
-class cmp(Tst):  # pylint: disable=missing-docstring,invalid-name
+class cmp(Tst):
     pattern = "cmp <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     modifiesFlags = True
 
 
-class cmp_xzr(Tst):  # pylint: disable=missing-docstring,invalid-name
+class cmp_xzr(Tst):
     pattern = "cmp <Xa>, xzr"
     inputs = ["Xa"]
     modifiesFlags = True
 
 
-class cmp_xzr2(Tst):  # pylint: disable=missing-docstring,invalid-name
+class cmp_xzr2(Tst):
     pattern = "cmp xzr, xzr"
     inputs = []
     modifiesFlags = True
 
 
-class cmp_imm(Tst):  # pylint: disable=missing-docstring,invalid-name
+class cmp_imm(Tst):
     pattern = "cmp <Xa>, <imm>"
     inputs = ["Xa"]
     modifiesFlags = True
@@ -2667,86 +2551,86 @@ class cmp_imm(Tst):  # pylint: disable=missing-docstring,invalid-name
 ######################################################
 
 
-class vmov(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vmov(AArch64Instruction):
     pattern = "mov <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vmovi(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vmovi(AArch64Instruction):
     pattern = "movi <Vd>.<dt>, <imm>"
     outputs = ["Vd"]
 
 
-class vxtn(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vxtn(AArch64Instruction):
     pattern = "xtn <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class Vrev(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Vrev(AArch64Instruction):
     pass
 
 
-class rev64(Vrev):  # pylint: disable=missing-docstring,invalid-name
+class rev64(Vrev):
     pattern = "rev64 <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class rev32(Vrev):  # pylint: disable=missing-docstring,invalid-name
+class rev32(Vrev):
     pattern = "rev32 <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class uaddlp(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class uaddlp(AArch64Instruction):
     pattern = "uaddlp <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vand(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vand(AArch64Instruction):
     pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vbic(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vbic(AArch64Instruction):
     pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class Vzip(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Vzip(AArch64Instruction):
     pass
 
 
-class vzip1(Vzip):  # pylint: disable=missing-docstring,invalid-name
+class vzip1(Vzip):
     pattern = "zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vzip2(Vzip):  # pylint: disable=missing-docstring,invalid-name
+class vzip2(Vzip):
     pattern = "zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vuzp1(Vzip):  # pylint: disable=missing-docstring,invalid-name
+class vuzp1(Vzip):
     pattern = "uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vuzp2(Vzip):  # pylint: disable=missing-docstring,invalid-name
+class vuzp2(Vzip):
     pattern = "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vuxtl(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vuxtl(AArch64Instruction):
     pattern = "uxtl <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]
     outputs = ["Vd"]
@@ -2756,13 +2640,13 @@ class Vqdmulh(AArch64Instruction):
     pass
 
 
-class vqrdmulh(Vqdmulh):  # pylint: disable=missing-docstring,invalid-name
+class vqrdmulh(Vqdmulh):
     pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vqrdmulh_lane(Vqdmulh):  # pylint: disable=missing-docstring,invalid-name
+class vqrdmulh_lane(Vqdmulh):
     pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2778,7 +2662,7 @@ class vqrdmulh_lane(Vqdmulh):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class vqdmulh_lane(Vqdmulh):  # pylint: disable=missing-docstring,invalid-name
+class vqdmulh_lane(Vqdmulh):
     pattern = "sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2795,7 +2679,7 @@ class vqdmulh_lane(Vqdmulh):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class fcsel_dform(Instruction):  # pylint: disable=missing-docstring,invalid-name
+class fcsel_dform(Instruction):
     @classmethod
     def make(cls, src):
         obj = Instruction.build(
@@ -2824,17 +2708,17 @@ class fcsel_dform(Instruction):  # pylint: disable=missing-docstring,invalid-nam
         )
 
 
-class Vins(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Vins(AArch64Instruction):
     pass
 
 
-class vins_d(Vins):  # pylint: disable=missing-docstring,invalid-name
+class vins_d(Vins):
     pattern = "ins <Vd>.d[<index>], <Xa>"
     inputs = ["Xa"]
     in_outs = ["Vd"]
 
 
-class vins_d_force_output(Vins):  # pylint: disable=missing-docstring,invalid-name
+class vins_d_force_output(Vins):
     pattern = "ins <Vd>.d[<index>], <Xa>"
     inputs = ["Xa"]
     outputs = ["Vd"]
@@ -2846,65 +2730,63 @@ class vins_d_force_output(Vins):  # pylint: disable=missing-docstring,invalid-na
         return AArch64Instruction.build(cls, src)
 
 
-class Mov_xtov_d(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Mov_xtov_d(AArch64Instruction):
     pass
 
 
-class mov_xtov_d(Mov_xtov_d):  # pylint: disable=missing-docstring,invalid-name
+class mov_xtov_d(Mov_xtov_d):
     pattern = "mov <Vd>.d[<index>], <Xa>"
     inputs = ["Xa"]
     in_outs = ["Vd"]
 
 
-class mov_xtov_d_xzr(Mov_xtov_d):  # pylint: disable=missing-docstring,invalid-name
+class mov_xtov_d_xzr(Mov_xtov_d):
     pattern = "mov <Vd>.d[<index>], xzr"
     in_outs = ["Vd"]
 
 
-class mov_b00(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class mov_b00(AArch64Instruction):
     pattern = "mov <Vd>.b[0], <Va>.b[0]"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
 
-class mov_d01(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class mov_d01(AArch64Instruction):
     pattern = "mov <Vd>.d[0], <Va>.d[1]"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
 
-class AArch64NeonLogical(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AArch64NeonLogical(AArch64Instruction):
     pass
 
 
-class veor(AArch64NeonLogical):  # pylint: disable=missing-docstring,invalid-name
+class veor(AArch64NeonLogical):
     pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class veor3(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class veor3(AArch64Instruction):
     pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
     inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
 
-class vbif(AArch64NeonLogical):  # pylint: disable=missing-docstring,invalid-name
+class vbif(AArch64NeonLogical):
     pattern = "bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 # Not sure about the classification as logical... couldn't find it in SWOG
-class vmov_d(AArch64NeonLogical):  # pylint: disable=missing-docstring,invalid-name
+class vmov_d(AArch64NeonLogical):
     pattern = "mov <Dd>, <Va>.d[1]"
     inputs = ["Va"]
     outputs = ["Dd"]
 
 
-class vext(AArch64NeonLogical):  # pylint: disable=missing-docstring,invalid-name
+class vext(AArch64NeonLogical):
     pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2914,13 +2796,13 @@ class Vmul(AArch64Instruction):
     pass
 
 
-class vmul(Vmul):  # pylint: disable=missing-docstring,invalid-name
+class vmul(Vmul):
     pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vmul_lane(Vmul):  # pylint: disable=missing-docstring,invalid-name
+class vmul_lane(Vmul):
     pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -2941,13 +2823,13 @@ class Vmla(AArch64Instruction):
     pass
 
 
-class vmla(Vmla):  # pylint: disable=missing-docstring,invalid-name
+class vmla(Vmla):
     pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
-class vmla_lane(Vmla):  # pylint: disable=missing-docstring,invalid-name
+class vmla_lane(Vmla):
     pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
@@ -2963,13 +2845,13 @@ class vmla_lane(Vmla):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class vmls(Vmla):  # pylint: disable=missing-docstring,invalid-name
+class vmls(Vmla):
     pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
-class vmls_lane(Vmla):  # pylint: disable=missing-docstring,invalid-name
+class vmls_lane(Vmla):
     pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
@@ -2985,7 +2867,7 @@ class vmls_lane(Vmla):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class vdup(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vdup(AArch64Instruction):
     pattern = "dup <Vd>.<dt>, <Xa>"
     inputs = ["Xa"]
     outputs = ["Vd"]
@@ -2995,25 +2877,25 @@ class Vmull(AArch64Instruction):
     pass
 
 
-class vmull(Vmull):  # pylint: disable=missing-docstring,invalid-name
+class vmull(Vmull):
     pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vmull2(Vmull):  # pylint: disable=missing-docstring,invalid-name
+class vmull2(Vmull):
     pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vsmull(Vmull):  # pylint: disable=missing-docstring,invalid-name
+class vsmull(Vmull):
     pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vsmull2(Vmull):  # pylint: disable=missing-docstring,invalid-name
+class vsmull2(Vmull):
     pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -3023,19 +2905,19 @@ class Vmlal(AArch64Instruction):
     pass
 
 
-class vmlal(Vmlal):  # pylint: disable=missing-docstring,invalid-name
+class vmlal(Vmlal):
     pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
-class vsmlal(Vmlal):  # pylint: disable=missing-docstring,invalid-name
+class vsmlal(Vmlal):
     pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
-class vsmlal2(Vmlal):  # pylint: disable=missing-docstring,invalid-name
+class vsmlal2(Vmlal):
     pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
@@ -3049,87 +2931,87 @@ class VShiftImmediateRounding(AArch64Instruction):
     pass
 
 
-class vsrshr(VShiftImmediateRounding):  # pylint: disable=missing-docstring,invalid-name
+class vsrshr(VShiftImmediateRounding):
     pattern = "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vurshr(VShiftImmediateRounding):  # pylint: disable=missing-docstring,invalid-name
+class vurshr(VShiftImmediateRounding):
     pattern = "urshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vsshr(VShiftImmediateBasic):  # pylint: disable=missing-docstring,invalid-name
+class vsshr(VShiftImmediateBasic):
     pattern = "sshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vushr(VShiftImmediateBasic):  # pylint: disable=missing-docstring,invalid-name
+class vushr(VShiftImmediateBasic):
     pattern = "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vshl(VShiftImmediateBasic):  # pylint: disable=missing-docstring,invalid-name
+class vshl(VShiftImmediateBasic):
     pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vshl_d(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vshl_d(AArch64Instruction):
     pattern = "shl <Dd>, <Da>, <imm>"
     inputs = ["Da"]
     outputs = ["Dd"]
 
 
-class vshli(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vshli(AArch64Instruction):
     pattern = "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
 
-class vusra(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vusra(AArch64Instruction):
     pattern = "usra <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
 
-class vshrn(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class vshrn(AArch64Instruction):
     pattern = "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class VecToGprMov(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class VecToGprMov(AArch64Instruction):
     pass
 
 
-class umov_d(VecToGprMov):  # pylint: disable=missing-docstring,invalid-name
+class umov_d(VecToGprMov):
     pattern = "umov <Xd>, <Va>.d[<index>]"
     inputs = ["Va"]
     outputs = ["Xd"]
 
 
-class mov_d(VecToGprMov):  # pylint: disable=missing-docstring,invalid-name
+class mov_d(VecToGprMov):
     pattern = "mov <Xd>, <Va>.d[<index>]"
     inputs = ["Va"]
     outputs = ["Xd"]
 
 
-class Fmov(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Fmov(AArch64Instruction):
     pass
 
 
-class fmov_0(Fmov):  # pylint: disable=missing-docstring,invalid-name
+class fmov_0(Fmov):
     pattern = "fmov <Dd>, <Xa>"
     inputs = ["Xa"]
     in_outs = ["Dd"]
 
 
-class fmov_0_force_output(Fmov):  # pylint: disable=missing-docstring,invalid-name
+class fmov_0_force_output(Fmov):
     pattern = "fmov <Dd>, <Xa>"
     inputs = ["Xa"]
     outputs = ["Dd"]
@@ -3141,13 +3023,13 @@ class fmov_0_force_output(Fmov):  # pylint: disable=missing-docstring,invalid-na
         return AArch64Instruction.build(cls, src)
 
 
-class fmov_1(Fmov):  # pylint: disable=missing-docstring,invalid-name
+class fmov_1(Fmov):
     pattern = "fmov <Vd>.d[1], <Xa>"
     inputs = ["Xa"]
     in_outs = ["Vd"]
 
 
-class fmov_1_force_output(Fmov):  # pylint: disable=missing-docstring,invalid-name
+class fmov_1_force_output(Fmov):
     pattern = "fmov <Vd>.d[1], <Xa>"
     inputs = ["Xa"]
     outputs = ["Vd"]
@@ -3159,17 +3041,17 @@ class fmov_1_force_output(Fmov):  # pylint: disable=missing-docstring,invalid-na
         return AArch64Instruction.build(cls, src)
 
 
-class Transpose(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Transpose(AArch64Instruction):
     pass
 
 
-class trn1(Transpose):  # pylint: disable=missing-docstring,invalid-name
+class trn1(Transpose):
     pattern = "trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class trn2(Transpose):  # pylint: disable=missing-docstring,invalid-name
+class trn2(Transpose):
     pattern = "trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -3177,65 +3059,63 @@ class trn2(Transpose):  # pylint: disable=missing-docstring,invalid-name
 
 # Wrapper around AESE+AESMC, treated as one instructions in SLOTHY
 # so as to prevent pulling them apart and hindering instruction fusion.
-class AESInstruction(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class AESInstruction(AArch64Instruction):
     pass
 
 
-class aesr(AESInstruction):  # pylint: disable=missing-docstring,invalid-name
+class aesr(AESInstruction):
     pattern = "aesr <Vd>.16b, <Va>.16b"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
 
-class aesr_x2(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class aesr_x2(AArch64Instruction):
     pattern = "aesr_x2 <Vd0>.16b, <Vd1>.16b, <Va>.16b"
     inputs = ["Va"]
     in_outs = ["Vd0", "Vd1"]
 
 
-class aesr_x4(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class aesr_x4(AArch64Instruction):
     pattern = "aesr_x4 <Vd0>.16b, <Vd1>.16b, <Vd2>.16b, <Vd3>.16b, <Va>.16b"
     inputs = ["Va"]
     in_outs = ["Vd0", "Vd1", "Vd2", "Vd3"]
 
 
-class aese_x4(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class aese_x4(AArch64Instruction):
     pattern = "aese_x4 <Vd0>.16b, <Vd1>.16b, <Vd2>.16b, <Vd3>.16b, <Va>.16b"
     inputs = ["Va"]
     in_outs = ["Vd0", "Vd1", "Vd2", "Vd3"]
 
 
-class aese(AESInstruction):  # pylint: disable=missing-docstring,invalid-name
+class aese(AESInstruction):
     pattern = "aese <Vd>.16b, <Va>.16b"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
 
-class aesmc(AESInstruction):  # pylint: disable=missing-docstring,invalid-name
+class aesmc(AESInstruction):
     pattern = "aesmc <Vd>.16b, <Va>.16b"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class pmull1_q(AESInstruction):  # pylint: disable=missing-docstring,invalid-name
+class pmull1_q(AESInstruction):
     pattern = "pmull <Vd>.1q, <Va>.1d, <Vb>.1d"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class pmull2_q(AESInstruction):  # pylint: disable=missing-docstring,invalid-name
+class pmull2_q(AESInstruction):
     pattern = "pmull2 <Vd>.1q, <Va>.2d, <Vb>.2d"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class Str_X(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Str_X(AArch64Instruction):
     pass
 
 
-class x_str(Str_X):  # pylint: disable=missing-docstring,invalid-name
+class x_str(Str_X):
     pattern = "str <Xa>, [<Xc>]"
     inputs = ["Xa", "Xc"]
 
@@ -3255,7 +3135,7 @@ class x_str(Str_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_str_imm(Str_X):  # pylint: disable=missing-docstring,invalid-name
+class x_str_imm(Str_X):
     pattern = "str <Xa>, [<Xc>, <imm>]"
     inputs = ["Xa", "Xc"]
 
@@ -3272,7 +3152,7 @@ class x_str_imm(Str_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class w_str_imm(Str_X):  # pylint: disable=missing-docstring,invalid-name
+class w_str_imm(Str_X):
     pattern = "str <Wa>, [<Xc>, <imm>]"
     inputs = ["Wa", "Xc"]
 
@@ -3289,7 +3169,7 @@ class w_str_imm(Str_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class w_str_sp_imm(Str_X):  # pylint: disable=missing-docstring,invalid-name
+class w_str_sp_imm(Str_X):
     pattern = "str <Wa>, [sp, <imm>]"
     inputs = ["Wa"]
 
@@ -3306,7 +3186,7 @@ class w_str_sp_imm(Str_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_str_postinc(Str_X):  # pylint: disable=missing-docstring,invalid-name
+class x_str_postinc(Str_X):
     pattern = "str <Xa>, [<Xc>], <imm>"
     inputs = ["Xa"]
     in_outs = ["Xc"]
@@ -3320,7 +3200,7 @@ class x_str_postinc(Str_X):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class x_str_sp_imm(Str_X):  # pylint: disable=missing-docstring,invalid-name
+class x_str_sp_imm(Str_X):
     pattern = "str <Xa>, [sp, <imm>]"
     inputs = ["Xa"]
 
@@ -3337,7 +3217,7 @@ class x_str_sp_imm(Str_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_str_sp_imm_hint(Str_X):  # pylint: disable=missing-docstring,invalid-name
+class x_str_sp_imm_hint(Str_X):
     pattern = "strh <Xa>, sp, <imm>, <Th>"
     inputs = ["Xa"]
     outputs = ["Th"]
@@ -3355,7 +3235,7 @@ class x_str_sp_imm_hint(Str_X):  # pylint: disable=missing-docstring,invalid-nam
         return super().write()
 
 
-class x_str_imm_hint(Str_X):  # pylint: disable=missing-docstring,invalid-name
+class x_str_imm_hint(Str_X):
     pattern = "strh <Xa>, <Xb>, <imm>, <Th>"
     inputs = ["Xa", "Xb"]
     outputs = ["Th"]
@@ -3373,11 +3253,11 @@ class x_str_imm_hint(Str_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class Stp_X(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Stp_X(AArch64Instruction):
     pass
 
 
-class x_stp(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp(Stp_X):
     pattern = "stp <Xa>, <Xb>, [<Xc>]"
     inputs = ["Xc", "Xa", "Xb"]
 
@@ -3397,7 +3277,7 @@ class x_stp(Stp_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_stp_with_imm_xzr_sp(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_imm_xzr_sp(Stp_X):
     pattern = "stp <Xa>, xzr, [sp, <imm>]"
     inputs = ["Xa"]
 
@@ -3414,9 +3294,7 @@ class x_stp_with_imm_xzr_sp(Stp_X):  # pylint: disable=missing-docstring,invalid
         return super().write()
 
 
-class w_stp_with_imm_sp(
-    AArch64Instruction
-):  # pylint: disable=missing-docstring,invalid-name
+class w_stp_with_imm_sp(AArch64Instruction):
     pattern = "stp <Wa>, <Wb>, [sp, <imm>]"
     inputs = ["Wa", "Wb"]
 
@@ -3433,7 +3311,7 @@ class w_stp_with_imm_sp(
         return super().write()
 
 
-class x_stp_with_sp(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_sp(Stp_X):
     pattern = "stp <Xa>, <Xb>, [sp]"
     inputs = ["Xa", "Xb"]
 
@@ -3449,7 +3327,7 @@ class x_stp_with_sp(Stp_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_stp_with_imm_sp(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_imm_sp(Stp_X):
     pattern = "stp <Xa>, <Xb>, [sp, <imm>]"
     inputs = ["Xa", "Xb"]
 
@@ -3466,7 +3344,7 @@ class x_stp_with_imm_sp(Stp_X):  # pylint: disable=missing-docstring,invalid-nam
         return super().write()
 
 
-class x_stp_with_inc(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_inc(Stp_X):
     pattern = "stp <Xa>, <Xb>, [<Xc>, <imm>]"
     inputs = ["Xc", "Xa", "Xb"]
 
@@ -3483,7 +3361,7 @@ class x_stp_with_inc(Stp_X):  # pylint: disable=missing-docstring,invalid-name
         return super().write()
 
 
-class x_stp_with_inc_writeback(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_inc_writeback(Stp_X):
     pattern = "stp <Xa>, <Xb>, [<Xc>, <imm>]!"
     inputs = ["Xa", "Xb"]
     in_outs = ["Xc"]
@@ -3497,7 +3375,7 @@ class x_stp_with_inc_writeback(Stp_X):  # pylint: disable=missing-docstring,inva
         return obj
 
 
-class x_stp_with_imm_hint(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_imm_hint(Stp_X):
     pattern = "stph <Xa>, <Xb>, <Xc>, <imm>, <Th>"
     inputs = ["Xc", "Xa", "Xb"]
     outputs = ["Th"]
@@ -3515,7 +3393,7 @@ class x_stp_with_imm_hint(Stp_X):  # pylint: disable=missing-docstring,invalid-n
         return super().write()
 
 
-class x_stp_sp_with_imm_hint(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_sp_with_imm_hint(Stp_X):
     pattern = "stph <Xa>, <Xb>, sp, <imm>, <Th>"
     inputs = ["Xa", "Xb"]
     outputs = ["Th"]
@@ -3533,7 +3411,7 @@ class x_stp_sp_with_imm_hint(Stp_X):  # pylint: disable=missing-docstring,invali
         return super().write()
 
 
-class x_stp_sp_with_imm_hint2(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_sp_with_imm_hint2(Stp_X):
     pattern = "stphp <Xa>, <Xb>, sp, <imm>, <Th0>, <Th1>"
     inputs = ["Xa", "Xb"]
     outputs = ["Th0", "Th1"]
@@ -3551,7 +3429,7 @@ class x_stp_sp_with_imm_hint2(Stp_X):  # pylint: disable=missing-docstring,inval
         return super().write()
 
 
-class x_stp_with_imm_hint2(Stp_X):  # pylint: disable=missing-docstring,invalid-name
+class x_stp_with_imm_hint2(Stp_X):
     pattern = "stphp <Xa>, <Xb>, <Xc>, <imm>, <Th0>, <Th1>"
     inputs = ["Xa", "Xb", "Xc"]
     outputs = ["Th0", "Th1"]
@@ -3569,11 +3447,11 @@ class x_stp_with_imm_hint2(Stp_X):  # pylint: disable=missing-docstring,invalid-
         return super().write()
 
 
-class St4(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class St4(AArch64Instruction):
     pass
 
 
-class st4_base(St4):  # pylint: disable=missing-docstring,invalid-name
+class st4_base(St4):
     pattern = "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb", "Vc", "Vd"]
 
@@ -3591,7 +3469,7 @@ class st4_base(St4):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class st4_with_inc(St4):  # pylint: disable=missing-docstring,invalid-name
+class st4_with_inc(St4):
     pattern = "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb", "Vc", "Vd"]
     in_outs = ["Xc"]
@@ -3611,11 +3489,11 @@ class st4_with_inc(St4):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class St3(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class St3(AArch64Instruction):
     pass
 
 
-class st3_base(St3):  # pylint: disable=missing-docstring,invalid-name
+class st3_base(St3):
     pattern = "st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb", "Vc"]
 
@@ -3630,7 +3508,7 @@ class st3_base(St3):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class st3_with_inc(St3):  # pylint: disable=missing-docstring,invalid-name
+class st3_with_inc(St3):
     pattern = "st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb", "Vc"]
     in_outs = ["Xc"]
@@ -3647,11 +3525,11 @@ class st3_with_inc(St3):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class St2(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class St2(AArch64Instruction):
     pass
 
 
-class st2_base(St2):  # pylint: disable=missing-docstring,invalid-name
+class st2_base(St2):
     pattern = "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb"]
 
@@ -3666,7 +3544,7 @@ class st2_base(St2):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class st2_with_inc(St2):  # pylint: disable=missing-docstring,invalid-name
+class st2_with_inc(St2):
     pattern = "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb"]
     in_outs = ["Xc"]
@@ -3683,11 +3561,11 @@ class st2_with_inc(St2):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class Ld4(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Ld4(AArch64Instruction):
     pass
 
 
-class ld4_base(Ld4):  # pylint: disable=missing-docstring,invalid-name
+class ld4_base(Ld4):
     pattern = "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb", "Vc", "Vd"]
@@ -3706,7 +3584,7 @@ class ld4_base(Ld4):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class ld4_with_inc(Ld4):  # pylint: disable=missing-docstring,invalid-name
+class ld4_with_inc(Ld4):
     pattern = "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb", "Vc", "Vd"]
@@ -3726,11 +3604,11 @@ class ld4_with_inc(Ld4):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class Ld3(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Ld3(AArch64Instruction):
     pass
 
 
-class ld3_base(Ld3):  # pylint: disable=missing-docstring,invalid-name
+class ld3_base(Ld3):
     pattern = "ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb", "Vc"]
@@ -3746,7 +3624,7 @@ class ld3_base(Ld3):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class ld3_with_inc(Ld3):  # pylint: disable=missing-docstring,invalid-name
+class ld3_with_inc(Ld3):
     pattern = "ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb", "Vc"]
@@ -3763,11 +3641,11 @@ class ld3_with_inc(Ld3):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class Ld2(AArch64Instruction):  # pylint: disable=missing-docstring,invalid-name
+class Ld2(AArch64Instruction):
     pass
 
 
-class ld2_base(Ld2):  # pylint: disable=missing-docstring,invalid-name
+class ld2_base(Ld2):
     pattern = "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb"]
@@ -3783,7 +3661,7 @@ class ld2_base(Ld2):  # pylint: disable=missing-docstring,invalid-name
         return obj
 
 
-class ld2_with_inc(Ld2):  # pylint: disable=missing-docstring,invalid-name
+class ld2_with_inc(Ld2):
     pattern = "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb"]
@@ -3804,7 +3682,7 @@ class ASimdCompare(AArch64Instruction):
     """Parent class for ASIMD compare instructions"""
 
 
-class cmge(ASimdCompare):  # pylint: disable=missing-docstring,invalid-name
+class cmge(ASimdCompare):
     pattern = "cmge <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]

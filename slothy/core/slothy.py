@@ -315,7 +315,6 @@ class Slothy:
         :param loop_synthesis_cb: Optional (None by default) callback synthesis final source code
               from tuple of (preamble, kernel, postamble, # exceptional iterations).
         """
-        # pylint:disable=too-many-locals
 
         if logname is None and start is not None:
             logname = start

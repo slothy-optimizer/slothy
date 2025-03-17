@@ -61,23 +61,23 @@ class ExecutionUnit(Enum):
         ]
 
     @classmethod
-    def M(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def M(cls):
         return [ExecutionUnit.SCALAR_M]
 
     @classmethod
-    def V(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def V(cls):
         return [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
 
     @classmethod
-    def V0(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def V0(cls):
         return [ExecutionUnit.VEC0]
 
     @classmethod
-    def V1(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def V1(cls):
         return [ExecutionUnit.VEC1]
 
     @classmethod
-    def LSU(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def LSU(cls):
         return [ExecutionUnit.LSU0, ExecutionUnit.LSU1]
 
 

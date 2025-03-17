@@ -41,13 +41,13 @@ class ExecutionUnit(Enum):
     def __repr__(self):
         return self.name
 
-    def ALU():  # pylint: disable=invalid-name
+    def ALU():
         return [ExecutionUnit.ALU0, ExecutionUnit.ALU1]
 
-    def SHIFT():  # pylint: disable=invalid-name
+    def SHIFT():
         return [ExecutionUnit.SHIFT0, ExecutionUnit.SHIFT1]
 
-    def LOAD():  # pylint: disable=invalid-name
+    def LOAD():
         return [ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]
 
 

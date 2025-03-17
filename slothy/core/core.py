@@ -91,7 +91,7 @@ class Result(LockAttributes):
 
         def arr_width(arr):
             mi = min(arr)
-            ma = max(0, max(arr))  # pylint:disable=nested-min-max
+            ma = max(0, max(arr))
             return mi, ma - mi
 
         def center_str_fixlen(txt, fixlen, char="-"):
@@ -176,7 +176,7 @@ class Result(LockAttributes):
 
         def arr_width(arr):
             mi = min(arr)
-            ma = max(0, max(arr))  # pylint:disable=nested-min-max
+            ma = max(0, max(arr))
             return mi, ma - mi
 
         def center_str_fixlen(txt, fixlen, char="-"):
@@ -3077,7 +3077,7 @@ class SlothyBase(LockAttributes):
             if k not in valid_allocs:
                 # Disabling pylint warning here since we're building a
                 # CP-SAT constraint here, rather than making a boolean comparison.
-                self._Add(v == False)  # pylint:disable=singleton-comparison
+                self._Add(v == False)
 
     def _force_allocation_restriction_many(self, restriction_lst, var_dict_lst):
         for r, v in zip(restriction_lst, var_dict_lst, strict=True):
@@ -3244,10 +3244,10 @@ class SlothyBase(LockAttributes):
                 )
 
             if not self.config.sw_pipelining.allow_pre:
-                # pylint:disable=singleton-comparison
+
                 self._Add(t.pre_var == False)
             if not self.config.sw_pipelining.allow_post:
-                # pylint:disable=singleton-comparison
+
                 self._Add(t.post_var == False)
 
             if self.config.hints.all_core:
@@ -3259,7 +3259,7 @@ class SlothyBase(LockAttributes):
             if self.config.sw_pipelining.max_pre < 1.0 and self._is_low(t):
                 relpos = t.orig_pos / len(self._get_nodes(low=True))
                 if self.config.sw_pipelining.max_pre < relpos < 1:
-                    # pylint:disable=singleton-comparison
+
                     self._Add(t.pre_var == False)
 
         if self.config.sw_pipelining.pre_before_post:
@@ -3287,9 +3287,8 @@ class SlothyBase(LockAttributes):
             # cannot be an early instruction, and an instruction depending
             # on an instruction from a previous iteration cannot be late.
 
-            # pylint:disable=singleton-comparison
             #  self._Add(producer.src.pre_var == False)
-            # pylint:disable=singleton-comparison
+
             # self._Add(consumer.post_var == False)
 
     # ================================================================
@@ -3730,7 +3729,7 @@ class SlothyBase(LockAttributes):
         for t in self._get_nodes():
             if filter_func(t.inst):
                 continue
-            self._Add(t.core_var == True)  # pylint: disable=singleton-comparison
+            self._Add(t.core_var == True)
 
     def force_early(self, filter_func, early=True):
         """Forces all instructions passing the filter_func to be `early`, that is,
@@ -3752,10 +3751,10 @@ class SlothyBase(LockAttributes):
                 continue
             if early:
                 self.logger.debug("Forcing instruction %s to be early", t)
-                self._Add(t.pre_var == True)  # pylint: disable=singleton-comparison
+                self._Add(t.pre_var == True)
             else:
                 self.logger.debug("Forcing instruction %s to be late", t)
-                self._Add(t.post_var == True)  # pylint: disable=singleton-comparison
+                self._Add(t.post_var == True)
 
     def restrict_slots_for_instruction(self, t, slots):
         """This forces the given instruction to be assigned precisely one of the slots
@@ -3954,56 +3953,54 @@ class SlothyBase(LockAttributes):
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
 
-    def _NewIntVar(self, minval, maxval, name=""):  # pylint:disable=invalid-name
+    def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval, maxval, name)
         self._model.variables.append(r)
         return r
 
-    def _NewIntervalVar(self, base, dur, end, name=""):  # pylint:disable=invalid-name
+    def _NewIntervalVar(self, base, dur, end, name=""):
         return self._model.cp_model.NewIntervalVar(base, dur, end, name)
 
-    def _NewOptionalIntervalVar(
-        self, base, dur, end, cond, name=""
-    ):  # pylint:disable=invalid-name
+    def _NewOptionalIntervalVar(self, base, dur, end, cond, name=""):
         return self._model.cp_model.NewOptionalIntervalVar(base, dur, end, cond, name)
 
-    def _NewBoolVar(self, name=""):  # pylint:disable=invalid-name
+    def _NewBoolVar(self, name=""):
         r = self._model.cp_model.NewBoolVar(name)
         self._model.variables.append(r)
         return r
 
-    def _NewConstant(self, val):  # pylint:disable=invalid-name
+    def _NewConstant(self, val):
         r = self._model.cp_model.NewConstant(val)
         return r
 
-    def _Add(self, c):  # pylint:disable=invalid-name
+    def _Add(self, c):
         return self._model.cp_model.Add(c)
 
-    def _AddNoOverlap(self, lst):  # pylint:disable=invalid-name
+    def _AddNoOverlap(self, lst):
         return self._model.cp_model.AddNoOverlap(lst)
 
-    def _AddExactlyOne(self, lst):  # pylint:disable=invalid-name
+    def _AddExactlyOne(self, lst):
         return self._model.cp_model.AddExactlyOne(lst)
 
-    def _AddMultiplicationEquality(self, lst, res):  # pylint:disable=invalid-name
+    def _AddMultiplicationEquality(self, lst, res):
         return self._model.cp_model.AddMultiplicationEquality(res, lst)
 
-    def _AddImplication(self, a, b):  # pylint:disable=invalid-name
+    def _AddImplication(self, a, b):
         return self._model.cp_model.AddImplication(a, b)
 
-    def _AddAtLeastOne(self, lst):  # pylint:disable=invalid-name
+    def _AddAtLeastOne(self, lst):
         return self._model.cp_model.AddAtLeastOne(lst)
 
-    def _AddAbsEq(self, dst, expr):  # pylint:disable=invalid-name
+    def _AddAbsEq(self, dst, expr):
         return self._model.cp_model.AddAbsEquality(dst, expr)
 
-    def _AddAllDifferent(self, lst):  # pylint:disable=invalid-name
+    def _AddAllDifferent(self, lst):
         return self._model.cp_model.AddAllDifferent(lst)
 
-    def _AddHint(self, var, val):  # pylint:disable=invalid-name
+    def _AddHint(self, var, val):
         return self._model.cp_model.AddHint(var, val)
 
-    def _AddMaxEquality(self, varlist, var):  # pylint:disable=invalid-name
+    def _AddMaxEquality(self, varlist, var):
         return self._model.cp_model.AddMaxEquality(varlist, var)
 
     def _export_model(self):

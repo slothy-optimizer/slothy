@@ -64,12 +64,12 @@ class ExecutionUnit(Enum):
         return self.name
 
     @classmethod
-    def SCALAR(cls):  # pylint: disable=invalid-name
+    def SCALAR(cls):
         """All scalar execution units"""
         return [ExecutionUnit.SCALAR_ALU0, ExecutionUnit.SCALAR_ALU1]
 
     @classmethod
-    def SCALAR_MUL(cls):  # pylint: disable=invalid-name
+    def SCALAR_MUL(cls):
         """All multiply-capable scalar execution units"""
         return [ExecutionUnit.SCALAR_MAC]
 

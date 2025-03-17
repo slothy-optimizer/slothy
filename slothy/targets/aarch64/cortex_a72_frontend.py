@@ -82,27 +82,27 @@ class ExecutionUnit(Enum):
         return self.name
 
     @classmethod
-    def ASIMD(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def ASIMD(cls):
         return [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]
 
     @classmethod
-    def LOAD(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def LOAD(cls):
         return [ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]
 
     @classmethod
-    def STORE(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def STORE(cls):
         return [ExecutionUnit.STORE0, ExecutionUnit.STORE1]
 
     @classmethod
-    def INT(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def INT(cls):
         return [ExecutionUnit.INT0, ExecutionUnit.INT1]
 
     @classmethod
-    def MINT(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def MINT(cls):
         return [ExecutionUnit.MINT0, ExecutionUnit.MINT1]
 
     @classmethod
-    def SCALAR(cls):  # pylint: disable=missing-function-docstring,invalid-name
+    def SCALAR(cls):
         return ExecutionUnit.INT() + ExecutionUnit.MINT()
 
 

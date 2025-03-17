@@ -29,7 +29,6 @@
 SLOTHY configuration
 """
 
-# pylint:disable=too-many-lines
 
 from copy import deepcopy
 import os

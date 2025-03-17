@@ -677,7 +677,7 @@ class Heuristics:
             perm = Permutation.permutation_id(le)
 
         def print_intarr(arr, ll, vals=50):
-            m = max(10, max(arr))  # pylint:disable=nested-min-max
+            m = max(10, max(arr))
             start_idxs = [(ll * i) // vals for i in range(vals)]
             end_idxs = [(ll * (i + 1)) // vals for i in range(vals)]
             avgs = []
