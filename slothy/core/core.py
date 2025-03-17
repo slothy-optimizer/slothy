@@ -3075,9 +3075,7 @@ class SlothyBase(LockAttributes):
     def _force_allocation_restriction_single(self, valid_allocs, var_dict):
         for k, v in var_dict.items():
             if k not in valid_allocs:
-                # Disabling pylint warning here since we're building a
-                # CP-SAT constraint here, rather than making a boolean comparison.
-                self._Add(v == False)
+                self._Add(v == False)  # noqa: E712
 
     def _force_allocation_restriction_many(self, restriction_lst, var_dict_lst):
         for r, v in zip(restriction_lst, var_dict_lst, strict=True):
@@ -3094,7 +3092,7 @@ class SlothyBase(LockAttributes):
                 if len(arr) > 0:
                     self._AddMaxEquality(self._model._register_used[reg], arr)
                 else:
-                    self._Add(self._model._register_used[reg] == False)
+                    self._Add(self._model._register_used[reg] == False)  # noqa: E712
 
         for t in self._get_nodes(allnodes=True):
             can_spill = True
@@ -3105,14 +3103,14 @@ class SlothyBase(LockAttributes):
 
             if can_spill is False:
                 for v in t.out_spill_vars + t.in_out_spill_vars:
-                    self._Add(v == False)
+                    self._Add(v == False)  # noqa: E712
                 continue
 
             for ty, v in list(zip(t.inst.arg_types_out, t.out_spill_vars)) + list(
                 zip(t.inst.arg_types_in_out, t.out_spill_vars)
             ):
                 if self.arch.RegisterType.spillable(ty) is False:
-                    self._Add(v == False)
+                    self._Add(v == False)  # noqa: E712
 
         # Ensure that outputs are unambiguous
         for t in self._get_nodes(allnodes=True):
@@ -3245,10 +3243,10 @@ class SlothyBase(LockAttributes):
 
             if not self.config.sw_pipelining.allow_pre:
 
-                self._Add(t.pre_var == False)
+                self._Add(t.pre_var == False)  # noqa: E712
             if not self.config.sw_pipelining.allow_post:
 
-                self._Add(t.post_var == False)
+                self._Add(t.post_var == False)  # noqa: E712
 
             if self.config.hints.all_core:
                 self._AddHint(t.core_var, True)
@@ -3260,7 +3258,7 @@ class SlothyBase(LockAttributes):
                 relpos = t.orig_pos / len(self._get_nodes(low=True))
                 if self.config.sw_pipelining.max_pre < relpos < 1:
 
-                    self._Add(t.pre_var == False)
+                    self._Add(t.pre_var == False)  # noqa: E712
 
         if self.config.sw_pipelining.pre_before_post:
             for t, s in [
@@ -3729,7 +3727,7 @@ class SlothyBase(LockAttributes):
         for t in self._get_nodes():
             if filter_func(t.inst):
                 continue
-            self._Add(t.core_var == True)
+            self._Add(t.core_var == True)  # noqa: E712
 
     def force_early(self, filter_func, early=True):
         """Forces all instructions passing the filter_func to be `early`, that is,
@@ -3751,10 +3749,10 @@ class SlothyBase(LockAttributes):
                 continue
             if early:
                 self.logger.debug("Forcing instruction %s to be early", t)
-                self._Add(t.pre_var == True)
+                self._Add(t.pre_var == True)  # noqa: E712
             else:
                 self.logger.debug("Forcing instruction %s to be late", t)
-                self._Add(t.post_var == True)
+                self._Add(t.post_var == True)  # noqa: E712
 
     def restrict_slots_for_instruction(self, t, slots):
         """This forces the given instruction to be assigned precisely one of the slots
