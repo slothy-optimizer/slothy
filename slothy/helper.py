@@ -1309,7 +1309,7 @@ class LLVM_Mc:
                 )
             except subprocess.CalledProcessError as exc:
                 log.error("CPreprocessor failed on the following input")
-                log.error(SouceLine.write_multiline(source))
+                log.error(SourceLine.write_multiline(source))
                 raise LLVM_Mc_Error from exc
 
         if platform.system() == "Darwin":
@@ -1319,7 +1319,7 @@ class LLVM_Mc:
 
         code = SourceLine.write_multiline(source)
 
-        log.debug(f"Calling LLVM MC assmelber on the following code")
+        log.debug("Calling LLVM MC assmelber on the following code")
         log.debug(code)
 
         args = [f"--arch={arch}", "--assemble", "--filetype=obj"]
@@ -1527,7 +1527,7 @@ class SelfTest:
             # Check if memory contents are the same
             if final_mem_old != final_mem_new:
                 failure_dump()
-                raise SelfTestException(f"Selftest failed: Memory mismatch")
+                raise SelfTestException("Selftest failed: Memory mismatch")
 
             # Check that callee-saved registers are the same
             for r in output_registers:
@@ -1541,7 +1541,7 @@ class SelfTest:
                     )
 
         if fnsym is None:
-            log.info(f"Local selftest: OK")
+            log.info("Local selftest: OK")
         else:
             log.info(f"Global selftest for {fnsym}: OK")
 

@@ -473,7 +473,7 @@ class Instruction:
                 )
         else:
             mnemonic = re.sub(
-                "<dt>", f"(?P<datatype>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))", mnemonic
+                "<dt>", "(?P<datatype>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))", mnemonic
             )
         return mnemonic
 

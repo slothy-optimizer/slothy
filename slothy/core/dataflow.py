@@ -982,7 +982,7 @@ class DataFlowGraph:
             )
             for c in candidates:
                 self.logger.error("* %s", c)
-            raise DataFlowGraphException(f"Parsing failure during type checking")
+            raise DataFlowGraphException("Parsing failure during type checking")
         # Add the single valid candidate parsing to the CFG
         self._add_node(valid_candidates[0])
 

@@ -370,7 +370,7 @@ class BranchLoop(Loop):
         """Emit starting instruction(s) and jump label for loop"""
         indent = " " * indentation
         if body_code is None:
-            logging.debug(f"No body code in loop start: Just printing label.")
+            logging.debug("No body code in loop start: Just printing label.")
             yield f"{self.lbl}:"
             return
         # Identify the register that is used as a loop counter

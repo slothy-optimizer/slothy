@@ -170,7 +170,7 @@ class LeLoop(Loop):
             yield f"{indent}lsr lr, lr, #{int(math.log2(unroll))}"
         if fixup != 0:
             yield f"{indent}sub lr, lr, #{fixup}"
-        yield f".p2align 2"
+        yield ".p2align 2"
         yield f"{self.lbl_start}:"
 
     def end(self, unused, indentation=0):

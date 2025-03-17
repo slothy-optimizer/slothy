@@ -1343,7 +1343,7 @@ class ntt_dilithium_123_45678(Example):
     def __init__(
         self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None
     ):
-        name = f"ntt_dilithium_123_45678"
+        name = "ntt_dilithium_123_45678"
         infile = name
 
         if var != "":
@@ -1378,7 +1378,7 @@ class intt_dilithium_123_45678(Example):
     def __init__(
         self, var="", arch=AArch64_Neon, target=Target_CortexA55, timeout=None
     ):
-        name = f"intt_dilithium_123_45678"
+        name = "intt_dilithium_123_45678"
         infile = name
 
         if var != "":
@@ -1471,7 +1471,7 @@ class ntt_dilithium_1234_5678(Example):
     def __init__(
         self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None
     ):
-        name = f"ntt_dilithium_1234_5678"
+        name = "ntt_dilithium_1234_5678"
         infile = name
 
         if var != "":
@@ -1518,7 +1518,7 @@ class intt_dilithium_1234_5678(Example):
     def __init__(
         self, var="", arch=AArch64_Neon, target=Target_CortexA72, timeout=None
     ):
-        name = f"intt_dilithium_1234_5678"
+        name = "intt_dilithium_1234_5678"
         infile = name
 
         if var != "":
@@ -1693,7 +1693,7 @@ class fft_floatingpoint_radix4(Example):
 
 class ntt_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
-        name = f"ntt_dilithium"
+        name = "ntt_dilithium"
         infile = name
         funcname = "pqcrystals_dilithium_ntt"
 
@@ -2254,7 +2254,7 @@ class caddq_dilithium(Example):
 
 class Keccak(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
-        name = f"keccakf1600"
+        name = "keccakf1600"
         infile = name
         funcname = "KeccakF1600_StatePermute"
 
@@ -2518,7 +2518,7 @@ class Keccak(Example):
 
 class ntt_kyber(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
-        name = f"ntt_kyber"
+        name = "ntt_kyber"
         infile = name
         funcname = "ntt_fast"
 

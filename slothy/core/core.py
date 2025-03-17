@@ -794,7 +794,7 @@ class Result(LockAttributes):
             .set_length(fixlen)
         )
         if self.cycles_bound is not None:
-            res.append(SourceLine("").set_comment(f"").set_length(fixlen))
+            res.append(SourceLine("").set_comment("").set_length(fixlen))
             res.append(
                 SourceLine("")
                 .set_comment(f"Cycle bound:     {self.cycles_bound}")
@@ -806,7 +806,7 @@ class Result(LockAttributes):
                 .set_length(fixlen)
             )
         if self.optimization_wall_time is not None:
-            res.append(SourceLine("").set_comment(f"").set_length(fixlen))
+            res.append(SourceLine("").set_comment("").set_length(fixlen))
             res.append(
                 SourceLine("")
                 .set_comment(f"Wall time:     {self.optimization_wall_time:.2f}s")
@@ -817,7 +817,7 @@ class Result(LockAttributes):
                 .set_comment(f"User time:     {self.optimization_user_time:.2f}s")
                 .set_length(fixlen)
             )
-        res.append(SourceLine("").set_comment(f"").set_length(fixlen))
+        res.append(SourceLine("").set_comment("").set_length(fixlen))
 
         res += list(gen_visualized_code())
         res += self.orig_code_visualized
@@ -4008,7 +4008,7 @@ class SlothyBase(LockAttributes):
             return
 
         if self.config.log_model is True:
-            model_file = f"slothy_model"
+            model_file = "slothy_model"
         else:
             model_file = self.config.log_model
             assert isinstance(model_file, str)
