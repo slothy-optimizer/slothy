@@ -9,8 +9,6 @@ extend-ignore =
     E501
     # unable to detect undefined names
     F403
-    # redefinition of unused  
-    F811
     # may be undefined, or defined from star imports
     F405
     # f-string is missing placeholders

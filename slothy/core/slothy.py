@@ -53,10 +53,13 @@ from slothy.core.dataflow import DataFlowGraph as DFG
 from slothy.core.dataflow import Config as DFGConfig, ComputationNode
 from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
-from slothy.helper import CPreprocessor, SourceLine
-from slothy.helper import AsmAllocation, AsmMacro, AsmHelper, AsmIfElse
 from slothy.helper import (
+    AsmAllocation,
+    AsmMacro,
+    AsmHelper,
+    AsmIfElse,
     CPreprocessor,
+    SourceLine,
     LLVM_Mca,
     LLVM_Mca_Error,
     SelfTest,

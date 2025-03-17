@@ -4003,9 +4003,6 @@ class SlothyBase(LockAttributes):
     def _AddHint(self, var, val):  # pylint:disable=invalid-name
         return self._model.cp_model.AddHint(var, val)
 
-    def _AddNoOverlap(self, interval_list):  # pylint:disable=invalid-name
-        return self._model.cp_model.AddNoOverlap(interval_list)
-
     def _AddMaxEquality(self, varlist, var):  # pylint:disable=invalid-name
         return self._model.cp_model.AddMaxEquality(varlist, var)
 
