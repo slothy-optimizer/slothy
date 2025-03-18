@@ -1736,7 +1736,7 @@ class Loop(ABC):
         return pre, body, post, lbl, self.additional_data
 
     @staticmethod
-    def extract(source, lbl, forced_loop_type=None):
+    def extract(source, lbl, forced_loop_type=None) -> any:
         """
         Find a loop with start label `lbl` in `source` and return it together
         with its type.
@@ -1744,6 +1744,8 @@ class Loop(ABC):
         :param source: list of SourceLine objects
         :param lbl: label of the loop to extract
         :param forced_loop_type: if not None, only try to extract this type of loop
+        :return: The extracted loop.
+        :rtype: any
         :raises FatalParsingException: If loop with label lbl cannot be found.
         """
         if forced_loop_type is not None:

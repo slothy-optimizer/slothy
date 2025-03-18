@@ -24,11 +24,3 @@ extend-ignore =
     # The option --arg-type-hints-in-docstring is True but not all args in the
     # docstring arg list have type hints
     DOC110
-    # Function/method does not have a return section in docstring
-    DOC201
-    # Function/method has a return section in docstring, but there are no return
-    # statements or annotations
-    DOC202
-    # Return type(s) in the docstring not consistent with the return annotation
-    DOC203
-

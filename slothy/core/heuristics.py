@@ -115,8 +115,15 @@ class Heuristics:
             logger.error(f"Stored this information in {err_file}")
 
     @staticmethod
-    def optimize_binsearch(source, logger, conf, **kwargs):
+    def optimize_binsearch(source, logger, conf, **kwargs) -> any:
         """Optimize for minimum number of stalls, and potentially a secondary objective.
+
+        The `variable_size` configuration option determines whether the minimiation of
+        stalls happens internally or externally. Internal minimization means that the
+        number of stalls is part of the model, and its minimization registered as the
+        objective to the underlying solver. External minimization means that the number
+        of stalls is statically fixed per one-shot SLOTHY optimization, and that an
+        external binary search is used to minimize it.
 
         :param source: The source code to be optimized. Must be a list of
             SourceLine instances.
@@ -125,13 +132,7 @@ class Heuristics:
             runs invoked by this call, except for the variation of the stall count.
         :param kwargs: An optional list of parameters to the core optimize routine
         :returns: The Result object for the succceeding optimization with the smallest number of stalls.
-
-        The `variable_size` configuration option determines whether the minimiation of
-        stalls happens internally or externally. Internal minimization means that the
-        number of stalls is part of the model, and its minimization registered as the
-        objective to the underlying solver. External minimization means that the number
-        of stalls is statically fixed per one-shot SLOTHY optimization, and that an
-        external binary search is used to minimize it.
+        :rtype: any
         """
         flexible = not conf.constraints.functional_only
 
@@ -165,7 +166,9 @@ class Heuristics:
         )
 
     @staticmethod
-    def optimize_binsearch_external(source, logger, conf, flexible=True, **kwargs):
+    def optimize_binsearch_external(
+        source, logger, conf, flexible=True, **kwargs
+    ) -> any:
         """Externally optimize for minimum number of stalls, and potentially a secondary objective.
 
         This function uses an external binary search to find the minimum number of stalls
@@ -184,6 +187,7 @@ class Heuristics:
             conducted.
         :param kwargs: An optional list of parameters to the core optimize routine
         :return: A Result object representing the final optimization result.
+        :rtype: any
         :raises SlothyException: If optimization fails.
         """
 
@@ -220,7 +224,9 @@ class Heuristics:
         return core.result
 
     @staticmethod
-    def optimize_binsearch_internal(source, logger, conf, flexible=True, **kwargs):
+    def optimize_binsearch_internal(
+        source, logger, conf, flexible=True, **kwargs
+    ) -> any:
         """Internally optimize for minimum number of stalls, and potentially a secondary objective.
 
         This finds the minimum number of stalls for which a one-shot SLOTHY optimization succeeds.
@@ -238,6 +244,7 @@ class Heuristics:
             conducted.
         :param kwargs: An optional list of parameters to the core optimize routine
         :return: A Result object representing the final optimization result.
+        :rtype: any
         : raises SlothyException: If optimization fails.
         """
 
@@ -291,7 +298,7 @@ class Heuristics:
         return core.result
 
     @staticmethod
-    def periodic(body, logger, conf):
+    def periodic(body, logger, conf) -> any:
         """Entrypoint for optimization of loops.
 
         If software pipelining is disabled, this function forwards to
@@ -321,6 +328,7 @@ class Heuristics:
             objects), plus the number of iterations jointly accounted for by
             the preamble and postamble (the caller will need this to adjust the
             loop counter).
+        :rtype: any
         :raises AssertionError: If kernel is not a list of SourceLine.
 
         """
@@ -396,7 +404,7 @@ class Heuristics:
         return preamble, kernel, postamble, num_exceptional_iterations
 
     @staticmethod
-    def linear(body, logger, conf):
+    def linear(body, logger, conf) -> any:
         """Entrypoint for straightline optimization.
 
         If the split heuristic is disabled, this forwards to a one-shot optimization.
@@ -409,7 +417,8 @@ class Heuristics:
             SourceLine objects.
         :param logger: The logger to be used.
         :param conf: The configuration to be applied. Software pipelining must be disabled.
-
+        :return: A Result object representing the final optimization result.
+        :rtype: any
         :raises SlothyException: If software pipelining is enabled.
         :raises AssertionError: If body is not a list of SourceLine.
         """

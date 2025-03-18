@@ -184,8 +184,12 @@ class Slothy:
         for line in s:
             fun(f"> {line}")
 
-    def global_selftest(self, funcname, address_registers, iterations=5):
+    def global_selftest(self, funcname, address_registers, iterations=5) -> None:
         """Conduct a function-level selftest
+            .. important::
+
+            To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
+            in your PATH. Those are part of a standard LLVM setup.
 
         :param funcname: Name of function to be called. Must be exposed as a symbol
         :param address_registers: Dictionary indicating which GPRs are pointers to buffers of which size.
@@ -193,11 +197,8 @@ class Slothy:
             point to buffers of size 1024 bytes. The global selftest needs to know this to
             setup valid calls to the assembly routine.
         :param iterations: Number of iterations to run the selftest for.
-
-        .. important::
-
-            To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
-            in your PATH. Those are part of a standard LLVM setup.
+        :return: Returns early of target architecture of not supported.
+        :rtype: None
         """
 
         log = self.logger.getChild(f"global_selftest_{funcname}")
@@ -399,11 +400,13 @@ class Slothy:
         self.source = pre + optimized_source + post
         assert SourceLine.is_source(self.source)
 
-    def get_loop_input_output(self, loop_lbl, forced_loop_type=None):
+    def get_loop_input_output(self, loop_lbl, forced_loop_type=None) -> list:
         """Find all registers that a loop body depends on
 
         :param loop_lbl: Label of loop to process.
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
+        :return: list all inputs of the loop.
+        :rtype: list
         """
         logger = self.logger.getChild(loop_lbl)
         _, body, _, _, _ = self.arch.Loop.extract(

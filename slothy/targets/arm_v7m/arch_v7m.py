@@ -876,7 +876,7 @@ class Instruction:
         """Abstract factory method parsing a string into an instruction instance."""
 
     @staticmethod
-    def build(c, src, mnemonic, **kwargs):
+    def build(c, src, mnemonic, **kwargs) -> "Instruction":
         """Attempt to parse a string as an instance of an instruction.
 
 
@@ -886,6 +886,7 @@ class Instruction:
         :param kwargs: Additional arguments to pass to the constructor of c.
 
         :return: Upon success, the result of parsing src as an instance of c.
+        :rtype: Instruction
 
         :raises Instruction.ParsingException: The str argument cannot be parsed as an
                 instance of c.
