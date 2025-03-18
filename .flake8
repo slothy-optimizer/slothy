@@ -40,11 +40,6 @@ extend-ignore =
     # The types in the docstring’s Yields section and the return annotation in
     # the signature are not consistent
     DOC404
-    # Function/method has raise statements, but the docstring does not have a
-    # “Raises” section
-    DOC501
-    # Exceptions in the “Raises” section in the docstring do not match those in
-    # the function body
-    DOC503
+
 
 

@@ -887,9 +887,9 @@ class Instruction:
 
         :return: Upon success, the result of parsing src as an instance of c.
 
-        :raises: :ParsingException: The str argument cannot be parsed as an
+        :raises Instruction.ParsingException: The str argument cannot be parsed as an
                 instance of c.
-            :FatalParsingException: A fatal error during parsing happened
+        :raises FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
         """
 

@@ -184,6 +184,7 @@ class Heuristics:
             conducted.
         :param kwargs: An optional list of parameters to the core optimize routine
         :return: A Result object representing the final optimization result.
+        :raises SlothyException: If optimization fails.
         """
 
         if not flexible:
@@ -237,7 +238,7 @@ class Heuristics:
             conducted.
         :param kwargs: An optional list of parameters to the core optimize routine
         :return: A Result object representing the final optimization result.
-
+        : raises SlothyException: If optimization fails.
         """
 
         if not flexible:
@@ -320,6 +321,7 @@ class Heuristics:
             objects), plus the number of iterations jointly accounted for by
             the preamble and postamble (the caller will need this to adjust the
             loop counter).
+        :raises AssertionError: If kernel is not a list of SourceLine.
 
         """
 
@@ -408,7 +410,8 @@ class Heuristics:
         :param logger: The logger to be used.
         :param conf: The configuration to be applied. Software pipelining must be disabled.
 
-        :raises: Raises a SlothyException if software pipelining is enabled.
+        :raises SlothyException: If software pipelining is enabled.
+        :raises AssertionError: If body is not a list of SourceLine.
         """
         assert SourceLine.is_source(body)
         if conf.sw_pipelining.enabled:

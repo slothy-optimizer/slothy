@@ -1745,6 +1745,7 @@ class Loop(ABC):
         :param source: list of SourceLine objects
         :param lbl: label of the loop to extract
         :param forced_loop_type: if not None, only try to extract this type of loop
+        :raises FatalParsingException: If loop with label lbl cannot be found.
         """
         if forced_loop_type is not None:
             loop_types = [forced_loop_type]

@@ -316,6 +316,9 @@ class Slothy:
         :param loop_synthesis_cb: Optional (None by default) callback synthesis final source code
               from tuple of (preamble, kernel, postamble, # exceptional iterations).
         :param logname: Optional name of the logger.
+        :raises AssertionError: If sw pipelining is disabled and yet there are
+              early/late instructions (which should not happen) or if the optimized code
+              is not a SourceLine list.
         """
         if logname is None and start is not None:
             logname = start
@@ -474,6 +477,8 @@ class Slothy:
         :param end: The label marking the end of the part of the code to apply
               fusion to.
         :param kwargs: Additional arguments to pass to the fusion callbacks.
+        :raises AssertionError: If self.source is not a SourceLine list when
+              returning.
         """
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
@@ -494,6 +499,8 @@ class Slothy:
         :param loop_lbl: Label of loop to which the fusions are applied to.
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
         :param kwargs: Additional arguments to pass to the fusion callbacks.
+        :raises AssertionError: If self.source is not a SourceLine list when
+              returning.
         """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
