@@ -179,22 +179,23 @@ class VirtualInputInstruction(VirtualInstruction):
 
 
 class ComputationNode:
-    """A node in a data flow graph"""
+    """A node in a data flow graph
+
+    :param node_id:   A unique identifier for the node
+    :param inst: The instruction which the node represents
+        Must be an instance of Instruction
+    :param orig_pos: Position in the input code.
+    :param src_in: A list of RegisterSource instances representing
+        the inputs to the instruction. Inputs which are
+        also written to should not be listed here, but in
+        the separate src_in_out argument.
+    :param src_in_out: A list of RegisterSource instances representing the inputs to the instruction which are
+        also written to.
+    :raises AssertionError: If input arguments are invalid.
+
+    """
 
     def __init__(self, *, node_id, inst, orig_pos=None, src_in=None, src_in_out=None):
-        """A node in a data flow graph
-
-
-        :param id:   A unique identifier for the node
-        :param inst: The instruction which the node represents
-            Must be an instance of Instruction
-        :param src_in: A list of RegisterSource instances representing
-            the inputs to the instruction. Inputs which are
-            also written to should not be listed here, but in
-            the separate src_in_out argument.
-        :param src_in_out: A list of RegisterSource instances representing the inputs to the instruction which are
-            also written to.
-        """
 
         def isinstancelist(ll, c):
             return all(map(lambda e: isinstance(e, c), ll))
@@ -316,7 +317,11 @@ class ComputationNode:
 
 
 class Config:
-    """Configuration for parsing of data flow graphs"""
+    """Configuration for parsing of data flow graphs
+
+    :param slothy_config: The Slothy configuration to reference.
+    :param kwargs: An optional list of modifications of the Slothy config
+    """
 
     @property
     def arch(self):
@@ -375,11 +380,6 @@ class Config:
         self._allow_useless_instructions = val
 
     def __init__(self, slothy_config=None, **kwargs):
-        """Create a DataFlowGraph config from a Slothy config
-
-        :param slothy_config: The Slothy configuration to reference.
-        :param kwargs: An optional list of modifications of the Slothy config
-        """
         self._arch = None
         self._typing_hints = None
         self._outputs = None
@@ -414,7 +414,15 @@ class DataFlowGraphException(Exception):
 
 
 class DataFlowGraph:
-    """The data flow graph associated with a piece of assembly."""
+    """The data flow graph associated with a piece of assembly.
+
+    :param arch: The underlying architecture.
+    :param src: The source code to be converted into a data flow graph.
+    :param logger: The logger to be used.
+    :param typing_hints: String-indexed dictionary mapping symbolic register names
+        to types. Types are members of the RegisterType enum from the
+        arch module.
+    """
 
     @property
     def nodes_all(self):
@@ -707,18 +715,6 @@ class DataFlowGraph:
         return self.apply_cbs(address_offset_cb, logger)
 
     def __init__(self, src, logger, config, parsing_cb=True):
-        """Compute a data flow graph from a source code snippet.
-
-        :param arch: The underlying architecture.
-        :param src: The source code to be converted into a data flow graph.
-        :param logger: The logger to be used.
-        :param typing_hints: String-indexed dictionary mapping symbolic register names
-            to types. Types are members of the RegisterType enum from the
-            arch module.
-        :returns: The symbolic or architectural registers that the code produces.
-            Dictionary indexed by the RegisterType enum from the the arch module.
-        """
-
         self.logger = logger
         self.config = config
         self.src = self._parse_source(src)

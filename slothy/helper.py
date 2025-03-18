@@ -140,7 +140,6 @@ class SourceLine:
         return self
 
     def __init__(self, s, reduce=True):
-        """Create source line from string"""
         assert isinstance(s, str)
 
         self._raw = s

@@ -1552,7 +1552,15 @@ class SlothyBase(LockAttributes):
     We use Google OR-Tools.
 
     SlothyBase is agnostic of the target architecture and microarchitecture,
-    which are specified at construction time."""
+    which are specified at construction time.
+
+    :param Arch:  A model of the underlying architecture.
+    :param Target: A model of the underlying microarchitecture.
+    :param logger: The logger to be used.
+                   If omitted, a child of the root logger will be used.
+    :param config: The configuration to use.
+                 If omitted, the default configuration will be used.
+    """
 
     # In contrast to its more convenient descendant Slothy, SlothyBase is largely _stateless_:
     # It optimizes one piece of source code a time via SlothyBase.optimize()
@@ -1580,15 +1588,6 @@ class SlothyBase(LockAttributes):
         return self._result.success
 
     def __init__(self, Arch, Target, *, logger=None, config=None):
-        """Create a stateless SLOTHY instance
-
-        :param Arch:  A model of the underlying architecture.
-        :param Target: A model of the underlying microarchitecture.
-        :param logger: The logger to be used.
-                       If omitted, a child of the root logger will be used.
-        :param config: The configuration to use.
-                     If omitted, the default configuration will be used.
-        """
         super().__init__()
         self.config = config if config is not None else Config(Arch, Target)
         self.logger = logger if logger is not None else logging.getLogger("slothy")

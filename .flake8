@@ -31,8 +31,4 @@ extend-ignore =
     DOC202
     # Return type(s) in the docstring not consistent with the return annotation
     DOC203
-    # __init__() should not have a docstring; please combine it with the
-    # docstring of the class
-    DOC301
-
 
