@@ -34,12 +34,5 @@ extend-ignore =
     # __init__() should not have a docstring; please combine it with the
     # docstring of the class
     DOC301
-    # Function/method has “yield” statements, but the docstring does not have a
-    # “Yields” section
-    DOC402
-    # The types in the docstring’s Yields section and the return annotation in
-    # the signature are not consistent
-    DOC404
-
 
 

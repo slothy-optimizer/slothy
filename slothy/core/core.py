@@ -3584,13 +3584,7 @@ class SlothyBase(LockAttributes):
         self.target.add_further_constraints(self)
 
     def get_inst_pairs(self, cond_fst=None, cond_snd=None, cond=None):
-        """Yields all instruction pairs satisfying the provided predicate.
-
-        :param cond_fst:
-        :param cond_snd:
-        :param cond: Predicate on pairs of ComputationNode's. True by default.
-        :return: Generator of all instruction pairs satisfying the predicate.
-        """
+        """Yields all instruction pairs satisfying the provided predicate."""
 
         if cond_fst is None:
 
