@@ -128,3 +128,8 @@ the list of all available examples.
 The use of SLOTHY from the command line is illustrated in [scripts/](scripts/) supporting the real-world optimizations
 for the NTT, FFT and X25519 discussed in [Fast and Clean: Auditable high-performance assembly via constraint
 solving](https://eprint.iacr.org/2022/1303).
+
+## Contributing
+
+For information on how to contribute to SLOTHY, please see
+[`CONTRIBUTING.md`](./CONTRIBUTING.md).
