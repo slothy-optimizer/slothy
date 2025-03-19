@@ -1,6 +1,6 @@
 [flake8]
-# TODO: PEP8 recommends 79
-max-line-length = 120
+# black uses 88; PEP8 recommends 79
+max-line-length = 90
 style=sphinx
 extend-ignore =
     # black and flake8 don't agree on these - stick to black

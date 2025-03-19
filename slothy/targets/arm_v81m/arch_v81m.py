@@ -364,7 +364,8 @@ class Instruction:
             for i, e in exceptions.items():
                 logging.error("* %s %s", f"{i + ':':20s}", e)
             raise Instruction.ParsingException(
-                f"Couldn't parse {src}\nYou may need to add support for a new instruction (variant)?"
+                f"Couldn't parse {src}\nYou may need to add support for a new "
+                f"instruction (variant)?"
             )
 
         logging.debug("Parsing result for %s: %s", src, instnames)
@@ -497,7 +498,10 @@ class vmulf_T2(Instruction):
         )
 
     def write(self):
-        return f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+        return (
+            f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}"
+        )
 
 
 class vmulf_T1(Instruction):
@@ -509,7 +513,10 @@ class vmulf_T1(Instruction):
         )
 
     def write(self):
-        return f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+        return (
+            f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}"
+        )
 
 
 class vqrdmulh_T1(Instruction):
@@ -658,7 +665,10 @@ class ldrd(Instruction):
             post = f", #{self.post_index}"
         else:
             post = ""
-        return f"{self.mnemonic} {self.args_out[0]}, {self.args_out[1]}, {addr}{inc} {post}"
+        return (
+            f"{self.mnemonic} {self.args_out[0]}, {self.args_out[1]}, "
+            f"{addr}{inc} {post}"
+        )
 
 
 class ldr(Instruction):
@@ -923,7 +933,10 @@ class vmullbt(Instruction):
         )
 
     def parse(self, src):
-        vmullbt_regexp_txt = r"vmull(?P<bt>\w+)\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+),\s*(?P<src1>\w*)"
+        vmullbt_regexp_txt = (
+            r"vmull(?P<bt>\w+)\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+),"
+            r"\s*(?P<src1>\w*)"
+        )
         vmullbt_regexp_txt = Instruction.unfold_abbrevs(vmullbt_regexp_txt)
         vmullbt_regexp = re.compile(vmullbt_regexp_txt)
         p = vmullbt_regexp.match(src)
@@ -937,7 +950,10 @@ class vmullbt(Instruction):
         self.bt = p.group("bt")
 
     def write(self):
-        return f"vmull{self.bt}.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+        return (
+            f"vmull{self.bt}.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}"
+        )
 
 
 class vdup(Instruction):
@@ -1059,7 +1075,10 @@ class pkhbt(Instruction):
         )
 
     def parse(self, src):
-        pkhbt_regexp_txt = r"pkhbt\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*lsl\s*#(?P<shift>.*)"
+        pkhbt_regexp_txt = (
+            r"pkhbt\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,"
+            r"\s*lsl\s*#(?P<shift>.*)"
+        )
         pkhbt_regexp_txt = Instruction.unfold_abbrevs(pkhbt_regexp_txt)
         pkhbt_regexp = re.compile(pkhbt_regexp_txt)
         p = pkhbt_regexp.match(src)
@@ -1072,7 +1091,10 @@ class pkhbt(Instruction):
         self.shift = p.group("shift")
 
     def write(self):
-        return f"pkhbt {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, lsl #{self.shift}"
+        return (
+            f"pkhbt {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, "
+            f"lsl #{self.shift}"
+        )
 
 
 class mov(Instruction):
@@ -1177,7 +1199,10 @@ class vshrnbt(Instruction):
         )
 
     def parse(self, src):
-        vshrn_regexp_txt = r"v(?P<round>r)?shrn(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vshrn_regexp_txt = (
+            r"v(?P<round>r)?shrn(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,"
+            r"\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        )
         vshrn_regexp_txt = Instruction.unfold_abbrevs(vshrn_regexp_txt)
         vshrn_regexp = re.compile(vshrn_regexp_txt)
         p = vshrn_regexp.match(src)
@@ -1193,7 +1218,10 @@ class vshrnbt(Instruction):
         self.round = p.group("round") if p.group("round") else ""
 
     def write(self):
-        return f"v{self.round}shrn{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.shift}"
+        return (
+            f"v{self.round}shrn{self.bt}.{self.datatype} {self.args_in_out[0]}, "
+            f"{self.args_in[0]}, {self.shift}"
+        )
 
 
 class vshllbt(Instruction):
@@ -1205,7 +1233,10 @@ class vshllbt(Instruction):
         )
 
     def parse(self, src):
-        vshll_regexp_txt = r"vshll(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        vshll_regexp_txt = (
+            r"vshll(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*, "
+            r"\s*(?P<shift>#.*)"
+        )
         vshll_regexp_txt = Instruction.unfold_abbrevs(vshll_regexp_txt)
         vshll_regexp = re.compile(vshll_regexp_txt)
         p = vshll_regexp.match(src)
@@ -1220,7 +1251,10 @@ class vshllbt(Instruction):
         self.bt = p.group("bt")
 
     def write(self):
-        return f"vshll{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.shift}"
+        return (
+            f"vshll{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, "
+            f"{self.shift}"
+        )
 
 
 class vmovlbt(Instruction):
@@ -1277,7 +1311,10 @@ class vrev(Instruction):
         self.datatypes = [p.group("dt0"), p.group("dt1")]
 
     def write(self):
-        return f"vrev{self.datatypes[0]}.{self.datatypes[1]} {self.args_out[0]}, {self.args_in[0]}"
+        return (
+            f"vrev{self.datatypes[0]}.{self.datatypes[1]} {self.args_out[0]}, "
+            f"{self.args_in[0]}"
+        )
 
 
 class vshl(Instruction):
@@ -1334,7 +1371,10 @@ class vshl_T3(Instruction):
         self.datatype = p.group("datatype")
 
     def write(self):
-        return f"vshl.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+        return (
+            f"vshl.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}"
+        )
 
 
 class vfma(Instruction):
@@ -1361,7 +1401,10 @@ class vfma(Instruction):
         self.datatype = p.group("datatype")
 
     def write(self):
-        return f"vfma.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+        return (
+            f"vfma.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}"
+        )
 
 
 class vmla(Instruction):
@@ -1639,7 +1682,10 @@ class vldr(Instruction):
         else:
             warning = ""
 
-        return f"vldr{self.width}.{self.datatype} {self.args_out[0]}, {addr}{inc} {post}{warning}"
+        return (
+            f"vldr{self.width}.{self.datatype} {self.args_out[0]}, "
+            f"{addr}{inc} {post}{warning}"
+        )
 
 
 class vldr_gather(Instruction):
@@ -1935,7 +1981,8 @@ class vst2(Instruction):
             arg_types_out = []
         else:
             # NOTE: We model VST20 as modifying the input vectors solely to enforce
-            #       the ordering VST2{0,1} -- they of course don't actually modify the contents
+            #       the ordering VST2{0,1} -- they of course don't actually modify
+            #       the contents
             arg_types_in = [RegisterType.GPR]
             arg_types_out = []
             arg_types_in_out = [RegisterType.MVE, RegisterType.MVE]
@@ -2027,7 +2074,8 @@ class vst4(Instruction):
             arg_types_out = []
         else:
             # NOTE: We model VST4{0,1,2} as modifying the input vectors solely to enforce
-            #       the ordering VST4{0,1,2,3} -- they of course don't actually modify the contents
+            #       the ordering VST4{0,1,2,3} -- they of course don't actually modify
+            #       the contents
             arg_types_in = [RegisterType.GPR]
             arg_types_out = []
             arg_types_in_out = [
@@ -2105,7 +2153,10 @@ class vsubf(Instruction):
         )
 
     def write(self):
-        return f"vsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+        return (
+            f"vsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}"
+        )
 
 
 class vaddf(Instruction):
@@ -2117,7 +2168,10 @@ class vaddf(Instruction):
         )
 
     def write(self):
-        return f"vadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}"
+        return (
+            f"vadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}"
+        )
 
 
 class vcmla(Instruction):
@@ -2152,7 +2206,10 @@ class vcmla(Instruction):
             ]  # Output must not be the same as any of the inputs
 
     def write(self):
-        return f"vcmla.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        return (
+            f"vcmla.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}, {self.rotation}"
+        )
 
 
 class vcmul(Instruction):
@@ -2188,7 +2245,10 @@ class vcmul(Instruction):
             ]  # Output must not be the same as any of the inputs
 
     def write(self):
-        return f"vcmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        return (
+            f"vcmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}, {self.rotation}"
+        )
 
 
 class vcadd(Instruction):
@@ -2200,7 +2260,10 @@ class vcadd(Instruction):
         )
 
     def parse(self, src):
-        vcadd_regexp_txt = r"vcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
+        vcadd_regexp_txt = (
+            r"vcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,"
+            r"\s*(?P<rotation>#.*)"
+        )
         vcadd_regexp_txt = Instruction.unfold_abbrevs(vcadd_regexp_txt)
         vcadd_regexp = re.compile(vcadd_regexp_txt)
         p = vcadd_regexp.match(src)
@@ -2221,7 +2284,10 @@ class vcadd(Instruction):
             ]  # Output must not be the same as any of the inputs
 
     def write(self):
-        return f"vcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        return (
+            f"vcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}, {self.rotation}"
+        )
 
 
 class vhcadd(Instruction):
@@ -2257,7 +2323,10 @@ class vhcadd(Instruction):
             ]  # Output must not be the same as any of the inputs
 
     def write(self):
-        return f"vhcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        return (
+            f"vhcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}, {self.rotation}"
+        )
 
 
 class vhcsub(Instruction):
@@ -2293,7 +2362,10 @@ class vhcsub(Instruction):
             ]  # Output must not be the same as any of the inputs
 
     def write(self):
-        return f"vhcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        return (
+            f"vhcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}, {self.rotation}"
+        )
 
 
 class vcaddf(Instruction):
@@ -2366,7 +2438,10 @@ class vcsubf(Instruction):
             self.args_in_out_different = [(0, 0), (0, 1)]
 
     def write(self):
-        return f"vcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
+        return (
+            f"vcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
+            f"{self.args_in[1]}, {self.rotation}"
+        )
 
 
 # ###########################################################

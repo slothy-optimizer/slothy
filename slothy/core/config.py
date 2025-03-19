@@ -131,9 +131,9 @@ class Config(NestedPrint, LockAttributes):
 
         * When using software pipelining, the selfcheck reduces to a straightline check
           for a bounded unrolling of the loop. An unbounded selfcheck is currently not
-          implemented. With the selftest, you still need to fix a loop bound, but at least you can
-          equivalence-check the loop-form (including the compare+branch instructions
-          at the loop boundary) rather than the unrolled code.
+          implemented. With the selftest, you still need to fix a loop bound, but at
+          least you can equivalence-check the loop-form (including the compare+branch
+          instructions at the loop boundary) rather than the unrolled code.
 
         .. important::
 
@@ -161,7 +161,8 @@ class Config(NestedPrint, LockAttributes):
     @property
     def selftest_default_memory_size(self):
         """Default buffer size to use for registers which are automatically inferred to be
-        used as pointers and for which no memory size has been configured via `address_registers`.
+        used as pointers and for which no memory size has been configured via
+        `address_registers`.
         """
         return self._selftest_default_memory_size
 
@@ -183,18 +184,18 @@ class Config(NestedPrint, LockAttributes):
             There are at least two classes of bugs uncaught by the selfcheck:
 
             * User configuration issues: The selfcheck validates SLOTHY's optimization
-              in the context of the provided configuration. Validation of the configuration
-              is the user's responsibility. Two common pitfalls include missing reserved
-              registers (allowing SLOTHY to clobber more registers than intended), or
-              missing output registers (allowing SLOTHY to overwrite an output register
-              in subsequent instructions).
+              in the context of the provided configuration. Validation of the
+              configuration is the user's responsibility. Two common pitfalls include
+              missing reserved registers (allowing SLOTHY to clobber more registers than
+              intended), or missing output registers (allowing SLOTHY to overwrite an
+              output register in subsequent instructions).
 
               This is the most common source of issues for code passing the selfcheck
               but remaining functionally incorrect.
 
             * Bugs in address offset fixup: SLOTHY's modelling of post-load/store address
-              increments is deliberately inaccurate to allow for reordering of such instructions
-              leveraging commutativity relations such as
+              increments is deliberately inaccurate to allow for reordering of such
+              instructions leveraging commutativity relations such as
 
             .. code-block:: asm
 
@@ -206,9 +207,9 @@ class Config(NestedPrint, LockAttributes):
                 See also section "Address offset rewrites" in the SLOTHY paper
 
             Bugs in SLOTHY's address fixup logic would not be caught by the selfcheck.
-            If your code doesn't work and you are sure to have configured SLOTHY correctly,
-            you may therefore want to double-check that address offsets have been adjusted
-            correctly by SLOTHY.
+            If your code doesn't work and you are sure to have configured SLOTHY
+            correctly, you may therefore want to double-check that address offsets have
+            been adjusted correctly by SLOTHY.
         """
         return self._selfcheck
 
@@ -257,7 +258,8 @@ class Config(NestedPrint, LockAttributes):
         .. note::
 
             The user-imposed safety constraint is not a necessity -- in principle,
-            SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
+            SLOTHY could detect when it is safe to reorder ldr/str instructions with
+            increment.
             It just hasn't been implemented yet.
         """
         return self._unsafe_address_offset_fixup
@@ -306,15 +308,15 @@ class Config(NestedPrint, LockAttributes):
         """Indicates whether tags in the input source should be kept or removed.
 
         Tags include pre/core/post or ordering annotations that usually become meaningless
-        post-optimization. However, for preprocessing runs that do not reorder code, it makes
-        sense to keep them.
+        post-optimization. However, for preprocessing runs that do not reorder code, it
+        makes sense to keep them.
         """
         return self._keep_tags
 
     @property
     def inherit_macro_comments(self):
-        """Indicates whether comments at macro invocations should be inherited to instructions
-        in the macro body.
+        """Indicates whether comments at macro invocations should be inherited to
+        instructions in the macro body.
         """
         return self._inherit_macro_comments
 
@@ -360,8 +362,9 @@ class Config(NestedPrint, LockAttributes):
         inputs, respectively. The key "other" applies to all inputs for which no other
         key matches.
 
-        The default value is { "symbolic": "any", "arch" : "static" } -- that is, architectural
-        inputs are not renamed, while symbolic inputs are dynamically renamed.
+        The default value is { "symbolic": "any", "arch" : "static" } -- that is,
+        architectural inputs are not renamed, while symbolic inputs are dynamically
+        renamed.
 
         Examples:
 
@@ -372,12 +375,12 @@ class Config(NestedPrint, LockAttributes):
           This would rename _all_ inputs, regardless of whether they're symbolic or not.
           Thus, you'd likely need to modify surrounding code.
         * Config.rename_inputs = { "in" : "r0", "arch" : "static", "symbolic" : "any" }
-          This would rename the symbolic input GPR 'in' to 'r0', keep all other inputs which
-          already have an architectural name, while dynamically assigning suitable registers
-          for symbolic inputs.
+          This would rename the symbolic input GPR 'in' to 'r0', keep all other inputs
+          which already have an architectural name, while dynamically assigning suitable
+          registers for symbolic inputs.
 
-        In case of a successful optimization, the assignment of input registers to architectural
-        registers is given by the dictionary Result.input_renaming.
+        In case of a successful optimization, the assignment of input registers to
+        architectural registers is given by the dictionary Result.input_renaming.
         """
         self._check_rename_config(self._rename_inputs)
         return self._rename_inputs
@@ -389,11 +392,12 @@ class Config(NestedPrint, LockAttributes):
 
         Analogous to Config.rename_inputs.
 
-        The default value is { "symbolic": "any", "arch" : "static" } -- that is, architectural
-        outputs are not renamed, while symbolic outputs are dynamically renamed.
+        The default value is { "symbolic": "any", "arch" : "static" } -- that is,
+        architectural outputs are not renamed, while symbolic outputs are dynamically
+        renamed.
 
-        In case of a successful optimization, the assignment of input registers to architectural
-        registers is given by the dictionary Result.input_renaming.
+        In case of a successful optimization, the assignment of input registers to
+        architectural registers is given by the dictionary Result.input_renaming.
         """
         self._check_rename_config(self._rename_outputs)
         return self._rename_outputs
@@ -546,8 +550,8 @@ class Config(NestedPrint, LockAttributes):
         such as the above.
 
         WARNING: Don't disable this option unless you know what you are doing!
-            Disabling this will likely lead to optimized code that is functionally incorrect
-            and needing manual address offset fixup!
+            Disabling this will likely lead to optimized code that is functionally
+            incorrect and needing manual address offset fixup!
         """
         return self._do_address_fixup
 
@@ -625,7 +629,8 @@ class Config(NestedPrint, LockAttributes):
     @property
     def split_heuristic_abort_cycle_at_high(self):
         """During the split heuristic, a threshold for the number of stalls in the current
-        optimization window above which the current pass of the split heuristic should stop.
+        optimization window above which the current pass of the split heuristic should
+        stop.
         """
         if not self.split_heuristic:
             raise InvalidConfig(
@@ -637,7 +642,8 @@ class Config(NestedPrint, LockAttributes):
     @property
     def split_heuristic_abort_cycle_at_low(self):
         """During the split heuristic, a threshold for the number of stalls in the current
-        optimization window below which the current pass of the split heuristic should stop.
+        optimization window below which the current pass of the split heuristic should
+        stop.
         """
         if not self.split_heuristic:
             raise InvalidConfig(
@@ -650,8 +656,8 @@ class Config(NestedPrint, LockAttributes):
     def split_heuristic_stepsize(self):
         """If split heuristic is used, the increment for the sliding window. By default,
         this is twice the split factor. For example, a split factor of 5 means that the
-        window size is 0.2 of the overall code size, and the default step size of 0.1 means
-        that the sliding windows will be [0,0.2], [0.1,0.3], ..."""
+        window size is 0.2 of the overall code size, and the default step size of 0.1
+        means that the sliding windows will be [0,0.2], [0.1,0.3], ..."""
         if not self.split_heuristic:
             raise InvalidConfig(
                 "Did you forget to set config.split_heuristic=True? "
@@ -673,8 +679,8 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def split_heuristic_chunks(self):
-        """If split heuristic is used, explicitly lists the optimization windows to be used.
-        If unset, a sliding or adaptive optimization window will be used."""
+        """If split heuristic is used, explicitly lists the optimization windows to be
+        used. If unset, a sliding or adaptive optimization window will be used."""
         if not self.split_heuristic:
             raise InvalidConfig(
                 "Did you forget to set config.split_heuristic=True? "
@@ -700,13 +706,13 @@ class Config(NestedPrint, LockAttributes):
         For example, if this is set to [0.25,0.75], only the middle half of the input will
         be optimized through the split heuristic.
 
-        This option can be combined with other options such as the split factor. For example,
-        if the split region is set fo [0.25, 0.75] and the split factor is 5, then optimization
-        windows of size .1 will be considered within [0.25, 0.75].
+        This option can be combined with other options such as the split factor.
+        For example, if the split region is set fo [0.25, 0.75] and the split factor is
+        5, then optimization windows of size .1 will be considered within [0.25, 0.75].
 
-        Note that even if this option is used, the specification of inputs and outputs is still
-        with respect to the entire code; SLOTHY will automatically derive the outputs of the
-        subregion configured here."""
+        Note that even if this option is used, the specification of inputs and outputs is
+        still with respect to the entire code; SLOTHY will automatically derive the
+        outputs of the subregion configured here."""
         if not self.split_heuristic:
             raise InvalidConfig(
                 "Did you forget to set config.split_heuristic=True? "
@@ -716,17 +722,18 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def split_heuristic_preprocess_naive_interleaving(self):
-        """Prior to applying the split heuristic, interleave instructions according according
+        """Prior to applying the split heuristic, interleave instructions according
         to lowest depth, without applying register renaming.
 
-        This can be useful if the code to be optimized is comprised of independent computations
-        operating on different architectural state (e.g. scalar vs. SIMD); in this case, the
-        naive preprocessing will 'zip' the different computations prior to applying the core
-        optimization."""
+        This can be useful if the code to be optimized is comprised of independent
+        computations operating on different architectural state (e.g. scalar vs. SIMD);
+        in this case, the naive preprocessing will 'zip' the different computations prior
+        to applying the core optimization."""
         if not self.split_heuristic:
             raise InvalidConfig(
                 "Did you forget to set config.split_heuristic=True? "
-                "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise."
+                "Shouldn't read config.split_heuristic_preprocess_naive_interleaving "
+                "otherwise."
             )
         return self._split_heuristic_preprocess_naive_interleaving
 
@@ -737,14 +744,15 @@ class Config(NestedPrint, LockAttributes):
         if not self.split_heuristic:
             raise InvalidConfig(
                 "Did you forget to set config.split_heuristic=True? Shouldn't"
-                "read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise."
+                "read config.split_heuristic_preprocess_naive_interleaving_by_latency "
+                "otherwise."
             )
         return self._split_heuristic_preprocess_naive_interleaving_by_latency
 
     @property
     def split_heuristic_estimate_performance(self):
-        """After applying the split heuristic, run SLOTHY again on the entire code to estimate the
-        performance and display un-used issue slots in the output."""
+        """After applying the split heuristic, run SLOTHY again on the entire code to
+        estimate the performance and display un-used issue slots in the output."""
         if not self.split_heuristic:
             raise InvalidConfig(
                 "Did you forget to set config.split_heuristic=True? Shouldn't"
@@ -822,14 +830,14 @@ class Config(NestedPrint, LockAttributes):
 
         @property
         def allow_post(self):
-            """Allow 'late' instructions, that is, instructions that are deferred from iteration N
-            to iteration N+1. A typical example would be a late store."""
+            """Allow 'late' instructions, that is, instructions that are deferred from
+            iteration N to iteration N+1. A typical example would be a late store."""
             return self._allow_post
 
         @property
         def unknown_iteration_count(self):
-            """Determines whether the number of iterations is statically known and larger than
-            the number of exceptional iterations hoisted out by SLOTHY (at most 2).
+            """Determines whether the number of iterations is statically known and larger
+            than the number of exceptional iterations hoisted out by SLOTHY (at most 2).
 
             Set this to `True` if the loop can have any number of iterations."""
             return self._unknown_iteration_count
@@ -1141,7 +1149,8 @@ class Config(NestedPrint, LockAttributes):
 
             .. warning::
 
-                This only takes effect in straightline optimization (no software pipelining).
+                This only takes effect in straightline optimization (no software
+                pipelining).
             """
             return self._max_displacement
 
@@ -1264,7 +1273,8 @@ class Config(NestedPrint, LockAttributes):
 
         @property
         def ext_bsearch_remember_successes(self):
-            """When using an external binary search, hint previous successful optimization.
+            """When using an external binary search, hint previous successful
+            optimization.
 
             See also Config.variable_size."""
             return self._ext_bsearch_remember_successes

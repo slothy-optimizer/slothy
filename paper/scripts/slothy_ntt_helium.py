@@ -285,7 +285,7 @@ class ntt_dilithium_123_456_78(Example):
         slothy.optimize_loop("layer78_loop")
 
 
-#############################################################################################
+##########################################################################################
 
 
 def main():
@@ -320,7 +320,10 @@ def main():
         "--examples",
         type=str,
         default="all",
-        help=f"The list of examples to be run, comma-separated list from {all_example_names}.",
+        help=(
+            f"The list of examples to be run, comma-separated list from "
+            f"{all_example_names}."
+        ),
     )
     parser.add_argument("--iterations", type=int, default=1)
     parser.add_argument(

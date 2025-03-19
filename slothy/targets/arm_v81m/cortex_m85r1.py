@@ -178,7 +178,8 @@ def add_further_constraints(slothy):
         c0 = find_class(t0.inst)
         c1 = find_class(t1.inst)
         # The intent is to have the 1st line capture VFMA-like instructions
-        # blocking the MAC pipe, while the second should capture instructions of different kind using this pipe, too.
+        # blocking the MAC pipe, while the second should capture instructions of
+        # different kind using this pipe, too.
         if execution_units[c0] == [
             [ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]
         ] and (

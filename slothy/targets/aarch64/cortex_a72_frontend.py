@@ -44,7 +44,8 @@ It is therefore advisable to generally seek to obey latencies to reduce presssur
 on issue queues.
 
 This file thus tries to model basic aspects of the frontend of Cortex-A72
-alongside instruction latencies, both taken from the Cortex-A72 Software Optimization Guide.
+alongside instruction latencies, both taken from the Cortex-A72 Software Optimization
+Guide.
 
 .. note::
 

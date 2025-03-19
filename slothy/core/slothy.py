@@ -36,14 +36,15 @@ It takes handwritten assembly as input and simultaneously super-optimizes:
 * Software pipelining
 
 SLOTHY enables a development workflow where developers write 'clean' assembly by hand,
-emphasizing the logic of the computation, while SLOTHY automates microarchitecture-specific
-micro-optimizations. Since SLOTHY does not change instructions, and scheduling/allocation
-optimizations are tightly controlled through configurable and extensible constraints, the
-developer keeps close control over the final assembly, while being freed from the most tedious
-and readability- and verifiability-impeding micro-optimizations.
+emphasizing the logic of the computation, while SLOTHY automates
+microarchitecture-specific micro-optimizations. Since SLOTHY does not change instructions,
+and scheduling/allocation optimizations are tightly controlled through configurable and
+extensible constraints, the developer keeps close control over the final assembly, while
+being freed from the most tedious and readability- and verifiability-impeding
+micro-optimizations.
 
 This module provides the Slothy class, which is a stateful interface to both
-one-shot and heuristic optimiations using SLOTHY.
+one-shot and heuristic optimizations using SLOTHY.
 """
 
 import logging
@@ -78,7 +79,7 @@ class Slothy:
       and microarchitecture as arguments.
     * Load source code from file or raw string.
     * Repeat: Adjust configuration and conduct an optimization of a loop body or
-      traightline block of code, using optimize() or optimize_loop().
+      straightline block of code, using optimize() or optimize_loop().
     * Write source code to file or raw string.
 
     The use of heuristics is controlled through the configuration.
@@ -110,7 +111,8 @@ class Slothy:
     def source(self):
         """Returns the current source code as an array of SourceLine objects.
 
-        If you want the current source code as a multiline string, use get_source_as_string().
+        If you want the current source code as a multiline string, use
+        get_source_as_string().
         """
         return self._source
 
@@ -118,7 +120,8 @@ class Slothy:
     def original_source(self):
         """Returns the original source code as an array of SourceLine objects
 
-        If you want the current source code as a multiline string, use get_original_source_as_string().
+        If you want the current source code as a multiline string, use
+        get_original_source_as_string().
         """
         return self._original_source
 
@@ -195,7 +198,8 @@ class Slothy:
 
         :param funcname: Name of function to be called. Must be exposed as a symbol
         :type funcname: str
-        :param address_registers: Dictionary indicating which GPRs are pointers to buffers of which size.
+        :param address_registers: Dictionary indicating which GPRs are pointers to
+            buffers of which size.
             For example, `{ "x0": 1024, "x4": 1024 }` would indicate that both x0 and x4
             point to buffers of size 1024 bytes. The global selftest needs to know this to
             setup valid calls to the assembly routine.
@@ -316,9 +320,10 @@ class Slothy:
 
             It is OK to use this in software pipelining mode. In this case, the
             tool will output preamble, kernel, and postamble separately, while the looping
-            code itself needs to be introduced by the user. Alternatively, a callback can be
-            provided which will be given preamble, kernel, postamble, and the number of exceptional
-            iterations, and piece together a list of source code lines from that.
+            code itself needs to be introduced by the user. Alternatively, a callback can
+            be provided which will be given preamble, kernel, postamble, and the number
+            of exceptional iterations, and piece together a list of source code lines
+            from that.
 
 
         :param start: The label marking the beginning of the part of the code to optimize.
@@ -327,8 +332,9 @@ class Slothy:
         :param end: The label marking the end of the part of the code to optimize.
               This cannot be used together with the 'loop' argument.
         :type end: str
-        :param loop_synthesis_cb: Optional (None by default) callback synthesis final source code
-              from tuple of (preamble, kernel, postamble, # exceptional iterations).
+        :param loop_synthesis_cb: Optional (None by default) callback synthesis final
+               source code from tuple of (preamble, kernel, postamble, # exceptional
+               iterations).
         :type loop_synthesis_cb: any
         :param logname: Optional name of the logger.
         :type logname: str
@@ -438,7 +444,8 @@ class Slothy:
         return list(DFG(body, logger.getChild("dfg_kernel_deps"), dfgc).inputs)
 
     def get_input_from_output(self, start, end, outputs=None):
-        """For the piece of straightline code, infer which input registers affect its output"""
+        """For the piece of straightline code, infer which input registers affect its
+        output"""
         if outputs is None:
             outputs = {}
         logger = self.logger.getChild(f"{start}_{end}_infer_input")

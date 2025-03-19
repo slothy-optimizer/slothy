@@ -324,7 +324,10 @@ class VmovCmpLoop(Loop):
         indent = " " * indentation
         if unroll > 1:
             assert unroll in [1, 2, 4, 8, 16, 32]
-            yield f"{indent}lsr {self.additional_data['end']}, {self.additional_data['end']}, #{int(math.log2(unroll))}"
+            yield (
+                f"{indent}lsr {self.additional_data['end']}, "
+                f"{self.additional_data['end']}, #{int(math.log2(unroll))}"
+            )
 
         # Find out by how much the loop counter is modified in one iteration
         inc_per_iter = 0
@@ -360,15 +363,25 @@ class VmovCmpLoop(Loop):
         # if new_fixup != 0 or fixup != 0:
         if fixup != 0:
             yield f"{indent}push {{{self.additional_data['end']}}}"
-            yield f"{indent}vmov {self.additional_data['end']}, {self.additional_data['endf']}"
+            yield (
+                f"{indent}vmov {self.additional_data['end']}, "
+                f"{self.additional_data['endf']}"
+            )
 
         # if new_fixup != 0:
-        #     yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
+        #     yield f"{indent}sub {self.additional_data['end']},
+        #           {self.additional_data['end']}, #{new_fixup}"
         if fixup != 0:
-            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
+            yield (
+                f"{indent}sub {self.additional_data['end']}, "
+                f"{self.additional_data['end']}, #{fixup*inc_per_iter}"
+            )
         # if new_fixup != 0 or fixup != 0:
         if fixup != 0:
-            yield f"{indent}vmov {self.additional_data['endf']}, {self.additional_data['end']}"
+            yield (
+                f"{indent}vmov {self.additional_data['endf']}, "
+                f"{self.additional_data['end']}"
+            )
             yield f"{indent}pop {{{self.additional_data['end']}}}"
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
@@ -445,7 +458,8 @@ class BranchLoop(Loop):
                 loop_cnt_reg = inst[0].args_in[0]
                 loop_end_reg = inst[0].args_in[1]
                 logging.debug(
-                    f"Assuming {loop_cnt_reg} as counter register and {loop_end_reg} as end register."
+                    f"Assuming {loop_cnt_reg} as counter register and {loop_end_reg} "
+                    "as end register."
                 )
                 break
             # Flags are set through subs
@@ -559,7 +573,10 @@ class CmpLoop(Loop):
         indent = " " * indentation
         if unroll > 1:
             assert unroll in [1, 2, 4, 8, 16, 32]
-            yield f"{indent}lsr {self.additional_data['end']}, {self.additional_data['end']}, #{int(math.log2(unroll))}"
+            yield (
+                f"{indent}lsr {self.additional_data['end']}, "
+                f"{self.additional_data['end']}, #{int(math.log2(unroll))}"
+            )
 
         # Find out by how much the loop counter is modified in one iteration
         inc_per_iter = 0
@@ -594,10 +611,14 @@ class CmpLoop(Loop):
         #             new_fixup = new_fixup + simplify(inst[0].increment)
 
         # if new_fixup != 0:
-        #     yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{new_fixup}"
+        #     yield f"{indent}sub {self.additional_data['end']},
+        #  {self.additional_data['end']}, #{new_fixup}"
 
         if fixup != 0:
-            yield f"{indent}sub {self.additional_data['end']}, {self.additional_data['end']}, #{fixup*inc_per_iter}"
+            yield (
+                f"{indent}sub {self.additional_data['end']}, "
+                f"{self.additional_data['end']}, #{fixup*inc_per_iter}"
+            )
 
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
@@ -670,7 +691,8 @@ class SubsLoop(Loop):
         if other["reg1"] is None:
             yield f'{indent}subs {other["cnt"]}, #1'
         else:
-            yield f'{indent}subs {other["cnt"]}, {other["reg1"]}, {other["imm"]}'  # `subs` sets flags
+            # `subs` sets flags
+            yield f'{indent}subs {other["cnt"]}, {other["reg1"]}, {other["imm"]}'
         yield f"{indent}bne {lbl_start}"
 
 
@@ -787,8 +809,8 @@ class Instruction:
         return self
 
     def global_parsing_cb(self, a, log=None):
-        """Parsing callback triggered after DataFlowGraph parsing which allows modification
-        of the instruction in the context of the overall computation.
+        """Parsing callback triggered after DataFlowGraph parsing which allows
+        modification of the instruction in the context of the overall computation.
 
         This is primarily used to remodel input-outputs as outputs in jointly destructive
         instruction patterns (See Section 4.4, https://eprint.iacr.org/2022/1303.pdf).
@@ -1005,8 +1027,9 @@ class Armv7mInstruction(Instruction):
         def pattern_transform(g):
             return (
                 f"([{g.group(1).lower()}{g.group(1)}]"
-                + f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|"
-                + f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
+                f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|"
+                f"([{g.group(1).lower()}{g.group(1)}]"
+                f"<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
             )
 
         src = re.sub(r"<([RS])(\w+)>", pattern_transform, src)

@@ -323,7 +323,8 @@ class SourceLine:
 
     @staticmethod
     def read_multiline(s, reduce=True):
-        """Parse multi-line string or array of strings into list of SourceLine instances"""
+        """Parse multi-line string or array of strings into list of SourceLine
+        instances"""
         if isinstance(s, str):
             # Retain newline termination
             terminated_by_newline = len(s) > 0 and s[-1] == "\n"
@@ -590,7 +591,8 @@ class AsmHelper:
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
         line = None
         keep = False
-        state = 0  # 0: haven't found initial label yet, 1: between labels, 2: after snd label
+        # 0: haven't found initial label yet, 1: between labels, 2: after snd label
+        state = 0
 
         # If no start label is provided, scan from the start to the end label
         if lbl_start is None:
@@ -831,7 +833,8 @@ class AsmMacro:
             return a
 
         def apply_arg(ll, arg, val):
-            # This function is also called on the values of tags, which may not be strings.
+            # This function is also called on the values of tags, which may not be
+            # strings.
             if isinstance(ll, str) is False:
                 return ll
             ll = re.sub(f"\\\\{arg}\\\\\\(\\)", val, ll)
@@ -1232,7 +1235,8 @@ class LLVM_Mc:
         text_section = list(filter(lambda s: "text" in s, sections))
         if len(text_section) != 1:
             raise LLVM_Mc_Error(
-                f"Could not find unambiguous text section in object file. Sections: {sections}"
+                f"Could not find unambiguous text section in object file. Sections: "
+                f"{sections}"
             )
         return sections_with_offsets[text_section[0]]
 
@@ -1266,12 +1270,13 @@ class LLVM_Mc:
         )
         symbols_with_values = {s: val for (s, val) in zip(symbols, values)}
         matching_symbols = list(filter(lambda s: s.endswith(symbol), symbols))
-        # Sometimes assemble functions are named both `_foo` and `foo`, in which case we'd find
-        # multiple matching symbols -- however, they'd have the same value. Hence, only fail if
-        # there are multiple matching symbols of _different_ values.
+        # Sometimes assemble functions are named both `_foo` and `foo`, in which case
+        # we'd find multiple matching symbols -- however, they'd have the same value.
+        # Hence, only fail if there are multiple matching symbols of _different_ values.
         if len({symbols_with_values[s] for s in matching_symbols}) != 1:
             raise LLVM_Mc_Error(
-                f"Could not find unambiguous symbol {symbol} in object file. Symbols: {symbols}"
+                f"Could not find unambiguous symbol {symbol} in object file. "
+                f"Symbols: {symbols}"
             )
         return symbols_with_values[matching_symbols[0]]
 
@@ -1707,7 +1712,8 @@ class Loop(ABC):
                     # collect all named groups
                     self.additional_data = self.additional_data | p.groupdict()
                     if loop_end_regexp_txt[loop_end_ctr][1]:
-                        # Put all instructions into the loop body, there won't be a boundary.
+                        # Put all instructions into the loop body, there won't be a
+                        # boundary.
                         body.append(line)
                     else:
                         loop_end_candidates.append(line)

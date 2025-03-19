@@ -623,7 +623,8 @@ def get_units(src):
     # The Cortex-M7 has two memory banks
     # If two loads use the same memory bank, they cannot dual issue
     # There are no constraints which load can go to which issue slot
-    # Approximiation: Only look at immediates, i.e., assume all pointers are aligned to 8 bytes
+    # Approximiation: Only look at immediates, i.e., assume all pointers are
+    # aligned to 8 bytes
     if src.is_ldr():
         imm = evaluate_immediate(src.immediate)
 

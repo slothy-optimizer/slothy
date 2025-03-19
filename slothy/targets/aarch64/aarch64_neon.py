@@ -510,8 +510,8 @@ class Instruction:
         return self
 
     def global_parsing_cb(self, a, log=None):
-        """Parsing callback triggered after DataFlowGraph parsing which allows modification
-        of the instruction in the context of the overall computation.
+        """Parsing callback triggered after DataFlowGraph parsing which allows
+        modification of the instruction in the context of the overall computation.
 
         This is primarily used to remodel input-outputs as outputs in jointly destructive
         instruction patterns (See Section 4.4, https://eprint.iacr.org/2022/1303.pdf).
@@ -630,7 +630,8 @@ class Instruction:
         :return: Upon success, the result of parsing src as an instance of c.
         :rtype: Instruction
 
-        :raises Instruction.ParsingException: The str argument cannot be parsed as an instance of c.
+        :raises Instruction.ParsingException: The str argument cannot be parsed as an
+                instance of c.
         :raises FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
         """
@@ -735,8 +736,9 @@ class AArch64Instruction(Instruction):
         def pattern_transform(g):
             return (
                 f"([{g.group(1).lower()}{g.group(1)}]"
-                + f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|"
-                + f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
+                f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|"
+                f"([{g.group(1).lower()}{g.group(1)}]"
+                f"<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
             )
 
         src = re.sub(r"<([BHWXVQTD])(\w+)>", pattern_transform, src)
@@ -2765,7 +2767,10 @@ class fcsel_dform(Instruction):
             arg_types_out=[RegisterType.NEON],
         )
 
-        regexp_txt = r"fcsel_dform\s+(?P<dst>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<src2>\w+)\s*,\s*eq"
+        regexp_txt = (
+            r"fcsel_dform\s+(?P<dst>\w+)\s*,\s*(?P<src1>\w+)\s*,"
+            r"\s*(?P<src2>\w+)\s*,\s*eq"
+        )
         regexp_txt = Instruction.unfold_abbrevs(regexp_txt)
         regexp = re.compile(regexp_txt)
         p = regexp.match(src)

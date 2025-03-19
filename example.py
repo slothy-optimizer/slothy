@@ -1688,7 +1688,7 @@ class fft_floatingpoint_radix4(Example):
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
 
-#############################################################################################
+##########################################################################################
 
 
 class ntt_dilithium(Example):
@@ -3213,7 +3213,8 @@ class matacc_asm_opt_16_32_kyber(Example):
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
 
-        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are unused in this code.
+        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are
+        # unused in this code.
         slothy.config.reserved_regs = (
             [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
         )
@@ -3250,7 +3251,8 @@ class matacc_asm_opt_32_32_kyber(Example):
         slothy.config.variable_size = True
         slothy.config.unsafe_address_offset_fixup = False
 
-        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are unused in this code.
+        # TODO: r10, r11, r12 shouldn't actually be needed as q,qa,qinv are
+        # unused in this code.
         slothy.config.reserved_regs = (
             [f"s{i}" for i in range(0, 32)] + ["sp", "r13"] + ["r10", "r11", "r12"]
         )
@@ -3652,8 +3654,10 @@ def main():
         "--examples",
         type=str,
         default="all",
-        help=f"The list of examples to be run, comma-separated list from {all_example_names}. "
-        f"Format: {{name}}_{{variant}}_{{target}}, e.g., ntt_kyber_123_4567_scalar_load_a55",
+        help=f"The list of examples to be run, comma-separated list from "
+        f"{all_example_names}. "
+        f"Format: {{name}}_{{variant}}_{{target}}, e.g., "
+        "ntt_kyber_123_4567_scalar_load_a55",
     )
     parser.add_argument("--dry-run", default=False, action="store_true")
     parser.add_argument("--debug", default=False, action="store_true")

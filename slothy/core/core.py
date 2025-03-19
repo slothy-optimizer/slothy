@@ -265,13 +265,14 @@ class Result(LockAttributes):
     def cycles_bound(self):
         """A lower bound for the number of cycles obtained during optimization.
 
-        This may be lower than the estimated cycle count of the result itself if optimization
-        terminated prematurely, e.g. because of a timeout."""
+        This may be lower than the estimated cycle count of the result itself if
+        optimization terminated prematurely, e.g. because of a timeout."""
         return self._cycles_bound
 
     @property
     def ipc_bound(self):
-        """An uppwer bound on the instruction/cycle (IPC) count obtained during optimization.
+        """An upper bound on the instruction/cycle (IPC) count obtained during
+        optimization.
 
         This may be lower than the IPC value of the result itself if optimization
         terminated prematurely, e.g. because of a timeout."""
@@ -372,8 +373,8 @@ class Result(LockAttributes):
         self._pre_core_post_dict = v
 
     def is_pre(self, i, original_program_order=True):
-        """Indicates if the instruction in original program order position i (starting at 0)
-        was marked 'early' and thereby pulled into the previous iteration.
+        """Indicates if the instruction in original program order position i
+        (starting at 0) was marked 'early' and thereby pulled into the previous iteration.
 
         If original_program_order is False, the index instead refers to the _new_ program
         order position with in the kernel of the optimized loop.
@@ -388,8 +389,9 @@ class Result(LockAttributes):
         return self.pre_core_post_dict[i][0]
 
     def is_core(self, i, original_program_order=True):
-        """Indicates if the instruction in original program order position i (starting at 0)
-        was neither marked 'early' nor 'late', so stayed in its original iteration.
+        """Indicates if the instruction in original program order position i
+        (starting at 0) was neither marked 'early' nor 'late', so stayed in its original
+        iteration.
 
         If original_program_order is False, the index instead refers to the _new_ program
         order position with in the kernel of the optimized loop.
@@ -404,8 +406,8 @@ class Result(LockAttributes):
         return self.pre_core_post_dict[i][1]
 
     def is_post(self, i, original_program_order=True):
-        """Indicates if the instruction in original program order position i (starting at 0)
-        was marked 'late' and thereby pulled into the next iteration.
+        """Indicates if the instruction in original program order position i
+        (starting at 0) was marked 'late' and thereby pulled into the next iteration.
 
         This only makes sense when software pipelining was enabled."""
         if not self.config.sw_pipelining.enabled:
@@ -445,9 +447,9 @@ class Result(LockAttributes):
 
     @cached_property
     def num_exceptional_iterations(self):
-        """The number of loop iterations jointly covered by the loop preamble and postamble.
-        In other words, the amount by which the iteration count for the optimized loop kernel
-        is lower than the original iteration count."""
+        """The number of loop iterations jointly covered by the loop preamble and
+        postamble. In other words, the amount by which the iteration count for the
+        optimized loop kernel is lower than the original iteration count."""
         self._require_sw_pipelining()
         # If there are either (a) only early instructions, or (b) only late instructions,
         # the loop preamble and postamble make up for 1 full loop iteration. If there are
@@ -490,7 +492,8 @@ class Result(LockAttributes):
 
     @cached_property
     def reordering_with_bubbles_inv(self):
-        """The inverse reordering permutation linking optimized and original source code"""
+        """The inverse reordering permutation linking optimized and original source
+        code"""
         return {v: k for k, v in self.reordering_with_bubbles.items()}
 
     def get_reordering_with_bubbles(self, copies):
@@ -598,7 +601,8 @@ class Result(LockAttributes):
 
     @cached_property
     def reordering_inv(self):
-        """The inverse reordering permutation linking optimized and original source code"""
+        """The inverse reordering permutation linking optimized and original source
+        code"""
         return {v: k for k, v in self.reordering.items()}
 
     @property
@@ -918,11 +922,14 @@ class Result(LockAttributes):
             # to gauge the amount of memory we actually need. Instaed, we
             # just allocate a buffer of a configurable default size.
             log.info(
-                f"Inferred that the following registers seem to act as pointers: {addresses}"
+                f"Inferred that the following registers seem to act as pointers: "
+                f"{addresses}"
             )
             log.info(
-                f"Using default buffer size of {self._config.selftest_default_memory_size} bytes. "
-                "If you want different buffer sizes, set selftest_address_registers manually."
+                f"Using default buffer size of "
+                f"{self._config.selftest_default_memory_size} bytes. "
+                "If you want different buffer sizes, set selftest_address_registers "
+                "manually."
             )
             address_registers = {
                 a: self._config.selftest_default_memory_size for a in addresses
@@ -1191,7 +1198,8 @@ class Result(LockAttributes):
 
     @property
     def kernel_input_output(self):
-        """When using software pipelining, the dependencies between successive loop iterations.
+        """When using software pipelining, the dependencies between successive loop
+        iterations.
 
         This is useful if you want to further optimize the preamble (and perhaps some code
         preceeding it), because the kernel dependencies are the output of the preamble.
@@ -1399,9 +1407,10 @@ class Result(LockAttributes):
     def fixup_preamble_postamble(self, log):
         """Potentially fix up the preamble and postamble
 
-        When software pipelining is used in the context of a loop with cross-iteration dependencies,
-        the core optimization step might lead to functionally incorrect preamble and postamble.
-        This function checks if this is the case and fixes preamble and postamble, if necessary.
+        When software pipelining is used in the context of a loop with cross-iteration
+        dependencies, the core optimization step might lead to functionally incorrect
+        preamble and postamble. This function checks if this is the case and fixes
+        preamble and postamble, if necessary.
         """
 
         # if not self._has_cross_iteration_dependencies():
@@ -1566,7 +1575,8 @@ class SlothyBase(LockAttributes):
     :type config: any
     """
 
-    # In contrast to its more convenient descendant Slothy, SlothyBase is largely _stateless_:
+    # In contrast to its more convenient descendant Slothy, SlothyBase is largely
+    # _stateless_:
     # It optimizes one piece of source code a time via SlothyBase.optimize()
 
     @property
@@ -1792,12 +1802,12 @@ class SlothyBase(LockAttributes):
     def _restrict_input_output_renaming(self):
         # In principle, inputs and outputs can be arbitrarily renamed thanks to the
         # virtual instructions introduced for them. Disabling input/output renaming
-        # fits into this framework nicely in the form of input/output argument restrictions,
-        # which we have for 'real' instructions anyhow.
+        # fits into this framework nicely in the form of input/output argument
+        # restrictions, which we have for 'real' instructions anyhow.
 
-        # We might need to assign some fixed registers to global inputs/outputs which haven't
-        # been given an architectural register name. We use the following array to track which
-        # onces remain available
+        # We might need to assign some fixed registers to global inputs/outputs which
+        # haven't been given an architectural register name. We use the following array
+        # to track which onces remain available
         avail_renaming_regs = deepcopy(self._model.avail_renaming_regs)
 
         def static_renaming(conf_val, t):
@@ -1903,9 +1913,10 @@ class SlothyBase(LockAttributes):
                 v.reg = get_fresh_renaming_reg(v.ty)
         except OutOfRegisters as e:
             self.logger.error(
-                """Ran out of registers trying to _statically_ assign architectural registers
-                for input and outputs of the snippet. You should consider enabling register
-                renaming for input and output, by setting config.rename_{inputs,outputs}.
+                """Ran out of registers trying to _statically_ assign architectural
+                registers for input and outputs of the snippet. You should consider
+                enabling register renaming for input and output, by setting
+                config.rename_{inputs,outputs}.
                 Alternatively, you may fix input and output registers by hand yourself."""
             )
             raise e
@@ -1981,11 +1992,12 @@ class SlothyBase(LockAttributes):
             t.inst_orig = deepcopy(t.inst)
 
     class CpSatSolutionCb(cp_model.CpSolverSolutionCallback):
-        """A solution callback class represents objects that are alive during CP-SAT operation
-        and equipped with a callback that is triggered every time CP-SAT finds a new solution.
+        """A solution callback class represents objects that are alive during CP-SAT
+        operation and equipped with a callback that is triggered every time CP-SAT finds
+        a new solution.
 
-        This callback counts the solutions found so far, and aborts the search when the solution
-        is sufficiently close to the optimum."""
+        This callback counts the solutions found so far, and aborts the search when the
+        solution is sufficiently close to the optimum."""
 
         def __init__(
             self,
@@ -2006,7 +2018,8 @@ class SlothyBase(LockAttributes):
             self.variables = variables
 
         def on_solution_callback(self):
-            """Triggered when OR-Tools finds a solution to the current constraint problem"""
+            """Triggered when OR-Tools finds a solution to the current constraint
+            problem"""
             self.__solution_count += 1
             if self.__objective_desc:
                 cur = self.ObjectiveValue()
@@ -2027,7 +2040,8 @@ class SlothyBase(LockAttributes):
                     bound_str = str(bound)
                 self.__logger.info(
                     f"[{time:.4f}s]: Found {self.__solution_count} solutions so far... "
-                    + f"objective ({self.__objective_desc}): currently {cur_str}, bound {bound_str}"
+                    f"objective ({self.__objective_desc}): currently {cur_str}, "
+                    f"bound {bound_str}"
                 )
                 if self.__is_good_enough and self.__is_good_enough(cur, bound):
                     self.StopSearch()
@@ -2041,9 +2055,11 @@ class SlothyBase(LockAttributes):
     def fixup_preamble_postamble(self):
         """Potentially fix up the preamble and postamble
 
-        When software pipelining is used in the context of a loop with cross-iteration dependencies,
-        the core optimization step might lead to functionally incorrect preamble and postamble.
-        This function checks if this is the case and fixes preamble and postamble, if necessary.
+        When software pipelining is used in the context of a loop with cross-iteration
+        dependencies, the core optimization step might lead to functionally incorrect
+        preamble and postamble.
+        This function checks if this is the case and fixes preamble and postamble, if
+        necessary.
         """
 
         # if not self._has_cross_iteration_dependencies():
@@ -2441,7 +2457,8 @@ class SlothyBase(LockAttributes):
                 self.logger.result.debug("> " + s.to_string())
 
     def _add_path_constraint(self, consumer, producer, cb):
-        """Add model constraint cb() relating to the pair of producer-consumer instructions
+        """Add model constraint cb() relating to the pair of producer-consumer
+        instructions
         Outside of loop mode, this ignores producer and consumer, and just adds cb().
         In loop mode, however, the condition has to be omitted in two cases:
 
@@ -2654,8 +2671,9 @@ class SlothyBase(LockAttributes):
             return self._NewIntVar(-1, self._model.program_horizon, name)
 
         for t in self._get_nodes(allnodes=True):
-            # When we optimize for longest register lifetimes, we allow the starting time of the
-            # usage interval to be smaller than the program order position of the instruction.
+            # When we optimize for longest register lifetimes, we allow the starting time
+            # of the usage interval to be smaller than the program order position of the
+            # instruction.
             t.out_lifetime_start = [
                 make_start_var(f"{t.varname()}_out_{i}_lifetime_start")
                 for i in range(t.inst.num_out)
@@ -2687,7 +2705,8 @@ class SlothyBase(LockAttributes):
     # ================================================================
 
     def _add_variables_register_renaming(self):
-        """Add boolean variables indicating if an instruction uses a certain output register"""
+        """Add boolean variables indicating if an instruction uses a certain output
+        register"""
 
         def _allow_renaming(_):
             if not self.config.constraints.allow_renaming:
@@ -3393,7 +3412,10 @@ class SlothyBase(LockAttributes):
                 except SlothyException as e:
                     if self.config.split_heuristic:
                         self.logger.info(
-                            "%s < %s by source annotation NOT enforced because of split heuristic",
+                            (
+                                "%s < %s by source annotation NOT enforced because of "
+                                "split heuristic"
+                            ),
                             t0,
                             t1,
                         )
@@ -3433,7 +3455,10 @@ class SlothyBase(LockAttributes):
                 except SlothyException as e:
                     if self.config.split_heuristic:
                         self.logger.info(
-                            "%s < %s by source annotation NOT enforced because of split heuristic",
+                            (
+                                "%s < %s by source annotation NOT enforced because of "
+                                "split heuristic"
+                            ),
                             t0,
                             t1,
                         )
@@ -3528,10 +3553,11 @@ class SlothyBase(LockAttributes):
                 self.logger.debug(
                     "General latency constraint: [%s] >= [%s] + %d", t, i.src, latency
                 )
-                # Some microarchitectures have instructions with 0-cycle latency, i.e., the can
-                # forward the result to an instruction in the same cycle (e.g., X+str on Cortex-M7)
-                # If that is the case we need to make sure that the consumer is after the producer
-                # in the output.
+                # Some microarchitectures have instructions with 0-cycle latency, i.e.,
+                # the can forward the result to an instruction in the same cycle
+                # (e.g., X+str on Cortex-M7)
+                # If that is the case we need to make sure that the consumer is after the
+                # producer in the output.
                 if latency == 0:
                     self._add_path_constraint(
                         t,
@@ -3651,7 +3677,8 @@ class SlothyBase(LockAttributes):
         # - `tt1.core  == tt0.core  + size`
         # - `tt0.early == tt1.early + size`
         #
-        # Additionally, they should use exactly the same registers, so we can roll the loop again
+        # Additionally, they should use exactly the same registers, so we can roll the
+        # loop again
 
         for t0, t1 in zip(
             self._model.tree.nodes_low, self._model.tree.nodes_high, strict=True
@@ -3679,8 +3706,8 @@ class SlothyBase(LockAttributes):
             for o, _ in enumerate(t0.inst.arg_types_out):
                 t0_vars = set(t0.alloc_out_var[o].keys())
                 t1_vars = set(t1.alloc_out_var[o].keys())
-                # TODO: This might still fail in the case where we write to a global output
-                #       which hasn't been assigned an architectural register name.
+                # TODO: This might still fail in the case where we write to a global
+                # output which hasn't been assigned an architectural register name.
                 if not t1_vars.issubset(t0_vars):
                     self.logger.input.error(
                         "Instruction siblings %d:%s and %d:%s have incompatible"
@@ -3753,12 +3780,14 @@ class SlothyBase(LockAttributes):
         per cycle, this option can be an alternative way to model the occupancy of
         functional units: Rather than assigning length-1 intervals for the occupance of
         functional units and demanding that they're disjoint -- the default operation of
-        Slothy, which works for multi-cycle instructions -- one can identify the slot number
-        with the functional unit that an instruction runs on, and then the non-overlapping
-        constraint is subsumed by the mutual distinctiveness of the program order positions.
-        Note, though, that this approach 'overwrites' the actual microarchitectural meaning
-        of the slot number -- if there are uarch constraints regarding the slot number
-        (e.g. "instruction XYZ can only be issued on slot 0") then it should not be used.
+        Slothy, which works for multi-cycle instructions -- one can identify the slot
+        number with the functional unit that an instruction runs on, and then the
+        non-overlapping constraint is subsumed by the mutual distinctiveness of the
+        program order positions.
+        Note, though, that this approach 'overwrites' the actual microarchitectural
+        meaning of the slot number -- if there are uarch constraints regarding the slot
+        number (e.g. "instruction XYZ can only be issued on slot 0") then it should not
+        be used.
         """
         slot_vars = {s: self._NewBoolVar("") for s in slots}
         self._AddExactlyOne(slot_vars.values())
@@ -3832,7 +3861,8 @@ class SlothyBase(LockAttributes):
 
         if "stalls" in variables.keys():
             stalls = variables["stalls"]
-            # TODO: This needs fixing once the objective measure is no longer stalls + spills
+            # TODO: This needs fixing once the objective measure is no longer
+            # stalls + spills
             spills = bound - stalls
         else:
             stalls = bound
@@ -4021,7 +4051,8 @@ class SlothyBase(LockAttributes):
             result.append(f'Version: "{ortools.__version__}"')
             result.append(f"Time (seconds): {self._model.cp_solver.WallTime():.4f}")
             result.append(
-                f'Status: "{self._model.cp_solver.StatusName(self._model.cp_model.status)}"'
+                f"Status: "
+                f'"{self._model.cp_solver.StatusName(self._model.cp_model.status)}"'
             )
             result.append("")
             result.append("")

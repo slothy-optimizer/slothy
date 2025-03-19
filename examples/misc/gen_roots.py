@@ -433,7 +433,10 @@ class NttRootGen:
             iters.reverse()
         for cur_iter, merged in iters:
             if self.print_label:
-                yield f"roots_l{''.join([str(i) for i in range(cur_iter,cur_iter+merged)])}:"
+                yield (
+                    f"roots_l"
+                    f"{''.join([str(i) for i in range(cur_iter,cur_iter+merged)])}:"
+                )
             yield from self.roots_of_unity_for_layer(cur_iter, merged)
 
     def _get_roots_of_unity_asm(self):

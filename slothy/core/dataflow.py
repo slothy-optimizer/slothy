@@ -31,9 +31,9 @@ from slothy.helper import SourceLine
 
 class SlothyUselessInstructionException(Exception):
     """An instruction was found whose outputs are neither used by a subsequent instruction
-    nor declared as global outputs of the code under consideration. The instruction is therefore
-    useless according to the architecture model given to SLOTHY. Consider removing the instruction
-    or refining the architecture model.
+    nor declared as global outputs of the code under consideration. The instruction is
+    therefore useless according to the architecture model given to SLOTHY. Consider
+    removing the instructions or refining the architecture model.
     """
 
 
@@ -193,8 +193,8 @@ class ComputationNode:
         also written to should not be listed here, but in
         the separate src_in_out argument.
     :type src_in: list
-    :param src_in_out: A list of RegisterSource instances representing the inputs to the instruction which are
-        also written to.
+    :param src_in_out: A list of RegisterSource instances representing the inputs to the
+        instruction which are also written to.
     :type src_in_out: list
     :raises AssertionError: If input arguments are invalid.
 
@@ -373,8 +373,8 @@ class Config:
 
     @property
     def allow_useless_instructions(self):
-        """Indicates whether data flow creation should raise SlothyUselessInstructionException
-        when a useless instruction is detected.
+        """Indicates whether data flow creation should raise
+        SlothyUselessInstructionException when a useless instruction is detected.
         """
         return self._allow_useless_instructions
 
@@ -646,7 +646,8 @@ class DataFlowGraph:
             deleted = [t for t in self.nodes if t.delete is True]
 
             logger.debug(
-                "Some instruction changed in callback -- need to build dataflow graph again..."
+                "Some instruction changed in callback -- need to build dataflow graph "
+                "again..."
             )
 
             for t in deleted:
@@ -659,15 +660,17 @@ class DataFlowGraph:
     def apply_parsing_cbs(self):
         """Apply parsing callbacks to all nodes in the graph.
 
-        Typically, we only build the computation flow graph once. However, sometimes we make
-        retrospective modifications to instructions afterwards, and then need to reparse.
+        Typically, we only build the computation flow graph once. However, sometimes we
+        make retrospective modifications to instructions afterwards, and then need to
+        reparse.
 
         An example for this are jointly destructive instruction patterns: A sequence of
-        instructions where each instruction individually overwrites only part of a register,
-        but jointly they overwrite the register as a whole. In this case, we can remove the
-        output register as an input dependency for the first instruction in the sequence,
-        thereby creating more reordering and renaming flexibility. In this case, we change
-        the instruction and then rebuild the computation flow graph.
+        instructions where each instruction individually overwrites only part of a
+        register, but jointly they overwrite the register as a whole. In this case, we
+        can remove the output register as an input dependency for the first instruction
+        in the sequence, thereby creating more reordering and renaming flexibility.
+        In this case, we change the instruction and then rebuild the computation flow
+        graph.
         """
         logger = self.logger.getChild("parsing_cbs")
 
@@ -773,7 +776,8 @@ class DataFlowGraph:
                     "nor declared as global outputs."
                 )
                 self.logger.error(
-                    "This is often a configuration error. Did you miss an output declaration?"
+                    "This is often a configuration error. Did you miss an output "
+                    "declaration?"
                 )
                 self.logger.error(
                     "Currently configured outputs: %s", list(self.outputs)
@@ -804,10 +808,11 @@ class DataFlowGraph:
     def iter_dependencies(self):
         """Returns an iterator over all dependencies in the data flow graph.
 
-        Each returned element has the form (consumer, producer, ty, idx), representing a dependency
-        from output producer to the idx-th input (if ty=="in") or input/output (if ty=="inout") of
-        consumer. The producer field is an instance of RegisterSource and contains the output index
-        and source instruction as producer.idx and producer.src, respectively.
+        Each returned element has the form (consumer, producer, ty, idx), representing a
+        dependency from output producer to the idx-th input (if ty=="in") or input/output
+        (if ty=="inout") of consumer. The producer field is an instance of RegisterSource
+        and contains the output index and source instruction as producer.idx and
+        producer.src, respectively.
         """
         for consumer in self.nodes_all:
             for idx, producer in enumerate(consumer.src_in):
@@ -897,7 +902,8 @@ class DataFlowGraph:
         return False
 
     def find_all_predecessors_input_registers(self, consumer, register_name):
-        """recursively finds the set of input registers registers that a certain value depends on."""
+        """recursively finds the set of input registers registers that a certain value
+        depends on."""
         # ignore the stack pointer
         if register_name == "sp":
             return set()
@@ -909,7 +915,8 @@ class DataFlowGraph:
             return set(producer.inst.args_out)
         else:
             # go through all predecessors and recursively call this function
-            # Note that we only care about inputs (i.e., produced by a VirtualInputInstruction)
+            # Note that we only care about inputs (i.e., produced by a
+            # VirtualInputInstruction)
             regs = []
             if hasattr(producer.inst, "args_in"):
                 regs += producer.inst.args_in
@@ -1025,7 +1032,8 @@ class DataFlowGraph:
         if origin.get_type() != ty:
             warnstr = (
                 f"Type mismatch: Output {name} of {type(origin.src.inst).__name__} has "
-                f"type {origin.get_type()} but {type(self).__name__} expects it to have type {ty}"
+                f"type {origin.get_type()} but {type(self).__name__} expects it to have"
+                f"type {ty}"
             )
             self.logger.debug(warnstr)
             raise DataFlowGraphException(warnstr)

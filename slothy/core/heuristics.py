@@ -135,7 +135,8 @@ class Heuristics:
         :type conf: any
         :param **kwargs: An optional list of parameters to the core optimize routine
         :type **kwargs: any
-        :returns: The Result object for the succceeding optimization with the smallest number of stalls.
+        :returns: The Result object for the succeeding optimization with the smallest
+                  number of stalls.
         :rtype: any
         """
         flexible = not conf.constraints.functional_only
@@ -173,7 +174,8 @@ class Heuristics:
     def optimize_binsearch_external(
         source: list, logger: any, conf: any, flexible: bool = True, **kwargs: any
     ) -> any:
-        """Externally optimize for minimum number of stalls, and potentially a secondary objective.
+        """Externally optimize for minimum number of stalls, and potentially a secondary
+        objective.
 
         This function uses an external binary search to find the minimum number of stalls
         for which a one-shot SLOTHY optimization succeeds. If the provided configuration
@@ -181,7 +183,8 @@ class Heuristics:
         objective, fixing the minimal number of stalls.
 
 
-        :param source: The source code to be optimized. Must be a list of SourceLine instances.
+        :param source: The source code to be optimized. Must be a list of SourceLine
+            instances.
         :type source: list
         :param logger: The logger to be used.
         :type logger: any
@@ -236,14 +239,17 @@ class Heuristics:
     def optimize_binsearch_internal(
         source: list, logger: any, conf: any, flexible: bool = True, **kwargs: any
     ) -> any:
-        """Internally optimize for minimum number of stalls, and potentially a secondary objective.
+        """Internally optimize for minimum number of stalls, and potentially a secondary
+        objective.
 
-        This finds the minimum number of stalls for which a one-shot SLOTHY optimization succeeds.
-        If the provided configuration has a secondary objective, it then re-optimizes the result
-        for that secondary objective, fixing the minimal number of stalls.
+        This finds the minimum number of stalls for which a one-shot SLOTHY optimization
+        succeeds.
+        If the provided configuration has a secondary objective, it then re-optimizes the
+        result for that secondary objective, fixing the minimal number of stalls.
 
 
-        :param source: The source code to be optimized. Must be a list of SourceLine instances.
+        :param source: The source code to be optimized. Must be a list of SourceLine
+            instances.
         :type source: list
         :param  logger: The logger to be used.
         :type logger: any
@@ -435,7 +441,8 @@ class Heuristics:
         :type body: list
         :param logger: The logger to be used.
         :type logger: any
-        :param conf: The configuration to be applied. Software pipelining must be disabled.
+        :param conf: The configuration to be applied. Software pipelining must be
+            disabled.
         :type conf: any
         :return: A Result object representing the final optimization result.
         :rtype: any
@@ -694,7 +701,9 @@ class Heuristics:
                 body,
                 log,
                 conf,
-                use_latency_depth=conf.split_heuristic_preprocess_naive_interleaving_by_latency,
+                use_latency_depth=(
+                    conf.split_heuristic_preprocess_naive_interleaving_by_latency,
+                ),
             )
 
             if ssa:
@@ -954,7 +963,8 @@ class Heuristics:
                 res2.code = res.code_raw
                 res2.codesize_with_bubbles = stall_res.codesize_with_bubbles
                 res2.success = True
-                # Compose actual code reordering from split heuristic with bubble-introducing (order-preserving) map
+                # Compose actual code reordering from split heuristic with
+                # bubble-introducing (order-preserving) map
                 res2.reordering_with_bubbles = {
                     i: stall_res.reordering_with_bubbles[res.reordering_with_bubbles[i]]
                     for i in range(res.codesize)
@@ -1063,7 +1073,8 @@ class Heuristics:
             # The overall goal here is to produce a result structure that's structurally
             # the same as for normal SW pipelining, including checks and visualization.
             #
-            # TODO: The 2nd optimization step below does not yet produce a Result structure.
+            # TODO: The 2nd optimization step below does not yet produce a Result
+            # structure.
             reordering = res_halving_0.reordering
             codesize = res_halving_0.codesize
 
@@ -1138,23 +1149,27 @@ class Heuristics:
         # Optimize the loop body _again_, but  swap the two loop halves to that
         # successive iterations can be interleaved somewhat.
         #
-        # The benefit of this approach is that we never call SLOTHY with generic SW pipelining,
-        # which is computationally significantly more complex than 'normal' optimization.
-        # We do still enable SW pipelining in SLOTHY if `halving_heuristic_periodic` is set, but
-        # this is only to make SLOTHY consider the 'seam' between iterations -- since we unset
-        # `allow_pre/post`, SLOTHY does not consider any loop interleaving.
+        # The benefit of this approach is that we never call SLOTHY with generic SW
+        # pipelining, which is computationally significantly more complex than 'normal'
+        # optimization. We do still enable SW pipelining in SLOTHY if
+        # `halving_heuristic_periodic` is set, but this is only to make SLOTHY consider
+        # the 'seam' between iterations -- since we unset `allow_pre/post`, SLOTHY does
+        # not consider any loop interleaving.
         #
 
-        # If the optimized loop body is [A;B], we now optimize [B;A], that is, the late half of one
-        # iteration followed by the early half of the successive iteration. The hope is that this
-        # enables good interleaving even without calling SLOTHY in SW pipelining mode.
+        # If the optimized loop body is [A;B], we now optimize [B;A], that is, the late
+        # half of one iteration followed by the early half of the successive iteration.
+        # The hope is that this enables good interleaving even without calling SLOTHY in
+        # SW pipelining mode.
 
         logger.info(
-            "Apply halving heuristic to optimize two halves of consecutive loop kernels..."
+            "Apply halving heuristic to optimize two halves "
+            "of consecutive loop kernels..."
         )
 
-        # The 'periodic' version considers the 'seam' between iterations; otherwise, we consider
-        # [B;A] as a non-periodic snippet, which may still lead to stalls at the loop boundary.
+        # The 'periodic' version considers the 'seam' between iterations; otherwise, we
+        # consider [B;A] as a non-periodic snippet, which may still lead to stalls at the
+        # loop boundary.
 
         if conf.sw_pipelining.halving_heuristic_periodic:
             c = conf.copy()
@@ -1217,8 +1232,8 @@ class Heuristics:
             res2.success = True
             res2.valid = True
 
-            # TODO: This does not yet work since there can be renaming at the boundary between
-            # preamble and postamble that we don't account for in the selfcheck.
+            # TODO: This does not yet work since there can be renaming at the boundary
+            # between preamble and postamble that we don't account for in the selfcheck.
             # res2.selfcheck(logger.getChild("halving_heuristic_2"))
 
             kernel = final_kernel
