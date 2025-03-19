@@ -702,7 +702,7 @@ class Heuristics:
                 log,
                 conf,
                 use_latency_depth=(
-                    conf.split_heuristic_preprocess_naive_interleaving_by_latency,
+                    conf.split_heuristic_preprocess_naive_interleaving_by_latency
                 ),
             )
 
