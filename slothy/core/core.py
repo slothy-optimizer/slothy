@@ -1555,11 +1555,15 @@ class SlothyBase(LockAttributes):
     which are specified at construction time.
 
     :param Arch:  A model of the underlying architecture.
+    :type Arch: any
     :param Target: A model of the underlying microarchitecture.
+    :type Target: any
     :param logger: The logger to be used.
                    If omitted, a child of the root logger will be used.
+    :type logger: any
     :param config: The configuration to use.
                  If omitted, the default configuration will be used.
+    :type config: any
     """
 
     # In contrast to its more convenient descendant Slothy, SlothyBase is largely _stateless_:
@@ -1587,7 +1591,9 @@ class SlothyBase(LockAttributes):
         """Indicates whether the last optimiation succeeded."""
         return self._result.success
 
-    def __init__(self, Arch, Target, *, logger=None, config=None):
+    def __init__(
+        self, Arch: any, Target: any, *, logger: any = None, config: any = None
+    ):
         super().__init__()
         self.config = config if config is not None else Config(Arch, Target)
         self.logger = logger if logger is not None else logging.getLogger("slothy")
@@ -3773,23 +3779,29 @@ class SlothyBase(LockAttributes):
         provided list of instruction classes."""
         return self.filter_instructions_by_property(lambda i: type(i) in cls_lst)
 
-    def restrict_slots_for_instructions_by_class(self, cls_lst, slots):
+    def restrict_slots_for_instructions_by_class(self, cls_lst: list, slots: list):
         """Restrict issue slots for all instructions belonging to the
         provided list of instruction classes.
 
         :param cls_lst: A list of instruction classes
+        :type cls_lst: list
         :param slots: A list of issue slots represented as integers.
+        :type slots: list
         """
         self.restrict_slots_for_instructions(
             self.filter_instructions_by_class(cls_lst), slots
         )
 
-    def restrict_slots_for_instructions_by_property(self, filter_func, slots):
+    def restrict_slots_for_instructions_by_property(
+        self, filter_func: any, slots: list
+    ):
         """Restrict issue slots for all instructions passing the given
         filter function.
 
-        :param cls_lst: A predicate on instructions
+        :param filter_func: A predicate on instructions
+        :type filter_func: any
         :param slots: A list of issue slots represented as integers.
+        :type slots: list
         """
         self.restrict_slots_for_instructions(
             self.filter_instructions_by_property(filter_func), slots

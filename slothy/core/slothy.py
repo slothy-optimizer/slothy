@@ -184,7 +184,9 @@ class Slothy:
         for line in s:
             fun(f"> {line}")
 
-    def global_selftest(self, funcname, address_registers, iterations=5) -> None:
+    def global_selftest(
+        self, funcname: str, address_registers: any, iterations: int = 5
+    ) -> None:
         """Conduct a function-level selftest
             .. important::
 
@@ -192,11 +194,14 @@ class Slothy:
             in your PATH. Those are part of a standard LLVM setup.
 
         :param funcname: Name of function to be called. Must be exposed as a symbol
+        :type funcname: str
         :param address_registers: Dictionary indicating which GPRs are pointers to buffers of which size.
             For example, `{ "x0": 1024, "x4": 1024 }` would indicate that both x0 and x4
             point to buffers of size 1024 bytes. The global selftest needs to know this to
             setup valid calls to the assembly routine.
+        :type address_registers: any
         :param iterations: Number of iterations to run the selftest for.
+        :type iterations: int
         :return: Returns early of target architecture of not supported.
         :rtype: None
         """
@@ -220,7 +225,7 @@ class Slothy:
             new_source,
             address_registers,
             self.config.arch.RegisterType.callee_saved_registers(),
-            5,
+            iterations,
             fnsym=funcname,
         )
 
@@ -298,7 +303,13 @@ class Slothy:
             stats = []
         return stats
 
-    def optimize(self, start=None, end=None, loop_synthesis_cb=None, logname=None):
+    def optimize(
+        self,
+        start: str = None,
+        end: str = None,
+        loop_synthesis_cb: any = None,
+        logname: str = None,
+    ):
         """Optimize all or part of the currently loaded source code
 
         .. note::
@@ -312,11 +323,15 @@ class Slothy:
 
         :param start: The label marking the beginning of the part of the code to optimize.
               This cannot be used together with the 'loop' argument.
+        :type start: str
         :param end: The label marking the end of the part of the code to optimize.
               This cannot be used together with the 'loop' argument.
+        :type end: str
         :param loop_synthesis_cb: Optional (None by default) callback synthesis final source code
               from tuple of (preamble, kernel, postamble, # exceptional iterations).
+        :type loop_synthesis_cb: any
         :param logname: Optional name of the logger.
+        :type logname: str
         :raises AssertionError: If sw pipelining is disabled and yet there are
               early/late instructions (which should not happen) or if the optimized code
               is not a SourceLine list.
@@ -400,11 +415,15 @@ class Slothy:
         self.source = pre + optimized_source + post
         assert SourceLine.is_source(self.source)
 
-    def get_loop_input_output(self, loop_lbl, forced_loop_type=None) -> list:
+    def get_loop_input_output(
+        self, loop_lbl: str, forced_loop_type: any = None
+    ) -> list:
         """Find all registers that a loop body depends on
 
         :param loop_lbl: Label of loop to process.
+        :type loop_lbl: str
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
+        :type forced_loop_type: any
         :return: list all inputs of the loop.
         :rtype: list
         """
@@ -469,7 +488,7 @@ class Slothy:
 
         return body
 
-    def fusion_region(self, start, end, **kwargs):
+    def fusion_region(self, start: str, end: str, **kwargs: any):
         """Run fusion callbacks on straightline code replacing certain
         instruction (sequences) with an alternative. These replacements are
         defined in the architectural model by setting an instruction class'
@@ -477,9 +496,12 @@ class Slothy:
 
         :param start: The label marking the beginning of the part of the code to
               apply fusion to.
+        :type start: str
         :param end: The label marking the end of the part of the code to apply
               fusion to.
-        :param kwargs: Additional arguments to pass to the fusion callbacks.
+        :type end: str
+        :param **kwargs: Additional arguments to pass to the fusion callbacks.
+        :type **kwargs: any
         :raises AssertionError: If self.source is not a SourceLine list when
               returning.
         """
@@ -494,14 +516,17 @@ class Slothy:
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-    def fusion_loop(self, loop_lbl, forced_loop_type=None, **kwargs):
+    def fusion_loop(self, loop_lbl: str, forced_loop_type: any = None, **kwargs: any):
         """Run fusion callbacks on loop body replacing certain instruction
         (sequences) with an alternative. These replacements are defined in the
         architectural model by setting an instruction class' global_fusion_cb.
 
         :param loop_lbl: Label of loop to which the fusions are applied to.
+        :type loop_lbl: str
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
-        :param kwargs: Additional arguments to pass to the fusion callbacks.
+        :type forced_loop_type: any
+        :param **kwargs: Additional arguments to pass to the fusion callbacks.
+        :type **kwargs: any
         :raises AssertionError: If self.source is not a SourceLine list when
               returning.
         """
@@ -529,12 +554,17 @@ class Slothy:
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-    def optimize_loop(self, loop_lbl, postamble_label=None, forced_loop_type=None):
+    def optimize_loop(
+        self, loop_lbl: str, postamble_label: str = None, forced_loop_type: any = None
+    ):
         """Optimize the loop starting at a given label
 
         :param loop_lbl: Label of loop to optimize.
+        :type loop_lbl: str
         :param postamble_label: Marks end of loop kernel.
+        :type postamble_label: str
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
+        :type forced_loop_type: any
         """
 
         logger = self.logger.getChild(loop_lbl)

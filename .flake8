@@ -6,21 +6,3 @@ extend-ignore =
     # black and flake8 don't agree on these - stick to black
     # E203 whitespace before ':'
     E203
-
-    # TODO: Fix those
-    # Docstring arguments are different from function arguments. (Or could be
-    # other formatting issues:
-    # https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103)
-    DOC103
-    # The option --arg-type-hints-in-signature is True but there are no argument
-    # type hints in the signature
-    DOC106
-    # The option --arg-type-hints-in-signature is True but not all args in the
-    # signature have type hints
-    DOC107
-    # The option --arg-type-hints-in-docstring is True but there are no type
-    # hints in the docstring arg list
-    DOC109
-    # The option --arg-type-hints-in-docstring is True but not all args in the
-    # docstring arg list have type hints
-    DOC110

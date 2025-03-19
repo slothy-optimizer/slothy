@@ -181,21 +181,34 @@ class VirtualInputInstruction(VirtualInstruction):
 class ComputationNode:
     """A node in a data flow graph
 
-    :param node_id:   A unique identifier for the node
+    :param node_id: A unique identifier for the node
+    :type node_id: str
     :param inst: The instruction which the node represents
         Must be an instance of Instruction
+    :type inst: any
     :param orig_pos: Position in the input code.
+    :type orig_pos: int
     :param src_in: A list of RegisterSource instances representing
         the inputs to the instruction. Inputs which are
         also written to should not be listed here, but in
         the separate src_in_out argument.
+    :type src_in: list
     :param src_in_out: A list of RegisterSource instances representing the inputs to the instruction which are
         also written to.
+    :type src_in_out: list
     :raises AssertionError: If input arguments are invalid.
 
     """
 
-    def __init__(self, *, node_id, inst, orig_pos=None, src_in=None, src_in_out=None):
+    def __init__(
+        self,
+        *,
+        node_id: str,
+        inst: any,
+        orig_pos: int = None,
+        src_in: list = None,
+        src_in_out: list = None,
+    ):
 
         def isinstancelist(ll, c):
             return all(map(lambda e: isinstance(e, c), ll))
@@ -320,7 +333,9 @@ class Config:
     """Configuration for parsing of data flow graphs
 
     :param slothy_config: The Slothy configuration to reference.
-    :param kwargs: An optional list of modifications of the Slothy config
+    :type slothy_config: any
+    :param **kwargs: An optional list of modifications of the Slothy config
+    :type **kwargs: any
     """
 
     @property
@@ -379,7 +394,7 @@ class Config:
     def allow_useless_instructions(self, val):
         self._allow_useless_instructions = val
 
-    def __init__(self, slothy_config=None, **kwargs):
+    def __init__(self, slothy_config: any = None, **kwargs: any):
         self._arch = None
         self._typing_hints = None
         self._outputs = None
@@ -416,12 +431,17 @@ class DataFlowGraphException(Exception):
 class DataFlowGraph:
     """The data flow graph associated with a piece of assembly.
 
-    :param arch: The underlying architecture.
+
     :param src: The source code to be converted into a data flow graph.
+    :type src: any
     :param logger: The logger to be used.
-    :param typing_hints: String-indexed dictionary mapping symbolic register names
-        to types. Types are members of the RegisterType enum from the
-        arch module.
+    :type logger: any
+    :param config: Configuration object.
+    :type config: any
+    :param parsing_cb: Boolean indicating whether or not the parsing call back
+                       should be called
+    :type parsing_cb: bool
+
     """
 
     @property
@@ -714,7 +734,7 @@ class DataFlowGraph:
 
         return self.apply_cbs(address_offset_cb, logger)
 
-    def __init__(self, src, logger, config, parsing_cb=True):
+    def __init__(self, src: any, logger: any, config: any, parsing_cb: bool = True):
         self.logger = logger
         self.config = config
         self.src = self._parse_source(src)
@@ -1020,13 +1040,14 @@ class DataFlowGraph:
         assert loc not in self.spilled_reg_state.keys()
         self.spilled_reg_state[loc] = self._find_source_single(ty, reg)
 
-    def _add_node(self, s):
+    def _add_node(self, s: any):
         """
         Add a node to the dataflow graph
 
         :param s: Instruction to be added to the graph. This may be a single
             instruction of a list of candidate instructions, in case the
             parsing wasn't unambiguous.
+        :type s: any
         """
 
         if not isinstance(s, VirtualInstruction):
