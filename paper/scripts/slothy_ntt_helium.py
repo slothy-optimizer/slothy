@@ -25,22 +25,34 @@
 # Author: Hanno Becker <hannobecker@posteo.de>
 #
 
-import argparse, logging, sys, os, time
-from io import StringIO
+import argparse
+import logging
+import sys
+import os
+import time
 
-from slothy import Slothy, Config
+from slothy import Slothy
 
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
-target_label_dict = {Target_CortexM55r1: "m55",
-                     Target_CortexM85r1: "m85"}
+target_label_dict = {Target_CortexM55r1: "m55", Target_CortexM85r1: "m85"}
 
-class Example():
-    def __init__(self, infile, name=None, funcname=None, suffix="opt",
-                 rename=False, outfile="", arch=Arch_Armv81M, target=Target_CortexM55r1,
-                 **kwargs):
+
+class Example:
+    def __init__(
+        self,
+        infile,
+        name=None,
+        funcname=None,
+        suffix="opt",
+        rename=False,
+        outfile="",
+        arch=Arch_Armv81M,
+        target=Target_CortexM55r1,
+        **kwargs,
+    ):
         if name is None:
             name = infile
 
@@ -55,12 +67,13 @@ class Example():
             self.outfile = f"{outfile}_{self.suffix}_{target_label_dict[self.target]}"
         if funcname is None:
             self.funcname = self.infile
-        self.infile_full  = f"../clean/helium/ntt/{self.infile}.s"
+        self.infile_full = f"../clean/helium/ntt/{self.infile}.s"
         self.outfile_full = f"../opt/helium/ntt/{self.outfile}.s"
         self.name = name
         self.rename = rename
 
         self.extra_args = kwargs
+
     # By default, optimize the whole file
     def core(self, slothy):
         slothy.optimize()
@@ -82,7 +95,7 @@ class Example():
 
         if no_log is False:
             # By default, use time stamp and input file
-            file_base = os.path.basename(self.outfile_full).replace('.','_')
+            file_base = os.path.basename(self.outfile_full).replace(".", "_")
             logfile = f"slothy_log_{int(time.time())}_{file_base}.log"
             logfile = f"{logdir}/{logfile}"
             h_log = logging.FileHandler(logfile)
@@ -90,8 +103,8 @@ class Example():
             handlers.append(h_log)
 
         logging.basicConfig(
-            level = logging.INFO,
-            handlers = handlers,
+            level=logging.INFO,
+            handlers=handlers,
         )
 
         logger = logging.getLogger(self.name)
@@ -104,11 +117,17 @@ class Example():
         self.core(slothy, *self.extra_args)
 
         if self.rename:
-            slothy.rename_function(self.funcname, f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}")
+            slothy.rename_function(
+                self.funcname,
+                f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}",
+            )
         slothy.write_source_to_file(self.outfile_full)
 
+
 class ntt_kyber_1_23_45_67(Example):
-    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1, timeout=None):
+    def __init__(
+        self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1, timeout=None
+    ):
         name = "ntt_kyber_1_23_45_67"
         infile = name
         if var != "":
@@ -118,17 +137,18 @@ class ntt_kyber_1_23_45_67(Example):
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
         self.timeout = timeout
+
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer1_loop")
@@ -152,18 +172,20 @@ class ntt_kyber_12_345_67(Example):
             name += f"_{var}"
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
-        self.var=var
-        super().__init__(infile, name=name,
-                         suffix=suffix, rename=True, arch=arch, target=target)
+        self.var = var
+        super().__init__(
+            infile, name=name, suffix=suffix, rename=True, arch=arch, target=target
+        )
 
-    def core(self,slothy):
+    def core(self, slothy):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.optimize_loop("layer12_loop", postamble_label="layer12_loop_end")
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.config.locked_registers = set( [ f"QSTACK{i}" for i in [4,5,6] ] +
-                                               [ "STACK0" ] )
+        slothy.config.locked_registers = set(
+            [f"QSTACK{i}" for i in [4, 5, 6]] + ["STACK0"]
+        )
         slothy.config.sw_pipelining.enabled = False
         slothy.optimize_loop("layer345_loop")
 
@@ -172,6 +194,7 @@ class ntt_kyber_12_345_67(Example):
         slothy.config.sw_pipelining.halving_heuristic_periodic = True
         slothy.config.constraints.st_ld_hazard = False
         slothy.optimize_loop("layer67_loop")
+
 
 class ntt_dilithium_12_34_56_78(Example):
     def __init__(self, var="", target=Target_CortexM55r1, arch=Arch_Armv81M):
@@ -183,26 +206,27 @@ class ntt_dilithium_12_34_56_78(Example):
         name += f"_{target_label_dict[target]}"
         super().__init__(infile, name=name, arch=arch, target=target, rename=True)
         self.var = var
+
     def core(self, slothy):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
         slothy.config.typing_hints = {
-            "root0"         : Arch_Armv81M.RegisterType.GPR,
-            "root1"         : Arch_Armv81M.RegisterType.GPR,
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted" : Arch_Armv81M.RegisterType.GPR,
-            "const1"        : Arch_Armv81M.RegisterType.GPR,
+            "root0": Arch_Armv81M.RegisterType.GPR,
+            "root1": Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
+            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
+            "const1": Arch_Armv81M.RegisterType.GPR,
         }
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
-        slothy.config.sw_pipelining.optimize_preamble  = True
+        slothy.config.sw_pipelining.optimize_preamble = True
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("layer56_loop", postamble_label="layer56_loop_end")
-        slothy.config.sw_pipelining.optimize_preamble  = False
+        slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = True
         slothy.config.typing_hints = {}
         slothy.config.constraints.st_ld_hazard = False
@@ -214,6 +238,7 @@ class ntt_dilithium_12_34_56_78(Example):
         slothy.config.sw_pipelining.enabled = False
         slothy.optimize(start="layer56_loop_end", end="layer78_loop")
 
+
 class ntt_dilithium_123_456_78(Example):
     def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
         infile = "ntt_dilithium_123_456_78"
@@ -223,28 +248,33 @@ class ntt_dilithium_123_456_78(Example):
             name += f"_{var}"
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
-        super().__init__(infile, name=name,
-                         suffix=suffix, arch=arch, target=target, rename=True)
+        super().__init__(
+            infile, name=name, suffix=suffix, arch=arch, target=target, rename=True
+        )
         self.var = var
+
     def core(self, slothy):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.typing_hints = {
-            "root2"         : Arch_Armv81M.RegisterType.GPR,
-            "root3"         : Arch_Armv81M.RegisterType.GPR,
-            "root5"         : Arch_Armv81M.RegisterType.GPR,
-            "root6"         : Arch_Armv81M.RegisterType.GPR,
-            "rtmp"          : Arch_Armv81M.RegisterType.GPR,
-            "rtmp_tw"       : Arch_Armv81M.RegisterType.GPR,
-            "root2_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root3_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root5_tw"      : Arch_Armv81M.RegisterType.GPR,
-            "root6_tw"      : Arch_Armv81M.RegisterType.GPR,
+            "root2": Arch_Armv81M.RegisterType.GPR,
+            "root3": Arch_Armv81M.RegisterType.GPR,
+            "root5": Arch_Armv81M.RegisterType.GPR,
+            "root6": Arch_Armv81M.RegisterType.GPR,
+            "rtmp": Arch_Armv81M.RegisterType.GPR,
+            "rtmp_tw": Arch_Armv81M.RegisterType.GPR,
+            "root2_tw": Arch_Armv81M.RegisterType.GPR,
+            "root3_tw": Arch_Armv81M.RegisterType.GPR,
+            "root5_tw": Arch_Armv81M.RegisterType.GPR,
+            "root6_tw": Arch_Armv81M.RegisterType.GPR,
         }
-        slothy.config.locked_registers = set([f"QSTACK{i}" for i in [4, 5, 6]] +
-                                              [f"ROOT{i}_STACK" for i in [0, 1, 4]] + ["RPTR_STACK"])
-        slothy.config.sw_pipelining.enabled=False
+        slothy.config.locked_registers = set(
+            [f"QSTACK{i}" for i in [4, 5, 6]]
+            + [f"ROOT{i}_STACK" for i in [0, 1, 4]]
+            + ["RPTR_STACK"]
+        )
+        slothy.config.sw_pipelining.enabled = False
         slothy.optimize_loop("layer123_loop")
         slothy.optimize_loop("layer456_loop")
 
@@ -254,44 +284,63 @@ class ntt_dilithium_123_456_78(Example):
         slothy.config.typing_hints = {}
         slothy.optimize_loop("layer78_loop")
 
-#############################################################################################
+
+##########################################################################################
+
 
 def main():
-    examples = [ # Kyber NTT
-                 # Cortex-M55
-                 ntt_kyber_1_23_45_67(var="no_trans"),
-                 ntt_kyber_1_23_45_67(var="no_trans_vld4", timeout=600),
-                 ntt_kyber_12_345_67(),
-                 # Cortex-M85
-                 ntt_kyber_1_23_45_67(var="no_trans", target=Target_CortexM85r1),
-                 ntt_kyber_1_23_45_67(var="no_trans_vld4", target=Target_CortexM85r1, timeout=600),
-                 ntt_kyber_12_345_67(target=Target_CortexM85r1),
-                 # # Dilithium NTT
-                 # # Cortex-M55
-                 ntt_dilithium_12_34_56_78(),
-                 ntt_dilithium_12_34_56_78(var="no_trans_vld4"),
-                 ntt_dilithium_123_456_78(),
-                 # # Cortex-M85
-                 ntt_dilithium_12_34_56_78(target=Target_CortexM85r1),
-                 ntt_dilithium_12_34_56_78(var="no_trans_vld4", target=Target_CortexM85r1),
-                 ntt_dilithium_123_456_78(target=Target_CortexM85r1),
-                ]
+    examples = [  # Kyber NTT
+        # Cortex-M55
+        ntt_kyber_1_23_45_67(var="no_trans"),
+        ntt_kyber_1_23_45_67(var="no_trans_vld4", timeout=600),
+        ntt_kyber_12_345_67(),
+        # Cortex-M85
+        ntt_kyber_1_23_45_67(var="no_trans", target=Target_CortexM85r1),
+        ntt_kyber_1_23_45_67(
+            var="no_trans_vld4", target=Target_CortexM85r1, timeout=600
+        ),
+        ntt_kyber_12_345_67(target=Target_CortexM85r1),
+        # # Dilithium NTT
+        # # Cortex-M55
+        ntt_dilithium_12_34_56_78(),
+        ntt_dilithium_12_34_56_78(var="no_trans_vld4"),
+        ntt_dilithium_123_456_78(),
+        # # Cortex-M85
+        ntt_dilithium_12_34_56_78(target=Target_CortexM85r1),
+        ntt_dilithium_12_34_56_78(var="no_trans_vld4", target=Target_CortexM85r1),
+        ntt_dilithium_123_456_78(target=Target_CortexM85r1),
+    ]
 
-    all_example_names = [ e.name for e in examples ]
+    all_example_names = [e.name for e in examples]
 
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument(
-        "--examples", type=str, default="all",
-        help=f"The list of examples to be run, comma-separated list from {all_example_names}."
+        "--examples",
+        type=str,
+        default="all",
+        help=(
+            f"The list of examples to be run, comma-separated list from "
+            f"{all_example_names}."
+        ),
     )
     parser.add_argument("--iterations", type=int, default=1)
-    parser.add_argument("--no-log", default=False, action='store_true',
-                        help="Don't store logfiles")
-    parser.add_argument("--silent", default=False, action='store_true',
-                        help="""Silent mode: Only print warnings and errors""")
-    parser.add_argument("--log-model", default=False, action='store_true',
-                        help="""Export CP-SAT model to text file before solving""")
+    parser.add_argument(
+        "--no-log", default=False, action="store_true", help="Don't store logfiles"
+    )
+    parser.add_argument(
+        "--silent",
+        default=False,
+        action="store_true",
+        help="""Silent mode: Only print warnings and errors""",
+    )
+    parser.add_argument(
+        "--log-model",
+        default=False,
+        action="store_true",
+        help="""Export CP-SAT model to text file before solving""",
+    )
 
     args = parser.parse_args()
     if args.examples != "all":
@@ -306,13 +355,16 @@ def main():
             if e.name == name:
                 ex = e
                 break
-        if ex == None:
-            raise Exception(f"Could not find example {name} (known: {list(e.name for e in examples)}")
+        if ex is None:
+            raise Exception(
+                f"Could not find example {name} (known: {list(e.name for e in examples)}"
+            )
         ex.run(silent=silent, no_log=args.no_log, log_model=args.log_model)
 
     for e in todo:
         for _ in range(iterations):
             run_example(e, silent=args.silent)
 
+
 if __name__ == "__main__":
-   main()
+    main()

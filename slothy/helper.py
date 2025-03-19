@@ -32,19 +32,16 @@ import platform
 import logging
 from abc import ABC, abstractmethod
 from sympy import simplify
-from slothy.targets.common import *
+from slothy.targets.common import FatalParsingException
 
-try:
-    from unicorn import *
-    from unicorn.arm64_const import *
-except ImportError:
-    Uc = None
+from unicorn import Uc, UcError
+
 
 class SourceLine:
     """Representation of a single line of source code"""
 
     def _extract_comments_from_text(self):
-        if not "//" in self._raw:
+        if "//" not in self._raw:
             return
         s = list(self._raw.split("//"))
         self._raw = s[0]
@@ -76,7 +73,7 @@ class SourceLine:
 
         def tag_list_callback(g):
             tag = g.group("tag")
-            values = list(map(parse_value, g.group("value").split(',')))
+            values = list(map(parse_value, g.group("value").split(",")))
             tags[tag] = values
             return ""
 
@@ -102,8 +99,9 @@ class SourceLine:
 
     def _extract_tags_from_comments(self):
         tags = {}
-        self._comments = list(map(lambda c: SourceLine._parse_tags_in_string(c, tags),
-            self._comments))
+        self._comments = list(
+            map(lambda c: SourceLine._parse_tags_in_string(c, tags), self._comments)
+        )
         self._trim_comments()
         self.add_tags(tags)
 
@@ -142,7 +140,6 @@ class SourceLine:
         return self
 
     def __init__(self, s, reduce=True):
-        """Create source line from string"""
         assert isinstance(s, str)
 
         self._raw = s
@@ -176,6 +173,7 @@ class SourceLine:
         Tags are source annotations of the form @slothy:(tag[=value]?).
         """
         return self._tags
+
     @tags.setter
     def tags(self, v):
         self._tags = v
@@ -184,6 +182,7 @@ class SourceLine:
     def comments(self):
         """Return the list of comments for the source line"""
         return self._comments
+
     @comments.setter
     def comments(self, v):
         self._comments = v
@@ -212,12 +211,13 @@ class SourceLine:
         else:
             core = f"{self._raw:{self._fixlength}s}"
 
-        indentation = ' ' * self._indentation \
-            if indentation is True else ""
+        indentation = " " * self._indentation if indentation is True else ""
 
         double_comments = filter(lambda t: not t.startswith("/"), self._comments)
-        triple_comments = map(lambda s: (" " + s[1:].strip()).rstrip(),
-                              filter(lambda t: t.startswith("/"), self._comments))
+        triple_comments = map(
+            lambda s: (" " + s[1:].strip()).rstrip(),
+            filter(lambda t: t.startswith("/"), self._comments),
+        )
 
         additional = []
 
@@ -226,33 +226,41 @@ class SourceLine:
             additional += list(map(lambda s: f"///{s}", triple_comments))
 
         if tags is True:
+
             def print_tag_value(tv):
                 t, v = tv
                 if v is True:
                     return f"// @slothy:{t}"
-#                if isinstance(v, list):
-#                    return f"// @slothy:{t}=[{','.join(v)}]"
+                #                if isinstance(v, list):
+                #                    return f"// @slothy:{t}=[{','.join(v)}]"
                 return f"// @slothy:{t}={v}"
+
             additional += list(map(print_tag_value, self._tags.items()))
 
-        add_str = ' '.join(additional)
+        add_str = " ".join(additional)
 
         return f"{indentation}{core}{add_str}".rstrip()
 
     def __str__(self):
-        raise AsmHelperException("Forbid str(SourceLine) for now -- call SourceLine.to_string() "
-                                 "explicitly and indicate if indentation, comments and tags "
-                                 "should be printed as well.")
+        raise AsmHelperException(
+            "Forbid str(SourceLine) for now -- call SourceLine.to_string() "
+            "explicitly and indicate if indentation, comments and tags "
+            "should be printed as well."
+        )
 
     @staticmethod
     def reduce_source(src):
         """Extract metadata (e.g. indentation, tags, comments) from source lines"""
         assert SourceLine.is_source(src)
-        for l in src:
-            l.reduce()
-        return [ l for l in src if l.has_text() and
-                 not AsmHelper.is_alignment_directive(l) and
-                 not AsmHelper.is_allocation_directive(l) ]
+        for line in src:
+            line.reduce()
+        return [
+            line
+            for line in src
+            if line.has_text()
+            and not AsmHelper.is_alignment_directive(line)
+            and not AsmHelper.is_allocation_directive(line)
+        ]
 
     @staticmethod
     def log(name, s, logger=None, err=False):
@@ -265,8 +273,8 @@ class SourceLine:
         if len(s) == 0:
             return
         fun(f"Dump: {name}")
-        for l in s:
-            fun(f"> {l.to_string()}")
+        for line in s:
+            fun(f"> {line.to_string()}")
 
     def set_text(self, s):
         """Set the text of the source line
@@ -278,7 +286,7 @@ class SourceLine:
 
     def transform_text(self, f):
         """Apply transformation f to text of source line."""
-        self._raw=f(self._raw)
+        self._raw = f(self._raw)
 
     def add_text(self, s):
         """Add text to a source line
@@ -305,23 +313,28 @@ class SourceLine:
 
     def copy(self):
         """Create a copy of a source line"""
-        return SourceLine(self._raw)                \
-                .add_tags(self._tags.copy())        \
-                .set_indentation(self._indentation) \
-                .add_comments(self._comments.copy())\
-                .set_length(self._fixlength)
+        return (
+            SourceLine(self._raw)
+            .add_tags(self._tags.copy())
+            .set_indentation(self._indentation)
+            .add_comments(self._comments.copy())
+            .set_length(self._fixlength)
+        )
 
     @staticmethod
     def read_multiline(s, reduce=True):
-        """Parse multi-line string or array of strings into list of SourceLine instances"""
+        """Parse multi-line string or array of strings into list of SourceLine
+        instances"""
         if isinstance(s, str):
             # Retain newline termination
-            terminated_by_newline = (len(s) > 0 and s[-1] == '\n')
+            terminated_by_newline = len(s) > 0 and s[-1] == "\n"
             s = s.splitlines()
             if terminated_by_newline:
                 s.append("")
 
-        return SourceLine.merge_escaped_lines([ SourceLine(l, reduce=reduce) for l in s ])
+        return SourceLine.merge_escaped_lines(
+            [SourceLine(line, reduce=reduce) for line in s]
+        )
 
     @staticmethod
     def merge_escaped_lines(s):
@@ -329,13 +342,13 @@ class SourceLine:
         assert SourceLine.is_source(s)
         res = []
         cur = None
-        for l in s:
+        for line in s:
             if cur is not None:
-                cur.add_text(l.text)
-                cur.add_tags(l.tags)
-                cur.add_comments(l.comments)
+                cur.add_text(line.text)
+                cur.add_tags(line.tags)
+                cur.add_comments(line.comments)
             else:
-                cur = l.copy()
+                cur = line.copy()
             if cur.is_escaped:
                 cur.remove_escaping()
             else:
@@ -348,13 +361,19 @@ class SourceLine:
     def copy_source(s):
         """Create a copy of a list of source lines"""
         assert SourceLine.is_source(s)
-        return [ l.copy() for l in s ]
+        return [line.copy() for line in s]
 
     @staticmethod
     def write_multiline(s, comments=True, indentation=True, tags=True):
         """Write source as multiline string"""
-        return '\n'.join(map(lambda t: t.to_string(
-            comments=comments, tags=tags, indentation=indentation), s))
+        return "\n".join(
+            map(
+                lambda t: t.to_string(
+                    comments=comments, tags=tags, indentation=indentation
+                ),
+                s,
+            )
+        )
 
     def set_indentation(self, indentation):
         """Set the indentation (in number of spaces) to be used in to_string()"""
@@ -372,20 +391,20 @@ class SourceLine:
         """Add a single tag-value pair to the metadata of the source line
 
         If a tag is already specified, it is overwritten."""
-        return self.add_tags({ tag: value })
+        return self.add_tags({tag: value})
 
-    def inherit_tags(self, l):
-        """Inhertis the tags from another source line
+    def inherit_tags(self, line):
+        """Inherits the tags from another source line
 
         In case of overlapping tags, source line l takes precedence."""
-        assert SourceLine.is_source_line(l)
-        self.add_tags(l.tags)
+        assert SourceLine.is_source_line(line)
+        self.add_tags(line.tags)
         return self
 
-    def inherit_comments(self, l):
-        """Inhertis the comments from another source line"""
-        assert SourceLine.is_source_line(l)
-        self.add_comments(l.comments)
+    def inherit_comments(self, line):
+        """Inherits the comments from another source line"""
+        assert SourceLine.is_source_line(line)
+        self.add_comments(line.comments)
         return self
 
     @staticmethod
@@ -395,27 +414,27 @@ class SourceLine:
         if indentation is None:
             return source
         assert isinstance(indentation, int)
-        return [ l.copy().set_indentation(indentation) for l in source ]
+        return [line.copy().set_indentation(indentation) for line in source]
 
     @staticmethod
     def drop_tags(source):
         """Drop all tags from a source"""
         assert SourceLine.is_source(source)
-        for l in source:
-            l.tags = {}
+        for line in source:
+            line.tags = {}
         return source
 
     @staticmethod
     def split_semicolons(s):
-        """"Split the text of a source line at semicolons
+        """ "Split the text of a source line at semicolons
 
         The resulting source lines inherit their metadata from the caller."""
         assert SourceLine.is_source(s)
         res = []
         for line in s:
-            for l in line.text.split(';'):
+            for ll in line.text.split(";"):
                 t = line.copy()
-                t.set_text(l)
+                t.set_text(ll)
                 res.append(t)
         return res
 
@@ -434,47 +453,58 @@ class SourceLine:
         """Checks if the parameter is a SourceLine instance"""
         return isinstance(s, SourceLine)
 
-class NestedPrint():
+
+class NestedPrint:
     """Helper for recursive printing of structures"""
+
     def __str__(self):
-        top = [ self.__class__.__name__ + ":" ]
+        top = [self.__class__.__name__ + ":"]
         res = []
-        indent = ' ' * 8
+        indent = " " * 8
         for name, value in vars(self).items():
             res += f"{name}: {value}".splitlines()
-        res = top + [ indent + r for r in res ]
-        return '\n'.join(res)
+        res = top + [indent + r for r in res]
+        return "\n".join(res)
+
     def log(self, fun):
         """Pass self-description line-by-line to logging function"""
-        for l in str(self).splitlines():
-            fun(l)
+        for line in str(self).splitlines():
+            fun(line)
+
 
 class LockAttributes:
     """Base class adding support for 'locking' the set of attributes, that is,
-       preventing the creation of any further attributes. Note that the modification
-       of already existing attributes remains possible.
+    preventing the creation of any further attributes. Note that the modification
+    of already existing attributes remains possible.
 
-       Our primary use case is for configurations, where this class is used to catch typos
-       in the user configuration."""
+    Our primary use case is for configurations, where this class is used to catch typos
+    in the user configuration."""
+
     def __init__(self):
         self.__dict__["_locked"] = False
         self._locked = False
+
     def lock(self):
         """Lock set of attributes"""
         self._locked = True
+
     def __setattr__(self, attr, val):
         if self._locked and attr not in dir(self):
-            varlist = [v for v in dir(self) if not v.startswith("_") ]
-            varlist = '\n'.join(map(lambda x: '* ' + x, varlist))
-            raise TypeError(f"Unknown attribute {attr}. \nValid attributes are:\n{varlist}")
+            varlist = [v for v in dir(self) if not v.startswith("_")]
+            varlist = "\n".join(map(lambda x: "* " + x, varlist))
+            raise TypeError(
+                f"Unknown attribute {attr}. \nValid attributes are:\n{varlist}"
+            )
         if self._locked and attr == "_locked":
             raise TypeError("Can't unlock an object")
-        object.__setattr__(self,attr,val)
+        object.__setattr__(self, attr, val)
+
 
 class AsmHelperException(Exception):
     """An exception encountered during an assembly helper"""
 
-class AsmHelper():
+
+class AsmHelper:
     """Some helper functions for dealing with assembly"""
 
     _REGEXP_ALIGN_TXT = r"^\s*\.(?:p2)?align"
@@ -484,23 +514,23 @@ class AsmHelper():
     def find_indentation(source):
         """Attempts to find the prevailing indentation in a piece of assembly"""
 
-        def get_indentation(l):
-            return len(l) - len(l.lstrip())
+        def get_indentation(line):
+            return len(line) - len(line.lstrip())
 
         source = map(SourceLine.to_string, source)
 
         # Remove empty lines
         source = list(filter(lambda t: t.strip() != "", source))
-        l = len(source)
+        le = len(source)
 
-        if l == 0:
+        if le == 0:
             return None
 
         indentations = list(map(get_indentation, source))
 
         # Some labels may use a different indentation -- here, we just check if
         # there's a dominant indentation
-        top_start = (3 * l) // 4
+        top_start = (3 * le) // 4
         indentations.sort()
         indentations = indentations[top_start:]
 
@@ -516,12 +546,17 @@ class AsmHelper():
         # For now, just replace function names line by line
         def change_funcname(line):
             s = line.text
-            s = re.sub( f"{old_funcname}:", f"{new_funcname}:", s)
-            s = re.sub( f"\\.global(\\s+){old_funcname}", f".global\\1{new_funcname}", s)
-            s = re.sub( f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
-            s = re.sub( f"\\.size(\\s+){old_funcname},(\\s*)\\.-{old_funcname}", f".size {new_funcname}, .-{new_funcname}", s)
+            s = re.sub(f"{old_funcname}:", f"{new_funcname}:", s)
+            s = re.sub(f"\\.global(\\s+){old_funcname}", f".global\\1{new_funcname}", s)
+            s = re.sub(f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
+            s = re.sub(
+                f"\\.size(\\s+){old_funcname},(\\s*)\\.-{old_funcname}",
+                f".size {new_funcname}, .-{new_funcname}",
+                s,
+            )
             return line.copy().set_text(s)
-        return [ change_funcname(s) for s in source ]
+
+        return [change_funcname(s) for s in source]
 
     @staticmethod
     def is_alignment_directive(line):
@@ -531,10 +566,9 @@ class AsmHelper():
 
     @staticmethod
     def is_allocation_directive(line):
-        """Checks is source line is an allocation directive. """
+        """Checks is source line is an allocation directive."""
         assert SourceLine.is_source_line(line)
-        return (AsmAllocation.is_allocation(line) or
-                AsmAllocation.is_deallocation(line))
+        return AsmAllocation.is_allocation(line) or AsmAllocation.is_deallocation(line)
 
     @staticmethod
     def extract(source, lbl_start=None, lbl_end=None):
@@ -544,7 +578,7 @@ class AsmHelper():
 
     @staticmethod
     def _extract_core(source, lbl_start=None, lbl_end=None):
-        pre  = []
+        pre = []
         body = []
         post = []
 
@@ -555,40 +589,43 @@ class AsmHelper():
 
         loop_lbl_regexp_txt = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         loop_lbl_regexp = re.compile(loop_lbl_regexp_txt)
-        l = None
+        line = None
         keep = False
-        state = 0 # 0: haven't found initial label yet, 1: between labels, 2: after snd label
+        # 0: haven't found initial label yet, 1: between labels, 2: after snd label
+        state = 0
 
         # If no start label is provided, scan from the start to the end label
         if lbl_start is None:
             state = 1
 
-        idx=0
+        idx = 0
         while True:
             idx += 1
             if not keep:
-                l = next(lines, None)
-            if l is None:
+                line = next(lines, None)
+            if line is None:
                 break
-            l_str = l.text
+            l_str = line.text
             keep = False
             if state == 2:
-                post.append(l)
+                post.append(line)
                 continue
-            expect_label = [ lbl_start, lbl_end ][state]
-            cur_buf = [ pre, body ][state]
+            expect_label = [lbl_start, lbl_end][state]
+            cur_buf = [pre, body][state]
             p = loop_lbl_regexp.match(l_str)
             if p is not None and p.group("label") == expect_label:
-                l = l.copy().set_text(p.group("remainder"))
+                line = line.copy().set_text(p.group("remainder"))
                 keep = True
                 state += 1
                 continue
-            cur_buf.append(l)
+            cur_buf.append(line)
             continue
 
         if state < 2:
             if lbl_start is not None and lbl_end is not None:
-                raise AsmHelperException(f"Failed to identify region {lbl_start}-{lbl_end}")
+                raise AsmHelperException(
+                    f"Failed to identify region {lbl_start}-{lbl_end}"
+                )
             if state == 0:
                 if lbl_start is not None:
                     lbl = lbl_start
@@ -598,18 +635,21 @@ class AsmHelper():
 
         return pre, body, post
 
-class AsmAllocation():
+
+class AsmAllocation:
     """Helper for tracking register aliases via .req and .unreq"""
 
     # TODO: This is conceptionally different and should be
     # handled in its own class.
-    _REGEXP_EQU_TXT = r"\s*\.equ\s+(?P<key>[A-Za-z0-9\_]+)\s*,\s*(?P<val>[A-Za-z0-9()*/+-]+)"
+    _REGEXP_EQU_TXT = (
+        r"\s*\.equ\s+(?P<key>[A-Za-z0-9\_]+)\s*,\s*(?P<val>[A-Za-z0-9()*/+-]+)"
+    )
 
     _REGEXP_REQ_TXT = r"\s*(?P<alias>\w+)\s+\.req\s+(?P<reg>\w+)"
     _REGEXP_UNREQ_TXT = r"\s*\.unreq\s+(?P<alias>\w+)"
 
-    _REGEXP_EQU   = re.compile(_REGEXP_EQU_TXT)
-    _REGEXP_REQ   = re.compile(_REGEXP_REQ_TXT)
+    _REGEXP_EQU = re.compile(_REGEXP_EQU_TXT)
+    _REGEXP_REQ = re.compile(_REGEXP_REQ_TXT)
     _REGEXP_UNREQ = re.compile(_REGEXP_UNREQ_TXT)
 
     def __init__(self):
@@ -625,9 +665,10 @@ class AsmAllocation():
         self.allocations[alias] = reg_name
 
     def _remove_allocation(self, alias):
-        if not alias in self.allocations:
-            raise AsmHelperException(f"Couldn't find alias {alias} --"
-                                     " .unreq without .req in your source?")
+        if alias not in self.allocations:
+            raise AsmHelperException(
+                f"Couldn't find alias {alias} --" " .unreq without .req in your source?"
+            )
         del self.allocations[alias]
 
     @staticmethod
@@ -679,7 +720,7 @@ class AsmAllocation():
         r = AsmAllocation.check_allocation(line)
         if r is not None:
             alias, reg = r
-            self._add_allocation(alias,reg)
+            self._add_allocation(alias, reg)
             return
 
         r = AsmAllocation.check_deallocation(line)
@@ -697,7 +738,7 @@ class AsmAllocation():
 
     @staticmethod
     def parse_allocs(src):
-        """"Parse register aliases in assembly source into AsmAllocation object."""
+        """ "Parse register aliases in assembly source into AsmAllocation object."""
         allocs = AsmAllocation()
         allocs.parse(src)
         return allocs.allocations
@@ -705,19 +746,22 @@ class AsmAllocation():
     @staticmethod
     def unfold_all_aliases(aliases, src):
         """Unfold aliases in assembly source"""
+
         def _apply_single_alias_to_line(alias_from, alias_to, src):
             res = re.sub(f"(\\W){alias_from}(\\W|\\Z)", f"\\g<1>{alias_to}\\2", src)
             return res
+
         def _apply_multiple_aliases_to_line(line):
             do_again = True
             while do_again:
                 do_again = False
-                for (alias_from, alias_to) in aliases.items():
+                for alias_from, alias_to in aliases.items():
                     line_new = _apply_single_alias_to_line(alias_from, alias_to, line)
                     if line_new != line:
                         do_again = True
                     line = line_new
             return line
+
         res = []
         for line in src:
             t = line.copy()
@@ -725,23 +769,28 @@ class AsmAllocation():
             res.append(t)
         return res
 
+
 class BinarySearchLimitException(Exception):
     """Binary search has exceeded its limit without finding a solution"""
 
-def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
-                  timeout_below_precision=None):
+
+def binary_search(
+    func, threshold=256, minimum=-1, start=0, precision=1, timeout_below_precision=None
+):
     """Conduct a binary search"""
-    start = max(start,minimum)
+    start = max(start, minimum)
     last_failure = minimum
     val = start
     # Find _some_ version that works
     while True:
         if val > threshold:
             raise BinarySearchLimitException
+
         def double_val(val):
             if val == 0:
                 return 1
-            return 2*val
+            return 2 * val
+
         success, result = func(val)
         if success:
             last_success = val
@@ -756,7 +805,7 @@ def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
             if timeout_below_precision is None:
                 break
             timeout = timeout_below_precision
-        val = last_failure + ( last_success - last_failure ) // 2
+        val = last_failure + (last_success - last_failure) // 2
         success, result = func(val, timeout=timeout)
         if success:
             last_success = val
@@ -765,7 +814,8 @@ def binary_search(func, threshold=256, minimum=-1, start=0, precision=1,
             last_failure = val
     return last_success, last_success_core
 
-class AsmMacro():
+
+class AsmMacro:
     """Helper class for parsing and applying assembly macros"""
 
     def __init__(self, name, args, body):
@@ -773,38 +823,39 @@ class AsmMacro():
         self.args = args
         self.body = body
 
-    def __call__(self,args_dict):
+    def __call__(self, args_dict):
 
         def prepare_value(a):
             a = a.strip()
-            a = a.replace("\\","\\\\")
-            if a.startswith("\\") and not "\\\\()" in a:
+            a = a.replace("\\", "\\\\")
+            if a.startswith("\\") and "\\\\()" not in a:
                 a = a + "\\\\()"
             return a
 
-        def apply_arg(l, arg, val):
-            # This function is also called on the values of tags, which may not be strings.
-            if isinstance(l, str) is False:
-                return l
-            l = re.sub(f"\\\\{arg}\\\\\\(\\)", val, l)
-            l = re.sub(f"\\\\{arg}(\\W|$)",val + "\\1", l)
-            l = l.replace("\\()\\()", "\\()")
-            return l
+        def apply_arg(ll, arg, val):
+            # This function is also called on the values of tags, which may not be
+            # strings.
+            if isinstance(ll, str) is False:
+                return ll
+            ll = re.sub(f"\\\\{arg}\\\\\\(\\)", val, ll)
+            ll = re.sub(f"\\\\{arg}(\\W|$)", val + "\\1", ll)
+            ll = ll.replace("\\()\\()", "\\()")
+            return ll
 
-        def apply_args(l):
+        def apply_args(ll):
             for arg in self.args:
                 val = prepare_value(args_dict[arg])
-                if not isinstance(l, list):
-                    l = apply_arg(l, arg, val)
+                if not isinstance(ll, list):
+                    ll = apply_arg(ll, arg, val)
                 else:
-                    l = list(map(lambda x: apply_arg(x, arg, val), l))
-            return l
+                    ll = list(map(lambda x: apply_arg(x, arg, val), ll))
+            return ll
 
         output = []
         for line in self.body:
             t = line.copy()
             t.transform_text(apply_args)
-            t.tags = { k:apply_args(v) for (k,v) in t.tags.items() }
+            t.tags = {k: apply_args(v) for (k, v) in t.tags.items()}
             output.append(t)
         return output
 
@@ -827,35 +878,32 @@ class AsmMacro():
         for arg in self.args:
             arg_regexps.append(rf"\s*(?P<{arg}>[^,]+)\s*")
 
-        macro_regexp_txt += '(,|\\s)'.join(arg_regexps)
+        macro_regexp_txt += "(,|\\s)".join(arg_regexps)
         macro_regexp = re.compile(macro_regexp_txt)
 
         output = []
 
-        indentation_regexp_txt = r"^(?P<whitespace>\s*)($|\S)"
-        indentation_regexp = re.compile(indentation_regexp_txt)
-
         # Go through source line by line and check if there's a macro invocation
-        for l in source:
-            assert SourceLine.is_source_line(l)
+        for line in source:
+            assert SourceLine.is_source_line(line)
 
-            if l.has_text():
-                p = macro_regexp.match(l.text)
+            if line.has_text():
+                p = macro_regexp.match(line.text)
             else:
                 p = None
 
             if p is None:
-                output.append(l)
+                output.append(line)
                 continue
             if change_callback:
                 change_callback()
             # Try to keep indentation
             repl = self(p.groupdict())
             for l0 in repl:
-                l0.set_indentation(l.indentation)
-                l0.inherit_tags(l)
+                l0.set_indentation(line.indentation)
+                l0.inherit_tags(line)
                 if inherit_comments is True:
-                    l0.inherit_comments(l)
+                    l0.inherit_comments(line)
             output += repl
 
         return output
@@ -865,10 +913,13 @@ class AsmMacro():
         """Unfold list of macros in assembly source"""
         assert isinstance(macros, list)
         assert SourceLine.is_source(source)
-        def list_of_instances(l,c):
-            return isinstance(l,list) and all(map(lambda m: isinstance(m,c), l))
-        def dict_of_instances(l,c):
-            return isinstance(l,dict) and list_of_instances(list(l.values()), c)
+
+        def list_of_instances(line, c):
+            return isinstance(line, list) and all(map(lambda m: isinstance(m, c), line))
+
+        def dict_of_instances(line, c):
+            return isinstance(line, dict) and list_of_instances(list(line.values()), c)
+
         if SourceLine.is_source(macros):
             macros = AsmMacro.extract(macros)
         if not dict_of_instances(macros, AsmMacro):
@@ -877,9 +928,11 @@ class AsmMacro():
         change = True
         while change:
             change = False
+
             def cb():
                 nonlocal change
                 change = True
+
             for m in macros.values():
                 source = m.unfold_in(source, change_callback=cb, **kwargs)
         return source
@@ -890,7 +943,7 @@ class AsmMacro():
 
         macros = {}
 
-        state = 0 # 0: Not in a macro 1: In a macro
+        state = 0  # 0: Not in a macro 1: In a macro
         current_macro = None
         current_args = None
         current_body = None
@@ -913,11 +966,15 @@ class AsmMacro():
                 if cur.tags.get("no-unfold", None) is not None:
                     continue
 
-                current_args = [ a.strip() for a in re.split(r'\s|\,', p.group("args")) if a.strip() != ""]
+                current_args = [
+                    a.strip()
+                    for a in re.split(r"\s|\,", p.group("args"))
+                    if a.strip() != ""
+                ]
                 current_macro = p.group("name")
                 current_body = []
 
-                if current_args == ['']:
+                if current_args == [""]:
                     current_args = []
 
                 state = 1
@@ -929,7 +986,9 @@ class AsmMacro():
                     current_body.append(cur)
                     continue
 
-                macros[current_macro] = AsmMacro(current_macro, current_args, current_body)
+                macros[current_macro] = AsmMacro(
+                    current_macro, current_args, current_body
+                )
 
                 current_macro = None
                 current_body = None
@@ -943,18 +1002,18 @@ class AsmMacro():
     @staticmethod
     def extract_from_file(filename):
         """Parse all macro definitions in assembly file"""
-        with open(filename,"r",encoding="utf-8") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             res = AsmMacro.extract(f.read().splitlines())
         return res
 
 
-class AsmIfElse():
+class AsmIfElse:
     _REGEXP_IF_TXT = r"\s*\.if\s+(?P<cond>.*)"
     _REGEXP_ELSE_TXT = r"\s*\.else"
     _REGEXP_ENDIF_TXT = r"\s*\.endif"
 
-    _REGEXP_IF    = re.compile(_REGEXP_IF_TXT)
-    _REGEXP_ELSE  = re.compile(_REGEXP_ELSE_TXT)
+    _REGEXP_IF = re.compile(_REGEXP_IF_TXT)
+    _REGEXP_ELSE = re.compile(_REGEXP_ELSE_TXT)
     _REGEXP_ENDIF = re.compile(_REGEXP_ENDIF_TXT)
 
     @staticmethod
@@ -1047,7 +1106,7 @@ class AsmIfElse():
         return output_lines
 
 
-class CPreprocessor():
+class CPreprocessor:
     """Helper class for the application of the C preprocessor"""
 
     magic_string_start = "SLOTHY_PREPROCESSED_REGION_BEGIN"
@@ -1065,35 +1124,43 @@ class CPreprocessor():
         header_txt = SourceLine.write_multiline(header)
         footer_txt = SourceLine.write_multiline(post)
 
-        code_txt = '\n'.join([header_txt,
-                              CPreprocessor.magic_string_start,
-                              body_txt,
-                              CPreprocessor.magic_string_end,
-                              footer_txt])
+        code_txt = "\n".join(
+            [
+                header_txt,
+                CPreprocessor.magic_string_start,
+                body_txt,
+                CPreprocessor.magic_string_end,
+                footer_txt,
+            ]
+        )
 
         if include is None:
             include = []
             # Ignore #include's
-            code_txt = code_txt.replace("#include","//#include")
+            code_txt = code_txt.replace("#include", "//#include")
         else:
             include = ["-I", include]
 
-        cmd = [gcc] + include + ["-E", "-CC", "-x", "assembler-with-cpp","-"]
+        cmd = [gcc] + include + ["-E", "-CC", "-x", "assembler-with-cpp", "-"]
 
         # Pass -CC to keep comments
-        r = subprocess.run(cmd, input=code_txt, text=True, capture_output=True, check=True)
+        r = subprocess.run(
+            cmd, input=code_txt, text=True, capture_output=True, check=True
+        )
 
-        unfolded_code = r.stdout.split('\n')
+        unfolded_code = r.stdout.split("\n")
         magic_idx_start = unfolded_code.index(CPreprocessor.magic_string_start)
         magic_idx_end = unfolded_code.index(CPreprocessor.magic_string_end)
-        unfolded_code = unfolded_code[magic_idx_start+1:magic_idx_end]
+        unfolded_code = unfolded_code[magic_idx_start + 1 : magic_idx_end]
 
         return [SourceLine(r) for r in unfolded_code]
+
 
 class LLVM_Mc_Error(Exception):
     """Exception thrown if llvm-mc subprocess fails"""
 
-class LLVM_Mc():
+
+class LLVM_Mc:
     """Helper class for the application of the LLVM MC tool"""
 
     @staticmethod
@@ -1108,7 +1175,9 @@ class LLVM_Mc():
         # So we're left to hacky string munging.
 
         # Feed object file through llvm-readobj
-        r = subprocess.run(["llvm-readobj", "-S", "-"], input=objfile, capture_output=True, check=True)
+        r = subprocess.run(
+            ["llvm-readobj", "-S", "-"], input=objfile, capture_output=True, check=True
+        )
         objfile_txt = r.stdout.decode().split("\n")
 
         # We expect something like this here
@@ -1143,18 +1212,32 @@ class LLVM_Mc():
             if s.startswith("0x"):
                 return int(s, base=16)
             else:
-                return int(s,base=10)
+                return int(s, base=10)
 
-        sections = filter(lambda l: l.strip().startswith("Name: "), objfile_txt)
-        sections = list(map(lambda l: l.strip().removeprefix("Name: ").split(' ')[0].strip(), sections))
-        offsets = filter(lambda l: l.strip().startswith("Offset: "), objfile_txt)
-        offsets = map(lambda l: parse_as_int(l.strip().removeprefix("Offset: ")), offsets)
-        sizes = filter(lambda l: l.strip().startswith("Size: "), objfile_txt)
-        sizes = map(lambda l: parse_as_int(l.strip().removeprefix("Size: ")), sizes)
-        sections_with_offsets = { s:(o,sz) for (s,o,sz) in zip(sections, offsets, sizes) }
+        sections = filter(lambda line: line.strip().startswith("Name: "), objfile_txt)
+        sections = list(
+            map(
+                lambda line: line.strip().removeprefix("Name: ").split(" ")[0].strip(),
+                sections,
+            )
+        )
+        offsets = filter(lambda line: line.strip().startswith("Offset: "), objfile_txt)
+        offsets = map(
+            lambda line: parse_as_int(line.strip().removeprefix("Offset: ")), offsets
+        )
+        sizes = filter(lambda line: line.strip().startswith("Size: "), objfile_txt)
+        sizes = map(
+            lambda line: parse_as_int(line.strip().removeprefix("Size: ")), sizes
+        )
+        sections_with_offsets = {
+            s: (o, sz) for (s, o, sz) in zip(sections, offsets, sizes)
+        }
         text_section = list(filter(lambda s: "text" in s, sections))
         if len(text_section) != 1:
-            raise LLVM_Mc_Error(f"Could not find unambiguous text section in object file. Sections: {sections}")
+            raise LLVM_Mc_Error(
+                f"Could not find unambiguous text section in object file. Sections: "
+                f"{sections}"
+            )
         return sections_with_offsets[text_section[0]]
 
     @staticmethod
@@ -1162,7 +1245,9 @@ class LLVM_Mc():
         """Extracts symbol from an objectfile emitted by llvm-mc"""
 
         # Feed object file through llvm-readobj
-        r = subprocess.run(["llvm-readobj", "-s", "-"], input=objfile, capture_output=True, check=True)
+        r = subprocess.run(
+            ["llvm-readobj", "-s", "-"], input=objfile, capture_output=True, check=True
+        )
         objfile_txt = r.stdout.decode().split("\n")
 
         # So we look for lines "Name: ..." and lines "Value: ...".
@@ -1170,23 +1255,35 @@ class LLVM_Mc():
             if s.startswith("0x"):
                 return int(s, base=16)
             else:
-                return int(s,base=10)
+                return int(s, base=10)
 
-        symbols = filter(lambda l: l.strip().startswith("Name: "), objfile_txt)
-        symbols = list(map(lambda l: l.strip().removeprefix("Name: ").split(' ')[0].strip(), symbols))
-        values = filter(lambda l: l.strip().startswith("Value: "), objfile_txt)
-        values = map(lambda l: parse_as_int(l.strip().removeprefix("Value: ")), values)
-        symbols_with_values = { s:val for (s,val) in zip(symbols, values) }
+        symbols = filter(lambda line: line.strip().startswith("Name: "), objfile_txt)
+        symbols = list(
+            map(
+                lambda line: line.strip().removeprefix("Name: ").split(" ")[0].strip(),
+                symbols,
+            )
+        )
+        values = filter(lambda line: line.strip().startswith("Value: "), objfile_txt)
+        values = map(
+            lambda line: parse_as_int(line.strip().removeprefix("Value: ")), values
+        )
+        symbols_with_values = {s: val for (s, val) in zip(symbols, values)}
         matching_symbols = list(filter(lambda s: s.endswith(symbol), symbols))
-        # Sometimes assemble functions are named both `_foo` and `foo`, in which case we'd find
-        # multiple matching symbols -- however, they'd have the same value. Hence, only fail if
-        # there are multiple matching symbols of _different_ values.
-        if len({ symbols_with_values[s] for s in matching_symbols }) != 1:
-            raise LLVM_Mc_Error(f"Could not find unambiguous symbol {symbol} in object file. Symbols: {symbols}")
+        # Sometimes assemble functions are named both `_foo` and `foo`, in which case
+        # we'd find multiple matching symbols -- however, they'd have the same value.
+        # Hence, only fail if there are multiple matching symbols of _different_ values.
+        if len({symbols_with_values[s] for s in matching_symbols}) != 1:
+            raise LLVM_Mc_Error(
+                f"Could not find unambiguous symbol {symbol} in object file. "
+                f"Symbols: {symbols}"
+            )
         return symbols_with_values[matching_symbols[0]]
 
     @staticmethod
-    def assemble(source, arch, attr, log, symbol=None, preprocessor=None, include_paths=None):
+    def assemble(
+        source, arch, attr, log, symbol=None, preprocessor=None, include_paths=None
+    ):
         """Runs LLVM-MC tool to assemble `source`, returning byte code"""
 
         thumb = "thumb" in arch or (attr is not None and "thumb" in attr)
@@ -1200,35 +1297,41 @@ class LLVM_Mc():
         if symbol is None:
             if thumb is True:
                 source = [SourceLine(".thumb")] + source
-            source = [SourceLine(".global harness"),
-                      SourceLine(".type harness, %function"),
-                      SourceLine("harness:")] + source
+            source = [
+                SourceLine(".global harness"),
+                SourceLine(".type harness, %function"),
+                SourceLine("harness:"),
+            ] + source
             symbol = "harness"
 
         if preprocessor is not None:
             # First, run the C preprocessor on the code
             try:
-                source = CPreprocessor.unfold([], source, [], preprocessor,
-                                              include=include_paths)
+                source = CPreprocessor.unfold(
+                    [], source, [], preprocessor, include=include_paths
+                )
             except subprocess.CalledProcessError as exc:
                 log.error("CPreprocessor failed on the following input")
-                log.error(SouceLine.write_multiline(source))
+                log.error(SourceLine.write_multiline(source))
                 raise LLVM_Mc_Error from exc
 
         if platform.system() == "Darwin":
-            source = list(filter(lambda s: s.text.strip().startswith(".type") is False, source))
+            source = list(
+                filter(lambda s: s.text.strip().startswith(".type") is False, source)
+            )
 
         code = SourceLine.write_multiline(source)
 
-        log.debug(f"Calling LLVM MC assmelber on the following code")
+        log.debug("Calling LLVM MC assmelber on the following code")
         log.debug(code)
 
         args = [f"--arch={arch}", "--assemble", "--filetype=obj"]
         if attr is not None:
             args.append(f"--mattr={attr}")
         try:
-            r = subprocess.run(["llvm-mc"] + args,
-                               input=code.encode(), capture_output=True, check=True)
+            r = subprocess.run(
+                ["llvm-mc"] + args, input=code.encode(), capture_output=True, check=True
+            )
         except subprocess.CalledProcessError as exc:
             log.error("llvm-mc failed to handle the following code")
             log.error(code)
@@ -1240,7 +1343,7 @@ class LLVM_Mc():
 
         objfile = r.stdout
         offset, sz = LLVM_Mc.llvm_mc_output_extract_text_section(objfile)
-        code = objfile[offset:offset+sz]
+        code = objfile[offset : offset + sz]
 
         offset = LLVM_Mc.llvm_mc_output_extract_symbol(objfile, symbol)
 
@@ -1249,10 +1352,12 @@ class LLVM_Mc():
 
         return code, offset
 
+
 class LLVM_Mca_Error(Exception):
     """Exception thrown if llvm-mca subprocess fails"""
 
-class LLVM_Mca():
+
+class LLVM_Mca:
     """Helper class for the application of the LLVM MCA tool"""
 
     @staticmethod
@@ -1263,30 +1368,60 @@ class LLVM_Mca():
         LLVM_MCA_END = SourceLine("").add_comment("LLVM-MCA-END")
         mca_binary = "llvm-mca"
 
-        data = SourceLine.write_multiline(header + [LLVM_MCA_BEGIN] + body + [LLVM_MCA_END])
+        data = SourceLine.write_multiline(
+            header + [LLVM_MCA_BEGIN] + body + [LLVM_MCA_END]
+        )
 
         try:
             if full is False:
-                args = ["--instruction-info=0", "--dispatch-stats=0", "--timeline=1", "--timeline-max-cycles=0",
-                            "--timeline-max-iterations=3"]
+                args = [
+                    "--instruction-info=0",
+                    "--dispatch-stats=0",
+                    "--timeline=1",
+                    "--timeline-max-cycles=0",
+                    "--timeline-max-iterations=3",
+                ]
             else:
-                args = ["--all-stats", "--all-views", "--bottleneck-analysis", "--timeline=1", "--timeline-max-cycles=0", "--timeline-max-iterations=3"]
+                args = [
+                    "--all-stats",
+                    "--all-views",
+                    "--bottleneck-analysis",
+                    "--timeline=1",
+                    "--timeline-max-cycles=0",
+                    "--timeline-max-iterations=3",
+                ]
             if issue_width is not None:
                 args += ["--dispatch", str(issue_width)]
-            r = subprocess.run([mca_binary, f"--mcpu={cpu}", f"--march={arch}"] + args,
-                            input=data, text=True, capture_output=True, check=True)
+            r = subprocess.run(
+                [mca_binary, f"--mcpu={cpu}", f"--march={arch}"] + args,
+                input=data,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
         except subprocess.CalledProcessError as exc:
             raise LLVM_Mca_Error from exc
-        res = r.stdout.split('\n')
+        res = r.stdout.split("\n")
         return res
+
 
 class SelfTestException(Exception):
     """Exception thrown upon selftest failures"""
 
-class SelfTest():
+
+class SelfTest:
 
     @staticmethod
-    def run(config, log, codeA, codeB, address_registers, output_registers, iterations, fnsym=None):
+    def run(
+        config,
+        log,
+        codeA,
+        codeB,
+        address_registers,
+        output_registers,
+        iterations,
+        fnsym=None,
+    ):
         CODE_BASE = 0x010000
         CODE_SZ = 0x010000
         CODE_END = CODE_BASE + CODE_SZ
@@ -1296,20 +1431,26 @@ class SelfTest():
         STACK_SZ = 0x010000
         STACK_TOP = STACK_BASE + STACK_SZ
 
-        regs = [r for ty in config.arch.RegisterType for r in \
-            config.arch.RegisterType.list_registers(ty)]
+        regs = [
+            r
+            for ty in config.arch.RegisterType
+            for r in config.arch.RegisterType.list_registers(ty)
+        ]
 
         def run_code(code, txt=None):
-            objcode, offset = LLVM_Mc.assemble(code,
-                                       config.arch.llvm_mc_arch,
-                                       config.arch.llvm_mc_attr,
-                                       log, symbol=fnsym,
-                                       preprocessor=config.compiler_binary,
-                                       include_paths=config.compiler_include_paths)
+            objcode, offset = LLVM_Mc.assemble(
+                code,
+                config.arch.llvm_mc_arch,
+                config.arch.llvm_mc_attr,
+                log,
+                symbol=fnsym,
+                preprocessor=config.compiler_binary,
+                include_paths=config.compiler_include_paths,
+            )
             # Setup emulator
             mu = Uc(config.arch.unicorn_arch, config.arch.unicorn_mode)
             # Copy initial register contents into emulator
-            for r,v in initial_register_contents.items():
+            for r, v in initial_register_contents.items():
                 ur = config.arch.RegisterType.unicorn_reg_by_name(r)
                 if ur is None:
                     continue
@@ -1319,7 +1460,10 @@ class SelfTest():
                 # that serves as the marker to terminate emulation
                 mu.reg_write(config.arch.RegisterType.unicorn_link_register(), CODE_END)
             # Setup stack and allocate initial stack memory
-            mu.reg_write(config.arch.RegisterType.unicorn_stack_pointer(), STACK_TOP - config.selftest_default_memory_size)
+            mu.reg_write(
+                config.arch.RegisterType.unicorn_stack_pointer(),
+                STACK_TOP - config.selftest_default_memory_size,
+            )
             # Copy code into emulator
             mu.mem_map(CODE_BASE, CODE_SZ)
             mu.mem_write(CODE_BASE, objcode)
@@ -1342,7 +1486,9 @@ class SelfTest():
                 log.error("Failed to emulate code using unicorn engine")
                 log.error("Code")
                 log.error(SourceLine.write_multiline(code))
-                raise SelfTestException(f"Selftest failed: Unicorn failed to emulate code: {str(e)}") from e
+                raise SelfTestException(
+                    f"Selftest failed: Unicorn failed to emulate code: {str(e)}"
+                ) from e
 
             final_register_contents = {}
             for r in regs:
@@ -1372,11 +1518,11 @@ class SelfTest():
             initial_register_contents = {}
             for r in regs:
                 initial_register_contents[r] = int.from_bytes(os.urandom(16))
-            for (reg, sz) in address_registers.items():
+            for reg, sz in address_registers.items():
                 # allocate 2*sz and place pointer in the middle
                 # this makes sure that memory can be accessed at negative offsets
                 initial_register_contents[reg] = cur_ram + sz
-                cur_ram += 2*sz
+                cur_ram += 2 * sz
 
             final_regs_old, final_mem_old = run_code(codeA, txt="old")
             final_regs_new, final_mem_new = run_code(codeB, txt="new")
@@ -1384,7 +1530,7 @@ class SelfTest():
             # Check if memory contents are the same
             if final_mem_old != final_mem_new:
                 failure_dump()
-                raise SelfTestException(f"Selftest failed: Memory mismatch")
+                raise SelfTestException("Selftest failed: Memory mismatch")
 
             # Check that callee-saved registers are the same
             for r in output_registers:
@@ -1393,14 +1539,18 @@ class SelfTest():
                     continue
                 if final_regs_old[r] != final_regs_new[r]:
                     failure_dump()
-                    raise SelfTestException(f"Selftest failed: Register mismatch for {r}: {hex(final_regs_old[r])} != {hex(final_regs_new[r])}")
+                    raise SelfTestException(
+                        f"Selftest failed: Register mismatch for {r}: "
+                        f"{hex(final_regs_old[r])} != {hex(final_regs_new[r])}"
+                    )
 
         if fnsym is None:
-            log.info(f"Local selftest: OK")
+            log.info("Local selftest: OK")
         else:
             log.info(f"Global selftest for {fnsym}: OK")
 
-class Permutation():
+
+class Permutation:
     """Helper class for manipulating permutations"""
 
     @staticmethod
@@ -1423,7 +1573,7 @@ class Permutation():
     @staticmethod
     def permutation_id(sz):
         """Return the identity permutation of size sz."""
-        return { i:i for i in range(sz) }
+        return {i: i for i in range(sz)}
 
     @staticmethod
     def permutation_comp(p_b, p_a):
@@ -1433,63 +1583,71 @@ class Permutation():
         l_a = len(p_a.values())
         l_b = len(p_b.values())
         assert l_a == l_b
-        return { i:p_b[p_a[i]] for i in range(l_a) }
+        return {i: p_b[p_a[i]] for i in range(l_a)}
 
     @staticmethod
-    def permutation_pad(perm,pre,post):
+    def permutation_pad(perm, pre, post):
         """Pad permutation with identity permutation at front and back"""
         s = len(perm.values())
         r = {}
-        r = r | { pre + i : pre + j for (i,j) in perm.items() if isinstance(i, int) }
-        r = r | { i:i for i in range(pre) }
-        r = r | { i:i for i in map(lambda i: i + s + pre, range(post)) }
+        r = r | {pre + i: pre + j for (i, j) in perm.items() if isinstance(i, int)}
+        r = r | {i: i for i in range(pre)}
+        r = r | {i: i for i in map(lambda i: i + s + pre, range(post))}
         return r
 
     @staticmethod
-    def permutation_move_entry_forward(l, idx_from, idx_to):
+    def permutation_move_entry_forward(ll, idx_from, idx_to):
         """Create transposition permutation"""
         assert idx_to <= idx_from
         res = {}
-        res = res | { i:i for i in range(idx_to) }
-        res = res | { i:i+1 for i in range(idx_to,  idx_from) }
-        res = res | { idx_from : idx_to }
-        res = res | { i:i for i in range (idx_from + 1, l) }
+        res = res | {i: i for i in range(idx_to)}
+        res = res | {i: i + 1 for i in range(idx_to, idx_from)}
+        res = res | {idx_from: idx_to}
+        res = res | {i: i for i in range(idx_from + 1, ll)}
         return res
 
     @staticmethod
     def iter_swaps(p, n):
         """Iterate over all inputs that have their order reversed by
         the permutation."""
-        return ((i,j,p[i],p[j]) for i in range(n) for j in range(n) \
-            if i < j and p[j] < p[i])
+        return (
+            (i, j, p[i], p[j])
+            for i in range(n)
+            for j in range(n)
+            if i < j and p[j] < p[i]
+        )
 
 
 class DeferHandler(logging.Handler):
     """Handler collecting all records produced by a logger and relaying
     them to the same or different logger later."""
+
     def __init__(self):
         super().__init__()
         self._records = []
+
     def emit(self, record):
         self._records.append(record)
+
     def forward(self, logger):
         """Send all captured records to the given logger."""
         for r in self._records:
             logger.handle(r)
+
     def forward_to_file(self, log_label, filename, lvl=logging.DEBUG):
         """Store all captured records in a file."""
-        l = logging.getLogger(log_label)
-        l.setLevel(lvl)
+        logger = logging.getLogger(log_label)
+        logger.setLevel(lvl)
         h = logging.FileHandler(filename)
         h.setLevel(lvl)
-        l.addHandler(h)
-        self.forward(l)
+        logger.addHandler(h)
+        self.forward(logger)
 
 
 class Loop(ABC):
     def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr"):
         self.lbl_start = lbl_start
-        self.lbl_end   = lbl_end
+        self.lbl_end = lbl_end
         self.loop_init = loop_init
         self.additional_data = {}
 
@@ -1509,7 +1667,7 @@ class Loop(ABC):
 
         # additional_data will be assigned according to the capture groups from
         # loop_end_regexp.
-        pre  = []
+        pre = []
         body = []
         post = []
         # candidate lines for the end of the loop
@@ -1521,29 +1679,31 @@ class Loop(ABC):
         # Transform all loop_end_regexp into a list of tuples, where the second
         # element determines whether the instruction should be counted into the
         # body or not. The default is to not put the loop end into the body (False).
-        loop_end_regexp_txt = [e if isinstance(e, tuple) else (e,False) for e in self.end_regex]
+        loop_end_regexp_txt = [
+            e if isinstance(e, tuple) else (e, False) for e in self.end_regex
+        ]
         loop_end_regexp = [re.compile(txt[0]) for txt in loop_end_regexp_txt]
         lines = iter(source)
-        l = None
+        line = None
         keep = False
-        state = 0 # 0: haven't found loop yet, 1: extracting loop, 2: after loop
+        state = 0  # 0: haven't found loop yet, 1: extracting loop, 2: after loop
         loop_end_ctr = 0
         while True:
             if not keep:
-                l = next(lines, None)
+                line = next(lines, None)
             keep = False
-            if l is None:
+            if line is None:
                 break
-            l_str = l.text
-            assert isinstance(l, str) is False
+            l_str = line.text
+            assert isinstance(line, str) is False
             if state == 0:
                 p = loop_lbl_regexp.match(l_str)
                 if p is not None and p.group("label") == lbl:
-                    l = l.copy().set_text(p.group("remainder"))
+                    line = line.copy().set_text(p.group("remainder"))
                     keep = True
                     state = 1
                 else:
-                    pre.append(l)
+                    pre.append(line)
                 continue
             if state == 1:
                 p = loop_end_regexp[loop_end_ctr].match(l_str)
@@ -1552,10 +1712,11 @@ class Loop(ABC):
                     # collect all named groups
                     self.additional_data = self.additional_data | p.groupdict()
                     if loop_end_regexp_txt[loop_end_ctr][1]:
-                        # Put all instructions into the loop body, there won't be a boundary.
-                        body.append(l)
+                        # Put all instructions into the loop body, there won't be a
+                        # boundary.
+                        body.append(line)
                     else:
-                        loop_end_candidates.append(l)
+                        loop_end_candidates.append(line)
                     loop_end_ctr += 1
                     if loop_end_ctr == len(loop_end_regexp):
                         state = 2
@@ -1570,25 +1731,31 @@ class Loop(ABC):
                     self.additional_data = {}
                     loop_end_ctr = 0
                     loop_end_candidates = []
-                body.append(l)
+                body.append(line)
                 continue
             if state == 2:
                 loop_end_candidates = []
-                post.append(l)
+                post.append(line)
                 continue
         if state < 2:
             raise FatalParsingException(f"Couldn't identify loop {lbl}")
         return pre, body, post, lbl, self.additional_data
 
     @staticmethod
-    def extract(source, lbl, forced_loop_type=None):
+    def extract(source: list, lbl: str, forced_loop_type: any = None) -> any:
         """
         Find a loop with start label `lbl` in `source` and return it together
         with its type.
 
         :param source: list of SourceLine objects
+        :type source: list
         :param lbl: label of the loop to extract
+        :type lbl: str
         :param forced_loop_type: if not None, only try to extract this type of loop
+        :type forced_loop_type: any
+        :return: The extracted loop.
+        :rtype: any
+        :raises FatalParsingException: If loop with label lbl cannot be found.
         """
         if forced_loop_type is not None:
             loop_types = [forced_loop_type]
@@ -1596,11 +1763,11 @@ class Loop(ABC):
             loop_types = Loop.__subclasses__()
         for loop_type in loop_types:
             try:
-                l = loop_type(lbl)
+                lt = loop_type(lbl)
                 # concatenate the extracted loop with an instance of the
                 # identified loop_type, (l,) creates a tuple with one element to
                 # merge with the tuple retuned by _extract
-                return l._extract(source, lbl) + (l,)
+                return lt._extract(source, lbl) + (lt,)
             except FatalParsingException:
                 logging.debug("Parsing loop type '%s'failed", loop_type)
                 pass

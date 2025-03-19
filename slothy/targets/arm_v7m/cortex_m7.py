@@ -6,21 +6,116 @@ Experimental Cortex-M7 microarchitecture model for SLOTHY
     The data in this module is approximate and may contain errors.
 """
 
-################################### NOTE ###############################################
-###                                                                                  ###
-### WARNING: The data in this module is approximate and may contain errors.          ###
-###          They are _NOT_ an official software optimization guide for Cortex-M7.   ###
-###                                                                                  ###
-### Sources used in constructing this model:                                         ###
-### - ARMv7-M Architecture Reference Manual (ARM DDI 0403E.e)                        ###
-### - https://github.com/jnk0le/random/tree/master/pipeline%20cycle%20test#cortex-m7 ###
-### - https://www.quinapalus.com/cm7cycles.html                                      ###
-########################################################################################
+# ################################ NOTE ########################################## #
+#                                                                                  #
+# WARNING: The data in this module is approximate and may contain errors.          #
+#          They are _NOT_ an official software optimization guide for Cortex-M7.   #
+#                                                                                  #
+# Sources used in constructing this model:                                         #
+# - ARMv7-M Architecture Reference Manual (ARM DDI 0403E.e)                        #
+# - https://github.com/jnk0le/random/tree/master/pipeline%20cycle%20test#cortex-m7 #
+# - https://www.quinapalus.com/cm7cycles.html                                      #
+####################################################################################
 
 from enum import Enum
 from itertools import product
-from slothy.targets.arm_v7m.arch_v7m import *
-import re
+from slothy.targets.arm_v7m.arch_v7m import (
+    find_class,
+    lookup_multidict,
+    ldr,
+    ldr_with_imm,
+    ldr_with_imm_stack,
+    ldr_with_inc_writeback,
+    ldr_with_postinc,
+    ldrb_with_imm,
+    ldrh_with_imm,
+    ldrh_with_postinc,
+    ldrb_with_postinc,
+    vldr_with_imm,
+    vldr_with_postinc,
+    Ldrd,
+    ldm_interval,
+    ldm_interval_inc_writeback,
+    vldm_interval_inc_writeback,
+    str_with_imm,
+    str_with_imm_stack,
+    str_with_postinc,
+    str_no_off,
+    strh_with_imm,
+    strh_with_postinc,
+    stm_interval_inc_writeback,
+    movw_imm,
+    movt_imm,
+    adds,
+    add,
+    add_short,
+    add_imm,
+    add_imm_short,
+    mul,
+    mul_short,
+    smull,
+    smlal,
+    mla,
+    mls,
+    smulwb,
+    smulwt,
+    smultb,
+    smultt,
+    smulbb,
+    smlabt,
+    smlabb,
+    smlatt,
+    smlatb,
+    smlad,
+    smladx,
+    smuad,
+    smuadx,
+    smmulr,
+    neg_short,
+    log_and,
+    log_or,
+    eor,
+    eor_short,
+    eors,
+    eors_short,
+    bic,
+    bics,
+    cmp,
+    cmp_imm,
+    bne,
+    vmov_gpr,
+    vmov_gpr2,
+    vmov_gpr2_dual,
+    pkhbt,
+    pkhtb,
+    pkhbt_shifted,
+    ubfx_imm,
+    uadd16,
+    usub16,
+    sadd16,
+    ssub16,
+    sub,
+    subs_imm,
+    subs_imm_short,
+    sub_imm_short,
+    ror,
+    ror_short,
+    rors_short,
+    lsl,
+    asr,
+    asrs,
+    add_shifted,
+    sub_shifted,
+    log_and_shifted,
+    log_or_shifted,
+    eor_shifted,
+    bic_shifted,
+    Armv7mShiftedArithmetic,
+    Armv7mShiftedLogical,
+    Armv7mBasicArithmetic,
+    Armv7mLogical,
+)
+
 from sympy import simplify
 
 issue_rate = 2
@@ -41,11 +136,14 @@ class ExecutionUnit(Enum):
 
     def __repr__(self):
         return self.name
-    def ALU(): # pylint: disable=invalid-name
+
+    def ALU():
         return [ExecutionUnit.ALU0, ExecutionUnit.ALU1]
-    def SHIFT(): # pylint: disable=invalid-name
+
+    def SHIFT():
         return [ExecutionUnit.SHIFT0, ExecutionUnit.SHIFT1]
-    def LOAD(): # pylint: disable=invalid-name
+
+    def LOAD():
         return [ExecutionUnit.LOAD0, ExecutionUnit.LOAD1]
 
 
@@ -59,19 +157,50 @@ def add_further_constraints(slothy):
     add_dsp_slot_constraint(slothy)
     add_mac_slot_constraint(slothy)
 
+
 def add_dsp_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
-        [pkhbt, pkhtb, pkhbt_shifted, ubfx_imm, uadd16, usub16, sadd16, ssub16], [0])
+        [pkhbt, pkhtb, pkhbt_shifted, ubfx_imm, uadd16, usub16, sadd16, ssub16], [0]
+    )
+
 
 def add_mac_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
-        [mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
-     smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr], [1])
+        [
+            mul,
+            mul_short,
+            smull,
+            smlal,
+            mla,
+            mls,
+            smulwb,
+            smulwt,
+            smultb,
+            smultt,
+            smulbb,
+            smlabt,
+            smlabb,
+            smlatt,
+            smlatb,
+            smlad,
+            smladx,
+            smuad,
+            smuadx,
+            smmulr,
+        ],
+        [1],
+    )
+
 
 def add_st_hazard(slothy):
     def is_st_ld_pair(inst_a, inst_b):
-        return (isinstance(inst_a.inst, ldr_with_imm) or isinstance(inst_a.inst, ldr_with_imm_stack)) \
-            and (isinstance(inst_b.inst, str_with_imm) or isinstance(inst_b.inst, str_with_imm_stack))
+        return (
+            isinstance(inst_a.inst, ldr_with_imm)
+            or isinstance(inst_a.inst, ldr_with_imm_stack)
+        ) and (
+            isinstance(inst_b.inst, str_with_imm)
+            or isinstance(inst_b.inst, str_with_imm_stack)
+        )
 
     def evaluate_immediate(string_expr):
         if string_expr is None:
@@ -92,8 +221,12 @@ def add_st_hazard(slothy):
         ldr_before_str = slothy._NewBoolVar("")
         ldr_after_str = slothy._NewBoolVar("")
         slothy._AddExactlyOne([ldr_before_str, ldr_after_str])
-        slothy._Add(t_load.program_start_var < t_store.program_start_var).OnlyEnforceIf(ldr_before_str)
-        slothy._Add(t_load.program_start_var >= t_store.program_start_var + 8).OnlyEnforceIf(ldr_after_str)
+        slothy._Add(t_load.program_start_var < t_store.program_start_var).OnlyEnforceIf(
+            ldr_before_str
+        )
+        slothy._Add(
+            t_load.program_start_var >= t_store.program_start_var + 8
+        ).OnlyEnforceIf(ldr_after_str)
 
 
 # Opaque function called by SLOTHY to add further microarchitecture-
@@ -119,13 +252,12 @@ execution_units = {
         ldrh_with_imm,
         ldrh_with_postinc,
         ldrb_with_postinc,
-        vldr_with_imm, vldr_with_postinc  # TODO: also FPU?
-        ): ExecutionUnit.LOAD(),
-    (
-        Ldrd,
-        ldm_interval,
-        ldm_interval_inc_writeback,
-        vldm_interval_inc_writeback): [ExecutionUnit.LOAD()],
+        vldr_with_imm,
+        vldr_with_postinc,  # TODO: also FPU?
+    ): ExecutionUnit.LOAD(),
+    (Ldrd, ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback): [
+        ExecutionUnit.LOAD()
+    ],
     (
         str_with_imm,
         str_with_imm_stack,
@@ -133,7 +265,7 @@ execution_units = {
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
-        stm_interval_inc_writeback
+        stm_interval_inc_writeback,
     ): [[ExecutionUnit.STORE, ExecutionUnit.MAC]],
     (
         movw_imm,
@@ -143,20 +275,53 @@ execution_units = {
         add_short,
         add_imm,
         add_imm_short,
-        sub, subs_imm, subs_imm_short, sub_imm_short,
+        sub,
+        subs_imm,
+        subs_imm_short,
+        sub_imm_short,
         neg_short,
         log_and,
         log_or,
-        eor, eor_short, eors, eors_short,
-        bic, bics,
-        cmp, cmp_imm,
-        bne
+        eor,
+        eor_short,
+        eors,
+        eors_short,
+        bic,
+        bics,
+        cmp,
+        cmp_imm,
+        bne,
     ): ExecutionUnit.ALU(),
-    (ror, ror_short, rors_short, lsl, asr, asrs): [[ExecutionUnit.ALU0], [ExecutionUnit.ALU1]],
-    (mul, mul_short, smull, smlal, mla, mls, smulwb, smulwt, smultb, smultt,
-     smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr): [ExecutionUnit.MAC],
+    (ror, ror_short, rors_short, lsl, asr, asrs): [
+        [ExecutionUnit.ALU0],
+        [ExecutionUnit.ALU1],
+    ],
+    (
+        mul,
+        mul_short,
+        smull,
+        smlal,
+        mla,
+        mls,
+        smulwb,
+        smulwt,
+        smultb,
+        smultt,
+        smulbb,
+        smlabt,
+        smlabb,
+        smlatt,
+        smlatb,
+        smlad,
+        smladx,
+        smuad,
+        smuadx,
+        smmulr,
+    ): [ExecutionUnit.MAC],
     (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
-    (uadd16, sadd16, usub16, ssub16): list(map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))),
+    (uadd16, sadd16, usub16, ssub16): list(
+        map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))
+    ),
     (pkhbt, pkhtb, pkhbt_shifted, ubfx_imm): [[ExecutionUnit.ALU0, ExecutionUnit.SIMD]],
     (Armv7mShiftedArithmetic): [[ExecutionUnit.ALU0]],
     (Armv7mShiftedLogical): [[ExecutionUnit.ALU0]],
@@ -173,9 +338,12 @@ inverse_throughput = {
         ldrh_with_imm,
         ldrh_with_postinc,
         ldrb_with_postinc,
-        vldr_with_imm, vldr_with_postinc,  # TODO: double-check
+        vldr_with_imm,
+        vldr_with_postinc,  # TODO: double-check
         # actually not, just placeholder
-        ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback,
+        ldm_interval,
+        ldm_interval_inc_writeback,
+        vldm_interval_inc_writeback,
         movw_imm,
         movt_imm,
         adds,
@@ -188,35 +356,67 @@ inverse_throughput = {
         sub_imm_short,
         subs_imm,
         subs_imm_short,
-        uadd16, sadd16, usub16, ssub16,
-        mul, mul_short,
+        uadd16,
+        sadd16,
+        usub16,
+        ssub16,
+        mul,
+        mul_short,
         smull,
         smlal,
-        mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr,
+        mla,
+        mls,
+        smulwb,
+        smulwt,
+        smultb,
+        smultt,
+        smulbb,
+        smlabt,
+        smlabb,
+        smlatt,
+        smlatb,
+        smlad,
+        smladx,
+        smuad,
+        smuadx,
+        smmulr,
         neg_short,
-        log_and, log_and_shifted,
-        log_or, log_or_shifted,
-        eor, eor_short, eors, eors_short,
+        log_and,
+        log_and_shifted,
+        log_or,
+        log_or_shifted,
+        eor,
+        eor_short,
+        eors,
+        eors_short,
         eor_shifted,
-        bic, bics,
+        bic,
+        bics,
         bic_shifted,
-        ror, ror_short, rors_short, lsl, asr, asrs,
-        cmp, cmp_imm,
+        ror,
+        ror_short,
+        rors_short,
+        lsl,
+        asr,
+        asrs,
+        cmp,
+        cmp_imm,
         vmov_gpr,
-        vmov_gpr2, vmov_gpr2_dual,  # verify for dual
-        pkhbt, pkhtb, pkhbt_shifted, ubfx_imm,
+        vmov_gpr2,
+        vmov_gpr2_dual,  # verify for dual
+        pkhbt,
+        pkhtb,
+        pkhbt_shifted,
+        ubfx_imm,
         str_with_imm,
         str_with_imm_stack,
         str_with_postinc,
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
-        bne
-
+        bne,
     ): 1,
-    (
-        stm_interval_inc_writeback,  # actually not, just placeholder
-        vmov_gpr2_dual): 2
+    (stm_interval_inc_writeback, vmov_gpr2_dual): 2,  # actually not, just placeholder
 }
 
 default_latencies = {
@@ -233,32 +433,69 @@ default_latencies = {
         sub_imm_short,
         subs_imm,
         subs_imm_short,
-        uadd16, sadd16, usub16, ssub16,
+        uadd16,
+        sadd16,
+        usub16,
+        ssub16,
         neg_short,
-        log_and, log_and_shifted,
-        log_or, log_or_shifted,
-        eor, eor_short, eors, eors_short,
-        bic, bics,
+        log_and,
+        log_and_shifted,
+        log_or,
+        log_or_shifted,
+        eor,
+        eor_short,
+        eors,
+        eors_short,
+        bic,
+        bics,
         bic_shifted,
-        ror, ror_short, rors_short, lsl, asr, asrs,
-        cmp, cmp_imm,
-        pkhbt, pkhtb, pkhbt_shifted, ubfx_imm,
-        vldr_with_imm, vldr_with_postinc,  # according to Jan
+        ror,
+        ror_short,
+        rors_short,
+        lsl,
+        asr,
+        asrs,
+        cmp,
+        cmp_imm,
+        pkhbt,
+        pkhtb,
+        pkhbt_shifted,
+        ubfx_imm,
+        vldr_with_imm,
+        vldr_with_postinc,  # according to Jan
         # actually not, just placeholder
-        ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback,
+        ldm_interval,
+        ldm_interval_inc_writeback,
+        vldm_interval_inc_writeback,
         str_with_imm,
         str_with_imm_stack,
         str_with_postinc,
         str_no_off,
         strh_with_imm,
         strh_with_postinc,
-        bne
+        bne,
     ): 1,
     (
-        mul, mul_short,
+        mul,
+        mul_short,
         smull,
         smlal,
-        mla, mls, smulwb, smulwt, smultb, smultt, smulbb, smlabt, smlabb, smlatt, smlatb, smlad, smladx, smuad, smuadx, smmulr,
+        mla,
+        mls,
+        smulwb,
+        smulwt,
+        smultb,
+        smultt,
+        smulbb,
+        smlabt,
+        smlabb,
+        smlatt,
+        smlatb,
+        smlad,
+        smladx,
+        smuad,
+        smuadx,
+        smmulr,
         # TODO: Verify load latency
         stm_interval_inc_writeback,  # actually not, just placeholder
         ldr,
@@ -271,11 +508,11 @@ default_latencies = {
         ldrh_with_postinc,
         ldrb_with_postinc,
         ldrb_with_postinc,
-        eor_shifted
+        eor_shifted,
     ): 2,
     (Ldrd): 3,
     (vmov_gpr2, vmov_gpr2_dual): 3,
-    (vmov_gpr): 1
+    (vmov_gpr): 1,
 }
 
 
@@ -288,44 +525,82 @@ def get_latency(src, out_idx, dst):
     latency = lookup_multidict(default_latencies, src)
 
     # Forwarding path to MAC instructions
-    if instclass_dst in [mla, mls, smlabb, smlabt, smlatt, smlatb] and dst.args_in[2] in (src.args_out + src.args_in_out):
-        latency =  latency - 1
+    if instclass_dst in [mla, mls, smlabb, smlabt, smlatt, smlatb] and dst.args_in[
+        2
+    ] in (src.args_out + src.args_in_out):
+        latency = latency - 1
 
     if instclass_dst in [smlal]:
         if len(src.args_out) > 1:
-            if (src.args_out[0] == dst.args_in_out[0] or src.args_out[0] == dst.args_in_out[1]):
+            if (
+                src.args_out[0] == dst.args_in_out[0]
+                or src.args_out[0] == dst.args_in_out[1]
+            ):
                 latency = latency - 1
         elif len(src.args_in_out) > 1:
-            if (src.args_in_out[0] == dst.args_in_out[0] or src.args_in_out[0] == dst.args_in_out[1]):
+            if (
+                src.args_in_out[0] == dst.args_in_out[0]
+                or src.args_in_out[0] == dst.args_in_out[1]
+            ):
                 latency = latency - 1
 
     # Multiply accumulate chain latency is 1
-    if instclass_src in [smlal] and instclass_dst in [smlal] and \
-            src.args_in_out[0] == dst.args_in_out[0] and \
-            src.args_in_out[1] == dst.args_in_out[1]:
+    if (
+        instclass_src in [smlal]
+        and instclass_dst in [smlal]
+        and src.args_in_out[0] == dst.args_in_out[0]
+        and src.args_in_out[1] == dst.args_in_out[1]
+    ):
         return 1
 
     # Load latency is 1 cycle if the destination is an arithmetic/logical instruction
-    if instclass_src in [ldr_with_imm, ldr_with_imm_stack, ldr_with_inc_writeback] and \
-    sum([issubclass(instclass_dst, pc) for pc in [Armv7mBasicArithmetic, Armv7mLogical]]) and \
-       src.args_out[0] in dst.args_in:
+    if (
+        instclass_src in [ldr_with_imm, ldr_with_imm_stack, ldr_with_inc_writeback]
+        and sum(
+            [
+                issubclass(instclass_dst, pc)
+                for pc in [Armv7mBasicArithmetic, Armv7mLogical]
+            ]
+        )
+        and src.args_out[0] in dst.args_in
+    ):
         latency = latency - 1
 
     # Shifted operand needs to be available one cycle early
     # TODO: verify how this applies to ubfx with imm
-    if sum([issubclass(instclass_dst, pc) for pc in [Armv7mShiftedLogical, Armv7mShiftedArithmetic, pkhbt, pkhtb, pkhbt_shifted]]) and \
-       dst.args_in[1] in src.args_out or \
-            sum([issubclass(instclass_dst, pc) for pc in [ubfx_imm]]) and \
-            dst.args_in[0] in src.args_out:
+    if (
+        sum(
+            [
+                issubclass(instclass_dst, pc)
+                for pc in [
+                    Armv7mShiftedLogical,
+                    Armv7mShiftedArithmetic,
+                    pkhbt,
+                    pkhtb,
+                    pkhbt_shifted,
+                ]
+            ]
+        )
+        and dst.args_in[1] in src.args_out
+        or sum([issubclass(instclass_dst, pc) for pc in [ubfx_imm]])
+        and dst.args_in[0] in src.args_out
+    ):
         return latency + 1
 
-
     # Load and store multiples take a long time to complete
-    if instclass_src in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
+    if instclass_src in [
+        ldm_interval,
+        ldm_interval_inc_writeback,
+        stm_interval_inc_writeback,
+        vldm_interval_inc_writeback,
+    ]:
         latency = src.num_out
-        
+
     # Flag setting -> branch has at least 3 latency
-    if instclass_src in [subs_imm, subs_imm_short, cmp, cmp_imm] and instclass_dst == bne:
+    if (
+        instclass_src in [subs_imm, subs_imm_short, cmp, cmp_imm]
+        and instclass_dst == bne
+    ):
         latency = 2
 
     # Can always store result in the same cycle
@@ -339,7 +614,6 @@ def get_latency(src, out_idx, dst):
 def get_units(src):
     units = lookup_multidict(execution_units, src)
 
-
     def evaluate_immediate(string_expr):
         if string_expr is None:
             return 0
@@ -349,7 +623,8 @@ def get_units(src):
     # The Cortex-M7 has two memory banks
     # If two loads use the same memory bank, they cannot dual issue
     # There are no constraints which load can go to which issue slot
-    # Approximiation: Only look at immediates, i.e., assume all pointers are aligned to 8 bytes
+    # Approximiation: Only look at immediates, i.e., assume all pointers are
+    # aligned to 8 bytes
     if src.is_ldr():
         imm = evaluate_immediate(src.immediate)
 
@@ -362,9 +637,15 @@ def get_units(src):
         return units
     return [units]
 
+
 def get_inverse_throughput(src):
     itp = lookup_multidict(inverse_throughput, src)
-    if find_class(src) in [ldm_interval, ldm_interval_inc_writeback, stm_interval_inc_writeback, vldm_interval_inc_writeback]:
+    if find_class(src) in [
+        ldm_interval,
+        ldm_interval_inc_writeback,
+        stm_interval_inc_writeback,
+        vldm_interval_inc_writeback,
+    ]:
         itp = src.num_out
 
     return itp

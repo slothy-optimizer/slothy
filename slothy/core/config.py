@@ -29,16 +29,16 @@
 SLOTHY configuration
 """
 
-# pylint:disable=too-many-lines
 
 from copy import deepcopy
 import os
 
 from slothy.helper import LockAttributes, NestedPrint
 
+
 class InvalidConfig(Exception):
-    """Exception raised when an invalid SLOTHY configuration is detected
-    """
+    """Exception raised when an invalid SLOTHY configuration is detected"""
+
 
 class Config(NestedPrint, LockAttributes):
     """Configuration for Slothy.
@@ -131,9 +131,9 @@ class Config(NestedPrint, LockAttributes):
 
         * When using software pipelining, the selfcheck reduces to a straightline check
           for a bounded unrolling of the loop. An unbounded selfcheck is currently not
-          implemented. With the selftest, you still need to fix a loop bound, but at least you can
-          equivalence-check the loop-form (including the compare+branch instructions
-          at the loop boundary) rather than the unrolled code.
+          implemented. With the selftest, you still need to fix a loop bound, but at
+          least you can equivalence-check the loop-form (including the compare+branch
+          instructions at the loop boundary) rather than the unrolled code.
 
         .. important::
 
@@ -148,8 +148,7 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def selftest_iterations(self):
-        """If selftest is set, indicates the number of random selftest to conduct
-        """
+        """If selftest is set, indicates the number of random selftest to conduct"""
         return self._selftest_iterations
 
     @property
@@ -162,13 +161,13 @@ class Config(NestedPrint, LockAttributes):
     @property
     def selftest_default_memory_size(self):
         """Default buffer size to use for registers which are automatically inferred to be
-        used as pointers and for which no memory size has been configured via `address_registers`.
+        used as pointers and for which no memory size has been configured via
+        `address_registers`.
         """
         return self._selftest_default_memory_size
 
     @property
     def selfcheck(self):
-
         """Indicates whether SLOTHY performs a self-check on the optimization result.
 
         The selfcheck confirms that the scheduling permutation found by SLOTHY yields
@@ -185,18 +184,18 @@ class Config(NestedPrint, LockAttributes):
             There are at least two classes of bugs uncaught by the selfcheck:
 
             * User configuration issues: The selfcheck validates SLOTHY's optimization
-              in the context of the provided configuration. Validation of the configuration
-              is the user's responsibility. Two common pitfalls include missing reserved
-              registers (allowing SLOTHY to clobber more registers than intended), or
-              missing output registers (allowing SLOTHY to overwrite an output register
-              in subsequent instructions).
+              in the context of the provided configuration. Validation of the
+              configuration is the user's responsibility. Two common pitfalls include
+              missing reserved registers (allowing SLOTHY to clobber more registers than
+              intended), or missing output registers (allowing SLOTHY to overwrite an
+              output register in subsequent instructions).
 
               This is the most common source of issues for code passing the selfcheck
               but remaining functionally incorrect.
 
             * Bugs in address offset fixup: SLOTHY's modelling of post-load/store address
-              increments is deliberately inaccurate to allow for reordering of such instructions
-              leveraging commutativity relations such as
+              increments is deliberately inaccurate to allow for reordering of such
+              instructions leveraging commutativity relations such as
 
             .. code-block:: asm
 
@@ -208,9 +207,9 @@ class Config(NestedPrint, LockAttributes):
                 See also section "Address offset rewrites" in the SLOTHY paper
 
             Bugs in SLOTHY's address fixup logic would not be caught by the selfcheck.
-            If your code doesn't work and you are sure to have configured SLOTHY correctly,
-            you may therefore want to double-check that address offsets have been adjusted
-            correctly by SLOTHY.
+            If your code doesn't work and you are sure to have configured SLOTHY
+            correctly, you may therefore want to double-check that address offsets have
+            been adjusted correctly by SLOTHY.
         """
         return self._selfcheck
 
@@ -259,7 +258,8 @@ class Config(NestedPrint, LockAttributes):
         .. note::
 
             The user-imposed safety constraint is not a necessity -- in principle,
-            SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
+            SLOTHY could detect when it is safe to reorder ldr/str instructions with
+            increment.
             It just hasn't been implemented yet.
         """
         return self._unsafe_address_offset_fixup
@@ -308,40 +308,38 @@ class Config(NestedPrint, LockAttributes):
         """Indicates whether tags in the input source should be kept or removed.
 
         Tags include pre/core/post or ordering annotations that usually become meaningless
-        post-optimization. However, for preprocessing runs that do not reorder code, it makes
-        sense to keep them.
+        post-optimization. However, for preprocessing runs that do not reorder code, it
+        makes sense to keep them.
         """
         return self._keep_tags
 
     @property
     def inherit_macro_comments(self):
-        """Indicates whether comments at macro invocations should be inherited to instructions
-        in the macro body.
+        """Indicates whether comments at macro invocations should be inherited to
+        instructions in the macro body.
         """
         return self._inherit_macro_comments
 
     @property
     def ignore_tags(self):
-        """Indicates whether tags in the input source should be ignored.
-        """
+        """Indicates whether tags in the input source should be ignored."""
         return self._ignore_tags
 
     @property
     def register_aliases(self):
         """Dictionary mapping symbolic register names to architectural register names.
-           When using Slothy, this can be indirectly populated by placing `.req` expressions
-           in the input assembly. When using SlothyBase directly, this needs to be filled
-           in by hand.
+        When using Slothy, this can be indirectly populated by placing `.req` expressions
+        in the input assembly. When using SlothyBase directly, this needs to be filled
+        in by hand.
 
-           This is always joined with a list of default aliases (such as lr mapping to r14)
-           specified in the target architecture.
+        This is always joined with a list of default aliases (such as lr mapping to r14)
+        specified in the target architecture.
         """
-        return { **self._register_aliases, **self._arch.RegisterType.default_aliases() }
+        return {**self._register_aliases, **self._arch.RegisterType.default_aliases()}
 
     def add_aliases(self, new_aliases):
-        """Add further register aliases to the configuration
-        """
-        self._register_aliases = { **self._register_aliases, **new_aliases }
+        """Add further register aliases to the configuration"""
+        self._register_aliases = {**self._register_aliases, **new_aliases}
 
     @property
     def rename_inputs(self):
@@ -364,8 +362,9 @@ class Config(NestedPrint, LockAttributes):
         inputs, respectively. The key "other" applies to all inputs for which no other
         key matches.
 
-        The default value is { "symbolic": "any", "arch" : "static" } -- that is, architectural
-        inputs are not renamed, while symbolic inputs are dynamically renamed.
+        The default value is { "symbolic": "any", "arch" : "static" } -- that is,
+        architectural inputs are not renamed, while symbolic inputs are dynamically
+        renamed.
 
         Examples:
 
@@ -376,12 +375,12 @@ class Config(NestedPrint, LockAttributes):
           This would rename _all_ inputs, regardless of whether they're symbolic or not.
           Thus, you'd likely need to modify surrounding code.
         * Config.rename_inputs = { "in" : "r0", "arch" : "static", "symbolic" : "any" }
-          This would rename the symbolic input GPR 'in' to 'r0', keep all other inputs which
-          already have an architectural name, while dynamically assigning suitable registers
-          for symbolic inputs.
+          This would rename the symbolic input GPR 'in' to 'r0', keep all other inputs
+          which already have an architectural name, while dynamically assigning suitable
+          registers for symbolic inputs.
 
-        In case of a successful optimization, the assignment of input registers to architectural
-        registers is given by the dictionary Result.input_renaming.
+        In case of a successful optimization, the assignment of input registers to
+        architectural registers is given by the dictionary Result.input_renaming.
         """
         self._check_rename_config(self._rename_inputs)
         return self._rename_inputs
@@ -393,11 +392,12 @@ class Config(NestedPrint, LockAttributes):
 
         Analogous to Config.rename_inputs.
 
-        The default value is { "symbolic": "any", "arch" : "static" } -- that is, architectural
-        outputs are not renamed, while symbolic outputs are dynamically renamed.
+        The default value is { "symbolic": "any", "arch" : "static" } -- that is,
+        architectural outputs are not renamed, while symbolic outputs are dynamically
+        renamed.
 
-        In case of a successful optimization, the assignment of input registers to architectural
-        registers is given by the dictionary Result.input_renaming.
+        In case of a successful optimization, the assignment of input registers to
+        architectural registers is given by the dictionary Result.input_renaming.
         """
         self._check_rename_config(self._rename_outputs)
         return self._rename_outputs
@@ -405,19 +405,19 @@ class Config(NestedPrint, LockAttributes):
     @property
     def inputs_are_outputs(self):
         """If set, any input in the assembly to be optimized (that is, every register
-           that is used as an input before it has been written to) is treated as an output.
-           _Moreover_, such simultaneous input-outputs are forced to reside in the same
-           architectural register at the beginning and end of the snippet.
+        that is used as an input before it has been written to) is treated as an output.
+        _Moreover_, such simultaneous input-outputs are forced to reside in the same
+        architectural register at the beginning and end of the snippet.
 
-           This should usually be set when optimizing loops.
+        This should usually be set when optimizing loops.
         """
         return self._inputs_are_outputs
 
     @property
     def locked_registers(self):
         """List of architectural registers that should not be renamed when they are
-           used as output registers. Reserved registers are treated as locked if
-           the option `reserved_regs_are_locked` is set.
+        used as output registers. Reserved registers are treated as locked if
+        the option `reserved_regs_are_locked` is set.
         """
         if self.reserved_regs_are_locked:
             return set(self.reserved_regs).union(self._locked_registers)
@@ -471,14 +471,12 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def llvm_mca_full(self):
-        """Indicates whether all available statistics from LLVM MCA should be printed.
-        """
+        """Indicates whether all available statistics from LLVM MCA should be printed."""
         return self._llvm_mca_full
 
     @property
     def llvm_mca_issue_width_overwrite(self):
-        """Overwrite LLVM MCA's in-built issue width with the one SLOTHY uses
-        """
+        """Overwrite LLVM MCA's in-built issue width with the one SLOTHY uses"""
         return self._llvm_mca_issue_width_overwrite
 
     @property
@@ -520,7 +518,7 @@ class Config(NestedPrint, LockAttributes):
     @property
     def timeout(self):
         """The timeout in seconds after which the underlying constraint solver stops
-        its search. """
+        its search."""
         return self._timeout
 
     @property
@@ -552,8 +550,8 @@ class Config(NestedPrint, LockAttributes):
         such as the above.
 
         WARNING: Don't disable this option unless you know what you are doing!
-            Disabling this will likely lead to optimized code that is functionally incorrect
-            and needing manual address offset fixup!
+            Disabling this will likely lead to optimized code that is functionally
+            incorrect and needing manual address offset fixup!
         """
         return self._do_address_fixup
 
@@ -581,15 +579,19 @@ class Config(NestedPrint, LockAttributes):
     def has_objective(self):
         """Indicates whether a different objective than minimization of stalls
         has been registered."""
-        objectives = sum([self.sw_pipelining.enabled and
-                          self.sw_pipelining.minimize_overlapping is True,
-                          self.constraints.maximize_register_lifetimes is True,
-                          self.constraints.minimize_spills is True,
-                          self.constraints.move_stalls_to_top is True,
-                          self.constraints.move_stalls_to_bottom is True,
-                          self.constraints.minimize_register_usage is not None,
-                          self.constraints.minimize_use_of_extra_registers is not None,
-                          self.target.has_min_max_objective(self)])
+        objectives = sum(
+            [
+                self.sw_pipelining.enabled
+                and self.sw_pipelining.minimize_overlapping is True,
+                self.constraints.maximize_register_lifetimes is True,
+                self.constraints.minimize_spills is True,
+                self.constraints.move_stalls_to_top is True,
+                self.constraints.move_stalls_to_bottom is True,
+                self.constraints.minimize_register_usage is not None,
+                self.constraints.minimize_use_of_extra_registers is not None,
+                self.target.has_min_max_objective(self),
+            ]
+        )
         if objectives > 1:
             raise InvalidConfig("Can only pick one optimization objective")
 
@@ -618,37 +620,49 @@ class Config(NestedPrint, LockAttributes):
         The value of this option is irrelevant if split_heuristic is False.
         """
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_factor otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_factor otherwise."
+            )
         return self._split_heuristic_factor
 
     @property
     def split_heuristic_abort_cycle_at_high(self):
         """During the split heuristic, a threshold for the number of stalls in the current
-        optimization window above which the current pass of the split heuristic should stop."""
+        optimization window above which the current pass of the split heuristic should
+        stop.
+        """
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_abort_cycle_at otherwise."
+            )
         return self._split_heuristic_abort_cycle_at_high
 
     @property
     def split_heuristic_abort_cycle_at_low(self):
         """During the split heuristic, a threshold for the number of stalls in the current
-        optimization window below which the current pass of the split heuristic should stop."""
+        optimization window below which the current pass of the split heuristic should
+        stop.
+        """
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_abort_cycle_at otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_abort_cycle_at otherwise."
+            )
         return self._split_heuristic_abort_cycle_at_low
 
     @property
     def split_heuristic_stepsize(self):
         """If split heuristic is used, the increment for the sliding window. By default,
         this is twice the split factor. For example, a split factor of 5 means that the
-        window size is 0.2 of the overall code size, and the default step size of 0.1 means
-        that the sliding windows will be [0,0.2], [0.1,0.3], ..."""
+        window size is 0.2 of the overall code size, and the default step size of 0.1
+        means that the sliding windows will be [0,0.2], [0.1,0.3], ..."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_stepsize otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_stepsize otherwise."
+            )
         return self._split_heuristic_stepsize
 
     @property
@@ -657,17 +671,21 @@ class Config(NestedPrint, LockAttributes):
         the current sliding window that should be fixed but taken into account during
         optimization."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_optimize_seam otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_optimize_seam otherwise."
+            )
         return self._split_heuristic_optimize_seam
 
     @property
     def split_heuristic_chunks(self):
-        """If split heuristic is used, explicitly lists the optimization windows to be used.
-        If unset, a sliding or adaptive optimization window will be used."""
+        """If split heuristic is used, explicitly lists the optimization windows to be
+        used. If unset, a sliding or adaptive optimization window will be used."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_chunks otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_chunks otherwise."
+            )
         return self._split_heuristic_chunks
 
     @property
@@ -675,8 +693,10 @@ class Config(NestedPrint, LockAttributes):
         """If the split heuristic is used, move the sliding window from bottom to top
         rather than from top to bottom."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_bottom_to_top otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_bottom_to_top otherwise."
+            )
         return self._split_heuristic_bottom_to_top
 
     @property
@@ -686,30 +706,35 @@ class Config(NestedPrint, LockAttributes):
         For example, if this is set to [0.25,0.75], only the middle half of the input will
         be optimized through the split heuristic.
 
-        This option can be combined with other options such as the split factor. For example,
-        if the split region is set fo [0.25, 0.75] and the split factor is 5, then optimization
-        windows of size .1 will be considered within [0.25, 0.75].
+        This option can be combined with other options such as the split factor.
+        For example, if the split region is set fo [0.25, 0.75] and the split factor is
+        5, then optimization windows of size .1 will be considered within [0.25, 0.75].
 
-        Note that even if this option is used, the specification of inputs and outputs is still
-        with respect to the entire code; SLOTHY will automatically derive the outputs of the
-        subregion configured here."""
+        Note that even if this option is used, the specification of inputs and outputs is
+        still with respect to the entire code; SLOTHY will automatically derive the
+        outputs of the subregion configured here."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_region otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_region otherwise."
+            )
         return self._split_heuristic_region
 
     @property
     def split_heuristic_preprocess_naive_interleaving(self):
-        """Prior to applying the split heuristic, interleave instructions according according
+        """Prior to applying the split heuristic, interleave instructions according
         to lowest depth, without applying register renaming.
 
-        This can be useful if the code to be optimized is comprised of independent computations
-        operating on different architectural state (e.g. scalar vs. SIMD); in this case, the
-        naive preprocessing will 'zip' the different computations prior to applying the core
-        optimization."""
+        This can be useful if the code to be optimized is comprised of independent
+        computations operating on different architectural state (e.g. scalar vs. SIMD);
+        in this case, the naive preprocessing will 'zip' the different computations prior
+        to applying the core optimization."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                "Shouldn't read config.split_heuristic_preprocess_naive_interleaving otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_preprocess_naive_interleaving "
+                "otherwise."
+            )
         return self._split_heuristic_preprocess_naive_interleaving
 
     @property
@@ -717,17 +742,22 @@ class Config(NestedPrint, LockAttributes):
         """If split heuristic with naive preprocessing is used, this option causes
         the naive interleaving to be by latency-depth rather than latency."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? Shouldn't"    \
-                "read config.split_heuristic_preprocess_naive_interleaving_by_latency otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? Shouldn't"
+                "read config.split_heuristic_preprocess_naive_interleaving_by_latency "
+                "otherwise."
+            )
         return self._split_heuristic_preprocess_naive_interleaving_by_latency
 
     @property
     def split_heuristic_estimate_performance(self):
-        """After applying the split heuristic, run SLOTHY again on the entire code to estimate the
-           performance and display un-used issue slots in the output."""
+        """After applying the split heuristic, run SLOTHY again on the entire code to
+        estimate the performance and display un-used issue slots in the output."""
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? Shouldn't"    \
-                "read config.split_heuristic_estimate_performance otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? Shouldn't"
+                "read config.split_heuristic_estimate_performance otherwise."
+            )
         return self._split_heuristic_estimate_performance
 
     @property
@@ -742,8 +772,10 @@ class Config(NestedPrint, LockAttributes):
         The value of this option is irrelevant if split_heuristic is False.
         """
         if not self.split_heuristic:
-            raise InvalidConfig("Did you forget to set config.split_heuristic=True? "\
-                            "Shouldn't read config.split_heuristic_repeat otherwise.")
+            raise InvalidConfig(
+                "Did you forget to set config.split_heuristic=True? "
+                "Shouldn't read config.split_heuristic_repeat otherwise."
+            )
         return self._split_heuristic_repeat
 
     @property
@@ -766,7 +798,7 @@ class Config(NestedPrint, LockAttributes):
         arch, target = self.arch, self.target
         self.arch = self.target = None
         res = deepcopy(self)
-        res.arch, res.target   = arch, target
+        res.arch, res.target = arch, target
         self.arch, self.target = arch, target
         return res
 
@@ -786,27 +818,28 @@ class Config(NestedPrint, LockAttributes):
         @property
         def pre_before_post(self):
             """If both early and late instructions are allowed, force late instructions
-                of iteration N to come _before_ early instructions of iteration N+2."""
+            of iteration N to come _before_ early instructions of iteration N+2."""
             return self._pre_before_post
 
         @property
         def allow_pre(self):
             """Allow 'early' instructions, that is, instructions that are pulled forward
-                from iteration N+1 to iteration N. A typical example would be an early load."""
+            from iteration N+1 to iteration N. A typical example would be an early load.
+            """
             return self._allow_pre
 
         @property
         def allow_post(self):
-            """Allow 'late' instructions, that is, instructions that are deferred from iteration N
-                to iteration N+1. A typical example would be a late store."""
+            """Allow 'late' instructions, that is, instructions that are deferred from
+            iteration N to iteration N+1. A typical example would be a late store."""
             return self._allow_post
 
         @property
         def unknown_iteration_count(self):
-            """Determines whether the number of iterations is statically known and larger than
-                the number of exceptional iterations hoisted out by SLOTHY (at most 2).
+            """Determines whether the number of iterations is statically known and larger
+            than the number of exceptional iterations hoisted out by SLOTHY (at most 2).
 
-                Set this to `True` if the loop can have any number of iterations."""
+            Set this to `True` if the loop can have any number of iterations."""
             return self._unknown_iteration_count
 
         @property
@@ -827,48 +860,48 @@ class Config(NestedPrint, LockAttributes):
         @property
         def max_overlapping(self):
             """The maximum number of early or late instructions.
-                `None` means that any number of early/late instructions is allowed."""
+            `None` means that any number of early/late instructions is allowed."""
             return self._max_overlapping
 
         @property
         def min_overlapping(self):
             """The minimum number of early or late instructions.
-                `None` means that any number of early/late instructions is allowed."""
+            `None` means that any number of early/late instructions is allowed."""
             return self._min_overlapping
 
         @property
         def halving_heuristic(self):
             """Performance improvement heuristic: Rather than running a
-                general software pipelining optimization, proceed in two steps:
-                First, optimize loop body _without_ software pipelining. Then,
-                split it as [A;B] and optimize [B;A]. The final result is then
-                `A; optimized([B;A]); B`, with `A` being the preamble, `B` the
-                postamble, and `optimized([B;A])` the loop kernel."""
+            general software pipelining optimization, proceed in two steps:
+            First, optimize loop body _without_ software pipelining. Then,
+            split it as [A;B] and optimize [B;A]. The final result is then
+            `A; optimized([B;A]); B`, with `A` being the preamble, `B` the
+            postamble, and `optimized([B;A])` the loop kernel."""
             return self._halving_heuristic
 
         @property
         def halving_heuristic_periodic(self):
             """Variant of the halving heuristic: Consider loop boundary when
-                optimizing [B;A] in the second step of the halving heuristic.
-                This is computationally more expensive but avoids bottlenecks
-                at the loop boundary that could otherwise ensue.
+            optimizing [B;A] in the second step of the halving heuristic.
+            This is computationally more expensive but avoids bottlenecks
+            at the loop boundary that could otherwise ensue.
 
-                This is only meaningful is the halving heuristic is enabled."""
+            This is only meaningful is the halving heuristic is enabled."""
             return self._halving_heuristic_periodic
 
         @property
         def halving_heuristic_split_only(self):
             """Cut-down version of halving-heuristic which only splits the loop
-                `[A;B]` into `A; [B;A]; B` but does not perform optimizations."""
+            `[A;B]` into `A; [B;A]; B` but does not perform optimizations."""
             return self._halving_heuristic_split_only
 
         @property
         def max_pre(self):
             """The maximum relative position (between 0 and 1) of an instruction
-                that should be considered as a potential early instruction.
-                For example, a value of 0.5 means that only instruction in the
-                first half of the original loop body are considered as potential
-                early instructions."""
+            that should be considered as a potential early instruction.
+            For example, a value of 0.5 means that only instruction in the
+            first half of the original loop body are considered as potential
+            early instructions."""
             return self._max_pre
 
         def __init__(self):
@@ -893,49 +926,63 @@ class Config(NestedPrint, LockAttributes):
             self.lock()
 
         @enabled.setter
-        def enabled(self,val):
+        def enabled(self, val):
             self._enabled = val
+
         @unroll.setter
-        def unroll(self,val):
+        def unroll(self, val):
             self._unroll = val
+
         @pre_before_post.setter
-        def pre_before_post(self,val):
+        def pre_before_post(self, val):
             self._pre_before_post = val
+
         @allow_pre.setter
-        def allow_pre(self,val):
+        def allow_pre(self, val):
             self._allow_pre = val
+
         @allow_post.setter
-        def allow_post(self,val):
+        def allow_post(self, val):
             self._allow_post = val
+
         @unknown_iteration_count.setter
-        def unknown_iteration_count(self,val):
+        def unknown_iteration_count(self, val):
             self._unknown_iteration_count = val
+
         @minimize_overlapping.setter
-        def minimize_overlapping(self,val):
+        def minimize_overlapping(self, val):
             self._minimize_overlapping = val
+
         @optimize_preamble.setter
-        def optimize_preamble(self,val):
+        def optimize_preamble(self, val):
             self._optimize_preamble = val
+
         @optimize_postamble.setter
-        def optimize_postamble(self,val):
+        def optimize_postamble(self, val):
             self._optimize_postamble = val
+
         @max_overlapping.setter
-        def max_overlapping(self,val):
+        def max_overlapping(self, val):
             self._max_overlapping = val
+
         @min_overlapping.setter
-        def min_overlapping(self,val):
+        def min_overlapping(self, val):
             self._min_overlapping = val
+
         @halving_heuristic.setter
-        def halving_heuristic(self,val):
+        def halving_heuristic(self, val):
             self._halving_heuristic = val
+
         @halving_heuristic_periodic.setter
-        def halving_heuristic_periodic(self,val):
+        def halving_heuristic_periodic(self, val):
             self._halving_heuristic_periodic = val
+
         @halving_heuristic_split_only.setter
-        def halving_heuristic_split_only(self,val):
+        def halving_heuristic_split_only(self, val):
             self._halving_heuristic_split_only = val
+
         @max_pre.setter
-        def max_pre(self,val):
+        def max_pre(self, val):
             self._max_pre = val
 
     class Constraints(NestedPrint, LockAttributes):
@@ -944,12 +991,12 @@ class Config(NestedPrint, LockAttributes):
         @property
         def stalls_allowed(self):
             """The number of stalls allowed. Internally, this is the number of NOP
-                instructions that SLOTHY introduces before attempting to find a stall-free
-                version of the code (or, more precisely: a version matching all constraints,
-                which may be weaker than stall-free).
+            instructions that SLOTHY introduces before attempting to find a stall-free
+            version of the code (or, more precisely: a version matching all constraints,
+            which may be weaker than stall-free).
 
-                This is only meaningful for direct invocations to SlothyBase. You should not
-                set this field when interfacing with Slothy."""
+            This is only meaningful for direct invocations to SlothyBase. You should not
+            set this field when interfacing with Slothy."""
             if self.functional_only:
                 return 0
             return self._stalls_allowed
@@ -957,11 +1004,11 @@ class Config(NestedPrint, LockAttributes):
         @property
         def stalls_maximum_attempt(self):
             """The maximum number of stalls to attempt before aborting the optimization
-                and reporting it as infeasible.
+            and reporting it as infeasible.
 
-                Note that since SLOTHY does not (yet?) introduce stack spills, a symbolic
-                assembly snippet may be impossible to even concretize with architectural
-                register names, regardless of the number of stalls one allows."""
+            Note that since SLOTHY does not (yet?) introduce stack spills, a symbolic
+            assembly snippet may be impossible to even concretize with architectural
+            register names, regardless of the number of stalls one allows."""
             if self.functional_only:
                 return 0
             return self._stalls_maximum_attempt
@@ -970,8 +1017,8 @@ class Config(NestedPrint, LockAttributes):
         def stalls_minimum_attempt(self):
             """The minimum number of stalls to attempt.
 
-                This may be useful if it's known for external reasons that searching for
-                optimiztions with less stalls is infeasible."""
+            This may be useful if it's known for external reasons that searching for
+            optimiztions with less stalls is infeasible."""
             if self.functional_only:
                 return 0
             return self._stalls_minimum_attempt
@@ -980,8 +1027,8 @@ class Config(NestedPrint, LockAttributes):
         def stalls_first_attempt(self):
             """The first number of stalls to attempt.
 
-                This may be useful if it's known for external reasons that searching for
-                optimization with less stalls is infeasible."""
+            This may be useful if it's known for external reasons that searching for
+            optimization with less stalls is infeasible."""
             if self.functional_only:
                 return 0
             return self._stalls_first_attempt
@@ -990,9 +1037,9 @@ class Config(NestedPrint, LockAttributes):
         def stalls_precision(self):
             """The precision of the binary search for the minimum number of stalls
 
-                SLOTHY will stop searching if it can narrow down the minimum number
-                of stalls to an interval of the length provided by this variable.
-                In particular, a value of 1 means the true minimum if searched for."""
+            SLOTHY will stop searching if it can narrow down the minimum number
+            of stalls to an interval of the length provided by this variable.
+            In particular, a value of 1 means the true minimum if searched for."""
             if self.functional_only:
                 return 1
             return self._stalls_precision
@@ -1001,30 +1048,32 @@ class Config(NestedPrint, LockAttributes):
         def stalls_timeout_below_precision(self):
             """If this variable is set to a non-None value, SLOTHY does not abort
             optimization once binary search is operating on an interval smaller than
-            the stall precision, but instead sets a different (typically smaller) timeout."""
+            the stall precision, but instead sets a different (typically smaller) timeout.
+            """
             return self._stalls_timeout_below_precision
 
         @property
         def model_latencies(self):
             """Determines whether instruction latencies should be modelled.
 
-                When set, SLOTHY will enforce that instructions are placed in accordance
-                with the latency of the instructions that they depend on."""
+            When set, SLOTHY will enforce that instructions are placed in accordance
+            with the latency of the instructions that they depend on."""
             return self._model_latencies
 
         @property
         def model_functional_units(self):
             """Determines whether functional units should be modelled.
 
-                When set, SLOTHY will enforce that instructions are placed in accordance
-                with the presence and throughput of functional units that they depend on."""
+            When set, SLOTHY will enforce that instructions are placed in accordance
+            with the presence and throughput of functional units that they depend on."""
             return self._model_functional_units
 
         @property
         def functional_only(self):
             """Limit Slothy to register renaming"""
-            return (self.model_functional_units is False and
-                    self.model_latencies is False)
+            return (
+                self.model_functional_units is False and self.model_latencies is False
+            )
 
         @property
         def allow_reordering(self):
@@ -1100,7 +1149,8 @@ class Config(NestedPrint, LockAttributes):
 
             .. warning::
 
-                This only takes effect in straightline optimization (no software pipelining).
+                This only takes effect in straightline optimization (no software
+                pipelining).
             """
             return self._max_displacement
 
@@ -1140,49 +1190,63 @@ class Config(NestedPrint, LockAttributes):
             self.lock()
 
         @max_displacement.setter
-        def max_displacement(self,val):
+        def max_displacement(self, val):
             self._max_displacement = val
+
         @stalls_allowed.setter
-        def stalls_allowed(self,val):
+        def stalls_allowed(self, val):
             self._stalls_allowed = val
+
         @stalls_maximum_attempt.setter
-        def stalls_maximum_attempt(self,val):
+        def stalls_maximum_attempt(self, val):
             self._stalls_maximum_attempt = val
+
         @stalls_minimum_attempt.setter
-        def stalls_minimum_attempt(self,val):
+        def stalls_minimum_attempt(self, val):
             self._stalls_minimum_attempt = val
+
         @stalls_first_attempt.setter
-        def stalls_first_attempt(self,val):
+        def stalls_first_attempt(self, val):
             self._stalls_first_attempt = val
+
         @stalls_precision.setter
-        def stalls_precision(self,val):
+        def stalls_precision(self, val):
             self._stalls_precision = val
+
         @stalls_timeout_below_precision.setter
-        def stalls_timeout_below_precision(self,val):
+        def stalls_timeout_below_precision(self, val):
             self._stalls_timeout_below_precision = val
+
         @model_latencies.setter
-        def model_latencies(self,val):
+        def model_latencies(self, val):
             self._model_latencies = val
+
         @model_functional_units.setter
-        def model_functional_units(self,val):
+        def model_functional_units(self, val):
             self._model_functional_units = val
+
         @allow_reordering.setter
-        def allow_reordering(self,val):
+        def allow_reordering(self, val):
             self._allow_reordering = val
+
         @allow_renaming.setter
-        def allow_renaming(self,val):
+        def allow_renaming(self, val):
             self._allow_renaming = val
+
         @allow_spills.setter
-        def allow_spills(self,val):
+        def allow_spills(self, val):
             self._allow_spills = val
+
         @spill_type.setter
-        def spill_type(self,val):
+        def spill_type(self, val):
             self._spill_type = val
+
         @minimize_spills.setter
-        def minimize_spills(self,val):
+        def minimize_spills(self, val):
             self._minimize_spills = val
+
         @functional_only.setter
-        def functional_only(self,val):
+        def functional_only(self, val):
             self._model_latencies = val is False
             self._model_functional_units = val is False
 
@@ -1192,24 +1256,25 @@ class Config(NestedPrint, LockAttributes):
         @property
         def all_core(self):
             """When SW pipelining is used, hint that all instructions
-                should be 'core' instructions (not early/late)."""
+            should be 'core' instructions (not early/late)."""
             return self._all_core
 
         @property
         def order_hint_orig_order(self):
             """Hint at using the initial program order for the
-                program order variables."""
+            program order variables."""
             return self._order_hint_orig_order
 
         @property
         def rename_hint_orig_rename(self):
             """Hint at using the initial program order for the
-                program order variables."""
+            program order variables."""
             return self._rename_hint_orig_rename
 
         @property
         def ext_bsearch_remember_successes(self):
-            """When using an external binary search, hint previous successful optimization.
+            """When using an external binary search, hint previous successful
+            optimization.
 
             See also Config.variable_size."""
             return self._ext_bsearch_remember_successes
@@ -1225,13 +1290,15 @@ class Config(NestedPrint, LockAttributes):
             self.lock()
 
         @all_core.setter
-        def all_core(self,val):
+        def all_core(self, val):
             self._all_core = val
+
         @rename_hint_orig_rename.setter
-        def rename_hint_orig_rename(self,val):
+        def rename_hint_orig_rename(self, val):
             self._rename_hint_orig_rename = val
+
         @order_hint_orig_order.setter
-        def order_hint_orig_order(self,val):
+        def order_hint_orig_order(self, val):
             self._order_hint_orig_order = val
 
     def __init__(self, Arch, Target):
@@ -1250,8 +1317,8 @@ class Config(NestedPrint, LockAttributes):
         self._outputs = set()
 
         self._inputs_are_outputs = False
-        self._rename_inputs  = { "arch" : "static", "symbolic" : "any" }
-        self._rename_outputs = { "arch" : "static", "symbolic" : "any" }
+        self._rename_inputs = {"arch": "static", "symbolic": "any"}
+        self._rename_outputs = {"arch": "static", "symbolic": "any"}
 
         self._locked_registers = []
         self._reserved_regs = None
@@ -1273,7 +1340,7 @@ class Config(NestedPrint, LockAttributes):
         self._absorb_spills = True
 
         self._split_heuristic = False
-        self._split_heuristic_region = [0.0,1.0]
+        self._split_heuristic_region = [0.0, 1.0]
         self._split_heuristic_chunks = False
         self._split_heuristic_optimize_seam = 0
         self._split_heuristic_bottom_to_top = False
@@ -1314,10 +1381,10 @@ class Config(NestedPrint, LockAttributes):
         self.visualize_expected_performance = True
         self.visualize_show_old_code = False
 
-        self.placeholder_char = '.'
-        self.early_char = 'e'
-        self.late_char = 'l'
-        self.core_char = '*'
+        self.placeholder_char = "."
+        self.early_char = "e"
+        self.late_char = "l"
+        self.core_char = "*"
 
         self.mirror_char = "~"
 
@@ -1338,171 +1405,225 @@ class Config(NestedPrint, LockAttributes):
         self.lock()
 
     @arch.setter
-    def arch(self,val):
+    def arch(self, val):
         self._arch = val
+
     @target.setter
-    def target(self,val):
+    def target(self, val):
         self._target = val
+
     @sw_pipelining.setter
-    def sw_pipelining(self,val):
+    def sw_pipelining(self, val):
         self._sw_pipelining = val
+
     @constraints.setter
-    def constraints(self,val):
+    def constraints(self, val):
         self._constraints = val
+
     @register_aliases.setter
-    def register_aliases(self,val):
+    def register_aliases(self, val):
         self._register_aliases = val
+
     @outputs.setter
-    def outputs(self,val):
+    def outputs(self, val):
         self._outputs = val
+
     @inputs_are_outputs.setter
-    def inputs_are_outputs(self,val):
+    def inputs_are_outputs(self, val):
         self._inputs_are_outputs = val
+
     @rename_inputs.setter
-    def rename_inputs(self,val):
+    def rename_inputs(self, val):
         self._rename_inputs = val
         self._check_rename_config(self._rename_inputs)
+
     @rename_outputs.setter
-    def rename_outputs(self,val):
+    def rename_outputs(self, val):
         self._rename_outputs = val
         self._check_rename_config(self._rename_outputs)
+
     def _check_rename_config(self, lst):
-        assert isinstance(lst,dict)
+        assert isinstance(lst, dict)
+
     @reserved_regs.setter
-    def reserved_regs(self,val):
+    def reserved_regs(self, val):
         self._reserved_regs = val
+
     @reserved_regs_are_locked.setter
-    def reserved_regs_are_locked(self,val):
+    def reserved_regs_are_locked(self, val):
         self._reserved_regs_are_locked = val
+
     @variable_size.setter
-    def variable_size(self,val):
+    def variable_size(self, val):
         self._variable_size = val
+
     @selftest.setter
-    def selftest(self,val):
+    def selftest(self, val):
         self._selftest = val
+
     @selftest_iterations.setter
-    def selftest_iterations(self,val):
+    def selftest_iterations(self, val):
         self._selftest_iterations = val
+
     @selftest_address_registers.setter
-    def selftest_address_registers(self,val):
+    def selftest_address_registers(self, val):
         self._selftest_address_registers = val
+
     @selftest_default_memory_size.setter
-    def selftest_default_memory_size(self,val):
+    def selftest_default_memory_size(self, val):
         self._selftest_default_memory_size = val
+
     @selfcheck.setter
-    def selfcheck(self,val):
+    def selfcheck(self, val):
         self._selfcheck = val
+
     @selfcheck_failure_logfile.setter
-    def selfcheck_failure_logfile(self,val):
+    def selfcheck_failure_logfile(self, val):
         self._selfcheck_failure_logfile = val
+
     @allow_useless_instructions.setter
-    def allow_useless_instructions(self,val):
+    def allow_useless_instructions(self, val):
         self._allow_useless_instructions = val
+
     @unsafe_address_offset_fixup.setter
-    def unsafe_address_offset_fixup(self,val):
+    def unsafe_address_offset_fixup(self, val):
         if val is False and self.arch.arch_name == "Arm_v81M":
             raise InvalidConfig("unsafe address offset fixup must be set for Armv8.1-M")
         self._unsafe_address_offset_fixup = val
+
     @locked_registers.setter
-    def locked_registers(self,val):
+    def locked_registers(self, val):
         self._locked_registers = val
+
     @max_solutions.setter
     def max_solutions(self, val):
         self._max_solutions = val
+
     @with_preprocessor.setter
     def with_preprocessor(self, val):
         self._with_preprocessor = val
+
     @llvm_mca_issue_width_overwrite.setter
     def llvm_mca_issue_width_overwrite(self, val):
         self._llvm_mca_issue_width_overwrite = val
+
     @llvm_mca_full.setter
     def llvm_mca_full(self, val):
         self._llvm_mca_full = val
+
     @with_llvm_mca.setter
     def with_llvm_mca(self, val):
         self._with_llvm_mca_before = val
         self._with_llvm_mca_after = val
+
     @with_llvm_mca_after.setter
     def with_llvm_mca_after(self, val):
         self._with_llvm_mca_after = val
+
     @with_llvm_mca_before.setter
     def with_llvm_mca_before(self, val):
         self._with_llvm_mca_before = val
+
     @compiler_binary.setter
     def compiler_binary(self, val):
         self._compiler_binary = val
+
     @compiler_include_paths.setter
     def compiler_include_paths(self, val):
         self._compiler_include_paths = val
+
     @timeout.setter
     def timeout(self, val):
         self._timeout = val
+
     @retry_timeout.setter
     def retry_timeout(self, val):
         self._retry_timeout = val
+
     @keep_tags.setter
     def keep_tags(self, val):
         self._keep_tags = val
+
     @inherit_macro_comments.setter
     def inherit_macro_comments(self, val):
         self._inherit_macro_comments = val
+
     @ignore_tags.setter
     def ignore_tags(self, val):
         self._ignore_tags = val
+
     @do_address_fixup.setter
     def do_address_fixup(self, val):
         self._do_address_fixup = val
+
     @ignore_objective.setter
     def ignore_objective(self, val):
         self._ignore_objective = val
+
     @objective_precision.setter
     def objective_precision(self, val):
         self._objective_precision = val
+
     @objective_lower_bound.setter
     def objective_lower_bound(self, val):
         self._objective_lower_bound = val
+
     @absorb_spills.setter
     def absorb_spills(self, val):
         self._absorb_spills = val
+
     @split_heuristic.setter
     def split_heuristic(self, val):
         self._split_heuristic = val
+
     @split_heuristic_factor.setter
     def split_heuristic_factor(self, val):
         self._split_heuristic_factor = float(val)
+
     @split_heuristic_abort_cycle_at_high.setter
     def split_heuristic_abort_cycle_at_high(self, val):
         self._split_heuristic_abort_cycle_at_high = val
+
     @split_heuristic_abort_cycle_at_low.setter
     def split_heuristic_abort_cycle_at_low(self, val):
         self._split_heuristic_abort_cycle_at_low = val
+
     @split_heuristic_stepsize.setter
     def split_heuristic_stepsize(self, val):
         self._split_heuristic_stepsize = float(val)
+
     @split_heuristic_chunks.setter
     def split_heuristic_chunks(self, val):
         self._split_heuristic_chunks = val
+
     @split_heuristic_optimize_seam.setter
     def split_heuristic_optimize_seam(self, val):
         self._split_heuristic_optimize_seam = val
+
     @split_heuristic_bottom_to_top.setter
     def split_heuristic_bottom_to_top(self, val):
         self._split_heuristic_bottom_to_top = val
+
     @split_heuristic_region.setter
     def split_heuristic_region(self, val):
         self._split_heuristic_region = val
+
     @split_heuristic_preprocess_naive_interleaving.setter
     def split_heuristic_preprocess_naive_interleaving(self, val):
         self._split_heuristic_preprocess_naive_interleaving = val
+
     @split_heuristic_preprocess_naive_interleaving_by_latency.setter
     def split_heuristic_preprocess_naive_interleaving_by_latency(self, val):
         self._split_heuristic_preprocess_naive_interleaving_by_latency = val
+
     @split_heuristic_preprocess_naive_interleaving_strategy.setter
     def split_heuristic_preprocess_naive_interleaving_strategy(self, val):
         self._split_heuristic_preprocess_naive_interleaving_strategy = val
+
     @split_heuristic_estimate_performance.setter
     def split_heuristic_estimate_performance(self, val):
         self._split_heuristic_estimate_performance = val
+
     @split_heuristic_repeat.setter
     def split_heuristic_repeat(self, val):
         self._split_heuristic_repeat = val
