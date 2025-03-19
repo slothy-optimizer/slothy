@@ -65,6 +65,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
 </ul>
@@ -110,13 +111,14 @@ It takes handwritten assembly as input and simultaneously super-optimizes:</p>
 <li><p>Software pipelining</p></li>
 </ul>
 <p>SLOTHY enables a development workflow where developers write ‘clean’ assembly by hand,
-emphasizing the logic of the computation, while SLOTHY automates microarchitecture-specific
-micro-optimizations. Since SLOTHY does not change instructions, and scheduling/allocation
-optimizations are tightly controlled through configurable and extensible constraints, the
-developer keeps close control over the final assembly, while being freed from the most tedious
-and readability- and verifiability-impeding micro-optimizations.</p>
+emphasizing the logic of the computation, while SLOTHY automates
+microarchitecture-specific micro-optimizations. Since SLOTHY does not change instructions,
+and scheduling/allocation optimizations are tightly controlled through configurable and
+extensible constraints, the developer keeps close control over the final assembly, while
+being freed from the most tedious and readability- and verifiability-impeding
+micro-optimizations.</p>
 <p>This module provides the Slothy class, which is a stateful interface to both
-one-shot and heuristic optimiations using SLOTHY.</p>
+one-shot and heuristic optimizations using SLOTHY.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <section id="classes">
@@ -143,7 +145,7 @@ optimizations using SLOTHY.</p>
 and microarchitecture as arguments.</p></li>
 <li><p>Load source code from file or raw string.</p></li>
 <li><p>Repeat: Adjust configuration and conduct an optimization of a loop body or
-traightline block of code, using optimize() or optimize_loop().</p></li>
+straightline block of code, using optimize() or optimize_loop().</p></li>
 <li><p>Write source code to file or raw string.</p></li>
 </ul>
 <p>The use of heuristics is controlled through the configuration.</p>
@@ -172,14 +174,16 @@ traightline block of code, using optimize() or optimize_loop().</p></li>
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.source">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">source</span></span><a class="headerlink" href="#slothy.core.slothy.Slothy.source" title="Link to this definition"></a></dt>
 <dd><p>Returns the current source code as an array of SourceLine objects.</p>
-<p>If you want the current source code as a multiline string, use get_source_as_string().</p>
+<p>If you want the current source code as a multiline string, use
+get_source_as_string().</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.original_source">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">original_source</span></span><a class="headerlink" href="#slothy.core.slothy.Slothy.original_source" title="Link to this definition"></a></dt>
 <dd><p>Returns the original source code as an array of SourceLine objects</p>
-<p>If you want the current source code as a multiline string, use get_original_source_as_string().</p>
+<p>If you want the current source code as a multiline string, use
+get_original_source_as_string().</p>
 </dd></dl>
 
 <dl class="py method">
@@ -231,24 +235,31 @@ traightline block of code, using optimize() or optimize_loop().</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.global_selftest">
-<span class="sig-name descname"><span class="pre">global_selftest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">funcname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_registers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.global_selftest" title="Link to this definition"></a></dt>
-<dd><p>Conduct a function-level selftest</p>
+<span class="sig-name descname"><span class="pre">global_selftest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">funcname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_registers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#slothy.core.slothy.Slothy.global_selftest" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Conduct a function-level selftest</dt><dd><p>To run this, you need <cite>llvm-nm</cite>, <cite>llvm-readobj</cite>, <cite>llvm-mc</cite>
+in your PATH. Those are part of a standard LLVM setup.</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>funcname</strong> – Name of function to be called. Must be exposed as a symbol</p></li>
-<li><p><strong>address_prs</strong> – Dictionary indicating which GPRs are pointers to buffers of which size.
+<li><p><strong>funcname</strong> (<em>str</em>) – Name of function to be called. Must be exposed as a symbol</p></li>
+<li><p><strong>address_registers</strong> (<em>any</em>) – Dictionary indicating which GPRs are pointers to
+buffers of which size.
 For example, <cite>{ “x0”: 1024, “x4”: 1024 }</cite> would indicate that both x0 and x4
 point to buffers of size 1024 bytes. The global selftest needs to know this to
 setup valid calls to the assembly routine.</p></li>
+<li><p><strong>iterations</strong> (<em>int</em>) – Number of iterations to run the selftest for.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns early of target architecture of not supported.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
 </dl>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>To run this, you need <cite>llvm-nm</cite>, <cite>llvm-readobj</cite>, <cite>llvm-mc</cite>
-in your PATH. Those are part of a standard LLVM setup.</p>
-</div>
 </dd></dl>
 
 <dl class="py method">
@@ -264,40 +275,54 @@ in your PATH. Those are part of a standard LLVM setup.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.optimize">
-<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_synthesis_cb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.optimize" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_synthesis_cb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.optimize" title="Link to this definition"></a></dt>
 <dd><p>Optimize all or part of the currently loaded source code</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>It is OK to use this in software pipelining mode. In this case, the
 tool will output preamble, kernel, and postamble separately, while the looping
-code itself needs to be introduced by the user. Alternatively, a callback can be
-provided which will be given preamble, kernel, postamble, and the number of exceptional
-iterations, and piece together a list of source code lines from that.</p>
+code itself needs to be introduced by the user. Alternatively, a callback can
+be provided which will be given preamble, kernel, postamble, and the number
+of exceptional iterations, and piece together a list of source code lines
+from that.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> – The label marking the beginning of the part of the code to optimize.
+<li><p><strong>start</strong> (<em>str</em>) – The label marking the beginning of the part of the code to optimize.
 This cannot be used together with the ‘loop’ argument.</p></li>
-<li><p><strong>end</strong> – The label marking the end of the part of the code to optimize.
+<li><p><strong>end</strong> (<em>str</em>) – The label marking the end of the part of the code to optimize.
 This cannot be used together with the ‘loop’ argument.</p></li>
-<li><p><strong>loop_synthesis_cb</strong> – Optional (None by default) callback synthesis final source code
-from tuple of (preamble, kernel, postamble, # exceptional iterations).</p></li>
+<li><p><strong>loop_synthesis_cb</strong> (<em>any</em>) – Optional (None by default) callback synthesis final
+source code from tuple of (preamble, kernel, postamble, # exceptional
+iterations).</p></li>
+<li><p><strong>logname</strong> (<em>str</em>) – Optional name of the logger.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If sw pipelining is disabled and yet there are
+early/late instructions (which should not happen) or if the optimized code
+is not a SourceLine list.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.get_loop_input_output">
-<span class="sig-name descname"><span class="pre">get_loop_input_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.get_loop_input_output" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_loop_input_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#slothy.core.slothy.Slothy.get_loop_input_output" title="Link to this definition"></a></dt>
 <dd><p>Find all registers that a loop body depends on</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>loop_lbl</strong> – Label of loop to process.</p></li>
-<li><p><strong>forced_loop_type</strong> – Forces the loop to be parsed as a certain type.</p></li>
+<li><p><strong>loop_lbl</strong> (<em>str</em>) – Label of loop to process.</p></li>
+<li><p><strong>forced_loop_type</strong> (<em>any</em>) – Forces the loop to be parsed as a certain type.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list all inputs of the loop.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -305,7 +330,8 @@ from tuple of (preamble, kernel, postamble, # exceptional iterations).</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.get_input_from_output">
 <span class="sig-name descname"><span class="pre">get_input_from_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.get_input_from_output" title="Link to this definition"></a></dt>
-<dd><p>For the piece of straightline code, infer which input registers affect its output</p>
+<dd><p>For the piece of straightline code, infer which input registers affect its
+output</p>
 </dd></dl>
 
 <dl class="py method">
@@ -315,7 +341,7 @@ from tuple of (preamble, kernel, postamble, # exceptional iterations).</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.fusion_region">
-<span class="sig-name descname"><span class="pre">fusion_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.fusion_region" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fusion_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.fusion_region" title="Link to this definition"></a></dt>
 <dd><p>Run fusion callbacks on straightline code replacing certain
 instruction (sequences) with an alternative. These replacements are
 defined in the architectural model by setting an instruction class’
@@ -323,40 +349,53 @@ global_fusion_cb.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> – The label marking the beginning of the part of the code to
+<li><p><strong>start</strong> (<em>str</em>) – The label marking the beginning of the part of the code to
 apply fusion to.</p></li>
-<li><p><strong>end</strong> – The label marking the end of the part of the code to apply
+<li><p><strong>end</strong> (<em>str</em>) – The label marking the end of the part of the code to apply
 fusion to.</p></li>
+<li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the fusion callbacks.</p>
+</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If self.source is not a SourceLine list when
+returning.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.fusion_loop">
-<span class="sig-name descname"><span class="pre">fusion_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.fusion_loop" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fusion_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.fusion_loop" title="Link to this definition"></a></dt>
 <dd><p>Run fusion callbacks on loop body replacing certain instruction
 (sequences) with an alternative. These replacements are defined in the
 architectural model by setting an instruction class’ global_fusion_cb.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>loop_lbl</strong> – Label of loop to which the fusions are applied to.</p></li>
-<li><p><strong>forced_loop_type</strong> – Forces the loop to be parsed as a certain type.</p></li>
+<li><p><strong>loop_lbl</strong> (<em>str</em>) – Label of loop to which the fusions are applied to.</p></li>
+<li><p><strong>forced_loop_type</strong> (<em>any</em>) – Forces the loop to be parsed as a certain type.</p></li>
+<li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the fusion callbacks.</p>
+</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If self.source is not a SourceLine list when
+returning.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.optimize_loop">
-<span class="sig-name descname"><span class="pre">optimize_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postamble_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.optimize_loop" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">optimize_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_lbl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postamble_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.slothy.Slothy.optimize_loop" title="Link to this definition"></a></dt>
 <dd><p>Optimize the loop starting at a given label</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>postamble_label</strong> – Marks end of loop kernel.</p></li>
-<li><p><strong>forced_loop_type</strong> – Forces the loop to be parsed as a certain type.</p></li>
+<li><p><strong>loop_lbl</strong> (<em>str</em>) – Label of loop to optimize.</p></li>
+<li><p><strong>postamble_label</strong> (<em>str</em>) – Marks end of loop kernel.</p></li>
+<li><p><strong>forced_loop_type</strong> (<em>any</em>) – Forces the loop to be parsed as a certain type.</p></li>
 </ul>
 </dd>
 </dl>

@@ -83,7 +83,7 @@ API
 .. py:class:: ExecutionUnit
    :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit
 
-   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Enum`
+   Bases: :py:obj:`enum.Enum`
 
    .. py:attribute:: SCALAR
       :canonical: slothy.targets.arm_v81m.helium_experimental.ExecutionUnit.SCALAR

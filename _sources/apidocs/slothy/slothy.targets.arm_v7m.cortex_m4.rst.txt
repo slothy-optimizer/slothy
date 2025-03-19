@@ -87,7 +87,7 @@ API
 .. py:class:: ExecutionUnit
    :canonical: slothy.targets.arm_v7m.cortex_m4.ExecutionUnit
 
-   Bases: :py:obj:`slothy.targets.arm_v7m.arch_v7m.Enum`
+   Bases: :py:obj:`enum.Enum`
 
    .. autodoc2-docstring:: slothy.targets.arm_v7m.cortex_m4.ExecutionUnit
 

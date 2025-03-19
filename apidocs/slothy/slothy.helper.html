@@ -63,6 +63,7 @@
 <li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.helper</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
 </ul>
@@ -168,7 +169,6 @@ them to the same or different logger later.</p></td>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">SourceLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine" title="Link to this definition"></a></dt>
 <dd><p>Representation of a single line of source code</p>
 <p class="rubric">Initialization</p>
-<p>Create source line from string</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine._extract_comments_from_text">
 <span class="sig-name descname"><span class="pre">_extract_comments_from_text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine._extract_comments_from_text" title="Link to this definition"></a></dt>
@@ -352,7 +352,8 @@ metadata (such as comments, indentation or tags) unmodified.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.read_multiline">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_multiline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.read_multiline" title="Link to this definition"></a></dt>
-<dd><p>Parse multi-line string or array of strings into list of SourceLine instances</p>
+<dd><p>Parse multi-line string or array of strings into list of SourceLine
+instances</p>
 </dd></dl>
 
 <dl class="py method">
@@ -395,15 +396,15 @@ metadata (such as comments, indentation or tags) unmodified.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.inherit_tags">
-<span class="sig-name descname"><span class="pre">inherit_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.inherit_tags" title="Link to this definition"></a></dt>
-<dd><p>Inhertis the tags from another source line</p>
+<span class="sig-name descname"><span class="pre">inherit_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.inherit_tags" title="Link to this definition"></a></dt>
+<dd><p>Inherits the tags from another source line</p>
 <p>In case of overlapping tags, source line l takes precedence.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.inherit_comments">
-<span class="sig-name descname"><span class="pre">inherit_comments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.inherit_comments" title="Link to this definition"></a></dt>
-<dd><p>Inhertis the comments from another source line</p>
+<span class="sig-name descname"><span class="pre">inherit_comments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.inherit_comments" title="Link to this definition"></a></dt>
+<dd><p>Inherits the comments from another source line</p>
 </dd></dl>
 
 <dl class="py method">
@@ -900,7 +901,7 @@ emitted by llvm-mc.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Permutation.permutation_move_entry_forward">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_move_entry_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_from</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_to</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_move_entry_forward" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_move_entry_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_from</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_to</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_move_entry_forward" title="Link to this definition"></a></dt>
 <dd><p>Create transposition permutation</p>
 </dd></dl>
 
@@ -965,16 +966,25 @@ and the filter list to empty.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Loop.extract">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Loop.extract" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">any</span></span></span><a class="headerlink" href="#slothy.helper.Loop.extract" title="Link to this definition"></a></dt>
 <dd><p>Find a loop with start label <cite>lbl</cite> in <cite>source</cite> and return it together
 with its type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source</strong> – list of SourceLine objects</p></li>
-<li><p><strong>lbl</strong> – label of the loop to extract</p></li>
-<li><p><strong>forced_loop_type</strong> – if not None, only try to extract this type of loop</p></li>
+<li><p><strong>source</strong> (<em>list</em>) – list of SourceLine objects</p></li>
+<li><p><strong>lbl</strong> (<em>str</em>) – label of the loop to extract</p></li>
+<li><p><strong>forced_loop_type</strong> (<em>any</em>) – if not None, only try to extract this type of loop</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The extracted loop.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>any</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.FatalParsingException" title="slothy.targets.arm_v7m.arch_v7m.FatalParsingException"><strong>FatalParsingException</strong></a> – If loop with label lbl cannot be found.</p>
 </dd>
 </dl>
 </dd></dl>

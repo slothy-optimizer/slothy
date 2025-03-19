@@ -65,6 +65,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
 </ul>
@@ -206,9 +207,9 @@ only notice once we actually compile and run the code. The selftest will
 likely catch issues.</p></li>
 <li><p>When using software pipelining, the selfcheck reduces to a straightline check
 for a bounded unrolling of the loop. An unbounded selfcheck is currently not
-implemented. With the selftest, you still need to fix a loop bound, but at least you can
-equivalence-check the loop-form (including the compare+branch instructions
-at the loop boundary) rather than the unrolled code.</p></li>
+implemented. With the selftest, you still need to fix a loop bound, but at
+least you can equivalence-check the loop-form (including the compare+branch
+instructions at the loop boundary) rather than the unrolled code.</p></li>
 </ul>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -238,7 +239,8 @@ pointers to memory, and if so, of what size.</p>
 <dt class="sig sig-object py" id="slothy.core.config.Config.selftest_default_memory_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selftest_default_memory_size</span></span><a class="headerlink" href="#slothy.core.config.Config.selftest_default_memory_size" title="Link to this definition"></a></dt>
 <dd><p>Default buffer size to use for registers which are automatically inferred to be
-used as pointers and for which no memory size has been configured via <cite>address_registers</cite>.</p>
+used as pointers and for which no memory size has been configured via
+<cite>address_registers</cite>.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -258,17 +260,17 @@ It is vital in catching bugs in the model generation early.</p>
 There are at least two classes of bugs uncaught by the selfcheck:</p>
 <ul>
 <li><p>User configuration issues: The selfcheck validates SLOTHY’s optimization
-in the context of the provided configuration. Validation of the configuration
-is the user’s responsibility. Two common pitfalls include missing reserved
-registers (allowing SLOTHY to clobber more registers than intended), or
-missing output registers (allowing SLOTHY to overwrite an output register
-in subsequent instructions).</p>
+in the context of the provided configuration. Validation of the
+configuration is the user’s responsibility. Two common pitfalls include
+missing reserved registers (allowing SLOTHY to clobber more registers than
+intended), or missing output registers (allowing SLOTHY to overwrite an
+output register in subsequent instructions).</p>
 <p>This is the most common source of issues for code passing the selfcheck
 but remaining functionally incorrect.</p>
 </li>
 <li><p>Bugs in address offset fixup: SLOTHY’s modelling of post-load/store address
-increments is deliberately inaccurate to allow for reordering of such instructions
-leveraging commutativity relations such as</p></li>
+increments is deliberately inaccurate to allow for reordering of such
+instructions leveraging commutativity relations such as</p></li>
 </ul>
 <div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nf">LDR</span><span class="w"> </span><span class="no">X</span><span class="p">,[</span><span class="no">A</span><span class="p">],</span><span class="c1">#imm;  STR Y,[A]    ===     STR Y,[A, #imm];  LDR X,[A],#imm</span>
 </pre></div>
@@ -278,9 +280,9 @@ leveraging commutativity relations such as</p></li>
 <p>See also section “Address offset rewrites” in the SLOTHY paper</p>
 </div>
 <p>Bugs in SLOTHY’s address fixup logic would not be caught by the selfcheck.
-If your code doesn’t work and you are sure to have configured SLOTHY correctly,
-you may therefore want to double-check that address offsets have been adjusted
-correctly by SLOTHY.</p>
+If your code doesn’t work and you are sure to have configured SLOTHY
+correctly, you may therefore want to double-check that address offsets have
+been adjusted correctly by SLOTHY.</p>
 </div>
 </dd></dl>
 
@@ -324,7 +326,8 @@ to make address offset fixup configurable.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The user-imposed safety constraint is not a necessity – in principle,
-SLOTHY could detect when it is safe to reorder ldr/str instructions with increment.
+SLOTHY could detect when it is safe to reorder ldr/str instructions with
+increment.
 It just hasn’t been implemented yet.</p>
 </div>
 </dd></dl>
@@ -368,15 +371,15 @@ and consider unsetting it to reduce model complexity.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">keep_tags</span></span><a class="headerlink" href="#slothy.core.config.Config.keep_tags" title="Link to this definition"></a></dt>
 <dd><p>Indicates whether tags in the input source should be kept or removed.</p>
 <p>Tags include pre/core/post or ordering annotations that usually become meaningless
-post-optimization. However, for preprocessing runs that do not reorder code, it makes
-sense to keep them.</p>
+post-optimization. However, for preprocessing runs that do not reorder code, it
+makes sense to keep them.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.inherit_macro_comments">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inherit_macro_comments</span></span><a class="headerlink" href="#slothy.core.config.Config.inherit_macro_comments" title="Link to this definition"></a></dt>
-<dd><p>Indicates whether comments at macro invocations should be inherited to instructions
-in the macro body.</p>
+<dd><p>Indicates whether comments at macro invocations should be inherited to
+instructions in the macro body.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -421,8 +424,9 @@ change the architectural allocation of inputs.</p>
 <p>The special keys “symbolic”, “arch” apply to all symbolic and architectural
 inputs, respectively. The key “other” applies to all inputs for which no other
 key matches.</p>
-<p>The default value is { “symbolic”: “any”, “arch” : “static” } – that is, architectural
-inputs are not renamed, while symbolic inputs are dynamically renamed.</p>
+<p>The default value is { “symbolic”: “any”, “arch” : “static” } – that is,
+architectural inputs are not renamed, while symbolic inputs are dynamically
+renamed.</p>
 <p>Examples:</p>
 <ul class="simple">
 <li><p>Generally, unless you are prepared to modify surrounding code, you should
@@ -432,12 +436,12 @@ architectural register names.</p></li>
 This would rename _all_ inputs, regardless of whether they’re symbolic or not.
 Thus, you’d likely need to modify surrounding code.</p></li>
 <li><p>Config.rename_inputs = { “in” : “r0”, “arch” : “static”, “symbolic” : “any” }
-This would rename the symbolic input GPR ‘in’ to ‘r0’, keep all other inputs which
-already have an architectural name, while dynamically assigning suitable registers
-for symbolic inputs.</p></li>
+This would rename the symbolic input GPR ‘in’ to ‘r0’, keep all other inputs
+which already have an architectural name, while dynamically assigning suitable
+registers for symbolic inputs.</p></li>
 </ul>
-<p>In case of a successful optimization, the assignment of input registers to architectural
-registers is given by the dictionary Result.input_renaming.</p>
+<p>In case of a successful optimization, the assignment of input registers to
+architectural registers is given by the dictionary Result.input_renaming.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -446,10 +450,11 @@ registers is given by the dictionary Result.input_renaming.</p>
 <dd><p>A dictionary mapping output register names (symbolic or architectural) to their
 renaming configuration.</p>
 <p>Analogous to Config.rename_inputs.</p>
-<p>The default value is { “symbolic”: “any”, “arch” : “static” } – that is, architectural
-outputs are not renamed, while symbolic outputs are dynamically renamed.</p>
-<p>In case of a successful optimization, the assignment of input registers to architectural
-registers is given by the dictionary Result.input_renaming.</p>
+<p>The default value is { “symbolic”: “any”, “arch” : “static” } – that is,
+architectural outputs are not renamed, while symbolic outputs are dynamically
+renamed.</p>
+<p>In case of a successful optimization, the assignment of input registers to
+architectural registers is given by the dictionary Result.input_renaming.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -594,8 +599,8 @@ burden of post-optimization address fixup on the user.
 Disabling this option does NOT tighten the constraint model to forbid reorderings
 such as the above.</p>
 <dl class="simple">
-<dt>WARNING: Don’t disable this option unless you know what you are doing!</dt><dd><p>Disabling this will likely lead to optimized code that is functionally incorrect
-and needing manual address offset fixup!</p>
+<dt>WARNING: Don’t disable this option unless you know what you are doing!</dt><dd><p>Disabling this will likely lead to optimized code that is functionally
+incorrect and needing manual address offset fixup!</p>
 </dd>
 </dl>
 </dd></dl>
@@ -656,14 +661,16 @@ code block into prior to passing it to the core of Slothy.</p>
 <dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_abort_cycle_at_high">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_abort_cycle_at_high</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_abort_cycle_at_high" title="Link to this definition"></a></dt>
 <dd><p>During the split heuristic, a threshold for the number of stalls in the current
-optimization window above which the current pass of the split heuristic should stop.</p>
+optimization window above which the current pass of the split heuristic should
+stop.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_abort_cycle_at_low">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_abort_cycle_at_low</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_abort_cycle_at_low" title="Link to this definition"></a></dt>
 <dd><p>During the split heuristic, a threshold for the number of stalls in the current
-optimization window below which the current pass of the split heuristic should stop.</p>
+optimization window below which the current pass of the split heuristic should
+stop.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -671,8 +678,8 @@ optimization window below which the current pass of the split heuristic should s
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_stepsize</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_stepsize" title="Link to this definition"></a></dt>
 <dd><p>If split heuristic is used, the increment for the sliding window. By default,
 this is twice the split factor. For example, a split factor of 5 means that the
-window size is 0.2 of the overall code size, and the default step size of 0.1 means
-that the sliding windows will be [0,0.2], [0.1,0.3], …</p>
+window size is 0.2 of the overall code size, and the default step size of 0.1
+means that the sliding windows will be [0,0.2], [0.1,0.3], …</p>
 </dd></dl>
 
 <dl class="py property">
@@ -686,8 +693,8 @@ optimization.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_chunks">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_chunks</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_chunks" title="Link to this definition"></a></dt>
-<dd><p>If split heuristic is used, explicitly lists the optimization windows to be used.
-If unset, a sliding or adaptive optimization window will be used.</p>
+<dd><p>If split heuristic is used, explicitly lists the optimization windows to be
+used. If unset, a sliding or adaptive optimization window will be used.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -703,23 +710,23 @@ rather than from top to bottom.</p>
 <dd><p>Restrict the split heuristic to a sub-region of the code.</p>
 <p>For example, if this is set to [0.25,0.75], only the middle half of the input will
 be optimized through the split heuristic.</p>
-<p>This option can be combined with other options such as the split factor. For example,
-if the split region is set fo [0.25, 0.75] and the split factor is 5, then optimization
-windows of size .1 will be considered within [0.25, 0.75].</p>
-<p>Note that even if this option is used, the specification of inputs and outputs is still
-with respect to the entire code; SLOTHY will automatically derive the outputs of the
-subregion configured here.</p>
+<p>This option can be combined with other options such as the split factor.
+For example, if the split region is set fo [0.25, 0.75] and the split factor is
+5, then optimization windows of size .1 will be considered within [0.25, 0.75].</p>
+<p>Note that even if this option is used, the specification of inputs and outputs is
+still with respect to the entire code; SLOTHY will automatically derive the
+outputs of the subregion configured here.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_preprocess_naive_interleaving</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving" title="Link to this definition"></a></dt>
-<dd><p>Prior to applying the split heuristic, interleave instructions according according
+<dd><p>Prior to applying the split heuristic, interleave instructions according
 to lowest depth, without applying register renaming.</p>
-<p>This can be useful if the code to be optimized is comprised of independent computations
-operating on different architectural state (e.g. scalar vs. SIMD); in this case, the
-naive preprocessing will ‘zip’ the different computations prior to applying the core
-optimization.</p>
+<p>This can be useful if the code to be optimized is comprised of independent
+computations operating on different architectural state (e.g. scalar vs. SIMD);
+in this case, the naive preprocessing will ‘zip’ the different computations prior
+to applying the core optimization.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -732,8 +739,8 @@ the naive interleaving to be by latency-depth rather than latency.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.split_heuristic_estimate_performance">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_heuristic_estimate_performance</span></span><a class="headerlink" href="#slothy.core.config.Config.split_heuristic_estimate_performance" title="Link to this definition"></a></dt>
-<dd><p>After applying the split heuristic, run SLOTHY again on the entire code to estimate the
-performance and display un-used issue slots in the output.</p>
+<dd><p>After applying the split heuristic, run SLOTHY again on the entire code to
+estimate the performance and display un-used issue slots in the output.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -801,15 +808,15 @@ from iteration N+1 to iteration N. A typical example would be an early load.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.allow_post">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_post</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.allow_post" title="Link to this definition"></a></dt>
-<dd><p>Allow ‘late’ instructions, that is, instructions that are deferred from iteration N
-to iteration N+1. A typical example would be a late store.</p>
+<dd><p>Allow ‘late’ instructions, that is, instructions that are deferred from
+iteration N to iteration N+1. A typical example would be a late store.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.SoftwarePipelining.unknown_iteration_count">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unknown_iteration_count</span></span><a class="headerlink" href="#slothy.core.config.Config.SoftwarePipelining.unknown_iteration_count" title="Link to this definition"></a></dt>
-<dd><p>Determines whether the number of iterations is statically known and larger than
-the number of exceptional iterations hoisted out by SLOTHY (at most 2).</p>
+<dd><p>Determines whether the number of iterations is statically known and larger
+than the number of exceptional iterations hoisted out by SLOTHY (at most 2).</p>
 <p>Set this to <cite>True</cite> if the loop can have any number of iterations.</p>
 </dd></dl>
 
@@ -1033,7 +1040,8 @@ places between original and re-scheduled source code.</p></li>
 up otherwise intractable optimization tasks.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This only takes effect in straightline optimization (no software pipelining).</p>
+<p>This only takes effect in straightline optimization (no software
+pipelining).</p>
 </div>
 </dd></dl>
 
@@ -1069,7 +1077,8 @@ program order variables.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.Hints.ext_bsearch_remember_successes">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ext_bsearch_remember_successes</span></span><a class="headerlink" href="#slothy.core.config.Config.Hints.ext_bsearch_remember_successes" title="Link to this definition"></a></dt>
-<dd><p>When using an external binary search, hint previous successful optimization.</p>
+<dd><p>When using an external binary search, hint previous successful
+optimization.</p>
 <p>See also Config.variable_size.</p>
 </dd></dl>
 

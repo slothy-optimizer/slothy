@@ -65,6 +65,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
 </ul>
@@ -1309,8 +1310,8 @@ within the unicorn engine</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.Instruction.global_parsing_cb">
 <span class="sig-name descname"><span class="pre">global_parsing_cb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.Instruction.global_parsing_cb" title="Link to this definition"></a></dt>
-<dd><p>Parsing callback triggered after DataFlowGraph parsing which allows modification
-of the instruction in the context of the overall computation.</p>
+<dd><p>Parsing callback triggered after DataFlowGraph parsing which allows
+modification of the instruction in the context of the overall computation.</p>
 <p>This is primarily used to remodel input-outputs as outputs in jointly destructive
 instruction patterns (See Section 4.4, <a class="reference external" href="https://eprint.iacr.org/2022/1303.pdf">https://eprint.iacr.org/2022/1303.pdf</a>).</p>
 </dd></dl>
@@ -1396,29 +1397,31 @@ a 128-bit vector</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.Instruction.build">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.Instruction.build" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Instruction" title="slothy.targets.aarch64.aarch64_neon.Instruction"><span class="pre">slothy.targets.aarch64.aarch64_neon.Instruction</span></a></span></span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.Instruction.build" title="Link to this definition"></a></dt>
 <dd><p>Attempt to parse a string as an instance of an instruction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> – The target instruction the string should be attempted to be parsed as.</p></li>
-<li><p><strong>src</strong> – The string to parse.</p></li>
-<li><p><strong>mnemonic</strong> – The mnemonic of instruction c</p></li>
+<li><p><strong>c</strong> (<em>any</em>) – The target instruction the string should be attempted to be parsed as.</p></li>
+<li><p><strong>src</strong> (<em>str</em>) – The string to parse.</p></li>
+<li><p><strong>mnemonic</strong> (<em>str</em>) – The mnemonic of instruction c</p></li>
+<li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the constructor of c.</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Upon success, the result of parsing src as an instance of c.</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="field-list simple">
-<dt class="field-odd">ParsingException<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The str argument cannot be parsed as an instance of c.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Instruction" title="slothy.targets.aarch64.aarch64_neon.Instruction">Instruction</a></p>
 </dd>
-<dt class="field-even">FatalParsingException<span class="colon">:</span></dt>
-<dd class="field-even"><p>A fatal error during parsing happened
-that’s likely a bug in the model.</p>
-</dd>
-</dl>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>Instruction.ParsingException</strong> – The str argument cannot be parsed as an
+instance of c.</p></li>
+<li><p><a class="reference internal" href="slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.FatalParsingException" title="slothy.targets.arm_v7m.arch_v7m.FatalParsingException"><strong>FatalParsingException</strong></a> – A fatal error during parsing happened
+that’s likely a bug in the model.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

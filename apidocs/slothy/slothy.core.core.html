@@ -65,6 +65,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
 </ul>
@@ -174,14 +175,15 @@ count per iteration.</p>
 <dt class="sig sig-object py" id="slothy.core.core.Result.cycles_bound">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cycles_bound</span></span><a class="headerlink" href="#slothy.core.core.Result.cycles_bound" title="Link to this definition"></a></dt>
 <dd><p>A lower bound for the number of cycles obtained during optimization.</p>
-<p>This may be lower than the estimated cycle count of the result itself if optimization
-terminated prematurely, e.g. because of a timeout.</p>
+<p>This may be lower than the estimated cycle count of the result itself if
+optimization terminated prematurely, e.g. because of a timeout.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.core.Result.ipc_bound">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ipc_bound</span></span><a class="headerlink" href="#slothy.core.core.Result.ipc_bound" title="Link to this definition"></a></dt>
-<dd><p>An uppwer bound on the instruction/cycle (IPC) count obtained during optimization.</p>
+<dd><p>An upper bound on the instruction/cycle (IPC) count obtained during
+optimization.</p>
 <p>This may be lower than the IPC value of the result itself if optimization
 terminated prematurely, e.g. because of a timeout.</p>
 </dd></dl>
@@ -256,8 +258,8 @@ A core instruction is one which is left in its original iteration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.Result.is_pre">
 <span class="sig-name descname"><span class="pre">is_pre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_program_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.Result.is_pre" title="Link to this definition"></a></dt>
-<dd><p>Indicates if the instruction in original program order position i (starting at 0)
-was marked ‘early’ and thereby pulled into the previous iteration.</p>
+<dd><p>Indicates if the instruction in original program order position i
+(starting at 0) was marked ‘early’ and thereby pulled into the previous iteration.</p>
 <p>If original_program_order is False, the index instead refers to the _new_ program
 order position with in the kernel of the optimized loop.</p>
 <p>This only makes sense when software pipelining was enabled.</p>
@@ -266,8 +268,9 @@ order position with in the kernel of the optimized loop.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.Result.is_core">
 <span class="sig-name descname"><span class="pre">is_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_program_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.Result.is_core" title="Link to this definition"></a></dt>
-<dd><p>Indicates if the instruction in original program order position i (starting at 0)
-was neither marked ‘early’ nor ‘late’, so stayed in its original iteration.</p>
+<dd><p>Indicates if the instruction in original program order position i
+(starting at 0) was neither marked ‘early’ nor ‘late’, so stayed in its original
+iteration.</p>
 <p>If original_program_order is False, the index instead refers to the _new_ program
 order position with in the kernel of the optimized loop.</p>
 <p>This only makes sense when software pipelining was enabled.</p>
@@ -276,8 +279,8 @@ order position with in the kernel of the optimized loop.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.Result.is_post">
 <span class="sig-name descname"><span class="pre">is_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_program_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.Result.is_post" title="Link to this definition"></a></dt>
-<dd><p>Indicates if the instruction in original program order position i (starting at 0)
-was marked ‘late’ and thereby pulled into the next iteration.</p>
+<dd><p>Indicates if the instruction in original program order position i
+(starting at 0) was marked ‘late’ and thereby pulled into the next iteration.</p>
 <p>This only makes sense when software pipelining was enabled.</p>
 </dd></dl>
 
@@ -311,9 +314,9 @@ that has happened.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.Result.num_exceptional_iterations">
 <span class="sig-name descname"><span class="pre">num_exceptional_iterations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.Result.num_exceptional_iterations" title="Link to this definition"></a></dt>
-<dd><p>The number of loop iterations jointly covered by the loop preamble and postamble.
-In other words, the amount by which the iteration count for the optimized loop kernel
-is lower than the original iteration count.</p>
+<dd><p>The number of loop iterations jointly covered by the loop preamble and
+postamble. In other words, the amount by which the iteration count for the
+optimized loop kernel is lower than the original iteration count.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -336,7 +339,8 @@ would execute.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.Result.reordering_with_bubbles_inv">
 <span class="sig-name descname"><span class="pre">reordering_with_bubbles_inv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.Result.reordering_with_bubbles_inv" title="Link to this definition"></a></dt>
-<dd><p>The inverse reordering permutation linking optimized and original source code</p>
+<dd><p>The inverse reordering permutation linking optimized and original source
+code</p>
 </dd></dl>
 
 <dl class="py method">
@@ -415,7 +419,8 @@ that the target microarchitecture would stall.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.Result.reordering_inv">
 <span class="sig-name descname"><span class="pre">reordering_inv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.Result.reordering_inv" title="Link to this definition"></a></dt>
-<dd><p>The inverse reordering permutation linking optimized and original source code</p>
+<dd><p>The inverse reordering permutation linking optimized and original source
+code</p>
 </dd></dl>
 
 <dl class="py property">
@@ -535,7 +540,8 @@ expects a stall or unused issue slot.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.core.Result.kernel_input_output">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kernel_input_output</span></span><a class="headerlink" href="#slothy.core.core.Result.kernel_input_output" title="Link to this definition"></a></dt>
-<dd><p>When using software pipelining, the dependencies between successive loop iterations.</p>
+<dd><p>When using software pipelining, the dependencies between successive loop
+iterations.</p>
 <p>This is useful if you want to further optimize the preamble (and perhaps some code
 preceeding it), because the kernel dependencies are the output of the preamble.</p>
 </dd></dl>
@@ -615,16 +621,17 @@ preceeding it), because the kernel dependencies are the output of the preamble.<
 <dt class="sig sig-object py" id="slothy.core.core.Result.fixup_preamble_postamble">
 <span class="sig-name descname"><span class="pre">fixup_preamble_postamble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.Result.fixup_preamble_postamble" title="Link to this definition"></a></dt>
 <dd><p>Potentially fix up the preamble and postamble</p>
-<p>When software pipelining is used in the context of a loop with cross-iteration dependencies,
-the core optimization step might lead to functionally incorrect preamble and postamble.
-This function checks if this is the case and fixes preamble and postamble, if necessary.</p>
+<p>When software pipelining is used in the context of a loop with cross-iteration
+dependencies, the core optimization step might lead to functionally incorrect
+preamble and postamble. This function checks if this is the case and fixes
+preamble and postamble, if necessary.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.core.</span></span><span class="sig-name descname"><span class="pre">SlothyBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Arch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Target</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.core.core.</span></span><span class="sig-name descname"><span class="pre">SlothyBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.LockAttributes" title="slothy.helper.LockAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.LockAttributes</span></code></a></p>
 <p>Stateless core of SLOTHY.</p>
 <p>This class is the technical heart of the package: It implements the
@@ -633,20 +640,19 @@ problem which can then be passed to an external constraint solver.
 We use Google OR-Tools.</p>
 <p>SlothyBase is agnostic of the target architecture and microarchitecture,
 which are specified at construction time.</p>
-<p class="rubric">Initialization</p>
-<p>Create a stateless SLOTHY instance</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Arch</strong> – A model of the underlying architecture.</p></li>
-<li><p><strong>Target</strong> – A model of the underlying microarchitecture.</p></li>
-<li><p><strong>logger</strong> – The logger to be used.
+<li><p><strong>Arch</strong> (<em>any</em>) – A model of the underlying architecture.</p></li>
+<li><p><strong>Target</strong> (<em>any</em>) – A model of the underlying microarchitecture.</p></li>
+<li><p><strong>logger</strong> (<em>any</em>) – The logger to be used.
 If omitted, a child of the root logger will be used.</p></li>
-<li><p><strong>config</strong> – The configuration to use.
+<li><p><strong>config</strong> (<em>any</em>) – The configuration to use.
 If omitted, the default configuration will be used.</p></li>
 </ul>
 </dd>
 </dl>
+<p class="rubric">Initialization</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase.arch">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch</span></span><a class="headerlink" href="#slothy.core.core.SlothyBase.arch" title="Link to this definition"></a></dt>
@@ -744,15 +750,17 @@ Add references between corresponding instructions in both iterations.</p>
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase.CpSatSolutionCb">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CpSatSolutionCb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective_description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_solutions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_good_enough</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase.CpSatSolutionCb" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ortools.sat.python.cp_model.CpSolverSolutionCallback</span></code></p>
-<p>A solution callback class represents objects that are alive during CP-SAT operation
-and equipped with a callback that is triggered every time CP-SAT finds a new solution.</p>
-<p>This callback counts the solutions found so far, and aborts the search when the solution
-is sufficiently close to the optimum.</p>
+<p>A solution callback class represents objects that are alive during CP-SAT
+operation and equipped with a callback that is triggered every time CP-SAT finds
+a new solution.</p>
+<p>This callback counts the solutions found so far, and aborts the search when the
+solution is sufficiently close to the optimum.</p>
 <p class="rubric">Initialization</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase.CpSatSolutionCb.on_solution_callback">
 <span class="sig-name descname"><span class="pre">on_solution_callback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase.CpSatSolutionCb.on_solution_callback" title="Link to this definition"></a></dt>
-<dd><p>Triggered when OR-Tools finds a solution to the current constraint problem</p>
+<dd><p>Triggered when OR-Tools finds a solution to the current constraint
+problem</p>
 </dd></dl>
 
 <dl class="py method">
@@ -767,9 +775,11 @@ is sufficiently close to the optimum.</p>
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase.fixup_preamble_postamble">
 <span class="sig-name descname"><span class="pre">fixup_preamble_postamble</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase.fixup_preamble_postamble" title="Link to this definition"></a></dt>
 <dd><p>Potentially fix up the preamble and postamble</p>
-<p>When software pipelining is used in the context of a loop with cross-iteration dependencies,
-the core optimization step might lead to functionally incorrect preamble and postamble.
-This function checks if this is the case and fixes preamble and postamble, if necessary.</p>
+<p>When software pipelining is used in the context of a loop with cross-iteration
+dependencies, the core optimization step might lead to functionally incorrect
+preamble and postamble.
+This function checks if this is the case and fixes preamble and postamble, if
+necessary.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -810,7 +820,8 @@ This function checks if this is the case and fixes preamble and postamble, if ne
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase._add_path_constraint">
 <span class="sig-name descname"><span class="pre">_add_path_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">consumer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">producer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase._add_path_constraint" title="Link to this definition"></a></dt>
-<dd><p>Add model constraint cb() relating to the pair of producer-consumer instructions
+<dd><p>Add model constraint cb() relating to the pair of producer-consumer
+instructions
 Outside of loop mode, this ignores producer and consumer, and just adds cb().
 In loop mode, however, the condition has to be omitted in two cases:</p>
 <ul>
@@ -864,7 +875,8 @@ and assign the duration intervals to the units that run the instructions</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase._add_variables_register_renaming">
 <span class="sig-name descname"><span class="pre">_add_variables_register_renaming</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase._add_variables_register_renaming" title="Link to this definition"></a></dt>
-<dd><p>Add boolean variables indicating if an instruction uses a certain output register</p>
+<dd><p>Add boolean variables indicating if an instruction uses a certain output
+register</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1001,18 +1013,6 @@ and assign the duration intervals to the units that run the instructions</p>
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase.get_inst_pairs">
 <span class="sig-name descname"><span class="pre">get_inst_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cond_fst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_snd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase.get_inst_pairs" title="Link to this definition"></a></dt>
 <dd><p>Yields all instruction pairs satisfying the provided predicate.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cond_fst</strong></p></li>
-<li><p><strong>cond_snd</strong></p></li>
-<li><p><strong>cond</strong> – Predicate on pairs of ComputationNode’s. True by default.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Generator of all instruction pairs satisfying the predicate.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1052,12 +1052,14 @@ in the provided slot list.</p>
 per cycle, this option can be an alternative way to model the occupancy of
 functional units: Rather than assigning length-1 intervals for the occupance of
 functional units and demanding that they’re disjoint – the default operation of
-Slothy, which works for multi-cycle instructions – one can identify the slot number
-with the functional unit that an instruction runs on, and then the non-overlapping
-constraint is subsumed by the mutual distinctiveness of the program order positions.
-Note, though, that this approach ‘overwrites’ the actual microarchitectural meaning
-of the slot number – if there are uarch constraints regarding the slot number
-(e.g. “instruction XYZ can only be issued on slot 0”) then it should not be used.</p>
+Slothy, which works for multi-cycle instructions – one can identify the slot
+number with the functional unit that an instruction runs on, and then the
+non-overlapping constraint is subsumed by the mutual distinctiveness of the
+program order positions.
+Note, though, that this approach ‘overwrites’ the actual microarchitectural
+meaning of the slot number – if there are uarch constraints regarding the slot
+number (e.g. “instruction XYZ can only be issued on slot 0”) then it should not
+be used.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1081,14 +1083,14 @@ provided list of instruction classes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_class">
-<span class="sig-name descname"><span class="pre">restrict_slots_for_instructions_by_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls_lst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slots</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_class" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">restrict_slots_for_instructions_by_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls_lst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_class" title="Link to this definition"></a></dt>
 <dd><p>Restrict issue slots for all instructions belonging to the
 provided list of instruction classes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cls_lst</strong> – A list of instruction classes</p></li>
-<li><p><strong>slots</strong> – A list of issue slots represented as integers.</p></li>
+<li><p><strong>cls_lst</strong> (<em>list</em>) – A list of instruction classes</p></li>
+<li><p><strong>slots</strong> (<em>list</em>) – A list of issue slots represented as integers.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1096,14 +1098,14 @@ provided list of instruction classes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_property">
-<span class="sig-name descname"><span class="pre">restrict_slots_for_instructions_by_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slots</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_property" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">restrict_slots_for_instructions_by_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_property" title="Link to this definition"></a></dt>
 <dd><p>Restrict issue slots for all instructions passing the given
 filter function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cls_lst</strong> – A predicate on instructions</p></li>
-<li><p><strong>slots</strong> – A list of issue slots represented as integers.</p></li>
+<li><p><strong>filter_func</strong> (<em>any</em>) – A predicate on instructions</p></li>
+<li><p><strong>slots</strong> (<em>list</em>) – A list of issue slots represented as integers.</p></li>
 </ul>
 </dd>
 </dl>

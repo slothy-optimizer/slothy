@@ -105,7 +105,7 @@ API
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy._dump
 
-   .. py:method:: global_selftest(funcname, address_registers, iterations=5)
+   .. py:method:: global_selftest(funcname: str, address_registers: any, iterations: int = 5) -> None
       :canonical: slothy.core.slothy.Slothy.global_selftest
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy.global_selftest
@@ -120,12 +120,12 @@ API
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy._make_llvm_mca_stats
 
-   .. py:method:: optimize(start=None, end=None, loop_synthesis_cb=None, logname=None)
+   .. py:method:: optimize(start: str = None, end: str = None, loop_synthesis_cb: any = None, logname: str = None)
       :canonical: slothy.core.slothy.Slothy.optimize
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy.optimize
 
-   .. py:method:: get_loop_input_output(loop_lbl, forced_loop_type=None)
+   .. py:method:: get_loop_input_output(loop_lbl: str, forced_loop_type: any = None) -> list
       :canonical: slothy.core.slothy.Slothy.get_loop_input_output
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy.get_loop_input_output
@@ -140,17 +140,17 @@ API
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy._fusion_core
 
-   .. py:method:: fusion_region(start, end, **kwargs)
+   .. py:method:: fusion_region(start: str, end: str, **kwargs: any)
       :canonical: slothy.core.slothy.Slothy.fusion_region
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy.fusion_region
 
-   .. py:method:: fusion_loop(loop_lbl, forced_loop_type=None, **kwargs)
+   .. py:method:: fusion_loop(loop_lbl: str, forced_loop_type: any = None, **kwargs: any)
       :canonical: slothy.core.slothy.Slothy.fusion_loop
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy.fusion_loop
 
-   .. py:method:: optimize_loop(loop_lbl, postamble_label=None, forced_loop_type=None)
+   .. py:method:: optimize_loop(loop_lbl: str, postamble_label: str = None, forced_loop_type: any = None)
       :canonical: slothy.core.slothy.Slothy.optimize_loop
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy.optimize_loop

@@ -995,7 +995,7 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.Instruction.make
 
-   .. py:method:: build(c, src, mnemonic, **kwargs)
+   .. py:method:: build(c: any, src: str, mnemonic: str, **kwargs: list) -> slothy.targets.aarch64.aarch64_neon.Instruction
       :canonical: slothy.targets.aarch64.aarch64_neon.Instruction.build
       :staticmethod:
 

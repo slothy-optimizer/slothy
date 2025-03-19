@@ -659,7 +659,7 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Instruction.make
 
-   .. py:method:: build(c, src, mnemonic, **kwargs)
+   .. py:method:: build(c: any, src: str, mnemonic: str, **kwargs: list) -> slothy.targets.arm_v7m.arch_v7m.Instruction
       :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction.build
       :staticmethod:
 

@@ -65,6 +65,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
 </ul>
@@ -117,8 +118,10 @@
 <td><p>Loop ending in a vmov, a compare, and a branch.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.arm_v7m.arch_v7m.BranchLoop" title="slothy.targets.arm_v7m.arch_v7m.BranchLoop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BranchLoop</span></code></a></p></td>
-<td><p>More general loop type that just considers the branch instruction as part of the boundary.
-This can help to improve performance as the instructions that belong to handling the loop can be considered by SLOTHY aswell.</p></td>
+<td><p>More general loop type that just considers the branch instruction as part
+of the boundary.
+This can help to improve performance as the instructions that belong to
+handling the loop can be considered by SLOTHY as well.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.arm_v7m.arch_v7m.CmpLoop" title="slothy.targets.arm_v7m.arch_v7m.CmpLoop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CmpLoop</span></code></a></p></td>
 <td><p>Loop ending in a compare and a branch.
@@ -707,16 +710,22 @@ caution.</p>
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.BranchLoop">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v7m.arch_v7m.</span></span><span class="sig-name descname"><span class="pre">BranchLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lbl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lr'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.BranchLoop" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.Loop" title="slothy.helper.Loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.Loop</span></code></a></p>
-<p>More general loop type that just considers the branch instruction as part of the boundary.
-This can help to improve performance as the instructions that belong to handling the loop can be considered by SLOTHY aswell.</p>
+<p>More general loop type that just considers the branch instruction as part
+of the boundary.
+This can help to improve performance as the instructions that belong to
+handling the loop can be considered by SLOTHY as well.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This loop type is still rather experimental. It has a lot of logics inside as it needs to be able to “understand”
-a variety of different ways to express loops, e.g., how counters get incremented, how registers marking the end of the
-loop need to be modified in case of software pipelining etc. Currently, this type covers the three other types we offer
+<p>This loop type is still rather experimental. It has a lot of logics
+inside as it needs to be able to “understand” a variety of different
+ways to express loops, e.g., how counters get incremented, how
+registers marking the end of the
+loop need to be modified in case of software pipelining etc.
+Currently, this type covers the three other types we offer
 above, namely <cite>SubsLoop</cite>, <cite>CmpLoop</cite>, and <cite>VmovCmpLoop</cite>.</p>
 </div>
-<p>For examples, we refer to the classes <cite>SubsLoop</cite>, <cite>CmpLoop</cite>, and <cite>VmovCmpLoop</cite>.</p>
+<p>For examples, we refer to the classes <cite>SubsLoop</cite>, <cite>CmpLoop</cite>, and
+<cite>VmovCmpLoop</cite>.</p>
 <p class="rubric">Initialization</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.BranchLoop.start">
@@ -831,8 +840,8 @@ what happens inside the loop boundary! Use with caution.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.Instruction.global_parsing_cb">
 <span class="sig-name descname"><span class="pre">global_parsing_cb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Instruction.global_parsing_cb" title="Link to this definition"></a></dt>
-<dd><p>Parsing callback triggered after DataFlowGraph parsing which allows modification
-of the instruction in the context of the overall computation.</p>
+<dd><p>Parsing callback triggered after DataFlowGraph parsing which allows
+modification of the instruction in the context of the overall computation.</p>
 <p>This is primarily used to remodel input-outputs as outputs in jointly destructive
 instruction patterns (See Section 4.4, <a class="reference external" href="https://eprint.iacr.org/2022/1303.pdf">https://eprint.iacr.org/2022/1303.pdf</a>).</p>
 </dd></dl>
@@ -892,30 +901,31 @@ of the instruction in the context of the overall computation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.Instruction.build">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Instruction.build" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#slothy.targets.arm_v7m.arch_v7m.Instruction" title="slothy.targets.arm_v7m.arch_v7m.Instruction"><span class="pre">slothy.targets.arm_v7m.arch_v7m.Instruction</span></a></span></span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Instruction.build" title="Link to this definition"></a></dt>
 <dd><p>Attempt to parse a string as an instance of an instruction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>c</strong> – The target instruction the string should be attempted to be parsed as.</p></li>
-<li><p><strong>src</strong> – The string to parse.</p></li>
-<li><p><strong>mnemonic</strong> – The mnemonic of instruction c</p></li>
+<li><p><strong>c</strong> (<em>any</em>) – The target instruction the string should be attempted to be parsed as.</p></li>
+<li><p><strong>src</strong> (<em>str</em>) – The string to parse.</p></li>
+<li><p><strong>mnemonic</strong> (<em>str</em>) – The mnemonic of instruction c</p></li>
+<li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the constructor of c.</p>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Upon success, the result of parsing src as an instance of c.</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="field-list simple">
-<dt class="field-odd">ParsingException<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The str argument cannot be parsed as an
-instance of c.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#slothy.targets.arm_v7m.arch_v7m.Instruction" title="slothy.targets.arm_v7m.arch_v7m.Instruction">Instruction</a></p>
 </dd>
-<dt class="field-even">FatalParsingException<span class="colon">:</span></dt>
-<dd class="field-even"><p>A fatal error during parsing happened
-that’s likely a bug in the model.</p>
-</dd>
-</dl>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>Instruction.ParsingException</strong> – The str argument cannot be parsed as an
+instance of c.</p></li>
+<li><p><a class="reference internal" href="#slothy.targets.arm_v7m.arch_v7m.FatalParsingException" title="slothy.targets.arm_v7m.arch_v7m.FatalParsingException"><strong>FatalParsingException</strong></a> – A fatal error during parsing happened
+that’s likely a bug in the model.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

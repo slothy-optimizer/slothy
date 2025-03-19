@@ -77,7 +77,7 @@ API
 .. py:class:: ExecutionUnit
    :canonical: slothy.targets.aarch64.aarch64_big_experimental.ExecutionUnit
 
-   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Enum`
+   Bases: :py:obj:`enum.Enum`
 
    .. py:attribute:: SCALAR_I0
       :canonical: slothy.targets.aarch64.aarch64_big_experimental.ExecutionUnit.SCALAR_I0

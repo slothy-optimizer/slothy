@@ -197,7 +197,7 @@ API
    .. py:method:: __repr__()
       :canonical: slothy.core.dataflow.VirtualInputInstruction.__repr__
 
-.. py:class:: ComputationNode(*, node_id, inst, orig_pos=None, src_in=None, src_in_out=None)
+.. py:class:: ComputationNode(*, node_id: str, inst: any, orig_pos: int = None, src_in: list = None, src_in_out: list = None)
    :canonical: slothy.core.dataflow.ComputationNode
 
    .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode
@@ -244,7 +244,7 @@ API
 
       .. autodoc2-docstring:: slothy.core.dataflow.ComputationNode.describe
 
-.. py:class:: Config(slothy_config=None, **kwargs)
+.. py:class:: Config(slothy_config: any = None, **kwargs: any)
    :canonical: slothy.core.dataflow.Config
 
    .. autodoc2-docstring:: slothy.core.dataflow.Config
@@ -294,7 +294,7 @@ API
 
    .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraphException.__init__
 
-.. py:class:: DataFlowGraph(src, logger, config, parsing_cb=True)
+.. py:class:: DataFlowGraph(src: any, logger: any, config: any, parsing_cb: bool = True)
    :canonical: slothy.core.dataflow.DataFlowGraph
 
    .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph
@@ -423,7 +423,7 @@ API
 
       .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._selfcheck_outputs
 
-   .. py:method:: _parse_line(l)
+   .. py:method:: _parse_line(line)
       :canonical: slothy.core.dataflow.DataFlowGraph._parse_line
 
       .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._parse_line
@@ -493,7 +493,7 @@ API
 
       .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._process_spill_instruction
 
-   .. py:method:: _add_node(s)
+   .. py:method:: _add_node(s: any)
       :canonical: slothy.core.dataflow.DataFlowGraph._add_node
 
       .. autodoc2-docstring:: slothy.core.dataflow.DataFlowGraph._add_node

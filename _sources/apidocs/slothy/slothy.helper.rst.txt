@@ -266,12 +266,12 @@ API
 
       .. autodoc2-docstring:: slothy.helper.SourceLine.add_tag
 
-   .. py:method:: inherit_tags(l)
+   .. py:method:: inherit_tags(line)
       :canonical: slothy.helper.SourceLine.inherit_tags
 
       .. autodoc2-docstring:: slothy.helper.SourceLine.inherit_tags
 
-   .. py:method:: inherit_comments(l)
+   .. py:method:: inherit_comments(line)
       :canonical: slothy.helper.SourceLine.inherit_comments
 
       .. autodoc2-docstring:: slothy.helper.SourceLine.inherit_comments
@@ -776,7 +776,7 @@ API
 
       .. autodoc2-docstring:: slothy.helper.Permutation.permutation_pad
 
-   .. py:method:: permutation_move_entry_forward(l, idx_from, idx_to)
+   .. py:method:: permutation_move_entry_forward(ll, idx_from, idx_to)
       :canonical: slothy.helper.Permutation.permutation_move_entry_forward
       :staticmethod:
 
@@ -834,7 +834,7 @@ API
 
       .. autodoc2-docstring:: slothy.helper.Loop._extract
 
-   .. py:method:: extract(source, lbl, forced_loop_type=None)
+   .. py:method:: extract(source: list, lbl: str, forced_loop_type: any = None) -> any
       :canonical: slothy.helper.Loop.extract
       :staticmethod:
 

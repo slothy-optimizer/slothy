@@ -427,7 +427,7 @@ API
 
       .. autodoc2-docstring:: slothy.core.core.Result.fixup_preamble_postamble
 
-.. py:class:: SlothyBase(Arch, Target, *, logger=None, config=None)
+.. py:class:: SlothyBase(Arch: any, Target: any, *, logger: any = None, config: any = None)
    :canonical: slothy.core.core.SlothyBase
 
    Bases: :py:obj:`slothy.helper.LockAttributes`
@@ -804,12 +804,12 @@ API
 
       .. autodoc2-docstring:: slothy.core.core.SlothyBase.filter_instructions_by_class
 
-   .. py:method:: restrict_slots_for_instructions_by_class(cls_lst, slots)
+   .. py:method:: restrict_slots_for_instructions_by_class(cls_lst: list, slots: list)
       :canonical: slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_class
 
       .. autodoc2-docstring:: slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_class
 
-   .. py:method:: restrict_slots_for_instructions_by_property(filter_func, slots)
+   .. py:method:: restrict_slots_for_instructions_by_property(filter_func: any, slots: list)
       :canonical: slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_property
 
       .. autodoc2-docstring:: slothy.core.core.SlothyBase.restrict_slots_for_instructions_by_property

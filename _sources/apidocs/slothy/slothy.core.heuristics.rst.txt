@@ -34,7 +34,7 @@ API
 
       .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._optimize_binsearch_core
 
-   .. py:method:: optimize_binsearch(source, logger, conf, **kwargs)
+   .. py:method:: optimize_binsearch(source: list, logger: any, conf: any, **kwargs: any) -> any
       :canonical: slothy.core.heuristics.Heuristics.optimize_binsearch
       :staticmethod:
 
@@ -52,25 +52,25 @@ API
 
       .. autodoc2-docstring:: slothy.core.heuristics.Heuristics._log_input_output_warning
 
-   .. py:method:: optimize_binsearch_external(source, logger, conf, flexible=True, **kwargs)
+   .. py:method:: optimize_binsearch_external(source: list, logger: any, conf: any, flexible: bool = True, **kwargs: any) -> any
       :canonical: slothy.core.heuristics.Heuristics.optimize_binsearch_external
       :staticmethod:
 
       .. autodoc2-docstring:: slothy.core.heuristics.Heuristics.optimize_binsearch_external
 
-   .. py:method:: optimize_binsearch_internal(source, logger, conf, flexible=True, **kwargs)
+   .. py:method:: optimize_binsearch_internal(source: list, logger: any, conf: any, flexible: bool = True, **kwargs: any) -> any
       :canonical: slothy.core.heuristics.Heuristics.optimize_binsearch_internal
       :staticmethod:
 
       .. autodoc2-docstring:: slothy.core.heuristics.Heuristics.optimize_binsearch_internal
 
-   .. py:method:: periodic(body, logger, conf)
+   .. py:method:: periodic(body: list, logger: any, conf: any) -> any
       :canonical: slothy.core.heuristics.Heuristics.periodic
       :staticmethod:
 
       .. autodoc2-docstring:: slothy.core.heuristics.Heuristics.periodic
 
-   .. py:method:: linear(body, logger, conf)
+   .. py:method:: linear(body: list, logger: any, conf: any) -> any
       :canonical: slothy.core.heuristics.Heuristics.linear
       :staticmethod:
 
