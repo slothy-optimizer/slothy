@@ -517,8 +517,8 @@ class Config(NestedPrint, LockAttributes):
 
     @property
     def timeout(self):
-        """The timeout in seconds after which the underlying constraint solver stops
-        its search."""
+        """The timeout in seconds after which each invocation of the underlying
+        constraint solver stops its search. A positive integer."""
         return self._timeout
 
     @property
