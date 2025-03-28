@@ -377,7 +377,7 @@ microarchitecture model that come with SLOTHY.</p>
 <p>The calls to SLOTHY should be self-explanatory:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">load_source_from_file</span></code> loads an assembly file to be optimized.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">slothy.config</span></code> can be used to configure SLOTHY. For the documentation of the configuration options, see the comments in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/slothy/core/config.py">config.py</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slothy.config</span></code> can be used to configure SLOTHY. For the documentation of the configuration options, see the comments in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/slothy/core/config.py">config.py</a> or the on-line API documentation for <a class="reference external" href="https://slothy-optimizer.github.io/slothy/apidocs/slothy/slothy.core.config.html"><code class="docutils literal notranslate"><span class="pre">slothy.config</span></code></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">optimize</span></code> performs the actual optimizations by calling the external constraint solver.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">write_source_to_file</span></code> writes back the optimized assembly to a file.</p></li>
 </ul>
@@ -399,51 +399,51 @@ directives</a>.</p>
 <span class="w">    </span><span class="nf">qdata1</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">q9</span>
 <span class="w">    </span><span class="nf">qdata2</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">q10</span>
 <span class="w">    </span><span class="nf">qdata3</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">q11</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="nf">qtwiddle</span><span class="w"> </span><span class="no">.req</span><span class="w"> </span><span class="no">q0</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="na">data0</span><span class="w">    </span><span class="na">.req</span><span class="w"> </span><span class="no">v8</span>
 <span class="w">    </span><span class="na">data1</span><span class="w">    </span><span class="na">.req</span><span class="w"> </span><span class="no">v9</span>
 <span class="w">    </span><span class="na">data2</span><span class="w">    </span><span class="na">.req</span><span class="w"> </span><span class="no">v10</span>
 <span class="w">    </span><span class="na">data3</span><span class="w">    </span><span class="na">.req</span><span class="w"> </span><span class="no">v11</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="nf">twiddle</span><span class="w">  </span><span class="no">.req</span><span class="w"> </span><span class="no">v0</span>
 <span class="w">    </span><span class="nf">modulus</span><span class="w">  </span><span class="no">.req</span><span class="w"> </span><span class="no">v1</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="nf">tmp</span><span class="w">      </span><span class="no">.req</span><span class="w"> </span><span class="no">v12</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="nf">data_ptr</span><span class="w">      </span><span class="no">.req</span><span class="w"> </span><span class="no">x0</span>
 <span class="w">    </span><span class="nf">twiddle_ptr</span><span class="w">   </span><span class="no">.req</span><span class="w"> </span><span class="no">x1</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="na">.macro</span><span class="w"> </span><span class="no">barmul</span><span class="w"> </span><span class="no">out</span><span class="p">,</span><span class="w"> </span><span class="no">in</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
 <span class="w">        </span><span class="nf">mul</span><span class="w">      </span><span class="err">\</span><span class="no">out.8h</span><span class="p">,</span><span class="w">   </span><span class="err">\</span><span class="no">in.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">twiddle.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="w">        </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="err">\</span><span class="no">in.8h</span><span class="p">,</span><span class="w">    </span><span class="err">\</span><span class="no">in.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">twiddle.h</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="w">        </span><span class="nf">mls</span><span class="w">      </span><span class="err">\</span><span class="no">out.8h</span><span class="p">,</span><span class="w">   </span><span class="err">\</span><span class="no">in.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">modulus.h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="w">    </span><span class="na">.endm</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="na">.macro</span><span class="w"> </span><span class="no">butterfly</span><span class="w"> </span><span class="no">data0</span><span class="p">,</span><span class="w"> </span><span class="no">data1</span><span class="p">,</span><span class="w"> </span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
 <span class="w">        </span><span class="nf">barmul</span><span class="w"> </span><span class="err">\</span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">data1</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">modulus</span>
 <span class="w">        </span><span class="nf">sub</span><span class="w">    </span><span class="err">\</span><span class="no">data1.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">data0.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">tmp.8h</span>
 <span class="w">        </span><span class="nf">add</span><span class="w">    </span><span class="err">\</span><span class="no">data0.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">data0.8h</span><span class="p">,</span><span class="w"> </span><span class="err">\</span><span class="no">tmp.8h</span>
 <span class="w">    </span><span class="na">.endm</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="nl">start:</span>
-<span class="w">    </span>
+
 <span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qtwiddle</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">twiddle_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
-<span class="w">    </span>
+
 <span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
 <span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
 <span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata2</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
 <span class="w">        </span><span class="nf">ldr</span><span class="w"> </span><span class="no">qdata3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
-<span class="w">    </span>
+
 <span class="w">        </span><span class="nf">butterfly</span><span class="w"> </span><span class="no">data0</span><span class="p">,</span><span class="w"> </span><span class="no">data1</span><span class="p">,</span><span class="w"> </span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
 <span class="w">        </span><span class="nf">butterfly</span><span class="w"> </span><span class="no">data2</span><span class="p">,</span><span class="w"> </span><span class="no">data3</span><span class="p">,</span><span class="w"> </span><span class="no">tmp</span><span class="p">,</span><span class="w"> </span><span class="no">twiddle</span><span class="p">,</span><span class="w"> </span><span class="no">modulus</span>
-<span class="w">    </span>
+
 <span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">],</span><span class="w"> </span><span class="mi">#4</span><span class="p">*</span><span class="mi">16</span>
 <span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
 <span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata2</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
 <span class="w">        </span><span class="nf">str</span><span class="w"> </span><span class="no">qdata3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">data_ptr</span><span class="p">,</span><span class="w"> </span><span class="mi">#-1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="nl">end:</span>
 </pre></div>
 </div>
@@ -850,7 +850,7 @@ performance diagram similar to the one generated by LLVM-MCA. Here’s the outpu
 <span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">16]:</span><span class="w">                 </span><span class="nf">str</span><span class="w"> </span><span class="no">q9</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-3</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">.....................................</span><span class="p">*......</span>
 <span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">17]:</span><span class="w">                </span><span class="nf">str</span><span class="w"> </span><span class="no">q10</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-2</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">.....................................</span><span class="p">*......</span>
 <span class="w">    </span><span class="err">[</span><span class="w"> </span><span class="err">18]:</span><span class="w">                </span><span class="nf">str</span><span class="w"> </span><span class="no">q11</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#-1</span><span class="p">*</span><span class="mi">16</span><span class="p">]</span><span class="w"> </span><span class="no">........................................</span><span class="p">*...</span>
-<span class="w">    </span>
+
 <span class="w">    </span><span class="err">=====</span><span class="w"> </span><span class="nf">Stepwise</span><span class="w"> </span><span class="no">profiling</span><span class="w"> </span><span class="p">(</span><span class="no">OPTIMIZED</span><span class="p">)</span><span class="w"> </span><span class="err">=======</span>
 <span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">0]:</span><span class="w">  </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q18</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x0</span><span class="p">,</span><span class="w"> </span><span class="mi">#16</span><span class="p">]</span><span class="w">              </span><span class="c1">// .*........................</span>
 <span class="w">    </span><span class="err">[</span><span class="w">  </span><span class="err">1]:</span><span class="w">  </span><span class="nf">sqrdmulh</span><span class="w"> </span><span class="no">v8.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v6.8H</span><span class="p">,</span><span class="w"> </span><span class="no">v2.H</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">  </span><span class="c1">// ..*.......................</span>
