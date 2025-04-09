@@ -30,6 +30,8 @@ import re
 from slothy.targets.riscv.exceptions import FatalParsingException, ParsingException
 import logging
 
+from slothy.targets.riscv.riscv_super_instructions import RISCVStore, RISCVLoad
+
 
 class Instruction:
     """Represents an abstract instruction"""
@@ -158,6 +160,46 @@ class Instruction:
             if isinstance(self, inst):
                 return True
         return False
+
+    def is_vector_load(self):
+        """Indicates if an instruction is a RISC-V load instruction"""
+
+        # return self._is_instance_of([ Ldr_Q, Ldp_Q, Ld2, Ld4, Q_Ld2_Lane_Post_Inc ])
+        return False
+
+    def is_vector_store(self):
+        """Indicates if an instruction is a RISC-V store instruction"""
+
+        #    return self._is_instance_of([ Str_Q, Stp_Q, St2, St4,
+        #                                  d_stp_stack_with_inc, d_str_stack_with_inc])
+        return False
+
+    # scalar
+    def is_scalar_load(self):
+        """Indicates if an instruction is a scalar load instruction"""
+
+        return self._is_instance_of([RISCVLoad])
+
+    def is_scalar_store(self):
+        """Indicates if an instruction is a scalar store instruction"""
+
+        return self._is_instance_of([RISCVStore])
+
+    # scalar or vector
+    def is_load(self):
+        """Indicates if an instruction is a scalar or Neon load instruction"""
+
+        return self.is_vector_load() or self.is_scalar_load()
+
+    def is_store(self):
+        """Indicates if an instruction is a scalar or Neon store instruction"""
+
+        return self.is_vector_store() or self.is_scalar_store()
+
+    def is_load_store_instruction(self):
+        """Indicates if an instruction is a scalar or Neon load or store instruction"""
+
+        return self.is_load() or self.is_store()
 
     @classmethod
     def make(cls, src):
