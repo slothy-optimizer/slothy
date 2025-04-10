@@ -730,7 +730,7 @@ API
 
 .. py:data:: llvm_mc_attr
    :canonical: slothy.targets.aarch64.aarch64_neon.llvm_mc_attr
-   :value: None
+   :value: 'aes'
 
    .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.llvm_mc_attr
 
