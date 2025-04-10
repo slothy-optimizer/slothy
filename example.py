@@ -40,6 +40,7 @@ import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
 import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
 import slothy.targets.aarch64.cortex_a72_frontend as Target_CortexA72
+import slothy.targets.aarch64.aarch64_big_experimental as Target_AArch64Big
 import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
@@ -51,6 +52,7 @@ target_label_dict = {
     Target_CortexM85r1: "m85",
     Target_AppleM1_firestorm: "m1_firestorm",
     Target_AppleM1_icestorm: "m1_icestorm",
+    Target_AArch64Big: "aarch64_big",
 }
 
 
@@ -724,6 +726,24 @@ class AArch64Split0(Example):
     def core(self, slothy):
         slothy.config.allow_useless_instructions = True
         slothy.fusion_region("start", "end", ssa=False)
+
+
+class AArch64Aese(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_AArch64Big):
+        name = "aarch64_aese"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.optimize()
 
 
 class Armv7mExample0(Example):
@@ -3423,6 +3443,7 @@ def main():
         AArch64ExampleLdSt(),
         AArch64IfElse(),
         AArch64Split0(),
+        AArch64Aese(),
         # Armv7m examples
         Armv7mExample0(),
         Armv7mExample0Func(),
@@ -3678,6 +3699,7 @@ def main():
             Target_CortexA72.__name__,
             Target_AppleM1_firestorm.__name__,
             Target_AppleM1_icestorm.__name__,
+            Target_AArch64Big.__name__,
         ],
     )
     args = parser.parse_args()
