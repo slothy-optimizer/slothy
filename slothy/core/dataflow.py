@@ -802,7 +802,10 @@ class DataFlowGraph:
         return (insts, line)
 
     def _parse_source(self, src):
-        return list(map(self._parse_line, SourceLine.reduce_source(src)))
+        # prepare source lines for parsing
+        src_lines = SourceLine.reduce_source(src)
+        src_lines = SourceLine.unify_source(src_lines)
+        return list(map(self._parse_line, src_lines))
 
     def iter_dependencies(self):
         """Returns an iterator over all dependencies in the data flow graph.
