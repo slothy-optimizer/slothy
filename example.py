@@ -282,6 +282,7 @@ class AArch64LoopSubs2(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("start")
 
+
 class AArch64LoopSubsTabs(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_loop_subs_tabs"
@@ -298,6 +299,7 @@ class AArch64LoopSubsTabs(Example):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.optimize_loop("start")
+
 
 class CRT(Example):
     def __init__(self):
