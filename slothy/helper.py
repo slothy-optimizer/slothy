@@ -114,6 +114,15 @@ class SourceLine:
         self._extract_tags_from_comments()
         return self
 
+    def unify(self):
+        """Unify the notation of the input source.
+        Replaces tabs by spaces.
+
+        The original text is overwritten."""
+        old = self._raw
+        new = old.replace("\t", " ")
+        self._raw = new
+
     def add_comment(self, comment):
         """Add a comment to the metadata of a source line"""
         self._comments.append(comment)
@@ -261,6 +270,14 @@ class SourceLine:
             and not AsmHelper.is_alignment_directive(line)
             and not AsmHelper.is_allocation_directive(line)
         ]
+
+    @staticmethod
+    def unify_source(src):
+        """Unify source in source lines."""
+        assert SourceLine.is_source(src)
+        for line in src:
+            line.unify()
+        return [line for line in src]
 
     @staticmethod
     def log(name, s, logger=None, err=False):

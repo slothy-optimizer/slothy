@@ -282,6 +282,22 @@ class AArch64LoopSubs2(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("start")
 
+class AArch64LoopSubsTabs(Example):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_loop_subs_tabs"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(infile, name, rename=True, arch=arch, target=target)
+
+    def core(self, slothy):
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.optimize_loop("start")
 
 class CRT(Example):
     def __init__(self):
@@ -3469,6 +3485,7 @@ def main():
         # Loop examples
         AArch64LoopSubs(),
         AArch64LoopSubs2(),
+        AArch64LoopSubsTabs(),
         LoopLe(),
         Armv7mLoopSubs(),
         Armv7mLoopCmp(),
