@@ -376,7 +376,7 @@ class SubsLoop(Loop):
         self.lbl = lbl
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
-            r"^\s*sub[s]?\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
+            r"^\s*(?P<sub_type>sub[s]?)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
             rf"^\s*(?P<br_type>cbnz|bnz|bne|b\.gt)\s+(?P<cnt>\w+),\s*{lbl}",
         )
 
@@ -415,11 +415,17 @@ class SubsLoop(Loop):
             lbl_start += "b"
 
         if other["br_type"] in ["bne", "bnz", "cbnz"]:
-            yield f"{indent}sub {other['cnt']}, {other['cnt']}, {other['imm']}"
+            yield (
+                f"{indent}{other['sub_type']} {other['cnt']}, {other['cnt']}"
+                f", {other['imm']}"
+            )
             yield f"{indent}{other['br_type']} {other['cnt']}, {lbl_start}"
         else:
             # Set flag in subtraction
-            yield f"{indent}subs {other['cnt']}, {other['cnt']}, {other['imm']}"
+            yield (
+                f"{indent}{other['sub_type']} {other['cnt']}, {other['cnt']}"
+                f", {other['imm']}"
+            )
             # Conditional branch based on flag
             yield f"{indent}{other['br_type']} {lbl_start}"
 
