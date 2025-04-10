@@ -352,8 +352,6 @@ class Heuristics:
             the preamble and postamble (the caller will need this to adjust the
             loop counter).
         :rtype: any
-        :raises AssertionError: If kernel is not a list of SourceLine.
-
         """
 
         if conf.sw_pipelining.enabled and not conf.inputs_are_outputs:
@@ -447,7 +445,6 @@ class Heuristics:
         :return: A Result object representing the final optimization result.
         :rtype: any
         :raises SlothyException: If software pipelining is enabled.
-        :raises AssertionError: If body is not a list of SourceLine.
         """
         assert SourceLine.is_source(body)
         if conf.sw_pipelining.enabled:
