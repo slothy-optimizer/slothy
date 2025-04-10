@@ -1278,7 +1278,7 @@ within the unicorn engine</p>
 <div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nl">loop_lbl:</span>
 <span class="w">   </span><span class="err">{</span><span class="nf">code</span><span class="p">}</span>
 <span class="w">   </span><span class="nf">sub</span><span class="p">[</span><span class="no">s</span><span class="p">]</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="c1">#&lt;imm&gt;</span>
-<span class="w">   </span><span class="err">(</span><span class="nf">cbnz</span><span class="err">|</span><span class="no">bnz</span><span class="err">|</span><span class="no">bne</span><span class="p">)</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="no">loop_lbl</span>
+<span class="w">   </span><span class="err">(</span><span class="nf">cbnz</span><span class="err">|</span><span class="no">bnz</span><span class="err">|</span><span class="no">bne</span><span class="err">|</span><span class="no">b.gt</span><span class="p">)</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="no">loop_lbl</span>
 </pre></div>
 </div>
 <p>where cnt is the loop counter in lr.</p>
