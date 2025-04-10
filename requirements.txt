@@ -1,4 +1,4 @@
-numpy==1.26.4
+numpy==2.0.2
 ortools==9.7.2996
 pandas==2.2.3
 sympy==1.13.3
