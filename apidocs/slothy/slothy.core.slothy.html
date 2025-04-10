@@ -299,11 +299,6 @@ iterations).</p></li>
 <li><p><strong>logname</strong> (<em>str</em>) – Optional name of the logger.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>AssertionError</strong> – If sw pipelining is disabled and yet there are
-early/late instructions (which should not happen) or if the optimized code
-is not a SourceLine list.</p>
-</dd>
 </dl>
 </dd></dl>
 
@@ -357,10 +352,6 @@ fusion to.</p></li>
 </p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>AssertionError</strong> – If self.source is not a SourceLine list when
-returning.</p>
-</dd>
 </dl>
 </dd></dl>
 
@@ -378,10 +369,6 @@ architectural model by setting an instruction class’ global_fusion_cb.</p>
 <li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the fusion callbacks.</p>
 </p></li>
 </ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>AssertionError</strong> – If self.source is not a SourceLine list when
-returning.</p>
 </dd>
 </dl>
 </dd></dl>
