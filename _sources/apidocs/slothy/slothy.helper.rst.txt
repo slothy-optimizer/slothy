@@ -117,6 +117,11 @@ API
 
       .. autodoc2-docstring:: slothy.helper.SourceLine.reduce
 
+   .. py:method:: unify()
+      :canonical: slothy.helper.SourceLine.unify
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.unify
+
    .. py:method:: add_comment(comment)
       :canonical: slothy.helper.SourceLine.add_comment
 
@@ -185,6 +190,12 @@ API
       :staticmethod:
 
       .. autodoc2-docstring:: slothy.helper.SourceLine.reduce_source
+
+   .. py:method:: unify_source(src)
+      :canonical: slothy.helper.SourceLine.unify_source
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.unify_source
 
    .. py:method:: log(name, s, logger=None, err=False)
       :canonical: slothy.helper.SourceLine.log
