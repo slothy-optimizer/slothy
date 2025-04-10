@@ -196,7 +196,6 @@ class ComputationNode:
     :param src_in_out: A list of RegisterSource instances representing the inputs to the
         instruction which are also written to.
     :type src_in_out: list
-    :raises AssertionError: If input arguments are invalid.
 
     """
 

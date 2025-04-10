@@ -338,9 +338,6 @@ class Slothy:
         :type loop_synthesis_cb: any
         :param logname: Optional name of the logger.
         :type logname: str
-        :raises AssertionError: If sw pipelining is disabled and yet there are
-              early/late instructions (which should not happen) or if the optimized code
-              is not a SourceLine list.
         """
         if logname is None and start is not None:
             logname = start
@@ -509,8 +506,6 @@ class Slothy:
         :type end: str
         :param **kwargs: Additional arguments to pass to the fusion callbacks.
         :type **kwargs: any
-        :raises AssertionError: If self.source is not a SourceLine list when
-              returning.
         """
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
@@ -534,8 +529,6 @@ class Slothy:
         :type forced_loop_type: any
         :param **kwargs: Additional arguments to pass to the fusion callbacks.
         :type **kwargs: any
-        :raises AssertionError: If self.source is not a SourceLine list when
-              returning.
         """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 

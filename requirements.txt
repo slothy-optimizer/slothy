@@ -11,5 +11,5 @@ myst_parser
 sphinx-autobuild
 sphinx-autodoc2
 flake8==7.2.0
-pydoclint==0.6.2
+pydoclint==0.6.5
 black
