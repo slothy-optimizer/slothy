@@ -125,7 +125,9 @@ arch_name = "Arm_AArch64"
 
 llvm_mca_arch = "aarch64"
 llvm_mc_arch = "aarch64"
-llvm_mc_attr = None
+# Always add aes flag for llvm-mc assembly -- assuming that the user will not
+# use aes instructions on CPUs that do not support it
+llvm_mc_attr = "aes"
 
 unicorn_arch = UC_ARCH_ARM64
 unicorn_mode = UC_MODE_ARM
