@@ -1,0 +1,30 @@
+name: Linting
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+
+
+jobs:
+  flake8-lint:
+    runs-on: ubuntu-latest
+    name: Flake8 Lint
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-ubuntu
+      - name: Run flake8 linting
+        run: |
+          flake8 --version
+          flake8 .
+  black:
+    runs-on: ubuntu-latest
+    name: Black Lint
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+      - uses: psf/black@stable

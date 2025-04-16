@@ -1,7 +1,9 @@
 import logging
 import sys
 
-sys.path.append("../")
+if __name__ == "__main__":
+    sys.path.append("../")
+
 from slothy import Slothy
 
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
@@ -18,8 +20,8 @@ slothy = Slothy(arch, target)
 slothy.load_source_from_file("../examples/naive/aarch64/X25519-AArch64-simple.s")
 
 # first pass: replace symbolic register names by architectural registers
-slothy.config.inputs_are_outputs=True
-slothy.config.outputs=["x0"]
+slothy.config.inputs_are_outputs = True
+slothy.config.outputs = ["x0"]
 slothy.config.constraints.functional_only = True
 slothy.config.constraints.allow_reordering = False
 slothy.optimize(start="mainloop", end="end_label")
@@ -27,8 +29,8 @@ slothy.config.constraints.functional_only = False
 slothy.config.constraints.allow_reordering = True
 
 # second pass: splitting heuristic
-slothy.config.variable_size=True
-slothy.config.constraints.stalls_first_attempt=32
+slothy.config.variable_size = True
+slothy.config.constraints.stalls_first_attempt = 32
 slothy.config.split_heuristic = True
 slothy.config.split_heuristic_stepsize = 0.05
 slothy.config.split_heuristic_factor = 10

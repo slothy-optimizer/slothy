@@ -49,7 +49,10 @@ def _main():
         help="The name of the file to write the generated assembly to. "
             "If unspecified, the assembly will be printed on the standard output.")
     parser.add_argument("-c", "--config", default=[], action="append", nargs='*',
-        metavar="OPTION=VALUE", help="Set SLOTHY configuration value (can be used multiple times)")
+        metavar="OPTION=VALUE",
+        help="""Set SLOTHY configuration value (can be used multiple times).
+                See Python API documentation for details here:
+                https://slothy-optimizer.github.io/slothy/apidocs/slothy/slothy.core.config.html""")
     parser.add_argument("-l", "--loop", default=[], action='append', type=str,
         help="""The starting label for the loop to optimize. This is mutually
                 exclusive with -s/--start and -e/--end, which allowv you to specify

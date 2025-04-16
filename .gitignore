@@ -5,3 +5,6 @@ arch-docs/
 doc.md
 img.png
 uarch.md
+docs/build
+docs/autodocs
+docs/source/apidocs

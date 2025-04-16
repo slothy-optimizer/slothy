@@ -14,10 +14,10 @@ runs:
       shell: bash
       run: |
         sudo apt-get update
-    - name: Install base packages
-      shell: bash
-      run: |
-        sudo apt-get install python3-venv python3-pip make -y
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
     - name: Install additional packages
       if: ${{ inputs.packages != ''}}
       shell: bash
