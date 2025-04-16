@@ -188,6 +188,22 @@ inverse_throughput = {
 
 }
 
+rv32_inverse_throughput = {
+    RISCVInstruction.classes_by_names["addi"]: 1,
+    RISCVInstruction.classes_by_names["srli"]: 1,
+    RISCVInstruction.classes_by_names["srai"]: 1,
+    RISCVInstruction.classes_by_names["add"]: 1,
+    RISCVInstruction.classes_by_names["sll"]: 1,
+    RISCVInstruction.classes_by_names["srl"]: 1,
+    RISCVInstruction.classes_by_names["sub"]: 1,
+    RISCVInstruction.classes_by_names["sra"]: 1,
+    RISCVInstruction.classes_by_names["mul"]: 1,
+    RISCVInstruction.classes_by_names["div"]: 2,
+    RISCVInstruction.classes_by_names["divu"]: 2,
+    RISCVInstruction.classes_by_names["rem"]: 2,
+    RISCVInstruction.classes_by_names["remu"]: 2
+}
+
 default_latencies = {
     RISCVIntegerRegisterRegister: 1,
     RISCVIntegerRegisterImmediate: 1,
@@ -213,6 +229,22 @@ default_latencies = {
     RISCVInstruction.classes_by_names["remu"]: 4
 }
 
+rv32_latencies = {
+    RISCVInstruction.classes_by_names["addi"]: 1,
+    RISCVInstruction.classes_by_names["srli"]: 1,
+    RISCVInstruction.classes_by_names["srai"]: 1,
+    RISCVInstruction.classes_by_names["add"]: 1,
+    RISCVInstruction.classes_by_names["sll"]: 1,
+    RISCVInstruction.classes_by_names["srl"]: 1,
+    RISCVInstruction.classes_by_names["sub"]: 1,
+    RISCVInstruction.classes_by_names["sra"]: 1,
+    RISCVInstruction.classes_by_names["mul"]: 3,
+    RISCVInstruction.classes_by_names["div"]: 4,
+    RISCVInstruction.classes_by_names["divu"]: 4,
+    RISCVInstruction.classes_by_names["rem"]: 4,
+    RISCVInstruction.classes_by_names["remu"]: 4
+}
+
 
 def get_latency(src, out_idx, dst):
     _ = out_idx  #  out_idx unused
@@ -220,8 +252,10 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    latency = lookup_multidict(
-        default_latencies, src)
+    if src.is_32_bit():
+        latency = lookup_multidict(rv32_latencies, src)
+        return latency
+    latency = lookup_multidict(default_latencies, src)
 
     return latency
 
@@ -234,5 +268,6 @@ def get_units(src):
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(
-        inverse_throughput, src)
+    if src.is_32_bit():
+        return lookup_multidict(rv32_inverse_throughput, src)
+    return lookup_multidict(inverse_throughput, src)

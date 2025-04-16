@@ -30,7 +30,7 @@ import re
 from slothy.targets.riscv.exceptions import FatalParsingException, ParsingException
 import logging
 
-from slothy.targets.riscv.riscv_super_instructions import RISCVStore, RISCVLoad
+#from slothy.targets.riscv.riscv_super_instructions import RISCVStore, RISCVLoad
 
 
 class Instruction:
@@ -178,12 +178,14 @@ class Instruction:
     def is_scalar_load(self):
         """Indicates if an instruction is a scalar load instruction"""
 
-        return self._is_instance_of([RISCVLoad])
+        #return self._is_instance_of([RISCVLoad])
+        return False;
 
     def is_scalar_store(self):
         """Indicates if an instruction is a scalar store instruction"""
 
-        return self._is_instance_of([RISCVStore])
+        #return self._is_instance_of([RISCVStore])
+        return False
 
     # scalar or vector
     def is_load(self):
@@ -200,6 +202,10 @@ class Instruction:
         """Indicates if an instruction is a scalar or Neon load or store instruction"""
 
         return self.is_load() or self.is_store()
+
+    def is_32_bit(self):
+        """Indicates if an instruction operates on 32 bit"""
+        return self.is32bit == 'w'
 
     @classmethod
     def make(cls, src):
