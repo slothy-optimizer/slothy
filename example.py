@@ -55,7 +55,7 @@ target_label_dict = {Target_CortexA55: "a55",
                      Target_AppleM1_firestorm: "m1_firestorm",
                      Target_AppleM1_icestorm: "m1_icestorm",
                      Target_XuanTieC908: "c908",
-                     Target_AArch64Big: "aarch64_big"},
+                     Target_AArch64Big: "aarch64_big"}
 
 
 class ExampleException(Exception):
