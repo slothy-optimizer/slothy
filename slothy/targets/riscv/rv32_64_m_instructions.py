@@ -25,12 +25,20 @@
 
 """This module creates the RV3264-M extension set instructions"""
 
-from slothy.targets.riscv.instruction_core import Instruction
-from slothy.targets.riscv.riscv_super_instructions import *
+from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 # the following lists maybe could be encapsulated somehow
-IntegerRegisterRegisterInstructions = ["mul<w>", "mulh", "mulhsu", "mulhu", "div<w>", "divu<w>", "rem<w>", "remu<w>"]
+IntegerRegisterRegisterInstructions = [
+    "mul<w>",
+    "mulh",
+    "mulhsu",
+    "mulhu",
+    "div<w>",
+    "divu<w>",
+    "rem<w>",
+    "remu<w>",
+]
 
 
 def generate_rv32_64_m_instructions():
@@ -38,8 +46,12 @@ def generate_rv32_64_m_instructions():
     Generates all instruction classes for the rv32_64_m extension set
     """
 
-    RISCVInstruction.instr_factory(IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegisterMul)
-    RISCVInstruction.classes_by_names.update({cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes})
+    RISCVInstruction.instr_factory(
+        IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegisterMul
+    )
+    RISCVInstruction.classes_by_names.update(
+        {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
+    )
     return RISCVInstruction.dynamic_instr_classes
 
 

@@ -40,7 +40,9 @@ class RISCVInstruction(Instruction):
     dynamic_instr_classes = []  # list of all rv32_64_i instruction classes
     classes_by_names = {}  # dict of all classes where keys are the class names
     PARSERS = {}
-    is32bit_pattern = "w?"  # pattern to enable specific 32bit instructions (e.g. add/ addw)
+    is32bit_pattern = (
+        "w?"  # pattern to enable specific 32bit instructions (e.g. add/ addw)
+    )
 
     @staticmethod
     def _unfold_pattern(src):
@@ -51,10 +53,11 @@ class RISCVInstruction(Instruction):
         src = re.sub(r"\)", "\\\\s*\\\\)\\\\s*", src)
 
         def pattern_transform(g):
-            return \
-                    f"([{g.group(1).lower()}{g.group(1)}]" + \
-                    f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|" + \
-                    f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
+            return (
+                f"([{g.group(1).lower()}{g.group(1)}]"
+                + f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|"
+                + f"([{g.group(1).lower()}{g.group(1)}]<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"  # noqa: E501
+            )
 
         src = re.sub(r"<([BHWXVQTD])(\w+)>", pattern_transform, src)
 
@@ -75,9 +78,26 @@ class RISCVInstruction(Instruction):
 
             return src
 
-        flaglist = ["eq", "ne", "cs", "hs", "cc", "lo", "mi", "pl", "vs", "vc", "hi", "ls", "ge", "lt", "gt", "le"]
+        flaglist = [
+            "eq",
+            "ne",
+            "cs",
+            "hs",
+            "cc",
+            "lo",
+            "mi",
+            "pl",
+            "vs",
+            "vc",
+            "hi",
+            "ls",
+            "ge",
+            "lt",
+            "gt",
+            "le",
+        ]
 
-        flag_pattern = '|'.join(flaglist)
+        flag_pattern = "|".join(flaglist)
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = "(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
@@ -89,7 +109,9 @@ class RISCVInstruction(Instruction):
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag")
-        src = replace_placeholders(src, "w", RISCVInstruction.is32bit_pattern, "is32bit")
+        src = replace_placeholders(
+            src, "w", RISCVInstruction.is32bit_pattern, "is32bit"
+        )
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -102,8 +124,9 @@ class RISCVInstruction(Instruction):
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result is None:
-                raise ParsingException(f"Does not match instruction pattern {src}" \
-                                       f"[regex: {regexp_txt}]")
+                raise ParsingException(
+                    f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
+                )
             res = regexp.match(line).groupdict()
             items = list(res.items())
             for k, v in items:
@@ -112,7 +135,7 @@ class RISCVInstruction(Instruction):
                         del res[k]
                         if v is None:
                             continue
-                        k = k[len(l):]
+                        k = k[len(l) :]
                         res[k] = v
             return res
 
@@ -135,8 +158,16 @@ class RISCVInstruction(Instruction):
             return RegisterType.BASE_INT
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
 
-    def __init__(self, pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False,
-                 dependsOnFlags=False):
+    def __init__(
+        self,
+        pattern,
+        *,
+        inputs=None,
+        outputs=None,
+        in_outs=None,
+        modifiesFlags=False,
+        dependsOnFlags=False,
+    ):
 
         self.mnemonic = pattern.split(" ")[0]
 
@@ -158,10 +189,12 @@ class RISCVInstruction(Instruction):
         #    arg_types_in += [RegisterType.FLAGS]
         #    inputs += ["flags"]
 
-        super().__init__(mnemonic=pattern,
-                         arg_types_in=arg_types_in,
-                         arg_types_out=arg_types_out,
-                         arg_types_in_out=arg_types_in_out)
+        super().__init__(
+            mnemonic=pattern,
+            arg_types_in=arg_types_in,
+            arg_types_out=arg_types_out,
+            arg_types_in_out=arg_types_in_out,
+        )
 
         self.inputs = inputs
         self.outputs = outputs
@@ -178,7 +211,7 @@ class RISCVInstruction(Instruction):
             c = "x"
         else:
             assert False
-        if s.replace('_', '').isdigit():
+        if s.replace("_", "").isdigit():
             return f"{c}{s}"
         return s
 
@@ -219,14 +252,15 @@ class RISCVInstruction(Instruction):
                 if len(idxs) == 0:
                     return
                 assert idxs == list(range(len(idxs)))
-                setattr(obj, attr_name,
-                        list(map(lambda i: f(res[group_name_i(i)]), idxs)))
+                setattr(
+                    obj, attr_name, list(map(lambda i: f(res[group_name_i(i)]), idxs))
+                )
 
-        group_to_attribute('datatype', 'datatype', lambda x: x.lower())
-        group_to_attribute('imm', 'immediate')
-        group_to_attribute('index', 'index', int)
-        group_to_attribute('flag', 'flag')
-        group_to_attribute('is32bit', 'is32bit')
+        group_to_attribute("datatype", "datatype", lambda x: x.lower())
+        group_to_attribute("imm", "immediate")
+        group_to_attribute("index", "index", int)
+        group_to_attribute("flag", "flag")
+        group_to_attribute("is32bit", "is32bit")
 
         for s, ty in obj.pattern_inputs:
             # if ty == RegisterType.FLAGS:
@@ -252,15 +286,24 @@ class RISCVInstruction(Instruction):
         depends_on_flags = getattr(c, "dependsOnFlags", False)
 
         if isinstance(src, str):
-            if not re.match(src.split(' ')[0], pattern.replace('<w>', RISCVInstruction.is32bit_pattern).split(' ')[0]):
+            if not re.match(
+                src.split(" ")[0],
+                pattern.replace("<w>", RISCVInstruction.is32bit_pattern).split(" ")[0],
+            ):
                 raise ParsingException("Mnemonic does not match")
             res = RISCVInstruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
             res = src
 
-        obj = c(pattern, inputs=inputs, outputs=outputs, in_outs=in_outs,
-                modifiesFlags=modifies_flags, dependsOnFlags=depends_on_flags)
+        obj = c(
+            pattern,
+            inputs=inputs,
+            outputs=outputs,
+            in_outs=in_outs,
+            modifiesFlags=modifies_flags,
+            dependsOnFlags=depends_on_flags,
+        )
 
         RISCVInstruction.build_core(obj, res)
         return obj
@@ -271,9 +314,11 @@ class RISCVInstruction(Instruction):
 
     def write(self):
         out = self.pattern
-        l = list(zip(self.args_in, self.pattern_inputs)) + \
-            list(zip(self.args_out, self.pattern_outputs)) + \
-            list(zip(self.args_in_out, self.pattern_in_outs))
+        l = (
+            list(zip(self.args_in, self.pattern_inputs))
+            + list(zip(self.args_out, self.pattern_outputs))
+            + list(zip(self.args_in_out, self.pattern_in_outs))
+        )
         for arg, (s, ty) in l:
             out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
 
@@ -305,15 +350,21 @@ class RISCVInstruction(Instruction):
         return out
 
     @classmethod
-    def instr_factory(self, instr_list, baseclass):
+    def instr_factory(self, instr_list: list, baseclass: any) -> list:
         """
-        Dynamically creates instruction classes from a list, inheriting from a given super class. This method allows
-        to create classes for instructions with common pattern, inputs and outputs at one go. Usually, a lot of instructions
+        Dynamically creates instruction classes from a list, inheriting from a given
+        super class. This method allows to create classes for instructions with common
+        pattern, inputs and outputs at one go. Usually, a lot of instructions
         share the same structure.
 
-        :param instr_list: List of instructions with a common pattern etc. to create classes of
-        :param baseclass: Baseclass which describes the common pattern and other properties of the instruction type
+        :param instr_list: List of instructions with a common pattern etc. to create
+        classes of
+        :type instr_list: list
+        :param baseclass: Baseclass which describes the common pattern and other
+        properties of the instruction type
+        :type baseclass: any
         :return: A list with the dynamically created classes
+        :rtype: list
         """
 
         PythonKeywords = ["and", "or"]  # not allowed as class names
@@ -324,7 +375,11 @@ class RISCVInstruction(Instruction):
                 classname = instr.split("<")[0]
             if instr in PythonKeywords:
                 classname = classname + "cls"
-            RISCVInstruction.dynamic_instr_classes.append(type(classname, (baseclass, Instruction),
-                                                               {'pattern': baseclass.pattern.replace("mnemonic",
-                                                                                                     instr)}))
+            RISCVInstruction.dynamic_instr_classes.append(
+                type(
+                    classname,
+                    (baseclass, Instruction),
+                    {"pattern": baseclass.pattern.replace("mnemonic", instr)},
+                )
+            )
         return RISCVInstruction.dynamic_instr_classes

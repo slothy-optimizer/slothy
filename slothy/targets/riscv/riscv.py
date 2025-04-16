@@ -52,8 +52,9 @@ class RegisterType(Enum):
     """
     Enum of all register types
     """
-    BASE_INT = 1,  # 32 scalar x-registers, 32-bit width + additional pc register
-    VECT = 2, # 32 vector v-registers, VLEN width
+
+    BASE_INT = (1,)  # 32 scalar x-registers, 32-bit width + additional pc register
+    VECT = (2,)  # 32 vector v-registers, VLEN width
     CSR = 3
 
     def __str__(self):
@@ -70,25 +71,20 @@ class RegisterType(Enum):
 
     @cache
     @staticmethod
-    def list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False):
+    def list_registers(
+        reg_type, only_extra=False, only_normal=False, with_variants=False
+    ):
         """Return the list of all registers of a given type"""
 
         base_int = [f"x{i}" for i in range(32)]
         # TODO: check for reserved regs
         vector_regs = [f"v{i}" for i in range(32)]
-        csr = [
-            "vstart",
-            "vxsat",
-            "vxrm",
-            "vcsr",
-            "vtype",
-            "vl",
-            "vlenb"
-        ]
-        return {RegisterType.BASE_INT: base_int,
-                RegisterType.VECT: vector_regs,
-                RegisterType.CSR: csr
-                }[reg_type]
+        csr = ["vstart", "vxsat", "vxrm", "vcsr", "vtype", "vl", "vlenb"]
+        return {
+            RegisterType.BASE_INT: base_int,
+            RegisterType.VECT: vector_regs,
+            RegisterType.CSR: csr,
+        }[reg_type]
 
     @staticmethod
     def find_type(r):
@@ -122,7 +118,7 @@ class RegisterType(Enum):
         """Return the list of registers that should be reserved by default"""
 
         # return set(["flags", "sp"] + RegisterType.list_registers(RegisterType.HINT))
-        return ['x2', 'x0']
+        return ["x2", "x0"]
 
     @staticmethod
     def default_aliases():
@@ -178,25 +174,39 @@ class AddiLoop(Loop):
                (bne|bge) <cnt>, <end>, loop_lbl
     ```
     """
+
     def __init__(self, lbl=None, lbl_start=None, lbl_end=None, loop_init=None) -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
-        self.end_regex = (r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*(?P<imm>-*\d+)",
-                               rf"^\s*(?P<branch_type>bne|bge)\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}")
+        self.end_regex = (
+            r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*(?P<imm>-*\d+)",
+            rf"^\s*(?P<branch_type>bne|bge)\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}",
+        )
 
-    def start(self, loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None):
+    def start(
+        self,
+        loop_cnt,
+        indentation=0,
+        fixup=0,
+        unroll=1,
+        jump_if_empty=None,
+        preamble_code=None,
+        body_code=None,
+        postamble_code=None,
+        register_aliases=None,
+    ):
         """Emit starting instruction(s) and jump label for loop"""
-        indent = ' ' * indentation
+        indent = " " * indentation
         if unroll > 1:
-            assert unroll in [1,2,4,8,16,32]
+            assert unroll in [1, 2, 4, 8, 16, 32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
         if fixup != 0:
             # In case the immediate is >1, we need to scale the fixup. This
             # allows for loops that do not use an increment of 1
-            fixup *= self.additional_data['imm']
+            fixup *= self.additional_data["imm"]
             yield f"{indent}addi {loop_cnt}, {loop_cnt}, {fixup}"
         if jump_if_empty is not None:
             yield f"beq {loop_cnt}, {loop_cnt}, {jump_if_empty}"
@@ -204,10 +214,11 @@ class AddiLoop(Loop):
 
     def end(self, other, indentation=0):
         """Emit compare-and-branch at the end of the loop"""
-        indent = ' ' * indentation
+        indent = " " * indentation
 
         yield f"{indent}addi {other['cnt']}, {other['cnt']}, {other['imm']}"
         yield f"{indent}{other['branch_type']} {other['cnt']}, {other['end']}, {self.lbl}"
+
 
 def iter_riscv_instructions():
     yield from Instruction.all_subclass_leaves(Instruction)
@@ -217,10 +228,12 @@ def find_class(src):
     for inst_class in iter_riscv_instructions():
         if isinstance(src, inst_class):
             return inst_class
-    raise UnknownInstruction(f"Couldn't find instruction class for {src} (type {type(src)})")
+    raise UnknownInstruction(
+        f"Couldn't find instruction class for {src} (type {type(src)})"
+    )
 
 
-def lookup_multidict(d, inst, default=None):
+def lookup_multidict(d: any, inst: any, default: any = None) -> any:
     """Multidict lookup
 
      Multidict entries can be the following:
@@ -230,13 +243,21 @@ def lookup_multidict(d, inst, default=None):
        - A tuple of instruction classes or callables. It matches any instruction
          which matches at least one element in the tuple.
 
-    :param d:
+    :param d: dictionary
+    :type d: any
     :param inst:
+    :type inst: any
     :param default:
+    :type default: any
+
     :return:
+    :rtype: any
+
+    :raises UnknownInstruction: Couldn't find instruction class for instruction
     """
     instclass = find_class(inst)
     for l, v in d.items():
+
         def match(x):
             if inspect.isclass(x):
                 return isinstance(inst, x)

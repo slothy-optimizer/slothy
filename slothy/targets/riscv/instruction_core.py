@@ -30,14 +30,15 @@ import re
 from slothy.targets.riscv.exceptions import FatalParsingException, ParsingException
 import logging
 
-#from slothy.targets.riscv.riscv_super_instructions import RISCVStore, RISCVLoad
+# from slothy.targets.riscv.riscv_super_instructions import RISCVStore, RISCVLoad
 
 
 class Instruction:
     """Represents an abstract instruction"""
 
-    def __init__(self, *, mnemonic,
-                 arg_types_in=None, arg_types_in_out=None, arg_types_out=None):
+    def __init__(
+        self, *, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None
+    ):
 
         if arg_types_in is None:
             arg_types_in = []
@@ -121,20 +122,24 @@ class Instruction:
         return self
 
     def global_parsing_cb(self, a, log=None):
-        """Parsing callback triggered after DataFlowGraph parsing which allows modification
-        of the instruction in the context of the overall computation.
+        """Parsing callback triggered after DataFlowGraph parsing which allows
+        modification of the instruction in the context of the overall
+        computation.
 
-        This is primarily used to remodel input-outputs as outputs in jointly destructive
-        instruction patterns (See Section 4.4, https://eprint.iacr.org/2022/1303.pdf)."""
+        This is primarily used to remodel input-outputs as outputs in jointly
+        destructive instruction patterns
+        (See Section 4.4, https://eprint.iacr.org/2022/1303.pdf)."""
 
         _ = log  # log is not used
         return False
 
     def global_fusion_cb(self, a, log=None):
-        """Fusion callback triggered after DataFlowGraph parsing which allows fusing
-        of the instruction in the context of the overall computation.
+        """Fusion callback triggered after DataFlowGraph parsing which
+        allows fusing of the instruction in the context of the overall
+        computation.
 
-        This can be used e.g. to detect eor-eor pairs and replace them by eor3."""
+        This can be used e.g. to detect eor-eor pairs and replace them
+        by eor3."""
 
         _ = log  # log is not used
         return False
@@ -143,17 +148,19 @@ class Instruction:
         """Write the instruction"""
 
         args = self.args_out + self.args_in_out + self.args_in
-        return self.mnemonic + ' ' + ', '.join(args)
+        return self.mnemonic + " " + ", ".join(args)
 
-    #@staticmethod
-    #def unfold_abbrevs(mnemonic):
-        #if mnemonic.count("<dt") > 1:
-        #    for i in range(mnemonic.count("<dt")):
-        #        mnemonic = re.sub(f"<dt{i}>", f"(?P<datatype{i}>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))",
-        #                          mnemonic)
-        #else:
-        #    mnemonic = re.sub("<dt>", f"(?P<datatype>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))", mnemonic)
-        #return mnemonic
+    # @staticmethod
+    # def unfold_abbrevs(mnemonic):
+    # if mnemonic.count("<dt") > 1:
+    #    for i in range(mnemonic.count("<dt")):
+    #        mnemonic = re.sub(f"<dt{i}>",
+    #        f"(?P<datatype{i}>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))",
+    #                          mnemonic)
+    # else:
+    #    mnemonic = re.sub("<dt>",
+    #    f"(?P<datatype>(?:2|4|8|16)(?:b|B|h|H|s|S|d|D))", mnemonic)
+    # return mnemonic
 
     def _is_instance_of(self, inst_list):
         for inst in inst_list:
@@ -178,13 +185,13 @@ class Instruction:
     def is_scalar_load(self):
         """Indicates if an instruction is a scalar load instruction"""
 
-        #return self._is_instance_of([RISCVLoad])
-        return False;
+        # return self._is_instance_of([RISCVLoad])
+        return False
 
     def is_scalar_store(self):
         """Indicates if an instruction is a scalar store instruction"""
 
-        #return self._is_instance_of([RISCVStore])
+        # return self._is_instance_of([RISCVStore])
         return False
 
     # scalar or vector
@@ -205,53 +212,62 @@ class Instruction:
 
     def is_32_bit(self):
         """Indicates if an instruction operates on 32 bit"""
-        return self.is32bit == 'w'
+        return self.is32bit == "w"
 
     @classmethod
     def make(cls, src):
         """Abstract factory method parsing a string into an instruction instance."""
 
     @staticmethod
-    def build(c, src, mnemonic, **kwargs):
-        """Attempt to parse a string as an instance of an instruction.
+    def build(c: any, src: str, mnemonic: str, **kwargs: list) -> "Instruction":
+        r"""Attempt to parse a string as an instance of an instruction.
 
         :param c: The target instruction the string should be attempted to be parsed as.
+        :type c: any
         :param src: The string to parse.
+        :type src: str
         :param mnemonic: The mnemonic of instruction c
+        :type mnemonic: str
+        :param **kwargs: Additional arguments to pass to the constructor of c.
+        :type **kwargs: list
+
+        :return: Upon success, the result of parsing src as an instance of c.
+        :rtype: Instruction
+
         :raises ParsingException: The str argument cannot be parsed as an
                 instance of c.
         :raises FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
-        :return: Upon success, the result of parsing src as an instance of c.
         """
 
-        if src.split(' ')[0] != mnemonic:
+        if src.split(" ")[0] != mnemonic:
             raise ParsingException("Mnemonic does not match")
 
         obj = c(mnemonic=mnemonic, **kwargs)
 
         # Replace <dt> by list of all possible datatypes
-        #mnemonic = Instruction.unfold_abbrevs(obj.mnemonic)
+        # mnemonic = Instruction.unfold_abbrevs(obj.mnemonic)
 
         expected_args = obj.num_in + obj.num_out + obj.num_in_out
         regexp_txt = rf"^\s*{mnemonic}"
         if expected_args > 0:
             regexp_txt += r"\s+"
-        regexp_txt += ','.join([r"\s*(\w+)\s*" for _ in range(expected_args)])
+        regexp_txt += ",".join([r"\s*(\w+)\s*" for _ in range(expected_args)])
         regexp = re.compile(regexp_txt)
 
         p = regexp.match(src)
         if p is None:
             raise ParsingException(
-                f"Doesn't match basic instruction template {regexp_txt}")
+                f"Doesn't match basic instruction template {regexp_txt}"
+            )
 
         operands = list(p.groups())
 
         if obj.num_out > 0:
-            obj.args_out = operands[:obj.num_out]
+            obj.args_out = operands[: obj.num_out]
             idx_args_in = obj.num_out
         elif obj.num_in_out > 0:
-            obj.args_in_out = operands[:obj.num_in_out]
+            obj.args_in_out = operands[: obj.num_in_out]
             idx_args_in = obj.num_in_out
         else:
             idx_args_in = 0
@@ -259,8 +275,10 @@ class Instruction:
         obj.args_in = operands[idx_args_in:]
 
         if not len(obj.args_in) == obj.num_in:
-            raise FatalParsingException(f"Something wrong parsing {src}: Expect {obj.num_in} input,"
-                                        f" but got {len(obj.args_in)} ({obj.args_in})")
+            raise FatalParsingException(
+                f"Something wrong parsing {src}: Expect {obj.num_in} input,"
+                f" but got {len(obj.args_in)} ({obj.args_in})"
+            )
 
         return obj
 
@@ -297,8 +315,9 @@ class Instruction:
                 msg = f"* {i + ':':20s} {e}"
                 logging.error(msg)
             raise ParsingException(
-                f"Couldn't parse {src}\nYou may need to add support " \
-                "for a new instruction (variant)?")
+                f"Couldn't parse {src}\nYou may need to add support "
+                "for a new instruction (variant)?"
+            )
 
         logging.debug("Parsing result for '%s': %s", src, instnames)
         return insts
@@ -307,7 +326,8 @@ class Instruction:
         return self.write()
 
     def all_subclass_leaves(c):
-        """Returns the list of all subclasses of a class which don't have subclasses themselves"""
+        """Returns the list of all subclasses of a class which don't have subclasses
+        themselves"""
 
         def has_subclasses(cl):
             return len(cl.__subclasses__()) > 0
@@ -317,9 +337,11 @@ class Instruction:
 
         def all_subclass_leaves_core(leaf_lst, todo_lst):
             leaf_lst += filter(is_leaf, todo_lst)
-            todo_lst = [csub
-                        for c in filter(has_subclasses, todo_lst)
-                        for csub in c.__subclasses__()]
+            todo_lst = [
+                csub
+                for c in filter(has_subclasses, todo_lst)
+                for csub in c.__subclasses__()
+            ]
             if len(todo_lst) == 0:
                 return leaf_lst
             return all_subclass_leaves_core(leaf_lst, todo_lst)

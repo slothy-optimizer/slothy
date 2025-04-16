@@ -23,7 +23,8 @@
 # Author: Justus Bergermann <mail@justus-bergermann.de>
 #
 
-"""This module contains abstract RISC-V instruction types to represent instructions which share the same pattern"""
+"""This module contains abstract RISC-V instruction types to represent
+instructions which share the same pattern"""
 
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 

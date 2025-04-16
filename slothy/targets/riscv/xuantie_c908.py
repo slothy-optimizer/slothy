@@ -30,12 +30,13 @@
 """
 Experimental Xuantie-C908 microarchitecture model for SLOTHY
 
-WARNING: The data in this module is approximate and may contain errors. They are _NOT_ an official software optimization guide for Xuantie-C908.
+WARNING: The data in this module is approximate and may contain errors.
+They are _NOT_ an official software optimization guide for Xuantie-C908.
 """
 
-from slothy.targets.riscv.riscv import *
-from slothy.targets.riscv.rv32_64_i_instructions import *
-from slothy.targets.riscv.rv32_64_m_instructions import *
+from slothy.targets.riscv.riscv import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_i_instructions import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_m_instructions import *  # noqa: F403
 
 issue_rate = 2
 llvm_mca_target = "cortex-a55"
@@ -85,8 +86,9 @@ def get_min_max_objective(slothy):
     _ = slothy
     return
 
+
 execution_units = {
-    (  # this could be more convenient, maybe use existing instructions list or superclass?
+    (
         RISCVInstruction.classes_by_names["addi"],
         RISCVInstruction.classes_by_names["slti"],
         RISCVInstruction.classes_by_names["sltiu"],
@@ -108,9 +110,7 @@ execution_units = {
         RISCVInstruction.classes_by_names["sra"],
         RISCVInstruction.classes_by_names["lui"],
         RISCVInstruction.classes_by_names["auipc"],
-
     ): ExecutionUnit.SCALAR(),
-
     (
         RISCVInstruction.classes_by_names["lb"],
         RISCVInstruction.classes_by_names["lbu"],
@@ -124,7 +124,6 @@ execution_units = {
         RISCVInstruction.classes_by_names["sw"],
         RISCVInstruction.classes_by_names["sd"],
     ): ExecutionUnit.LSU,
-
     (
         RISCVInstruction.classes_by_names["mul"],
         RISCVInstruction.classes_by_names["mulh"],
@@ -133,8 +132,8 @@ execution_units = {
         RISCVInstruction.classes_by_names["div"],
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
-        RISCVInstruction.classes_by_names["remu"]
-    ): ExecutionUnit.SCALAR_MUL
+        RISCVInstruction.classes_by_names["remu"],
+    ): ExecutionUnit.SCALAR_MUL,
 }
 
 inverse_throughput = {
@@ -174,7 +173,6 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["sw"],
         RISCVInstruction.classes_by_names["sd"],
     ): 1,
-
     (
         RISCVInstruction.classes_by_names["mul"],
         RISCVInstruction.classes_by_names["mulh"],
@@ -183,9 +181,8 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["div"],
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
-        RISCVInstruction.classes_by_names["remu"]
-    ): 2
-
+        RISCVInstruction.classes_by_names["remu"],
+    ): 2,
 }
 
 rv32_inverse_throughput = {
@@ -201,14 +198,14 @@ rv32_inverse_throughput = {
     RISCVInstruction.classes_by_names["div"]: 2,
     RISCVInstruction.classes_by_names["divu"]: 2,
     RISCVInstruction.classes_by_names["rem"]: 2,
-    RISCVInstruction.classes_by_names["remu"]: 2
+    RISCVInstruction.classes_by_names["remu"]: 2,
 }
 
 default_latencies = {
     RISCVIntegerRegisterRegister: 1,
     RISCVIntegerRegisterImmediate: 1,
     RISCVUType: 1,
-    #RISCVLoad: 3,
+    # RISCVLoad: 3,
     RISCVInstruction.classes_by_names["lb"]: 3,
     RISCVInstruction.classes_by_names["lbu"]: 3,
     RISCVInstruction.classes_by_names["lh"]: 3,
@@ -216,9 +213,8 @@ default_latencies = {
     RISCVInstruction.classes_by_names["lw"]: 2,
     RISCVInstruction.classes_by_names["lwu"]: 2,
     RISCVInstruction.classes_by_names["ld"]: 2,
-
     RISCVStore: 1,
-    #RISCVIntegerRegisterRegisterMul: 4  # not correct for div, rem
+    # RISCVIntegerRegisterRegisterMul: 4  # not correct for div, rem
     RISCVInstruction.classes_by_names["mul"]: 4,
     RISCVInstruction.classes_by_names["mulh"]: 4,
     RISCVInstruction.classes_by_names["mulhsu"]: 4,
@@ -226,7 +222,7 @@ default_latencies = {
     RISCVInstruction.classes_by_names["div"]: 4,
     RISCVInstruction.classes_by_names["divu"]: 4,
     RISCVInstruction.classes_by_names["rem"]: 4,
-    RISCVInstruction.classes_by_names["remu"]: 4
+    RISCVInstruction.classes_by_names["remu"]: 4,
 }
 
 rv32_latencies = {
@@ -242,15 +238,15 @@ rv32_latencies = {
     RISCVInstruction.classes_by_names["div"]: 4,
     RISCVInstruction.classes_by_names["divu"]: 4,
     RISCVInstruction.classes_by_names["rem"]: 4,
-    RISCVInstruction.classes_by_names["remu"]: 4
+    RISCVInstruction.classes_by_names["remu"]: 4,
 }
 
 
 def get_latency(src, out_idx, dst):
-    _ = out_idx  #  out_idx unused
+    _ = out_idx  # out_idx unused
 
-    instclass_src = find_class(src)
-    instclass_dst = find_class(dst)
+    # instclass_src = find_class(src)
+    # instclass_dst = find_class(dst)
 
     if src.is_32_bit():
         latency = lookup_multidict(rv32_latencies, src)
