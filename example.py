@@ -29,7 +29,7 @@ import argparse
 import logging
 import sys
 
-from slothy import Slothy, Config
+from slothy import Slothy
 
 import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
@@ -47,15 +47,17 @@ import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_i
 import slothy.targets.riscv.riscv as RISC_V
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
 
-target_label_dict = {Target_CortexA55: "a55",
-                     Target_CortexA72: "a72",
-                     Target_CortexM7: "m7",
-                     Target_CortexM55r1: "m55",
-                     Target_CortexM85r1: "m85",
-                     Target_AppleM1_firestorm: "m1_firestorm",
-                     Target_AppleM1_icestorm: "m1_icestorm",
-                     Target_XuanTieC908: "c908",
-                     Target_AArch64Big: "aarch64_big"}
+target_label_dict = {
+    Target_CortexA55: "a55",
+    Target_CortexA72: "a72",
+    Target_CortexM7: "m7",
+    Target_CortexM55r1: "m55",
+    Target_CortexM85r1: "m85",
+    Target_AppleM1_firestorm: "m1_firestorm",
+    Target_AppleM1_icestorm: "m1_icestorm",
+    Target_XuanTieC908: "c908",
+    Target_AArch64Big: "aarch64_big",
+}
 
 
 class ExampleException(Exception):
@@ -1476,8 +1478,6 @@ class intt_dilithium_123_45678(Example):
         slothy.optimize_loop("layer123_start")
 
 
-
-
 class ntt_dilithium_123(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "ntt_dilithium_123"
@@ -1750,6 +1750,7 @@ class fft_floatingpoint_radix4(Example):
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
 
+
 class RISC_VExample0(Example):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
         name = "riscv_simple0"
@@ -1762,11 +1763,12 @@ class RISC_VExample0(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
-    def core(self,slothy):
-        slothy.config.variable_size=True
-        slothy.config.constraints.stalls_first_attempt=32
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
         slothy.optimize()
+
 
 class RISC_VExampleLoop0(Example):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
@@ -1780,8 +1782,8 @@ class RISC_VExampleLoop0(Example):
 
         super().__init__(infile, name, rename=True, arch=arch, target=target)
 
-    def core(self,slothy):
-        slothy.config.variable_size=True
+    def core(self, slothy):
+        slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
 
         slothy.config.sw_pipelining.enabled = True
@@ -1789,6 +1791,7 @@ class RISC_VExampleLoop0(Example):
         slothy.optimize_loop("my_loop")
         slothy.optimize_loop("my_loop2")
         slothy.optimize_loop("my_loop3")
+
 
 class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
@@ -1801,15 +1804,23 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="ntt_8l_rv64im", timeout=timeout)
+        super().__init__(
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="ntt_8l_rv64im",
+            timeout=timeout,
+        )
 
-    def core(self,slothy):
-        slothy.config.variable_size=True
-        slothy.config.constraints.stalls_first_attempt=32
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
         r = slothy.config.reserved_regs
-        r += ['x3']
+        r += ["x3"]
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
@@ -1818,11 +1829,12 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(Example):
         slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-        #slothy.config.split_heuristic_factor = 10
-        #slothy.config.split_heuristic_repeat = 1
-        #slothy.config.split_heuristic_stepsize = 0.3
+        # slothy.config.split_heuristic_factor = 10
+        # slothy.config.split_heuristic_repeat = 1
+        # slothy.config.split_heuristic_stepsize = 0.3
         slothy.optimize_loop("ntt_8l_rv64im_loop1")
         slothy.optimize_loop("ntt_8l_rv64im_loop2")
+
 
 class RISC_V_poly_basemul_8l_acc_rv64im(Example):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
@@ -1835,20 +1847,29 @@ class RISC_V_poly_basemul_8l_acc_rv64im(Example):
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target, funcname="poly_basemul_8l_acc_rv64im", timeout=timeout)
+        super().__init__(
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="poly_basemul_8l_acc_rv64im",
+            timeout=timeout,
+        )
 
-    def core(self,slothy):
-        slothy.config.variable_size=True
-        slothy.config.constraints.stalls_first_attempt=32
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
         r = slothy.config.reserved_regs
-        r += ['x3']
+        r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_8l_acc_rv64im_looper")
 
 
-#############################################################################################
+########################################################################################
+
 
 class ntt_dilithium(Example):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7, timeout=None):
