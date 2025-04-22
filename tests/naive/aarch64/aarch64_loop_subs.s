@@ -3,6 +3,7 @@ count .req x2
 mov count, #16
 start:
 
+<<<<<<< HEAD
     add x5, x5, x4
     add x7, x5, x1
     ldr x5, [x0, #4]
@@ -40,3 +41,10 @@ start4:
 
     subs count, count, #0x30
     b.hs start4
+=======
+	nop
+	add	count,	count,	#0
+
+    subs count, count, #1
+    cbnz count, start
+>>>>>>> bdf5700 (refactor: Major example refactoring)
