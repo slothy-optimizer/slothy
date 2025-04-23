@@ -27,6 +27,7 @@
 
 import logging
 import sys
+from pathlib import Path
 
 from slothy import Slothy
 
@@ -211,4 +212,6 @@ class OptimizationRunner:
             )
 
         if dry_run is False:
+            out_dir = Path(self.outfile_full).parent
+            out_dir.mkdir(parents=True, exist_ok=True)
             slothy.write_source_to_file(self.outfile_full)
