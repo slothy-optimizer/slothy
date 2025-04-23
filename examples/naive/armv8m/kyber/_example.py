@@ -29,7 +29,7 @@ import os
 
 from common.OptimizationRunner import OptimizationRunner, target_label_dict
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
-import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM55r1
+import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
