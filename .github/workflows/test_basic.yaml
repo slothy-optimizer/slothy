@@ -60,7 +60,7 @@ jobs:
     - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
-        python3 example.py --examples simple0,simple1,simple0_loop,simple1_loop
+        python3 test.py --tests simple0_m55,simple1_m55,simple0_loop_m55,simple1_loop_m55
   examples_ntt_kyber_dilithium_helium_core:
     runs-on: ubuntu-latest
     steps:
