@@ -5,7 +5,7 @@ inputs:
   packages:
     description: Space-separated list of additional packages to install
     required: false
-    default: 'llvm'
+    default: 'cmake'
 
 runs:
   using: composite
@@ -14,6 +14,10 @@ runs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v2
+      with:
+        version: "18"
     - name: Install additional packages
       if: ${{ inputs.packages != ''}}
       shell: bash
