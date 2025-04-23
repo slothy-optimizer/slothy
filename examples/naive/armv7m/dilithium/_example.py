@@ -32,7 +32,6 @@ import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
-print(f"SUBFOLDER = {SUBFOLDER}")
 
 
 class ntt_dilithium(OptimizationRunner):
