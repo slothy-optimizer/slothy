@@ -44,7 +44,7 @@ jobs:
     - uses: ./.github/actions/setup-ubuntu
     - name: Run tests
       run: |
-        python3 example.py --only-target=${{ matrix.target }}
+        python3 test.py --only-target=${{ matrix.target }}
   tutorial:
     runs-on: ubuntu-latest
     steps:
