@@ -53,8 +53,8 @@ class RegisterType(Enum):
     Enum of all register types
     """
 
-    BASE_INT = (1,)  # 32 scalar x-registers, 32-bit width + additional pc register
-    VECT = (2,)  # 32 vector v-registers, VLEN width
+    BASE_INT = 1  # 32 scalar x-registers, 32-bit width + additional pc register
+    VECT = 2  # 32 vector v-registers, VLEN width
     CSR = 3
 
     def __str__(self):
