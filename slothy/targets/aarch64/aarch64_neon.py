@@ -2851,6 +2851,36 @@ class mov_d01(AArch64Instruction):
     in_outs = ["Vd"]
 
 
+class SHA3Instruction(
+    AArch64Instruction
+):  # pylint: disable=missing-docstring,invalid-name
+    pass
+
+
+class vrax1(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "rax1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class veor3(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    inputs = ["Va", "Vb", "Vc"]
+    outputs = ["Vd"]
+
+
+class vbcax(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "bcax <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    inputs = ["Va", "Vb", "Vc"]
+    outputs = ["Vd"]
+
+
+class vxar(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "xar <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class AArch64NeonLogical(AArch64Instruction):
     pass
 
@@ -2858,12 +2888,6 @@ class AArch64NeonLogical(AArch64Instruction):
 class veor(AArch64NeonLogical):
     pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
-class veor3(AArch64Instruction):
-    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
-    inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
 
