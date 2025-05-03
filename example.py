@@ -74,6 +74,7 @@ class Example:
         arch=Arch_Armv81M,
         target=Target_CortexM55r1,
         timeout=None,
+        outfile_full=False,
         **kwargs,
     ):
         if name is None:
@@ -84,10 +85,17 @@ class Example:
         self.funcname = funcname
         self.infile = infile
         self.suffix = suffix
-        if outfile == "":
-            self.outfile = f"{infile}_{self.suffix}_{target_label_dict[self.target]}"
+        if outfile_full is True:
+            self.outfile = outfile
         else:
-            self.outfile = f"{outfile}_{self.suffix}_{target_label_dict[self.target]}"
+            if outfile == "":
+                self.outfile = (
+                    f"{infile}_{self.suffix}_{target_label_dict[self.target]}"
+                )
+            else:
+                self.outfile = (
+                    f"{outfile}_{self.suffix}_{target_label_dict[self.target]}"
+                )
         if funcname is None:
             self.funcname = self.infile
         subfolder = ""
@@ -96,7 +104,10 @@ class Example:
         elif self.arch == Arch_Armv7M:
             subfolder = "armv7m/"
         self.infile_full = f"examples/naive/{subfolder}{self.infile}.s"
-        self.outfile_full = f"examples/opt/{subfolder}{self.outfile}.s"
+        if outfile_full is False:
+            self.outfile_full = f"examples/opt/{subfolder}{self.outfile}.s"
+        else:
+            self.outfile_full = self.outfile
         self.name = name
         self.rename = rename
         self.timeout = timeout
