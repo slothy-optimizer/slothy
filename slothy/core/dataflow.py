@@ -1078,7 +1078,7 @@ class DataFlowGraph:
                 self.config._absorb_spills is True
                 and s.source_line.tags.get("is_restore", False) is True
             ):
-                self.logger.debug("Handling spill instruction: %s", s)
+                self.logger.debug("Handling restore instruction: %s", s)
                 loc = s.args_in[0]
                 reg = s.args_out[0]
                 self._process_restore_instruction(reg, loc)
