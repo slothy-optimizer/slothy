@@ -150,7 +150,7 @@ class RegisterType(Enum):
     @cache
     @staticmethod
     def spillable(reg_type):
-        return reg_type in [RegisterType.GPR, RegisterType.NEON]
+        return reg_type in [RegisterType.GPR]  # For now, only GPRs
 
     @staticmethod
     def callee_saved_registers():
@@ -1318,6 +1318,22 @@ class q_ldr1_stack(AArch64Instruction):
         return super().write()
 
 
+class q_ldr1_post_inc(AArch64Instruction):
+    pattern = "ld1r {<Va>.<dt>}, [<Xa>], <imm>"
+    outputs = ["Va"]
+    in_outs = ["Xa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        return obj
+
+    def write(self):
+        return super().write()
+
+
 class q_ldr_stack_with_inc(Ldr_Q):
     pattern = "ldr <Qa>, [sp, <imm>]"
     # TODO: Model sp dependency
@@ -1658,6 +1674,24 @@ class x_ldr_with_imm(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>, <imm>]"
     inputs = ["Xc"]
     outputs = ["Xa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class x_ldr_with_imm_uxtw(Ldr_X):
+    pattern = "ldr <Xd>, [<Xa>, <Xb>, UXTW <imm>]"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
 
     @classmethod
     def make(cls, src):
@@ -2233,6 +2267,18 @@ class AArch64ShiftedArithmetic(AArch64Instruction):
     pass
 
 
+class eor_ror(AArch64ShiftedArithmetic):
+    pattern = "eor <Xd>, <Xa>, <Xb>, ror <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class bic_ror(AArch64ShiftedArithmetic):
+    pattern = "bic <Xd>, <Xa>, <Xb>, ror <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
 class add_lsl(AArch64ShiftedArithmetic):
     pattern = "add <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
@@ -2290,6 +2336,12 @@ class lsr_variable(AArch64Shift):
 
 class lsl(AArch64Shift):
     pattern = "lsl <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
+class ror(AArch64Shift):
+    pattern = "ror <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -2507,6 +2559,12 @@ class mov_imm(AArch64Move):
     pattern = "mov <Xd>, <imm>"
     inputs = []
     outputs = ["Xd"]
+
+
+class movw_imm(AArch64Move):
+    pattern = "mov <Wd>, <imm>"
+    inputs = []
+    outputs = ["Wd"]
 
 
 class mvn_xzr(AArch64Move):
@@ -2851,6 +2909,36 @@ class mov_d01(AArch64Instruction):
     in_outs = ["Vd"]
 
 
+class SHA3Instruction(
+    AArch64Instruction
+):  # pylint: disable=missing-docstring,invalid-name
+    pass
+
+
+class vrax1(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "rax1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class veor3(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    inputs = ["Va", "Vb", "Vc"]
+    outputs = ["Vd"]
+
+
+class vbcax(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "bcax <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    inputs = ["Va", "Vb", "Vc"]
+    outputs = ["Vd"]
+
+
+class vxar(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "xar <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class AArch64NeonLogical(AArch64Instruction):
     pass
 
@@ -2858,12 +2946,6 @@ class AArch64NeonLogical(AArch64Instruction):
 class veor(AArch64NeonLogical):
     pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
-class veor3(AArch64Instruction):
-    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
-    inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
 
@@ -2884,6 +2966,12 @@ class vext(AArch64NeonLogical):
     pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
+
+
+class vsri(AArch64NeonLogical):
+    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
 
 
 class Vmul(AArch64Instruction):

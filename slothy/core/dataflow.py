@@ -767,7 +767,13 @@ class DataFlowGraph:
         useless_nodes = filter(outputs_unused, self.nodes)
         t = next(useless_nodes, None)
         if t is not None:
-            if not self.config.allow_useless_instructions:
+            ignore_useless_output = t.inst.source_line.tags.get(
+                "ignore_useless_output", False
+            )
+            if (
+                not self.config.allow_useless_instructions
+                and ignore_useless_output is False
+            ):
                 self._dump_instructions("Source code", error=True)
                 self.logger.error(
                     f"The result registers {t.inst.args_out + t.inst.args_in_out} "
@@ -1078,7 +1084,7 @@ class DataFlowGraph:
                 self.config._absorb_spills is True
                 and s.source_line.tags.get("is_restore", False) is True
             ):
-                self.logger.debug("Handling spill instruction: %s", s)
+                self.logger.debug("Handling restore instruction: %s", s)
                 loc = s.args_in[0]
                 reg = s.args_out[0]
                 self._process_restore_instruction(reg, loc)
