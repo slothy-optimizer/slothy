@@ -17,7 +17,7 @@ target = Target_CortexA55
 slothy = Slothy(arch, target)
 
 # example
-slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0_loop.s")
+slothy.load_source_from_file("../tests/naive/aarch64/aarch64_simple0_loop.s")
 slothy.config.variable_size = True
 slothy.config.constraints.stalls_first_attempt = 32
 

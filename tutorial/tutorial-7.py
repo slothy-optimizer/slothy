@@ -17,7 +17,7 @@ target = Target_CortexA55
 slothy = Slothy(arch, target)
 
 # example
-slothy.load_source_from_file("../examples/naive/aarch64/X25519-AArch64-simple.s")
+slothy.load_source_from_file("../examples/naive/aarch64/x25519/X25519-AArch64-simple.s")
 
 # first pass: replace symbolic register names by architectural registers
 slothy.config.inputs_are_outputs = True
