@@ -133,7 +133,7 @@ execution_units = {
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"],
-    ): [[ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU0]]
+    ): [[ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU0], [ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU1]]
 }
 
 inverse_throughput = {
