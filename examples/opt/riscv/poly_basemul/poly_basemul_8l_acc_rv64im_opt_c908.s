@@ -35,7 +35,7 @@
 .endm
 
 // void poly_basemul_8l_acc_rv64im(int64_t r[256], const int32_t a[256], const int32_t b[256])
-.globl poly_basemul_8l_acc_rv64im
+.globl poly_basemul_8l_acc_rv64im_opt_c908
 .align 2
 poly_basemul_8l_acc_rv64im_opt_c908:
     addi sp, sp, -8*15
