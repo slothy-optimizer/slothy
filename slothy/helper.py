@@ -565,6 +565,7 @@ class AsmHelper:
             s = line.text
             s = re.sub(f"{old_funcname}:", f"{new_funcname}:", s)
             s = re.sub(f"\\.global(\\s+){old_funcname}", f".global\\1{new_funcname}", s)
+            s = re.sub(f"\\.globl(\\s+){old_funcname}", f".globl\\1{new_funcname}", s)
             s = re.sub(f"\\.type(\\s+){old_funcname}", f".type\\1{new_funcname}", s)
             s = re.sub(
                 f"\\.size(\\s+){old_funcname},(\\s*)\\.-{old_funcname}",
