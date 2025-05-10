@@ -41,6 +41,7 @@ class RISCVStore(RISCVInstruction):
     pattern = "mnemonic <Xb>, <imm>(<Xa>)"
     inputs = ["Xb", "Xa"]
 
+#### Scalar instructions ####
 
 class RISCVIntegerRegisterImmediate(RISCVInstruction):
     pattern = "mnemonic <Xd>, <Xa>, <imm>"
@@ -77,3 +78,20 @@ class RISCVIntegerRegisterRegisterMul(RISCVInstruction):
     pattern = "mnemonic <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
+
+#### Vector instructions ####
+
+class RISCVVectorLoadUnitStride(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    pattern = "mnemonic <Vd>, <Xa><vm>"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
+
+

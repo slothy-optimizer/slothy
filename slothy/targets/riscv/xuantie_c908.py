@@ -37,6 +37,7 @@ They are _NOT_ an official software optimization guide for Xuantie-C908.
 from slothy.targets.riscv.riscv import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_i_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_m_instructions import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_v_instructions import *  # noqa: F403
 
 issue_rate = 2
 llvm_mca_target = "cortex-a55"

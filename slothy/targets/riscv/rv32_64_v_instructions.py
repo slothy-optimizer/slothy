@@ -28,17 +28,7 @@
 from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
-# the following lists maybe could be encapsulated somehow
-IntegerRegisterRegisterInstructions = [
-    "mul<w>",
-    "mulh",
-    "mulhsu",
-    "mulhu",
-    "div<w>",
-    "divu<w>",
-    "rem<w>",
-    "remu<w>",
-]
+VectorLoadUnitStride = ["vle<len>.v"]
 
 
 def generate_rv32_64_v_instructions():
@@ -47,7 +37,7 @@ def generate_rv32_64_v_instructions():
     """
 
     RISCVInstruction.instr_factory(
-        IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegisterMul
+        VectorLoadUnitStride, RISCVVectorLoadUnitStride
     )
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}

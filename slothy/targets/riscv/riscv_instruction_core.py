@@ -26,6 +26,7 @@
 # Authors: Hanno Becker <hannobecker@posteo.de>
 #          Justus Bergermann <mail@justus-bergermann.de>
 #
+from black.nodes import replace_child
 
 from slothy.targets.riscv.instruction_core import Instruction
 import re as re
@@ -101,6 +102,8 @@ class RISCVInstruction(Instruction):
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = "(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
+        len_pattern = "(8|16|32|64)"
+        vm_pattern = "(, v0\.t)?"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
@@ -112,6 +115,8 @@ class RISCVInstruction(Instruction):
         src = replace_placeholders(
             src, "w", RISCVInstruction.is32bit_pattern, "is32bit"
         )
+        src = replace_placeholders(src, "len", len_pattern, "len")
+        src = replace_placeholders(src, "vm", vm_pattern, "vm")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -156,6 +161,8 @@ class RISCVInstruction(Instruction):
     def _infer_register_type(ptrn):
         if ptrn[0].upper() in ["X"]:
             return RegisterType.BASE_INT
+        if ptrn[0].upper() in ["V"]:
+            return RegisterType.VECT
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
 
     def __init__(
@@ -209,6 +216,8 @@ class RISCVInstruction(Instruction):
     def _to_reg(ty, s):
         if ty == RegisterType.BASE_INT:
             c = "x"
+        elif ty == RegisterType.VECT:
+            c = "v"
         else:
             assert False
         if s.replace("_", "").isdigit():
@@ -261,6 +270,7 @@ class RISCVInstruction(Instruction):
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
         group_to_attribute("is32bit", "is32bit")
+        group_to_attribute("len", "len")
 
         for s, ty in obj.pattern_inputs:
             # if ty == RegisterType.FLAGS:
@@ -286,11 +296,12 @@ class RISCVInstruction(Instruction):
         depends_on_flags = getattr(c, "dependsOnFlags", False)
 
         if isinstance(src, str):
-            if not re.match(
-                src.split(" ")[0],
-                pattern.replace("<w>", RISCVInstruction.is32bit_pattern).split(" ")[0],
-            ):
-                raise ParsingException("Mnemonic does not match")
+            print(src)
+            #if not re.match(
+            #    src.split(" ")[0],
+            #    pattern.replace("<w>", RISCVInstruction.is32bit_pattern).split(" ")[0],
+            #):
+            #    raise ParsingException("Mnemonic does not match")
             res = RISCVInstruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
