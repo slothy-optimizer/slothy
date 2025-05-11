@@ -743,9 +743,21 @@ class AArch64Instruction(Instruction):
     @staticmethod
     def _unfold_pattern(src):
 
-        src = re.sub(r"\.", "\\\\s*\\\\.\\\\s*", src)
-        src = re.sub(r"\[", "\\\\s*\\\\[\\\\s*", src)
-        src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
+        # Those replacements may look pointless, but they replace
+        # actual whitespaces before/after '.,[]' in the instruction
+        # pattern by regular expressions allowing flexible whitespacing.
+        flexible_spacing = [
+            (r"\s*,\s*", r"\\s*,\\s*"),
+            (r"\s*\[\s*", r"\\s*\\[\\s*"),
+            (r"\s*\]\s*", r"\\s*\\]\\s*"),
+            (r"\s*\.\s*", r"\\s*\\.\\s*"),
+            (r"\s+", r"\\s+"),
+            (r"\\s\*\\s\\+", r"\\s+"),
+            (r"\\s\+\\s\\*", r"\\s+"),
+            (r"(\\s\*)+", r"\\s*"),
+        ]
+        for c, cp in flexible_spacing:
+            src = re.sub(c, cp, src)
 
         def pattern_transform(g):
             return (
@@ -797,9 +809,6 @@ class AArch64Instruction(Instruction):
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
-
-        src = re.sub(" ", "\\\\s+", src)
-        src = re.sub(",", "\\\\s*,\\\\s*", src)
 
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
