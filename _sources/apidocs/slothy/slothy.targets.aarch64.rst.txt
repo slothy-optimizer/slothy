@@ -13,10 +13,10 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
-   slothy.targets.aarch64.neoverse_n1_experimental
    slothy.targets.aarch64.aarch64_neon
+   slothy.targets.aarch64.cortex_a72_frontend
+   slothy.targets.aarch64.neoverse_n1_experimental
    slothy.targets.aarch64.apple_m1_firestorm_experimental
+   slothy.targets.aarch64.cortex_a55
    slothy.targets.aarch64.aarch64_big_experimental
    slothy.targets.aarch64.apple_m1_icestorm_experimental
-   slothy.targets.aarch64.cortex_a72_frontend
-   slothy.targets.aarch64.cortex_a55
