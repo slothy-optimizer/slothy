@@ -126,6 +126,8 @@ Classes
      -
    * - :py:obj:`x_ldr_with_imm_uxtw <slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_uxtw>`
      -
+   * - :py:obj:`x_ldr_with_imm_lsl <slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl>`
+     -
    * - :py:obj:`x_ldr_with_postinc <slothy.targets.aarch64.aarch64_neon.x_ldr_with_postinc>`
      -
    * - :py:obj:`x_ldr_stack <slothy.targets.aarch64.aarch64_neon.x_ldr_stack>`
@@ -2124,6 +2126,36 @@ API
 
    .. py:method:: write()
       :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_uxtw.write
+
+.. py:class:: x_ldr_with_imm_lsl(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Ldr_X`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl.pattern
+      :value: 'ldr <Xd>, [<Xa>, <Xb>, LSL <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl.inputs
+      :value: ['Xa', 'Xb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_lsl.write
 
 .. py:class:: x_ldr_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_postinc
