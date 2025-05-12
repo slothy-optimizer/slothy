@@ -1715,6 +1715,24 @@ class x_ldr_with_imm_uxtw(Ldr_X):
         return super().write()
 
 
+class x_ldr_with_imm_lsl(Ldr_X):
+    pattern = "ldr <Xd>, [<Xa>, <Xb>, LSL <imm>]"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
 class x_ldr_with_postinc(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>], <imm>"
     in_outs = ["Xc"]
