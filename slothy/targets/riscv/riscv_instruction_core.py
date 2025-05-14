@@ -44,6 +44,9 @@ class RISCVInstruction(Instruction):
     is32bit_pattern = (
         "w?"  # pattern to enable specific 32bit instructions (e.g. add/ addw)
     )
+    len_pattern = "(8|16|32|64)"
+    vm_pattern = "(, v0\.t)?"
+    offset_pattern =
 
     @staticmethod
     def _unfold_pattern(src):
@@ -102,8 +105,7 @@ class RISCVInstruction(Instruction):
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = "(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
-        len_pattern = "(8|16|32|64)"
-        vm_pattern = "(, v0\.t)?"
+
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
@@ -115,8 +117,8 @@ class RISCVInstruction(Instruction):
         src = replace_placeholders(
             src, "w", RISCVInstruction.is32bit_pattern, "is32bit"
         )
-        src = replace_placeholders(src, "len", len_pattern, "len")
-        src = replace_placeholders(src, "vm", vm_pattern, "vm")
+        src = replace_placeholders(src, "len", RISCVInstruction.len_pattern, "len")
+        src = replace_placeholders(src, "vm", RISCVInstruction.vm_pattern, "vm")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -230,6 +232,10 @@ class RISCVInstruction(Instruction):
             if arg[0] != "x":
                 return f"{s[0].upper()}<{arg}>"
             return s[0].lower() + arg[1:]
+        elif ty == RegisterType.VECT:
+            if arg[0] != "v":
+                return f"{s[0].upper()}<{arg}>"
+            return s[0].lower() + arg[1:]
         raise FatalParsingException(f"Unknown register type ({s}, {ty}, {arg})")
 
     @staticmethod
@@ -271,6 +277,7 @@ class RISCVInstruction(Instruction):
         group_to_attribute("flag", "flag")
         group_to_attribute("is32bit", "is32bit")
         group_to_attribute("len", "len")
+        group_to_attribute("vm", "vm")
 
         for s, ty in obj.pattern_inputs:
             # if ty == RegisterType.FLAGS:
@@ -295,13 +302,15 @@ class RISCVInstruction(Instruction):
         modifies_flags = getattr(c, "modifiesFlags", False)
         depends_on_flags = getattr(c, "dependsOnFlags", False)
 
+        modified_pattern = pattern.replace("<len>", RISCVInstruction.len_pattern)
+        modified_pattern = modified_pattern.replace("<w>", RISCVInstruction.is32bit_pattern)
+        modified_pattern = modified_pattern.replace("vm", RISCVInstruction.vm_pattern)
+
         if isinstance(src, str):
-            print(src)
-            #if not re.match(
-            #    src.split(" ")[0],
-            #    pattern.replace("<w>", RISCVInstruction.is32bit_pattern).split(" ")[0],
-            #):
-            #    raise ParsingException("Mnemonic does not match")
+            if not re.match(
+                modified_pattern.split(" ")[0], src.split(" ")[0]
+            ):
+                raise ParsingException("Mnemonic does not match")
             res = RISCVInstruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
@@ -355,6 +364,8 @@ class RISCVInstruction(Instruction):
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
         out = replace_pattern(out, "is32bit", "w", lambda x: x.lower())
+        out = replace_pattern(out, "len", "len")
+        out = replace_pattern(out, "vm", "vm")
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -382,7 +393,7 @@ class RISCVInstruction(Instruction):
 
         for instr in instr_list:
             classname = instr
-            if "<w>" in instr:
+            if "<w>" or "<len>" in instr:
                 classname = instr.split("<")[0]
             if instr in PythonKeywords:
                 classname = classname + "cls"

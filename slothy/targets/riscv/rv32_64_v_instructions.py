@@ -39,6 +39,7 @@ def generate_rv32_64_v_instructions():
     RISCVInstruction.instr_factory(
         VectorLoadUnitStride, RISCVVectorLoadUnitStride
     )
+
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
     )

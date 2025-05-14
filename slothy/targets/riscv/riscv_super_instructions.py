@@ -90,7 +90,7 @@ class RISCVVectorLoadUnitStride(RISCVInstruction):
         obj.addr = obj.args_in[0]
         return obj
 
-    pattern = "mnemonic <Vd>, <Xa><vm>"
+    pattern = "mnemonic <Vd>, <imm>(<Xa>)<vm>"
     inputs = ["Xa"]
     outputs = ["Vd"]
 

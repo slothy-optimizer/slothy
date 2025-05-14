@@ -80,6 +80,8 @@ class Instruction:
         self.index = None
         self.flag = None
         self.is32bit = None
+        self.len = None
+        self.vm = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""

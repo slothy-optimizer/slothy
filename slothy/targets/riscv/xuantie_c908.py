@@ -134,7 +134,10 @@ execution_units = {
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"],
-    ): [[ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU0], [ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU1]]
+    ): [[ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU0], [ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU1]],
+    (
+        RISCVInstruction.classes_by_names["vle"]
+    ) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
 }
 
 inverse_throughput = {
@@ -184,6 +187,9 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"],
     ): 2,
+    (
+        RISCVInstruction.classes_by_names["vle"]
+    ) : 2
 }
 
 rv32_inverse_throughput = {
@@ -224,6 +230,8 @@ default_latencies = {
     RISCVInstruction.classes_by_names["divu"]: 4,
     RISCVInstruction.classes_by_names["rem"]: 4,
     RISCVInstruction.classes_by_names["remu"]: 4,
+
+    RISCVInstruction.classes_by_names["vle"]: 2,
 }
 
 rv32_latencies = {
