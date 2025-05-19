@@ -30,12 +30,8 @@ import os
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
 import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
-import slothy.targets.aarch64.cortex_a72_frontend as Target_CortexA72
-import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
-import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
-
 
 
 class neon_keccak_x1_no_symbolic(OptimizationRunner):
@@ -51,7 +47,7 @@ class neon_keccak_x1_no_symbolic(OptimizationRunner):
             arch=arch,
             target=target,
             outfile_full=True,
-            subfolder=SUBFOLDER
+            subfolder=SUBFOLDER,
         )
 
     def core(self, slothy):
@@ -87,8 +83,13 @@ class neon_keccak_x1_scalar_opt(OptimizationRunner):
         outfile = "keccak_f1600_x1_scalar"
 
         super().__init__(
-            infile, name, outfile=outfile, rename=True, arch=arch, target=target,
-                        subfolder=SUBFOLDER,
+            infile,
+            name,
+            outfile=outfile,
+            rename=True,
+            arch=arch,
+            target=target,
+            subfolder=SUBFOLDER,
         )
 
     def core(self, slothy):
@@ -115,7 +116,9 @@ class neon_keccak_x4_hybrid_no_symbolic(OptimizationRunner):
     def __init__(self, var="v84a", arch=AArch64_Neon, target=Target_CortexA55):
         name = f"keccak_f1600_x4_{var}_hybrid_slothy_no_symbolic"
         infile = f"keccak_f1600_x4_{var}_hybrid_slothy_symbolic"
-        outfile = f"examples/naive/aarch64/keccak/keccak_f1600_x4_{var}_hybrid_slothy_clean.s"
+        outfile = (
+            f"examples/naive/aarch64/keccak/keccak_f1600_x4_{var}_hybrid_slothy_clean.s"
+        )
 
         super().__init__(
             infile,
@@ -125,7 +128,7 @@ class neon_keccak_x4_hybrid_no_symbolic(OptimizationRunner):
             arch=arch,
             target=target,
             outfile_full=True,
-            subfolder=SUBFOLDER
+            subfolder=SUBFOLDER,
         )
 
     def core(self, slothy):
@@ -156,7 +159,8 @@ class neon_keccak_x4_hybrid_interleave(OptimizationRunner):
         name = f"keccak_f1600_x4_{var}_hybrid_slothy_interleave"
         infile = f"keccak_f1600_x4_{var}_hybrid_slothy_clean"
         outfile = (
-            f"examples/naive/aarch64/keccak/keccak_f1600_x4_{var}_hybrid_slothy_interleaved.s"
+            "examples/naive/aarch64/keccak/"
+            + f"keccak_f1600_x4_{var}_hybrid_slothy_interleaved.s"
         )
 
         super().__init__(
@@ -167,7 +171,7 @@ class neon_keccak_x4_hybrid_interleave(OptimizationRunner):
             arch=arch,
             target=target,
             outfile_full=True,
-            subfolder=SUBFOLDER
+            subfolder=SUBFOLDER,
         )
 
     def core(self, slothy):
@@ -200,13 +204,14 @@ class neon_keccak_x4_hybrid_interleave(OptimizationRunner):
         slothy.optimize(start="loop", end="loop_end")
         slothy.optimize(start="initial", end="loop")
 
+
 example_instances = [
-        neon_keccak_x1_no_symbolic(),
-        neon_keccak_x1_scalar_opt(),
-        neon_keccak_x4_hybrid_no_symbolic(var="v84a"),
-        neon_keccak_x4_hybrid_interleave(var="v84a"),
-        neon_keccak_x4_hybrid_no_symbolic(var="v8a"),
-        neon_keccak_x4_hybrid_interleave(var="v8a"),
-        neon_keccak_x4_hybrid_no_symbolic(var="v8a_v84a"),
-        neon_keccak_x4_hybrid_interleave(var="v8a_v84a"),
+    neon_keccak_x1_no_symbolic(),
+    neon_keccak_x1_scalar_opt(),
+    neon_keccak_x4_hybrid_no_symbolic(var="v84a"),
+    neon_keccak_x4_hybrid_interleave(var="v84a"),
+    neon_keccak_x4_hybrid_no_symbolic(var="v8a"),
+    neon_keccak_x4_hybrid_interleave(var="v8a"),
+    neon_keccak_x4_hybrid_no_symbolic(var="v8a_v84a"),
+    neon_keccak_x4_hybrid_interleave(var="v8a_v84a"),
 ]
