@@ -89,6 +89,11 @@ class OptimizationRunner:
         if name is None:
             name = infile
 
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
         self.arch = arch
         self.target = target
         self.funcname = funcname
