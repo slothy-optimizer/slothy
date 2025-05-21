@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Author: Hanno Becker <hannobecker@posteo.de>
+# Author: Amin Abdulrahman <amin@abdulrahman.de>
 #
 
 import argparse
@@ -39,75 +39,34 @@ import slothy.targets.aarch64.aarch64_big_experimental as Target_AArch64Big
 import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
-##########################################################################################
 
-from examples.naive.aarch64.dilithium._example import (
-    example_instances as example_instances_aarch64_dilithium,
-)
-from examples.naive.aarch64.kyber._example import (
-    example_instances as example_instances_aarch64_kyber,
-)
-from examples.naive.aarch64.keccak._example import (
-    example_instances as example_instances_aarch64_keccak,
+from tests.naive.armv7m._test import (
+    test_instances as test_instances_armv7m,
 )
 
-from examples.naive.armv7m.dilithium._example import (
-    example_instances as example_instances_armv7m_dilithium,
-)
-from examples.naive.armv7m.keccak._example import (
-    example_instances as example_instances_armv7m_keccak,
-)
-from examples.naive.armv7m.kyber._example import (
-    example_instances as example_instances_armv7m_kyber,
+from tests.naive.armv8m._test import (
+    test_instances as test_instances_armv8m,
 )
 
-from examples.naive.armv8m.kyber._example import (
-    example_instances as example_instances_armv8m_kyber,
-)
-from examples.naive.armv8m.dilithium._example import (
-    example_instances as example_instances_armv8m_dilithium,
-)
-from examples.naive.armv8m.flt_r4_fft._example import (
-    example_instances as example_instances_armv8m_flt_r4_fft,
-)
-from examples.naive.armv8m.fx_r4_fft._example import (
-    example_instances as example_instances_armv8m_fx_r4_fft,
-)
-from examples.naive.armv8m.ntt_256._example import (
-    example_instances as example_instances_armv8m_ntt_256,
-)
-from examples.naive.armv8m.crt._example import (
-    example_instances as example_instances_armv8m_crt,
+from tests.naive.aarch64._test import (
+    test_instances as test_instances_aarch64,
 )
 
 
 def main():
-    examples = (
-        example_instances_armv7m_dilithium
-        + example_instances_armv7m_keccak
-        + example_instances_armv7m_kyber
-        + example_instances_armv8m_crt
-        + example_instances_aarch64_dilithium
-        + example_instances_aarch64_kyber
-        + example_instances_aarch64_keccak
-        + example_instances_armv8m_kyber
-        + example_instances_armv8m_dilithium
-        + example_instances_armv8m_flt_r4_fft
-        + example_instances_armv8m_fx_r4_fft
-        + example_instances_armv8m_ntt_256
-    )
+    tests = test_instances_armv7m + test_instances_armv8m + test_instances_aarch64
 
-    all_example_names = [e.name for e in examples]
+    all_test_names = [e.name for e in tests]
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        "--examples",
+        "--tests",
         type=str,
         default="all",
-        help=f"The list of examples to be run, comma-separated list from "
-        f"{all_example_names}. "
+        help=f"The list of tests to be run, comma-separated list from "
+        f"{all_test_names}. "
         f"Format: {{name}}_{{variant}}_{{target}}, e.g., "
         "ntt_kyber_123_4567_scalar_load_a55",
     )
@@ -134,25 +93,25 @@ def main():
         ],
     )
     args = parser.parse_args()
-    if args.examples != "all":
-        todo = args.examples.split(",")
+    if args.tests != "all":
+        todo = args.tests.split(",")
     else:
-        todo = all_example_names
+        todo = all_test_names
     iterations = args.iterations
 
-    def run_example(name, **kwargs):
-        ex = None
-        for e in examples:
+    def run_test(name, **kwargs):
+        t = None
+        for e in tests:
             if e.name == name:
-                ex = e
+                t = e
                 break
-        if ex is None:
-            raise OptimizationRunnerException(f"Could not find example {name}")
-        ex.run(**kwargs)
+        if t is None:
+            raise OptimizationRunnerException(f"Could not find test {name}")
+        t.run(**kwargs)
 
     for e in todo:
         for _ in range(iterations):
-            run_example(
+            run_test(
                 e,
                 debug=args.debug,
                 dry_run=args.dry_run,

@@ -17,7 +17,7 @@ target = Target_CortexA55
 slothy = Slothy(arch, target)
 
 # example
-slothy.load_source_from_file("../examples/naive/aarch64/ntt_kyber_123_4567.s")
+slothy.load_source_from_file("../examples/naive/aarch64/kyber/ntt_kyber_123_4567.s")
 slothy.config.sw_pipelining.enabled = True
 slothy.config.inputs_are_outputs = True
 slothy.config.sw_pipelining.minimize_overlapping = False
