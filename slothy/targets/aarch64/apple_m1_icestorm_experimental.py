@@ -114,6 +114,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vzip2,
     x_ldr_stack_imm,
     x_str_sp_imm,
+    ubfx,
 )
 
 # 4 uops per cycle
@@ -239,6 +240,7 @@ execution_units = {
     (
         lsr,
         bic,
+        ubfx,
         add_sp_imm,
         and_imm,
         movk_imm,
@@ -307,6 +309,7 @@ inverse_throughput = {
     (
         lsr,
         bic,
+        ubfx,
         add_sp_imm,
         and_imm,
         movk_imm,
@@ -374,6 +377,7 @@ default_latencies = {
     (
         lsr,
         bic,
+        ubfx,
         add_sp_imm,
         and_imm,
         movk_imm,

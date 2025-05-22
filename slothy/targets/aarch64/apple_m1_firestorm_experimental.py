@@ -116,6 +116,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     x_ldr_stack_imm,
     x_str_sp_imm,
     vsrshr,
+    ubfx,
 )
 
 issue_rate = 8
@@ -273,6 +274,7 @@ execution_units = {
     (
         lsr,
         bic,
+        ubfx,
         add_sp_imm,
         and_imm,
         movk_imm,
@@ -352,6 +354,7 @@ inverse_throughput = {
     (
         lsr,
         bic,
+        ubfx,
         add_sp_imm,
         and_imm,
         movk_imm,
@@ -419,6 +422,7 @@ default_latencies = {
     (
         lsr,
         bic,
+        ubfx,
         add_sp_imm,
         and_imm,
         movk_imm,
