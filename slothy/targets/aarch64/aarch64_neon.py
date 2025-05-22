@@ -2456,6 +2456,12 @@ class sbfx(AArch64Logical):
     outputs = ["Xd"]
 
 
+class ubfx(AArch64Logical):
+    pattern = "ubfx <Xd>, <Xa>, <imm0>, <imm1>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
 class extr(AArch64Logical):  # TODO! Review this...
     pattern = "extr <Xd>, <Xa>, <Xb>, <imm>"
     inputs = ["Xa", "Xb"]
