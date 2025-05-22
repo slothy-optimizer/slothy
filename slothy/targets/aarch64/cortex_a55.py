@@ -154,6 +154,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     and_twoarg,
     VShiftImmediateBasic,
     vmlal,
+    ubfx,
 )
 
 issue_rate = 2
@@ -354,6 +355,7 @@ execution_units = {
         lsr,
         bic,
         bfi,
+        ubfx,
         add,
         mov_imm,
         movw_imm,
@@ -443,7 +445,7 @@ inverse_throughput = {
         cmn,
     ): 1,
     (cmp_xzr2, cmp_imm, sub, subs_wform, asr_wform, sbcs_zero_to_zero, ngc_zero): 1,
-    (bfi): 1,
+    (bfi, ubfx): 1,
     VShiftImmediateRounding: 1,
     VShiftImmediateBasic: 1,
     (vsri): 1,
@@ -515,7 +517,7 @@ default_latencies = {
         ngc_zero,
         cmp_imm,
     ): 1,
-    (bfi): 2,
+    (bfi, ubfx): 2,
     VShiftImmediateRounding: 3,
     VShiftImmediateBasic: 2,
     (vsri): 2,

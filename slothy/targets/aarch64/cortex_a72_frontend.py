@@ -92,6 +92,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     St2,
     Ld3,
     Ld4,
+    ubfx,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -184,7 +185,7 @@ execution_units = {
     umov_d: ExecutionUnit.LOAD(),  # ???
     (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
     (Str_Q, Str_X): ExecutionUnit.STORE(),
-    (add, add_imm, add_lsl, add_lsr): ExecutionUnit.SCALAR(),
+    (add, add_imm, add_lsl, add_lsr, ubfx): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     (Ld3, Ld4): [
@@ -219,6 +220,7 @@ inverse_throughput = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
+    ubfx: 1,
 }
 
 # REVISIT
@@ -255,6 +257,7 @@ default_latencies = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
+    ubfx: 1,
 }
 
 
