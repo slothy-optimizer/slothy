@@ -808,6 +808,7 @@ class AArch64Instruction(Instruction):
         # pattern by regular expressions allowing flexible whitespacing.
         flexible_spacing = [
             (r"\s*,\s*", r"\\s*,\\s*"),
+            (r"\s*<imm>\s*", r"\\s*<imm>\\s*"),
             (r"\s*\[\s*", r"\\s*\\[\\s*"),
             (r"\s*\]\s*", r"\\s*\\]\\s*"),
             (r"\s*\.\s*", r"\\s*\\.\\s*"),
