@@ -258,9 +258,9 @@ class LoopLe(Example):
         slothy.optimize_loop("start")
 
 
-class AArch64LoopSubs(Example):
+class AArch64LoopSub(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
-        name = "aarch64_loop_subs"
+        name = "aarch64_loop_sub"
         infile = name
 
         if var != "":
@@ -275,9 +275,9 @@ class AArch64LoopSubs(Example):
         slothy.optimize_loop("start")
 
 
-class AArch64LoopSubs2(Example):
+class AArch64LoopSubs(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
-        name = "aarch64_loop_subs2"
+        name = "aarch64_loop_subs"
         infile = name
 
         if var != "":
@@ -293,10 +293,14 @@ class AArch64LoopSubs2(Example):
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("start")
 
+        slothy.optimize_loop("start2")
 
-class AArch64LoopSubsTabs(Example):
+        slothy.optimize_loop("start3")
+
+
+class AArch64LoopSubTabs(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
-        name = "aarch64_loop_subs_tabs"
+        name = "aarch64_loop_sub_tabs"
         infile = name
 
         if var != "":
@@ -3674,9 +3678,9 @@ def main():
         Armv7mExample0(),
         Armv7mExample0Func(),
         # Loop examples
+        AArch64LoopSub(),
         AArch64LoopSubs(),
-        AArch64LoopSubs2(),
-        AArch64LoopSubsTabs(),
+        AArch64LoopSubTabs(),
         LoopLe(),
         Armv7mLoopSubs(),
         Armv7mLoopCmp(),

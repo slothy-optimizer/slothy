@@ -9,8 +9,8 @@ start:
                               // Cycle bound:     1.0
                               // IPC bound:       2.00
                               //
-                              // Wall time:     0.00s
-                              // User time:     0.00s
+                              // Wall time:     0.01s
+                              // User time:     0.01s
                               //
                               // ----- cycle (expected) ------>
                               // 0                        25
@@ -24,5 +24,5 @@ start:
         // nop                 // *..............................
         // add x2, x2, #0      // *..............................
 
-        sub count, count, 1
+        subs count, count, 1
         cbnz count, start
