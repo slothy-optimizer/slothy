@@ -298,6 +298,8 @@ Classes
      -
    * - :py:obj:`sbfx <slothy.targets.aarch64.aarch64_neon.sbfx>`
      -
+   * - :py:obj:`ubfx <slothy.targets.aarch64.aarch64_neon.ubfx>`
+     -
    * - :py:obj:`extr <slothy.targets.aarch64.aarch64_neon.extr>`
      -
    * - :py:obj:`AArch64LogicalShifted <slothy.targets.aarch64.aarch64_neon.AArch64LogicalShifted>`
@@ -4304,6 +4306,29 @@ API
       :value: ['Xd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.sbfx.outputs
+
+.. py:class:: ubfx(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.ubfx
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Logical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.ubfx.pattern
+      :value: 'ubfx <Xd>, <Xa>, <imm0>, <imm1>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ubfx.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.ubfx.inputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ubfx.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.ubfx.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ubfx.outputs
 
 .. py:class:: extr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.extr
