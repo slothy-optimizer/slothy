@@ -475,8 +475,9 @@ roots_l34:
 .short 0
 .short 0
 roots_l012:
-.short 1600
-.short 15749
+// layer 0 root modified to include ninv
+.short 266 // originally: 1600
+.short 2618 // originally: 15749
 .short 40
 .short 394
 .short 749
