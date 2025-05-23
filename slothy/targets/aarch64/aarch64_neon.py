@@ -2538,20 +2538,24 @@ class orr_shifted(AArch64LogicalShifted):
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
+
 class orr_shifted_asr_w(AArch64LogicalShifted):
     pattern = "and <Wd>, <Wa>, <Wb>, asr <imm>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
+
 
 class orr_shifted_asr(AArch64LogicalShifted):
     pattern = "orr <Xd>, <Xa>, <Xb>, asr <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
+
 class eor_shifted_lsl(AArch64LogicalShifted):
     pattern = "eor <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
+
 
 class AArch64ConditionalCompare(AArch64Instruction):
     pass
