@@ -10,6 +10,9 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Set up Homebrew
+      id: set-up-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
