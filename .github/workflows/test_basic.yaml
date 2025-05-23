@@ -7,7 +7,7 @@ on:
 jobs:
   examples_dry_run:
     name: Dry Run (${{ matrix.target }})
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     strategy:
       matrix:
         target: 
@@ -26,7 +26,7 @@ jobs:
       run: |
         python3 example.py --dry-run --only-target=${{ matrix.target }}
   tutorial:
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-macos
@@ -34,7 +34,7 @@ jobs:
       run: |
         (cd tutorial && ./tutorial_all.sh)
   examples_basic:
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-macos
@@ -42,7 +42,7 @@ jobs:
       run: |
         python3 example.py --examples simple0,simple1,simple0_loop,simple1_loop
   examples_ntt_kyber_dilithium_helium_core:
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-macos
@@ -50,7 +50,7 @@ jobs:
       run: |
         python3 example.py --examples ntt_kyber_1_23_45_67_m55,ntt_dilithium_12_34_56_78_m55 --timeout=300
   examples_ntt_kyber_dilithium_neon_core:
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-macos
@@ -58,7 +58,7 @@ jobs:
       run: |
         python3 example.py --examples ntt_kyber_123_4567_a55,ntt_dilithium_123_45678_a55 --timeout=300
   sqmag:
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-macos
@@ -66,7 +66,7 @@ jobs:
       run: |
         (cd paper/scripts && NO_LOG=Y ./slothy_sqmag.sh)
   fft:
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-macos
