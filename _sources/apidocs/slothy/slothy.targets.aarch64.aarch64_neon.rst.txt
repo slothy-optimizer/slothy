@@ -21,6 +21,9 @@ Classes
    * - :py:obj:`Branch <slothy.targets.aarch64.aarch64_neon.Branch>`
      - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.Branch
           :summary:
+   * - :py:obj:`SubLoop <slothy.targets.aarch64.aarch64_neon.SubLoop>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.SubLoop
+          :summary:
    * - :py:obj:`SubsLoop <slothy.targets.aarch64.aarch64_neon.SubsLoop>`
      - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.SubsLoop
           :summary:
@@ -913,6 +916,27 @@ API
       :staticmethod:
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.Branch.unconditional
+
+.. py:class:: SubLoop(lbl='lbl')
+   :canonical: slothy.targets.aarch64.aarch64_neon.SubLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.SubLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.SubLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.aarch64.aarch64_neon.SubLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.SubLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.aarch64.aarch64_neon.SubLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.SubLoop.end
 
 .. py:class:: SubsLoop(lbl='lbl')
    :canonical: slothy.targets.aarch64.aarch64_neon.SubsLoop
