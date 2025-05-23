@@ -808,6 +808,7 @@ class AArch64Instruction(Instruction):
         # pattern by regular expressions allowing flexible whitespacing.
         flexible_spacing = [
             (r"\s*,\s*", r"\\s*,\\s*"),
+            (r"\s*<imm>\s*", r"\\s*<imm>\\s*"),
             (r"\s*\[\s*", r"\\s*\\[\\s*"),
             (r"\s*\]\s*", r"\\s*\\]\\s*"),
             (r"\s*\.\s*", r"\\s*\\.\\s*"),
@@ -2534,6 +2535,24 @@ class AArch64LogicalShifted(AArch64Instruction):
 
 class orr_shifted(AArch64LogicalShifted):
     pattern = "orr <Xd>, <Xa>, <Xb>, lsl <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class orr_shifted_asr_w(AArch64LogicalShifted):
+    pattern = "and <Wd>, <Wa>, <Wb>, asr <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class orr_shifted_asr(AArch64LogicalShifted):
+    pattern = "orr <Xd>, <Xa>, <Xb>, asr <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class eor_shifted_lsl(AArch64LogicalShifted):
+    pattern = "eor <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
