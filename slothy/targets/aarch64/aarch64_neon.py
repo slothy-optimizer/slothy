@@ -353,9 +353,9 @@ class Branch:
         yield f"b {lbl}"
 
 
-class SubsLoop(Loop):
+class SubLoop(Loop):
     """
-    Loop ending in a flag setting subtraction and a branch.
+    Loop ending in a (optionally flag setting) subtraction and a branch.
 
     Example:
 
@@ -364,7 +364,7 @@ class SubsLoop(Loop):
         loop_lbl:
            {code}
            sub[s] <cnt>, <cnt>, #<imm>
-           (cbnz|bnz|bne|b.gt) <cnt>, loop_lbl
+           (cbnz|cbz) <cnt>, loop_lbl
 
     where cnt is the loop counter in lr.
     """
@@ -377,7 +377,7 @@ class SubsLoop(Loop):
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*(?P<sub_type>sub[s]?)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
-            rf"^\s*(?P<br_type>cbnz|bnz|bne|b\.gt)\s+(?P<cnt>\w+),\s*{lbl}",
+            rf"^\s*(?P<br_type>(cbnz|cbz))\s+(?P<cnt>\w+),\s*{lbl}",
         )
 
     def start(
@@ -414,20 +414,80 @@ class SubsLoop(Loop):
         if lbl_start.isdigit():
             lbl_start += "b"
 
-        if other["br_type"] in ["bne", "bnz", "cbnz"]:
-            yield (
-                f"{indent}{other['sub_type']} {other['cnt']}, {other['cnt']}"
-                f", {other['imm']}"
-            )
-            yield f"{indent}{other['br_type']} {other['cnt']}, {lbl_start}"
-        else:
-            # Set flag in subtraction
-            yield (
-                f"{indent}{other['sub_type']} {other['cnt']}, {other['cnt']}"
-                f", {other['imm']}"
-            )
-            # Conditional branch based on flag
-            yield f"{indent}{other['br_type']} {lbl_start}"
+        yield (
+            f"{indent}{other['sub_type']} {other['cnt']}, {other['cnt']}"
+            f", {other['imm']}"
+        )
+        yield f"{indent}{other['br_type']} {other['cnt']}, {lbl_start}"
+
+
+class SubsLoop(Loop):
+    """
+    Loop ending in a (optionally flag setting) subtraction and a branch.
+
+    Example:
+
+    .. code-block:: asm
+
+        loop_lbl:
+           {code}
+           subs   <cnt>, <cnt>, #<imm>
+           b[.](cond) loop_lbl
+
+    where cnt is the loop counter in lr.
+    """
+
+    def __init__(self, lbl="lbl") -> None:
+        super().__init__()
+        # The group naming in the regex should be consistent; give same group
+        # names to the same registers
+        self.lbl = lbl
+        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.end_regex = (
+            r"^\s*(?P<sub_type>subs)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
+            rf"^\s*b(?P<br_type>"
+            rf"[\.]?(eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al))"
+            rf"\s+{lbl}",
+        )
+
+    def start(
+        self,
+        loop_cnt,
+        indentation=0,
+        fixup=0,
+        unroll=1,
+        jump_if_empty=None,
+        preamble_code=None,
+        body_code=None,
+        postamble_code=None,
+        register_aliases=None,
+    ):
+        """Emit starting instruction(s) and jump label for loop"""
+        indent = " " * indentation
+        if unroll > 1:
+            assert unroll in [1, 2, 4, 8, 16, 32]
+            yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
+        if fixup != 0:
+            # In case the immediate is >1, we need to scale the fixup. This
+            # allows for loops that do not use an increment of 1
+            assert isinstance(fixup, int)
+            fixup = simplify(f"{fixup} * ({self.additional_data['imm']})")
+            yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
+        if jump_if_empty is not None:
+            yield f"cbz {loop_cnt}, {jump_if_empty}"
+        yield f"{self.lbl}:"
+
+    def end(self, other, indentation=0):
+        """Emit compare-and-branch at the end of the loop"""
+        indent = " " * indentation
+        lbl_start = self.lbl
+        if lbl_start.isdigit():
+            lbl_start += "b"
+
+        # Set flag in subtraction
+        yield (f"{indent}subs {other['cnt']}, {other['cnt']}" f", {other['imm']}")
+        # Conditional branch based on flag
+        yield f"{indent}b{other['br_type']} {lbl_start}"
 
 
 class Instruction:
