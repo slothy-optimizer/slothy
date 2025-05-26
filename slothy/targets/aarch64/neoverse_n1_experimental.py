@@ -42,6 +42,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Stp_X,
     Ldr_Q,
     Str_Q,
+    Stp_Q,
     Vrev,
     uaddlp,
     vmov,
@@ -159,7 +160,7 @@ def get_min_max_objective(slothy):
 
 
 execution_units = {
-    (Ldp_X, Ldr_X, Str_X, Stp_X, Ldr_Q, Str_Q): ExecutionUnit.LSU(),
+    (Ldp_X, Ldr_X, Str_X, Stp_X, Ldr_Q, Str_Q, Stp_Q): ExecutionUnit.LSU(),
     # TODO: The following would be more accurate, but does not
     #       necessarily lead to better results, while making the
     #       optimization slower. Investigate...
@@ -203,6 +204,7 @@ execution_units = {
 inverse_throughput = {
     (Ldr_X, Str_X, Ldr_Q, Str_Q): 1,
     (Ldp_X, Stp_X): 2,
+    Stp_Q: 2,
     St4: 6,  # TODO: Really??
     (Vzip, uaddlp, Vrev): 1,
     VecToGprMov: 1,
@@ -236,7 +238,7 @@ inverse_throughput = {
 }
 
 default_latencies = {
-    (Ldp_X, Ldr_X, Ldr_Q): 4,
+    (Ldp_X, Ldr_X, Ldr_Q, Stp_Q): 4,
     (Stp_X, Str_X, Str_Q): 2,
     St4: 4,
     (Vzip, Vrev, uaddlp): 2,
