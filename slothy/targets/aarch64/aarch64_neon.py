@@ -1701,9 +1701,37 @@ class q_str_with_postinc(Str_Q):
         return obj
 
 
+class q_st1_with_postinc(Str_Q):
+    pattern = "st1 {<Va>.<dt>}, [<Xc>], <imm>"
+    in_outs = ["Xc"]
+    inputs = ["Va"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
 class q_stp_with_postinc(Stp_Q):
     pattern = "stp <Qa>, <Qb>, [<Xc>], <imm>"
     inputs = ["Qa", "Qb"]
+    in_outs = ["Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class q_st1_2_with_postinc(Stp_Q):
+    pattern = "st1 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    inputs = ["Va", "Vb"]
     in_outs = ["Xc"]
 
     @classmethod
