@@ -444,7 +444,7 @@ class SubsLoop(Loop):
         self.lbl = lbl
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
-            r"^\s*(?P<sub_type>subs)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
+            r"^\s*(?P<sub_type>subs)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\w+)",
             rf"^\s*b(?P<br_type>"
             rf"[\.]?(eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al))"
             rf"\s+{lbl}",
@@ -485,7 +485,7 @@ class SubsLoop(Loop):
             lbl_start += "b"
 
         # Set flag in subtraction
-        yield (f"{indent}subs {other['cnt']}, {other['cnt']}" f", {other['imm']}")
+        yield (f"{indent}subs {other['cnt']}, {other['cnt']}" f", #{other['imm']}")
         # Conditional branch based on flag
         yield f"{indent}b{other['br_type']} {lbl_start}"
 

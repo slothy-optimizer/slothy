@@ -297,6 +297,8 @@ class AArch64LoopSubs(Example):
 
         slothy.optimize_loop("start3")
 
+        slothy.optimize_loop("start4")
+
 
 class AArch64LoopSubTabs(Example):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
