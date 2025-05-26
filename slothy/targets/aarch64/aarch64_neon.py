@@ -444,7 +444,7 @@ class SubsLoop(Loop):
         self.lbl = lbl
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
-            r"^\s*(?P<sub_type>subs)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
+            r"^\s*(?P<sub_type>subs)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\w+)",
             rf"^\s*b(?P<br_type>"
             rf"[\.]?(eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al))"
             rf"\s+{lbl}",
@@ -485,7 +485,7 @@ class SubsLoop(Loop):
             lbl_start += "b"
 
         # Set flag in subtraction
-        yield (f"{indent}subs {other['cnt']}, {other['cnt']}" f", {other['imm']}")
+        yield (f"{indent}subs {other['cnt']}, {other['cnt']}" f", #{other['imm']}")
         # Conditional branch based on flag
         yield f"{indent}b{other['br_type']} {lbl_start}"
 
@@ -1701,9 +1701,37 @@ class q_str_with_postinc(Str_Q):
         return obj
 
 
+class q_st1_with_postinc(Str_Q):
+    pattern = "st1 {<Va>.<dt>}, [<Xc>], <imm>"
+    in_outs = ["Xc"]
+    inputs = ["Va"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
 class q_stp_with_postinc(Stp_Q):
     pattern = "stp <Qa>, <Qb>, [<Xc>], <imm>"
     inputs = ["Qa", "Qb"]
+    in_outs = ["Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class q_st1_2_with_postinc(Stp_Q):
+    pattern = "st1 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    inputs = ["Va", "Vb"]
     in_outs = ["Xc"]
 
     @classmethod
