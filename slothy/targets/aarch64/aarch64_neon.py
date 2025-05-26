@@ -1740,6 +1740,10 @@ class q_st1_2_with_postinc(Stp_Q):
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in_out[0]
+
+        obj.args_in_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
         return obj
 
 
