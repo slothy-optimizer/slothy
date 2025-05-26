@@ -119,7 +119,11 @@ Classes
      -
    * - :py:obj:`q_str_with_postinc <slothy.targets.aarch64.aarch64_neon.q_str_with_postinc>`
      -
+   * - :py:obj:`q_st1_with_postinc <slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc>`
+     -
    * - :py:obj:`q_stp_with_postinc <slothy.targets.aarch64.aarch64_neon.q_stp_with_postinc>`
+     -
+   * - :py:obj:`q_st1_2_with_postinc <slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc>`
      -
    * - :py:obj:`Ldr_X <slothy.targets.aarch64.aarch64_neon.Ldr_X>`
      -
@@ -2037,6 +2041,33 @@ API
       :canonical: slothy.targets.aarch64.aarch64_neon.q_str_with_postinc.make
       :classmethod:
 
+.. py:class:: q_st1_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Str_Q`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc.pattern
+      :value: 'st1 {<Va>.<dt>}, [<Xc>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc.in_outs
+      :value: ['Xc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc.in_outs
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc.inputs
+      :value: ['Va']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc.inputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_with_postinc.make
+      :classmethod:
+
 .. py:class:: q_stp_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.q_stp_with_postinc
 
@@ -2062,6 +2093,33 @@ API
 
    .. py:method:: make(src)
       :canonical: slothy.targets.aarch64.aarch64_neon.q_stp_with_postinc.make
+      :classmethod:
+
+.. py:class:: q_st1_2_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Stp_Q`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc.pattern
+      :value: 'st1 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc.inputs
+      :value: ['Va', 'Vb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc.in_outs
+      :value: ['Xc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc.in_outs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc.make
       :classmethod:
 
 .. py:class:: Ldr_X(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
