@@ -206,7 +206,9 @@ class AArch64Ubfx(OptimizationRunner):
         name = "aarch64_ubfx"
         infile = name
 
-        super().__init__(infile, name, rename=True, arch=arch, target=target, base_dir="tests")
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
 
     def core(self, slothy):
         slothy.config.variable_size = True
