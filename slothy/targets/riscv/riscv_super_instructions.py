@@ -163,4 +163,21 @@ class RISCVVectorStoreIndexed(RISCVInstruction):
     inputs = ["Xa", "Ve"]
     outputs = ["Vd"]
 
+## Vector Integer Instructions ##
+
+class RISCVVectorIntegerVectorVector(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Ve>, <Vf><vm>"
+    inputs = ["Ve", "Vf"]
+    outputs = ["Vd"]
+
+class RISCVVectorIntegerVectorScalar(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Ve>, <Xa><vm>"
+    inputs = ["Ve", "Xa"]
+    outputs = ["Vd"]
+
+class RISCVVectorIntegerVectorImmediate(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Ve>, <imm><vm>"
+    inputs = ["Ve"]
+    outputs = ["Vd"]
+
 

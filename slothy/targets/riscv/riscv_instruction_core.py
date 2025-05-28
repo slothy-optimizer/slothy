@@ -303,7 +303,7 @@ class RISCVInstruction(Instruction):
 
         modified_pattern = pattern.replace("<len>", RISCVInstruction.len_pattern)
         modified_pattern = modified_pattern.replace("<w>", RISCVInstruction.is32bit_pattern)
-        modified_pattern = modified_pattern.replace("vm", RISCVInstruction.vm_pattern)
+        modified_pattern = modified_pattern.replace("<vm>", RISCVInstruction.vm_pattern)
 
         if isinstance(src, str):
             if not re.match(
