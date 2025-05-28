@@ -136,7 +136,14 @@ execution_units = {
         RISCVInstruction.classes_by_names["remu"],
     ): [[ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU0], [ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU1]],
     (
-        RISCVInstruction.classes_by_names["vle"]
+        RISCVInstruction.classes_by_names["vle"],
+        RISCVInstruction.classes_by_names["vlse"],
+        RISCVInstruction.classes_by_names["vluxei"],
+        RISCVInstruction.classes_by_names["vloxei"],
+        RISCVInstruction.classes_by_names["vse"],
+        RISCVInstruction.classes_by_names["vsse"],
+        RISCVInstruction.classes_by_names["vsuxei"],
+        RISCVInstruction.classes_by_names["vsoxei"],
     ) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
 }
 
@@ -188,7 +195,14 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["remu"],
     ): 2,
     (
-        RISCVInstruction.classes_by_names["vle"]
+        RISCVInstruction.classes_by_names["vle"],
+        RISCVInstruction.classes_by_names["vlse"],
+        RISCVInstruction.classes_by_names["vluxei"],
+        RISCVInstruction.classes_by_names["vloxei"],
+        RISCVInstruction.classes_by_names["vse"],
+        RISCVInstruction.classes_by_names["vsse"],
+        RISCVInstruction.classes_by_names["vsuxei"],
+        RISCVInstruction.classes_by_names["vsoxei"],
     ) : 2
 }
 
@@ -232,6 +246,13 @@ default_latencies = {
     RISCVInstruction.classes_by_names["remu"]: 4,
 
     RISCVInstruction.classes_by_names["vle"]: 2,
+    RISCVInstruction.classes_by_names["vlse"]: 2,
+    RISCVInstruction.classes_by_names["vluxei"]: 2,
+    RISCVInstruction.classes_by_names["vloxei"]: 2,
+    RISCVInstruction.classes_by_names["vse"]: 2,
+    RISCVInstruction.classes_by_names["vsse"]: 2,
+    RISCVInstruction.classes_by_names["vsuxei"]: 2,
+    RISCVInstruction.classes_by_names["vsoxei"]: 2
 }
 
 rv32_latencies = {

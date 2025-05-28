@@ -1767,7 +1767,7 @@ class RISC_VExample0(Example):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
-        slothy.config.outputs = ['v0']
+        slothy.config.outputs = ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8']
         slothy.optimize()
 
 

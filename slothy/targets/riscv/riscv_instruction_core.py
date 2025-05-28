@@ -46,7 +46,6 @@ class RISCVInstruction(Instruction):
     )
     len_pattern = "(8|16|32|64)"
     vm_pattern = "(, v0\.t)?"
-    offset_pattern =
 
     @staticmethod
     def _unfold_pattern(src):

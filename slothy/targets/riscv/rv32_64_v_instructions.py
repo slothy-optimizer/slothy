@@ -29,7 +29,12 @@ from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 VectorLoadUnitStride = ["vle<len>.v"]
+VectorLoadStrided = ["vlse<len>.v"]
+VectorLoadIndexed = ["vluxei<len>.v", "vloxei<len>.v"]
 
+VectorStoreUnitStride = ["vse<len>.v"]
+VectorStoreStrided = ["vsse<len>.v"]
+VectorStoreIndexed = ["vsuxei<len>.v", "vsoxei<len>.v"]
 
 def generate_rv32_64_v_instructions():
     """
@@ -40,9 +45,31 @@ def generate_rv32_64_v_instructions():
         VectorLoadUnitStride, RISCVVectorLoadUnitStride
     )
 
+    RISCVInstruction.instr_factory(
+        VectorLoadStrided, RISCVVectorLoadStrided
+    )
+
+    RISCVInstruction.instr_factory(
+        VectorLoadIndexed, RISCVVectorLoadIndexed
+    )
+
+    RISCVInstruction.instr_factory(
+        VectorStoreUnitStride, RISCVVectorStoreUnitStride
+    )
+
+    RISCVInstruction.instr_factory(
+        VectorStoreStrided, RISCVVectorStoreStrided
+    )
+
+    RISCVInstruction.instr_factory(
+        VectorStoreIndexed, RISCVVectorStoreIndexed
+    )
+
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
     )
+
+
     return RISCVInstruction.dynamic_instr_classes
 
 

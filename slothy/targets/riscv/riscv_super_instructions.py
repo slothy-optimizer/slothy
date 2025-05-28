@@ -81,17 +81,86 @@ class RISCVIntegerRegisterRegisterMul(RISCVInstruction):
 
 #### Vector instructions ####
 
+## Load Instructions ##
+
 class RISCVVectorLoadUnitStride(RISCVInstruction):
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
-        obj.pre_index = obj.immediate
+        #obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
 
-    pattern = "mnemonic <Vd>, <imm>(<Xa>)<vm>"
+    pattern = "mnemonic <Vd>, (<Xa>)<vm>"
     inputs = ["Xa"]
+    outputs = ["Vd"]
+
+class RISCVVectorLoadStrided(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        #obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    pattern = "mnemonic <Vd>, (<Xa>), <Xb><vm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Vd"]
+
+class RISCVVectorLoadIndexed(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        #obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    pattern = "mnemonic <Vd>, (<Xa>), <Ve><vm>"
+    inputs = ["Xa", "Ve"]
+    outputs = ["Vd"]
+
+## Store Instructions ##
+
+class RISCVVectorStoreUnitStride(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        #obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    pattern = "mnemonic <Vd>, (<Xa>)<vm>"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
+
+class RISCVVectorStoreStrided(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        #obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    pattern = "mnemonic <Vd>, (<Xa>), <Xb><vm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Vd"]
+
+class RISCVVectorStoreIndexed(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        #obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    pattern = "mnemonic <Vd>, (<Xa>), <Ve><vm>"
+    inputs = ["Xa", "Ve"]
     outputs = ["Vd"]
 
 

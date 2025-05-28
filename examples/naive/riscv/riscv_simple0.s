@@ -1,2 +1,10 @@
-vle16.v v0, 8(x0), v0.t
-//addw x0, x0, x0
+vle8.v v0, (x0)
+vlse16.v v1, (x0), x1
+vluxei32.v v2, (x0), v1
+vloxei64.v v3, (x0), v1
+vse8.v v4, (x0)
+vsse16.v v5, (x0), x1
+vsuxei32.v v6, (x0), v1
+vsoxei64.v v7, (x0), v1
+
+addw x0, x0, x0
