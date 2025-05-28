@@ -25,26 +25,6 @@ jobs:
     - name: Run examples
       run: |
         python3 example.py --dry-run --only-target=${{ matrix.target }}
-  tests:
-    name: Tests (${{ matrix.target }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: 
-          - slothy.targets.arm_v7m.cortex_m7
-          - slothy.targets.arm_v81m.cortex_m55r1
-          - slothy.targets.arm_v81m.cortex_m85r1
-          - slothy.targets.aarch64.cortex_a55
-          - slothy.targets.aarch64.cortex_a72_frontend
-          - slothy.targets.aarch64.apple_m1_firestorm_experimental
-          - slothy.targets.aarch64.apple_m1_icestorm_experimental
-          - slothy.targets.aarch64.aarch64_big_experimental
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ./.github/actions/setup-ubuntu
-    - name: Run tests
-      run: |
-        python3 test.py --only-target=${{ matrix.target }}
   tutorial:
     runs-on: ubuntu-latest
     steps:
@@ -60,12 +40,12 @@ jobs:
     - uses: ./.github/actions/setup-ubuntu
     - name: Run examples
       run: |
-        python3 test.py --tests simple0_m55,simple1_m55,simple0_loop_m55,simple1_loop_m55
+        python3 example.py --examples simple0,simple1,simple0_loop,simple1_loop
   regression:
-      runs-on: ubuntu-latest
+      runs-on: [self-hosted, macOS, ARM64]
       steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/setup-ubuntu
+      - uses: ./.github/actions/setup-macos
       - name: Run regression tests
         run: |
           python3 regression.py --iterations 5
