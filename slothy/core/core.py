@@ -1776,9 +1776,8 @@ class SlothyBase(LockAttributes):
         if not self.config.sw_pipelining.enabled:
             return
 
-        for tlow, thigh in zip(
-            self._model.tree.nodes_low, self._model.tree.nodes_high, strict=True
-        ):
+        assert len(self._model.tree.nodes_low) == len(self._model.tree.nodes_high)
+        for tlow, thigh in zip(self._model.tree.nodes_low, self._model.tree.nodes_high):
             tlow.sibling = thigh
             thigh.sibling = tlow
 
@@ -2346,16 +2345,20 @@ class SlothyBase(LockAttributes):
                     spills[p].append((arg, spill_id))
                     restores[restore].append((arg, spill_id))
 
+            assert len(t.out_spills) == len(t.out_lifetime_start)
+            assert len(t.out_spills) == len(t.inst.args_out)
             for i, (spilled, restore, arg) in enumerate(
-                zip(t.out_spills, t.out_lifetime_start, t.inst.args_out, strict=True)
+                zip(t.out_spills, t.out_lifetime_start, t.inst.args_out)
             ):
                 remember_spill(i, spilled, restore, arg, "out")
+
+            assert len(t.in_out_spills) == len(t.inout_lifetime_start)
+            assert len(t.in_out_spills) == len(t.inst.args_in_out)
             for i, (spilled, restore, arg) in enumerate(
                 zip(
                     t.in_out_spills,
                     t.inout_lifetime_start,
                     t.inst.args_in_out,
-                    strict=True,
                 )
             ):
                 remember_spill(i, spilled, restore, arg, "inout")
@@ -2521,11 +2524,13 @@ class SlothyBase(LockAttributes):
             or producer.is_virtual
             or consumer.is_virtual
         ):
-            for cb, bvar in zip(cb_lst, bvars, strict=True):
+            assert len(cb_lst) == len(bvars)
+            for cb, bvar in zip(cb_lst, bvars):
                 cb().OnlyEnforceIf(bvar)
             return
 
-        for cb, bvar in zip(cb_lst, bvars, strict=True):
+        assert len(cb_lst) == len(vars)
+        for cb, bvar in zip(cb_lst, bvars):
             constraints = [bvar]
             if self._is_low(producer):
                 constraints.append(producer.pre_var.Not())
@@ -2729,11 +2734,12 @@ class SlothyBase(LockAttributes):
             self.logger.debug("Create register renaming variables for %s", t)
 
             # Iterate through output registers of current instruction
+            assert len(t.inst.arg_types_out) == len(t.inst.args_out)
+            assert len(t.inst.arg_types_out) == len(t.inst.args_out_restrictions)
             for arg_ty, arg_out, restrictions in zip(
                 t.inst.arg_types_out,
                 t.inst.args_out,
                 t.inst.args_out_restrictions,
-                strict=True,
             ):
 
                 self.logger.debug("- Output %s (%s)", arg_out, arg_ty)
@@ -2867,6 +2873,12 @@ class SlothyBase(LockAttributes):
                 self._NewBoolVar("") for _ in t.inst.arg_types_in_out
             ]
             ivals = []
+
+            assert len(t.inst.arg_types_out) == len(t.alloc_out_var)
+            assert len(t.inst.arg_types_out) == len(t.out_lifetime_start)
+            assert len(t.inst.arg_types_out) == len(t.out_lifetime_duration)
+            assert len(t.inst.arg_types_out) == len(t.out_lifetime_end)
+            assert len(t.inst.arg_types_out) == len(t.out_spill_vars)
             ivals += list(
                 zip(
                     t.inst.arg_types_out,
@@ -2875,9 +2887,13 @@ class SlothyBase(LockAttributes):
                     t.out_lifetime_duration,
                     t.out_lifetime_end,
                     t.out_spill_vars,
-                    strict=True,
                 )
             )
+            assert len(t.inst.arg_types_in_out) == len(t.alloc_in_out_var)
+            assert len(t.inst.arg_types_in_out) == len(t.inout_lifetime_start)
+            assert len(t.inst.arg_types_in_out) == len(t.inout_lifetime_duration)
+            assert len(t.inst.arg_types_in_out) == len(t.inout_lifetime_end)
+            assert len(t.inst.arg_types_in_out) == len(t.in_out_spill_vars)
             ivals += list(
                 zip(
                     t.inst.arg_types_in_out,
@@ -2886,7 +2902,6 @@ class SlothyBase(LockAttributes):
                     t.inout_lifetime_duration,
                     t.inout_lifetime_end,
                     t.in_out_spill_vars,
-                    strict=True,
                 )
             )
 
@@ -3006,7 +3021,8 @@ class SlothyBase(LockAttributes):
     def _add_constraints_lifetime_bounds_single(self, t):
 
         def _add_basic_constraints(start_list, end_list):
-            for start_var, end_var in zip(start_list, end_list, strict=True):
+            assert len(start_list) == len(end_list)
+            for start_var, end_var in zip(start_list, end_list):
                 # Make sure the output argument is considered 'used' for at least
                 # one instruction. Otherwise, instructions producing outputs that
                 # are never used would be able to overwrite life registers.
@@ -3053,12 +3069,13 @@ class SlothyBase(LockAttributes):
     def _force_allocation_variant(self, alloc_dict, combinations, combination_vars):
         if combinations is None:
             return
-        for (idx_lst, valid_combinations), vs in zip(
-            combinations, combination_vars, strict=True
-        ):
+        assert len(combinations) == len(combination_vars)
+        for (idx_lst, valid_combinations), vs in zip(combinations, combination_vars):
             self._AddExactlyOne(vs)
-            for combination, var in zip(valid_combinations, vs, strict=True):
-                for idx, reg in zip(idx_lst, combination, strict=True):
+            assert len(valid_combinations) == len(vs)
+            for combination, var in zip(valid_combinations, vs):
+                assert len(idx_lst) == len(combination)
+                for idx, reg in zip(idx_lst, combination):
                     self._AddImplication(var, alloc_dict[idx].get(reg, False))
 
     def _forbid_renaming_collision_single(self, var_dic_a, var_dic_b, condition=None):
@@ -3091,7 +3108,8 @@ class SlothyBase(LockAttributes):
                 self._Add(v == False)  # noqa: E712
 
     def _force_allocation_restriction_many(self, restriction_lst, var_dict_lst):
-        for r, v in zip(restriction_lst, var_dict_lst, strict=True):
+        assert len(restriction_lst) == len(var_dict_lst)
+        for r, v in zip(restriction_lst, var_dict_lst):
             if r is None:
                 continue
             self._force_allocation_restriction_single(r, v)
@@ -3680,9 +3698,8 @@ class SlothyBase(LockAttributes):
         # Additionally, they should use exactly the same registers, so we can roll the
         # loop again
 
-        for t0, t1 in zip(
-            self._model.tree.nodes_low, self._model.tree.nodes_high, strict=True
-        ):
+        assert len(self._model.tree.nodes_low) == len(self._model.tree.nodes_high)
+        for t0, t1 in zip(self._model.tree.nodes_low, self._model.tree.nodes_high):
             self._Add(t0.pre_var == t1.pre_var)
             self._Add(t0.post_var == t1.post_var)
             self._Add(t0.core_var == t1.core_var)

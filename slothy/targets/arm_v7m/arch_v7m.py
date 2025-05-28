@@ -1189,9 +1189,12 @@ class Armv7mInstruction(Instruction):
         self.in_outs = in_outs
 
         self.pattern = pattern
-        self.pattern_inputs = list(zip(inputs, arg_types_in, strict=True))
-        self.pattern_outputs = list(zip(outputs, arg_types_out, strict=True))
-        self.pattern_in_outs = list(zip(in_outs, arg_types_in_out, strict=True))
+        assert len(inputs) == len(arg_types_in)
+        self.pattern_inputs = list(zip(inputs, arg_types_in))
+        assert len(outputs) == len(arg_types_out)
+        self.pattern_outputs = list(zip(outputs, arg_types_out))
+        assert len(in_outs) == len(arg_types_in_out)
+        self.pattern_in_outs = list(zip(in_outs, arg_types_in_out))
 
     @staticmethod
     def _to_reg(ty, s):
