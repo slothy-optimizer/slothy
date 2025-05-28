@@ -30,6 +30,17 @@ import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 
 
+class Instructions(OptimizationRunner):
+    def __init__(self):
+        super().__init__("instructions", base_dir="tests")
+
+    def core(self, slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.constraints.functional_only = True
+        slothy.optimize(start="start", end="end")
+
+
 class Example0(OptimizationRunner):
     def __init__(self):
         super().__init__("simple0", base_dir="tests")
@@ -76,6 +87,7 @@ class LoopLe(OptimizationRunner):
 
 
 test_instances = [
+    Instructions(),
     Example0(),
     Example1(),
     Example2(),
