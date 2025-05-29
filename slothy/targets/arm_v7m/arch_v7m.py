@@ -88,9 +88,11 @@ class RegisterType(Enum):
         return self.name
 
     @cache
-    @staticmethod
-    def spillable(reg_type):
+    def _spillable(reg_type):
         return reg_type in [RegisterType.GPR]
+
+    # TODO: remove workaround (needed for Python 3.9)
+    spillable = staticmethod(_spillable)
 
     @staticmethod
     def callee_saved_registers():
@@ -109,8 +111,7 @@ class RegisterType(Enum):
         return UC_ARM_REG_SP
 
     @cache
-    @staticmethod
-    def unicorn_reg_by_name(reg):
+    def _unicorn_reg_by_name(reg):
         """Converts string name of register into numerical identifiers used
         within the unicorn engine"""
 
@@ -165,9 +166,11 @@ class RegisterType(Enum):
         }
         return d.get(reg, None)
 
+    # TODO: remove workaround (needed for Python 3.9)
+    unicorn_reg_by_name = staticmethod(_unicorn_reg_by_name)
+
     @cache
-    @staticmethod
-    def list_registers(
+    def _list_registers(
         reg_type, only_extra=False, only_normal=False, with_variants=False
     ):
         """Return the list of all registers of a given type"""
@@ -201,6 +204,9 @@ class RegisterType(Enum):
             RegisterType.HINT: hints,
             RegisterType.FLAGS: flags,
         }[reg_type]
+
+    # TODO: remove workaround (needed for Python 3.9)
+    list_registers = staticmethod(_list_registers)
 
     @staticmethod
     def find_type(r):
@@ -1136,8 +1142,7 @@ class Armv7mInstruction(Instruction):
         return parser
 
     @cache
-    @staticmethod
-    def _infer_register_type(ptrn):
+    def __infer_register_type(ptrn):
         if ptrn[0].upper() in ["R"]:
             return RegisterType.GPR
         if ptrn[0].upper() in ["S"]:
@@ -1145,6 +1150,9 @@ class Armv7mInstruction(Instruction):
         if ptrn[0].upper() in ["T"]:
             return RegisterType.HINT
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
+
+    # TODO: remove workaround (needed for Python 3.9)
+    _infer_register_type = staticmethod(__infer_register_type)
 
     def __init__(
         self,
