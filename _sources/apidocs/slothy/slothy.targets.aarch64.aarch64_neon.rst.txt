@@ -832,9 +832,14 @@ API
    .. py:method:: __repr__()
       :canonical: slothy.targets.aarch64.aarch64_neon.RegisterType.__repr__
 
-   .. py:method:: spillable(reg_type)
+   .. py:method:: _spillable()
+      :canonical: slothy.targets.aarch64.aarch64_neon.RegisterType._spillable
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.RegisterType._spillable
+
+   .. py:attribute:: spillable
       :canonical: slothy.targets.aarch64.aarch64_neon.RegisterType.spillable
-      :staticmethod:
+      :value: 'staticmethod(...)'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.RegisterType.spillable
 
@@ -862,15 +867,25 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.RegisterType.unicorn_program_counter
 
-   .. py:method:: unicorn_reg_by_name(reg)
+   .. py:method:: _unicorn_reg_by_name()
+      :canonical: slothy.targets.aarch64.aarch64_neon.RegisterType._unicorn_reg_by_name
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.RegisterType._unicorn_reg_by_name
+
+   .. py:attribute:: unicorn_reg_by_name
       :canonical: slothy.targets.aarch64.aarch64_neon.RegisterType.unicorn_reg_by_name
-      :staticmethod:
+      :value: 'staticmethod(...)'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.RegisterType.unicorn_reg_by_name
 
-   .. py:method:: list_registers(reg_type, only_extra=False, only_normal=False, with_variants=False)
+   .. py:method:: _list_registers(only_extra=False, only_normal=False, with_variants=False)
+      :canonical: slothy.targets.aarch64.aarch64_neon.RegisterType._list_registers
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.RegisterType._list_registers
+
+   .. py:attribute:: list_registers
       :canonical: slothy.targets.aarch64.aarch64_neon.RegisterType.list_registers
-      :staticmethod:
+      :value: 'staticmethod(...)'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.RegisterType.list_registers
 
@@ -1105,9 +1120,14 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.AArch64Instruction.get_parser
 
-   .. py:method:: _infer_register_type(ptrn)
+   .. py:method:: __infer_register_type()
+      :canonical: slothy.targets.aarch64.aarch64_neon.AArch64Instruction.__infer_register_type
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.AArch64Instruction.__infer_register_type
+
+   .. py:attribute:: _infer_register_type
       :canonical: slothy.targets.aarch64.aarch64_neon.AArch64Instruction._infer_register_type
-      :staticmethod:
+      :value: 'staticmethod(...)'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.AArch64Instruction._infer_register_type
 
