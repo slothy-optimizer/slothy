@@ -145,12 +145,13 @@ def main():
         reg_res[n] = t
 
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
-    with open(summary_file, "w") as f:
-        s = ""
-        s += "# Regression Test Result\n"
-        for k, v in reg_res.items():
-            s += f"{k}: {v}\n"
-        f.write(s)
+    if summary_file is not None:
+        with open(summary_file, "w") as f:
+            s = ""
+            s += "# Regression Test Result\n"
+            for k, v in reg_res.items():
+                s += f"{k}: {v}\n"
+            f.write(s)
 
 
 if __name__ == "__main__":
