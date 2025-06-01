@@ -41,7 +41,9 @@ class RISCVStore(RISCVInstruction):
     pattern = "mnemonic <Xb>, <imm>(<Xa>)"
     inputs = ["Xb", "Xa"]
 
-#### Scalar instructions ####
+
+# Scalar instructions
+
 
 class RISCVIntegerRegisterImmediate(RISCVInstruction):
     pattern = "mnemonic <Xd>, <Xa>, <imm>"
@@ -79,29 +81,32 @@ class RISCVIntegerRegisterRegisterMul(RISCVInstruction):
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
-#### Vector instructions ####
 
-## Load Instructions ##
+# Vector instructions ####
+
+# Load Instructions ##
+
 
 class RISCVVectorLoadUnitStride(RISCVInstruction):
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
-        #obj.pre_index = obj.immediate
+        # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
 
     pattern = "mnemonic <Vd>, (<Xa>)<vm>"
     inputs = ["Xa"]
     outputs = ["Vd"]
+
 
 class RISCVVectorLoadStrided(RISCVInstruction):
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
-        #obj.pre_index = obj.immediate
+        # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
 
@@ -109,12 +114,13 @@ class RISCVVectorLoadStrided(RISCVInstruction):
     inputs = ["Xa", "Xb"]
     outputs = ["Vd"]
 
+
 class RISCVVectorLoadIndexed(RISCVInstruction):
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
-        #obj.pre_index = obj.immediate
+        # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
 
@@ -122,14 +128,16 @@ class RISCVVectorLoadIndexed(RISCVInstruction):
     inputs = ["Xa", "Ve"]
     outputs = ["Vd"]
 
-## Store Instructions ##
+
+# Store Instructions ##
+
 
 class RISCVVectorStoreUnitStride(RISCVInstruction):
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
-        #obj.pre_index = obj.immediate
+        # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
 
@@ -137,12 +145,13 @@ class RISCVVectorStoreUnitStride(RISCVInstruction):
     inputs = ["Xa"]
     outputs = ["Vd"]
 
+
 class RISCVVectorStoreStrided(RISCVInstruction):
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
-        #obj.pre_index = obj.immediate
+        # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
 
@@ -150,12 +159,13 @@ class RISCVVectorStoreStrided(RISCVInstruction):
     inputs = ["Xa", "Xb"]
     outputs = ["Vd"]
 
+
 class RISCVVectorStoreIndexed(RISCVInstruction):
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
-        #obj.pre_index = obj.immediate
+        # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         return obj
 
@@ -163,12 +173,15 @@ class RISCVVectorStoreIndexed(RISCVInstruction):
     inputs = ["Xa", "Ve"]
     outputs = ["Vd"]
 
-## Vector Integer Instructions ##
+
+# Vector Integer Instructions ##
+
 
 class RISCVVectorIntegerVectorVector(RISCVInstruction):
     pattern = "mnemonic <Vd>, <Ve>, <Vf><vm>"
     inputs = ["Ve", "Vf"]
     outputs = ["Vd"]
+
 
 # mask is fixed to v0
 class RISCVVectorIntegerVectorVectorMasked(RISCVInstruction):
@@ -176,10 +189,12 @@ class RISCVVectorIntegerVectorVectorMasked(RISCVInstruction):
     inputs = ["Ve", "Vf"]
     outputs = ["Vd"]
 
+
 class RISCVVectorIntegerVectorScalar(RISCVInstruction):
     pattern = "mnemonic <Vd>, <Ve>, <Xa><vm>"
     inputs = ["Ve", "Xa"]
     outputs = ["Vd"]
+
 
 # mask is fixed to v0
 class RISCVVectorIntegerVectorScalarMasked(RISCVInstruction):
@@ -187,15 +202,15 @@ class RISCVVectorIntegerVectorScalarMasked(RISCVInstruction):
     inputs = ["Ve", "Xa"]
     outputs = ["Vd"]
 
+
 class RISCVVectorIntegerVectorImmediate(RISCVInstruction):
     pattern = "mnemonic <Vd>, <Ve>, <imm><vm>"
     inputs = ["Ve"]
     outputs = ["Vd"]
+
 
 # mask is fixed to v0
 class RISCVVectorIntegerVectorImmediateMasked(RISCVInstruction):
     pattern = "mnemonic <Vd>, <Ve>, <imm>, v0"
     inputs = ["Ve"]
     outputs = ["Vd"]
-
-

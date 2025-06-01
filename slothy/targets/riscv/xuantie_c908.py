@@ -111,7 +111,7 @@ execution_units = {
         RISCVInstruction.classes_by_names["sra"],
         RISCVInstruction.classes_by_names["lui"],
         RISCVInstruction.classes_by_names["auipc"],
-        RISCVInstruction.classes_by_names["li"]
+        RISCVInstruction.classes_by_names["li"],
     ): ExecutionUnit.SCALAR(),
     (
         RISCVInstruction.classes_by_names["lb"],
@@ -135,7 +135,10 @@ execution_units = {
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"],
-    ): [[ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU0], [ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU1]],
+    ): [
+        [ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU0],
+        [ExecutionUnit.SCALAR_MUL, ExecutionUnit.SCALAR_ALU1],
+    ],
     (
         RISCVInstruction.classes_by_names["vle"],
         RISCVInstruction.classes_by_names["vlse"],
@@ -229,8 +232,8 @@ execution_units = {
         RISCVInstruction.classes_by_names["vrgather.vv"],
         RISCVInstruction.classes_by_names["vrgatherei16.vv"],
         RISCVInstruction.classes_by_names["vrgather.vx"],
-        RISCVInstruction.classes_by_names["vrgather.vi"]
-    ) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
+        RISCVInstruction.classes_by_names["vrgather.vi"],
+    ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
 }
 
 inverse_throughput = {
@@ -279,7 +282,7 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"],
-        RISCVInstruction.classes_by_names["li"]
+        RISCVInstruction.classes_by_names["li"],
     ): 2,
     (
         RISCVInstruction.classes_by_names["vle"],
@@ -295,8 +298,8 @@ inverse_throughput = {
         RISCVVectorIntegerVectorVector,
         RISCVVectorIntegerVectorVectorMasked,
         RISCVVectorIntegerVectorScalarMasked,
-        RISCVVectorIntegerVectorImmediateMasked
-    ) : 2
+        RISCVVectorIntegerVectorImmediateMasked,
+    ): 2,
 }
 
 rv32_inverse_throughput = {
@@ -338,7 +341,6 @@ default_latencies = {
     RISCVInstruction.classes_by_names["divu"]: 4,
     RISCVInstruction.classes_by_names["rem"]: 4,
     RISCVInstruction.classes_by_names["remu"]: 4,
-
     RISCVInstruction.classes_by_names["vle"]: 2,
     RISCVInstruction.classes_by_names["vlse"]: 2,
     RISCVInstruction.classes_by_names["vluxei"]: 2,
@@ -352,7 +354,7 @@ default_latencies = {
     RISCVVectorIntegerVectorVector: 2,
     RISCVVectorIntegerVectorScalarMasked: 2,
     RISCVVectorIntegerVectorVectorMasked: 2,
-    RISCVVectorIntegerVectorImmediateMasked: 2
+    RISCVVectorIntegerVectorImmediateMasked: 2,
 }
 
 rv32_latencies = {

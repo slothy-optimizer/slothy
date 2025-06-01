@@ -36,54 +36,118 @@ VectorStoreUnitStride = ["vse<len>.v"]
 VectorStoreStrided = ["vsse<len>.v"]
 VectorStoreIndexed = ["vsuxei<len>.v", "vsoxei<len>.v"]
 
-VectorIntegerVectorVector = ["vadd.vv", "vsub.vv", "vrsub.vv", "vand.vv", "vor.vv", "vxor.vv", "vsll.vv", "vsrl.vv",
-                             "vmseq.vv", "vmsne.vv", "vmsltu.vv", "vmslt.vv", "vmsleu.vv", "vmsle.vv", "vminu.vv",
-                             "vmin.vv", "vmaxu.vv", "vmax.vv", "vmul.vv", "vmulh.vv", "vmulhu.vv", "vmulhsu.vv",
-                             "vdivu.vv", "vdiv.vv", "vremu.vv", "vrem.vv", "vmacc.vv", "vnmsac.vv", "vmadd.vv",
-                             "vnmsub.vv", "vrgather.vv", "vrgatherei16.vv"]
+VectorIntegerVectorVector = [
+    "vadd.vv",
+    "vsub.vv",
+    "vrsub.vv",
+    "vand.vv",
+    "vor.vv",
+    "vxor.vv",
+    "vsll.vv",
+    "vsrl.vv",
+    "vmseq.vv",
+    "vmsne.vv",
+    "vmsltu.vv",
+    "vmslt.vv",
+    "vmsleu.vv",
+    "vmsle.vv",
+    "vminu.vv",
+    "vmin.vv",
+    "vmaxu.vv",
+    "vmax.vv",
+    "vmul.vv",
+    "vmulh.vv",
+    "vmulhu.vv",
+    "vmulhsu.vv",
+    "vdivu.vv",
+    "vdiv.vv",
+    "vremu.vv",
+    "vrem.vv",
+    "vmacc.vv",
+    "vnmsac.vv",
+    "vmadd.vv",
+    "vnmsub.vv",
+    "vrgather.vv",
+    "vrgatherei16.vv",
+]
 
-VectorIntegerVectorScalar = ["vadd.vx", "vsub.vx", "vrsub.vx", "vand.vx", "vor.vx", "vxor.vx", "vsll.vx", "vsrl.vx",
-                             "vmseq.vx", "vmsne.vx", "vmsltu.vx", "vmslt.vx", "vmsleu.vx", "vmsle.vx", "vmsgtu.vx",
-                             "vmsgt.vx", "vmsgeu.vx", "vmsge.vx",
-                             "vminu.vx", "vmin.vx", "vmaxu.vx", "vmax.vx", "vmul.vx", "vmulh.vx", "vmulhu.vx",
-                             "vmulhsu.vx", "vdivu.vx", "vdiv.vx", "vremu.vx", "vrem.vx", "vmacc.vx", "vnmsac.vx",
-                             "vmadd.vx","vnmsub.vx", "vrgather.vx"]
+VectorIntegerVectorScalar = [
+    "vadd.vx",
+    "vsub.vx",
+    "vrsub.vx",
+    "vand.vx",
+    "vor.vx",
+    "vxor.vx",
+    "vsll.vx",
+    "vsrl.vx",
+    "vmseq.vx",
+    "vmsne.vx",
+    "vmsltu.vx",
+    "vmslt.vx",
+    "vmsleu.vx",
+    "vmsle.vx",
+    "vmsgtu.vx",
+    "vmsgt.vx",
+    "vmsgeu.vx",
+    "vmsge.vx",
+    "vminu.vx",
+    "vmin.vx",
+    "vmaxu.vx",
+    "vmax.vx",
+    "vmul.vx",
+    "vmulh.vx",
+    "vmulhu.vx",
+    "vmulhsu.vx",
+    "vdivu.vx",
+    "vdiv.vx",
+    "vremu.vx",
+    "vrem.vx",
+    "vmacc.vx",
+    "vnmsac.vx",
+    "vmadd.vx",
+    "vnmsub.vx",
+    "vrgather.vx",
+]
 
-VectorIntegerVectorImmediate = ["vadd.vi", "vrsub.vi", "vand.vi", "vor.vi", "vxor.vi", "vsll.vi", "vsrl.vi", "vsra.vi",
-                                "vmseq.vi", "vmsne.vi", "vmsleu.vi", "vmsle.vi", "vmsgtu.vi", "vmsgt.vi", "vrgather.vi"]
+VectorIntegerVectorImmediate = [
+    "vadd.vi",
+    "vrsub.vi",
+    "vand.vi",
+    "vor.vi",
+    "vxor.vi",
+    "vsll.vi",
+    "vsrl.vi",
+    "vsra.vi",
+    "vmseq.vi",
+    "vmsne.vi",
+    "vmsleu.vi",
+    "vmsle.vi",
+    "vmsgtu.vi",
+    "vmsgt.vi",
+    "vrgather.vi",
+]
 
 VectorIntegerVectorVectorMasked = ["vmerge.vvm"]
 VectorIntegerVectorScalarMasked = ["vmerge.vxm"]
 VectorIntegerVectorImmediateMasked = ["vmerge.vim"]
+
 
 def generate_rv32_64_v_instructions():
     """
     Generates all instruction classes for the rv32_64_v extension set
     """
 
-    RISCVInstruction.instr_factory(
-        VectorLoadUnitStride, RISCVVectorLoadUnitStride
-    )
+    RISCVInstruction.instr_factory(VectorLoadUnitStride, RISCVVectorLoadUnitStride)
 
-    RISCVInstruction.instr_factory(
-        VectorLoadStrided, RISCVVectorLoadStrided
-    )
+    RISCVInstruction.instr_factory(VectorLoadStrided, RISCVVectorLoadStrided)
 
-    RISCVInstruction.instr_factory(
-        VectorLoadIndexed, RISCVVectorLoadIndexed
-    )
+    RISCVInstruction.instr_factory(VectorLoadIndexed, RISCVVectorLoadIndexed)
 
-    RISCVInstruction.instr_factory(
-        VectorStoreUnitStride, RISCVVectorStoreUnitStride
-    )
+    RISCVInstruction.instr_factory(VectorStoreUnitStride, RISCVVectorStoreUnitStride)
 
-    RISCVInstruction.instr_factory(
-        VectorStoreStrided, RISCVVectorStoreStrided
-    )
+    RISCVInstruction.instr_factory(VectorStoreStrided, RISCVVectorStoreStrided)
 
-    RISCVInstruction.instr_factory(
-        VectorStoreIndexed, RISCVVectorStoreIndexed
-    )
+    RISCVInstruction.instr_factory(VectorStoreIndexed, RISCVVectorStoreIndexed)
 
     RISCVInstruction.instr_factory(
         VectorIntegerVectorVector, RISCVVectorIntegerVectorVector
@@ -114,5 +178,6 @@ def generate_rv32_64_v_instructions():
     )
 
     return RISCVInstruction.dynamic_instr_classes
+
 
 generate_rv32_64_v_instructions()

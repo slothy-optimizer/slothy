@@ -26,7 +26,6 @@
 # Authors: Hanno Becker <hannobecker@posteo.de>
 #          Justus Bergermann <mail@justus-bergermann.de>
 #
-from black.nodes import replace_child
 
 from slothy.targets.riscv.instruction_core import Instruction
 import re as re
@@ -45,7 +44,7 @@ class RISCVInstruction(Instruction):
         "w?"  # pattern to enable specific 32bit instructions (e.g. add/ addw)
     )
     len_pattern = "(8|16|32|64)"
-    vm_pattern = "(, v0\.t)?"
+    vm_pattern = r"(, v0\.t)?"
 
     @staticmethod
     def _unfold_pattern(src):
@@ -104,7 +103,6 @@ class RISCVInstruction(Instruction):
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = "(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
-
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
@@ -302,13 +300,13 @@ class RISCVInstruction(Instruction):
         depends_on_flags = getattr(c, "dependsOnFlags", False)
 
         modified_pattern = pattern.replace("<len>", RISCVInstruction.len_pattern)
-        modified_pattern = modified_pattern.replace("<w>", RISCVInstruction.is32bit_pattern)
+        modified_pattern = modified_pattern.replace(
+            "<w>", RISCVInstruction.is32bit_pattern
+        )
         modified_pattern = modified_pattern.replace("<vm>", RISCVInstruction.vm_pattern)
 
         if isinstance(src, str):
-            if not re.match(
-                modified_pattern.split(" ")[0], src.split(" ")[0]
-            ):
+            if not re.match(modified_pattern.split(" ")[0], src.split(" ")[0]):
                 raise ParsingException("Mnemonic does not match")
             res = RISCVInstruction.get_parser(pattern)(src)
         else:
