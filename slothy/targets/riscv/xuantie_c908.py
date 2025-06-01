@@ -111,6 +111,7 @@ execution_units = {
         RISCVInstruction.classes_by_names["sra"],
         RISCVInstruction.classes_by_names["lui"],
         RISCVInstruction.classes_by_names["auipc"],
+        RISCVInstruction.classes_by_names["li"]
     ): ExecutionUnit.SCALAR(),
     (
         RISCVInstruction.classes_by_names["lb"],
@@ -222,6 +223,13 @@ execution_units = {
         RISCVInstruction.classes_by_names["vmsle.vi"],
         RISCVInstruction.classes_by_names["vmsgtu.vi"],
         RISCVInstruction.classes_by_names["vmsgt.vi"],
+        RISCVInstruction.classes_by_names["vmerge.vvm"],
+        RISCVInstruction.classes_by_names["vmerge.vxm"],
+        RISCVInstruction.classes_by_names["vmerge.vim"],
+        RISCVInstruction.classes_by_names["vrgather.vv"],
+        RISCVInstruction.classes_by_names["vrgatherei16.vv"],
+        RISCVInstruction.classes_by_names["vrgather.vx"],
+        RISCVInstruction.classes_by_names["vrgather.vi"]
     ) : [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
 }
 
@@ -271,6 +279,7 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"],
+        RISCVInstruction.classes_by_names["li"]
     ): 2,
     (
         RISCVInstruction.classes_by_names["vle"],
@@ -283,7 +292,10 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["vsoxei"],
         RISCVVectorIntegerVectorImmediate,
         RISCVVectorIntegerVectorScalar,
-        RISCVVectorIntegerVectorVector
+        RISCVVectorIntegerVectorVector,
+        RISCVVectorIntegerVectorVectorMasked,
+        RISCVVectorIntegerVectorScalarMasked,
+        RISCVVectorIntegerVectorImmediateMasked
     ) : 2
 }
 
@@ -315,6 +327,7 @@ default_latencies = {
     RISCVInstruction.classes_by_names["lw"]: 2,
     RISCVInstruction.classes_by_names["lwu"]: 2,
     RISCVInstruction.classes_by_names["ld"]: 2,
+    RISCVInstruction.classes_by_names["li"]: 2,
     RISCVStore: 1,
     # RISCVIntegerRegisterRegisterMul: 4  # not correct for div, rem
     RISCVInstruction.classes_by_names["mul"]: 4,
@@ -337,6 +350,9 @@ default_latencies = {
     RISCVVectorIntegerVectorImmediate: 2,
     RISCVVectorIntegerVectorScalar: 2,
     RISCVVectorIntegerVectorVector: 2,
+    RISCVVectorIntegerVectorScalarMasked: 2,
+    RISCVVectorIntegerVectorVectorMasked: 2,
+    RISCVVectorIntegerVectorImmediateMasked: 2
 }
 
 rv32_latencies = {

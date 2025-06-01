@@ -170,13 +170,31 @@ class RISCVVectorIntegerVectorVector(RISCVInstruction):
     inputs = ["Ve", "Vf"]
     outputs = ["Vd"]
 
+# mask is fixed to v0
+class RISCVVectorIntegerVectorVectorMasked(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Ve>, <Vf>, v0"
+    inputs = ["Ve", "Vf"]
+    outputs = ["Vd"]
+
 class RISCVVectorIntegerVectorScalar(RISCVInstruction):
     pattern = "mnemonic <Vd>, <Ve>, <Xa><vm>"
     inputs = ["Ve", "Xa"]
     outputs = ["Vd"]
 
+# mask is fixed to v0
+class RISCVVectorIntegerVectorScalarMasked(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Ve>, <Xa>, v0"
+    inputs = ["Ve", "Xa"]
+    outputs = ["Vd"]
+
 class RISCVVectorIntegerVectorImmediate(RISCVInstruction):
     pattern = "mnemonic <Vd>, <Ve>, <imm><vm>"
+    inputs = ["Ve"]
+    outputs = ["Vd"]
+
+# mask is fixed to v0
+class RISCVVectorIntegerVectorImmediateMasked(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Ve>, <imm>, v0"
     inputs = ["Ve"]
     outputs = ["Vd"]
 

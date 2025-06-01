@@ -9,3 +9,4 @@ vsoxei64.v v7, (x0), v1, v0.t
 vadd.vv v8, v7, v7
 vadd.vx v9, v8, x0
 vadd.vi v10, v9, 5
+vmerge.vvm v11, v10, v9, v0

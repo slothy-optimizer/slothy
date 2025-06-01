@@ -1767,7 +1767,7 @@ class RISC_VExample0(Example):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
-        slothy.config.outputs = ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10']
+        slothy.config.outputs = ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11']
         slothy.optimize()
 
 
@@ -1867,6 +1867,39 @@ class RISC_V_poly_basemul_8l_acc_rv64im(Example):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_8l_acc_rv64im_looper")
+
+class RISC_V_ntt_rvv(Example):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "ntt_rvv"
+        subpath = "ntt_dilithium/"
+        infile = subpath + name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        name += f"_{target_label_dict[target]}"
+
+        super().__init__(
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="ntt_8l_rvv",
+            timeout=timeout,
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.inputs_are_outputs = True
+
+        r = slothy.config.reserved_regs
+        r += ["x3"]
+        slothy.config.reserved_regs = r
+        slothy.config.outputs = ['v17']
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize("start", "end")
 
 class RISC_V_test(Example):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
@@ -3859,6 +3892,7 @@ def main():
         RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
         RISC_V_poly_basemul_8l_acc_rv64im(target=Target_XuanTieC908),
         RISC_V_test(target=Target_XuanTieC908),
+        RISC_V_ntt_rvv(target=Target_XuanTieC908),
     ]
 
     all_example_names = [e.name for e in examples]
