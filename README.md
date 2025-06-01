@@ -4,6 +4,12 @@
     <image src="./docs/slothy_logo.png" width=160>
 </p>
 
+![Python 3.9](https://img.shields.io/badge/Python-3.9-blue?logo=python)
+![Python 3.10](https://img.shields.io/badge/Python-3.10-blue?logo=python)
+![Python 3.11](https://img.shields.io/badge/Python-3.11-blue?logo=python)
+![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?logo=python)
+![Python 3.13](https://img.shields.io/badge/Python-3.13-blue?logo=python)
+
 ## About SLOTHY
 
 **SLOTHY** - **S**uper (**L**azy) **O**ptimization of **T**ricky **H**andwritten assembl**Y** - is an assembly-level superoptimizer
@@ -73,7 +79,7 @@ SLOTHY has been successfully used on
 - Ubuntu-21.10 and up (64-bit),
 - macOS Monterey 12.6 and up.
 
-SLOTHY requires Python 3.11 (consider using pyenv to pin your Python version locally).
+SLOTHY supports Python 3.9 up to 3.13. For development Python >= 3.10 is required.
 See [requirements.txt](requirements.txt) for package requirements, and install via `pip install -r requirements.txt`.
 
 **Note:** `requirements.txt` pins versions for reproducibility. If you already have newer versions of some dependencies

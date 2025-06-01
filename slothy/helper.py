@@ -1535,7 +1535,9 @@ class SelfTest:
             # which must hold valid memory addresses.
             initial_register_contents = {}
             for r in regs:
-                initial_register_contents[r] = int.from_bytes(os.urandom(16))
+                initial_register_contents[r] = int.from_bytes(
+                    os.urandom(16), byteorder="little"
+                )
             for reg, sz in address_registers.items():
                 # allocate 2*sz and place pointer in the middle
                 # this makes sure that memory can be accessed at negative offsets

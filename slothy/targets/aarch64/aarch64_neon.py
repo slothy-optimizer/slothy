@@ -148,9 +148,11 @@ class RegisterType(Enum):
         return self.name
 
     @cache
-    @staticmethod
-    def spillable(reg_type):
-        return reg_type in [RegisterType.GPR, RegisterType.NEON]
+    def _spillable(reg_type):
+        return reg_type in [RegisterType.GPR]  # For now, only GPRs
+
+    # TODO: remove workaround (needed for Python 3.9)
+    spillable = staticmethod(_spillable)
 
     @staticmethod
     def callee_saved_registers():
@@ -169,8 +171,7 @@ class RegisterType(Enum):
         return UC_ARM64_REG_PC
 
     @cache
-    @staticmethod
-    def unicorn_reg_by_name(reg):
+    def _unicorn_reg_by_name(reg):
         """Converts string name of register into numerical identifiers used
         within the unicorn engine"""
 
@@ -241,9 +242,11 @@ class RegisterType(Enum):
         }
         return d.get(reg, None)
 
+    # TODO: remove workaround (needed for Python 3.9)
+    unicorn_reg_by_name = staticmethod(_unicorn_reg_by_name)
+
     @cache
-    @staticmethod
-    def list_registers(
+    def _list_registers(
         reg_type, only_extra=False, only_normal=False, with_variants=False
     ):
         """Return the list of all registers of a given type"""
@@ -287,6 +290,9 @@ class RegisterType(Enum):
             RegisterType.HINT: hints,
             RegisterType.FLAGS: flags,
         }[reg_type]
+
+    # TODO: remove workaround (needed for Python 3.9)
+    list_registers = staticmethod(_list_registers)
 
     @staticmethod
     def find_type(r):
@@ -353,9 +359,9 @@ class Branch:
         yield f"b {lbl}"
 
 
-class SubsLoop(Loop):
+class SubLoop(Loop):
     """
-    Loop ending in a flag setting subtraction and a branch.
+    Loop ending in a (optionally flag setting) subtraction and a branch.
 
     Example:
 
@@ -364,7 +370,7 @@ class SubsLoop(Loop):
         loop_lbl:
            {code}
            sub[s] <cnt>, <cnt>, #<imm>
-           (cbnz|bnz|bne|b.gt) <cnt>, loop_lbl
+           (cbnz|cbz) <cnt>, loop_lbl
 
     where cnt is the loop counter in lr.
     """
@@ -377,7 +383,7 @@ class SubsLoop(Loop):
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*(?P<sub_type>sub[s]?)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
-            rf"^\s*(?P<br_type>cbnz|bnz|bne|b\.gt)\s+(?P<cnt>\w+),\s*{lbl}",
+            rf"^\s*(?P<br_type>(cbnz|cbz))\s+(?P<cnt>\w+),\s*{lbl}",
         )
 
     def start(
@@ -414,20 +420,80 @@ class SubsLoop(Loop):
         if lbl_start.isdigit():
             lbl_start += "b"
 
-        if other["br_type"] in ["bne", "bnz", "cbnz"]:
-            yield (
-                f"{indent}{other['sub_type']} {other['cnt']}, {other['cnt']}"
-                f", {other['imm']}"
-            )
-            yield f"{indent}{other['br_type']} {other['cnt']}, {lbl_start}"
-        else:
-            # Set flag in subtraction
-            yield (
-                f"{indent}{other['sub_type']} {other['cnt']}, {other['cnt']}"
-                f", {other['imm']}"
-            )
-            # Conditional branch based on flag
-            yield f"{indent}{other['br_type']} {lbl_start}"
+        yield (
+            f"{indent}{other['sub_type']} {other['cnt']}, {other['cnt']}"
+            f", {other['imm']}"
+        )
+        yield f"{indent}{other['br_type']} {other['cnt']}, {lbl_start}"
+
+
+class SubsLoop(Loop):
+    """
+    Loop ending in a (optionally flag setting) subtraction and a branch.
+
+    Example:
+
+    .. code-block:: asm
+
+        loop_lbl:
+           {code}
+           subs   <cnt>, <cnt>, #<imm>
+           b[.](cond) loop_lbl
+
+    where cnt is the loop counter in lr.
+    """
+
+    def __init__(self, lbl="lbl") -> None:
+        super().__init__()
+        # The group naming in the regex should be consistent; give same group
+        # names to the same registers
+        self.lbl = lbl
+        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.end_regex = (
+            r"^\s*(?P<sub_type>subs)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\w+)",
+            rf"^\s*b(?P<br_type>"
+            rf"[\.]?(eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al))"
+            rf"\s+{lbl}",
+        )
+
+    def start(
+        self,
+        loop_cnt,
+        indentation=0,
+        fixup=0,
+        unroll=1,
+        jump_if_empty=None,
+        preamble_code=None,
+        body_code=None,
+        postamble_code=None,
+        register_aliases=None,
+    ):
+        """Emit starting instruction(s) and jump label for loop"""
+        indent = " " * indentation
+        if unroll > 1:
+            assert unroll in [1, 2, 4, 8, 16, 32]
+            yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
+        if fixup != 0:
+            # In case the immediate is >1, we need to scale the fixup. This
+            # allows for loops that do not use an increment of 1
+            assert isinstance(fixup, int)
+            fixup = simplify(f"{fixup} * ({self.additional_data['imm']})")
+            yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
+        if jump_if_empty is not None:
+            yield f"cbz {loop_cnt}, {jump_if_empty}"
+        yield f"{self.lbl}:"
+
+    def end(self, other, indentation=0):
+        """Emit compare-and-branch at the end of the loop"""
+        indent = " " * indentation
+        lbl_start = self.lbl
+        if lbl_start.isdigit():
+            lbl_start += "b"
+
+        # Set flag in subtraction
+        yield (f"{indent}subs {other['cnt']}, {other['cnt']}" f", #{other['imm']}")
+        # Conditional branch based on flag
+        yield f"{indent}b{other['br_type']} {lbl_start}"
 
 
 class Instruction:
@@ -743,9 +809,22 @@ class AArch64Instruction(Instruction):
     @staticmethod
     def _unfold_pattern(src):
 
-        src = re.sub(r"\.", "\\\\s*\\\\.\\\\s*", src)
-        src = re.sub(r"\[", "\\\\s*\\\\[\\\\s*", src)
-        src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
+        # Those replacements may look pointless, but they replace
+        # actual whitespaces before/after '.,[]' in the instruction
+        # pattern by regular expressions allowing flexible whitespacing.
+        flexible_spacing = [
+            (r"\s*,\s*", r"\\s*,\\s*"),
+            (r"\s*<imm>\s*", r"\\s*<imm>\\s*"),
+            (r"\s*\[\s*", r"\\s*\\[\\s*"),
+            (r"\s*\]\s*", r"\\s*\\]\\s*"),
+            (r"\s*\.\s*", r"\\s*\\.\\s*"),
+            (r"\s+", r"\\s+"),
+            (r"\\s\*\\s\\+", r"\\s+"),
+            (r"\\s\+\\s\\*", r"\\s+"),
+            (r"(\\s\*)+", r"\\s*"),
+        ]
+        for c, cp in flexible_spacing:
+            src = re.sub(c, cp, src)
 
         def pattern_transform(g):
             return (
@@ -798,9 +877,6 @@ class AArch64Instruction(Instruction):
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
 
-        src = re.sub(" ", "\\\\s+", src)
-        src = re.sub(",", "\\\\s*,\\\\s*", src)
-
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
@@ -844,8 +920,7 @@ class AArch64Instruction(Instruction):
         return parser
 
     @cache
-    @staticmethod
-    def _infer_register_type(ptrn):
+    def __infer_register_type(ptrn):
         if ptrn[0].upper() in ["X", "W"]:
             return RegisterType.GPR
         if ptrn[0].upper() in ["V", "Q", "D", "B"]:
@@ -853,6 +928,9 @@ class AArch64Instruction(Instruction):
         if ptrn[0].upper() in ["T"]:
             return RegisterType.HINT
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
+
+    # TODO: remove workaround (needed for Python 3.9)
+    _infer_register_type = staticmethod(__infer_register_type)
 
     def __init__(
         self,
@@ -897,9 +975,12 @@ class AArch64Instruction(Instruction):
         self.in_outs = in_outs
 
         self.pattern = pattern
-        self.pattern_inputs = list(zip(inputs, arg_types_in, strict=True))
-        self.pattern_outputs = list(zip(outputs, arg_types_out, strict=True))
-        self.pattern_in_outs = list(zip(in_outs, arg_types_in_out, strict=True))
+        assert len(inputs) == len(arg_types_in)
+        self.pattern_inputs = list(zip(inputs, arg_types_in))
+        assert len(outputs) == len(arg_types_out)
+        self.pattern_outputs = list(zip(outputs, arg_types_out))
+        assert len(in_outs) == len(arg_types_in_out)
+        self.pattern_in_outs = list(zip(in_outs, arg_types_in_out))
 
     @staticmethod
     def _to_reg(ty, s):
@@ -1318,6 +1399,22 @@ class q_ldr1_stack(AArch64Instruction):
         return super().write()
 
 
+class q_ldr1_post_inc(AArch64Instruction):
+    pattern = "ld1r {<Va>.<dt>}, [<Xa>], <imm>"
+    outputs = ["Va"]
+    in_outs = ["Xa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        return obj
+
+    def write(self):
+        return super().write()
+
+
 class q_ldr_stack_with_inc(Ldr_Q):
     pattern = "ldr <Qa>, [sp, <imm>]"
     # TODO: Model sp dependency
@@ -1615,6 +1712,20 @@ class q_str_with_postinc(Str_Q):
         return obj
 
 
+class q_st1_with_postinc(Str_Q):
+    pattern = "st1 {<Va>.<dt>}, [<Xc>], <imm>"
+    in_outs = ["Xc"]
+    inputs = ["Va"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
 class q_stp_with_postinc(Stp_Q):
     pattern = "stp <Qa>, <Qb>, [<Xc>], <imm>"
     inputs = ["Qa", "Qb"]
@@ -1626,6 +1737,24 @@ class q_stp_with_postinc(Stp_Q):
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class q_st1_2_with_postinc(Stp_Q):
+    pattern = "st1 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+
+        obj.args_in_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
         return obj
 
 
@@ -1658,6 +1787,42 @@ class x_ldr_with_imm(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>, <imm>]"
     inputs = ["Xc"]
     outputs = ["Xa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class x_ldr_with_imm_uxtw(Ldr_X):
+    pattern = "ldr <Xd>, [<Xa>, <Xb>, UXTW <imm>]"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class x_ldr_with_imm_lsl(Ldr_X):
+    pattern = "ldr <Xd>, [<Xa>, <Xb>, LSL <imm>]"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
 
     @classmethod
     def make(cls, src):
@@ -2233,6 +2398,18 @@ class AArch64ShiftedArithmetic(AArch64Instruction):
     pass
 
 
+class eor_ror(AArch64ShiftedArithmetic):
+    pattern = "eor <Xd>, <Xa>, <Xb>, ror <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class bic_ror(AArch64ShiftedArithmetic):
+    pattern = "bic <Xd>, <Xa>, <Xb>, ror <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
 class add_lsl(AArch64ShiftedArithmetic):
     pattern = "add <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
@@ -2290,6 +2467,12 @@ class lsr_variable(AArch64Shift):
 
 class lsl(AArch64Shift):
     pattern = "lsl <Xd>, <Xa>, <imm>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
+class ror(AArch64Shift):
+    pattern = "ror <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -2377,6 +2560,12 @@ class sbfx(AArch64Logical):
     outputs = ["Xd"]
 
 
+class ubfx(AArch64Logical):
+    pattern = "ubfx <Xd>, <Xa>, <imm0>, <imm1>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
 class extr(AArch64Logical):  # TODO! Review this...
     pattern = "extr <Xd>, <Xa>, <Xb>, <imm>"
     inputs = ["Xa", "Xb"]
@@ -2389,6 +2578,24 @@ class AArch64LogicalShifted(AArch64Instruction):
 
 class orr_shifted(AArch64LogicalShifted):
     pattern = "orr <Xd>, <Xa>, <Xb>, lsl <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class orr_shifted_asr_w(AArch64LogicalShifted):
+    pattern = "and <Wd>, <Wa>, <Wb>, asr <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class orr_shifted_asr(AArch64LogicalShifted):
+    pattern = "orr <Xd>, <Xa>, <Xb>, asr <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class eor_shifted_lsl(AArch64LogicalShifted):
+    pattern = "eor <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2507,6 +2714,12 @@ class mov_imm(AArch64Move):
     pattern = "mov <Xd>, <imm>"
     inputs = []
     outputs = ["Xd"]
+
+
+class movw_imm(AArch64Move):
+    pattern = "mov <Wd>, <imm>"
+    inputs = []
+    outputs = ["Wd"]
 
 
 class mvn_xzr(AArch64Move):
@@ -2851,6 +3064,36 @@ class mov_d01(AArch64Instruction):
     in_outs = ["Vd"]
 
 
+class SHA3Instruction(
+    AArch64Instruction
+):  # pylint: disable=missing-docstring,invalid-name
+    pass
+
+
+class vrax1(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "rax1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class veor3(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    inputs = ["Va", "Vb", "Vc"]
+    outputs = ["Vd"]
+
+
+class vbcax(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "bcax <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    inputs = ["Va", "Vb", "Vc"]
+    outputs = ["Vd"]
+
+
+class vxar(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
+    pattern = "xar <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class AArch64NeonLogical(AArch64Instruction):
     pass
 
@@ -2858,12 +3101,6 @@ class AArch64NeonLogical(AArch64Instruction):
 class veor(AArch64NeonLogical):
     pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
-class veor3(AArch64Instruction):
-    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
-    inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
 
@@ -2884,6 +3121,12 @@ class vext(AArch64NeonLogical):
     pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
+
+
+class vsri(AArch64NeonLogical):
+    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
 
 
 class Vmul(AArch64Instruction):

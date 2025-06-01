@@ -1749,7 +1749,7 @@ class vldr_gather(Instruction):
         uxtw = ""
         if self.uxtw is not None:
             uxtw = f", UXTW #{self.uxtw}"
-        addr = f"[{self.addrgpr}, {self.addrvec}{uxtw}]"
+        addr = f"[{self.args_in[0]}, {self.args_in[1]}{uxtw}]"
 
         return f"vldr{self.width}.{self.datatype} {self.args_out[0]}, {addr}"
 

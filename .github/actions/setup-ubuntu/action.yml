@@ -7,6 +7,10 @@ inputs:
     required: false
     default: 'llvm llvm-runtime'
 
+  python-version:
+    required: false
+    default: '3.11'
+
 runs:
   using: composite
   steps:
@@ -17,7 +21,7 @@ runs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: ${{ inputs.python-version }}
     - name: Install additional packages
       if: ${{ inputs.packages != ''}}
       shell: bash
