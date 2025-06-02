@@ -62,7 +62,6 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vhadd,
     vhsub,
     vhcadd,
-    vhcsub,
     vand,
     vorr,
     vmulh,
@@ -102,7 +101,6 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vaddf,
     vsubf,
     vcaddf,
-    vcsubf,
 )
 
 issue_rate = 1
@@ -167,7 +165,6 @@ execution_units = {
     vhadd: ExecutionUnit.VEC_INT,
     vhsub: ExecutionUnit.VEC_INT,
     vhcadd: ExecutionUnit.VEC_INT,
-    vhcsub: ExecutionUnit.VEC_INT,
     vand: ExecutionUnit.VEC_INT,
     vorr: ExecutionUnit.VEC_INT,
     vmulh: ExecutionUnit.VEC_MUL,
@@ -207,7 +204,6 @@ execution_units = {
     vaddf: ExecutionUnit.VEC_FPU,
     vsubf: ExecutionUnit.VEC_FPU,
     vcaddf: ExecutionUnit.VEC_FPU,
-    vcsubf: ExecutionUnit.VEC_FPU,
 }
 
 inverse_throughput = {
@@ -249,7 +245,6 @@ inverse_throughput = {
         vhadd,
         vhsub,
         vhcadd,
-        vhcsub,
         vand,
         vorr,
         vmulh,
@@ -280,7 +275,6 @@ inverse_throughput = {
         vaddf,
         vsubf,
         vhcadd,
-        vhcsub,
         vmulf_T1,
         vmulf_T2,
         vfma,
@@ -314,7 +308,6 @@ default_latencies = {
         vhadd,
         vhsub,
         vhcadd,
-        vhcsub,
         vand,
         vorr,
         qsave,
@@ -353,7 +346,6 @@ default_latencies = {
         vaddf,
         vsubf,
         vhcadd,
-        vhcsub,
         vmulf_T1,
         vmulf_T2,
         vfma,
@@ -431,7 +423,6 @@ def get_latency(src, out_idx, dst):
         vhadd,
         vhsub,
         vhcadd,
-        vhcsub,
         vand,
         vorr,
         vrshr,
@@ -461,7 +452,6 @@ def get_latency(src, out_idx, dst):
         vaddf,
         vsubf,
         vhcadd,
-        vhcsub,
     ]:
         return 3
 
