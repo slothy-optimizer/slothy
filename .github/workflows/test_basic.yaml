@@ -48,6 +48,7 @@ jobs:
         python3 test.py --tests simple0_m55,simple1_m55,simple0_loop_m55,simple1_loop_m55
   regression:
       runs-on: [self-hosted, macOS, ARM64]
+      timeout-minutes: 1440 # 24 hours
       steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/setup-macos
