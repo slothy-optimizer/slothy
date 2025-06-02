@@ -1488,6 +1488,15 @@ class vand(Instruction):
         )
 
 
+class vbic(Instruction):
+    def __init__(self):
+        super().__init__(
+            mnemonic="vbic.<dt>",
+            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+            arg_types_out=[RegisterType.MVE],
+        )
+
+
 class vorr(Instruction):
     def __init__(self):
         super().__init__(

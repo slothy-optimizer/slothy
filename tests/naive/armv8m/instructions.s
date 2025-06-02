@@ -221,6 +221,10 @@ vand.u16 q2, q0, q1
 vand.u32 q2, q0, q1
 vand.u64 q2, q0, q1
 
+vbic.u8 q2, q0, q1
+vbic.u16 q2, q0, q1
+vbic.u32 q2, q0, q1
+
 vorr.u8 q2, q0, q1
 vorr.u16 q2, q0, q1
 vorr.u32 q2, q0, q1
