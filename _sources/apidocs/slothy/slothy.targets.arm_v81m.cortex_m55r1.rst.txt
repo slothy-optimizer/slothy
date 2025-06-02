@@ -86,7 +86,7 @@ API
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.llvm_mca_target
 
-.. py:class:: ExecutionUnit
+.. py:class:: ExecutionUnit(*args, **kwds)
    :canonical: slothy.targets.arm_v81m.cortex_m55r1.ExecutionUnit
 
    Bases: :py:obj:`enum.Enum`

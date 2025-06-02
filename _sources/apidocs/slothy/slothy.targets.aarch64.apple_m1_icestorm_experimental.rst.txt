@@ -74,7 +74,7 @@ API
 
    .. autodoc2-docstring:: slothy.targets.aarch64.apple_m1_icestorm_experimental.issue_rate
 
-.. py:class:: ExecutionUnit
+.. py:class:: ExecutionUnit(*args, **kwds)
    :canonical: slothy.targets.aarch64.apple_m1_icestorm_experimental.ExecutionUnit
 
    Bases: :py:obj:`enum.Enum`

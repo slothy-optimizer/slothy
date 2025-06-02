@@ -196,9 +196,10 @@ optimization of the Kyber and Dilithium NTT.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.cortex_a72_frontend.</span></span><span class="sig-name descname"><span class="pre">ExecutionUnit</span></span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.cortex_a72_frontend.</span></span><span class="sig-name descname"><span class="pre">ExecutionUnit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
 <p>Enumeration of execution units in approximative Cortex-A72 SLOTHY model</p>
+<p class="rubric">Initialization</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.LOAD0">
 <span class="sig-name descname"><span class="pre">LOAD0</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'auto(...)'</span></em><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.LOAD0" title="Link to this definition"></a></dt>
@@ -256,32 +257,32 @@ optimization of the Kyber and Dilithium NTT.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.ASIMD">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ASIMD</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.ASIMD" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ASIMD</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.ASIMD" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.LOAD">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LOAD</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.LOAD" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LOAD</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.LOAD" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.STORE">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">STORE</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.STORE" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">STORE</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.STORE" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.INT">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">INT</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.INT" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">INT</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.INT" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.MINT">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MINT</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.MINT" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MINT</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.MINT" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.SCALAR">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SCALAR</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.SCALAR" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SCALAR</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.SCALAR" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

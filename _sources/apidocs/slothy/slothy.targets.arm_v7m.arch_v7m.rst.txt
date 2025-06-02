@@ -346,7 +346,7 @@ API
 
    .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.unicorn_mode
 
-.. py:class:: RegisterType
+.. py:class:: RegisterType(*args, **kwds)
    :canonical: slothy.targets.arm_v7m.arch_v7m.RegisterType
 
    Bases: :py:obj:`enum.Enum`

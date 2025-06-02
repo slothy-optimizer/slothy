@@ -166,7 +166,7 @@ them to the same or different logger later.</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">SourceLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">SourceLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine" title="Link to this definition"></a></dt>
 <dd><p>Representation of a single line of source code</p>
 <p class="rubric">Initialization</p>
 <dl class="py method">
@@ -181,7 +181,7 @@ them to the same or different logger later.</p></td>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine._parse_tags_in_string">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_parse_tags_in_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine._parse_tags_in_string" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_parse_tags_in_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine._parse_tags_in_string" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -258,14 +258,14 @@ indentation for the comments, improving readability.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.tags">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tags</span></span><a class="headerlink" href="#slothy.helper.SourceLine.tags" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tags</span></span><a class="headerlink" href="#slothy.helper.SourceLine.tags" title="Link to this definition"></a></dt>
 <dd><p>Return the list of tags for the source line</p>
 <p>Tags are source annotations of the form &#64;slothy:(tag[=value]?).</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.comments">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">comments</span></span><a class="headerlink" href="#slothy.helper.SourceLine.comments" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">comments</span></span><a class="headerlink" href="#slothy.helper.SourceLine.comments" title="Link to this definition"></a></dt>
 <dd><p>Return the list of comments for the source line</p>
 </dd></dl>
 
@@ -277,13 +277,13 @@ indentation for the comments, improving readability.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.indentation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">indentation</span></span><a class="headerlink" href="#slothy.helper.SourceLine.indentation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">indentation</span></span><a class="headerlink" href="#slothy.helper.SourceLine.indentation" title="Link to this definition"></a></dt>
 <dd><p>Returns the current level of indentation for the source line</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.text">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#slothy.helper.SourceLine.text" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#slothy.helper.SourceLine.text" title="Link to this definition"></a></dt>
 <dd><p>Returns the (non-metadata) text in the source line</p>
 </dd></dl>
 
@@ -302,19 +302,19 @@ parsing done in the _extract_xxx() routines.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.reduce_source">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reduce_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.reduce_source" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reduce_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.reduce_source" title="Link to this definition"></a></dt>
 <dd><p>Extract metadata (e.g. indentation, tags, comments) from source lines</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.unify_source">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unify_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.unify_source" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unify_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.unify_source" title="Link to this definition"></a></dt>
 <dd><p>Unify source in source lines.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.log">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.log" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.log" title="Link to this definition"></a></dt>
 <dd><p>Send source to logger</p>
 </dd></dl>
 
@@ -342,7 +342,7 @@ metadata (such as comments, indentation or tags) unmodified.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.is_escaped">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_escaped</span></span><a class="headerlink" href="#slothy.helper.SourceLine.is_escaped" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_escaped</span></span><a class="headerlink" href="#slothy.helper.SourceLine.is_escaped" title="Link to this definition"></a></dt>
 <dd><p>Indicates if line text ends with a backslash</p>
 </dd></dl>
 
@@ -365,26 +365,26 @@ metadata (such as comments, indentation or tags) unmodified.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.read_multiline">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_multiline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.read_multiline" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_multiline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.read_multiline" title="Link to this definition"></a></dt>
 <dd><p>Parse multi-line string or array of strings into list of SourceLine
 instances</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.merge_escaped_lines">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">merge_escaped_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.merge_escaped_lines" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">merge_escaped_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.merge_escaped_lines" title="Link to this definition"></a></dt>
 <dd><p>Merge lines ending in a backslash with subsequent line(s)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.copy_source">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">copy_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.copy_source" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">copy_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.copy_source" title="Link to this definition"></a></dt>
 <dd><p>Create a copy of a list of source lines</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.write_multiline">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_multiline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.write_multiline" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_multiline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.write_multiline" title="Link to this definition"></a></dt>
 <dd><p>Write source as multiline string</p>
 </dd></dl>
 
@@ -423,32 +423,32 @@ instances</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.apply_indentation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply_indentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.apply_indentation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply_indentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.apply_indentation" title="Link to this definition"></a></dt>
 <dd><p>Apply consistent indentation to assembly source</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.drop_tags">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">drop_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.drop_tags" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">drop_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.drop_tags" title="Link to this definition"></a></dt>
 <dd><p>Drop all tags from a source</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.split_semicolons">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_semicolons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.split_semicolons" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">split_semicolons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.split_semicolons" title="Link to this definition"></a></dt>
 <dd><p>“Split the text of a source line at semicolons</p>
 <p>The resulting source lines inherit their metadata from the caller.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.is_source">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.is_source" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.is_source" title="Link to this definition"></a></dt>
 <dd><p>Check if parameter is a list of SourceLine instances</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SourceLine.is_source_line">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_source_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.is_source_line" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_source_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SourceLine.is_source_line" title="Link to this definition"></a></dt>
 <dd><p>Checks if the parameter is a SourceLine instance</p>
 </dd></dl>
 
@@ -456,7 +456,7 @@ instances</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.NestedPrint">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">NestedPrint</span></span><a class="headerlink" href="#slothy.helper.NestedPrint" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">NestedPrint</span></span><a class="headerlink" href="#slothy.helper.NestedPrint" title="Link to this definition"></a></dt>
 <dd><p>Helper for recursive printing of structures</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.NestedPrint.__str__">
@@ -473,7 +473,7 @@ instances</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.LockAttributes">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LockAttributes</span></span><a class="headerlink" href="#slothy.helper.LockAttributes" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LockAttributes</span></span><a class="headerlink" href="#slothy.helper.LockAttributes" title="Link to this definition"></a></dt>
 <dd><p>Base class adding support for ‘locking’ the set of attributes, that is,
 preventing the creation of any further attributes. Note that the modification
 of already existing attributes remains possible.</p>
@@ -495,7 +495,7 @@ in the user configuration.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelperException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmHelperException</span></span><a class="headerlink" href="#slothy.helper.AsmHelperException" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmHelperException</span></span><a class="headerlink" href="#slothy.helper.AsmHelperException" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>An exception encountered during an assembly helper</p>
 <p class="rubric">Initialization</p>
@@ -504,7 +504,7 @@ in the user configuration.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmHelper</span></span><a class="headerlink" href="#slothy.helper.AsmHelper" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmHelper</span></span><a class="headerlink" href="#slothy.helper.AsmHelper" title="Link to this definition"></a></dt>
 <dd><p>Some helper functions for dealing with assembly</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelper._REGEXP_ALIGN_TXT">
@@ -518,44 +518,44 @@ in the user configuration.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelper.find_indentation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_indentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.find_indentation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_indentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.find_indentation" title="Link to this definition"></a></dt>
 <dd><p>Attempts to find the prevailing indentation in a piece of assembly</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelper.rename_function">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rename_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_funcname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_funcname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.rename_function" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rename_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_funcname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_funcname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.rename_function" title="Link to this definition"></a></dt>
 <dd><p>Rename function in assembly snippet</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelper.is_alignment_directive">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_alignment_directive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.is_alignment_directive" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_alignment_directive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.is_alignment_directive" title="Link to this definition"></a></dt>
 <dd><p>Checks is source line is an alignment directive <cite>.[p2]align _</cite></p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelper.is_allocation_directive">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_allocation_directive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.is_allocation_directive" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_allocation_directive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.is_allocation_directive" title="Link to this definition"></a></dt>
 <dd><p>Checks is source line is an allocation directive.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelper.extract">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.extract" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper.extract" title="Link to this definition"></a></dt>
 <dd><p>Extract code between two labels from an assembly source</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmHelper._extract_core">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_extract_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper._extract_core" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_extract_core</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmHelper._extract_core" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.AsmAllocation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmAllocation</span></span><a class="headerlink" href="#slothy.helper.AsmAllocation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmAllocation</span></span><a class="headerlink" href="#slothy.helper.AsmAllocation" title="Link to this definition"></a></dt>
 <dd><p>Helper for tracking register aliases via .req and .unreq</p>
 <p class="rubric">Initialization</p>
 <dl class="py attribute">
@@ -600,26 +600,26 @@ in the user configuration.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmAllocation.check_allocation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_allocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.check_allocation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_allocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.check_allocation" title="Link to this definition"></a></dt>
 <dd><p>Check if an assembly line is a .req directive. Return the pair
 of alias and register, if so. Otherwise, return None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmAllocation.check_deallocation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_deallocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.check_deallocation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_deallocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.check_deallocation" title="Link to this definition"></a></dt>
 <dd><p>Check if an assembly line is an .unreq directive. Return
 the deallocated alias, if so. Otherwise, return None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmAllocation.is_allocation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_allocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.is_allocation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_allocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.is_allocation" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmAllocation.is_deallocation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_deallocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.is_deallocation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_deallocation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.is_deallocation" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -637,13 +637,13 @@ alias dictionary accordingly. Otherwise, do nothing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmAllocation.parse_allocs">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_allocs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.parse_allocs" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_allocs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.parse_allocs" title="Link to this definition"></a></dt>
 <dd><p>“Parse register aliases in assembly source into AsmAllocation object.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmAllocation.unfold_all_aliases">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unfold_all_aliases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aliases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.unfold_all_aliases" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unfold_all_aliases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aliases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmAllocation.unfold_all_aliases" title="Link to this definition"></a></dt>
 <dd><p>Unfold aliases in assembly source</p>
 </dd></dl>
 
@@ -651,7 +651,7 @@ alias dictionary accordingly. Otherwise, do nothing.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="slothy.helper.BinarySearchLimitException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">BinarySearchLimitException</span></span><a class="headerlink" href="#slothy.helper.BinarySearchLimitException" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">BinarySearchLimitException</span></span><a class="headerlink" href="#slothy.helper.BinarySearchLimitException" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Binary search has exceeded its limit without finding a solution</p>
 <p class="rubric">Initialization</p>
@@ -666,7 +666,7 @@ alias dictionary accordingly. Otherwise, do nothing.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.AsmMacro">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmMacro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmMacro" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmMacro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmMacro" title="Link to this definition"></a></dt>
 <dd><p>Helper class for parsing and applying assembly macros</p>
 <p class="rubric">Initialization</p>
 <dl class="py method">
@@ -687,19 +687,19 @@ alias dictionary accordingly. Otherwise, do nothing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmMacro.unfold_all_macros">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unfold_all_macros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macros</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmMacro.unfold_all_macros" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unfold_all_macros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macros</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmMacro.unfold_all_macros" title="Link to this definition"></a></dt>
 <dd><p>Unfold list of macros in assembly source</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmMacro.extract">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmMacro.extract" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmMacro.extract" title="Link to this definition"></a></dt>
 <dd><p>Parse all macro definitions in assembly source file</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmMacro.extract_from_file">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmMacro.extract_from_file" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmMacro.extract_from_file" title="Link to this definition"></a></dt>
 <dd><p>Parse all macro definitions in assembly file</p>
 </dd></dl>
 
@@ -707,7 +707,7 @@ alias dictionary accordingly. Otherwise, do nothing.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmIfElse</span></span><a class="headerlink" href="#slothy.helper.AsmIfElse" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmIfElse</span></span><a class="headerlink" href="#slothy.helper.AsmIfElse" title="Link to this definition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse._REGEXP_IF_TXT">
 <span class="sig-name descname"><span class="pre">_REGEXP_IF_TXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\\s*\\.if\\s+(?P&lt;cond&gt;.*)'</span></em><a class="headerlink" href="#slothy.helper.AsmIfElse._REGEXP_IF_TXT" title="Link to this definition"></a></dt>
@@ -740,49 +740,49 @@ alias dictionary accordingly. Otherwise, do nothing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse.check_if">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_if</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.check_if" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_if</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.check_if" title="Link to this definition"></a></dt>
 <dd><p>Check if an assembly line is a .req directive. Return the pair
 of alias and register, if so. Otherwise, return None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse.is_if">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_if</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.is_if" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_if</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.is_if" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse.check_else">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_else</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.check_else" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_else</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.check_else" title="Link to this definition"></a></dt>
 <dd><p>Check if an assembly line is a .req directive. Return the pair
 of alias and register, if so. Otherwise, return None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse.is_else">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_else</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.is_else" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_else</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.is_else" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse.check_endif">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_endif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.check_endif" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_endif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.check_endif" title="Link to this definition"></a></dt>
 <dd><p>Check if an assembly line is a .req directive. Return the pair
 of alias and register, if so. Otherwise, return None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse.is_endif">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_endif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.is_endif" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_endif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.is_endif" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse.evaluate_condition">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.evaluate_condition" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.evaluate_condition" title="Link to this definition"></a></dt>
 <dd><p>Evaluates the condition string and returns True or False.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.AsmIfElse.process_instructions">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instructions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.process_instructions" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">process_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instructions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIfElse.process_instructions" title="Link to this definition"></a></dt>
 <dd><p>Processes a list of instructions with conditional statements.</p>
 </dd></dl>
 
@@ -790,7 +790,7 @@ of alias and register, if so. Otherwise, return None.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.CPreprocessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">CPreprocessor</span></span><a class="headerlink" href="#slothy.helper.CPreprocessor" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">CPreprocessor</span></span><a class="headerlink" href="#slothy.helper.CPreprocessor" title="Link to this definition"></a></dt>
 <dd><p>Helper class for the application of the C preprocessor</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.helper.CPreprocessor.magic_string_start">
@@ -804,7 +804,7 @@ of alias and register, if so. Otherwise, return None.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.CPreprocessor.unfold">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unfold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gcc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.CPreprocessor.unfold" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unfold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gcc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.CPreprocessor.unfold" title="Link to this definition"></a></dt>
 <dd><p>Runs the concatenation of header and body through the preprocessor</p>
 </dd></dl>
 
@@ -812,7 +812,7 @@ of alias and register, if so. Otherwise, return None.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="slothy.helper.LLVM_Mc_Error">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LLVM_Mc_Error</span></span><a class="headerlink" href="#slothy.helper.LLVM_Mc_Error" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LLVM_Mc_Error</span></span><a class="headerlink" href="#slothy.helper.LLVM_Mc_Error" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception thrown if llvm-mc subprocess fails</p>
 <p class="rubric">Initialization</p>
@@ -821,24 +821,24 @@ of alias and register, if so. Otherwise, return None.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.LLVM_Mc">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LLVM_Mc</span></span><a class="headerlink" href="#slothy.helper.LLVM_Mc" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LLVM_Mc</span></span><a class="headerlink" href="#slothy.helper.LLVM_Mc" title="Link to this definition"></a></dt>
 <dd><p>Helper class for the application of the LLVM MC tool</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.LLVM_Mc.llvm_mc_output_extract_text_section">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_mc_output_extract_text_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.LLVM_Mc.llvm_mc_output_extract_text_section" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_mc_output_extract_text_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.LLVM_Mc.llvm_mc_output_extract_text_section" title="Link to this definition"></a></dt>
 <dd><p>Extracts offset and size of .text section from an objectfile
 emitted by llvm-mc.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.LLVM_Mc.llvm_mc_output_extract_symbol">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_mc_output_extract_symbol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.LLVM_Mc.llvm_mc_output_extract_symbol" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llvm_mc_output_extract_symbol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.LLVM_Mc.llvm_mc_output_extract_symbol" title="Link to this definition"></a></dt>
 <dd><p>Extracts symbol from an objectfile emitted by llvm-mc</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.LLVM_Mc.assemble">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.LLVM_Mc.assemble" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.LLVM_Mc.assemble" title="Link to this definition"></a></dt>
 <dd><p>Runs LLVM-MC tool to assemble <cite>source</cite>, returning byte code</p>
 </dd></dl>
 
@@ -846,7 +846,7 @@ emitted by llvm-mc.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="slothy.helper.LLVM_Mca_Error">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LLVM_Mca_Error</span></span><a class="headerlink" href="#slothy.helper.LLVM_Mca_Error" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LLVM_Mca_Error</span></span><a class="headerlink" href="#slothy.helper.LLVM_Mca_Error" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception thrown if llvm-mca subprocess fails</p>
 <p class="rubric">Initialization</p>
@@ -855,11 +855,11 @@ emitted by llvm-mc.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.LLVM_Mca">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LLVM_Mca</span></span><a class="headerlink" href="#slothy.helper.LLVM_Mca" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">LLVM_Mca</span></span><a class="headerlink" href="#slothy.helper.LLVM_Mca" title="Link to this definition"></a></dt>
 <dd><p>Helper class for the application of the LLVM MCA tool</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.LLVM_Mca.run">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">issue_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.LLVM_Mca.run" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">issue_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.LLVM_Mca.run" title="Link to this definition"></a></dt>
 <dd><p>Runs LLVM-MCA tool on body and returns result as array of strings</p>
 </dd></dl>
 
@@ -867,7 +867,7 @@ emitted by llvm-mc.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="slothy.helper.SelfTestException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">SelfTestException</span></span><a class="headerlink" href="#slothy.helper.SelfTestException" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">SelfTestException</span></span><a class="headerlink" href="#slothy.helper.SelfTestException" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception thrown upon selftest failures</p>
 <p class="rubric">Initialization</p>
@@ -876,52 +876,52 @@ emitted by llvm-mc.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.SelfTest">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">SelfTest</span></span><a class="headerlink" href="#slothy.helper.SelfTest" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">SelfTest</span></span><a class="headerlink" href="#slothy.helper.SelfTest" title="Link to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.SelfTest.run">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codeA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codeB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_registers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_registers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fnsym</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SelfTest.run" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codeA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codeB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_registers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_registers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fnsym</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.SelfTest.run" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.Permutation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">Permutation</span></span><a class="headerlink" href="#slothy.helper.Permutation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">Permutation</span></span><a class="headerlink" href="#slothy.helper.Permutation" title="Link to this definition"></a></dt>
 <dd><p>Helper class for manipulating permutations</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Permutation.is_permutation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_permutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.is_permutation" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_permutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.is_permutation" title="Link to this definition"></a></dt>
 <dd><p>Checks whether dictionary perm is a permutation of size sz.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Permutation.permutation_id">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_id" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_id" title="Link to this definition"></a></dt>
 <dd><p>Return the identity permutation of size sz.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Permutation.permutation_comp">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_comp" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_comp" title="Link to this definition"></a></dt>
 <dd><p>Compose two permutations.</p>
 <p>This computes ‘p_b o p_a’, that is, ‘p_a first, then p_b’.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Permutation.permutation_pad">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_pad" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_pad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_pad" title="Link to this definition"></a></dt>
 <dd><p>Pad permutation with identity permutation at front and back</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Permutation.permutation_move_entry_forward">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_move_entry_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_from</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_to</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_move_entry_forward" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">permutation_move_entry_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_from</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_to</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.permutation_move_entry_forward" title="Link to this definition"></a></dt>
 <dd><p>Create transposition permutation</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Permutation.iter_swaps">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iter_swaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.iter_swaps" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">iter_swaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Permutation.iter_swaps" title="Link to this definition"></a></dt>
 <dd><p>Iterate over all inputs that have their order reversed by
 the permutation.</p>
 </dd></dl>
@@ -930,7 +930,7 @@ the permutation.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.DeferHandler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">DeferHandler</span></span><a class="headerlink" href="#slothy.helper.DeferHandler" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">DeferHandler</span></span><a class="headerlink" href="#slothy.helper.DeferHandler" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logging.Handler</span></code></p>
 <p>Handler collecting all records produced by a logger and relaying
 them to the same or different logger later.</p>
@@ -958,17 +958,17 @@ and the filter list to empty.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.helper.Loop">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">Loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lr'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Loop" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">Loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lr'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Loop" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Loop.start">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_cnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unroll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_if_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Loop.start" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_cnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unroll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_if_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Loop.start" title="Link to this definition"></a></dt>
 <dd><p>Emit starting instruction(s) and jump label for loop</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Loop.end">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Loop.end" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.Loop.end" title="Link to this definition"></a></dt>
 <dd><p>Emit compare-and-branch at the end of the loop</p>
 </dd></dl>
 
@@ -980,7 +980,7 @@ and the filter list to empty.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.helper.Loop.extract">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">any</span></span></span><a class="headerlink" href="#slothy.helper.Loop.extract" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_loop_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">any</span></span></span><a class="headerlink" href="#slothy.helper.Loop.extract" title="Link to this definition"></a></dt>
 <dd><p>Find a loop with start label <cite>lbl</cite> in <cite>source</cite> and return it together
 with its type.</p>
 <dl class="field-list simple">

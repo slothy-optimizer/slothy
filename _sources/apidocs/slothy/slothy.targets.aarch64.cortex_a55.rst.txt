@@ -90,12 +90,16 @@ API
 
    .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.llvm_mca_target
 
-.. py:class:: ExecutionUnit
+.. py:class:: ExecutionUnit(*args, **kwds)
    :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit
 
    Bases: :py:obj:`enum.Enum`
 
    .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a55.ExecutionUnit.__init__
 
    .. py:attribute:: SCALAR_ALU0
       :canonical: slothy.targets.aarch64.cortex_a55.ExecutionUnit.SCALAR_ALU0
