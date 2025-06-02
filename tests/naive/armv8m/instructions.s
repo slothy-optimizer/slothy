@@ -226,6 +226,10 @@ vorr.u16 q2, q0, q1
 vorr.u32 q2, q0, q1
 vorr.u64 q2, q0, q1
 
+vorr.u8 q2, q0, q1
+vorr.u16 q2, q0, q1
+vorr.u32 q2, q0, q1
+
 nop
 
 vstrw.u32 q0, [r0, #16]

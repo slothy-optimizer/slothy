@@ -1497,6 +1497,15 @@ class vorr(Instruction):
         )
 
 
+class veor(Instruction):
+    def __init__(self):
+        super().__init__(
+            mnemonic="veor.<dt>",
+            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+            arg_types_out=[RegisterType.MVE],
+        )
+
+
 class nop(Instruction):
     def __init__(self):
         super().__init__(mnemonic="nop")
