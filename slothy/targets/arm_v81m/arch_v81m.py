@@ -2329,45 +2329,6 @@ class vhcadd(Instruction):
         )
 
 
-class vhcsub(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vhcsub.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vhcsub_regexp_txt = (
-            r"vhcsub\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
-            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
-        )
-        vhcsub_regexp_txt = Instruction.unfold_abbrevs(vhcsub_regexp_txt)
-        vhcsub_regexp = re.compile(vhcsub_regexp_txt)
-        p = vhcsub_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.rotation = p.group("rotation")
-
-        if "32" in self.datatype:
-            # First index: output, Second index: Input
-            self.args_in_out_different = [
-                (0, 0),
-                (0, 1),
-            ]  # Output must not be the same as any of the inputs
-
-    def write(self):
-        return (
-            f"vhcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}, {self.rotation}"
-        )
-
-
 class vcaddf(Instruction):
     def __init__(self):
         super().__init__(
@@ -2404,43 +2365,6 @@ class vcaddf(Instruction):
         return (
             f"vcadd.{self.datatype} {self.args_out[0]}, "
             f"{self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
-        )
-
-
-class vcsubf(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vcsubf.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vhcsub_regexp_txt = (
-            r"vcsub\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
-            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
-        )
-        vhcsub_regexp_txt = Instruction.unfold_abbrevs(vhcsub_regexp_txt)
-        vhcsub_regexp = re.compile(vhcsub_regexp_txt)
-        p = vhcsub_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.rotation = p.group("rotation")
-
-        if self.datatype == "f32":
-            # First index: output, Second index: Input
-            # Output must not be the same as any of the inputs
-            self.args_in_out_different = [(0, 0), (0, 1)]
-
-    def write(self):
-        return (
-            f"vcsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}, {self.rotation}"
         )
 
 
