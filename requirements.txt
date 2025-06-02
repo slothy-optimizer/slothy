@@ -5,14 +5,14 @@ pandas>=2.0.3
 sympy==1.13.3
 unicorn==2.1.3
 black
+pydoclint==0.6.6
+flake8==7.2.0
 
-# Optional dependencies for linting, documentation (only for Python >= 3.10)
-pydoclint==0.6.6 ; python_version >= "3.10"
-flake8==7.2.0 ; python_version >= "3.10"
-sphinx==8.1.3 ; python_version >= "3.10"
-sphinx_rtd_theme==3.0.2 ; python_version >= "3.10"
-sphinx_autoapi ; python_version >= "3.10"
-sphinx_mdinclude ; python_version >= "3.10"
-myst_parser ; python_version >= "3.10"
-sphinx-autobuild ; python_version >= "3.10"
-sphinx-autodoc2 ; python_version >= "3.10"
+# Optional dependencies for documentation (only for Python >= 3.11)
+sphinx==8.2.3 ; python_version >= "3.11"
+sphinx_rtd_theme==3.0.2 ; python_version >= "3.11"
+sphinx_autoapi ; python_version >= "3.11"
+sphinx_mdinclude ; python_version >= "3.11"
+myst_parser ; python_version >= "3.11"
+sphinx-autobuild ; python_version >= "3.11"
+sphinx-autodoc2 ; python_version >= "3.11"
