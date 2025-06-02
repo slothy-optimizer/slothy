@@ -231,14 +231,8 @@ Classes
    * - :py:obj:`vhcadd <slothy.targets.arm_v81m.arch_v81m.vhcadd>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcadd
           :summary:
-   * - :py:obj:`vhcsub <slothy.targets.arm_v81m.arch_v81m.vhcsub>`
-     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcsub
-          :summary:
    * - :py:obj:`vcaddf <slothy.targets.arm_v81m.arch_v81m.vcaddf>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcaddf
-          :summary:
-   * - :py:obj:`vcsubf <slothy.targets.arm_v81m.arch_v81m.vcsubf>`
-     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcsubf
           :summary:
 
 Functions
@@ -1578,25 +1572,6 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcadd.write
 
-.. py:class:: vhcsub()
-   :canonical: slothy.targets.arm_v81m.arch_v81m.vhcsub
-
-   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
-
-   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcsub
-
-   .. rubric:: Initialization
-
-   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcsub.__init__
-
-   .. py:method:: parse(src)
-      :canonical: slothy.targets.arm_v81m.arch_v81m.vhcsub.parse
-
-   .. py:method:: write()
-      :canonical: slothy.targets.arm_v81m.arch_v81m.vhcsub.write
-
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vhcsub.write
-
 .. py:class:: vcaddf()
    :canonical: slothy.targets.arm_v81m.arch_v81m.vcaddf
 
@@ -1615,25 +1590,6 @@ API
       :canonical: slothy.targets.arm_v81m.arch_v81m.vcaddf.write
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcaddf.write
-
-.. py:class:: vcsubf()
-   :canonical: slothy.targets.arm_v81m.arch_v81m.vcsubf
-
-   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
-
-   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcsubf
-
-   .. rubric:: Initialization
-
-   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcsubf.__init__
-
-   .. py:method:: parse(src)
-      :canonical: slothy.targets.arm_v81m.arch_v81m.vcsubf.parse
-
-   .. py:method:: write()
-      :canonical: slothy.targets.arm_v81m.arch_v81m.vcsubf.write
-
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vcsubf.write
 
 .. py:function:: vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class)
    :canonical: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb
