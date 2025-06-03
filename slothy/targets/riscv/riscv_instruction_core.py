@@ -156,13 +156,14 @@ class RISCVInstruction(Instruction):
         return parser
 
     @cache
-    @staticmethod
-    def _infer_register_type(ptrn):
+    def infer_register_type(ptrn):
         if ptrn[0].upper() in ["X"]:
             return RegisterType.BASE_INT
         if ptrn[0].upper() in ["V"]:
             return RegisterType.VECT
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
+
+    _infer_register_type = staticmethod(infer_register_type)
 
     def __init__(
         self,
