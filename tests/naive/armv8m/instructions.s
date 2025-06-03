@@ -147,6 +147,11 @@ vshllb.u16 q0, q1, #8
 vshllb.s8 q0, q1, #8
 vshllb.s16 q0, q1, #8
 
+vsli.u8 q0, q1, #6
+vsli.u16 q0, q1, #8
+vsli.s8 q0, q1, #6
+vsli.s16 q0, q1, #8
+
 vmovlb.u8 q1, q0
 vmovlb.u16 q1, q0
 vmovlb.s8 q1, q0
