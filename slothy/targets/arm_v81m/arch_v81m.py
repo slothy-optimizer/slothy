@@ -488,7 +488,6 @@ class InstructionNew:
         for i in insts:
             i.source_line = src_line
             i.extract_read_writes()
-
         if len(insts) == 0:
             logging.error("Failed to parse instruction %s", src)
             logging.error("A list of attempted parsers and their exceptions follows.")
@@ -943,7 +942,10 @@ class MVEInstruction(InstructionNew):
         depends_on_flags = getattr(c, "dependsOnFlags", False)
 
         if isinstance(src, str):
-            if src.split(".")[0] != pattern.split(".")[0]:
+            if (
+                src.split(".")[0] != pattern.split(".")[0]
+                and src.split(" ")[0] != pattern.split(" ")[0]
+            ):
                 raise InstructionNew.ParsingException("Mnemonic does not match")
             res = MVEInstruction.get_parser(pattern)(src)
         else:
@@ -960,6 +962,7 @@ class MVEInstruction(InstructionNew):
         )
 
         MVEInstruction.build_core(obj, res)
+
         return obj
 
     @classmethod
@@ -1760,95 +1763,28 @@ class add_imm(Instruction):
         return f"add {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
 
 
-class sub_imm(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="sub",
-            arg_types_in=[RegisterType.GPR],
-            arg_types_out=[RegisterType.GPR],
-        )
-
-    def parse(self, src):
-        sub_imm_regexp_txt = (
-            r"sub\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
-        )
-        sub_imm_regexp_txt = Instruction.unfold_abbrevs(sub_imm_regexp_txt)
-        sub_imm_regexp = re.compile(sub_imm_regexp_txt)
-        p = sub_imm_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.shift = p.group("shift")
-
-    def write(self):
-        return f"sub {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
+class sub_imm(MVEInstruction):
+    pattern = "sub <Rd>, <Ra>, <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
 
 
-class vshr(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vshr.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vshr_regexp_txt = (
-            r"vshr\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
-        )
-        vshr_regexp_txt = Instruction.unfold_abbrevs(vshr_regexp_txt)
-        vshr_regexp = re.compile(vshr_regexp_txt)
-        p = vshr_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.shift = p.group("shift")
-
-    def write(self):
-        return (
-            f"vshr.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
-        )
+class vshr(MVEInstruction):
+    pattern = "vshr.<dt> <Qd>, <Qa>, <imm>"
+    inputs = ["Qa"]
+    outputs = ["Qd"]
 
 
-class vshrnbt(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vshrnbt.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_in_out=[RegisterType.MVE],
-        )
+class vshrnb(MVEInstruction):
+    pattern = "vshrnb.<dt> <Qd>, <Qa>, <imm>"
+    inputs = ["Qa"]
+    in_outs = ["Qd"]
 
-    def parse(self, src):
-        vshrn_regexp_txt = (
-            r"v(?P<round>r)?shrn(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,"
-            r"\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
-        )
-        vshrn_regexp_txt = Instruction.unfold_abbrevs(vshrn_regexp_txt)
-        vshrn_regexp = re.compile(vshrn_regexp_txt)
-        p = vshrn_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = []
-        self.args_in_out = [p.group("vec")]
-        self.args_in = [p.group("src")]
 
-        self.datatype = p.group("datatype")
-        self.shift = p.group("shift")
-        self.bt = p.group("bt")
-        self.round = p.group("round") if p.group("round") else ""
-
-    def write(self):
-        return (
-            f"v{self.round}shrn{self.bt}.{self.datatype} {self.args_in_out[0]}, "
-            f"{self.args_in[0]}, {self.shift}"
-        )
+class vshrnt(MVEInstruction):
+    pattern = "vshrnt.<dt> <Qd>, <Qa>, <imm>"
+    inputs = ["Qa"]
+    in_outs = ["Qd"]
 
 
 class vshllb(MVEInstruction):
