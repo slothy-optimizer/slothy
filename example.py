@@ -80,6 +80,17 @@ from examples.naive.armv8m.crt._example import (
     example_instances as example_instances_armv8m_crt,
 )
 
+from examples.naive.riscv.simple._example import (
+    example_instances as example_instances_riscv_simple
+)
+
+from examples.naive.riscv.ntt_dilithium._example import (
+    example_instances as example_instances_riscv_ntt_dilithium
+)
+
+from examples.naive.riscv.poly_basemul._example import (
+    example_instances as example_instances_riscv_poly_basemul
+)
 
 def main():
     examples = (
@@ -95,6 +106,9 @@ def main():
         + example_instances_armv8m_flt_r4_fft
         + example_instances_armv8m_fx_r4_fft
         + example_instances_armv8m_ntt_256
+        + example_instances_riscv_simple
+        + example_instances_riscv_ntt_dilithium
+        + example_instances_riscv_poly_basemul
     )
 
     all_example_names = [e.name for e in examples]
@@ -143,6 +157,7 @@ def main():
     def run_example(name, **kwargs):
         ex = None
         for e in examples:
+            print(e.name + "\n")
             if e.name == name:
                 ex = e
                 break
