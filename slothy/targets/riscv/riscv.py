@@ -69,10 +69,9 @@ class RegisterType(Enum):
         return
 
     spillable = staticmethod(_spillable)
-
+    
     @cache
-    @staticmethod
-    def list_registers(
+    def _list_registers(
         reg_type, only_extra=False, only_normal=False, with_variants=False
     ):
         """Return the list of all registers of a given type"""
@@ -86,6 +85,8 @@ class RegisterType(Enum):
             RegisterType.VECT: vector_regs,
             RegisterType.CSR: csr,
         }[reg_type]
+
+    list_registers = staticmethod(_list_registers)
 
     @staticmethod
     def find_type(r):
