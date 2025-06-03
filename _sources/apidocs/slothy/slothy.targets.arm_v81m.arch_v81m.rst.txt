@@ -144,6 +144,9 @@ Classes
    * - :py:obj:`vshllbt <slothy.targets.arm_v81m.arch_v81m.vshllbt>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshllbt
           :summary:
+   * - :py:obj:`vsli <slothy.targets.arm_v81m.arch_v81m.vsli>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsli
+          :summary:
    * - :py:obj:`vmovlbt <slothy.targets.arm_v81m.arch_v81m.vmovlbt>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmovlbt
           :summary:
@@ -186,8 +189,14 @@ Classes
    * - :py:obj:`vand <slothy.targets.arm_v81m.arch_v81m.vand>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vand
           :summary:
+   * - :py:obj:`vbic <slothy.targets.arm_v81m.arch_v81m.vbic>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vbic
+          :summary:
    * - :py:obj:`vorr <slothy.targets.arm_v81m.arch_v81m.vorr>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vorr
+          :summary:
+   * - :py:obj:`veor <slothy.targets.arm_v81m.arch_v81m.veor>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.veor
           :summary:
    * - :py:obj:`nop <slothy.targets.arm_v81m.arch_v81m.nop>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.nop
@@ -1100,6 +1109,25 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vshllbt.write
 
+.. py:class:: vsli()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vsli
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsli
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsli.__init__
+
+   .. py:method:: parse(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vsli.parse
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vsli.write
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsli.write
+
 .. py:class:: vmovlbt()
    :canonical: slothy.targets.arm_v81m.arch_v81m.vmovlbt
 
@@ -1294,6 +1322,17 @@ API
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vand.__init__
 
+.. py:class:: vbic()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vbic
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vbic
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vbic.__init__
+
 .. py:class:: vorr()
    :canonical: slothy.targets.arm_v81m.arch_v81m.vorr
 
@@ -1304,6 +1343,17 @@ API
    .. rubric:: Initialization
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vorr.__init__
+
+.. py:class:: veor()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.veor
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.Instruction`
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.veor
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.veor.__init__
 
 .. py:class:: nop()
    :canonical: slothy.targets.arm_v81m.arch_v81m.nop
