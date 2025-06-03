@@ -38,6 +38,7 @@ import re
 import math
 
 from sympy import simplify
+from functools import cache
 from enum import Enum
 
 from slothy.helper import Loop
@@ -184,8 +185,329 @@ class FatalParsingException(Exception):
     """A fatal error happened during instruction parsing"""
 
 
-class Instruction:
+class InstructionNew:
+    class ParsingException(Exception):
+        def __init__(self, err=None):
+            super().__init__(err)
 
+    def __init__(
+        self, *, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None
+    ):
+
+        if arg_types_in is None:
+            arg_types_in = []
+        if arg_types_out is None:
+            arg_types_out = []
+        if arg_types_in_out is None:
+            arg_types_in_out = []
+
+        self.mnemonic = mnemonic
+
+        self.args_out_combinations = None
+        self.args_in_combinations = None
+        self.args_in_out_combinations = None
+        self.args_in_out_different = None
+        self.args_in_inout_different = None
+
+        self.arg_types_in = arg_types_in
+        self.arg_types_out = arg_types_out
+        self.arg_types_in_out = arg_types_in_out
+        self.num_in = len(arg_types_in)
+        self.num_out = len(arg_types_out)
+        self.num_in_out = len(arg_types_in_out)
+
+        self.args_out_restrictions = [None for _ in range(self.num_out)]
+        self.args_in_restrictions = [None for _ in range(self.num_in)]
+        self.args_in_out_restrictions = [None for _ in range(self.num_in_out)]
+
+        self.args_in = []
+        self.args_out = []
+        self.args_in_out = []
+
+        self.addr = None
+        self.increment = None
+        self.pre_index = None
+        self.offset_adjustable = True
+
+        self.immediate = None
+        self.datatype = None
+        self.index = None
+        self.flag = None
+
+    def extract_read_writes(self):
+        """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
+
+        src_line = self.source_line
+
+        def hint_register_name(tag):
+            return f"hint_{tag}"
+
+        # Check if the source line is tagged as reading/writing from memory
+        def add_memory_write(tag):
+            self.num_out += 1
+            self.args_out_restrictions.append(None)
+            self.args_out.append(hint_register_name(tag))
+            self.arg_types_out.append(RegisterType.HINT)
+
+        def add_memory_read(tag):
+            self.num_in += 1
+            self.args_in_restrictions.append(None)
+            self.args_in.append(hint_register_name(tag))
+            self.arg_types_in.append(RegisterType.HINT)
+
+        write_tags = src_line.tags.get("writes", [])
+        read_tags = src_line.tags.get("reads", [])
+
+        if not isinstance(write_tags, list):
+            write_tags = [write_tags]
+
+        if not isinstance(read_tags, list):
+            read_tags = [read_tags]
+
+        for w in write_tags:
+            add_memory_write(w)
+
+        for r in read_tags:
+            add_memory_read(r)
+
+        return self
+
+    def global_parsing_cb(self, a, log=None):
+        """Parsing callback triggered after DataFlowGraph parsing which allows
+        modification of the instruction in the context of the overall computation.
+
+        This is primarily used to remodel input-outputs as outputs in jointly destructive
+        instruction patterns (See Section 4.4, https://eprint.iacr.org/2022/1303.pdf).
+        """
+        _ = log  # log is not used
+        return False
+
+    def global_fusion_cb(self, a, log=None):
+        """Fusion callback triggered after DataFlowGraph parsing which allows fusing
+        of the instruction in the context of the overall computation.
+
+        This can be used e.g. to detect eor-eor pairs and replace them by eor3."""
+        _ = log  # log is not used
+        return False
+
+    def write(self):
+        """Write the instruction"""
+        args = self.args_out + self.args_in_out + self.args_in
+        return self.mnemonic + " " + ", ".join(args)
+
+    @staticmethod
+    def unfold_abbrevs(mnemonic):
+        mnemonic = re.sub("<dt>", "(?P<datatype>(?:|i|u|s)(?:8|16|32|64))", mnemonic)
+        mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f)(?:8|16|32))", mnemonic)
+        return mnemonic
+
+    def _is_instance_of(self, inst_list):
+        for inst in inst_list:
+            if isinstance(self, inst):
+                return True
+        return False
+
+    def is_load_store_instruction(self):
+        return self._is_instance_of(
+            [
+                vldr,
+                vstr,
+                vld2,
+                vld4,
+                vst2,
+                vst4,
+                ldrd,
+                strd,
+                qsave,
+                qrestore,
+                save,
+                restore,
+                saved,
+                restored,
+            ]
+        )
+
+    def is_vector_load(self):
+        return self._is_instance_of([vldr, vld2, vld4, qrestore])
+
+    def is_scalar_load(self):
+        return self._is_instance_of([ldrd, ldr, restore, restored])
+
+    def is_load(self):
+        return self.is_vector_load() or self.is_scalar_load()
+
+    def is_vector_store(self):
+        return self._is_instance_of([vstr, vst2, vst4, qsave])
+
+    def is_stack_store(self):
+        return self._is_instance_of([qsave, saved, save])
+
+    def is_stack_load(self):
+        return self._is_instance_of([qrestore, restored, restore])
+
+    # def parse(self, src):
+    #     """Assumes format 'mnemonic [in]out0, .., [in]outN, in0, .., inM"""
+    #     src = re.sub("//.*$", "", src)
+
+    #     have_dt = ("<dt>" in self.mnemonic) or ("<fdt>" in self.mnemonic)
+
+    #     # Replace <dt> by list of all possible datatypes
+    #     mnemonic = InstructionNew.unfold_abbrevs(self.mnemonic)
+
+    #     expected_args = self.num_in + self.num_out + self.num_in_out
+    #     regexp_txt = rf"^\s*{mnemonic}"
+    #     if expected_args > 0:
+    #         regexp_txt += r"\s+"
+    #     regexp_txt += ",".join([r"\s*(\w+)\s*" for _ in range(expected_args)])
+    #     regexp = re.compile(regexp_txt)
+
+    #     p = regexp.match(src)
+    #     if p is None:
+    #         raise InstructionNew.ParsingException(
+    #             f"Doesn't match basic instruction template {regexp_txt}"
+    #         )
+
+    #     operands = list(p.groups())
+    #     if have_dt:
+    #         operands = operands[1:]
+
+    #     self.args_in = []
+    #     self.args_out = []
+    #     self.args_in_out = []
+
+    #     self.datatype = ""
+    #     if have_dt:
+    #         self.datatype = p.group("datatype")
+
+    #     idx_args_in = 0
+
+    #     if self.num_out > 0:
+    #         self.args_out = operands[: self.num_out]
+    #         idx_args_in = self.num_out
+    #     elif self.num_in_out > 0:
+    #         self.args_in_out = operands[: self.num_in_out]
+    #         idx_args_in = self.num_in_out
+
+    #     self.args_in = operands[idx_args_in:]
+
+    #     if not len(self.args_in) == self.num_in:
+    #         raise Exception(
+    #             f"Something wrong parsing {src}: Expect {self.num_in} \
+    #                         input, but got {len(self.args_in)} ({self.args_in})"
+    #         )
+
+    @classmethod
+    def make(cls, src):
+        """Abstract factory method parsing a string into an instruction instance."""
+
+    @staticmethod
+    def build(c: any, src: str, mnemonic: str, **kwargs: list) -> "Instruction":
+        """Attempt to parse a string as an instance of an instruction.
+
+        :param c: The target instruction the string should be attempted to be parsed as.
+        :type c: any
+        :param src: The string to parse.
+        :type src: str
+        :param mnemonic: The mnemonic of instruction c
+        :type mnemonic: str
+        :param **kwargs: Additional arguments to pass to the constructor of c.
+        :type **kwargs: list
+
+        :return: Upon success, the result of parsing src as an instance of c.
+        :rtype: Instruction
+
+        :raises InstructionNew.ParsingException: The str argument cannot be parsed as an
+                instance of c.
+        :raises FatalParsingException: A fatal error during parsing happened
+                that's likely a bug in the model.
+        """
+
+        if src.split(" ")[0] != mnemonic:
+            raise InstructionNew.ParsingException("Mnemonic does not match")
+
+        obj = c(mnemonic=mnemonic, **kwargs)
+
+        # Replace <dt> by list of all possible datatypes
+        mnemonic = InstructionNew.unfold_abbrevs(obj.mnemonic)
+
+        expected_args = obj.num_in + obj.num_out + obj.num_in_out
+        regexp_txt = rf"^\s*{mnemonic}"
+        if expected_args > 0:
+            regexp_txt += r"\s+"
+        regexp_txt += ",".join([r"\s*(\w+)\s*" for _ in range(expected_args)])
+        regexp = re.compile(regexp_txt)
+
+        p = regexp.match(src)
+        if p is None:
+            raise InstructionNew.ParsingException(
+                f"Doesn't match basic instruction template {regexp_txt}"
+            )
+
+        operands = list(p.groups())
+
+        if obj.num_out > 0:
+            obj.args_out = operands[: obj.num_out]
+            idx_args_in = obj.num_out
+        elif obj.num_in_out > 0:
+            obj.args_in_out = operands[: obj.num_in_out]
+            idx_args_in = obj.num_in_out
+        else:
+            idx_args_in = 0
+
+        obj.args_in = operands[idx_args_in:]
+
+        if not len(obj.args_in) == obj.num_in:
+            raise FatalParsingException(
+                f"Something wrong parsing {src}: Expect {obj.num_in} input,"
+                f" but got {len(obj.args_in)} ({obj.args_in})"
+            )
+
+        return obj
+
+    @staticmethod
+    def parser(src_line):
+        """Global factory method parsing an assembly line into an instance
+        of a subclass of Instruction."""
+        insts = []
+        exceptions = {}
+        instnames = []
+
+        src = src_line.text.strip()
+
+        # Iterate through all derived classes and call their parser
+        # until one of them hopefully succeeds
+        for inst_class in InstructionNew.all_subclass_leaves:
+            try:
+                inst = inst_class.make(src)
+                instnames = [inst_class.__name__]
+                insts = [inst]
+                break
+            except InstructionNew.ParsingException as e:
+                exceptions[inst_class.__name__] = e
+
+        for i in insts:
+            i.source_line = src_line
+            i.extract_read_writes()
+
+        if len(insts) == 0:
+            logging.error("Failed to parse instruction %s", src)
+            logging.error("A list of attempted parsers and their exceptions follows.")
+            for i, e in exceptions.items():
+                msg = f"* {i + ':':20s} {e}"
+                logging.error(msg)
+            raise InstructionNew.ParsingException(
+                f"Couldn't parse {src}\nYou may need to add support "
+                "for a new instruction (variant)?"
+            )
+
+        logging.debug("Parsing result for '%s': %s", src, instnames)
+        return insts
+
+    def __repr__(self):
+        return self.write()
+
+
+class Instruction:
     class ParsingException(Exception):
         def __init__(self, err=None):
             super().__init__(err)
@@ -241,8 +563,10 @@ class Instruction:
         return mnemonic + " " + ", ".join(args)
 
     def unfold_abbrevs(mnemonic):
-        mnemonic = re.sub("<dt>", "(?P<datatype>(?:|i|u|s)(?:8|16|32|64))", mnemonic)
-        mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f)(?:8|16|32))", mnemonic)
+        mnemonic = re.sub(
+            "<dt>", "(?P<datatype>(?:|i|u|s|I|U|S)(?:8|16|32|64))", mnemonic
+        )
+        mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f|F)(?:8|16|32))", mnemonic)
         return mnemonic
 
     def _is_instance_of(self, inst_list):
@@ -373,6 +697,309 @@ class Instruction:
 
     def __repr__(self):
         return self.write()
+
+
+class MVEInstruction(InstructionNew):
+    """Abstract class representing MVE instructions"""
+
+    PARSERS = {}
+
+    @staticmethod
+    def _unfold_pattern(src):
+
+        # Those replacements may look pointless, but they replace
+        # actual whitespaces before/after '.,[]' in the instruction
+        # pattern by regular expressions allowing flexible whitespacing.
+        flexible_spacing = [
+            (r"\s*,\s*", r"\\s*,\\s*"),
+            (r"\s*<imm>\s*", r"\\s*<imm>\\s*"),
+            (r"\s*\[\s*", r"\\s*\\[\\s*"),
+            (r"\s*\]\s*", r"\\s*\\]\\s*"),
+            (r"\s*\.\s*", r"\\s*\\.\\s*"),
+            (r"\s+", r"\\s+"),
+            (r"\\s\*\\s\\+", r"\\s+"),
+            (r"\\s\+\\s\\*", r"\\s+"),
+            (r"(\\s\*)+", r"\\s*"),
+        ]
+        for c, cp in flexible_spacing:
+            src = re.sub(c, cp, src)
+
+        def pattern_transform(g):
+            return (
+                f"([{g.group(1).lower()}{g.group(1)}]"
+                f"(?P<raw_{g.group(1)}{g.group(2)}>[0-9_][0-9_]*)|"
+                f"([{g.group(1).lower()}{g.group(1)}]"
+                f"<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
+            )
+
+        src = re.sub(r"<([QR])(\w+)>", pattern_transform, src)
+
+        # Replace <key> or <key0>, <key1>, ... with pattern
+        def replace_placeholders(src, mnemonic_key, regexp, group_name):
+            prefix = f"<{mnemonic_key}"
+            pattern = f"<{mnemonic_key}>"
+
+            def pattern_i(i):
+                return f"<{mnemonic_key}{i}>"
+
+            cnt = src.count(prefix)
+            if cnt > 1:
+                for i in range(cnt):
+                    src = re.sub(pattern_i(i), f"(?P<{group_name}{i}>{regexp})", src)
+            else:
+                src = re.sub(pattern, f"(?P<{group_name}>{regexp})", src)
+
+            return src
+
+        dt_pattern = "(?:|u|s|f|i|U|S|F|I)(?:8|16|32|64)"
+        imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
+        index_pattern = "[0-9]+"
+
+        src = replace_placeholders(src, "imm", imm_pattern, "imm")
+        src = replace_placeholders(src, "dt", dt_pattern, "datatype")
+        src = replace_placeholders(src, "index", index_pattern, "index")
+
+        src = r"\s*" + src + r"\s*(//.*)?\Z"
+        return src
+
+    @staticmethod
+    def _build_parser(src):
+        regexp_txt = MVEInstruction._unfold_pattern(src)
+        regexp = re.compile(regexp_txt)
+
+        def _parse(line):
+            regexp_result = regexp.match(line)
+            if regexp_result is None:
+                raise Instruction.ParsingException(
+                    f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
+                )
+            res = regexp.match(line).groupdict()
+            items = list(res.items())
+            for k, v in items:
+                for prefix in ["symbol_", "raw_"]:
+                    if k.startswith(prefix):
+                        del res[k]
+                        if v is None:
+                            continue
+                        k = k[len(prefix) :]
+                        res[k] = v
+            return res
+
+        return _parse
+
+    @staticmethod
+    def get_parser(pattern):
+        """Build parser for given MVE instruction pattern"""
+        if pattern in MVEInstruction.PARSERS:
+            return MVEInstruction.PARSERS[pattern]
+        parser = MVEInstruction._build_parser(pattern)
+        MVEInstruction.PARSERS[pattern] = parser
+        return parser
+
+    @cache
+    def __infer_register_type(ptrn):
+        if ptrn[0].upper() in ["R"]:
+            return RegisterType.GPR
+        if ptrn[0].upper() in ["Q"]:
+            return RegisterType.MVE
+        raise FatalParsingException(f"Unknown pattern: {ptrn}")
+
+    # TODO: remove workaround (needed for Python 3.9)
+    _infer_register_type = staticmethod(__infer_register_type)
+
+    def __init__(
+        self,
+        pattern,
+        *,
+        inputs=None,
+        outputs=None,
+        in_outs=None,
+        modifiesFlags=False,
+        dependsOnFlags=False,
+    ):
+
+        self.mnemonic = pattern.split(" ")[0]
+
+        if inputs is None:
+            inputs = []
+        if outputs is None:
+            outputs = []
+        if in_outs is None:
+            in_outs = []
+        arg_types_in = [MVEInstruction._infer_register_type(r) for r in inputs]
+        arg_types_out = [MVEInstruction._infer_register_type(r) for r in outputs]
+        arg_types_in_out = [MVEInstruction._infer_register_type(r) for r in in_outs]
+
+        # TODO: add flags
+        # if modifiesFlags:
+        #     arg_types_out += [RegisterType.FLAGS]
+        #     outputs += ["flags"]
+
+        # if dependsOnFlags:
+        #     arg_types_in += [RegisterType.FLAGS]
+        #     inputs += ["flags"]
+
+        super().__init__(
+            mnemonic=pattern,
+            arg_types_in=arg_types_in,
+            arg_types_out=arg_types_out,
+            arg_types_in_out=arg_types_in_out,
+        )
+
+        self.inputs = inputs
+        self.outputs = outputs
+        self.in_outs = in_outs
+
+        self.pattern = pattern
+        assert len(inputs) == len(arg_types_in)
+        self.pattern_inputs = list(zip(inputs, arg_types_in))
+        assert len(outputs) == len(arg_types_out)
+        self.pattern_outputs = list(zip(outputs, arg_types_out))
+        assert len(in_outs) == len(arg_types_in_out)
+        self.pattern_in_outs = list(zip(in_outs, arg_types_in_out))
+
+    @staticmethod
+    def _to_reg(ty, s):
+        if ty == RegisterType.GPR:
+            c = "r"
+        elif ty == RegisterType.MVE:
+            c = "q"
+        else:
+            assert False
+        if s.replace("_", "").isdigit():
+            return f"{c}{s}"
+        return s
+
+    @staticmethod
+    def _build_pattern_replacement(s, ty, arg):
+        if ty == RegisterType.GPR:
+            if arg[0] != "r":
+                return f"{s[0].upper()}<{arg}>"
+            return s[0].lower() + arg[1:]
+        if ty == RegisterType.MVE:
+            if arg[0] != "q":
+                return f"{s[0].upper()}<{arg}>"
+            return s[0].lower() + arg[1:]
+        raise FatalParsingException(f"Unknown register type ({s}, {ty}, {arg})")
+
+    @staticmethod
+    def _instantiate_pattern(s, ty, arg, out):
+        # if ty == RegisterType.FLAGS:
+        #   return out
+        rep = MVEInstruction._build_pattern_replacement(s, ty, arg)
+        res = out.replace(f"<{s}>", rep)
+        if res == out:
+            raise FatalParsingException(f"Failed to replace <{s}> by {rep} in {out}!")
+        return res
+
+    @staticmethod
+    def build_core(obj, res):
+
+        def group_to_attribute(group_name, attr_name, f=None):
+            def f_default(x):
+                return x
+
+            def group_name_i(i):
+                return f"{group_name}{i}"
+
+            if f is None:
+                f = f_default
+            if group_name in res.keys():
+                setattr(obj, attr_name, f(res[group_name]))
+            else:
+                idxs = [i for i in range(4) if group_name_i(i) in res.keys()]
+                if len(idxs) == 0:
+                    return
+                assert idxs == list(range(len(idxs)))
+                setattr(
+                    obj, attr_name, list(map(lambda i: f(res[group_name_i(i)]), idxs))
+                )
+
+        group_to_attribute("datatype", "datatype", lambda x: x.lower())
+        group_to_attribute("imm", "immediate", lambda x: x[1:])  # Strip '#'
+        group_to_attribute("index", "index", int)
+
+        for s, ty in obj.pattern_inputs:
+            # if ty == RegisterType.FLAGS:
+            #     obj.args_in.append("flags")
+            # else:
+            obj.args_in.append(MVEInstruction._to_reg(ty, res[s]))
+        for s, ty in obj.pattern_outputs:
+            # if ty == RegisterType.FLAGS:
+            #     obj.args_out.append("flags")
+            # else:
+            obj.args_out.append(MVEInstruction._to_reg(ty, res[s]))
+
+        for s, ty in obj.pattern_in_outs:
+            obj.args_in_out.append(MVEInstruction._to_reg(ty, res[s]))
+
+    @staticmethod
+    def build(c, src):
+        pattern = getattr(c, "pattern")
+        inputs = getattr(c, "inputs", []).copy()
+        outputs = getattr(c, "outputs", []).copy()
+        in_outs = getattr(c, "in_outs", []).copy()
+        modifies_flags = getattr(c, "modifiesFlags", False)
+        depends_on_flags = getattr(c, "dependsOnFlags", False)
+
+        if isinstance(src, str):
+            if src.split(".")[0] != pattern.split(".")[0]:
+                raise InstructionNew.ParsingException("Mnemonic does not match")
+            res = MVEInstruction.get_parser(pattern)(src)
+        else:
+            assert isinstance(src, dict)
+            res = src
+
+        obj = c(
+            pattern,
+            inputs=inputs,
+            outputs=outputs,
+            in_outs=in_outs,
+            modifiesFlags=modifies_flags,
+            dependsOnFlags=depends_on_flags,
+        )
+
+        MVEInstruction.build_core(obj, res)
+        return obj
+
+    @classmethod
+    def make(cls, src):
+        return MVEInstruction.build(cls, src)
+
+    def write(self):
+        out = self.pattern
+        ll = (
+            list(zip(self.args_in, self.pattern_inputs))
+            + list(zip(self.args_out, self.pattern_outputs))
+            + list(zip(self.args_in_out, self.pattern_in_outs))
+        )
+        for arg, (s, ty) in ll:
+            out = MVEInstruction._instantiate_pattern(s, ty, arg, out)
+
+        def replace_pattern(txt, attr_name, mnemonic_key, t=None):
+            def t_default(x):
+                return x
+
+            if t is None:
+                t = t_default
+
+            a = getattr(self, attr_name)
+            if a is None:
+                return txt
+            if not isinstance(a, list):
+                txt = txt.replace(f"<{mnemonic_key}>", t(a))
+                return txt
+            for i, v in enumerate(a):
+                txt = txt.replace(f"<{mnemonic_key}{i}>", t(v))
+            return txt
+
+        out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
+        out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
+        out = replace_pattern(out, "index", "index", str)
+
+        out = out.replace("\\[", "[")
+        out = out.replace("\\]", "]")
+        return out
 
 
 # Virtual instruction to model pushing to stack locations without modelling memory
@@ -1224,68 +1851,22 @@ class vshrnbt(Instruction):
         )
 
 
-class vshllbt(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vshllbt.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_in_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vshll_regexp_txt = (
-            r"vshll(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*, "
-            r"\s*(?P<shift>#.*)"
-        )
-        vshll_regexp_txt = Instruction.unfold_abbrevs(vshll_regexp_txt)
-        vshll_regexp = re.compile(vshll_regexp_txt)
-        p = vshll_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = []
-        self.args_in_out = [p.group("vec")]
-        self.args_in = [p.group("src")]
-
-        self.datatype = p.group("datatype")
-        self.shift = p.group("shift")
-        self.bt = p.group("bt")
-
-    def write(self):
-        return (
-            f"vshll{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, "
-            f"{self.shift}"
-        )
+class vshllb(MVEInstruction):
+    pattern = "vshllb.<dt> <Qd>, <Qa>, <imm>"
+    inputs = ["Qa"]
+    in_outs = ["Qd"]
 
 
-class vsli(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vsli.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_in_out=[RegisterType.MVE],
-        )
+class vshllt(MVEInstruction):
+    pattern = "vshllt.<dt> <Qd>, <Qa>, <imm>"
+    inputs = ["Qa"]
+    in_outs = ["Qd"]
 
-    def parse(self, src):
-        vsli_regexp_txt = (
-            r"vsli\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
-        )
-        vsli_regexp_txt = Instruction.unfold_abbrevs(vsli_regexp_txt)
-        vsli_regexp = re.compile(vsli_regexp_txt)
-        p = vsli_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = []
-        self.args_in_out = [p.group("vec")]
-        self.args_in = [p.group("src")]
 
-        self.datatype = p.group("datatype")
-        self.shift = p.group("shift")
-
-    def write(self):
-        return (
-            f"vsli.{self.datatype} {self.args_in_out[0]}, "
-            f"{self.args_in[0]}, {self.shift}"
-        )
+class vsli(MVEInstruction):
+    pattern = "vsli.<dt> <Qd>, <Qa>, <imm>"
+    inputs = ["Qa"]
+    in_outs = ["Qd"]
 
 
 class vmovlbt(Instruction):
@@ -2477,6 +3058,33 @@ vqdmlsdh.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmlsdh, vqdmladhx)
 vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 
 
+# Returns the list of all subclasses of a class which don't have
+# subclasses themselves
+def all_subclass_leaves(c):
+
+    def has_subclasses(cl):
+        return len(cl.__subclasses__()) > 0
+
+    def is_leaf(c):
+        return not has_subclasses(c)
+
+    def all_subclass_leaves_core(leaf_lst, todo_lst):
+        leaf_lst += filter(is_leaf, todo_lst)
+        todo_lst = [
+            csub
+            for c in filter(has_subclasses, todo_lst)
+            for csub in c.__subclasses__()
+        ]
+        if len(todo_lst) == 0:
+            return leaf_lst
+        return all_subclass_leaves_core(leaf_lst, todo_lst)
+
+    return all_subclass_leaves_core([], [c])
+
+
+InstructionNew.all_subclass_leaves = all_subclass_leaves(InstructionNew)
+
+
 def lookup_multidict(d, inst, default=None):
     for ll, v in d.items():
         # Multidict entries can be the following:
@@ -2505,4 +3113,5 @@ def find_class(src):
     for inst_class in Instruction.__subclasses__():
         if isinstance(src, inst_class):
             return inst_class
+
     raise Exception("Couldn't find instruction class")

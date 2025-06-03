@@ -800,7 +800,12 @@ class DataFlowGraph:
 
     def _parse_line(self, line):
         assert SourceLine.is_source_line(line)
-        insts = self.arch.Instruction.parser(line)
+        # TODO: remove this hack:
+        try:
+            insts = self.arch.Instruction.parser(line)
+        except Exception:
+            insts = self.arch.InstructionNew.parser(line)
+
         # Remember options from source line
         # TODO: Might not be the right place to remember options
         for inst in insts:
