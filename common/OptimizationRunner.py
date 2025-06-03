@@ -63,7 +63,7 @@ arch_label_dict = {
     Arch_Armv7M: "armv7m",
     Arch_Armv81M: "armv8m",
     AArch64_Neon: "aarch64",
-    RISC_V : "riscv"
+    RISC_V: "riscv",
 }
 
 

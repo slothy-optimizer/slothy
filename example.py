@@ -81,16 +81,17 @@ from examples.naive.armv8m.crt._example import (
 )
 
 from examples.naive.riscv.simple._example import (
-    example_instances as example_instances_riscv_simple
+    example_instances as example_instances_riscv_simple,
 )
 
 from examples.naive.riscv.ntt_dilithium._example import (
-    example_instances as example_instances_riscv_ntt_dilithium
+    example_instances as example_instances_riscv_ntt_dilithium,
 )
 
 from examples.naive.riscv.poly_basemul._example import (
-    example_instances as example_instances_riscv_poly_basemul
+    example_instances as example_instances_riscv_poly_basemul,
 )
+
 
 def main():
     examples = (
