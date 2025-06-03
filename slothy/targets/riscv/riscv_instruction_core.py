@@ -34,7 +34,6 @@ from slothy.targets.riscv.exceptions import FatalParsingException, ParsingExcept
 from functools import cache
 
 
-##
 class RISCVInstruction(Instruction):
     """Abstract class representing RISCV instructions"""
 
