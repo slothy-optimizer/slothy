@@ -158,7 +158,6 @@ def main():
     def run_example(name, **kwargs):
         ex = None
         for e in examples:
-            print(e.name + "\n")
             if e.name == name:
                 ex = e
                 break

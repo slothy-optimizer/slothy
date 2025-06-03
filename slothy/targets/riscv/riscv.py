@@ -64,10 +64,11 @@ class RegisterType(Enum):
         return self.name
 
     @cache
-    @staticmethod
-    def spillable(reg_type):
+    def _spillable(reg_type):
         # return reg_type in [RegisterType.BASE_INT, RegisterType.NEON]
         return
+
+    spillable = staticmethod(_spillable)
 
     @cache
     @staticmethod
