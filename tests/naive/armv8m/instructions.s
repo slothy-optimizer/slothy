@@ -147,6 +147,11 @@ vshllb.u16 q0, q1, #8
 vshllb.s8 q0, q1, #8
 vshllb.s16 q0, q1, #8
 
+vsli.u8 q0, q1, #6
+vsli.u16 q0, q1, #8
+vsli.s8 q0, q1, #6
+vsli.s16 q0, q1, #8
+
 vmovlb.u8 q1, q0
 vmovlb.u16 q1, q0
 vmovlb.s8 q1, q0
@@ -221,10 +226,18 @@ vand.u16 q2, q0, q1
 vand.u32 q2, q0, q1
 vand.u64 q2, q0, q1
 
+vbic.u8 q2, q0, q1
+vbic.u16 q2, q0, q1
+vbic.u32 q2, q0, q1
+
 vorr.u8 q2, q0, q1
 vorr.u16 q2, q0, q1
 vorr.u32 q2, q0, q1
 vorr.u64 q2, q0, q1
+
+vorr.u8 q2, q0, q1
+vorr.u16 q2, q0, q1
+vorr.u32 q2, q0, q1
 
 nop
 

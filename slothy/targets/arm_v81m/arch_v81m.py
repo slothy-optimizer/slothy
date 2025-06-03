@@ -1257,6 +1257,37 @@ class vshllbt(Instruction):
         )
 
 
+class vsli(Instruction):
+    def __init__(self):
+        super().__init__(
+            mnemonic="vsli.<dt>",
+            arg_types_in=[RegisterType.MVE],
+            arg_types_in_out=[RegisterType.MVE],
+        )
+
+    def parse(self, src):
+        vsli_regexp_txt = (
+            r"vsli\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
+        )
+        vsli_regexp_txt = Instruction.unfold_abbrevs(vsli_regexp_txt)
+        vsli_regexp = re.compile(vsli_regexp_txt)
+        p = vsli_regexp.match(src)
+        if p is None:
+            raise Instruction.ParsingException("Does not match pattern")
+        self.args_out = []
+        self.args_in_out = [p.group("vec")]
+        self.args_in = [p.group("src")]
+
+        self.datatype = p.group("datatype")
+        self.shift = p.group("shift")
+
+    def write(self):
+        return (
+            f"vsli.{self.datatype} {self.args_in_out[0]}, "
+            f"{self.args_in[0]}, {self.shift}"
+        )
+
+
 class vmovlbt(Instruction):
     def __init__(self):
         super().__init__(
@@ -1488,10 +1519,28 @@ class vand(Instruction):
         )
 
 
+class vbic(Instruction):
+    def __init__(self):
+        super().__init__(
+            mnemonic="vbic.<dt>",
+            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+            arg_types_out=[RegisterType.MVE],
+        )
+
+
 class vorr(Instruction):
     def __init__(self):
         super().__init__(
             mnemonic="vorr.<dt>",
+            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
+            arg_types_out=[RegisterType.MVE],
+        )
+
+
+class veor(Instruction):
+    def __init__(self):
+        super().__init__(
+            mnemonic="veor.<dt>",
             arg_types_in=[RegisterType.MVE, RegisterType.MVE],
             arg_types_out=[RegisterType.MVE],
         )
