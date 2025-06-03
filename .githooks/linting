@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Invoking git pre-push hook ..."
+cd ..
+make
+echo "All linting done"
+exit 0

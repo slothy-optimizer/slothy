@@ -69,7 +69,7 @@ class RegisterType(Enum):
         return
 
     spillable = staticmethod(_spillable)
-    
+
     @cache
     def _list_registers(
         reg_type, only_extra=False, only_normal=False, with_variants=False
