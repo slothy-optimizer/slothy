@@ -11,7 +11,7 @@
             vmla.s32    diff, tmp, mod_q_neg
             vmul.u32    quot_low,  diff, mod_p
             vqdmulh.s32 tmp, diff, mod_p
-            vshr.u32    tmpp, quot_low,  #22
+            vshr.u32    q<tmpp>, q<quot_low>,  #22
             vmul.u32    tmp, tmp, const_shift9
             vand.u32    quot_low,  quot_low, qmask
             vorr.u32    tmpp, tmpp, tmp

@@ -498,7 +498,6 @@ class InstructionNew:
                 f"Couldn't parse {src}\nYou may need to add support "
                 "for a new instruction (variant)?"
             )
-
         logging.debug("Parsing result for '%s': %s", src, instnames)
         return insts
 
@@ -627,7 +626,6 @@ class Instruction:
             regexp_txt += r"\s+"
         regexp_txt += ",".join([r"\s*(\w+)\s*" for _ in range(expected_args)])
         regexp = re.compile(regexp_txt)
-
         p = regexp.match(src)
         if p is None:
             raise Instruction.ParsingException(
@@ -670,7 +668,7 @@ class Instruction:
         instnames = []
 
         src = src_line.text.strip()
-
+        # breakpoint()
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds
         for inst_class in Instruction.__subclasses__():
@@ -731,7 +729,7 @@ class MVEInstruction(InstructionNew):
                 f"<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
             )
 
-        src = re.sub(r"<([QR])(\w+)>", pattern_transform, src)
+        src = re.sub(r"<([QRT])(\w+)>", pattern_transform, src)
 
         # Replace <key> or <key0>, <key1>, ... with pattern
         def replace_placeholders(src, mnemonic_key, regexp, group_name):
@@ -759,6 +757,7 @@ class MVEInstruction(InstructionNew):
         src = replace_placeholders(src, "index", index_pattern, "index")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
+        # breakpoint()
         return src
 
     @staticmethod
@@ -961,13 +960,13 @@ class MVEInstruction(InstructionNew):
             modifiesFlags=modifies_flags,
             dependsOnFlags=depends_on_flags,
         )
-
         MVEInstruction.build_core(obj, res)
 
         return obj
 
     @classmethod
     def make(cls, src):
+        # breakpoint()
         return MVEInstruction.build(cls, src)
 
     def write(self):
@@ -2988,26 +2987,8 @@ def lookup_multidict(d, inst, default=None):
     return default
 
 
-# def iter_MVE_instructions():
-#     yield from all_subclass_leaves(InstructionNew)
-
-
-# def find_class(src):
-#     for inst_class in iter_MVE_instructions():
-#         if isinstance(src, inst_class):
-#             return inst_class
-#     raise UnknownInstruction(
-#         f"Couldn't find instruction class for {src} (type {type(src)})"
-#     )
-
-
-# def find_class(src):
-
-#     for inst_class in Instruction.__subclasses__():
-#         if isinstance(src, inst_class):
-#             return inst_class
-
-#     raise Exception("Couldn't find instruction class")
+def iter_MVE_instructions():
+    yield from all_subclass_leaves(InstructionNew)
 
 
 def find_class(src):
@@ -3015,24 +2996,7 @@ def find_class(src):
     for inst_class in Instruction.__subclasses__():
         if isinstance(src, inst_class):
             return inst_class
-    for inst_class in InstructionNew.__subclasses__():
+    for inst_class in iter_MVE_instructions():
         if isinstance(src, inst_class):
             return inst_class
     raise Exception("Couldn't find instruction class")
-
-
-# def find_class(src):
-
-#     # TODO: remove this hack:
-#     try:
-#         for inst_class in Instruction.__subclasses__():
-#             if isinstance(src, inst_class):
-#                 return inst_class
-
-#         raise Exception("Couldn't find instruction class")
-#     except Exception:
-#             for inst_class in InstructionNew.__subclasses__():
-#                 if isinstance(src, inst_class):
-#                     return inst_class
-
-#     raise Exception("Couldn't find instruction class")
