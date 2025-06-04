@@ -24,7 +24,7 @@
 #
 
 """This module creates the RV3264-V extension set instructions"""
-
+from slothy.helper import SourceLine
 from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
@@ -131,6 +131,49 @@ VectorIntegerVectorVectorMasked = ["vmerge.vvm"]
 VectorIntegerVectorScalarMasked = ["vmerge.vxm"]
 VectorIntegerVectorImmediateMasked = ["vmerge.vim"]
 
+class RISCVLiPseudo(RISCVInstruction):
+    pattern = "li <Xd>, <imm>"
+    inputs = []
+    outputs = ["Xd"]
+
+def li_pseudo_split_cb():
+   def core(inst, t, log=None):
+        out_reg = inst.args_out[0]
+        imm = inst.immediate
+        insts = []
+        # if imm fits in signed 12-bit immediate, just use addi
+        if -2048 <= imm <= 2047:
+            addi = RISCVInstruction.build(RISCVInstruction.classes_by_names["addi"], {"Xd": out_reg, "Xa": out_reg, "imm": imm})
+            insts.append(addi)
+        else:
+            lower_12 = imm & 0xFFF  # lower 12 bits (0-11)
+            upper_20 = imm >> 12  # upper 20 bits (12-31)
+
+            # If sign bit of lower 12 bits is set (bit 11)
+            if lower_12 & 0x800:
+                upper_20 += 1  # compensate by incrementing upper part
+                lower_12 -= 0x1000  # convert lower 12 bits to signed negative number
+            lui = RISCVInstruction.build(RISCVInstruction.classes_by_names["lui"], {"Xd": out_reg, "imm": upper_20})
+            addi = RISCVInstruction.build(RISCVInstruction.classes_by_names["addi"], {"Xd": out_reg, "Xa": out_reg, "imm": lower_12})
+            insts.append(lui)
+            insts.append(addi)
+
+        for i in insts:
+            i_src = (
+                SourceLine(i.write())
+                .add_tags(inst.source_line.tags)
+                .add_comments(inst.source_line.comments)
+            )
+            i.source_line = i_src
+
+        t.changed = True
+        t.inst = insts
+        print(t.inst[0])
+        return True
+
+   return core
+
+RISCVLiPseudo.global_parsing_cb = li_pseudo_split_cb()
 
 def generate_rv32_64_v_instructions():
     """
@@ -172,6 +215,8 @@ def generate_rv32_64_v_instructions():
     RISCVInstruction.instr_factory(
         VectorIntegerVectorImmediateMasked, RISCVVectorIntegerVectorImmediateMasked
     )
+
+    RISCVInstruction.dynamic_instr_classes.append(RISCVLiPseudo)
 
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
