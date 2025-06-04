@@ -435,7 +435,7 @@ class NttRootGen:
             if self.print_label:
                 yield (
                     f"roots_l"
-                    f"{''.join([str(i) for i in range(cur_iter,cur_iter+merged)])}:"
+                    f"{''.join([str(i) for i in range(cur_iter, cur_iter+merged)])}:"
                 )
             yield from self.roots_of_unity_for_layer(cur_iter, merged)
 

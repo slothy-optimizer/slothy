@@ -478,13 +478,13 @@ class InstructionNew:
         # until one of them hopefully succeeds
         for inst_class in InstructionNew.all_subclass_leaves:
             try:
+                # breakpoint()
                 inst = inst_class.make(src)
                 instnames = [inst_class.__name__]
                 insts = [inst]
                 break
             except InstructionNew.ParsingException as e:
                 exceptions[inst_class.__name__] = e
-
         for i in insts:
             i.source_line = src_line
             i.extract_read_writes()
@@ -768,8 +768,9 @@ class MVEInstruction(InstructionNew):
 
         def _parse(line):
             regexp_result = regexp.match(line)
+            # breakpoint()
             if regexp_result is None:
-                raise Instruction.ParsingException(
+                raise InstructionNew.ParsingException(
                     f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
                 )
             res = regexp.match(line).groupdict()
@@ -940,7 +941,7 @@ class MVEInstruction(InstructionNew):
         in_outs = getattr(c, "in_outs", []).copy()
         modifies_flags = getattr(c, "modifiesFlags", False)
         depends_on_flags = getattr(c, "dependsOnFlags", False)
-
+        # breakpoint()
         if isinstance(src, str):
             if (
                 src.split(".")[0] != pattern.split(".")[0]
@@ -1654,113 +1655,55 @@ class vmov_double_v2r(Instruction):
         )
 
 
-class mov_imm(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="mov", arg_types_in=[], arg_types_out=[RegisterType.GPR]
-        )
+# class mov_imm(Instruction):
+#     def __init__(self):
+#         super().__init__(
+#             mnemonic="mov", arg_types_in=[], arg_types_out=[RegisterType.GPR]
+#         )
 
-    def parse(self, src):
-        mov_regexp_txt = r"mov\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
-        mov_regexp = re.compile(mov_regexp_txt)
-        p = mov_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = [p.group("dst")]
-        self.args_in = []
-        self.args_in_out = []
-        self.immediate = p.group("immediate")
+#     def parse(self, src):
+#         mov_regexp_txt = r"mov\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
+#         mov_regexp = re.compile(mov_regexp_txt)
+#         p = mov_regexp.match(src)
+#         if p is None:
+#             raise Instruction.ParsingException("Does not match pattern")
+#         self.args_out = [p.group("dst")]
+#         self.args_in = []
+#         self.args_in_out = []
+#         self.immediate = p.group("immediate")
 
-    def write(self):
-        return f"mov {self.args_out[0]}, #{self.immediate}"
-
-
-class mvn_imm(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="mvn", arg_types_in=[], arg_types_out=[RegisterType.GPR]
-        )
-
-    def parse(self, src):
-        mvn_regexp_txt = r"mvn\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
-        mvn_regexp = re.compile(mvn_regexp_txt)
-        p = mvn_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = [p.group("dst")]
-        self.args_in = []
-        self.args_in_out = []
-        self.immediate = p.group("immediate")
-
-    def write(self):
-        return f"mvn {self.args_out[0]}, #{self.immediate}"
+#     def write(self):
+#         return f"mov {self.args_out[0]}, #{self.immediate}"
 
 
-class pkhbt(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="pkhbt",
-            arg_types_in=[RegisterType.GPR, RegisterType.GPR],
-            arg_types_out=[RegisterType.GPR],
-        )
-
-    def parse(self, src):
-        pkhbt_regexp_txt = (
-            r"pkhbt\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,"
-            r"\s*lsl\s*#(?P<shift>.*)"
-        )
-        pkhbt_regexp_txt = Instruction.unfold_abbrevs(pkhbt_regexp_txt)
-        pkhbt_regexp = re.compile(pkhbt_regexp_txt)
-        p = pkhbt_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.shift = p.group("shift")
-
-    def write(self):
-        return (
-            f"pkhbt {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, "
-            f"lsl #{self.shift}"
-        )
+class mov(MVEInstruction):
+    pattern = "mov <Rd>, <Ra>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
 
 
-class mov(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="mov",
-            arg_types_in=[RegisterType.GPR],
-            arg_types_out=[RegisterType.GPR],
-        )
+class mov_imm(MVEInstruction):
+    pattern = "mov <Rd>, <imm>"
+    inputs = []
+    outputs = ["Rd"]
 
 
-class add_imm(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="add",
-            arg_types_in=[RegisterType.GPR],
-            arg_types_out=[RegisterType.GPR],
-        )
+class mvn_imm(MVEInstruction):
+    pattern = "mvn <Rd>, <imm>"
+    inputs = []
+    outputs = ["Rd"]
 
-    def parse(self, src):
-        add_imm_regexp_txt = (
-            r"add\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*#(?P<shift>.*)"
-        )
-        add_imm_regexp_txt = Instruction.unfold_abbrevs(add_imm_regexp_txt)
-        add_imm_regexp = re.compile(add_imm_regexp_txt)
-        p = add_imm_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
 
-        self.shift = p.group("shift")
+class pkhbt(MVEInstruction):
+    pattern = "pkhbt <Rd>, <Ra>, <Rb>, lsl <imm>"
+    inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
 
-    def write(self):
-        return f"add {self.args_out[0]}, {self.args_in[0]}, #{self.shift}"
+
+class add_imm(MVEInstruction):
+    pattern = "add <Rd>, <Ra>, <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
 
 
 class sub_imm(MVEInstruction):
@@ -3045,9 +2988,51 @@ def lookup_multidict(d, inst, default=None):
     return default
 
 
+# def iter_MVE_instructions():
+#     yield from all_subclass_leaves(InstructionNew)
+
+
+# def find_class(src):
+#     for inst_class in iter_MVE_instructions():
+#         if isinstance(src, inst_class):
+#             return inst_class
+#     raise UnknownInstruction(
+#         f"Couldn't find instruction class for {src} (type {type(src)})"
+#     )
+
+
+# def find_class(src):
+
+#     for inst_class in Instruction.__subclasses__():
+#         if isinstance(src, inst_class):
+#             return inst_class
+
+#     raise Exception("Couldn't find instruction class")
+
+
 def find_class(src):
+    # TODO: remove this hack:
     for inst_class in Instruction.__subclasses__():
         if isinstance(src, inst_class):
             return inst_class
-
+    for inst_class in InstructionNew.__subclasses__():
+        if isinstance(src, inst_class):
+            return inst_class
     raise Exception("Couldn't find instruction class")
+
+
+# def find_class(src):
+
+#     # TODO: remove this hack:
+#     try:
+#         for inst_class in Instruction.__subclasses__():
+#             if isinstance(src, inst_class):
+#                 return inst_class
+
+#         raise Exception("Couldn't find instruction class")
+#     except Exception:
+#             for inst_class in InstructionNew.__subclasses__():
+#                 if isinstance(src, inst_class):
+#                     return inst_class
+
+#     raise Exception("Couldn't find instruction class")
