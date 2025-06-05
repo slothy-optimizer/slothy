@@ -1446,106 +1446,31 @@ class strd(Instruction):
         )
 
 
-class vrshr(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vrshr.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vrshr_regexp_txt = (
-            r"vrshr\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
-        )
-        vrshr_regexp_txt = Instruction.unfold_abbrevs(vrshr_regexp_txt)
-        vrshr_regexp = re.compile(vrshr_regexp_txt)
-        p = vrshr_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-        self.datatype = p.group("datatype")
-        self.shift = p.group("shift")
-
-    def write(self):
-        return (
-            f"vrshr.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
-        )
+class vrshr(MVEInstruction):
+    pattern = "vrshr.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
+    outputs = [
+        "Qd",
+    ]
 
 
-class vrshl(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vrshl.<dt>",
-            arg_types_in_out=[RegisterType.MVE],
-            arg_types_in=[RegisterType.GPR],
-        )
-
-    def parse(self, src):
-        vrshl_regexp_txt = r"vrshl\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)"
-        vrshl_regexp_txt = Instruction.unfold_abbrevs(vrshl_regexp_txt)
-        vrshl_regexp = re.compile(vrshl_regexp_txt)
-        p = vrshl_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = []
-        self.args_in_out = [p.group("vec")]
-        self.args_in = [p.group("src")]
-        self.datatype = p.group("datatype")
-
-    def write(self):
-        return f"vrshl.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}"
+class vrshl(MVEInstruction):
+    pattern = "vrshl.<dt> <Qda>, <Rm>"
+    inputs = ["Rm"]
+    in_outs = [
+        "Qda",
+    ]
 
 
-class vshlc(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vshlc", arg_types_in_out=[RegisterType.MVE, RegisterType.GPR]
-        )
-
-    def parse(self, src):
-        vshlc_regexp_txt = (
-            r"vshlc\s+(?P<vec>\w+)\s*,\s*(?P<gpr>\w+)\s*,\s*(?P<shift>#.*)"
-        )
-        vshlc_regexp_txt = Instruction.unfold_abbrevs(vshlc_regexp_txt)
-        vshlc_regexp = re.compile(vshlc_regexp_txt)
-        p = vshlc_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in_out = [p.group("vec"), p.group("gpr")]
-        self.args_out = []
-        self.args_in = []
-
-        self.shift = p.group("shift")
-
-    def write(self):
-        return f"vshlc {self.args_in_out[0]}, {self.args_in_out[1]}, {self.shift}"
+class vshlc(MVEInstruction):
+    pattern = "vshlc <Qda>, <Rdm>, <imm>"
+    in_outs = ["Qda", "Rdm"]
 
 
-class vmov_imm(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmov.<dt>", arg_types_in=[], arg_types_out=[RegisterType.MVE]
-        )
-
-    def parse(self, src):
-        vmov_regexp_txt = r"vmov\.<dt>\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
-        vmov_regexp_txt = Instruction.unfold_abbrevs(vmov_regexp_txt)
-        vmov_regexp = re.compile(vmov_regexp_txt)
-        p = vmov_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = [p.group("dst")]
-        self.args_in = []
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.immediate = p.group("immediate")
-
-    def write(self):
-        return f"vmov.{self.datatype} {self.args_out[0]}, #{self.immediate}"
+class vmov_imm(MVEInstruction):
+    pattern = "vmov.<dt> <Qd>, <imm>"
+    inputs = []
+    outputs = ["Qd"]
 
 
 class vmullb(MVEInstruction):

@@ -7,7 +7,7 @@
             vsub.u32    diff, in1, in0
             vqdmulh.s32 tmp, diff, p_inv_mod_q_tw
             vmul.u32    diff, diff, p_inv_mod_q
-            vrshr.s32   tmp, tmp, #(SHIFT)
+            vrshr.s32   q<tmp>, q<tmp>, #(SHIFT)
             vmla.s32    diff, tmp, mod_q_neg
             vmul.u32    quot_low,  diff, mod_p
             vqdmulh.s32 tmp, diff, mod_p
@@ -15,10 +15,10 @@
             vmul.u32    tmp, tmp, const_shift9
             vand.u32    quot_low,  quot_low, qmask
             vorr.u32    tmpp, tmpp, tmp
-            vshlc       tmpp, rcarry, #32
+            vshlc       q<tmpp>, r<rcarry>, #32
             vadd.u32    in0, in0, tmpp
             vadd.u32    tmpp, quot_low, in0
             vand.u32 red_tmp, tmpp, qmask
-            vshlc tmpp, rcarry_red, #32
+            vshlc q<tmpp>, r<rcarry_red>, #32
             vqdmlah.s32 red_tmp, tmpp, const_rshift22
             vstrw.u32   red_tmp, [dst]
