@@ -478,7 +478,6 @@ class InstructionNew:
         # until one of them hopefully succeeds
         for inst_class in InstructionNew.all_subclass_leaves:
             try:
-                # breakpoint()
                 inst = inst_class.make(src)
                 instnames = [inst_class.__name__]
                 insts = [inst]
@@ -668,7 +667,6 @@ class Instruction:
         instnames = []
 
         src = src_line.text.strip()
-        # breakpoint()
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds
         for inst_class in Instruction.__subclasses__():
@@ -729,7 +727,7 @@ class MVEInstruction(InstructionNew):
                 f"<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
             )
 
-        src = re.sub(r"<([QRT])(\w+)>", pattern_transform, src)
+        src = re.sub(r"<([QR])(\w+)>", pattern_transform, src)
 
         # Replace <key> or <key0>, <key1>, ... with pattern
         def replace_placeholders(src, mnemonic_key, regexp, group_name):
@@ -757,7 +755,6 @@ class MVEInstruction(InstructionNew):
         src = replace_placeholders(src, "index", index_pattern, "index")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
-        # breakpoint()
         return src
 
     @staticmethod
@@ -767,7 +764,6 @@ class MVEInstruction(InstructionNew):
 
         def _parse(line):
             regexp_result = regexp.match(line)
-            # breakpoint()
             if regexp_result is None:
                 raise InstructionNew.ParsingException(
                     f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
@@ -940,7 +936,6 @@ class MVEInstruction(InstructionNew):
         in_outs = getattr(c, "in_outs", []).copy()
         modifies_flags = getattr(c, "modifiesFlags", False)
         depends_on_flags = getattr(c, "dependsOnFlags", False)
-        # breakpoint()
         if isinstance(src, str):
             if (
                 src.split(".")[0] != pattern.split(".")[0]
@@ -966,7 +961,6 @@ class MVEInstruction(InstructionNew):
 
     @classmethod
     def make(cls, src):
-        # breakpoint()
         return MVEInstruction.build(cls, src)
 
     def write(self):
@@ -1612,67 +1606,10 @@ class vdup(Instruction):
         return f"vdup.{self.datatype} {self.args_out[0]}, {self.args_in[0]}"
 
 
-class vmov_double_v2r(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmov",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_out=[RegisterType.GPR, RegisterType.GPR],
-        )
-
-    def parse(self, src):
-        vmov_regexp_txt = (
-            r"vmov\s+(?P<gpr0>\w+)\s*,\s*(?P<gpr1>\w+)\s*,\s*(?P<vec0>\w+)\s*"
-            r"\[\s*(?P<idx0>[23])\s*\]\s*,\s*(?P<vec1>\w+)\s*\[\s*(?P<idx1>[01])\s*\]\s*"
-        )
-        vmov_regexp_txt = Instruction.unfold_abbrevs(vmov_regexp_txt)
-        vmov_regexp = re.compile(vmov_regexp_txt)
-        p = vmov_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-
-        idx0 = p.group("idx0")
-        idx1 = p.group("idx1")
-        if (idx1, idx0) not in [("0", "2"), ("1", "3")]:
-            raise Instruction.ParsingException("Invalid lane indices")
-
-        vec = p.group("vec0")
-        vecp = p.group("vec1")
-        if vec != vecp:
-            raise Instruction.ParsingException("Input vectors must be equal")
-
-        self.args_out = [p.group("gpr0"), p.group("gpr1")]
-        self.args_in = [vec]
-        self.args_in_out = []
-        self.idxs = (idx0, idx1)
-
-    def write(self):
-        return (
-            f"vmov {self.args_out[0]}, {self.args_out[1]}, "
-            f"{self.args_in[0]}[{self.idxs[0]}], "
-            f"{self.args_in[0]}[{self.idxs[1]}]"
-        )
-
-
-# class mov_imm(Instruction):
-#     def __init__(self):
-#         super().__init__(
-#             mnemonic="mov", arg_types_in=[], arg_types_out=[RegisterType.GPR]
-#         )
-
-#     def parse(self, src):
-#         mov_regexp_txt = r"mov\s+(?P<dst>\w+)\s*,\s*#(?P<immediate>\w*)"
-#         mov_regexp = re.compile(mov_regexp_txt)
-#         p = mov_regexp.match(src)
-#         if p is None:
-#             raise Instruction.ParsingException("Does not match pattern")
-#         self.args_out = [p.group("dst")]
-#         self.args_in = []
-#         self.args_in_out = []
-#         self.immediate = p.group("immediate")
-
-#     def write(self):
-#         return f"mov {self.args_out[0]}, #{self.immediate}"
+class vmov_double_v2r(MVEInstruction):
+    pattern = "vmov <Rd>, <Ra>, <Qd>[<index0>], <Qa>[<index1>]"
+    inputs = ["Qd", "Qa"]
+    outputs = ["Rd", "Ra"]
 
 
 class mov(MVEInstruction):
@@ -1906,13 +1843,10 @@ class vmla(Instruction):
         )
 
 
-class vmlaldava(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmlaldava.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_in_out=[RegisterType.GPR, RegisterType.GPR],
-        )
+class vmlaldava(MVEInstruction):
+    pattern = "vmlaldava.<dt> <Rd>, <Ra>, <Qa>, <Qd>"
+    inputs = ["Qd", "Qa"]
+    outputs = ["Rd", "Ra"]
 
 
 class vaddva(Instruction):

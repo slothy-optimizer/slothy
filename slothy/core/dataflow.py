@@ -803,7 +803,6 @@ class DataFlowGraph:
         # TODO: remove this hack:
         try:
             insts = self.arch.Instruction.parser(line)
-            # breakpoint()
         except Exception:
             insts = self.arch.InstructionNew.parser(line)
 
