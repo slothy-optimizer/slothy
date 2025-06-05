@@ -317,7 +317,11 @@ class InstructionNew:
                 vst2,
                 vst4,
                 ldrd,
+                ldrd_with_writeback,
+                ldrd_with_post,
                 strd,
+                strd_with_writeback,
+                strd_with_post,
                 qsave,
                 qrestore,
                 save,
@@ -331,7 +335,18 @@ class InstructionNew:
         return self._is_instance_of([vldr, vld2, vld4, qrestore])
 
     def is_scalar_load(self):
-        return self._is_instance_of([ldrd, ldr, restore, restored])
+        return self._is_instance_of(
+            [
+                ldrd,
+                ldrd_with_writeback,
+                ldrd_with_post,
+                ldr,
+                ldr_with_writeback,
+                ldr_with_post,
+                restore,
+                restored,
+            ]
+        )
 
     def is_load(self):
         return self.is_vector_load() or self.is_scalar_load()
@@ -582,7 +597,11 @@ class Instruction:
                 vst2,
                 vst4,
                 ldrd,
+                ldrd_with_writeback,
+                ldrd_with_post,
                 strd,
+                strd_with_writeback,
+                strd_with_post,
                 qsave,
                 qrestore,
                 save,
@@ -596,7 +615,18 @@ class Instruction:
         return self._is_instance_of([vldr, vld2, vld4, qrestore])
 
     def is_scalar_load(self):
-        return self._is_instance_of([ldrd, ldr, restore, restored])
+        return self._is_instance_of(
+            [
+                ldrd,
+                ldrd_with_writeback,
+                ldrd_with_post,
+                ldr,
+                ldr_with_writeback,
+                ldr_with_post,
+                restore,
+                restored,
+            ]
+        )
 
     def is_load(self):
         return self.is_vector_load() or self.is_scalar_load()
@@ -1217,249 +1247,67 @@ class vqdmulh_vv(Instruction):
         )
 
 
-class ldrd(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="ldrd",
-            arg_types_in=[RegisterType.GPR],
-            arg_types_out=[RegisterType.GPR, RegisterType.GPR],
-        )
-
-    def _simplify(self):
-        if self.increment is not None:
-            self.increment = simplify(self.increment)
-        if self.post_index is not None:
-            self.post_index = simplify(self.post_index)
-        if self.pre_index is not None:
-            self.pre_index = simplify(self.pre_index)
-
-    def parse(self, src):
-
-        addr_regexp_txt = (
-            r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        )
-        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
-
-        ldrd_regexp_txt = r"\s*ldrd\s+"
-        ldrd_regexp_txt += r"(?P<dest0>\w+),\s*(?P<dest1>\w+),\s*"
-        ldrd_regexp_txt += addr_regexp_txt
-        ldrd_regexp_txt += postinc_regexp_txt
-        ldrd_regexp_txt = Instruction.unfold_abbrevs(ldrd_regexp_txt)
-        ldrd_regexp = re.compile(ldrd_regexp_txt)
-
-        p = ldrd_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Doesn't match pattern")
-
-        dst0, dst1, addr = p.group("dest0"), p.group("dest1"), p.group("addr")
-        self.writeback = p.group("writeback") == "!"
-        self.pre_index = p.group("addroffset")
-        self.post_index = p.group("postinc")
-
-        self.addr = addr
-
-        if self.writeback:
-            self.increment = self.pre_index
-        elif self.post_index:
-            self.increment = self.post_index
-        else:
-            self.increment = None
-
-        self._simplify()
-
-        # NOTE: We currently don't model post-increment loads/stores as changing
-        #       the address register, allowing the tool to freely rearrange
-        #       loads/stores from the same base register.
-        self.args_in = [addr]
-        self.args_out = [dst0, dst1]
-        self.args_in_out = []
-
-    def write(self):
-
-        self._simplify()
-
-        inc = ""
-        if self.writeback:
-            inc = "!"
-        if self.pre_index is not None:
-            addr = f"[{self.args_in[0]}, #{self.pre_index}]"
-        else:
-            addr = f"[{self.args_in[0]}]"
-        if self.post_index is not None:
-            post = f", #{self.post_index}"
-        else:
-            post = ""
-        return (
-            f"{self.mnemonic} {self.args_out[0]}, {self.args_out[1]}, "
-            f"{addr}{inc} {post}"
-        )
+class ldrd(MVEInstruction):
+    pattern = "ldrd <Rt0>, <Rt1>, [<Rn>, <imm>]"
+    inputs = ["Rn"]
+    outputs = ["Rt0", "Rt1"]
 
 
-class ldr(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="ldr",
-            arg_types_in=[RegisterType.GPR],
-            arg_types_out=[RegisterType.GPR],
-        )
-
-    def _simplify(self):
-        if self.increment is not None:
-            self.increment = simplify(self.increment)
-        if self.post_index is not None:
-            self.post_index = simplify(self.post_index)
-        if self.pre_index is not None:
-            self.pre_index = simplify(self.pre_index)
-
-    def parse(self, src):
-
-        addr_regexp_txt = (
-            r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        )
-        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
-
-        ldr_regexp_txt = r"\s*ldr\s+"
-        ldr_regexp_txt += r"(?P<dest>\w+),\s*"
-        ldr_regexp_txt += addr_regexp_txt
-        ldr_regexp_txt += postinc_regexp_txt
-        ldr_regexp_txt = Instruction.unfold_abbrevs(ldr_regexp_txt)
-        ldr_regexp = re.compile(ldr_regexp_txt)
-
-        p = ldr_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Doesn't match pattern")
-
-        dst, addr = p.group("dest"), p.group("addr")
-        self.writeback = p.group("writeback") == "!"
-        self.pre_index = p.group("addroffset")
-        self.post_index = p.group("postinc")
-
-        self.addr = addr
-
-        if self.writeback:
-            self.increment = self.pre_index
-        elif self.post_index:
-            self.increment = self.post_index
-        else:
-            self.increment = None
-
-        self._simplify()
-
-        # NOTE: We currently don't model post-increment loads/stores as changing
-        #       the address register, allowing the tool to freely rearrange
-        #       loads/stores from the same base register.
-        self.args_in = [addr]
-        self.args_out = [dst]
-        self.args_in_out = []
-
-    def write(self):
-
-        self._simplify()
-
-        inc = ""
-        if self.writeback:
-            inc = "!"
-        if self.pre_index is not None:
-            addr = f"[{self.args_in[0]}, #{self.pre_index}]"
-        else:
-            addr = f"[{self.args_in[0]}]"
-        if self.post_index is not None:
-            post = f", #{self.post_index}"
-        else:
-            post = ""
-        return f"{self.mnemonic} {self.args_out[0]}, {addr}{inc} {post}"
+class ldrd_with_writeback(MVEInstruction):
+    pattern = "ldrd <Rt0>, <Rt1>, [<Rn>, <imm>]!"
+    inputs = ["Rn"]
+    outputs = ["Rt0", "Rt1"]
 
 
-class strd(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="strd",
-            arg_types_in=[RegisterType.GPR, RegisterType.GPR, RegisterType.GPR],
-        )
+class ldrd_with_post(MVEInstruction):
+    pattern = "ldrd <Rt0>, <Rt1>, [<Rn>], <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rt0", "Rt1"]
 
-    def _simplify(self):
-        if self.increment is not None:
-            self.increment = simplify(self.increment)
-        if self.post_index is not None:
-            self.post_index = simplify(self.post_index)
-        if self.pre_index is not None:
-            self.pre_index = simplify(self.pre_index)
 
-    def parse(self, src):
+class ldr(MVEInstruction):
+    pattern = "ldr <Rt>, [<Rn>, <imm>]"
+    inputs = ["Rn"]
+    outputs = ["Rt"]
 
-        addr_regexp_txt = (
-            r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        )
-        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
 
-        strd_regexp_txt = r"\s*strd\s+"
-        strd_regexp_txt += r"(?P<dest0>\w+),\s*(?P<dest1>\w+),\s*"
-        strd_regexp_txt += addr_regexp_txt
-        strd_regexp_txt += postinc_regexp_txt
-        strd_regexp_txt = Instruction.unfold_abbrevs(strd_regexp_txt)
-        strd_regexp = re.compile(strd_regexp_txt)
+class ldr_with_writeback(MVEInstruction):
+    pattern = "ldr <Rt>, [<Rn>, <imm>]!"
+    inputs = ["Rn"]
+    outputs = ["Rt"]
 
-        p = strd_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Doesn't match pattern")
 
-        dst0, dst1, addr = p.group("dest0"), p.group("dest1"), p.group("addr")
-        self.writeback = p.group("writeback") == "!"
-        self.pre_index = p.group("addroffset")
-        self.post_index = p.group("postinc")
+class ldr_with_post(MVEInstruction):
+    pattern = "ldr <Rt>, [<Rn>], <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rt"]
 
-        self.addr = addr
 
-        if self.writeback:
-            self.increment = self.pre_index
-        elif self.post_index:
-            self.increment = self.post_index
-        else:
-            self.increment = None
+class strd(MVEInstruction):
+    pattern = "strd <Rt0>, <Rt1>, [<Rn>, <imm>]"
+    inputs = ["Rt0", "Rt1", "Rn"]
 
-        self._simplify()
 
-        # NOTE: We currently don't model post-increment loads/stores as changing
-        #       the address register, allowing the tool to freely rearrange
-        #       loads/stores from the same base register.
-        self.args_in = [addr, dst0, dst1]
-        self.args_out = []
-        self.args_in_out = []
+class strd_with_writeback(MVEInstruction):
+    pattern = "strd <Rt0>, <Rt1>, [<Rn>, <imm>]!"
+    inputs = ["Rt0", "Rt1", "Rn"]
 
-    def write(self):
 
-        self._simplify()
-
-        inc = ""
-        if self.writeback:
-            inc = "!"
-        if self.pre_index is not None:
-            addr = f"[{self.args_in[0]}, #{self.pre_index}]"
-        else:
-            addr = f"[{self.args_in[0]}]"
-        if self.post_index is not None:
-            post = f", #{self.post_index}"
-        else:
-            post = ""
-        return (
-            f"{self.mnemonic} {self.args_in[1]}, {self.args_in[2]}, {addr}{inc} {post}"
-        )
+class strd_with_post(MVEInstruction):
+    pattern = "strd <Rt0>, <Rt1>, [<Rn>], <imm>"
+    inputs = ["Rt0", "Rt1", "Rn"]
 
 
 class vrshr(MVEInstruction):
     pattern = "vrshr.<dt> <Qd>, <Qm>, <imm>"
     inputs = ["Qm"]
-    outputs = [
-        "Qd",
-    ]
+    outputs = ["Qd"]
 
 
 class vrshl(MVEInstruction):
     pattern = "vrshl.<dt> <Qda>, <Rm>"
     inputs = ["Rm"]
-    in_outs = [
-        "Qda",
-    ]
+    in_outs = ["Qda"]
 
 
 class vshlc(MVEInstruction):
