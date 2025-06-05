@@ -1597,50 +1597,50 @@ class pkhbt(MVEInstruction):
 
 
 class add_imm(MVEInstruction):
-    pattern = "add <Rd>, <Ra>, <imm>"
-    inputs = ["Ra"]
+    pattern = "add <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
     outputs = ["Rd"]
 
 
 class sub_imm(MVEInstruction):
-    pattern = "sub <Rd>, <Ra>, <imm>"
-    inputs = ["Ra"]
+    pattern = "sub <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
     outputs = ["Rd"]
 
 
 class vshr(MVEInstruction):
-    pattern = "vshr.<dt> <Qd>, <Qa>, <imm>"
-    inputs = ["Qa"]
+    pattern = "vshr.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
     outputs = ["Qd"]
 
 
 class vshrnb(MVEInstruction):
-    pattern = "vshrnb.<dt> <Qd>, <Qa>, <imm>"
-    inputs = ["Qa"]
+    pattern = "vshrnb.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
     in_outs = ["Qd"]
 
 
 class vshrnt(MVEInstruction):
-    pattern = "vshrnt.<dt> <Qd>, <Qa>, <imm>"
-    inputs = ["Qa"]
+    pattern = "vshrnt.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
     in_outs = ["Qd"]
 
 
 class vshllb(MVEInstruction):
-    pattern = "vshllb.<dt> <Qd>, <Qa>, <imm>"
-    inputs = ["Qa"]
+    pattern = "vshllb.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
     in_outs = ["Qd"]
 
 
 class vshllt(MVEInstruction):
-    pattern = "vshllt.<dt> <Qd>, <Qa>, <imm>"
-    inputs = ["Qa"]
+    pattern = "vshllt.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
     in_outs = ["Qd"]
 
 
 class vsli(MVEInstruction):
-    pattern = "vsli.<dt> <Qd>, <Qa>, <imm>"
-    inputs = ["Qa"]
+    pattern = "vsli.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
     in_outs = ["Qd"]
 
 
