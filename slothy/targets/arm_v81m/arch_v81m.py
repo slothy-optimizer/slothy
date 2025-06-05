@@ -1548,73 +1548,33 @@ class vmov_imm(Instruction):
         return f"vmov.{self.datatype} {self.args_out[0]}, #{self.immediate}"
 
 
-class vmullbt(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmull.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vmullbt_regexp_txt = (
-            r"vmull(?P<bt>\w+)\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+),"
-            r"\s*(?P<src1>\w*)"
-        )
-        vmullbt_regexp_txt = Instruction.unfold_abbrevs(vmullbt_regexp_txt)
-        vmullbt_regexp = re.compile(vmullbt_regexp_txt)
-        p = vmullbt_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = [p.group("dst")]
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.bt = p.group("bt")
-
-    def write(self):
-        return (
-            f"vmull{self.bt}.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}"
-        )
+class vmullb(MVEInstruction):
+    pattern = "vmullb.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vdup(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vdup.<dt>",
-            arg_types_in=[RegisterType.GPR],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vmullt(MVEInstruction):
+    pattern = "vmullt.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
-    def parse(self, src):
-        vdup_regexp_txt = r"vdup\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<gpr0>\w*)"
-        vdup_regexp_txt = Instruction.unfold_abbrevs(vdup_regexp_txt)
-        vdup_regexp = re.compile(vdup_regexp_txt)
-        p = vdup_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = [p.group("dst")]
-        self.args_in = [p.group("gpr0")]
-        self.args_in_out = []
 
-        self.datatype = p.group("datatype")
-        # self.immediate = p.group("immediate")
-
-    def write(self):
-        return f"vdup.{self.datatype} {self.args_out[0]}, {self.args_in[0]}"
+class vdup(MVEInstruction):
+    pattern = "vdup.<dt> <Qd>, <Rt>"
+    inputs = ["Rt"]
+    outputs = ["Qd"]
 
 
 class vmov_double_v2r(MVEInstruction):
-    pattern = "vmov <Rd>, <Ra>, <Qd>[<index0>], <Qa>[<index1>]"
+    pattern = "vmov <Rt0>, <Rt1>, <Qd>[<index0>], <Qa>[<index1>]"
     inputs = ["Qd", "Qa"]
-    outputs = ["Rd", "Ra"]
+    outputs = ["Rt0", "Rt1"]
 
 
 class mov(MVEInstruction):
-    pattern = "mov <Rd>, <Ra>"
-    inputs = ["Ra"]
+    pattern = "mov <Rd>, <Rm>"
+    inputs = ["Rm"]
     outputs = ["Rd"]
 
 
@@ -1631,8 +1591,8 @@ class mvn_imm(MVEInstruction):
 
 
 class pkhbt(MVEInstruction):
-    pattern = "pkhbt <Rd>, <Ra>, <Rb>, lsl <imm>"
-    inputs = ["Ra", "Rb"]
+    pattern = "pkhbt <Rd>, <Rn>, <Rm>, lsl <imm>"
+    inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
 
