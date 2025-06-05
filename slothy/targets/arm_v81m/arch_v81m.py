@@ -1229,22 +1229,16 @@ class vqrdmlah(Instruction):
         )
 
 
-class vqdmulh_sv(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vqdmulh.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vqdmulh_sv(MVEInstruction):
+    pattern = "vqdmulh.<dt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    outputs = ["Qd"]
 
 
-class vqdmulh_vv(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vqdmulh.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vqdmulh_vv(MVEInstruction):
+    pattern = "vqdmulh.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
 class ldrd(MVEInstruction):
