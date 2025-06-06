@@ -1382,34 +1382,22 @@ class vmovlt(MVEInstruction):
     in_outs = ["Qd"]
 
 
-class vrev(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vrev.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vrev16(MVEInstruction):
+    pattern = "vrev16.<dt> <Qd>, <Qm>"
+    inputs = ["Qm"]
+    outputs = ["Qd"]
 
-    def parse(self, src):
-        vrev_regexp_txt = (
-            r"vrev(?P<dt0>\w+)\.(?P<dt1>\w+)\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)"
-        )
-        vrev_regexp_txt = Instruction.unfold_abbrevs(vrev_regexp_txt)
-        vrev_regexp = re.compile(vrev_regexp_txt)
-        p = vrev_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
 
-        self.datatypes = [p.group("dt0"), p.group("dt1")]
+class vrev32(MVEInstruction):
+    pattern = "vrev32.<dt> <Qd>, <Qm>"
+    inputs = ["Qm"]
+    outputs = ["Qd"]
 
-    def write(self):
-        return (
-            f"vrev{self.datatypes[0]}.{self.datatypes[1]} {self.args_out[0]}, "
-            f"{self.args_in[0]}"
-        )
+
+class vrev64(MVEInstruction):
+    pattern = "vrev64.<dt> <Qd>, <Qm>"
+    inputs = ["Qm"]
+    outputs = ["Qd"]
 
 
 class vshl(Instruction):
