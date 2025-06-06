@@ -1098,31 +1098,22 @@ class restored(Instruction):
         self.increment = None
 
 
-class add(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="add",
-            arg_types_in=[RegisterType.GPR, RegisterType.GPR],
-            arg_types_out=[RegisterType.GPR],
-        )
+class add(MVEInstruction):
+    pattern = "add <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
 
 
-class sub(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="sub",
-            arg_types_in=[RegisterType.GPR, RegisterType.GPR],
-            arg_types_out=[RegisterType.GPR],
-        )
+class sub(MVEInstruction):
+    pattern = "sub <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
 
 
-class vmulh(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmulh.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vmulh(MVEInstruction):
+    pattern = "vmulh.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
 class vmul_T2(MVEInstruction):
@@ -1142,23 +1133,11 @@ class vmulf_T2(MVEInstruction):
     inputs = ["Qn", "Rm"]
     outputs = ["Qd"]
 
-    def write(self):
-        return (
-            f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}"
-        )
-
 
 class vmulf_T1(MVEInstruction):
     pattern = "vmul.<fdt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
     outputs = ["Qd"]
-
-    def write(self):
-        return (
-            f"vmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}"
-        )
 
 
 class vqrdmulh_T1(MVEInstruction):
