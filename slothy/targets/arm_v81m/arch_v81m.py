@@ -1220,13 +1220,10 @@ class vqdmladhx(Instruction):
         self.detected_vqdmlsdh_vqdmladhx_pair = False
 
 
-class vqrdmlah(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vqrdmlah.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-            arg_types_in_out=[RegisterType.MVE],
-        )
+class vqrdmlah(MVEInstruction):
+    pattern = "vqrdmlah.<dt> <Qda>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    in_outs = ["Qda"]
 
 
 class vqdmulh_sv(MVEInstruction):
