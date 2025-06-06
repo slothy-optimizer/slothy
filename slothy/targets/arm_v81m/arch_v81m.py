@@ -1370,34 +1370,16 @@ class vsli(MVEInstruction):
     in_outs = ["Qd"]
 
 
-class vmovlbt(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmovl.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_in_out=[RegisterType.MVE],
-        )
+class vmovlb(MVEInstruction):
+    pattern = "vmovlb.<dt> <Qd>, <Qm>"
+    inputs = ["Qm"]
+    in_outs = ["Qd"]
 
-    def parse(self, src):
-        vmovl_regexp_txt = (
-            r"vmovl(?P<bt>\w+)\.<dt>\s+(?P<vec>\w+)\s*,\s*(?P<src>\w+)\s*"
-        )
-        vmovl_regexp_txt = Instruction.unfold_abbrevs(vmovl_regexp_txt)
-        vmovl_regexp = re.compile(vmovl_regexp_txt)
-        p = vmovl_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_out = []
-        self.args_in_out = [p.group("vec")]
-        self.args_in = [p.group("src")]
 
-        self.datatype = p.group("datatype")
-        self.bt = p.group("bt")
-
-    def write(self):
-        return (
-            f"vmovl{self.bt}.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}"
-        )
+class vmovlt(MVEInstruction):
+    pattern = "vmovlt.<dt> <Qd>, <Qm>"
+    inputs = ["Qm"]
+    in_outs = ["Qd"]
 
 
 class vrev(Instruction):
