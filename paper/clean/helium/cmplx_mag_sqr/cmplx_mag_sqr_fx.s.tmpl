@@ -19,8 +19,8 @@ start:
         vld20.32        {qr, qi}, [in]
         vld21.32        {qr, qi}, [in]!
         // square real/imag
-        vmulh.s32       qtmp, qr, qr
-        vmulh.s32       qout, qi, qi
+        vmulh.s32       q<qtmp>, q<qr>, q<qr>
+        vmulh.s32       q<qout>, q<qi>, q<qi>
         // accumulate & halving
         vhadd.s32       qout, qout, qtmp
         vstrw.32        qout, [out], #16

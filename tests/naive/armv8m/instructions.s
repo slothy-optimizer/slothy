@@ -39,6 +39,10 @@ vqdmlsdh.s8 q2, q0, q1
 vqdmlsdh.s16 q2, q0, q1
 vqdmlsdh.s32 q2, q0, q1
 
+vqdmladhx.s8 q2, q0, q1
+vqdmladhx.s16 q2, q0, q1
+vqdmladhx.s32 q2, q0, q1
+
 vqrdmlah.s8 q2, q0, r0
 vqrdmlah.s16 q2, q0, r0
 vqrdmlah.s32 q2, q0, r0
