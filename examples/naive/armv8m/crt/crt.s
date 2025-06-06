@@ -20,5 +20,5 @@
             vadd.u32    tmpp, quot_low, in0
             vand.u32 red_tmp, tmpp, qmask
             vshlc q<tmpp>, r<rcarry_red>, #32
-            vqdmlah.s32 red_tmp, tmpp, const_rshift22
+            vqdmlah.s32 q<red_tmp>, q<tmpp>, r<const_rshift22>
             vstrw.u32   red_tmp, [dst]

@@ -1191,13 +1191,10 @@ class vqrdmulh_T2(Instruction):
         )
 
 
-class vqdmlah(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vqdmlah.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-            arg_types_in_out=[RegisterType.MVE],
-        )
+class vqdmlah(MVEInstruction):
+    pattern = "vqdmlah.<dt> <Qda>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    in_outs = ["Qda"]
 
 
 class vqdmlsdh(MVEInstruction):
