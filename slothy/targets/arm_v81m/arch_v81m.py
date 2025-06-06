@@ -578,7 +578,7 @@ class Instruction:
         mnemonic = re.sub(
             "<dt>", "(?P<datatype>(?:|i|u|s|I|U|S)(?:8|16|32|64))", mnemonic
         )
-        mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f|F)(?:8|16|32))", mnemonic)
+        mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f|F)(?:16|32))", mnemonic)
         return mnemonic
 
     def _is_instance_of(self, inst_list):
@@ -776,12 +776,13 @@ class MVEInstruction(InstructionNew):
 
             return src
 
-        dt_pattern = "(?:|u|s|f|i|U|S|F|I)(?:8|16|32|64)"
+        dt_pattern = "(?:|u|s|i|U|S|I)(?:8|16|32|64)"
+        fdt_pattern = "(?:|f|F)(?:16|32)"
         imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
-
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
+        src = replace_placeholders(src, "fdt", fdt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
@@ -1022,6 +1023,7 @@ class MVEInstruction(InstructionNew):
 
         out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
+        out = replace_pattern(out, "datatype", "fdt", lambda x: x.upper())
         out = replace_pattern(out, "index", "index", str)
 
         out = out.replace("\\[", "[")
@@ -1400,94 +1402,22 @@ class vrev64(MVEInstruction):
     outputs = ["Qd"]
 
 
-class vshl(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vshl.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vshl_regexp_txt = (
-            r"vshl\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src>\w+)\s*,\s*(?P<shift>#.*)"
-        )
-        vshl_regexp_txt = Instruction.unfold_abbrevs(vshl_regexp_txt)
-        vshl_regexp = re.compile(vshl_regexp_txt)
-        p = vshl_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.shift = p.group("shift")
-
-    def write(self):
-        return (
-            f"vshl.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, {self.shift}"
-        )
+class vshl(MVEInstruction):
+    pattern = "vshl.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
+    outputs = ["Qd"]
 
 
-class vshl_T3(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vshl.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vshl_regexp_txt = (
-            r"vshl\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
-        )
-        vshl_regexp_txt = Instruction.unfold_abbrevs(vshl_regexp_txt)
-        vshl_regexp = re.compile(vshl_regexp_txt)
-        p = vshl_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-
-    def write(self):
-        return (
-            f"vshl.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}"
-        )
+class vshl_T3(MVEInstruction):
+    pattern = "vshl.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vfma(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vfma.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_in_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vfma_regexp_txt = (
-            r"vfma\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)"
-        )
-        vfma_regexp_txt = Instruction.unfold_abbrevs(vfma_regexp_txt)
-        vfma_regexp = re.compile(vfma_regexp_txt)
-        p = vfma_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_in_out = [p.group("dst")]
-        self.args_out = []
-        self.datatype = p.group("datatype")
-
-    def write(self):
-        return (
-            f"vfma.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}"
-        )
+class vfma(MVEInstruction):
+    pattern = "vfma.<fdt> <Qda>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    in_outs = ["Qda"]
 
 
 class vmla(Instruction):
