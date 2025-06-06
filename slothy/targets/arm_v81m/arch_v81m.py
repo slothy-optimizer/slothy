@@ -1200,24 +1200,28 @@ class vqdmlah(Instruction):
         )
 
 
-class vqdmlsdh(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vqdmlsdh.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_in_out=[RegisterType.MVE],
-        )
-        self.detected_vqdmlsdh_vqdmladhx_pair = False
+class vqdmlsdh(MVEInstruction):
+    pattern = "vqdmlsdh.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    in_outs = ["Qd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.detected_vqdmlsdh_vqdmladhx_pair = False
+        return obj
 
 
-class vqdmladhx(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vqdmladhx.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_in_out=[RegisterType.MVE],
-        )
-        self.detected_vqdmlsdh_vqdmladhx_pair = False
+class vqdmladhx(MVEInstruction):
+    pattern = "vqdmladhx.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    in_outs = ["Qd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.detected_vqdmlsdh_vqdmladhx_pair = False
+        return obj
 
 
 class vqrdmlah(MVEInstruction):
@@ -2573,14 +2577,17 @@ def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
 
         # If so, mark in/out as output only, and signal the need for re-building
         # the dataflow graph
-
         inst.num_out = 1
         inst.args_out = [inst.args_in_out[0]]
         inst.arg_types_out = [RegisterType.MVE]
         inst.args_out_restrictions = inst.args_in_out_restrictions
+        inst.outputs = inst.in_outs
+        inst.pattern_outputs = inst.pattern_in_outs
 
         inst.num_in_out = 0
         inst.args_in_out = []
+        inst.in_outs = []
+        inst.pattern_in_outs = []
         inst.arg_types_in_out = []
         inst.args_in_out_restrictions = []
 
