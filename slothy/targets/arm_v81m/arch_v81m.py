@@ -1125,31 +1125,22 @@ class vmulh(Instruction):
         )
 
 
-class vmul_T2(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmul.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vmul_T2(MVEInstruction):
+    pattern = "vmul.<dt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    outputs = ["Qd"]
 
 
-class vmul_T1(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmul.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vmul_T1(MVEInstruction):
+    pattern = "vmul.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vmulf_T2(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmul.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vmulf_T2(MVEInstruction):
+    pattern = "vmul.<fdt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    outputs = ["Qd"]
 
     def write(self):
         return (
@@ -1158,13 +1149,10 @@ class vmulf_T2(Instruction):
         )
 
 
-class vmulf_T1(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmul.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vmulf_T1(MVEInstruction):
+    pattern = "vmul.<fdt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
     def write(self):
         return (
@@ -1173,22 +1161,16 @@ class vmulf_T1(Instruction):
         )
 
 
-class vqrdmulh_T1(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vqrdmulh.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vqrdmulh_T1(MVEInstruction):
+    pattern = "vqrdmulh.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vqrdmulh_T2(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vqrdmulh.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vqrdmulh_T2(MVEInstruction):
+    pattern = "vqrdmulh.<dt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    outputs = ["Qd"]
 
 
 class vqdmlah(MVEInstruction):
