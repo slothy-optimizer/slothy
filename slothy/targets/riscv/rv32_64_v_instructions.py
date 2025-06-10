@@ -131,19 +131,26 @@ VectorIntegerVectorVectorMasked = ["vmerge.vvm"]
 VectorIntegerVectorScalarMasked = ["vmerge.vxm"]
 VectorIntegerVectorImmediateMasked = ["vmerge.vim"]
 
+Pseudo = ["li"]
+
+
 class RISCVLiPseudo(RISCVInstruction):
     pattern = "li <Xd>, <imm>"
     inputs = []
     outputs = ["Xd"]
 
+
 def li_pseudo_split_cb():
-   def core(inst, t, log=None):
+    def core(inst, t, log=None):
         out_reg = inst.args_out[0]
         imm = inst.immediate
         insts = []
         # if imm fits in signed 12-bit immediate, just use addi
-        if -2048 <= imm <= 2047:
-            addi = RISCVInstruction.build(RISCVInstruction.classes_by_names["addi"], {"Xd": out_reg, "Xa": out_reg, "imm": imm})
+        if -2048 <= int(imm) <= 2047:
+            addi = RISCVInstruction.build(
+                RISCVInstruction.classes_by_names["addi"],
+                {"Xd": out_reg, "Xa": out_reg, "imm": imm},
+            )
             insts.append(addi)
         else:
             lower_12 = imm & 0xFFF  # lower 12 bits (0-11)
@@ -153,8 +160,14 @@ def li_pseudo_split_cb():
             if lower_12 & 0x800:
                 upper_20 += 1  # compensate by incrementing upper part
                 lower_12 -= 0x1000  # convert lower 12 bits to signed negative number
-            lui = RISCVInstruction.build(RISCVInstruction.classes_by_names["lui"], {"Xd": out_reg, "imm": upper_20})
-            addi = RISCVInstruction.build(RISCVInstruction.classes_by_names["addi"], {"Xd": out_reg, "Xa": out_reg, "imm": lower_12})
+            lui = RISCVInstruction.build(
+                RISCVInstruction.classes_by_names["lui"],
+                {"Xd": out_reg, "imm": upper_20},
+            )
+            addi = RISCVInstruction.build(
+                RISCVInstruction.classes_by_names["addi"],
+                {"Xd": out_reg, "Xa": out_reg, "imm": lower_12},
+            )
             insts.append(lui)
             insts.append(addi)
 
@@ -171,9 +184,11 @@ def li_pseudo_split_cb():
         print(t.inst[0])
         return True
 
-   return core
+    return core
 
-RISCVLiPseudo.global_parsing_cb = li_pseudo_split_cb()
+
+RISCVLiPseudo.global_fusion_cb = li_pseudo_split_cb()
+
 
 def generate_rv32_64_v_instructions():
     """
@@ -216,7 +231,7 @@ def generate_rv32_64_v_instructions():
         VectorIntegerVectorImmediateMasked, RISCVVectorIntegerVectorImmediateMasked
     )
 
-    RISCVInstruction.dynamic_instr_classes.append(RISCVLiPseudo)
+    RISCVInstruction.instr_factory(Pseudo, RISCVLiPseudo)
 
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}

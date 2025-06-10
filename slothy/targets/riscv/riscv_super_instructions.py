@@ -215,9 +215,5 @@ class RISCVVectorIntegerVectorImmediateMasked(RISCVInstruction):
     inputs = ["Ve"]
     outputs = ["Vd"]
 
+
 # special super classes
-
-# super class for pseudo instruction li
-
-class RISCVLiPseudo(RISCVInstruction):
-    pattern = "mnenomic "

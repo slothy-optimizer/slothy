@@ -1,3 +1,4 @@
+start:
 vle8.v v0, (x0)
 vlse16.v v1, (x0), x1
 vluxei32.v v2, (x0), v1
@@ -11,3 +12,4 @@ vadd.vx v9, v8, x0
 vadd.vi v10, v9, 5
 vmerge.vvm v11, v10, v9, v0
 li x0, 1000
+end:

@@ -54,7 +54,7 @@ IntegerRegisterRegisterInstructions = [
 ]
 LoadInstructions = ["lb", "lbu", "lh", "lhu", "lw", "lwu", "ld"]
 StoreInstructions = ["sb", "sh", "sw", "sd"]
-UTypeInstructions = ["lui", "auipc", "li"]
+UTypeInstructions = ["lui", "auipc"]
 
 
 def generate_rv32_64_i_instructions():
