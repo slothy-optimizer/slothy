@@ -1450,72 +1450,50 @@ class vadd_sv(MVEInstruction):
     outputs = ["Qd"]
 
 
-class vhadd(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vhadd.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vhadd(MVEInstruction):
+    pattern = "vhadd.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vsub(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vsub.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vsub(MVEInstruction):
+    pattern = "vsub.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vhsub(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vhsub.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vhsub(MVEInstruction):
+    pattern = "vhsub.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vand(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vand.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vand(MVEInstruction):
+    pattern = "vand.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vbic(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vbic.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vbic(MVEInstruction):
+    pattern = "vbic.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vorr(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vorr.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vorr(MVEInstruction):
+    pattern = "vorr.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class veor(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="veor.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class veor(MVEInstruction):
+    pattern = "veor.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class nop(Instruction):
-    def __init__(self):
-        super().__init__(mnemonic="nop")
+class nop(MVEInstruction):
+    pattern = "nop"
 
 
 class vstr(Instruction):
@@ -2160,19 +2138,10 @@ class vst4(Instruction):
             return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
 
 
-class vsubf(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vsub.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def write(self):
-        return (
-            f"vsub.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}"
-        )
+class vsubf(MVEInstruction):
+    pattern = "vsub.<fdt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
 class vaddf(MVEInstruction):

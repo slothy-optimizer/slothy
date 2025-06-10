@@ -68,10 +68,10 @@ flt_radix4_fft_loop_start:
         load_twiddles
         vadd.f32  q<qSm0>,  q<qA>,   q<qC>        // a+c
         vadd.f32  q<qSm1>,  q<qB>,   q<qD>        // b+d
-        vsub.f32  qDf0, qA,   qC         // a-c
-        vsub.f32  qDf1, qB,   qD         // b-d
+        vsub.f32  q<qDf0>, q<qA>,   q<qC>         // a-c
+        vsub.f32  q<qDf1>, q<qB>,   q<qD>         // b-d
         vadd.f32  q<qA>,   q<qSm0>,  q<qSm1>      // a+b+c+d
-        vsub.f32  qBp,  qSm0,  qSm1      // a-b+c-d
+        vsub.f32  q<qBp>,  q<qSm0>,  q<qSm1>      // a-b+c-d
         vcadd.f32 qCp,  qDf0, qDf1, #270 // a-ib-c+id
         vcadd.f32 qDp,  qDf0, qDf1, #90  // a+ib-c-id
         cmul_flt  qB,   qTw1, qBp        // Tw1*(a-b+c-d)

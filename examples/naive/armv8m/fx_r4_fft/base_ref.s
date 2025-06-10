@@ -43,13 +43,13 @@ fixedpoint_radix4_fft_loop_start:
         vldrw.s32     vC,   [inC]
         vldrw.s32     vB,   [inB]
         vldrw.s32     vD,   [inD]
-        vhadd.s32     vSm0, vA,    vC
-        vhsub.s32     vDf0, vA,    vC
-        vhadd.s32     vSm1, vB,    vD
-        vhsub.s32     vDf1, vB,    vD
-        vhadd.s32     vT0,  vSm0,  vSm1
+        vhadd.s32     q<vSm0>, q<vA>,    q<vC>
+        vhsub.s32     q<vDf0>, q<vA>,    q<vC>
+        vhadd.s32     q<vSm1>, q<vB>,    q<vD>
+        vhsub.s32     q<vDf1>, q<vB>,    q<vD>
+        vhadd.s32     q<vT0>,  q<vSm0>,  q<vSm1>
         vstrw.s32     vT0,  [inA], #16
-        vhsub.s32     vT0,  vSm0,  vSm1
+        vhsub.s32     q<vT0>,  q<vSm0>,  q<vSm1>
         vldrw.s32     vW,   [pW1], #16
         vqdmlsdh.s32  vT1,  vW,    vT0
         vqdmladhx.s32 vT1,  vW,    vT0

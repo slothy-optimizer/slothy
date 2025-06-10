@@ -60,12 +60,12 @@ fixedpoint_radix4_fft_symbolic:
 fixedpoint_radix4_fft_loop_start:
         load_data
         load_twiddles
-        vhadd.s32  qSm0, qA,   qC         // a+c
-        vhadd.s32  qSm1, qB,   qD         // b+d
-        vhsub.s32  qDf0, qA,   qC         // a-c
-        vhsub.s32  qDf1, qB,   qD         // b-d
-        vhadd.s32  qA,   qSm0, qSm1       // a+b+c+d
-        vhsub.s32  qBp,  qSm0, qSm1       // a-b+c-d
+        vhadd.s32  q<qSm0>, q<qA>,   q<qC>         // a+c
+        vhadd.s32  q<qSm1>, q<qB>,   q<qD>         // b+d
+        vhsub.s32  q<qDf0>, q<qA>,   q<qC>         // a-c
+        vhsub.s32  q<qDf1>, q<qB>,   q<qD>         // b-d
+        vhadd.s32  q<qA>,   q<qSm0>, q<qSm1>       // a+b+c+d
+        vhsub.s32  q<qBp>,  q<qSm0>, q<qSm1>       // a-b+c-d
         vhcadd.s32 qCp,  qDf0, qDf1, #270 // a-ib-c+id
         vhcadd.s32 qDp,  qDf0, qDf1, #90  // a+ib-c-id
         cmul_fx    q<qB>,   q<qTw1>, q<qBp>        // Tw1*(a-b+c-d)
