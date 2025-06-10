@@ -39,16 +39,16 @@ floatingpoint_radix4_fft_symbolic:
         wls     lr, lr, end
 
 .macro load_data
-        vldrw.32   qA, [inA]
-        vldrw.32   qB, [inB]
-        vldrw.32   qC, [inC]
-        vldrw.32   qD, [inD]
+        vldrw.32   q<qA>, [inA]
+        vldrw.32   q<qB>, [inB]
+        vldrw.32   q<qC>, [inC]
+        vldrw.32   q<qD>, [inD]
 .endm
 
 .macro load_twiddles
-        vldrw.s32  qTw1, [pW1], #16
-        vldrw.s32  qTw2, [pW2], #16
-        vldrw.s32  qTw3, [pW3], #16
+        vldrw.s32  q<qTw1>, [pW1], #16
+        vldrw.s32  q<qTw2>, [pW2], #16
+        vldrw.s32  q<qTw3>, [pW3], #16
 .endm
 
 .macro store_data

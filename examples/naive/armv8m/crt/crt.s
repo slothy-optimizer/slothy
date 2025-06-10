@@ -1,9 +1,9 @@
             // Excerpt of CRT interpolation from paper https://eprint.iacr.org/2022/439 -- naively written
-            vldrw.u32   in0, [src0]
+            vldrw.u32   q<in0>, [r<src0>]
             vqdmulh.s32 q<diff>, q<in0>, r<mod_p_tw>
             vqrdmulh.s32 q<tmp>, q<diff>, r<const_prshift>
             vmla.s32    q<in0>, q<tmp>, r<mod_p>
-            vldrw.u32   in1, [src1]
+            vldrw.u32   q<in1>, [r<src1>]
             vsub.u32    q<diff>, q<in1>, q<in0>
             vqdmulh.s32 q<tmp>, q<diff>, r<p_inv_mod_q_tw>
             vmul.u32    q<diff>, q<diff>, r<p_inv_mod_q>

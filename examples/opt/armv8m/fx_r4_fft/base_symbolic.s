@@ -16,16 +16,16 @@
         pW3 .req r8
 
 .macro load_data
-        vldrw.s32   qA, [inA]
-        vldrw.s32   qB, [inB]
-        vldrw.s32   qC, [inC]
-        vldrw.s32   qD, [inD]
+        vldrw.s32   q<qA>, [inA]
+        vldrw.s32   q<qB>, [inB]
+        vldrw.s32   q<qC>, [inC]
+        vldrw.s32   q<qD>, [inD]
 .endm
 
 .macro load_twiddles
-        vldrw.s32  qTw1, [pW1], #16
-        vldrw.s32  qTw2, [pW2], #16
-        vldrw.s32  qTw3, [pW3], #16
+        vldrw.s32  q<qTw1>, [pW1], #16
+        vldrw.s32  q<qTw2>, [pW2], #16
+        vldrw.s32  q<qTw3>, [pW3], #16
 .endm
 
 .macro store_data

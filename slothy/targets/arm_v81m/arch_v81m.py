@@ -37,7 +37,7 @@ import inspect
 import re
 import math
 
-from sympy import simplify
+# from sympy import simplify
 from functools import cache
 from enum import Enum
 
@@ -310,7 +310,18 @@ class InstructionNew:
     def is_load_store_instruction(self):
         return self._is_instance_of(
             [
-                vldr,
+                vldrb,
+                vldrb_no_imm,
+                vldrb_with_writeback,
+                vldrb_with_post,
+                vldrh,
+                vldrh_no_imm,
+                vldrh_with_writeback,
+                vldrh_with_post,
+                vldrw,
+                vldrw_no_imm,
+                vldrw_with_writeback,
+                vldrw_with_post,
                 vstr,
                 vstr_no_imm,
                 vstr_with_writeback,
@@ -335,7 +346,25 @@ class InstructionNew:
         )
 
     def is_vector_load(self):
-        return self._is_instance_of([vldr, vld2, vld4, qrestore])
+        return self._is_instance_of(
+            [
+                vldrb,
+                vldrb_no_imm,
+                vldrb_with_writeback,
+                vldrb_with_post,
+                vldrh,
+                vldrh_no_imm,
+                vldrh_with_writeback,
+                vldrh_with_post,
+                vldrw,
+                vldrw_no_imm,
+                vldrw_with_writeback,
+                vldrw_with_post,
+                vld2,
+                vld4,
+                qrestore,
+            ]
+        )
 
     def is_scalar_load(self):
         return self._is_instance_of(
@@ -595,7 +624,18 @@ class Instruction:
     def is_load_store_instruction(self):
         return self._is_instance_of(
             [
-                vldr,
+                vldrb,
+                vldrb_no_imm,
+                vldrb_with_writeback,
+                vldrb_with_post,
+                vldrh,
+                vldrh_no_imm,
+                vldrh_with_writeback,
+                vldrh_with_post,
+                vldrw,
+                vldrw_no_imm,
+                vldrw_with_writeback,
+                vldrw_with_post,
                 vstr,
                 vstr_no_imm,
                 vstr_with_writeback,
@@ -620,7 +660,25 @@ class Instruction:
         )
 
     def is_vector_load(self):
-        return self._is_instance_of([vldr, vld2, vld4, qrestore])
+        return self._is_instance_of(
+            [
+                vldrb,
+                vldrb_no_imm,
+                vldrb_with_writeback,
+                vldrb_with_post,
+                vldrh,
+                vldrh_no_imm,
+                vldrh_with_writeback,
+                vldrh_with_post,
+                vldrw,
+                vldrw_no_imm,
+                vldrw_with_writeback,
+                vldrw_with_post,
+                vld2,
+                vld4,
+                qrestore,
+            ]
+        )
 
     def is_scalar_load(self):
         return self._is_instance_of(
@@ -1526,165 +1584,88 @@ class vstr_with_post(MVEInstruction):
     inputs = ["Qd", "Rn"]
 
 
-class vldr(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vldr",
-            arg_types_in=[RegisterType.GPR],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def _simplify(self):
-        if self.increment is not None:
-            self.increment = simplify(self.increment)
-        if self.post_index is not None:
-            self.post_index = simplify(self.post_index)
-        if self.pre_index is not None:
-            self.pre_index = simplify(self.pre_index)
-
-    def parse(self, src):
-        src = re.sub("//.*$", "", src)
-
-        addr_regexp_txt = (
-            r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        )
-        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
-
-        vldr_regexp_txt = r"\s*vldr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
-        vldr_regexp_txt += r"(?P<dest>\w+),\s*"
-        vldr_regexp_txt += addr_regexp_txt
-        vldr_regexp_txt += postinc_regexp_txt
-        vldr_regexp_txt = Instruction.unfold_abbrevs(vldr_regexp_txt)
-
-        vldr_regexp = re.compile(vldr_regexp_txt)
-
-        p = vldr_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Doesn't match pattern")
-
-        vec = p.group("dest")
-        self.addr = p.group("addr")
-        self.writeback = p.group("writeback") == "!"
-        self.datatype = p.group("datatype")
-        self.width = p.group("width")
-
-        self.pre_index = p.group("addroffset")
-        self.post_index = p.group("postinc")
-
-        if self.writeback:
-            self.increment = self.pre_index
-        elif self.post_index:
-            self.increment = self.post_index
-        else:
-            self.increment = None
-
-        self._simplify()
-
-        # NOTE: We currently don't model post-increment loads/stores
-        #       as changing the address register, allowing the tool to
-        #       freely rearrange loads/stores from the same base register.
-        #       We correct the indices afterwards.
-
-        self.args_in = [self.addr]
-        self.args_out = [vec]
-        self.args_in_out = []
-
-    def write(self):
-
-        self._simplify()
-
-        inc = ""
-        if self.writeback:
-            inc = "!"
-
-        warn = False
-        if self.pre_index is not None:
-            warn = True
-            addr = f"[{self.args_in[0]}, #{self.pre_index}]"
-        else:
-            addr = f"[{self.args_in[0]}]"
-
-        if self.post_index is not None:
-            warn = True
-            post = f", #{self.post_index}"
-        else:
-            post = ""
-
-        if warn:
-            warning = ""
-        else:
-            warning = ""
-
-        return (
-            f"vldr{self.width}.{self.datatype} {self.args_out[0]}, "
-            f"{addr}{inc} {post}{warning}"
-        )
+class vldrb(MVEInstruction):
+    pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
 
 
-class vldr_gather(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vldrw.<dt>",
-            arg_types_in=[RegisterType.GPR, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vldrb_no_imm(MVEInstruction):
+    pattern = "vldrb.<dt> <Qd>, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
 
-    def _simplify(self):
-        if self.increment is not None:
-            self.increment = simplify(self.increment)
-        if self.post_index is not None:
-            self.post_index = simplify(self.post_index)
-        if self.pre_index is not None:
-            self.pre_index = simplify(self.pre_index)
 
-    def parse(self, src):
-        src = re.sub("//.*$", "", src).strip()
+class vldrb_with_writeback(MVEInstruction):
+    pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]!"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
 
-        dest = r"(?P<dest>\w+),\s*"
-        adrgpr = r"(?P<addr>\w+)"
-        ofsvec = r",\s*(?P<addrvec>\w+)?"
-        uxtw = r"(?:,\s*(?:uxtw|UXTW)\s+#(?P<uxtw>\w+))?"
-        addr_regexp_txt = rf"\[\s*{adrgpr}\s*{ofsvec}\s*{uxtw}\]"
 
-        vldr_regexp_txt = r"\s*vldr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
-        vldr_regexp_txt += dest
-        vldr_regexp_txt += addr_regexp_txt
-        vldr_regexp_txt += "$"
-        vldr_regexp_txt = Instruction.unfold_abbrevs(vldr_regexp_txt)
+class vldrb_with_post(MVEInstruction):
+    pattern = "vldrb.<dt> <Qd>, [<Rn>], <imm>"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
 
-        vldr_regexp = re.compile(vldr_regexp_txt)
 
-        p = vldr_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Doesn't match pattern")
+class vldrh(MVEInstruction):
+    pattern = "vldrh.<dt> <Qd>, [<Rn>, <imm>]"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
 
-        vec = p.group("dest")
-        self.addrgpr = p.group("addr")
-        self.addrvec = p.group("addrvec")
-        self.datatype = p.group("datatype")
-        self.width = p.group("width")
-        self.uxtw = p.group("uxtw")
 
-        self.pre_index = None
-        self.post_index = None
-        self.increment = None
+class vldrh_no_imm(MVEInstruction):
+    pattern = "vldrh.<dt> <Qd>, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
 
-        # NOTE: We currently don't model post-increment loads/stores
-        #       as changing the address register, allowing the tool to
-        #       freely rearrange loads/stores from the same base register.
-        #       We correct the indices afterwards.
 
-        self.args_in = [self.addrgpr, self.addrvec]
-        self.args_out = [vec]
-        self.args_in_out = []
+class vldrh_with_writeback(MVEInstruction):
+    pattern = "vldrh.<dt> <Qd>, [<Rn>, <imm>]!"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
 
-    def write(self):
-        uxtw = ""
-        if self.uxtw is not None:
-            uxtw = f", UXTW #{self.uxtw}"
-        addr = f"[{self.args_in[0]}, {self.args_in[1]}{uxtw}]"
 
-        return f"vldr{self.width}.{self.datatype} {self.args_out[0]}, {addr}"
+class vldrh_with_post(MVEInstruction):
+    pattern = "vldrh.<dt> <Qd>, [<Rn>], <imm>"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
+
+
+class vldrw(MVEInstruction):
+    pattern = "vldrw.<dt> <Qd>, [<Rn>, <imm>]"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
+
+
+class vldrw_no_imm(MVEInstruction):
+    pattern = "vldrw.<dt> <Qd>, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
+
+
+class vldrw_with_writeback(MVEInstruction):
+    pattern = "vldrw.<dt> <Qd>, [<Rn>, <imm>]!"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
+
+
+class vldrw_with_post(MVEInstruction):
+    pattern = "vldrw.<dt> <Qd>, [<Rn>], <imm>"
+    inputs = ["Rn"]
+    outputs = ["Qd"]
+
+
+class vldr_gather(MVEInstruction):
+    pattern = "vldrw.<dt> <Qd>, [<Rn>, <Qm>]"
+    inputs = ["Qm", "Rn"]
+    outputs = ["Qd"]
+
+
+class vldr_gather_uxtw(MVEInstruction):
+    pattern = "vldrw.<dt> <Qd>, [<Rn>, <Qm>, UXTW <imm>]"
+    inputs = ["Qm", "Rn"]
+    outputs = ["Qd"]
 
 
 class vld2(Instruction):
