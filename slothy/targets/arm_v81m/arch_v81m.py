@@ -1420,13 +1420,10 @@ class vfma(MVEInstruction):
     in_outs = ["Qda"]
 
 
-class vmla(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vmla.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-            arg_types_in_out=[RegisterType.MVE],
-        )
+class vmla(MVEInstruction):
+    pattern = "vmla.<dt> <Qda>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    in_outs = ["Qda"]
 
 
 class vmlaldava(MVEInstruction):
@@ -1435,31 +1432,22 @@ class vmlaldava(MVEInstruction):
     outputs = ["Rd", "Ra"]
 
 
-class vaddva(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vaddva.<dt>",
-            arg_types_in=[RegisterType.MVE],
-            arg_types_in_out=[RegisterType.GPR],
-        )
+class vaddva(MVEInstruction):
+    pattern = "vaddva.<dt> <Rda>, <Qm>"
+    inputs = ["Qm"]
+    in_outs = ["Rda"]
 
 
-class vadd_vv(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vadd.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vadd_vv(MVEInstruction):
+    pattern = "vadd.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vadd_sv(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vadd.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.GPR],
-            arg_types_out=[RegisterType.MVE],
-        )
+class vadd_sv(MVEInstruction):
+    pattern = "vadd.<dt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    outputs = ["Qd"]
 
 
 class vhadd(Instruction):
@@ -2187,19 +2175,10 @@ class vsubf(Instruction):
         )
 
 
-class vaddf(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vadd.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def write(self):
-        return (
-            f"vadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}"
-        )
+class vaddf(MVEInstruction):
+    pattern = "vadd.<fdt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
 class vcmla(Instruction):
