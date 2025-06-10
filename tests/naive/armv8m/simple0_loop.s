@@ -12,7 +12,7 @@ start:
     vadd.u32   q1, q1, q7
     vadd.u32   q2, q2, q2
     vadd.u32   q2, q2, q7
-    vstrw.u32  q1, [inA, #16]
-    vstrw.u32  q2, [inA, #32]
-    vstrw.u32  q0, [inA], #48
+    vstrw.u32  q1, [r<inA>, #16]
+    vstrw.u32  q2, [r<inA>, #32]
+    vstrw.u32  q0, [r<inA>], #48
     le lr, start

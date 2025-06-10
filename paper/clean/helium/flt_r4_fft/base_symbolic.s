@@ -52,10 +52,10 @@ floatingpoint_radix4_fft_symbolic:
 .endm
 
 .macro store_data
-        vstrw.32   qA, [inA], #16
-        vstrw.32   qB, [inB], #16
-        vstrw.32   qC, [inC], #16
-        vstrw.32   qD, [inD], #16
+        vstrw.32   q<qA>, [inA], #16
+        vstrw.32   q<qB>, [inB], #16
+        vstrw.32   q<qC>, [inC], #16
+        vstrw.32   q<qD>, [inD], #16
 .endm
 
 .macro cmul_flt out, in0, in1

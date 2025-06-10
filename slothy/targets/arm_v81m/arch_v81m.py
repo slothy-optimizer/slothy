@@ -312,6 +312,9 @@ class InstructionNew:
             [
                 vldr,
                 vstr,
+                vstr_no_imm,
+                vstr_with_writeback,
+                vstr_with_post,
                 vld2,
                 vld4,
                 vst2,
@@ -352,7 +355,9 @@ class InstructionNew:
         return self.is_vector_load() or self.is_scalar_load()
 
     def is_vector_store(self):
-        return self._is_instance_of([vstr, vst2, vst4, qsave])
+        return self._is_instance_of(
+            [vstr, vstr_no_imm, vstr_with_writeback, vstr_with_post, vst2, vst4, qsave]
+        )
 
     def is_stack_store(self):
         return self._is_instance_of([qsave, saved, save])
@@ -592,6 +597,9 @@ class Instruction:
             [
                 vldr,
                 vstr,
+                vstr_no_imm,
+                vstr_with_writeback,
+                vstr_with_post,
                 vld2,
                 vld4,
                 vst2,
@@ -632,7 +640,9 @@ class Instruction:
         return self.is_vector_load() or self.is_scalar_load()
 
     def is_vector_store(self):
-        return self._is_instance_of([vstr, vst2, vst4, qsave])
+        return self._is_instance_of(
+            [vstr, vstr_no_imm, vstr_with_writeback, vstr_with_post, vst2, vst4, qsave]
+        )
 
     def is_stack_store(self):
         return self._is_instance_of([qsave, saved, save])
@@ -1496,95 +1506,24 @@ class nop(MVEInstruction):
     pattern = "nop"
 
 
-class vstr(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vstrw.u32", arg_types_in=[RegisterType.MVE, RegisterType.GPR]
-        )
+class vstr(MVEInstruction):
+    pattern = "vstrw.<dt> <Qd>, [<Rn>, <imm>]"
+    inputs = ["Qd", "Rn"]
 
-    def _simplify(self):
-        if self.increment is not None:
-            self.increment = simplify(self.increment)
-        if self.post_index is not None:
-            self.post_index = simplify(self.post_index)
-        if self.pre_index is not None:
-            self.pre_index = simplify(self.pre_index)
 
-    def parse(self, src):
-        src = re.sub("//.*$", "", src)
+class vstr_no_imm(MVEInstruction):
+    pattern = "vstrw.<dt> <Qd>, [<Rn>]"
+    inputs = ["Qd", "Rn"]
 
-        addr_regexp_txt = (
-            r"\[\s*(?P<addr>\w+)\s*(?:,\s*#(?P<addroffset>[^\]]*))?\](?P<writeback>!?)"
-        )
-        postinc_regexp_txt = r"\s*(?:,\s*#(?P<postinc>.*))?"
 
-        vldr_regexp_txt = r"\s*vstr(?P<width>[bB]|[hH]|[wW])\.<dt>\s+"
-        vldr_regexp_txt += r"(?P<dest>\w+),\s*"
-        vldr_regexp_txt += addr_regexp_txt
-        vldr_regexp_txt += postinc_regexp_txt
-        vldr_regexp_txt = Instruction.unfold_abbrevs(vldr_regexp_txt)
+class vstr_with_writeback(MVEInstruction):
+    pattern = "vstrw.<dt> <Qd>, [<Rn>, <imm>]!"
+    inputs = ["Qd", "Rn"]
 
-        vldr_regexp = re.compile(vldr_regexp_txt)
 
-        p = vldr_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Doesn't match pattern")
-
-        vec = p.group("dest")
-        self.addr = p.group("addr")
-        self.writeback = p.group("writeback") == "!"
-        self.datatype = p.group("datatype")
-        self.width = p.group("width")
-
-        self.pre_index = p.group("addroffset")
-        self.post_index = p.group("postinc")
-
-        if self.writeback:
-            self.increment = self.pre_index
-        elif self.post_index:
-            self.increment = self.post_index
-        else:
-            self.increment = None
-
-        self._simplify()
-
-        # NOTE: We currently don't model post-increment loads/stores
-        #       as changing the address register, allowing the tool to
-        #       freely rearrange loads/stores from the same base register.
-        #       We correct the indices afterwards.
-
-        self.args_in = [vec, self.addr]
-        self.args_out = []
-        self.args_in_out = []
-
-    def write(self):
-
-        self._simplify()
-
-        inc = ""
-        if self.writeback:
-            inc = "!"
-
-        warn = False
-
-        if self.pre_index is not None:
-            warn = True
-            addr = f"[{self.args_in[1]}, #{self.pre_index}]"
-        else:
-            addr = f"[{self.args_in[1]}]"
-
-        if self.post_index is not None:
-            warn = True
-            post = f", #{self.post_index}"
-        else:
-            post = ""
-
-        if warn:
-            warning = ""
-        else:
-            warning = ""
-
-        return f"{self.mnemonic} {self.args_in[0]}, {addr}{inc} {post}{warning}"
+class vstr_with_post(MVEInstruction):
+    pattern = "vstrw.<dt> <Qd>, [<Rn>], <imm>"
+    inputs = ["Qd", "Rn"]
 
 
 class vldr(Instruction):

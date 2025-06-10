@@ -249,6 +249,10 @@ vstrw.u32 q0, [r0, #16]
 vstrw.u32 q0, [r0], #16
 vstrw.u32 q0, [r0, #16]!
 
+vstrw.32 q0, [r0, #16]
+vstrw.32 q0, [r0], #16
+vstrw.32 q0, [r0, #16]!
+
 vldrb.u8 q0, [r0, #16]
 vldrb.u8 q0, [r0], #16
 vldrb.u8 q0, [r0, #16]!

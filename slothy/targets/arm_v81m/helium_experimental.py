@@ -108,6 +108,9 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vld2,
     vld4,
     vstr,
+    vstr_no_imm,
+    vstr_with_writeback,
+    vstr_with_post,
     vst2,
     vst4,
     vcmul,
@@ -226,6 +229,9 @@ execution_units = {
     vld2: ExecutionUnit.LOAD,
     vld4: ExecutionUnit.LOAD,
     vstr: ExecutionUnit.STORE,
+    vstr_no_imm: ExecutionUnit.STORE,
+    vstr_with_writeback: ExecutionUnit.STORE,
+    vstr_with_post: ExecutionUnit.STORE,
     vst2: ExecutionUnit.STORE,
     vst4: ExecutionUnit.STORE,
     vcmul: ExecutionUnit.VEC_FPU,
@@ -306,6 +312,9 @@ inverse_throughput = {
         vqdmlsdh,
         vmla,
         vstr,
+        vstr_no_imm,
+        vstr_with_writeback,
+        vstr_with_post,
         qsave,
         qrestore,
         vldr,
@@ -442,7 +451,13 @@ def get_latency(src, out_idx, dst):
     #
 
     # VMULx -> VSTR has single cycle latency
-    if instclass_dst in [vstr, qsave] and instclass_src in [
+    if instclass_dst in [
+        vstr,
+        vstr_no_imm,
+        vstr_with_writeback,
+        vstr_with_post,
+        qsave,
+    ] and instclass_src in [
         vmul_T1,
         vmul_T2,
         vmullb,
