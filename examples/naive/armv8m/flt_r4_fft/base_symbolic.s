@@ -72,11 +72,11 @@ flt_radix4_fft_loop_start:
         vsub.f32  q<qDf1>, q<qB>,   q<qD>         // b-d
         vadd.f32  q<qA>,   q<qSm0>,  q<qSm1>      // a+b+c+d
         vsub.f32  q<qBp>,  q<qSm0>,  q<qSm1>      // a-b+c-d
-        vcadd.f32 qCp,  qDf0, qDf1, #270 // a-ib-c+id
-        vcadd.f32 qDp,  qDf0, qDf1, #90  // a+ib-c-id
-        cmul_flt  qB,   qTw1, qBp        // Tw1*(a-b+c-d)
-        cmul_flt  qC,   qTw2, qCp        // Tw2*(a-ib-c+id)
-        cmul_flt  qD,   qTw3, qDp        // Tw3*(a+ib-c-id)
+        vcadd.f32 q<qCp>,  q<qDf0>, q<qDf1>, #270 // a-ib-c+id
+        vcadd.f32 q<qDp>,  q<qDf0>, q<qDf1>, #90  // a+ib-c-id
+        cmul_flt  q<qB>,   q<qTw1>, q<qBp>        // Tw1*(a-b+c-d)
+        cmul_flt  q<qC>,   q<qTw2>, q<qCp>        // Tw2*(a-ib-c+id)
+        cmul_flt  q<qD>,   q<qTw3>, q<qDp>        // Tw3*(a+ib-c-id)
         store_data
         le         lr, flt_radix4_fft_loop_start
 

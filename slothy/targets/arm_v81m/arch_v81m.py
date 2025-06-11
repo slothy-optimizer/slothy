@@ -2070,199 +2070,34 @@ class vaddf(MVEInstruction):
     outputs = ["Qd"]
 
 
-class vcmla(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vcmla.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_in_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vcmla_regexp_txt = (
-            r"vcmla\.<fdt>\s+(?P<dst>\w+)\s*,"
-            r"\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
-        )
-        vcmla_regexp_txt = Instruction.unfold_abbrevs(vcmla_regexp_txt)
-        vcmla_regexp = re.compile(vcmla_regexp_txt)
-        p = vcmla_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_in_out = [p.group("dst")]
-        self.args_out = []
-
-        self.datatype = p.group("datatype")
-        self.rotation = p.group("rotation")
-
-        if self.datatype == "f32":
-            self.args_in_inout_different = [
-                (0, 0),
-                (0, 1),
-            ]  # Output must not be the same as any of the inputs
-
-    def write(self):
-        return (
-            f"vcmla.{self.datatype} {self.args_in_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}, {self.rotation}"
-        )
+class vcmla(MVEInstruction):
+    pattern = "vcmla.<fdt> <Qd>, <Qn>, <Qm>, <imm>"
+    inputs = ["Qn", "Qm"]
+    in_outs = ["Qd"]
 
 
-class vcmul(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vcmul.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vcmul_regexp_txt = (
-            r"vcmul\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
-            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
-        )
-        vcmul_regexp_txt = Instruction.unfold_abbrevs(vcmul_regexp_txt)
-        vcmul_regexp = re.compile(vcmul_regexp_txt)
-        p = vcmul_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.rotation = p.group("rotation")
-
-        if self.datatype == "f32":
-            # First index: output, Second index: Input
-            self.args_in_out_different = [
-                (0, 0),
-                (0, 1),
-            ]  # Output must not be the same as any of the inputs
-
-    def write(self):
-        return (
-            f"vcmul.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}, {self.rotation}"
-        )
+class vcmul(MVEInstruction):
+    pattern = "vcmul.<fdt> <Qd>, <Qn>, <Qm>, <imm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vcadd(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vcadd.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vcadd_regexp_txt = (
-            r"vcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,\s*(?P<src1>\w+)\s*,"
-            r"\s*(?P<rotation>#.*)"
-        )
-        vcadd_regexp_txt = Instruction.unfold_abbrevs(vcadd_regexp_txt)
-        vcadd_regexp = re.compile(vcadd_regexp_txt)
-        p = vcadd_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.rotation = p.group("rotation")
-
-        if "32" in self.datatype:
-            # First index: output, Second index: Input
-            self.args_in_out_different = [
-                (0, 0),
-                (0, 1),
-            ]  # Output must not be the same as any of the inputs
-
-    def write(self):
-        return (
-            f"vcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}, {self.rotation}"
-        )
+class vcadd(MVEInstruction):
+    pattern = "vcadd.<dt> <Qd>, <Qn>, <Qm>, <imm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vhcadd(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vhcadd.<dt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vhcadd_regexp_txt = (
-            r"vhcadd\.<dt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
-            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
-        )
-        vhcadd_regexp_txt = Instruction.unfold_abbrevs(vhcadd_regexp_txt)
-        vhcadd_regexp = re.compile(vhcadd_regexp_txt)
-        p = vhcadd_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.rotation = p.group("rotation")
-
-        if "32" in self.datatype:
-            # First index: output, Second index: Input
-            self.args_in_out_different = [
-                (0, 0),
-                (0, 1),
-            ]  # Output must not be the same as any of the inputs
-
-    def write(self):
-        return (
-            f"vhcadd.{self.datatype} {self.args_out[0]}, {self.args_in[0]}, "
-            f"{self.args_in[1]}, {self.rotation}"
-        )
+class vhcadd(MVEInstruction):
+    pattern = "vhcadd.<dt> <Qd>, <Qn>, <Qm>, <imm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 
-class vcaddf(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vcaddf.<fdt>",
-            arg_types_in=[RegisterType.MVE, RegisterType.MVE],
-            arg_types_out=[RegisterType.MVE],
-        )
-
-    def parse(self, src):
-        vcaddf_regexp_txt = (
-            r"vcadd\.<fdt>\s+(?P<dst>\w+)\s*,\s*(?P<src0>\w+)\s*,"
-            r"\s*(?P<src1>\w+)\s*,\s*(?P<rotation>#.*)"
-        )
-        vcaddf_regexp_txt = Instruction.unfold_abbrevs(vcaddf_regexp_txt)
-        vcaddf_regexp = re.compile(vcaddf_regexp_txt)
-        p = vcaddf_regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        self.args_in = [p.group("src0"), p.group("src1")]
-        self.args_out = [p.group("dst")]
-        self.args_in_out = []
-
-        self.datatype = p.group("datatype")
-        self.rotation = p.group("rotation")
-
-        if self.datatype == "f32":
-            # First index: output, Second index: Input
-            self.args_in_out_different = [
-                (0, 0),
-                (0, 1),
-            ]  # Output must not be the same as any of the inputs
-
-    def write(self):
-        return (
-            f"vcadd.{self.datatype} {self.args_out[0]}, "
-            f"{self.args_in[0]}, {self.args_in[1]}, {self.rotation}"
-        )
-
+class vcaddf(MVEInstruction):
+    pattern = "vcadd.<fdt> <Qd>, <Qn>, <Qm>, <imm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
 
 # ###########################################################
 #

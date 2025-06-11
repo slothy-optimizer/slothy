@@ -66,8 +66,8 @@ fixedpoint_radix4_fft_loop_start:
         vhsub.s32  q<qDf1>, q<qB>,   q<qD>         // b-d
         vhadd.s32  q<qA>,   q<qSm0>, q<qSm1>       // a+b+c+d
         vhsub.s32  q<qBp>,  q<qSm0>, q<qSm1>       // a-b+c-d
-        vhcadd.s32 qCp,  qDf0, qDf1, #270 // a-ib-c+id
-        vhcadd.s32 qDp,  qDf0, qDf1, #90  // a+ib-c-id
+        vhcadd.s32 q<qCp>,  q<qDf0>, q<qDf1>, #270 // a-ib-c+id
+        vhcadd.s32 q<qDp>,  q<qDf0>, q<qDf1>, #90  // a+ib-c-id
         cmul_fx    q<qB>,   q<qTw1>, q<qBp>        // Tw1*(a-b+c-d)
         cmul_fx    q<qC>,   q<qTw2>, q<qCp>        // Tw2*(a-ib-c+id)
         cmul_fx    q<qD>,   q<qTw3>, q<qDp>        // Tw3*(a+ib-c-id)
