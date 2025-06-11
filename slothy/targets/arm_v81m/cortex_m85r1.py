@@ -128,7 +128,14 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vld21,
     vld20_with_writeback,
     vld21_with_writeback,
-    vld4,
+    vld40,
+    vld41,
+    vld42,
+    vld43,
+    vld40_with_writeback,
+    vld41_with_writeback,
+    vld42_with_writeback,
+    vld43_with_writeback,
     vstr,
     vstr_no_imm,
     vstr_with_writeback,
@@ -333,7 +340,14 @@ execution_units = {
     vld21: ExecutionUnit.LOAD,
     vld20_with_writeback: ExecutionUnit.LOAD,
     vld21_with_writeback: ExecutionUnit.LOAD,
-    vld4: ExecutionUnit.LOAD,
+    vld40: ExecutionUnit.LOAD,
+    vld41: ExecutionUnit.LOAD,
+    vld42: ExecutionUnit.LOAD,
+    vld43: ExecutionUnit.LOAD,
+    vld40_with_writeback: ExecutionUnit.LOAD,
+    vld41_with_writeback: ExecutionUnit.LOAD,
+    vld42_with_writeback: ExecutionUnit.LOAD,
+    vld43_with_writeback: ExecutionUnit.LOAD,
     vstr: ExecutionUnit.STORE,
     vstr_no_imm: ExecutionUnit.STORE,
     vstr_with_writeback: ExecutionUnit.STORE,
@@ -442,7 +456,14 @@ inverse_throughput = {
         vld21,
         vld20_with_writeback,
         vld21_with_writeback,
-        vld4,
+        vld40,
+        vld41,
+        vld42,
+        vld43,
+        vld40_with_writeback,
+        vld41_with_writeback,
+        vld42_with_writeback,
+        vld43_with_writeback,
         vst2,
         vst4,
         vcmul,
@@ -550,7 +571,14 @@ default_latencies = {
     (vmulf_T1, vmulf_T2, vcmul): 3,
     (vld20, vld21): 4,
     (vld20_with_writeback, vld21_with_writeback): 4,
-    (vld4, vfma, vcmla): 4,
+    (vld40, vld41, vld42, vld43): 4,
+    (
+        vld40_with_writeback,
+        vld41_with_writeback,
+        vld42_with_writeback,
+        vld43_with_writeback,
+    ): 4,
+    (vfma, vcmla): 4,
 }
 
 
@@ -610,7 +638,14 @@ def get_latency(src, out_idx, dst):
     ]:
         return 2
 
-    if instclass_dst == vld4 and instclass_src == vld4 and dst.idx != src.idx:
+    if instclass_dst in [
+        vld41,
+        vld41_with_writeback,
+        vld42,
+        vld42_with_writeback,
+        vld43,
+        vld43_with_writeback,
+    ] and instclass_src in [vld40, vld40_with_writeback]:
         return 2
 
     # Inputs to VST4x seem to have higher latency

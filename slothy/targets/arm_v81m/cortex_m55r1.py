@@ -128,7 +128,14 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vld21,
     vld20_with_writeback,
     vld21_with_writeback,
-    vld4,
+    vld40,
+    vld41,
+    vld42,
+    vld43,
+    vld40_with_writeback,
+    vld41_with_writeback,
+    vld42_with_writeback,
+    vld43_with_writeback,
     vstr,
     vstr_no_imm,
     vstr_with_writeback,
@@ -190,7 +197,14 @@ def _add_st_ld_hazard(slothy):
             or isinstance(instA, vld20_with_writeback)
             or isinstance(instA, vld21_with_writeback)
             or isinstance(instA, vst4)
-            or isinstance(instB, vld4)
+            or isinstance(instB, vld40)
+            or isinstance(instB, vld41)
+            or isinstance(instB, vld42)
+            or isinstance(instB, vld43)
+            or isinstance(instB, vld40_with_writeback)
+            or isinstance(instB, vld41_with_writeback)
+            or isinstance(instB, vld42_with_writeback)
+            or isinstance(instB, vld43_with_writeback)
         ):
             return False
         if slothy.config.constraints.st_ld_hazard_ignore_stack and (
@@ -323,7 +337,14 @@ execution_units = {
     vld21: ExecutionUnit.LOAD,
     vld20_with_writeback: ExecutionUnit.LOAD,
     vld21_with_writeback: ExecutionUnit.LOAD,
-    vld4: ExecutionUnit.LOAD,
+    vld40: ExecutionUnit.LOAD,
+    vld41: ExecutionUnit.LOAD,
+    vld42: ExecutionUnit.LOAD,
+    vld43: ExecutionUnit.LOAD,
+    vld40_with_writeback: ExecutionUnit.LOAD,
+    vld41_with_writeback: ExecutionUnit.LOAD,
+    vld42_with_writeback: ExecutionUnit.LOAD,
+    vld43_with_writeback: ExecutionUnit.LOAD,
     vstr: ExecutionUnit.STORE,
     vstr_no_imm: ExecutionUnit.STORE,
     vstr_with_writeback: ExecutionUnit.STORE,
@@ -433,7 +454,14 @@ inverse_throughput = {
         vld21,
         vld20_with_writeback,
         vld21_with_writeback,
-        vld4,
+        vld40,
+        vld41,
+        vld42,
+        vld43,
+        vld40_with_writeback,
+        vld41_with_writeback,
+        vld42_with_writeback,
+        vld43_with_writeback,
         vst2,
         vst4,
         vcmul,
@@ -512,7 +540,13 @@ default_latencies = {
     ): 1,
     (vld20, vld21): 2,
     (vld20_with_writeback, vld21_with_writeback): 2,
-    (vld4): 2,
+    (vld40, vld41, vld42, vld43): 2,
+    (
+        vld40_with_writeback,
+        vld41_with_writeback,
+        vld42_with_writeback,
+        vld43_with_writeback,
+    ): 2,
     (
         vrshr,
         vrshl,

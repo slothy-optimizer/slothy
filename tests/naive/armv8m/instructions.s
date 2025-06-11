@@ -264,12 +264,11 @@ vldrh.u32 q0, [r0], #16
 vldrh.u32 q0, [r0, #16]!
 
 vldrw.u32 q0, [r0, #16]
-vldrw.u32   q<in0>, [r<src0>]
 vldrw.u32 q0, [r0], #16
 vldrw.u32 q0, [r0, #16]!
 
 vldrw.u32 q1, [r0, q0]
-vldrw.u32 q1, [r0, q0, UXTW #3]
+vldrw.u32 q1, [r0, q0]
 
 vld20.32 {q4,q5}, [r1]
 vld21.32 {q4,q5}, [r1]!

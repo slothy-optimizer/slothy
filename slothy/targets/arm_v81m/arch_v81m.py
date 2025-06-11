@@ -330,7 +330,14 @@ class InstructionNew:
                 vld21,
                 vld20_with_writeback,
                 vld21_with_writeback,
-                vld4,
+                vld40,
+                vld41,
+                vld42,
+                vld43,
+                vld40_with_writeback,
+                vld41_with_writeback,
+                vld42_with_writeback,
+                vld43_with_writeback,
                 vst2,
                 vst4,
                 ldrd,
@@ -367,7 +374,14 @@ class InstructionNew:
                 vld21,
                 vld20_with_writeback,
                 vld21_with_writeback,
-                vld4,
+                vld40,
+                vld41,
+                vld42,
+                vld43,
+                vld40_with_writeback,
+                vld41_with_writeback,
+                vld42_with_writeback,
+                vld43_with_writeback,
                 qrestore,
             ]
         )
@@ -650,7 +664,14 @@ class Instruction:
                 vld21,
                 vld20_with_writeback,
                 vld21_with_writeback,
-                vld4,
+                vld40,
+                vld41,
+                vld42,
+                vld43,
+                vld40_with_writeback,
+                vld41_with_writeback,
+                vld42_with_writeback,
+                vld43_with_writeback,
                 vst2,
                 vst4,
                 ldrd,
@@ -687,7 +708,14 @@ class Instruction:
                 vld21,
                 vld20_with_writeback,
                 vld21_with_writeback,
-                vld4,
+                vld40,
+                vld41,
+                vld42,
+                vld43,
+                vld40_with_writeback,
+                vld41_with_writeback,
+                vld42_with_writeback,
+                vld43_with_writeback,
                 qrestore,
             ]
         )
@@ -1734,117 +1762,90 @@ class vld21_with_writeback(MVEInstruction):
     in_outs = ["Qd0", "Qd1", "Rn"]
 
 
-class vld4(Instruction):
-    def __init__(self):
-        pass
+# NOTE: The output registers in all variants of VLD4 are input/output
+#       because they're only partially overwritten. However, as a whole,
+#       a block of VLD4{0-3} completely overwrites the output registers
+#       and should therefore be allowed to perform register renaming.
+#
+#       We model this by treading the output registers as pure outputs
+#       for VLD40, and as input/outputs for VLD4{1,2,3}.
+#
+#       WARNING/TODO This only works for code using VLD4{0-3} in ascending order.
 
-    def parse(self, src):
 
-        regexp = (
-            r"\s*(?P<variant>vld4(?P<idx>[0-3])\.<dt>)\s+"
-            r"{\s*(?P<out0>\w+)\s*,"
-            r"\s*(?P<out1>\w+)\s*,"
-            r"\s*(?P<out2>\w+)\s*,"
-            r"\s*(?P<out3>\w+)\s*}"
-            r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
-        )
-        regexp = Instruction.unfold_abbrevs(regexp)
+class vld40(MVEInstruction):
+    pattern = "vld40.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Qd0", "Qd1", "Qd2", "Qd3"]
 
-        p = re.compile(regexp).match(src)
-        if p is None:
-            raise Instruction.ParsingException("Didn't match regexp")
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.args_out_combinations = [
+            (
+                [0, 1, 2, 3],
+                [[f"q{i}", f"q{i+1}", f"q{i+2}", f"q{i+3}"] for i in range(0, 5)],
+            )
+        ]
+        return obj
 
-        arg_types_in = [RegisterType.GPR]
-        idx = int(p.group("idx"))
 
-        # NOTE: The output registers in all variants of VLD4 are input/output
-        #       because they're only partially overwritten. However, as a whole,
-        #       a block of VLD4{0-3} completely overwrites the output registers
-        #       and should therefore be allowed to perform register renaming.
-        #
-        #       We model this by treading the output registers as pure outputs
-        #       for VLD40, and as input/outputs for VLD4{1,2,3}.
-        #
-        #       WARNING/TODO This only works for code using VLD4{0-3} in ascending order.
-        if idx == 0:
-            arg_types_out = [
-                RegisterType.MVE,
-                RegisterType.MVE,
-                RegisterType.MVE,
-                RegisterType.MVE,
-            ]
-            arg_types_in_out = []
+class vld41(MVEInstruction):
+    pattern = "vld41.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
 
-        else:
-            arg_types_out = []
-            arg_types_in_out = [
-                RegisterType.MVE,
-                RegisterType.MVE,
-                RegisterType.MVE,
-                RegisterType.MVE,
-            ]
 
-        super().__init__(
-            mnemonic="vld4",
-            arg_types_in=arg_types_in,
-            arg_types_out=arg_types_out,
-            arg_types_in_out=arg_types_in_out,
-        )
 
-        self.idx = int(p.group("idx"))
-        self.variant = p.group("variant")
-        self.writeback = p.group("writeback") != ""
-        self.addr = p.group("reg")
-        self.args_in = [self.addr]
+class vld42(MVEInstruction):
+    pattern = "vld42.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
 
-        self.pre_index = None
-        self.post_index = None
-        self.increment = None
 
-        if self.writeback:
-            self.post_index = "64"
-            self.increment = "64"
 
-        if self.idx == 0:
-            self.args_out_combinations = [
-                (
-                    [0, 1, 2, 3],
-                    [[f"q{i}", f"q{i+1}", f"q{i+2}", f"q{i+3}"] for i in range(0, 5)],
-                )
-            ]
-            self.args_out_restrictions = [
-                [f"q{i}" for i in range(0, 5)],
-                [f"q{i}" for i in range(1, 6)],
-                [f"q{i}" for i in range(2, 7)],
-                [f"q{i}" for i in range(3, 8)],
-            ]
-            self.args_out = [
-                p.group("out0"),
-                p.group("out1"),
-                p.group("out2"),
-                p.group("out3"),
-            ]
-            self.args_in_out = []
-        else:
-            self.args_in_out = [
-                p.group("out0"),
-                p.group("out1"),
-                p.group("out2"),
-                p.group("out3"),
-            ]
-            self.args_out = []
+class vld43(MVEInstruction):
+    pattern = "vld43.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
 
-    def write(self):
-        inc = ""
-        if self.writeback:
-            inc = "!"
 
-        addr = f"[{self.args_in[0]}]"
 
-        if self.idx == 0:
-            return f"{self.variant} {{{','.join(self.args_out)}}}, {addr}{inc}"
-        else:
-            return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
+class vld40_with_writeback(MVEInstruction):
+    pattern = "vld40.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
+    inputs = ["Rn"]
+    outputs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.args_out_combinations = [
+            (
+                [0, 1, 2, 3],
+                [[f"q{i}", f"q{i+1}", f"q{i+2}", f"q{i+3}"] for i in range(0, 5)],
+            )
+        ]
+        return obj
+
+
+class vld41_with_writeback(MVEInstruction):
+    pattern = "vld41.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+
+
+
+class vld42_with_writeback(MVEInstruction):
+    pattern = "vld42.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+
+
+class vld43_with_writeback(MVEInstruction):
+    pattern = "vld43.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+
 
 
 class vst2(Instruction):
