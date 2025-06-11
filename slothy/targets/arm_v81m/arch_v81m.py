@@ -1213,59 +1213,80 @@ class qsave(InstructionNew):
         return obj
 
 
-class qrestore(Instruction):
-    def __init__(self):
-        super().__init__(
+class qrestore(InstructionNew):
+    @classmethod
+    def make(cls, src):
+        obj = InstructionNew.build(
+            cls,
+            src,
             mnemonic="qrestore",
             arg_types_in=[RegisterType.StackMVE],
             arg_types_out=[RegisterType.MVE],
         )
-        self.addr = "sp"
-        self.increment = None
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 
-class save(Instruction):
-    def __init__(self):
-        super().__init__(
+class save(InstructionNew):
+    @classmethod
+    def make(cls, src):
+        obj = InstructionNew.build(
+            cls,
+            src,
             mnemonic="save",
             arg_types_in=[RegisterType.GPR],
             arg_types_out=[RegisterType.StackGPR],
         )
-        self.addr = "sp"
-        self.increment = None
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 
-class restore(Instruction):
-    def __init__(self):
-        super().__init__(
+class restore(InstructionNew):
+    @classmethod
+    def make(cls, src):
+        obj = InstructionNew.build(
+            cls,
+            src,
             mnemonic="restore",
             arg_types_in=[RegisterType.StackGPR],
             arg_types_out=[RegisterType.GPR],
         )
-        self.addr = "sp"
-        self.increment = None
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 
-class saved(Instruction):
-    def __init__(self):
-        super().__init__(
+class saved(InstructionNew):
+    @classmethod
+    def make(cls, src):
+        obj = InstructionNew.build(
+            cls,
+            src,
             mnemonic="saved",
             arg_types_in=[RegisterType.GPR, RegisterType.GPR],
             arg_types_out=[RegisterType.StackGPR],
         )
-        self.addr = "sp"
-        self.increment = None
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 
-class restored(Instruction):
-    def __init__(self):
-        super().__init__(
+class restored(InstructionNew):
+
+    @classmethod
+    def make(cls, src):
+        obj = InstructionNew.build(
+            cls,
+            src,
             mnemonic="restored",
             arg_types_in=[RegisterType.StackGPR],
             arg_types_out=[RegisterType.GPR, RegisterType.GPR],
         )
-        self.addr = "sp"
-        self.increment = None
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 
 class add(MVEInstruction):
