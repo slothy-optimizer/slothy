@@ -312,13 +312,13 @@ class ComputationNode:
         ret.append(f"* Pos: {self.orig_pos}")
         ret.append(f"* ASM: {self.inst}")
         ret.append(
-            f"  + Outputs: {list(zip(self.inst.args_out, self.inst.arg_types_out))}"
+            f"  + Outputs: {list(zip(self.inst.args_out,self.inst.arg_types_out))}"
         )
         ret.append(
-            f"  + Inputs:  {list(zip(self.inst.args_in, self.inst.arg_types_in))}"
+            f"  + Inputs:  {list(zip(self.inst.args_in,self.inst.arg_types_in))}"
         )
         ret.append(
-            f"  + In/Outs: {list(zip(self.inst.args_in_out, self.inst.arg_types_in_out))}"
+            f"  + In/Outs: {list(zip(self.inst.args_in_out,self.inst.arg_types_in_out))}"
         )
         ret.append(f"* TYPE: {self.inst.__class__.__name__}")
         _append_src("Input sources", self.src_in)
@@ -800,12 +800,7 @@ class DataFlowGraph:
 
     def _parse_line(self, line):
         assert SourceLine.is_source_line(line)
-        # TODO: remove this hack:
-        try:
-            insts = self.arch.Instruction.parser(line)
-        except Exception:
-            insts = self.arch.InstructionNew.parser(line)
-
+        insts = self.arch.Instruction.parser(line)
         # Remember options from source line
         # TODO: Might not be the right place to remember options
         for inst in insts:

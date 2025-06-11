@@ -37,7 +37,6 @@ import inspect
 import re
 import math
 
-# from sympy import simplify
 from functools import cache
 from enum import Enum
 
@@ -185,7 +184,7 @@ class FatalParsingException(Exception):
     """A fatal error happened during instruction parsing"""
 
 
-class InstructionNew:
+class Instruction:
     class ParsingException(Exception):
         def __init__(self, err=None):
             super().__init__(err)
@@ -442,57 +441,6 @@ class InstructionNew:
     def is_stack_load(self):
         return self._is_instance_of([qrestore, restored, restore])
 
-    # def parse(self, src):
-    #     """Assumes format 'mnemonic [in]out0, .., [in]outN, in0, .., inM"""
-    #     src = re.sub("//.*$", "", src)
-
-    #     have_dt = ("<dt>" in self.mnemonic) or ("<fdt>" in self.mnemonic)
-
-    #     # Replace <dt> by list of all possible datatypes
-    #     mnemonic = InstructionNew.unfold_abbrevs(self.mnemonic)
-
-    #     expected_args = self.num_in + self.num_out + self.num_in_out
-    #     regexp_txt = rf"^\s*{mnemonic}"
-    #     if expected_args > 0:
-    #         regexp_txt += r"\s+"
-    #     regexp_txt += ",".join([r"\s*(\w+)\s*" for _ in range(expected_args)])
-    #     regexp = re.compile(regexp_txt)
-
-    #     p = regexp.match(src)
-    #     if p is None:
-    #         raise InstructionNew.ParsingException(
-    #             f"Doesn't match basic instruction template {regexp_txt}"
-    #         )
-
-    #     operands = list(p.groups())
-    #     if have_dt:
-    #         operands = operands[1:]
-
-    #     self.args_in = []
-    #     self.args_out = []
-    #     self.args_in_out = []
-
-    #     self.datatype = ""
-    #     if have_dt:
-    #         self.datatype = p.group("datatype")
-
-    #     idx_args_in = 0
-
-    #     if self.num_out > 0:
-    #         self.args_out = operands[: self.num_out]
-    #         idx_args_in = self.num_out
-    #     elif self.num_in_out > 0:
-    #         self.args_in_out = operands[: self.num_in_out]
-    #         idx_args_in = self.num_in_out
-
-    #     self.args_in = operands[idx_args_in:]
-
-    #     if not len(self.args_in) == self.num_in:
-    #         raise Exception(
-    #             f"Something wrong parsing {src}: Expect {self.num_in} \
-    #                         input, but got {len(self.args_in)} ({self.args_in})"
-    #         )
-
     @classmethod
     def make(cls, src):
         """Abstract factory method parsing a string into an instruction instance."""
@@ -513,19 +461,19 @@ class InstructionNew:
         :return: Upon success, the result of parsing src as an instance of c.
         :rtype: Instruction
 
-        :raises InstructionNew.ParsingException: The str argument cannot be parsed as an
+        :raises Instruction.ParsingException: The str argument cannot be parsed as an
                 instance of c.
         :raises FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
         """
 
         if src.split(" ")[0] != mnemonic:
-            raise InstructionNew.ParsingException("Mnemonic does not match")
+            raise Instruction.ParsingException("Mnemonic does not match")
 
         obj = c(mnemonic=mnemonic, **kwargs)
 
         # Replace <dt> by list of all possible datatypes
-        mnemonic = InstructionNew.unfold_abbrevs(obj.mnemonic)
+        mnemonic = Instruction.unfold_abbrevs(obj.mnemonic)
 
         expected_args = obj.num_in + obj.num_out + obj.num_in_out
         regexp_txt = rf"^\s*{mnemonic}"
@@ -536,7 +484,7 @@ class InstructionNew:
 
         p = regexp.match(src)
         if p is None:
-            raise InstructionNew.ParsingException(
+            raise Instruction.ParsingException(
                 f"Doesn't match basic instruction template {regexp_txt}"
             )
 
@@ -573,13 +521,13 @@ class InstructionNew:
 
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds
-        for inst_class in InstructionNew.all_subclass_leaves:
+        for inst_class in Instruction.all_subclass_leaves:
             try:
                 inst = inst_class.make(src)
                 instnames = [inst_class.__name__]
                 insts = [inst]
                 break
-            except InstructionNew.ParsingException as e:
+            except Instruction.ParsingException as e:
                 exceptions[inst_class.__name__] = e
         for i in insts:
             i.source_line = src_line
@@ -590,7 +538,7 @@ class InstructionNew:
             for i, e in exceptions.items():
                 msg = f"* {i + ':':20s} {e}"
                 logging.error(msg)
-            raise InstructionNew.ParsingException(
+            raise Instruction.ParsingException(
                 f"Couldn't parse {src}\nYou may need to add support "
                 "for a new instruction (variant)?"
             )
@@ -601,294 +549,7 @@ class InstructionNew:
         return self.write()
 
 
-class Instruction:
-    class ParsingException(Exception):
-        def __init__(self, err=None):
-            super().__init__(err)
-
-    def __init__(
-        self, *, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None
-    ):
-
-        if not arg_types_in:
-            arg_types_in = []
-        if not arg_types_out:
-            arg_types_out = []
-        if not arg_types_in_out:
-            arg_types_in_out = []
-
-        arg_types_all = arg_types_in + arg_types_in_out + arg_types_out
-
-        def isinstancelist(ll, c):
-            return all(map(lambda e: isinstance(e, c), ll))
-
-        assert isinstancelist(arg_types_all, RegisterType)
-
-        self.mnemonic = mnemonic
-
-        self.arg_types_in = arg_types_in
-        self.arg_types_out = arg_types_out
-        self.arg_types_in_out = arg_types_in_out
-        self.num_in = len(arg_types_in)
-        self.num_out = len(arg_types_out)
-        self.num_in_out = len(arg_types_in_out)
-
-        self.args_out_combinations = None
-        self.args_in_combinations = None
-        self.args_in_out_different = None
-        self.args_in_inout_different = None
-
-        self.args_out_restrictions = [None for _ in range(self.num_out)]
-        self.args_in_restrictions = [None for _ in range(self.num_in)]
-        self.args_in_out_restrictions = [None for _ in range(self.num_in_out)]
-
-        self.args_out_combinations = None
-        self.args_in_out_combinations = None
-        self.args_in_combinations = None
-
-        self.offset_adjustable = True
-
-    def global_parsing_cb(self, a, log=None):
-        return False
-
-    def write(self):
-        args = self.args_out + self.args_in_out + self.args_in
-        mnemonic = re.sub("<dt>", self.datatype, self.mnemonic)
-        return mnemonic + " " + ", ".join(args)
-
-    def unfold_abbrevs(mnemonic):
-        mnemonic = re.sub(
-            "<dt>", "(?P<datatype>(?:|i|u|s|I|U|S)(?:8|16|32|64))", mnemonic
-        )
-        mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f|F)(?:16|32))", mnemonic)
-        return mnemonic
-
-    def _is_instance_of(self, inst_list):
-        for inst in inst_list:
-            if isinstance(self, inst):
-                return True
-        return False
-
-    def is_load_store_instruction(self):
-        return self._is_instance_of(
-            [
-                vldrb,
-                vldrb_no_imm,
-                vldrb_with_writeback,
-                vldrb_with_post,
-                vldrh,
-                vldrh_no_imm,
-                vldrh_with_writeback,
-                vldrh_with_post,
-                vldrw,
-                vldrw_no_imm,
-                vldrw_with_writeback,
-                vldrw_with_post,
-                vstr,
-                vstr_no_imm,
-                vstr_with_writeback,
-                vstr_with_post,
-                vld20,
-                vld21,
-                vld20_with_writeback,
-                vld21_with_writeback,
-                vld40,
-                vld41,
-                vld42,
-                vld43,
-                vld40_with_writeback,
-                vld41_with_writeback,
-                vld42_with_writeback,
-                vld43_with_writeback,
-                vst20,
-                vst21,
-                vst20_with_writeback,
-                vst21_with_writeback,
-                vst40,
-                vst41,
-                vst42,
-                vst43,
-                vst40_with_writeback,
-                vst41_with_writeback,
-                vst42_with_writeback,
-                vst43_with_writeback,
-                ldrd,
-                ldrd_with_writeback,
-                ldrd_with_post,
-                strd,
-                strd_with_writeback,
-                strd_with_post,
-                qsave,
-                qrestore,
-                save,
-                restore,
-                saved,
-                restored,
-            ]
-        )
-
-    def is_vector_load(self):
-        return self._is_instance_of(
-            [
-                vldrb,
-                vldrb_no_imm,
-                vldrb_with_writeback,
-                vldrb_with_post,
-                vldrh,
-                vldrh_no_imm,
-                vldrh_with_writeback,
-                vldrh_with_post,
-                vldrw,
-                vldrw_no_imm,
-                vldrw_with_writeback,
-                vldrw_with_post,
-                vld20,
-                vld21,
-                vld20_with_writeback,
-                vld21_with_writeback,
-                vld40,
-                vld41,
-                vld42,
-                vld43,
-                vld40_with_writeback,
-                vld41_with_writeback,
-                vld42_with_writeback,
-                vld43_with_writeback,
-                qrestore,
-            ]
-        )
-
-    def is_scalar_load(self):
-        return self._is_instance_of(
-            [
-                ldrd,
-                ldrd_with_writeback,
-                ldrd_with_post,
-                ldr,
-                ldr_with_writeback,
-                ldr_with_post,
-                restore,
-                restored,
-            ]
-        )
-
-    def is_load(self):
-        return self.is_vector_load() or self.is_scalar_load()
-
-    def is_vector_store(self):
-        return self._is_instance_of(
-            [
-                vstr,
-                vstr_no_imm,
-                vstr_with_writeback,
-                vstr_with_post,
-                vst20,
-                vst21,
-                vst20_with_writeback,
-                vst21_with_writeback,
-                vst40,
-                vst41,
-                vst42,
-                vst43,
-                vst40_with_writeback,
-                vst41_with_writeback,
-                vst42_with_writeback,
-                vst43_with_writeback,
-                qsave,
-            ]
-        )
-
-    def is_stack_store(self):
-        return self._is_instance_of([qsave, saved, save])
-
-    def is_stack_load(self):
-        return self._is_instance_of([qrestore, restored, restore])
-
-    def parse(self, src):
-        """Assumes format 'mnemonic [in]out0, .., [in]outN, in0, .., inM"""
-        src = re.sub("//.*$", "", src)
-
-        have_dt = ("<dt>" in self.mnemonic) or ("<fdt>" in self.mnemonic)
-
-        # Replace <dt> by list of all possible datatypes
-        mnemonic = Instruction.unfold_abbrevs(self.mnemonic)
-
-        expected_args = self.num_in + self.num_out + self.num_in_out
-        regexp_txt = rf"^\s*{mnemonic}"
-        if expected_args > 0:
-            regexp_txt += r"\s+"
-        regexp_txt += ",".join([r"\s*(\w+)\s*" for _ in range(expected_args)])
-        regexp = re.compile(regexp_txt)
-        p = regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException(
-                f"Doesn't match basic instruction template {regexp_txt}"
-            )
-
-        operands = list(p.groups())
-        if have_dt:
-            operands = operands[1:]
-
-        self.args_in = []
-        self.args_out = []
-        self.args_in_out = []
-
-        self.datatype = ""
-        if have_dt:
-            self.datatype = p.group("datatype")
-
-        idx_args_in = 0
-
-        if self.num_out > 0:
-            self.args_out = operands[: self.num_out]
-            idx_args_in = self.num_out
-        elif self.num_in_out > 0:
-            self.args_in_out = operands[: self.num_in_out]
-            idx_args_in = self.num_in_out
-
-        self.args_in = operands[idx_args_in:]
-
-        if not len(self.args_in) == self.num_in:
-            raise Exception(
-                f"Something wrong parsing {src}: Expect {self.num_in} \
-                            input, but got {len(self.args_in)} ({self.args_in})"
-            )
-
-    @staticmethod
-    def parser(src_line):
-        insts = []
-        exceptions = {}
-        instnames = []
-
-        src = src_line.text.strip()
-        # Iterate through all derived classes and call their parser
-        # until one of them hopefully succeeds
-        for inst_class in Instruction.__subclasses__():
-            inst = inst_class()
-            try:
-                inst.parse(src)
-                instnames.append(inst_class.__name__)
-                insts.append(inst)
-            except Instruction.ParsingException as e:
-                exceptions[inst_class.__name__] = e
-        if len(insts) == 0:
-            logging.error("Failed to parse instruction %s", src)
-            logging.error("A list of attempted parsers and their exceptions follows.")
-            for i, e in exceptions.items():
-                logging.error("* %s %s", f"{i + ':':20s}", e)
-            raise Instruction.ParsingException(
-                f"Couldn't parse {src}\nYou may need to add support for a new "
-                f"instruction (variant)?"
-            )
-
-        logging.debug("Parsing result for %s: %s", src, instnames)
-        return insts
-
-    def __repr__(self):
-        return self.write()
-
-
-class MVEInstruction(InstructionNew):
+class MVEInstruction(Instruction):
     """Abstract class representing MVE instructions"""
 
     PARSERS = {}
@@ -960,7 +621,7 @@ class MVEInstruction(InstructionNew):
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result is None:
-                raise InstructionNew.ParsingException(
+                raise Instruction.ParsingException(
                     f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
                 )
             res = regexp.match(line).groupdict()
@@ -1136,7 +797,7 @@ class MVEInstruction(InstructionNew):
                 src.split(".")[0] != pattern.split(".")[0]
                 and src.split(" ")[0] != pattern.split(" ")[0]
             ):
-                raise InstructionNew.ParsingException("Mnemonic does not match")
+                raise Instruction.ParsingException("Mnemonic does not match")
             res = MVEInstruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
@@ -1198,10 +859,10 @@ class MVEInstruction(InstructionNew):
 # Virtual instruction to model pushing to stack locations without modelling memory
 
 
-class qsave(InstructionNew):
+class qsave(Instruction):
     @classmethod
     def make(cls, src):
-        obj = InstructionNew.build(
+        obj = Instruction.build(
             cls,
             src,
             mnemonic="qsave",
@@ -1213,10 +874,10 @@ class qsave(InstructionNew):
         return obj
 
 
-class qrestore(InstructionNew):
+class qrestore(Instruction):
     @classmethod
     def make(cls, src):
-        obj = InstructionNew.build(
+        obj = Instruction.build(
             cls,
             src,
             mnemonic="qrestore",
@@ -1228,10 +889,10 @@ class qrestore(InstructionNew):
         return obj
 
 
-class save(InstructionNew):
+class save(Instruction):
     @classmethod
     def make(cls, src):
-        obj = InstructionNew.build(
+        obj = Instruction.build(
             cls,
             src,
             mnemonic="save",
@@ -1243,10 +904,10 @@ class save(InstructionNew):
         return obj
 
 
-class restore(InstructionNew):
+class restore(Instruction):
     @classmethod
     def make(cls, src):
-        obj = InstructionNew.build(
+        obj = Instruction.build(
             cls,
             src,
             mnemonic="restore",
@@ -1258,10 +919,10 @@ class restore(InstructionNew):
         return obj
 
 
-class saved(InstructionNew):
+class saved(Instruction):
     @classmethod
     def make(cls, src):
-        obj = InstructionNew.build(
+        obj = Instruction.build(
             cls,
             src,
             mnemonic="saved",
@@ -1273,11 +934,11 @@ class saved(InstructionNew):
         return obj
 
 
-class restored(InstructionNew):
+class restored(Instruction):
 
     @classmethod
     def make(cls, src):
-        obj = InstructionNew.build(
+        obj = Instruction.build(
             cls,
             src,
             mnemonic="restored",
@@ -2166,7 +1827,7 @@ def all_subclass_leaves(c):
     return all_subclass_leaves_core([], [c])
 
 
-InstructionNew.all_subclass_leaves = all_subclass_leaves(InstructionNew)
+Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 
 def lookup_multidict(d, inst, default=None):
@@ -2194,14 +1855,10 @@ def lookup_multidict(d, inst, default=None):
 
 
 def iter_MVE_instructions():
-    yield from all_subclass_leaves(InstructionNew)
+    yield from all_subclass_leaves(Instruction)
 
 
 def find_class(src):
-    # TODO: remove this hack:
-    for inst_class in Instruction.__subclasses__():
-        if isinstance(src, inst_class):
-            return inst_class
     for inst_class in iter_MVE_instructions():
         if isinstance(src, inst_class):
             return inst_class
