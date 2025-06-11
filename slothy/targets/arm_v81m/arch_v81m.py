@@ -1114,15 +1114,19 @@ class MVEInstruction(InstructionNew):
 # Virtual instruction to model pushing to stack locations without modelling memory
 
 
-class qsave(Instruction):
-    def __init__(self):
-        super().__init__(
+class qsave(InstructionNew):
+    @classmethod
+    def make(cls, src):
+        obj = InstructionNew.build(
+            cls,
+            src,
             mnemonic="qsave",
             arg_types_in=[RegisterType.MVE],
             arg_types_out=[RegisterType.StackMVE],
         )
-        self.addr = "sp"
-        self.increment = None
+        obj.addr = "sp"
+        obj.increment = None
+        return obj
 
 
 class qrestore(Instruction):
