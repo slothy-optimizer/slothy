@@ -124,7 +124,10 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vldrw_with_post,
     vldr_gather,
     vldr_gather_uxtw,
-    vld2,
+    vld20,
+    vld21,
+    vld20_with_writeback,
+    vld21_with_writeback,
     vld4,
     vstr,
     vstr_no_imm,
@@ -182,7 +185,10 @@ def _add_st_ld_hazard(slothy):
             return False
         if slothy.config.constraints.st_ld_hazard_ignore_scattergather and (
             isinstance(instA, vst2)
-            or isinstance(instA, vld2)
+            or isinstance(instA, vld20)
+            or isinstance(instA, vld21)
+            or isinstance(instA, vld20_with_writeback)
+            or isinstance(instA, vld21_with_writeback)
             or isinstance(instA, vst4)
             or isinstance(instB, vld4)
         ):
@@ -313,7 +319,10 @@ execution_units = {
     vldrw_with_post: ExecutionUnit.LOAD,
     vldr_gather: ExecutionUnit.LOAD,
     vldr_gather_uxtw: ExecutionUnit.LOAD,
-    vld2: ExecutionUnit.LOAD,
+    vld20: ExecutionUnit.LOAD,
+    vld21: ExecutionUnit.LOAD,
+    vld20_with_writeback: ExecutionUnit.LOAD,
+    vld21_with_writeback: ExecutionUnit.LOAD,
     vld4: ExecutionUnit.LOAD,
     vstr: ExecutionUnit.STORE,
     vstr_no_imm: ExecutionUnit.STORE,
@@ -420,7 +429,10 @@ inverse_throughput = {
         vldrw_with_post,
         vldr_gather,
         vldr_gather_uxtw,
-        vld2,
+        vld20,
+        vld21,
+        vld20_with_writeback,
+        vld21_with_writeback,
         vld4,
         vst2,
         vst4,
@@ -498,7 +510,9 @@ default_latencies = {
         vst2,
         vst4,
     ): 1,
-    (vld2, vld4): 2,
+    (vld20, vld21): 2,
+    (vld20_with_writeback, vld21_with_writeback): 2,
+    (vld4): 2,
     (
         vrshr,
         vrshl,

@@ -124,7 +124,10 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vldrw_with_post,
     vldr_gather,
     vldr_gather_uxtw,
-    vld2,
+    vld20,
+    vld21,
+    vld20_with_writeback,
+    vld21_with_writeback,
     vld4,
     vstr,
     vstr_no_imm,
@@ -326,7 +329,10 @@ execution_units = {
     vldrw_with_post: ExecutionUnit.LOAD,
     vldr_gather: ExecutionUnit.LOAD,
     vldr_gather_uxtw: ExecutionUnit.LOAD,
-    vld2: ExecutionUnit.LOAD,
+    vld20: ExecutionUnit.LOAD,
+    vld21: ExecutionUnit.LOAD,
+    vld20_with_writeback: ExecutionUnit.LOAD,
+    vld21_with_writeback: ExecutionUnit.LOAD,
     vld4: ExecutionUnit.LOAD,
     vstr: ExecutionUnit.STORE,
     vstr_no_imm: ExecutionUnit.STORE,
@@ -432,7 +438,10 @@ inverse_throughput = {
         vldrw_with_post,
         vldr_gather,
         vldr_gather_uxtw,
-        vld2,
+        vld20,
+        vld21,
+        vld20_with_writeback,
+        vld21_with_writeback,
         vld4,
         vst2,
         vst4,
@@ -539,7 +548,9 @@ default_latencies = {
         vhcadd,
     ): 2,
     (vmulf_T1, vmulf_T2, vcmul): 3,
-    (vld2, vld4, vfma, vcmla): 4,
+    (vld20, vld21): 4,
+    (vld20_with_writeback, vld21_with_writeback): 4,
+    (vld4, vfma, vcmla): 4,
 }
 
 
@@ -593,7 +604,10 @@ def get_latency(src, out_idx, dst):
     ] and instclass_src in [vcmul, vcmla, vfma]:
         return 2
 
-    if instclass_dst == vld2 and instclass_src == vld2 and {src.idx, dst.idx} == {0, 1}:
+    if instclass_dst in [vld21, vld21_with_writeback] and instclass_src in [
+        vld20,
+        vld20_with_writeback,
+    ]:
         return 2
 
     if instclass_dst == vld4 and instclass_src == vld4 and dst.idx != src.idx:

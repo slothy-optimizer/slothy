@@ -326,7 +326,10 @@ class InstructionNew:
                 vstr_no_imm,
                 vstr_with_writeback,
                 vstr_with_post,
-                vld2,
+                vld20,
+                vld21,
+                vld20_with_writeback,
+                vld21_with_writeback,
                 vld4,
                 vst2,
                 vst4,
@@ -360,7 +363,10 @@ class InstructionNew:
                 vldrw_no_imm,
                 vldrw_with_writeback,
                 vldrw_with_post,
-                vld2,
+                vld20,
+                vld21,
+                vld20_with_writeback,
+                vld21_with_writeback,
                 vld4,
                 qrestore,
             ]
@@ -640,7 +646,10 @@ class Instruction:
                 vstr_no_imm,
                 vstr_with_writeback,
                 vstr_with_post,
-                vld2,
+                vld20,
+                vld21,
+                vld20_with_writeback,
+                vld21_with_writeback,
                 vld4,
                 vst2,
                 vst4,
@@ -674,7 +683,10 @@ class Instruction:
                 vldrw_no_imm,
                 vldrw_with_writeback,
                 vldrw_with_post,
-                vld2,
+                vld20,
+                vld21,
+                vld20_with_writeback,
+                vld21_with_writeback,
                 vld4,
                 qrestore,
             ]
@@ -1668,90 +1680,54 @@ class vldr_gather_uxtw(MVEInstruction):
     outputs = ["Qd"]
 
 
-class vld2(Instruction):
-    def __init__(self):
-        pass
+# NOTE: The output registers in all variants of VLD2 are input/output
+#       because they're only partially overwritten. However, as a whole,
+#       a block of VLD2{0-1} completely overwrites the output registers
+#       and should therefore be allowed to perform register renaming.
+#
+#       We model this by treading the output registers as pure outputs
+#       for VLD20, and as input/outputs for VLD21.
+#
+#       WARNING/TODO This only works for code using VLD2{0-1} in ascending order.
 
-    def parse(self, src):
 
-        regexp = (
-            r"\s*(?P<variant>vld2(?P<idx>[0-1])\.<dt>)\s+"
-            r"{\s*(?P<out0>\w+)\s*,"
-            r"\s*(?P<out1>\w+)\s*}"
-            r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
-        )
-        regexp = Instruction.unfold_abbrevs(regexp)
+class vld20(MVEInstruction):
+    pattern = "vld20.<dt> {<Qd0>, <Qd1>}, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Qd0", "Qd1"]
 
-        p = re.compile(regexp).match(src)
-        if p is None:
-            raise Instruction.ParsingException("Didn't match regexp")
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.args_out_combinations = [
+            ([0, 1], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
+        ]
+        return obj
 
-        arg_types_in = [RegisterType.GPR]
-        idx = int(p.group("idx"))
 
-        # NOTE: The output registers in all variants of VLD2 are input/output
-        #       because they're only partially overwritten. However, as a whole,
-        #       a block of VLD2{0-1} completely overwrites the output registers
-        #       and should therefore be allowed to perform register renaming.
-        #
-        #       We model this by treading the output registers as pure outputs
-        #       for VLD20, and as input/outputs for VLD21.
-        #
-        #       WARNING/TODO This only works for code using VLD2{0-1} in ascending order.
-        if idx == 0:
-            arg_types_out = [RegisterType.MVE, RegisterType.MVE]
-            arg_types_in_out = []
+class vld21(MVEInstruction):
+    pattern = "vld21.<dt> {<Qd0>, <Qd1>}, [<Rn>]"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1"]
 
-        else:
-            arg_types_out = []
-            arg_types_in_out = [RegisterType.MVE, RegisterType.MVE]
 
-        super().__init__(
-            mnemonic="vld2",
-            arg_types_in=arg_types_in,
-            arg_types_out=arg_types_out,
-            arg_types_in_out=arg_types_in_out,
-        )
 
-        self.idx = int(p.group("idx"))
-        self.variant = p.group("variant")
-        self.writeback = p.group("writeback") != ""
-        self.addr = p.group("reg")
-        self.args_in = [self.addr]
+class vld20_with_writeback(MVEInstruction):
+    pattern = "vld20.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
+    outputs = ["Qd0", "Qd1", "Rn"]
 
-        self.pre_index = None
-        self.post_index = None
-        self.increment = None
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.args_out_combinations = [
+            ([0, 1], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
+        ]
+        return obj
 
-        if self.writeback:
-            self.post_index = "32"
-            self.increment = "32"
 
-        if self.idx == 0:
-            self.args_out_combinations = [
-                ([0, 1], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
-            ]
-            self.args_out_restrictions = [
-                [f"q{i}" for i in range(0, 7)],
-                [f"q{i}" for i in range(1, 8)],
-            ]
-            self.args_out = [p.group("out0"), p.group("out1")]
-            self.args_in_out = []
-        else:
-            self.args_in_out = [p.group("out0"), p.group("out1")]
-            self.args_out = []
-
-    def write(self):
-        inc = ""
-        if self.writeback:
-            inc = "!"
-
-        addr = f"[{self.args_in[0]}]"
-
-        if self.idx == 0:
-            return f"{self.variant} {{{','.join(self.args_out)}}}, {addr}{inc}"
-        else:
-            return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
+class vld21_with_writeback(MVEInstruction):
+    pattern = "vld21.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
+    in_outs = ["Qd0", "Qd1", "Rn"]
 
 
 class vld4(Instruction):
@@ -2098,6 +2074,7 @@ class vcaddf(MVEInstruction):
     pattern = "vcadd.<fdt> <Qd>, <Qn>, <Qm>, <imm>"
     inputs = ["Qn", "Qm"]
     outputs = ["Qd"]
+
 
 # ###########################################################
 #
