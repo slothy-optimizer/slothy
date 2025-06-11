@@ -140,7 +140,10 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vstr_no_imm,
     vstr_with_writeback,
     vstr_with_post,
-    vst2,
+    vst20,
+    vst21,
+    vst20_with_writeback,
+    vst21_with_writeback,
     vst4,
     vcmul,
     vcmla,
@@ -352,7 +355,10 @@ execution_units = {
     vstr_no_imm: ExecutionUnit.STORE,
     vstr_with_writeback: ExecutionUnit.STORE,
     vstr_with_post: ExecutionUnit.STORE,
-    vst2: ExecutionUnit.STORE,
+    vst20: ExecutionUnit.STORE,
+    vst21: ExecutionUnit.STORE,
+    vst20_with_writeback: ExecutionUnit.STORE,
+    vst21_with_writeback: ExecutionUnit.STORE,
     vst4: ExecutionUnit.STORE,
     vcmul: ExecutionUnit.VEC_FPMUL,
     vcmla: [  # uses both MUL/ADD pipes
@@ -464,7 +470,10 @@ inverse_throughput = {
         vld41_with_writeback,
         vld42_with_writeback,
         vld43_with_writeback,
-        vst2,
+        vst20,
+        vst21,
+        vst20_with_writeback,
+        vst21_with_writeback,
         vst4,
         vcmul,
         vcadd,
@@ -535,7 +544,10 @@ default_latencies = {
         vldrw_with_post,
         vldr_gather,
         vldr_gather_uxtw,
-        vst2,
+        vst20,
+        vst21,
+        vst20_with_writeback,
+        vst21_with_writeback,
         vst4,
     ): 1,
     (
@@ -650,7 +662,9 @@ def get_latency(src, out_idx, dst):
 
     # Inputs to VST4x seem to have higher latency
     # Use 3 cycles as an upper bound here.
-    if (instclass_dst == vst4 or instclass_dst == vst2) and instclass_src in [
+    if (
+        instclass_dst == vst4 or instclass_dst in [vst21, vst21_with_writeback]
+    ) and instclass_src in [
         vshr,
         vshl,
         vshl_T3,

@@ -338,7 +338,10 @@ class InstructionNew:
                 vld41_with_writeback,
                 vld42_with_writeback,
                 vld43_with_writeback,
-                vst2,
+                vst20,
+                vst21,
+                vst20_with_writeback,
+                vst21_with_writeback,
                 vst4,
                 ldrd,
                 ldrd_with_writeback,
@@ -405,7 +408,18 @@ class InstructionNew:
 
     def is_vector_store(self):
         return self._is_instance_of(
-            [vstr, vstr_no_imm, vstr_with_writeback, vstr_with_post, vst2, vst4, qsave]
+            [
+                vstr,
+                vstr_no_imm,
+                vstr_with_writeback,
+                vstr_with_post,
+                vst20,
+                vst21,
+                vst20_with_writeback,
+                vst21_with_writeback,
+                vst4,
+                qsave,
+            ]
         )
 
     def is_stack_store(self):
@@ -672,7 +686,10 @@ class Instruction:
                 vld41_with_writeback,
                 vld42_with_writeback,
                 vld43_with_writeback,
-                vst2,
+                vst20,
+                vst21,
+                vst20_with_writeback,
+                vst21_with_writeback,
                 vst4,
                 ldrd,
                 ldrd_with_writeback,
@@ -739,7 +756,18 @@ class Instruction:
 
     def is_vector_store(self):
         return self._is_instance_of(
-            [vstr, vstr_no_imm, vstr_with_writeback, vstr_with_post, vst2, vst4, qsave]
+            [
+                vstr,
+                vstr_no_imm,
+                vstr_with_writeback,
+                vstr_with_post,
+                vst20,
+                vst21,
+                vst20_with_writeback,
+                vst21_with_writeback,
+                vst4,
+                qsave,
+            ]
         )
 
     def is_stack_store(self):
@@ -1743,7 +1771,6 @@ class vld21(MVEInstruction):
     in_outs = ["Qd0", "Qd1"]
 
 
-
 class vld20_with_writeback(MVEInstruction):
     pattern = "vld20.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
     outputs = ["Qd0", "Qd1", "Rn"]
@@ -1796,19 +1823,16 @@ class vld41(MVEInstruction):
     in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
 
 
-
 class vld42(MVEInstruction):
     pattern = "vld42.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]"
     inputs = ["Rn"]
     in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
 
 
-
 class vld43(MVEInstruction):
     pattern = "vld43.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]"
     inputs = ["Rn"]
     in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
-
 
 
 class vld40_with_writeback(MVEInstruction):
@@ -1834,7 +1858,6 @@ class vld41_with_writeback(MVEInstruction):
     in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
 
 
-
 class vld42_with_writeback(MVEInstruction):
     pattern = "vld42.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
     inputs = ["Rn"]
@@ -1847,84 +1870,47 @@ class vld43_with_writeback(MVEInstruction):
     in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
 
 
+# NOTE: We model VST20 as modifying the input vectors solely to enforce
+#       the ordering VST2{0,1} -- they of course don't actually modify
+#       the contents
 
-class vst2(Instruction):
-    def __init__(self):
-        super().__init__(
-            mnemonic="vst2",
-            arg_types_in=[RegisterType.GPR, RegisterType.MVE, RegisterType.MVE],
-        )
 
-    def parse(self, src):
+class vst20(MVEInstruction):
+    pattern = "vst20.<dt> {<Qd0>, <Qd1>}, [<Rn>]"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1"]
 
-        regexp = (
-            r"\s*(?P<variant>vst2(?P<idx>[0-1])\.<dt>)\s+"
-            r"{\s*(?P<out0>\w+)\s*,"
-            r"\s*(?P<out1>\w+)\s*}"
-            r"\s*,\s*\[\s*(?P<reg>\w+)\s*\](?P<writeback>!?)\s*"
-        )
-        regexp = Instruction.unfold_abbrevs(regexp)
 
-        p = re.compile(regexp).match(src)
-        if p is None:
-            raise Instruction.ParsingException("Didn't match regexp")
-        idx = int(p.group("idx"))
+class vst21(MVEInstruction):
+    pattern = "vst21.<dt> {<Qd0>, <Qd1>}, [<Rn>]"
+    inputs = ["Rn", "Qd0", "Qd1"]
 
-        if idx == 1:
-            arg_types_in = [RegisterType.GPR, RegisterType.MVE, RegisterType.MVE]
-            arg_types_in_out = []
-            arg_types_out = []
-        else:
-            # NOTE: We model VST20 as modifying the input vectors solely to enforce
-            #       the ordering VST2{0,1} -- they of course don't actually modify
-            #       the contents
-            arg_types_in = [RegisterType.GPR]
-            arg_types_out = []
-            arg_types_in_out = [RegisterType.MVE, RegisterType.MVE]
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.args_in_combinations = [
+            ([1, 2], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
+        ]
+        return obj
 
-        super().__init__(
-            mnemonic="vst2",
-            arg_types_in=arg_types_in,
-            arg_types_out=arg_types_out,
-            arg_types_in_out=arg_types_in_out,
-        )
 
-        self.idx = idx
-        self.pre_index = None
-        self.post_index = None
-        self.increment = None
+class vst20_with_writeback(MVEInstruction):
+    pattern = "vst20.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
+    inputs = ["Rn"]
+    in_outs = ["Qd0", "Qd1"]
 
-        self.addr = p.group("reg")
-        if self.idx == 1:
-            self.args_in = [self.addr, p.group("out0"), p.group("out1")]
-            self.args_in_out = []
-            self.args_out = []
-            self.args_in_combinations = [
-                ([1, 2], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
-            ]
-        else:
-            self.args_in = [self.addr]
-            self.args_in_out = [p.group("out0"), p.group("out1")]
-            self.args_out = []
 
-        self.variant = p.group("variant")
-        self.writeback = p.group("writeback") != ""
+class vst21_with_writeback(MVEInstruction):
+    pattern = "vst21.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
+    inputs = ["Rn", "Qd0", "Qd1"]
 
-        if self.writeback:
-            self.post_index = "32"
-            self.increment = "32"
-
-    def write(self):
-        inc = ""
-        if self.writeback:
-            inc = "!"
-
-        addr = f"[{self.args_in[0]}]"
-
-        if self.idx == 1:
-            return f"{self.variant} {{{','.join(self.args_in[1:])}}}, {addr}{inc}"
-        else:
-            return f"{self.variant} {{{','.join(self.args_in_out)}}}, {addr}{inc}"
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.args_in_combinations = [
+            ([1, 2], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
+        ]
+        return obj
 
 
 class vst4(Instruction):
