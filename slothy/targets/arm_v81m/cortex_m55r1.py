@@ -144,7 +144,14 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vst21,
     vst20_with_writeback,
     vst21_with_writeback,
-    vst4,
+    vst40,
+    vst41,
+    vst42,
+    vst43,
+    vst40_with_writeback,
+    vst41_with_writeback,
+    vst42_with_writeback,
+    vst43_with_writeback,
     vcmul,
     vcmla,
     vcadd,
@@ -202,7 +209,14 @@ def _add_st_ld_hazard(slothy):
             or isinstance(instA, vld21)
             or isinstance(instA, vld20_with_writeback)
             or isinstance(instA, vld21_with_writeback)
-            or isinstance(instA, vst4)
+            or isinstance(instA, vst40)
+            or isinstance(instA, vst41)
+            or isinstance(instA, vst42)
+            or isinstance(instA, vst43)
+            or isinstance(instA, vst40_with_writeback)
+            or isinstance(instA, vst41_with_writeback)
+            or isinstance(instA, vst42_with_writeback)
+            or isinstance(instA, vst43_with_writeback)
             or isinstance(instB, vld40)
             or isinstance(instB, vld41)
             or isinstance(instB, vld42)
@@ -359,7 +373,14 @@ execution_units = {
     vst21: ExecutionUnit.STORE,
     vst20_with_writeback: ExecutionUnit.STORE,
     vst21_with_writeback: ExecutionUnit.STORE,
-    vst4: ExecutionUnit.STORE,
+    vst40: ExecutionUnit.STORE,
+    vst41: ExecutionUnit.STORE,
+    vst42: ExecutionUnit.STORE,
+    vst43: ExecutionUnit.STORE,
+    vst40_with_writeback: ExecutionUnit.STORE,
+    vst41_with_writeback: ExecutionUnit.STORE,
+    vst42_with_writeback: ExecutionUnit.STORE,
+    vst43_with_writeback: ExecutionUnit.STORE,
     vcmul: ExecutionUnit.VEC_FPU,
     vcmla: ExecutionUnit.VEC_FPU,
     vcadd: ExecutionUnit.VEC_FPU,
@@ -475,7 +496,14 @@ inverse_throughput = {
         vst21,
         vst20_with_writeback,
         vst21_with_writeback,
-        vst4,
+        vst40,
+        vst41,
+        vst42,
+        vst43,
+        vst40_with_writeback,
+        vst41_with_writeback,
+        vst42_with_writeback,
+        vst43_with_writeback,
         vcmul,
         vcmla,
         vcadd,
@@ -551,7 +579,14 @@ default_latencies = {
         vst21,
         vst20_with_writeback,
         vst21_with_writeback,
-        vst4,
+        vst40,
+        vst41,
+        vst42,
+        vst43,
+        vst40_with_writeback,
+        vst41_with_writeback,
+        vst42_with_writeback,
+        vst43_with_writeback,
     ): 1,
     (vld20, vld21): 2,
     (vld20_with_writeback, vld21_with_writeback): 2,
@@ -648,7 +683,16 @@ def get_latency(src, out_idx, dst):
     # Inputs to VST4x seem to have higher latency
     # Use 3 cycles as an upper bound here.
     if (
-        instclass_dst == vst4 or instclass_dst in [vst20, vst20_with_writeback]
+        instclass_dst
+        in [
+            vst40,
+            vst40_with_writeback,
+            vst41,
+            vst41_with_writeback,
+            vst42,
+            vst42_with_writeback,
+        ]
+        or instclass_dst in [vst20, vst20_with_writeback]
     ) and instclass_src in [
         vshr,
         vshl,

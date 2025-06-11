@@ -144,7 +144,14 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vst21,
     vst20_with_writeback,
     vst21_with_writeback,
-    vst4,
+    vst40,
+    vst41,
+    vst42,
+    vst43,
+    vst40_with_writeback,
+    vst41_with_writeback,
+    vst42_with_writeback,
+    vst43_with_writeback,
     vcmul,
     vcmla,
     vcadd,
@@ -359,7 +366,14 @@ execution_units = {
     vst21: ExecutionUnit.STORE,
     vst20_with_writeback: ExecutionUnit.STORE,
     vst21_with_writeback: ExecutionUnit.STORE,
-    vst4: ExecutionUnit.STORE,
+    vst40: ExecutionUnit.STORE,
+    vst41: ExecutionUnit.STORE,
+    vst42: ExecutionUnit.STORE,
+    vst43: ExecutionUnit.STORE,
+    vst40_with_writeback: ExecutionUnit.STORE,
+    vst41_with_writeback: ExecutionUnit.STORE,
+    vst42_with_writeback: ExecutionUnit.STORE,
+    vst43_with_writeback: ExecutionUnit.STORE,
     vcmul: ExecutionUnit.VEC_FPMUL,
     vcmla: [  # uses both MUL/ADD pipes
         [ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]
@@ -474,7 +488,14 @@ inverse_throughput = {
         vst21,
         vst20_with_writeback,
         vst21_with_writeback,
-        vst4,
+        vst40,
+        vst41,
+        vst42,
+        vst43,
+        vst40_with_writeback,
+        vst41_with_writeback,
+        vst42_with_writeback,
+        vst43_with_writeback,
         vcmul,
         vcadd,
         vaddf,
@@ -548,7 +569,14 @@ default_latencies = {
         vst21,
         vst20_with_writeback,
         vst21_with_writeback,
-        vst4,
+        vst40,
+        vst41,
+        vst42,
+        vst43,
+        vst40_with_writeback,
+        vst41_with_writeback,
+        vst42_with_writeback,
+        vst43_with_writeback,
     ): 1,
     (
         vrshr,
@@ -663,7 +691,16 @@ def get_latency(src, out_idx, dst):
     # Inputs to VST4x seem to have higher latency
     # Use 3 cycles as an upper bound here.
     if (
-        instclass_dst == vst4 or instclass_dst in [vst21, vst21_with_writeback]
+        instclass_dst
+        in [
+            vst40,
+            vst40_with_writeback,
+            vst41,
+            vst41_with_writeback,
+            vst42,
+            vst42_with_writeback,
+        ]
+        or instclass_dst in [vst20, vst20_with_writeback]
     ) and instclass_src in [
         vshr,
         vshl,
