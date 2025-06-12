@@ -73,6 +73,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64HighMultiply,
     AArch64Multiply,
     VecToGprMov,
+    St3,
     St4,
     Vzip,
     vsub,
@@ -172,6 +173,7 @@ execution_units = {
     #          [ExecutionUnit.VEC1, ExecutionUnit.LSU0],
     #          [ExecutionUnit.VEC1, ExecutionUnit.LSU1]],
     # TODO: As above, this should somehow occupy both V and L
+    St3: ExecutionUnit.V(),
     St4: ExecutionUnit.V(),
     (Vzip, Vrev, uaddlp): ExecutionUnit.V(),
     (vmov): ExecutionUnit.V(),
@@ -206,6 +208,7 @@ inverse_throughput = {
     (Ldr_X, Str_X, Ldr_Q, Str_Q): 1,
     (Ldp_X, Stp_X): 2,
     Stp_Q: 2,
+    St3: 3,  # Multiple structures, Q form, storing bytes
     St4: 6,  # TODO: Really??
     (Vzip, uaddlp, Vrev): 1,
     VecToGprMov: 1,
@@ -241,6 +244,7 @@ inverse_throughput = {
 default_latencies = {
     (Ldp_X, Ldr_X, Ldr_Q, Stp_Q): 4,
     (Stp_X, Str_X, Str_Q): 2,
+    St3: 6,  # Multiple structures, Q form, storing bytes
     St4: 4,
     (Vzip, Vrev, uaddlp): 2,
     VecToGprMov: 2,
