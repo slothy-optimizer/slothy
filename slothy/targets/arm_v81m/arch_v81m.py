@@ -39,6 +39,7 @@ import math
 
 from functools import cache
 from enum import Enum
+from sympy import simplify
 
 from slothy.helper import Loop
 
@@ -1365,6 +1366,14 @@ class vstr_with_post(MVEInstruction):
     pattern = "vstrw.<dt> <Qd>, [<Rn>], <imm>"
     inputs = ["Qd", "Rn"]
 
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.addr = obj.args_in[1]
+        obj.pre_index = None
+        return obj
+
 
 class vldrb(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]"
@@ -1424,6 +1433,20 @@ class vldrw_no_imm(MVEInstruction):
     pattern = "vldrw.<dt> <Qd>, [<Rn>]"
     inputs = ["Rn"]
     outputs = ["Qd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.addr = obj.args_in[0]
+        obj.pre_index = 0
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = vldrw.pattern
+        return super().write()
 
 
 class vldrw_with_writeback(MVEInstruction):
