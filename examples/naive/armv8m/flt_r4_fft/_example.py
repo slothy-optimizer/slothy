@@ -63,6 +63,7 @@ class fft_floatingpoint_radix4(OptimizationRunner):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
+        slothy.rename_function("floatingpoint_radix4_fft_symbolic", "floatingpoint_radix4_fft_opt_M55")
 
 
 example_instances = [
