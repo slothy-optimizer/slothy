@@ -1279,7 +1279,7 @@ class vmla(MVEInstruction):
 class vmlaldava(MVEInstruction):
     pattern = "vmlaldava.<dt> <Rd>, <Ra>, <Qa>, <Qd>"
     inputs = ["Qd", "Qa"]
-    outputs = ["Rd", "Ra"]
+    in_outs = ["Rd", "Ra"]
 
 
 class vaddva(MVEInstruction):
