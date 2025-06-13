@@ -22,8 +22,8 @@ start:
         vmulh.s32       qtmp, qr, qr
         vmulh.s32       qout, qi, qi
         // accumulate & halving
-        vhadd.s32       qout, qout, qtmp
-        vstrw.32        qout, [out], #16
+        vhadd.s32       q<qout>, q<qout>, q<qtmp>
+        vstrw.32        q<qout>, [r<out>], #16
         le              lr, start
 end:
 

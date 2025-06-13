@@ -7,6 +7,6 @@ start:
     vmul.f32        qout, qi, qi     
     // accumulate without VFMA to allow better performance
     vadd.f32        qout, qout, qtmp                                                 
-    vstrw.32        qout, [out], #16
+    vstrw.32        q<qout>, [r<out>], #16
     le              lr, start
 

@@ -5,6 +5,6 @@ start:
     // square real/imag / accumulate
     vmul.f32        qout, qr, qr                                              
     vfma.f32        qout, qi, qi                                                 
-    vstrw.32        qout, [out], #16
+    vstrw.32        q<qout>, [r<out>], #16
     le              lr, start
 

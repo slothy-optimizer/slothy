@@ -16,14 +16,14 @@ cmplx_mag_sqr_fx:
         wls lr, lr, end
 start:
         // deinterleave real/imag
-        vld20.32        {qr, qi}, [in]
-        vld21.32        {qr, qi}, [in]!
+        vld20.32        {q<qr>, q<qi>}, [r<in>]
+        vld21.32        {q<qr>, q<qi>}, [r<in>]!
         // square real/imag
-        vmulh.s32       qtmp, qr, qr
-        vmulh.s32       qout, qi, qi
+        vmulh.s32       q<qtmp>, q<qr>, q<qr>
+        vmulh.s32       q<qout>, q<qi>, q<qi>
         // accumulate & halving
-        vhadd.s32       qout, qout, qtmp
-        vstrw.32        qout, [out], #16
+        vhadd.s32       q<qout>, q<qout>, q<qtmp>
+        vstrw.32        q<qout>, [r<out>], #16
         le              lr, start
 end:
 
