@@ -1386,6 +1386,20 @@ class vldrb_no_imm(MVEInstruction):
     inputs = ["Rn"]
     outputs = ["Qd"]
 
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.addr = obj.args_in[0]
+        obj.pre_index = 0
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = vldrb.pattern
+        return super().write()
+
 
 class vldrb_with_writeback(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]!"
@@ -1409,6 +1423,20 @@ class vldrh_no_imm(MVEInstruction):
     pattern = "vldrh.<dt> <Qd>, [<Rn>]"
     inputs = ["Rn"]
     outputs = ["Qd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.addr = obj.args_in[0]
+        obj.pre_index = 0
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = vldrh.pattern
+        return super().write()
 
 
 class vldrh_with_writeback(MVEInstruction):
