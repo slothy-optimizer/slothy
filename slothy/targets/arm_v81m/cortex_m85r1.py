@@ -74,6 +74,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vadd_sv,
     vadd_vv,
     vsub,
+    vsub_T2,
     vhadd,
     vhsub,
     vhcadd,
@@ -163,6 +164,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vcadd,
     vaddf,
     vsubf,
+    vsubf_T2,
     vcaddf,
 )
 
@@ -300,6 +302,7 @@ execution_units = {
     vadd_sv: ExecutionUnit.VEC_INT,
     vadd_vv: ExecutionUnit.VEC_INT,
     vsub: ExecutionUnit.VEC_INT,
+    vsub_T2: ExecutionUnit.VEC_INT,
     vhadd: ExecutionUnit.VEC_INT,
     vhsub: ExecutionUnit.VEC_INT,
     vhcadd: ExecutionUnit.VEC_INT,
@@ -392,6 +395,7 @@ execution_units = {
     ],
     vaddf: ExecutionUnit.VEC_FPADD,
     vsubf: ExecutionUnit.VEC_FPADD,
+    vsubf_T2: ExecutionUnit.VEC_FPADD,
     vcaddf: ExecutionUnit.VEC_FPADD,
 }
 
@@ -443,6 +447,7 @@ inverse_throughput = {
         vadd_sv,
         vadd_vv,
         vsub,
+        vsub_T2,
         vhadd,
         vhsub,
         vhcadd,
@@ -519,6 +524,7 @@ inverse_throughput = {
         vaddf,
         vcaddf,
         vsubf,
+        vsubf_T2,
         vhcadd,
     ): 2,
     (vmulf_T1, vmulf_T2): 2,
@@ -558,6 +564,7 @@ default_latencies = {
         vadd_vv,
         vadd_sv,
         vsub,
+        vsub_T2,
         vhadd,
         vhsub,
         vhcadd,
@@ -628,6 +635,7 @@ default_latencies = {
         vaddf,
         vcaddf,
         vsubf,
+        vsubf_T2,
         vhcadd,
     ): 2,
     (vmulf_T1, vmulf_T2, vcmul): 3,
@@ -680,6 +688,7 @@ def get_latency(src, out_idx, dst):
         vcadd,
         vaddf,
         vsubf,
+        vsubf_T2,
         vmulf_T1,
         vmulf_T2,
         vcaddf,
@@ -740,6 +749,7 @@ def get_latency(src, out_idx, dst):
         vadd_vv,
         vadd_sv,
         vsub,
+        vsub_T2,
         vhadd,
         vhsub,
         vhcadd,
@@ -778,6 +788,7 @@ def get_latency(src, out_idx, dst):
         vcadd,
         vaddf,
         vsubf,
+        vsubf_T2,
         vhcadd,
     ]:
         return 3

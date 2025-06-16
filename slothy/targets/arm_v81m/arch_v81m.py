@@ -1401,6 +1401,12 @@ class vsub(MVEInstruction):
     outputs = ["Qd"]
 
 
+class vsub_T2(MVEInstruction):
+    pattern = "vsub.<dt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    outputs = ["Qd"]
+
+
 class vhsub(MVEInstruction):
     pattern = "vhsub.<dt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
@@ -2193,6 +2199,12 @@ class vst43_with_writeback(MVEInstruction):
 class vsubf(MVEInstruction):
     pattern = "vsub.<fdt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
+
+
+class vsubf_T2(MVEInstruction):
+    pattern = "vsub.<fdt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
     outputs = ["Qd"]
 
 

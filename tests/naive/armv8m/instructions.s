@@ -221,6 +221,9 @@ vsub.i8 q2, q0, q1
 vsub.i16 q2, q0, q1
 vsub.i32 q2, q0, q1
 
+vsub.i32 q2, q0, r0
+
+
 vhsub.u8 q2, q0, q1
 vhsub.u16 q2, q0, q1
 vhsub.u32 q2, q0, q1
@@ -310,6 +313,9 @@ vst43.u32 {q0, q1, q2, q3}, [r0]!
 
 vsub.f16 q2, q1, q0
 vsub.f32 q2, q1, q0
+
+vsub.f32 q2, q1, r0
+
 
 vadd.f16 q2, q1, q0
 vadd.f32 q2, q1, q0
