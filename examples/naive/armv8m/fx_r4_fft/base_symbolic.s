@@ -16,23 +16,23 @@
         pW3 .req r8
 
 .macro load_data
-        vldrw.s32   qA, [inA]
-        vldrw.s32   qB, [inB]
-        vldrw.s32   qC, [inC]
-        vldrw.s32   qD, [inD]
+        vldrw.s32   q<qA>, [inA]
+        vldrw.s32   q<qB>, [inB]
+        vldrw.s32   q<qC>, [inC]
+        vldrw.s32   q<qD>, [inD]
 .endm
 
 .macro load_twiddles
-        vldrw.s32  qTw1, [pW1], #16
-        vldrw.s32  qTw2, [pW2], #16
-        vldrw.s32  qTw3, [pW3], #16
+        vldrw.s32  q<qTw1>, [pW1], #16
+        vldrw.s32  q<qTw2>, [pW2], #16
+        vldrw.s32  q<qTw3>, [pW3], #16
 .endm
 
 .macro store_data
-        vstrw.32   qA, [inA], #16
-        vstrw.32   qB, [inB], #16
-        vstrw.32   qC, [inC], #16
-        vstrw.32   qD, [inD], #16
+        vstrw.32   q<qA>, [inA], #16
+        vstrw.32   q<qB>, [inB], #16
+        vstrw.32   q<qC>, [inC], #16
+        vstrw.32   q<qD>, [inD], #16
 .endm
 
 .macro cmul_fx out, in0, in1
@@ -60,17 +60,17 @@ fixedpoint_radix4_fft_symbolic:
 fixedpoint_radix4_fft_loop_start:
         load_data
         load_twiddles
-        vhadd.s32  qSm0, qA,   qC         // a+c
-        vhadd.s32  qSm1, qB,   qD         // b+d
-        vhsub.s32  qDf0, qA,   qC         // a-c
-        vhsub.s32  qDf1, qB,   qD         // b-d
-        vhadd.s32  qA,   qSm0, qSm1       // a+b+c+d
-        vhsub.s32  qBp,  qSm0, qSm1       // a-b+c-d
-        vhcadd.s32 qCp,  qDf0, qDf1, #270 // a-ib-c+id
-        vhcadd.s32 qDp,  qDf0, qDf1, #90  // a+ib-c-id
-        cmul_fx    qB,   qTw1, qBp        // Tw1*(a-b+c-d)
-        cmul_fx    qC,   qTw2, qCp        // Tw2*(a-ib-c+id)
-        cmul_fx    qD,   qTw3, qDp        // Tw3*(a+ib-c-id)
+        vhadd.s32  q<qSm0>, q<qA>,   q<qC>         // a+c
+        vhadd.s32  q<qSm1>, q<qB>,   q<qD>         // b+d
+        vhsub.s32  q<qDf0>, q<qA>,   q<qC>         // a-c
+        vhsub.s32  q<qDf1>, q<qB>,   q<qD>         // b-d
+        vhadd.s32  q<qA>,   q<qSm0>, q<qSm1>       // a+b+c+d
+        vhsub.s32  q<qBp>,  q<qSm0>, q<qSm1>       // a-b+c-d
+        vhcadd.s32 q<qCp>,  q<qDf0>, q<qDf1>, #270 // a-ib-c+id
+        vhcadd.s32 q<qDp>,  q<qDf0>, q<qDf1>, #90  // a+ib-c-id
+        cmul_fx    q<qB>,   q<qTw1>, q<qBp>        // Tw1*(a-b+c-d)
+        cmul_fx    q<qC>,   q<qTw2>, q<qCp>        // Tw2*(a-ib-c+id)
+        cmul_fx    q<qD>,   q<qTw3>, q<qDp>        // Tw3*(a+ib-c-id)
         store_data
         le         lr, fixedpoint_radix4_fft_loop_start
 
