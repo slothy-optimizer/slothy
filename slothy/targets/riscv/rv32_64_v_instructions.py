@@ -131,6 +131,8 @@ VectorIntegerVectorVectorMasked = ["vmerge.vvm"]
 VectorIntegerVectorScalarMasked = ["vmerge.vxm"]
 VectorIntegerVectorImmediateMasked = ["vmerge.vim"]
 
+Pseudo = ["li"]
+
 
 class RISCVLiPseudo(RISCVInstruction):
     pattern = "li <Xd>, <imm>"
@@ -144,7 +146,7 @@ def li_pseudo_split_cb():
         imm = inst.immediate
         insts = []
         # if imm fits in signed 12-bit immediate, just use addi
-        if -2048 <= imm <= 2047:
+        if -2048 <= int(imm) <= 2047:
             addi = RISCVInstruction.build(
                 RISCVInstruction.classes_by_names["addi"],
                 {"Xd": out_reg, "Xa": out_reg, "imm": imm},
@@ -185,7 +187,8 @@ def li_pseudo_split_cb():
     return core
 
 
-RISCVLiPseudo.global_parsing_cb = li_pseudo_split_cb()
+RISCVLiPseudo.global_fusion_cb = li_pseudo_split_cb()
+
 
 
 def generate_rv32_64_v_instructions():
@@ -229,7 +232,7 @@ def generate_rv32_64_v_instructions():
         VectorIntegerVectorImmediateMasked, RISCVVectorIntegerVectorImmediateMasked
     )
 
-    RISCVInstruction.dynamic_instr_classes.append(RISCVLiPseudo)
+    RISCVInstruction.instr_factory(Pseudo, RISCVLiPseudo)
 
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
