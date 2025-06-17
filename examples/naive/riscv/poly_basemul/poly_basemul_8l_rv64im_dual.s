@@ -60,42 +60,54 @@
 .equ plantconst2, 0xb7b9f10ccf939804      // (((-2**64) % q) * ((-2**64) % q) * qinv) % (2**64)
 
 # void poly_basemul_8l_rv64im(int32_t r[256], const int32_t a[256], const int32_t b[256])
-.globl poly_basemul_8l_rv64im
+.globl poly_basemul_8l_rv64im_dual
 .align 2
-poly_basemul_8l_rv64im:
+poly_basemul_8l_rv64im_dual:
     addi sp, sp, -8*15
     save_regs
     li a4, q32
     li a5, qinv
-    // loop control
-    li gp, 64*4*4
+    # loop control
+    li gp, 32*8*4
     add gp, gp, a0
 poly_basemul_8l_rv64im_looper:
-    // a0-a3
-    lw s0, 0*4(a1)
-    lw s1, 1*4(a1)
-    lw s2, 2*4(a1)
-    lw s3, 3*4(a1)
-    // b0-b4
-    lw t0, 0*4(a2)
-    lw t1, 1*4(a2)
-    lw t2, 2*4(a2)
-    lw t3, 3*4(a2)
-    // a0b0-a3b3
-    mul s4, s0, t0
-    mul s6, s1, t1
-    mul s8, s2, t2
-    mul s10, s3, t3
-    plant_red_x4 a4, a5, s4, s6, s8, s10
-    // store results
-    sw s4, 0*4(a0)
-    sw s6, 1*4(a0)
-    sw s8, 2*4(a0)
-    sw s10, 3*4(a0)
-    // loop control
-    addi a0, a0, 4*4
-    addi a1, a1, 4*4
-    addi a2, a2, 4*4
+    lw t0, 0*4(a1)
+    lw t1, 1*4(a1)
+    lw s0, 0*4(a2)
+    lw s1, 1*4(a2)
+    lw t2, 2*4(a1)
+    lw t3, 3*4(a1)
+    lw s2, 2*4(a2)
+    lw s3, 3*4(a2)
+    mul s8, s0, t0
+    mul s9, s1, t1
+    lw t4, 4*4(a1)
+    lw t5, 5*4(a1)
+    mul s10, s2, t2
+    mul s11, s3, t3
+    lw s4, 4*4(a2)
+    lw s5, 5*4(a2)
+    plant_red_x4 a4, a5, s8, s9, s10, s11
+    lw t6, 6*4(a1)
+    lw tp, 7*4(a1)
+    lw s6, 6*4(a2)
+    lw s7, 7*4(a2)
+    mul s0, s4, t4
+    mul s1, s5, t5
+    sw s8, 0*4(a0)
+    sw s9, 1*4(a0)
+    mul s2, s6, t6
+    mul s3, s7, tp
+    sw s10, 2*4(a0)
+    sw s11, 3*4(a0)
+    plant_red_x4 a4, a5, s0, s1, s2, s3
+    sw s0, 4*4(a0)
+    sw s1, 5*4(a0)
+    addi a1, a1, 4*8
+    addi a2, a2, 4*8
+    sw s2, 6*4(a0)
+    sw s3, 7*4(a0)
+    addi a0, a0, 4*8
     bne gp, a0, poly_basemul_8l_rv64im_looper
     restore_regs
     addi sp, sp, 8*15

@@ -52,6 +52,7 @@
   mulh \a_2, \a_2, \q32
   mulh \a_3, \a_3, \q32
 .endm
+
 .equ q,    8380417
 .equ q32,  0x7fe00100000000               // q << 32
 .equ qinv, 0x180a406003802001             // q^-1 mod 2^64
@@ -59,56 +60,74 @@
 .equ plantconst2, 0xb7b9f10ccf939804      // (((-2**64) % q) * ((-2**64) % q) * qinv) % (2**64)
 
 # void poly_basemul_8l_acc_end_rv64im(int32_t r[256], const int32_t a[256], const int32_t b[256], int64_t r_double[256])
-.globl poly_basemul_8l_acc_end_rv64im
+.globl poly_basemul_8l_acc_end_rv64im_dual
 .align 2
-poly_basemul_8l_acc_end_rv64im:
-    addi sp, sp, -8*15
+poly_basemul_8l_acc_end_rv64im_dual:
+    addi sp, sp, -8*16
     save_regs
     li a4, q32
     li a5, qinv
     // loop control
-    li gp, 64*4*4
+    li  gp, 32*8*4
     add gp, gp, a0
+    sd  gp, 8*15(sp)
 poly_basemul_8l_acc_end_rv64im_looper:
-    // a0-a3
-    lw s0, 0*4(a1)
-    lw s1, 1*4(a1)
-    lw s2, 2*4(a1)
-    lw s3, 3*4(a1)
-    // b0-b4
-    lw t0, 0*4(a2)
-    lw t1, 1*4(a2)
-    lw t2, 2*4(a2)
-    lw t3, 3*4(a2)
-    // r_double[0-3]
-    ld s4, 0*8(a3)
-    ld s6, 1*8(a3)
-    ld s8, 2*8(a3)
-    ld s10, 3*8(a3)
-    // a0b0-a3b3
-    mul t4, s0, t0
-    mul a6, s1, t1
-    mul t6, s2, t2
-    mul a7, s3, t3
-    // accumulate
-    add s4, s4, t4
-    add s6, s6, a6
-    add s8, s8, t6
-    add s10, s10, a7
-    // rdc
-    plant_red_x4 a4, a5, s4, s6, s8, s10
-    // store results
-    sw s4, 0*4(a0)
-    sw s6, 1*4(a0)
-    sw s8, 2*4(a0)
-    sw s10, 3*4(a0)
-    // loop control
-    addi a1, a1, 4*4
-    addi a2, a2, 4*4
-    addi a3, a3, 8*4
-    addi a3, a3, 0
-    addi a0, a0, 4*4
+    lw t0, 0*4(a1) // a0
+    lw t1, 1*4(a1) // a1
+    lw s0, 0*4(a2) // b0
+    lw s1, 1*4(a2) // b1
+    ld a6, 0*8(a3)
+    ld a7, 1*8(a3)
+    lw t2, 2*4(a1) // a2
+    lw t3, 3*4(a1) // a3
+    lw s2, 2*4(a2) // b2
+    lw s3, 3*4(a2) // b3
+    mul s8, t0, s0
+    mul s9, t1, s1
+    ld gp, 2*8(a3)
+    ld ra, 3*8(a3)
+    lw t4, 4*4(a1) // a4
+    lw t5, 5*4(a1) // a5
+    mul s10, t2, s2
+    mul s11, t3, s3
+    lw s4, 4*4(a2) // b4
+    lw s5, 5*4(a2) // b5
+    add s8, s8, a6
+    add s9, s9, a7
+    lw t6, 6*4(a1) // a6
+    lw tp, 7*4(a1) // a7
+    add s10, s10, gp
+    add s11, s11, ra
+    lw s6, 6*4(a2) // b6
+    lw s7, 7*4(a2) // b7
+    plant_red_x4 a4, a5, s8, s9, s10, s11
+    ld a6, 4*8(a3)
+    ld a7, 5*8(a3)
+    sw s8, 0*4(a0)
+    sw s9, 1*4(a0)
+    mul s8, t4, s4
+    mul s9, t5, s5
+    sw s10, 2*4(a0)
+    sw s11, 3*4(a0)
+    ld gp, 6*8(a3)
+    ld ra, 7*8(a3)
+    mul s10, t6, s6
+    mul s11, tp, s7
+    add s8, s8, a6
+    add s9, s9, a7
+    add s10, s10, gp
+    add s11, s11, ra
+    plant_red_x4 a4, a5, s8, s9, s10, s11
+    ld  gp, 8*15(sp)
+    addi a1, a1, 4*8
+    addi a2, a2, 4*8
+    addi a3, a3, 8*8
+    sw s8, 4*4(a0)
+    sw s9, 5*4(a0)
+    sw s10, 6*4(a0)
+    sw s11, 7*4(a0)
+    addi a0, a0, 4*8
     bne gp, a0, poly_basemul_8l_acc_end_rv64im_looper
     restore_regs
-    addi sp, sp, 8*15
+    addi sp, sp, 8*16
     ret

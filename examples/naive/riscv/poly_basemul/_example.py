@@ -24,7 +24,6 @@ class RISC_V_poly_basemul_8l_init_rv64im(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname="poly_basemul_8l_init_rv64im",
             timeout=timeout,
         )
 
@@ -56,7 +55,6 @@ class RISC_V_poly_basemul_8l_rv64im(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname="poly_basemul_8l_rv64im",
             timeout=timeout,
         )
 
@@ -88,7 +86,6 @@ class RISC_V_poly_basemul_8l_acc_rv64im(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname="poly_basemul_8l_acc_rv64im",
             timeout=timeout,
         )
 
@@ -120,7 +117,6 @@ class RISC_V_poly_basemul_8l_acc_end_rv64im(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname="poly_basemul_8l_acc_end_rv64im",
             timeout=timeout,
         )
 
@@ -141,4 +137,8 @@ example_instances = [
     RISC_V_poly_basemul_8l_rv64im(),
     RISC_V_poly_basemul_8l_acc_rv64im(),
     RISC_V_poly_basemul_8l_acc_end_rv64im(),
+    RISC_V_poly_basemul_8l_init_rv64im(var="dual"),
+    RISC_V_poly_basemul_8l_rv64im(var="dual"),
+    RISC_V_poly_basemul_8l_acc_rv64im(var="dual"),
+    RISC_V_poly_basemul_8l_acc_end_rv64im(var="dual"),
 ]
