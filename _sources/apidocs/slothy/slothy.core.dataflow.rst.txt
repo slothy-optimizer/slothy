@@ -258,11 +258,6 @@ API
 
       .. autodoc2-docstring:: slothy.core.dataflow.Config.arch
 
-   .. py:property:: typing_hints
-      :canonical: slothy.core.dataflow.Config.typing_hints
-
-      .. autodoc2-docstring:: slothy.core.dataflow.Config.typing_hints
-
    .. py:property:: outputs
       :canonical: slothy.core.dataflow.Config.outputs
 
