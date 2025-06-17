@@ -58,7 +58,6 @@ class Example2(OptimizationRunner):
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
-        slothy.config.typing_hints["const"] = Arch_Armv81M.RegisterType.GPR
         slothy.optimize_loop("start")
 
 

@@ -28,7 +28,6 @@
 import os
 
 from common.OptimizationRunner import OptimizationRunner
-import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 
@@ -44,14 +43,6 @@ class CRT(OptimizationRunner):
         # Double the loop body to create more interleaving opportunities
         # Basically a tradeoff of code-size vs performance
         slothy.config.sw_pipelining.unroll = 2
-        slothy.config.typing_hints = {
-            "const_prshift": Arch_Armv81M.RegisterType.GPR,
-            "const_shift9": Arch_Armv81M.RegisterType.GPR,
-            "p_inv_mod_q": Arch_Armv81M.RegisterType.GPR,
-            "p_inv_mod_q_tw": Arch_Armv81M.RegisterType.GPR,
-            "mod_p": Arch_Armv81M.RegisterType.GPR,
-            "mod_p_tw": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.optimize()
 
 

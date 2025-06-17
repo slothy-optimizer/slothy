@@ -1388,8 +1388,6 @@ class Config(NestedPrint, LockAttributes):
 
         self.mirror_char = "~"
 
-        self.typing_hints = {}
-
         self.solver_random_seed = 42
 
         # TODO: Document log_dir and log_model
