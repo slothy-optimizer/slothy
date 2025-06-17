@@ -109,7 +109,7 @@ environments setup can be found in [paper/artifact/slothy.dockerfile](paper/arti
 To check that your setup is complete, try the following from the base directory:
 
 ```
-% python3 example.py --examples aarch64_simple0_a55
+% python3 test.py --tests aarch64_simple0_a55
 ```
 
 You should see something like the following:
