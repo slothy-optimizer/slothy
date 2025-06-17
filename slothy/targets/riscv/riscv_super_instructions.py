@@ -141,9 +141,9 @@ class RISCVVectorStoreUnitStride(RISCVInstruction):
         obj.addr = obj.args_in[0]
         return obj
 
-    pattern = "mnemonic <Vd>, (<Xa>)<vm>"
-    inputs = ["Xa"]
-    outputs = ["Vd"]
+    pattern = "mnemonic <Va>, (<Xa>)<vm>"
+    inputs = ["Xa", "Va"]
+    outputs = []
 
 
 class RISCVVectorStoreStrided(RISCVInstruction):
