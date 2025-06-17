@@ -57,14 +57,6 @@ class ntt_kyber_1_23_45_67(OptimizationRunner):
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
-        slothy.config.typing_hints = {
-            "root0": Arch_Armv81M.RegisterType.GPR,
-            "root1": Arch_Armv81M.RegisterType.GPR,
-            "root2": Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer1_loop")
         slothy.optimize_loop("layer23_loop")
@@ -74,7 +66,6 @@ class ntt_kyber_1_23_45_67(OptimizationRunner):
             slothy.config.timeout = self.timeout
         if "no_trans" in self.var:
             slothy.config.constraints.st_ld_hazard = True
-        slothy.config.typing_hints = {}
         slothy.optimize_loop("layer67_loop")
 
 
@@ -100,14 +91,6 @@ class ntt_kyber_1(OptimizationRunner):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.typing_hints = {
-            "root0": Arch_Armv81M.RegisterType.GPR,
-            "root1": Arch_Armv81M.RegisterType.GPR,
-            "root2": Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.optimize_loop("layer1_loop")
 
 
@@ -133,14 +116,6 @@ class ntt_kyber_23(OptimizationRunner):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.typing_hints = {
-            "root0": Arch_Armv81M.RegisterType.GPR,
-            "root1": Arch_Armv81M.RegisterType.GPR,
-            "root2": Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.optimize_loop("layer23_loop")
 
 
@@ -166,14 +141,6 @@ class ntt_kyber_45(OptimizationRunner):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.config.typing_hints = {
-            "root0": Arch_Armv81M.RegisterType.GPR,
-            "root1": Arch_Armv81M.RegisterType.GPR,
-            "root2": Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.optimize_loop("layer45_loop")
 
 
@@ -200,7 +167,6 @@ class ntt_kyber_67(OptimizationRunner):
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.config.constraints.st_ld_hazard = False
-        slothy.config.typing_hints = {}
         slothy.optimize_loop("layer67_loop")
 
 
@@ -346,18 +312,9 @@ class intt_kyber_1_23_45_67(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
-        slothy.config.typing_hints = {
-            "root0": Arch_Armv81M.RegisterType.GPR,
-            "root1": Arch_Armv81M.RegisterType.GPR,
-            "root2": Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.optimize_loop("layer1_loop")
         slothy.optimize_loop("layer23_loop")
         slothy.optimize_loop("layer45_loop")
-        slothy.config.typing_hints = {}
         slothy.optimize_loop("layer67_loop")
 
 
