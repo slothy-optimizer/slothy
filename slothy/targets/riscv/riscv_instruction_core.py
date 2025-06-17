@@ -349,7 +349,7 @@ class RISCVInstruction(Instruction):
 
             a = getattr(self, attr_name)
             if a is None:
-                return txt
+                return txt.replace("<w>", "")
             if not isinstance(a, list):
                 txt = txt.replace(f"<{mnemonic_key}>", t(a))
                 return txt

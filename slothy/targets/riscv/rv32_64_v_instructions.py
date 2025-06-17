@@ -143,14 +143,15 @@ class RISCVLiPseudo(RISCVInstruction):
 def li_pseudo_split_cb():
     def core(inst, t, log=None):
         out_reg = inst.args_out[0]
-        imm = inst.immediate
+        imm = int(inst.immediate)
         insts = []
         # if imm fits in signed 12-bit immediate, just use addi
-        if -2048 <= int(imm) <= 2047:
+        if -2048 <= imm <= 2047:
             addi = RISCVInstruction.build(
                 RISCVInstruction.classes_by_names["addi"],
-                {"Xd": out_reg, "Xa": out_reg, "imm": imm},
+                {"Xd": out_reg, "Xa": out_reg, "imm": imm, "is32bit": None},
             )
+            print(addi)
             insts.append(addi)
         else:
             lower_12 = imm & 0xFFF  # lower 12 bits (0-11)
@@ -166,7 +167,7 @@ def li_pseudo_split_cb():
             )
             addi = RISCVInstruction.build(
                 RISCVInstruction.classes_by_names["addi"],
-                {"Xd": out_reg, "Xa": out_reg, "imm": lower_12},
+                {"Xd": out_reg, "Xa": out_reg, "imm": lower_12, "is32bit": None},
             )
             insts.append(lui)
             insts.append(addi)

@@ -1284,7 +1284,9 @@ ntt_8l_rvv:
     start:
     li t0, q
     ntt_8l_level0to3_rvv 0
+    end:
     ntt_8l_level0to3_rvv 1
+
     ntt_8l_level0to3_rvv 2
     ntt_8l_level0to3_rvv 3
     ntt_8l_level4to7_rvv 0, \
@@ -1299,7 +1301,7 @@ ntt_8l_rvv:
     ntt_8l_level4to7_rvv 3, \
         _ZETA_EXP_4TO7_P3_L4, _ZETA_EXP_4TO7_P3_L5, \
         _ZETA_EXP_4TO7_P3_L6, _ZETA_EXP_4TO7_P3_L7
-    end:
+
 ret
 
 .globl intt_8l_rvv
