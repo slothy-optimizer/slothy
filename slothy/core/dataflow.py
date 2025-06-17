@@ -637,7 +637,6 @@ class DataFlowGraph:
                 return [x for y in llst for x in y]
 
             z = flatten(map(map_node, z))
-
             self.src = list(z)
 
             # Otherwise, parse again
