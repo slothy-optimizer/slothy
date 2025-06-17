@@ -39,9 +39,7 @@ class RISC_VExample0(OptimizationRunner):
             "v10",
             "v11",
         ]
-        slothy.fusion_region(
-            start="start", end="end"
-        )
+        slothy.fusion_region(start="start", end="end")
         slothy.optimize(start="start", end="end")
 
 
