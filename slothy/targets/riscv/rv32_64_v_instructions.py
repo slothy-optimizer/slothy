@@ -191,7 +191,6 @@ def li_pseudo_split_cb():
 RISCVLiPseudo.global_fusion_cb = li_pseudo_split_cb()
 
 
-
 def generate_rv32_64_v_instructions():
     """
     Generates all instruction classes for the rv32_64_v extension set

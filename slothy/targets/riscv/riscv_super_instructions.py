@@ -215,4 +215,5 @@ class RISCVVectorIntegerVectorImmediateMasked(RISCVInstruction):
     inputs = ["Ve"]
     outputs = ["Vd"]
 
+
 # special super classes

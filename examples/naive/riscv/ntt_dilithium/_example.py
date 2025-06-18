@@ -87,8 +87,6 @@ class RISC_V_ntt_rvv(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.config.outputs = ["v17"]
-        slothy.config.allow_useless_instructions = True
         slothy.optimize("start", "end")
 
 

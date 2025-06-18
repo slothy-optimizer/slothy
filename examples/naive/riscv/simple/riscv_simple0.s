@@ -11,5 +11,5 @@ start:
 //vadd.vx v9, v8, x0
 //vadd.vi v10, v9, 5
 //vmerge.vvm v11, v10, v9, v0
-li x0, 2700
+li x0, 58728449
 end:

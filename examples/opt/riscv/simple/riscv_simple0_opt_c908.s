@@ -1,4 +1,4 @@
 start:
-lui x0, 1
-addi x0, x0, -1396
+lui x0, 14338
+addi x0, x0, 1
 end:
