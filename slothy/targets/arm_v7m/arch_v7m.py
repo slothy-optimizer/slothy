@@ -2003,6 +2003,10 @@ class ldrd_imm(Ldrd):
         obj.addr = obj.args_in_out[0]
         return obj
 
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
 
 class ldrd_with_postinc(Ldrd):
     pattern = "ldrd<width> <Ra>, <Rb>, [<Rc>], <imm>"
