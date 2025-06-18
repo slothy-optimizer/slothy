@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo "🔧 Invoking git pre-push hook: run linting ..."
+if make all; then
+  echo "✅ All linting done, files reformatted and check passed."
+  git add .
+else
+  echo "❌ Linting failed. Aborting push."
+  exit 1
+fi
