@@ -83,6 +83,7 @@ class Instruction:
         self.len = None
         self.vm = None
 
+        self.vtype = None
         self.sew = None
         self.lmul = None
         self.tpol = None

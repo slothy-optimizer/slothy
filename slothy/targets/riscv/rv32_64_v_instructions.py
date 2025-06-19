@@ -144,11 +144,15 @@ class RISCVvsetvli(RISCVInstruction):
 
 
 class RISCVvsetivli(RISCVInstruction):
-    pattern = "vsetivli rd, uimm, vtypei"
+    pattern = "vsetivli <Xd>, <imm>, <vtype>"
+    inputs = []
+    outputs = ["Xd"]
 
 
 class RISCVvsetvl(RISCVInstruction):
-    pattern = "vsetvl  rd, rs1, rs2"
+    pattern = "vsetvl <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
 
 
 class RISCVLiPseudo(RISCVInstruction):

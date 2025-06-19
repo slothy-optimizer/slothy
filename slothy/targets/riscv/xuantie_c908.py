@@ -233,6 +233,9 @@ execution_units = {
         RISCVInstruction.classes_by_names["vrgatherei16.vv"],
         RISCVInstruction.classes_by_names["vrgather.vx"],
         RISCVInstruction.classes_by_names["vrgather.vi"],
+        RISCVInstruction.classes_by_names["vsetvli"],
+        RISCVInstruction.classes_by_names["vsetivli"],
+        RISCVInstruction.classes_by_names["vsetvl"],
     ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
 }
 
@@ -299,6 +302,9 @@ inverse_throughput = {
         RISCVVectorIntegerVectorVectorMasked,
         RISCVVectorIntegerVectorScalarMasked,
         RISCVVectorIntegerVectorImmediateMasked,
+        RISCVInstruction.classes_by_names["vsetvli"],
+        RISCVInstruction.classes_by_names["vsetivli"],
+        RISCVInstruction.classes_by_names["vsetvl"],
     ): 2,
 }
 
@@ -355,6 +361,9 @@ default_latencies = {
     RISCVVectorIntegerVectorScalarMasked: 2,
     RISCVVectorIntegerVectorVectorMasked: 2,
     RISCVVectorIntegerVectorImmediateMasked: 2,
+    RISCVInstruction.classes_by_names["vsetvli"]: 2,
+    RISCVInstruction.classes_by_names["vsetivli"]: 2,
+    RISCVInstruction.classes_by_names["vsetvl"]: 2,
 }
 
 rv32_latencies = {
