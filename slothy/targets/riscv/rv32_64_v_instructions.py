@@ -132,6 +132,23 @@ VectorIntegerVectorScalarMasked = ["vmerge.vxm"]
 VectorIntegerVectorImmediateMasked = ["vmerge.vim"]
 
 Pseudo = ["li"]
+vsetvli = ["vsetvli"]
+vsetivli = ["vsetivli"]
+vsetvl = ["vsetvl"]
+
+
+class RISCVvsetvli(RISCVInstruction):
+    pattern = "vsetvli <Xd>, <Xa>, <vtype>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
+class RISCVvsetivli(RISCVInstruction):
+    pattern = "vsetivli rd, uimm, vtypei"
+
+
+class RISCVvsetvl(RISCVInstruction):
+    pattern = "vsetvl  rd, rs1, rs2"
 
 
 class RISCVLiPseudo(RISCVInstruction):
@@ -233,6 +250,12 @@ def generate_rv32_64_v_instructions():
     )
 
     RISCVInstruction.instr_factory(Pseudo, RISCVLiPseudo)
+
+    RISCVInstruction.instr_factory(vsetvli, RISCVvsetvli)
+
+    RISCVInstruction.instr_factory(vsetivli, RISCVvsetivli)
+
+    RISCVInstruction.instr_factory(vsetvl, RISCVvsetvl)
 
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}

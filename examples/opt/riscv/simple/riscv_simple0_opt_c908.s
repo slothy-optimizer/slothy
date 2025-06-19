@@ -1,4 +1,3 @@
 start:
-lui x0, 14338
-addi x0, x0, 1
+vsetvli x1, x2, e32, m1, tu, mu
 end:

@@ -1280,7 +1280,7 @@ include "consts.h"
 .globl ntt_8l_rvv
 .align 2
 ntt_8l_rvv:
-    //vsetivli t2, 4, e32, m1, tu, mu
+    vsetivli t2, 4, e32, m1, tu, mu
     start:
     li t0, q
     ntt_8l_level0to3_rvv 0

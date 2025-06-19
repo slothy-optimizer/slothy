@@ -45,6 +45,11 @@ class RISCVInstruction(Instruction):
     )
     len_pattern = "(8|16|32|64)"
     vm_pattern = r"(, v0\.t)?"
+    vtype_pattern = r"<sew>(?:,\\s*<lmul>)?(?:,\\s*<tpol>)?(?:,\\s*<mpol>)?"
+    sew_pattern = r"\\s*(?:e(?:8|16|32|64|128|256|512|1024))"
+    lmul_pattern = r"\\s*(?:m(?:1|2|4|8)|mf(?:2|4|8))"
+    tpol_pattern = r"\\s*(?:ta|tu)"
+    mpol_pattern = r"\\s*(?:ma|mu)"
 
     @staticmethod
     def _unfold_pattern(src):
@@ -116,6 +121,14 @@ class RISCVInstruction(Instruction):
         )
         src = replace_placeholders(src, "len", RISCVInstruction.len_pattern, "len")
         src = replace_placeholders(src, "vm", RISCVInstruction.vm_pattern, "vm")
+
+        src = replace_placeholders(
+            src, "vtype", RISCVInstruction.vtype_pattern, "vtype"
+        )
+        src = replace_placeholders(src, "sew", RISCVInstruction.sew_pattern, "sew")
+        src = replace_placeholders(src, "lmul", RISCVInstruction.lmul_pattern, "lmul")
+        src = replace_placeholders(src, "tpol", RISCVInstruction.tpol_pattern, "tpol")
+        src = replace_placeholders(src, "mpol", RISCVInstruction.mpol_pattern, "mpol")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -276,6 +289,11 @@ class RISCVInstruction(Instruction):
         group_to_attribute("is32bit", "is32bit")
         group_to_attribute("len", "len")
         group_to_attribute("vm", "vm")
+        group_to_attribute("vtype", "vtype")
+        group_to_attribute("sew", "sew")
+        group_to_attribute("lmul", "lmul")
+        group_to_attribute("tpol", "tpol")
+        group_to_attribute("mpol", "mpol")
 
         for s, ty in obj.pattern_inputs:
             # if ty == RegisterType.FLAGS:
@@ -305,6 +323,21 @@ class RISCVInstruction(Instruction):
             "<w>", RISCVInstruction.is32bit_pattern
         )
         modified_pattern = modified_pattern.replace("<vm>", RISCVInstruction.vm_pattern)
+        modified_pattern = modified_pattern.replace(
+            "<vtype>", RISCVInstruction.vtype_pattern
+        )
+        modified_pattern = modified_pattern.replace(
+            "<sew>", RISCVInstruction.sew_pattern
+        )
+        modified_pattern = modified_pattern.replace(
+            "<lmul>", RISCVInstruction.lmul_pattern
+        )
+        modified_pattern = modified_pattern.replace(
+            "<tpol>", RISCVInstruction.tpol_pattern
+        )
+        modified_pattern = modified_pattern.replace(
+            "<mpol>", RISCVInstruction.mpol_pattern
+        )
 
         if isinstance(src, str):
             if not re.match(modified_pattern.split(" ")[0], src.split(" ")[0]):
@@ -364,6 +397,11 @@ class RISCVInstruction(Instruction):
         out = replace_pattern(out, "is32bit", "w", lambda x: x.lower())
         out = replace_pattern(out, "len", "len")
         out = replace_pattern(out, "vm", "vm")
+        out = replace_pattern(out, "vtype", "vtype")
+        out = replace_pattern(out, "sew", "sew")
+        out = replace_pattern(out, "lmul", "lmul")
+        out = replace_pattern(out, "tpol", "tpol")
+        out = replace_pattern(out, "mpol", "mpol")
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")

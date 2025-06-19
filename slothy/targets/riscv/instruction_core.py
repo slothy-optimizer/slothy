@@ -83,6 +83,11 @@ class Instruction:
         self.len = None
         self.vm = None
 
+        self.sew = None
+        self.lmul = None
+        self.tpol = None
+        self.mpol = None
+
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
 
