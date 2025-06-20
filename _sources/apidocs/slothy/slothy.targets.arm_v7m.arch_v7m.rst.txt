@@ -2569,6 +2569,9 @@ API
       :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.make
       :classmethod:
 
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_imm.write
+
 .. py:class:: ldrd_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v7m.arch_v7m.ldrd_with_postinc
 
