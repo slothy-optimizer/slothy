@@ -36,8 +36,6 @@ class Instructions(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.allow_useless_instructions = True
-        slothy.config.constraints.allow_reordering = False
-        slothy.config.constraints.functional_only = True
         slothy.optimize(start="start", end="end")
 
 
