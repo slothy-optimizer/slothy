@@ -1425,6 +1425,12 @@ class vbic(MVEInstruction):
     outputs = ["Qd"]
 
 
+class vbic_nodt(MVEInstruction):
+    pattern = "vbic <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
+
+
 class vorr(MVEInstruction):
     pattern = "vorr.<dt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
