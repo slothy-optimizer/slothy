@@ -1437,6 +1437,12 @@ class veor(MVEInstruction):
     outputs = ["Qd"]
 
 
+class veor_nodt(MVEInstruction):
+    pattern = "veor <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
+
+
 class nop(MVEInstruction):
     pattern = "nop"
 

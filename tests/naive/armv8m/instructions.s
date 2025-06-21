@@ -242,9 +242,11 @@ vorr.u16 q2, q0, q1
 vorr.u32 q2, q0, q1
 vorr.u64 q2, q0, q1
 
-vorr.u8 q2, q0, q1
-vorr.u16 q2, q0, q1
-vorr.u32 q2, q0, q1
+veor.u8 q2, q0, q1
+veor.u16 q2, q0, q1
+veor.u32 q2, q0, q1
+veor.u64 q2, q0, q1
+veor q2, q0, q1
 
 nop
 
