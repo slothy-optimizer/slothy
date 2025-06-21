@@ -55,6 +55,7 @@ vqdmulh.s8 q2, q0, q1
 vqdmulh.s16 q2, q0, q1
 vqdmulh.s32 q2, q0, q1
 
+ldrd r0, r1, [r2]
 ldrd r0, r1, [r2, #16]
 ldrd r0, r1, [r2, #-16]
 ldrd r0, r1, [r2], #16

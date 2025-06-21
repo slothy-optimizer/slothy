@@ -353,6 +353,7 @@ class Instruction:
                 vst42_with_writeback,
                 vst43_with_writeback,
                 ldrd,
+                ldrd_no_imm,
                 ldrd_with_writeback,
                 ldrd_with_post,
                 strd,
@@ -402,6 +403,7 @@ class Instruction:
         return self._is_instance_of(
             [
                 ldrd,
+                ldrd_no_imm,
                 ldrd_with_writeback,
                 ldrd_with_post,
                 ldr,
@@ -1072,6 +1074,27 @@ class ldrd(MVEInstruction):
 
     def write(self):
         self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class ldrd_no_imm(MVEInstruction):
+    pattern = "ldrd <Rt0>, <Rt1>, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Rt0", "Rt1"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+
+        if int(self.immediate) != 0:
+            self.pattern = ldrd.pattern
         return super().write()
 
 

@@ -95,6 +95,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vmulf_T1,
     vmulf_T2,
     ldrd,
+    ldrd_no_imm,
     ldrd_with_writeback,
     ldrd_with_post,
     strd,
@@ -258,6 +259,7 @@ execution_units = {
     vmulf_T1: ExecutionUnit.VEC_FPU,
     vmulf_T2: ExecutionUnit.VEC_FPU,
     ldrd: ExecutionUnit.LOAD,
+    ldrd_no_imm: ExecutionUnit.LOAD,
     ldrd_with_writeback: ExecutionUnit.LOAD,
     ldrd_with_post: ExecutionUnit.LOAD,
     strd: ExecutionUnit.STORE,
@@ -343,6 +345,7 @@ inverse_throughput = {
         ldr_with_writeback,
         ldr_with_post,
         ldrd,
+        ldrd_no_imm,
         ldrd_with_writeback,
         ldrd_with_post,
         strd,
@@ -464,6 +467,7 @@ inverse_throughput = {
 default_latencies = {
     (
         ldrd,
+        ldrd_no_imm,
         ldrd_with_writeback,
         ldrd_with_post,
     ): 2,
