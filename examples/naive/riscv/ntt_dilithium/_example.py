@@ -9,7 +9,7 @@ SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 
 class RISC_V_ntt8l_singleissue_plant_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_8l_singleissue_plant_rv64im"
+        name = "ntt_dilithium_8l_singleissue_plant_rv64im"
         # subpath = "ntt_dilithium/"
         infile = name
 
@@ -53,7 +53,7 @@ class RISC_V_ntt8l_singleissue_plant_rv64im(OptimizationRunner):
 
 class RISC_V_ntt8l_dualissue_plant_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_8l_dualissue_plant_rv64im"
+        name = "ntt_dilithium_8l_dualissue_plant_rv64im"
         infile = name
 
         if var != "":
@@ -95,7 +95,7 @@ class RISC_V_ntt8l_dualissue_plant_rv64im(OptimizationRunner):
 
 class RISC_V_intt8l_singleissue_plant_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "intt_8l_singleissue_plant_rv64im"
+        name = "intt_dilithium_8l_singleissue_plant_rv64im"
         # subpath = "ntt_dilithium/"
         infile = name
 
@@ -139,7 +139,7 @@ class RISC_V_intt8l_singleissue_plant_rv64im(OptimizationRunner):
 
 class RISC_V_intt8l_dualissue_plant_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "intt_8l_dualissue_plant_rv64im"
+        name = "intt_dilithium_8l_dualissue_plant_rv64im"
         # subpath = "ntt_dilithium/"
         infile = name
 
@@ -183,7 +183,7 @@ class RISC_V_intt8l_dualissue_plant_rv64im(OptimizationRunner):
 
 class RISC_V_ntt_rvv(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_rvv"
+        name = "ntt_dilithium_rvv"
         infile = name
 
         if var != "":
