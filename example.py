@@ -90,7 +90,7 @@ from examples.naive.riscv.ntt_dilithium._example import (
     example_instances as example_instances_riscv_ntt_dilithium,
 )
 
-from examples.naive.riscv.poly_basemul._example import (
+from examples.naive.riscv.dilithium_basemul._example import (
     example_instances as example_instances_riscv_poly_basemul,
 )
 
