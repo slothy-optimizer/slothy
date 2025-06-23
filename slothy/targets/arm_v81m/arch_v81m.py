@@ -322,10 +322,12 @@ class Instruction:
                 vldrw_no_imm,
                 vldrw_with_writeback,
                 vldrw_with_post,
-                vstr,
-                vstr_no_imm,
-                vstr_with_writeback,
-                vstr_with_post,
+                vstrw,
+                vstrw_no_imm,
+                vstrw_with_writeback,
+                vstrw_with_post,
+                vstrw_scatter,
+                vstrw_scatter_uxtw,
                 vld20,
                 vld21,
                 vld20_with_writeback,
@@ -416,10 +418,12 @@ class Instruction:
     def is_vector_store(self):
         return self._is_instance_of(
             [
-                vstr,
-                vstr_no_imm,
-                vstr_with_writeback,
-                vstr_with_post,
+                vstrw,
+                vstrw_no_imm,
+                vstrw_with_writeback,
+                vstrw_with_post,
+                vstrw_scatter,
+                vstrw_scatter_uxtw,
                 vst20,
                 vst21,
                 vst20_with_writeback,
@@ -1397,6 +1401,12 @@ class vsub(MVEInstruction):
     outputs = ["Qd"]
 
 
+class vsub_T2(MVEInstruction):
+    pattern = "vsub.<dt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
+    outputs = ["Qd"]
+
+
 class vhsub(MVEInstruction):
     pattern = "vhsub.<dt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
@@ -1431,7 +1441,7 @@ class nop(MVEInstruction):
     pattern = "nop"
 
 
-class vstr(MVEInstruction):
+class vstrw(MVEInstruction):
     pattern = "vstrw.<dt> <Qd>, [<Rn>, <imm>]"
     inputs = ["Qd", "Rn"]
 
@@ -1448,7 +1458,7 @@ class vstr(MVEInstruction):
         return super().write()
 
 
-class vstr_no_imm(MVEInstruction):
+class vstrw_no_imm(MVEInstruction):
     pattern = "vstrw.<dt> <Qd>, [<Rn>]"
     inputs = ["Qd", "Rn"]
 
@@ -1463,11 +1473,11 @@ class vstr_no_imm(MVEInstruction):
     def write(self):
         self.immediate = simplify(self.pre_index)
         if int(self.immediate) != 0:
-            self.pattern = vstr.pattern
+            self.pattern = vstrw.pattern
         return super().write()
 
 
-class vstr_with_writeback(MVEInstruction):
+class vstrw_with_writeback(MVEInstruction):
     pattern = "vstrw.<dt> <Qd>, [<Rn>, <imm>]!"
     inputs = ["Qd", "Rn"]
 
@@ -1480,7 +1490,7 @@ class vstr_with_writeback(MVEInstruction):
         return obj
 
 
-class vstr_with_post(MVEInstruction):
+class vstrw_with_post(MVEInstruction):
     pattern = "vstrw.<dt> <Qd>, [<Rn>], <imm>"
     inputs = ["Qd", "Rn"]
 
@@ -1490,6 +1500,32 @@ class vstr_with_post(MVEInstruction):
         obj.increment = obj.immediate
         obj.addr = obj.args_in[1]
         obj.pre_index = None
+        return obj
+
+
+class vstrw_scatter(MVEInstruction):
+    pattern = "vstrw.<dt> <Qd>, [<Rn>, <Qm>]"
+    inputs = ["Qd", "Qm", "Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
+
+
+class vstrw_scatter_uxtw(MVEInstruction):
+    pattern = "vstrw.<dt> <Qd>, [<Rn>, <Qm>, UXTW <imm>]"
+    inputs = ["Qd", "Qm", "Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
         return obj
 
 
@@ -2163,6 +2199,12 @@ class vst43_with_writeback(MVEInstruction):
 class vsubf(MVEInstruction):
     pattern = "vsub.<fdt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
+
+
+class vsubf_T2(MVEInstruction):
+    pattern = "vsub.<fdt> <Qd>, <Qn>, <Rm>"
+    inputs = ["Qn", "Rm"]
     outputs = ["Qd"]
 
 
