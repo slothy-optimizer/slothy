@@ -94,6 +94,9 @@ from examples.naive.riscv.dilithium_basemul._example import (
     example_instances as example_instances_riscv_poly_basemul,
 )
 
+from examples.naive.riscv.ntt_kyber._example import (
+    example_instances as example_instances_riscv_ntt_kyber,
+)
 
 def main():
     examples = (
@@ -112,6 +115,7 @@ def main():
         + example_instances_riscv_simple
         + example_instances_riscv_ntt_dilithium
         + example_instances_riscv_poly_basemul
+        + example_instances_riscv_ntt_kyber
     )
 
     all_example_names = [e.name for e in examples]
