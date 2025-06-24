@@ -178,9 +178,9 @@ class RISC_V_intt_dualissue_plant_rv64im(OptimizationRunner):
         slothy.optimize_loop("intt_rv64im_loop2")
 
 
-class RISC_V_ntt_rvv(OptimizationRunner):
+class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_kyber_rvv"
+        name = "ntt_kyber_rvv_vlen128"
         infile = name
 
         if var != "":
@@ -217,9 +217,9 @@ class RISC_V_ntt_rvv(OptimizationRunner):
         slothy.optimize("start", "end")
 
 
-class RISC_V_intt_rvv(OptimizationRunner):
+class RISC_V_intt_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "intt_kyber_rvv"
+        name = "intt_kyber_rvv_vlen128"
         infile = name
 
         if var != "":
@@ -372,8 +372,8 @@ example_instances = [
     RISC_V_ntt_dualissue_plant_rv64im(timeout=300),
     RISC_V_intt_dualissue_plant_rv64im(),
     RISC_V_intt_singleissue_plant_rv64im(),
-    RISC_V_ntt_rvv(target=Target_XuanTieC908),
-    RISC_V_intt_rvv(),
+    RISC_V_ntt_rvv_vlen128(target=Target_XuanTieC908),
+    RISC_V_intt_rvv_vlen128(),
     RISC_V_kyber_normal2ntt_order_rvv_vlen128(),
     RISC_V_kyber_ntt2normal_order_rvv_vlen128(),
 ]
