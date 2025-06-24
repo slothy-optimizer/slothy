@@ -46,14 +46,14 @@
 #endif
 
 // shuffle4
-# [a0~a3, a4~a7],[a8~a11, a12~a15] -> 
-# [a0~a3, a8~a11],[a4~a7,  a12~a15]
+// [a0~a3, a4~a7],[a8~a11, a12~a15] -> 
+// [a0~a3, a8~a11],[a4~a7,  a12~a15]
 // shuffle2
-# [a0~a1,a2~a3,a8~a9,a10~a11],[a4~a5,a6~a7,a12~a13,a14~a15] ->
-# [a0~a1,a4~a5,a8~a9,a12~a13],[a2~a3,a6~a7,a10~a11,a14~a15]
+// [a0~a1,a2~a3,a8~a9,a10~a11],[a4~a5,a6~a7,a12~a13,a14~a15] ->
+// [a0~a1,a4~a5,a8~a9,a12~a13],[a2~a3,a6~a7,a10~a11,a14~a15]
 // shuffle1
-# [a0~a1,a4~a5,a8~a9,a12~a13],[a2~a3,a6~a7,a10~a11,a14~a15] ->
-# [a0,a2,a4,a6,a8,a10,a12,a14],[a1,a3,a5,a7,a9,a11,a13,a15]
+// [a0~a1,a4~a5,a8~a9,a12~a13],[a2~a3,a6~a7,a10~a11,a14~a15] ->
+// [a0,a2,a4,a6,a8,a10,a12,a14],[a1,a3,a5,a7,a9,a11,a13,a15]
 .macro shuffle_x2 in0_0, in0_1, in1_0, in1_1, \
         tm0_0, tm0_1, tm1_0, tm1_1, vm0, vm1
     vrgather.vv \tm0_0, \in0_1, \vm0
@@ -439,7 +439,7 @@
     vsetvli a7, a7, e16, m8, tu, mu
     lh t3, 0*2(a6)
     lh t2, 1*2(a6)
-    # a[0-63] & a[128-191]
+    // a[0-63] & a[128-191]
     addi a5, a0, 128*2
     vle16.v v16, (a0)
     vle16.v v24, (a5)
@@ -463,12 +463,12 @@
     addi a5, a0, (64+\off*128)*2
     lh t3, 0*2(a6)
     lh t2, 1*2(a6)
-    # a[0-63] & a[64-127] or a[128-191] & a[192-255]
+    // a[0-63] & a[64-127] or a[128-191] & a[192-255]
     vle16.v v16, (a4)
     vle16.v v24, (a5)
-    # level 1
+    // level 1
     ct_bfu_vx v16, v24, t2, t3, t0, v0, v8
-    # level 2
+    // level 2
     li a7, 8*4
     lh t3, 2*2(a6)
     lh t2, 3*2(a6)
@@ -477,7 +477,7 @@
     lh t4, 5*2(a6)
     ct_bfu_vx_x2 v16, v20, v24, v28, t2, t3, t4, t5, t0, v0, v4, v8, v12
     vsetivli a7, 8, e16, m1, tu, mu
-    # shuffle4
+    // shuffle4
     addi t2, a1, _MASK_01230123*2
     addi t3, a1, _MASK_45674567*2
     li t6, 0x0f
@@ -488,7 +488,7 @@
     shuffle_x2 v18, v26, v19, v27, v8, v9, v10, v11, v1, v2
     shuffle_x2 v20, v28, v21, v29, v8, v9, v10, v11, v1, v2
     shuffle_x2 v22, v30, v23, v31, v8, v9, v10, v11, v1, v2
-    # shuffle2
+    // shuffle2
     addi t2, a1, _MASK_01014545*2
     addi t3, a1, _MASK_23236767*2
     li t6, 0x33
@@ -502,14 +502,14 @@
     vl2re16.v v4, (a6)
     addi a6, a6, 8*2*2
     shuffle_x2 v19, v23, v27, v31, v8, v9, v10, v11, v1, v2
-    # level 3
+    // level 3
     ct_bfu_vv_x8 \
         v16, v18, v20, v22, v24, v26, v28, v30, \
         v17, v19, v21, v23, v25, v27, v29, v31, \
         v5,  v4,  v5,  v4,  v5,  v4,  v5,  v4,  \
         v5,  v4,  v5,  v4,  v5,  v4,  v5,  v4,  t0, \
         v8,  v9, v10, v11, v12, v13, v14, v15
-    # shuffle1
+    // shuffle1
     addi t2, a1, _MASK_10325476*2
     li t6, 0x55
     vle16.v v1, (t2)
@@ -520,7 +520,7 @@
     addi a6, a6, 8*2*2
     shuffle_x2 v20, v22, v28, v30, v8, v9, v10, v11, v1, v1
     shuffle_x2 v21, v23, v29, v31, v8, v9, v10, v11, v1, v1
-    # level 4
+    // level 4
     ct_bfu_vv_x8 \
         v16, v17, v18, v19, v20, v21, v22, v23, \
         v24, v25, v26, v27, v28, v29, v30, v31, \
@@ -529,18 +529,18 @@
         v8,  v9, v10, v11, v12, v13, v14, v15
     vl4re16.v v0, (a6)
     addi a6, a6, 8*4*2
-    # level 5
+    // level 5
     ct_bfu_vv_x8 \
         v16, v24, v18, v26, v20, v28, v22, v30, \
         v17, v25, v19, v27, v21, v29, v23, v31, \
         v1,  v0,  v1,  v0,  v1,  v0,  v1,  v0,  \
         v3,  v2,  v3,  v2,  v3,  v2,  v3,  v2,  t0, \
         v8,  v9, v10, v11, v12, v13, v14, v15
-    # level 6
+    // level 6
     vl4re16.v v4, (a6)
     addi a4, a0, (\off*128)*2
     addi a5, a0, (64+\off*128)*2
-    # polynomial coefficients will be redirected to v8-v15
+    // polynomial coefficients will be redirected to v8-v15
     ct_bfu_vv_ref_x4 \
         v8,  v10, v9,  v11, v12, v14, v13, v15, \
         v16, v20, v18, v22, v24, v28, v26, v30, \
@@ -818,8 +818,10 @@
     vsrl.vi \vf1_1, \vf1_0, 3
     vsrl.vi \vf2_1, \vf2_0, 3
     vsrl.vi \vf3_1, \vf3_0, 3
-    vadd.vx \vf0_0, \vf0_0, \x0x6DB;vadd.vx \vf1_0, \vf1_0, \x0x6DB
-    vadd.vx \vf2_0, \vf2_0, \x0x6DB;vadd.vx \vf3_0, \vf3_0, \x0x6DB
+    vadd.vx \vf0_0, \vf0_0, \x0x6DB
+    vadd.vx \vf1_0, \vf1_0, \x0x6DB
+    vadd.vx \vf2_0, \vf2_0, \x0x6DB
+    vadd.vx \vf3_0, \vf3_0, \x0x6DB
     vsub.vv \vf0_0, \vf0_0, \vf0_1
     vsub.vv \vf1_0, \vf1_0, \vf1_1
     vsub.vv \vf2_0, \vf2_0, \vf2_1
@@ -911,14 +913,150 @@
     addi a0, a0, 8*16
 .endm
 
+.macro intt_rvv_level0to5 off, ZETA_EXP_INTT_0TO5_L0
+    li a7, 8*8
+        addi a5, a0, (\off*128)*2
+    vsetvli a7, a7, e16, m8, tu, mu
+    addi a6, a0, (64+\off*128)*2
+    vle16.v v0, (a5)
+       vle16.v v8, (a6)
+    li t3, -10079
+      li t2, 1441     // qinv*(mont^2/128) and mont^2/128
+    addi a5, a1, \ZETA_EXP_INTT_0TO5_L0*2
+    // Through exhaustive testing, it is found that for any 16-bit signed
+    // number, after using Montgomery modular multiplication to multiply
+    // the mont^2/128 constant, the coefficient range is [-1999,1999]. Note
+    // that 1999/3329 is approximately 0.6005.
+    montmul_const v16, v0, t2, t3, t0, v24
+    montmul_const v24, v8, t2, t3, t0, v0
+    vsetivli a7, 8, e16, m1, tu, mu
+    // level 0
+    vl4re16.v v0, (a5)
+     addi a5, a5, 8*4*2
+    gs_bfu_vv_ref_x8 \
+        v16, v18, v20, v22, v24, v26, v28, v30, \
+        v17, v19, v21, v23, v25, v27, v29, v31, \
+        v0,  v1,  v2,  v3,  v0,  v1,  v2,  v3, t0, t1, \
+        v8,  v9,  v10, v11, v12, v13, v14, v15
+    // level 1
+    vl4re16.v v0, (a5)
+     addi a5, a5, 8*4*2
+    gs_bfu_vv_x8 \
+        v16, v20, v24, v28, v17, v21, v25, v29, \
+        v18, v22, v26, v30, v19, v23, v27, v31, \
+        v1,  v0,  v3,  v2,  v1,  v0,  v3,  v2, \
+        v1,  v0,  v3,  v2,  v1,  v0,  v3,  v2, t0, \
+        v8,  v9,  v10, v11, v12, v13, v14, v15
+    // level 2
+    vl2re16.v v0, (a5)
+     addi a5, a5, 8*2*2
+    gs_bfu_vv_x8 \
+        v16, v24, v17, v25, v18, v26, v19, v27, \
+        v20, v28, v21, v29, v22, v30, v23, v31, \
+        v1,  v0,  v1,  v0,  v1,  v0,  v1,  v0,  \
+        v1,  v0,  v1,  v0,  v1,  v0,  v1,  v0,  t0, \
+        v8,  v9,  v10, v11, v12, v13, v14, v15
+    // shuffle1
+    addi t2, a1, _MASK_10325476*2
+    li t6, 0x55
+    vle16.v v1, (t2)
+       vmv.s.x v0, t6
+    shuffle_x2 v16, v17, v18, v19, v8, v9, v10, v11, v1, v1
+    shuffle_x2 v20, v21, v22, v23, v8, v9, v10, v11, v1, v1
+    shuffle_x2 v24, v25, v26, v27, v8, v9, v10, v11, v1, v1
+    shuffle_x2 v28, v29, v30, v31, v8, v9, v10, v11, v1, v1
+    // level 3
+    vl2re16.v v4, (a5)
+     addi a5, a5, 8*2*2
+    gs_bfu_vv_x8 \
+        v16, v17, v18, v19, v20, v21, v22, v23, \
+        v24, v25, v26, v27, v28, v29, v30, v31, \
+        v5,  v4,  v5,  v4,  v5,  v4,  v5,  v4,  \
+        v5,  v4,  v5,  v4,  v5,  v4,  v5,  v4,  t0, \
+        v8,  v9,  v10, v11, v12, v13, v14, v15
+    // shuffle2
+    addi t2, a1, _MASK_01014545*2
+     addi t3, a1, _MASK_23236767*2
+     li t6, 0x33
+    vle16.v v1, (t2)
+     vle16.v v2, (t3)
+     vmv.s.x v0, t6
+    shuffle_x2 v16, v18, v20, v22, v8, v9, v10, v11, v1, v2
+    shuffle_x2 v24, v26, v28, v30, v8, v9, v10, v11, v1, v2
+    shuffle_x2 v17, v19, v21, v23, v8, v9, v10, v11, v1, v2
+    barrettRdcX2 v16, v18, v8, v9, a4, t0
+    shuffle_x2 v25, v27, v29, v31, v8, v9, v10, v11, v1, v2
+    // level 4
+    vl2re16.v v4, (a5)
+     addi a5, a5, 8*2*2
+    gs_bfu_vv_x8 \
+        v16, v18, v20, v22, v24, v26, v28, v30, \
+        v17, v19, v21, v23, v25, v27, v29, v31, \
+        v5,  v4,  v5,  v4,  v5,  v4,  v5,  v4,  \
+        v5,  v4,  v5,  v4,  v5,  v4,  v5,  v4,  t0, \
+        v8,  v9,  v10, v11, v12, v13, v14, v15
+    // shuffle4
+    addi t2, a1, _MASK_01230123*2
+     addi t3, a1, _MASK_45674567*2
+     li t6, 0x0f
+    vle16.v v1, (t2)
+     vle16.v v2, (t3)
+     vmv.s.x v0, t6
+    barrettRdc v20, v8, a4, t0
+    shuffle_x2 v16, v20, v24, v28, v8, v9, v10, v11, v1, v2
+    shuffle_x2 v17, v21, v25, v29, v8, v9, v10, v11, v1, v2
+    shuffle_x2 v18, v22, v26, v30, v8, v9, v10, v11, v1, v2
+    lh t3, 0*2(a5)
+         lh t2, 1*2(a5)
+    shuffle_x2 v19, v23, v27, v31, v8, v9, v10, v11, v1, v2
+    // level 5
+    // polynomial coefficients will be redirected to v0-v15
+    gs_bfu_vx_x8 \
+        v0,  v8,  v1,  v9,  v2,  v10, v3,  v11, \
+        v4,  v12, v5,  v13, v6,  v14, v7,  v15, \
+        v16, v20, v24, v28, v17, v21, v25, v29, \
+        v18, v22, v26, v30, v19, v23, v27, v31, \
+        t2,  t3,  t2,  t3,  t2,  t3,  t2,  t3, \
+        t2,  t3,  t2,  t3,  t2,  t3,  t2,  t3, t0
+    barrettRdc v1, v16, a4, t0
+    addi a5, a0, (\off*128)*2
+      addi a6, a0, (64+\off*128)*2
+    vs8r.v v0, (a5)
+                vs8r.v v8, (a6)
+.endm
+
+.macro intt_rvv_level6
+    li a7, 8*8
+         addi a6, a1, _ZETA_EXP_INTT_L6*2
+    vsetvli a7, a7, e16, m8, tu, mu
+    lh t2, 0*2(a6)
+         lh t1, 1*2(a6)
+    addi a5, a0, 128*2
+    // a[0-63] & a[128-191]
+    vle16.v v16, (a0)
+      vle16.v v24, (a5)
+    gs_bfu_vx v16, v24, t1, t2, t0, v0, v8
+    vse16.v v16, (a0)
+      vse16.v v24, (a5)
+    addi a4, a0, 64*2
+      addi a5, a5, 64*2
+    vle16.v v16, (a4)
+      vle16.v v24, (a5)
+    gs_bfu_vx v16, v24, t1, t2, t0, v0, v8
+    vse16.v v16, (a4)
+      vse16.v v24, (a5)
+.endm
+
 .globl intt_rvv_vlen128
 .align 2
 intt_rvv_vlen128:
     li t0, 3329
     li t1, -3327
     li a4, 20159
-    csrwi vxrm, 0   # round-to-nearest-up (add +0.5 LSB)
+    csrwi vxrm, 0   // round-to-nearest-up (add +0.5 LSB)
+start:
     intt_rvv_level0to5 0, _ZETA_EXP_INTT_0TO5_P0_L0
     intt_rvv_level0to5 1, _ZETA_EXP_INTT_0TO5_P1_L0
     intt_rvv_level6
+end:
 ret
