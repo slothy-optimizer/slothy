@@ -109,6 +109,7 @@ execution_units = {
         instrs["sll"],
         instrs["srl"],
         instrs["sub"],
+        instrs["neg"],
         instrs["sra"],
         instrs["lui"],
         instrs["auipc"],
@@ -261,6 +262,7 @@ inverse_throughput = {
         instrs["sll"],
         instrs["srl"],
         instrs["sub"],
+        instrs["neg"],
         instrs["sra"],
         instrs["lui"],
         instrs["auipc"],
@@ -318,6 +320,7 @@ rv32_inverse_throughput = {
     instrs["sll"]: 1,
     instrs["srl"]: 1,
     instrs["sub"]: 1,
+    instrs["neg"]: 1,
     instrs["sra"]: 1,
     instrs["mul"]: 1,
     instrs["div"]: 2,
@@ -327,6 +330,7 @@ rv32_inverse_throughput = {
 }
 
 default_latencies = {
+    RISCVIntegerRegister: 1,
     RISCVIntegerRegisterRegister: 1,
     RISCVIntegerRegisterImmediate: 1,
     RISCVUType: 1,
@@ -376,6 +380,7 @@ rv32_latencies = {
     instrs["sll"]: 1,
     instrs["srl"]: 1,
     instrs["sub"]: 1,
+    instrs["neg"]: 1,
     instrs["sra"]: 1,
     instrs["mul"]: 3,
     instrs["div"]: 4,

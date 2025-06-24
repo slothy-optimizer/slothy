@@ -29,6 +29,8 @@ from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 # the following lists maybe could be encapsulated somehow
+IntegerRegisterInstructions = ["neg"]
+
 IntegerRegisterImmediateInstructions = [
     "addi<w>",
     "slti",
@@ -61,6 +63,8 @@ def generate_rv32_64_i_instructions():
     """
     Generates all instruction classes for the rv32_64_i extension set
     """
+
+    RISCVInstruction.instr_factory(IntegerRegisterInstructions, RISCVIntegerRegister)
 
     RISCVInstruction.instr_factory(
         IntegerRegisterImmediateInstructions, RISCVIntegerRegisterImmediate

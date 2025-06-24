@@ -45,6 +45,12 @@ class RISCVStore(RISCVInstruction):
 # Scalar instructions
 
 
+class RISCVIntegerRegister(RISCVInstruction):
+    pattern = "mnemonic <Xd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
 class RISCVIntegerRegisterImmediate(RISCVInstruction):
     pattern = "mnemonic <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
