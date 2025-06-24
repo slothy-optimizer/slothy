@@ -24,7 +24,7 @@ class RISC_V_poly_basemul_acc_cache_end_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_acc_cache_end_rv64im"
+            funcname="poly_basemul_acc_cache_end_rv64im",
         )
 
     def core(self, slothy):
@@ -36,7 +36,8 @@ class RISC_V_poly_basemul_acc_cache_end_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_cache_end_rv64im_loop")
-        
+
+
 class RISC_V_poly_basemul_acc_cache_init_end_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_poly_basemul_acc_cache_init_end_rv64im"
@@ -54,7 +55,7 @@ class RISC_V_poly_basemul_acc_cache_init_end_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_acc_cache_init_end_rv64im"
+            funcname="poly_basemul_acc_cache_init_end_rv64im",
         )
 
     def core(self, slothy):
@@ -66,7 +67,8 @@ class RISC_V_poly_basemul_acc_cache_init_end_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_cache_init_end_rv64im_loop")
-        
+
+
 class RISC_V_poly_basemul_acc_cache_init_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_poly_basemul_acc_cache_init_rv64im"
@@ -84,7 +86,7 @@ class RISC_V_poly_basemul_acc_cache_init_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_acc_cache_init_rv64im"
+            funcname="poly_basemul_acc_cache_init_rv64im",
         )
 
     def core(self, slothy):
@@ -96,7 +98,8 @@ class RISC_V_poly_basemul_acc_cache_init_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_cache_init_rv64im_loop")
-        
+
+
 class RISC_V_poly_basemul_acc_cached_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_poly_basemul_acc_cached_rv64im"
@@ -114,7 +117,7 @@ class RISC_V_poly_basemul_acc_cached_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_acc_cached_rv64im"
+            funcname="poly_basemul_acc_cached_rv64im",
         )
 
     def core(self, slothy):
@@ -126,7 +129,8 @@ class RISC_V_poly_basemul_acc_cached_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_cached_rv64im_loop")
-        
+
+
 class RISC_V_poly_basemul_acc_end_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_poly_basemul_acc_end_rv64im"
@@ -144,7 +148,7 @@ class RISC_V_poly_basemul_acc_end_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_acc_end_rv64im"
+            funcname="poly_basemul_acc_end_rv64im",
         )
 
     def core(self, slothy):
@@ -156,7 +160,8 @@ class RISC_V_poly_basemul_acc_end_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_end_rv64im_loop")
-        
+
+
 class RISC_V_poly_basemul_acc_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_poly_basemul_acc_rv64im"
@@ -174,7 +179,7 @@ class RISC_V_poly_basemul_acc_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_acc_rv64im"
+            funcname="poly_basemul_acc_rv64im",
         )
 
     def core(self, slothy):
@@ -186,7 +191,8 @@ class RISC_V_poly_basemul_acc_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_rv64im_loop")
-        
+
+
 class RISC_V_poly_basemul_cache_init_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_poly_basemul_cache_init_rv64im"
@@ -204,7 +210,7 @@ class RISC_V_poly_basemul_cache_init_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_cache_init_rv64im"
+            funcname="poly_basemul_cache_init_rv64im",
         )
 
     def core(self, slothy):
@@ -235,7 +241,7 @@ class RISC_V_poly_plantard_rdc_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_plantard_rdc_rv64im"
+            funcname="poly_plantard_rdc_rv64im",
         )
 
     def core(self, slothy):
@@ -247,7 +253,8 @@ class RISC_V_poly_plantard_rdc_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_plantard_rdc_rv64im_loop")
-        
+
+
 class RISC_V_poly_toplant_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_poly_toplant_rv64im"
@@ -265,7 +272,7 @@ class RISC_V_poly_toplant_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_toplant_rv64im"
+            funcname="poly_toplant_rv64im",
         )
 
     def core(self, slothy):
