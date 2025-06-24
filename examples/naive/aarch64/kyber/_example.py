@@ -54,6 +54,7 @@ class ntt_kyber_123_4567(OptimizationRunner):
             target=target,
             timeout=timeout,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -89,6 +90,7 @@ class intt_kyber_123_4567(OptimizationRunner):
             target=target,
             timeout=timeout,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -115,6 +117,7 @@ class ntt_kyber_123(OptimizationRunner):
             arch=arch,
             target=target,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -141,6 +144,7 @@ class ntt_kyber_4567(OptimizationRunner):
             arch=arch,
             target=target,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -169,6 +173,7 @@ class ntt_kyber_1234_567(OptimizationRunner):
             target=target,
             timeout=timeout,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -220,6 +225,7 @@ class ntt_kyber_1234(OptimizationRunner):
             arch=arch,
             target=target,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -250,6 +256,7 @@ class ntt_kyber_567(OptimizationRunner):
             target=target,
             timeout=timeout,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
