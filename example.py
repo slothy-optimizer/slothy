@@ -102,6 +102,10 @@ from examples.naive.riscv.kyber_basemul._example import (
     example_instances as example_instances_riscv_kyber_basemul,
 )
 
+from examples.naive.riscv.kyber_sampling._example import (
+    example_instances as example_instances_riscv_kyber_sampling,
+)
+
 
 def main():
     examples = (
@@ -122,6 +126,7 @@ def main():
         + example_instances_riscv_poly_basemul
         + example_instances_riscv_ntt_kyber
         + example_instances_riscv_kyber_basemul
+        + example_instances_riscv_kyber_sampling
     )
 
     all_example_names = [e.name for e in examples]
