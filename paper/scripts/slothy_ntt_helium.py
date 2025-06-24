@@ -142,14 +142,6 @@ class ntt_kyber_1_23_45_67(Example):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
-        slothy.config.typing_hints = {
-            "root0": Arch_Armv81M.RegisterType.GPR,
-            "root1": Arch_Armv81M.RegisterType.GPR,
-            "root2": Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.config.inputs_are_outputs = True
         slothy.optimize_loop("layer1_loop")
         slothy.optimize_loop("layer23_loop")
@@ -159,7 +151,6 @@ class ntt_kyber_1_23_45_67(Example):
             slothy.config.timeout = self.timeout
         if "no_trans" in self.var:
             slothy.config.constraints.st_ld_hazard = True
-        slothy.config.typing_hints = {}
         slothy.optimize_loop("layer67_loop")
 
 
@@ -212,15 +203,6 @@ class ntt_dilithium_12_34_56_78(Example):
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
-        slothy.config.typing_hints = {
-            "root0": Arch_Armv81M.RegisterType.GPR,
-            "root1": Arch_Armv81M.RegisterType.GPR,
-            "root2": Arch_Armv81M.RegisterType.GPR,
-            "root0_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root1_twisted": Arch_Armv81M.RegisterType.GPR,
-            "root2_twisted": Arch_Armv81M.RegisterType.GPR,
-            "const1": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
         slothy.config.sw_pipelining.optimize_preamble = True
@@ -228,7 +210,6 @@ class ntt_dilithium_12_34_56_78(Example):
         slothy.optimize_loop("layer56_loop", postamble_label="layer56_loop_end")
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = True
-        slothy.config.typing_hints = {}
         slothy.config.constraints.st_ld_hazard = False
         slothy.optimize_loop("layer78_loop")
         # Optimize seams between loops
@@ -257,18 +238,6 @@ class ntt_dilithium_123_456_78(Example):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 16
         slothy.config.inputs_are_outputs = True
-        slothy.config.typing_hints = {
-            "root2": Arch_Armv81M.RegisterType.GPR,
-            "root3": Arch_Armv81M.RegisterType.GPR,
-            "root5": Arch_Armv81M.RegisterType.GPR,
-            "root6": Arch_Armv81M.RegisterType.GPR,
-            "rtmp": Arch_Armv81M.RegisterType.GPR,
-            "rtmp_tw": Arch_Armv81M.RegisterType.GPR,
-            "root2_tw": Arch_Armv81M.RegisterType.GPR,
-            "root3_tw": Arch_Armv81M.RegisterType.GPR,
-            "root5_tw": Arch_Armv81M.RegisterType.GPR,
-            "root6_tw": Arch_Armv81M.RegisterType.GPR,
-        }
         slothy.config.locked_registers = set(
             [f"QSTACK{i}" for i in [4, 5, 6]]
             + [f"ROOT{i}_STACK" for i in [0, 1, 4]]
@@ -281,7 +250,6 @@ class ntt_dilithium_123_456_78(Example):
         slothy.config.constraints.st_ld_hazard = False
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = False
-        slothy.config.typing_hints = {}
         slothy.optimize_loop("layer78_loop")
 
 

@@ -53,6 +53,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vshl_d,
     vshli,
     vshrn,
+    vsshr,
     vusra,
     vmul,
     vdup,
@@ -72,6 +73,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64HighMultiply,
     AArch64Multiply,
     VecToGprMov,
+    St3,
     St4,
     Vzip,
     vsub,
@@ -171,6 +173,7 @@ execution_units = {
     #          [ExecutionUnit.VEC1, ExecutionUnit.LSU0],
     #          [ExecutionUnit.VEC1, ExecutionUnit.LSU1]],
     # TODO: As above, this should somehow occupy both V and L
+    St3: ExecutionUnit.V(),
     St4: ExecutionUnit.V(),
     (Vzip, Vrev, uaddlp): ExecutionUnit.V(),
     (vmov): ExecutionUnit.V(),
@@ -179,7 +182,7 @@ execution_units = {
     (vmovi): ExecutionUnit.V(),
     (vand, vadd, vsub): ExecutionUnit.V(),
     (vxtn): ExecutionUnit.V(),
-    (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn): ExecutionUnit.V1(),
+    (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn, vsshr): ExecutionUnit.V1(),
     vusra: ExecutionUnit.V1(),
     AESInstruction: ExecutionUnit.V0(),
     (Vmul, Vmla, Vqdmulh, Vmull, Vmlal): ExecutionUnit.V0(),
@@ -205,6 +208,7 @@ inverse_throughput = {
     (Ldr_X, Str_X, Ldr_Q, Str_Q): 1,
     (Ldp_X, Stp_X): 2,
     Stp_Q: 2,
+    St3: 3,  # Multiple structures, Q form, storing bytes
     St4: 6,  # TODO: Really??
     (Vzip, uaddlp, Vrev): 1,
     VecToGprMov: 1,
@@ -215,7 +219,7 @@ inverse_throughput = {
     AArch64NeonLogical: 1,
     (vmovi): 1,
     (vxtn): 1,
-    (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn): 1,
+    (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn, vsshr): 1,
     (Vmul, Vmla, Vqdmulh): 2,
     vusra: 1,
     (Vmull, Vmlal): 1,
@@ -240,6 +244,7 @@ inverse_throughput = {
 default_latencies = {
     (Ldp_X, Ldr_X, Ldr_Q, Stp_Q): 4,
     (Stp_X, Str_X, Str_Q): 2,
+    St3: 6,  # Multiple structures, Q form, storing bytes
     St4: 4,
     (Vzip, Vrev, uaddlp): 2,
     VecToGprMov: 2,
@@ -253,7 +258,7 @@ default_latencies = {
     (Vmul, Vmla, Vqdmulh): 5,
     vusra: 4,  # TODO: Add fwd path
     (Vmull, Vmlal): 4,
-    (vuxtl, vshl, vshl_d, vshli, vshrn): 2,
+    (vuxtl, vshl, vshl_d, vshli, vshrn, vsshr): 2,
     (vsrshr): 4,
     (
         AArch64BasicArithmetic,

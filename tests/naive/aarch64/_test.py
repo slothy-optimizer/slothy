@@ -45,6 +45,11 @@ class AArch64LoopSub(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.optimize_loop("start")
 
+        slothy.optimize_loop("start2")
+        slothy.config.inputs_are_outputs = True
+
+        slothy.optimize_loop("start3")
+
 
 class AArch64LoopSubs(OptimizationRunner):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):

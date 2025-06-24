@@ -1747,11 +1747,15 @@ class Loop(ABC):
 
                     # The loop end candidates are not part of the loop, meaning
                     # they belonged to the body
+                    # Retain the current line as a candidate that broke the
+                    # sequence as it may be the start of the loop end itself
+                    keep = True
                     body += loop_end_candidates
                     self.additional_data = {}
                     loop_end_ctr = 0
                     loop_end_candidates = []
-                body.append(line)
+                if not keep:
+                    body.append(line)
                 continue
             if state == 2:
                 loop_end_candidates = []

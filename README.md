@@ -70,6 +70,10 @@ verifies them through automated equivalence-checking in [HOL-Light](https://hol-
   of the Arm EndpointAI project in [this
   commit](https://github.com/ARM-software/EndpointAI/commit/817bb57d8a4a604538a04627851f5e9adb5f08fc).
 
+* [mlkem-native](https://github.com/pq-code-package/mlkem-native): AArch64 assembly routines of ML-KEM are automatically optimized using SLOTHY.
+
+* [pqm7](https://github.com/mupq/pqm7): Benchmarking framework for the Arm Cortex-M7 which has been created as a case study for automated microarchitectural migrations of software libraries using SLOTHY. See [our paper](https://eprint.iacr.org/2025/366) for more details. 
+
 ## Installation
 
 ### Requirements
@@ -105,7 +109,7 @@ environments setup can be found in [paper/artifact/slothy.dockerfile](paper/arti
 To check that your setup is complete, try the following from the base directory:
 
 ```
-% python3 example.py --examples aarch64_simple0_a55
+% python3 test.py --tests aarch64_simple0_a55
 ```
 
 You should see something like the following:

@@ -343,22 +343,6 @@ class Config:
         return self._arch
 
     @property
-    def typing_hints(self):
-        """A dictionary of 'typing hints' explicitly assigning to symbolic register names
-        a register type.
-
-        This can be necessary to disambiguate the type of symbolic registers.
-        For example, the Helium vector extension has various instructions which
-        accept either vector or GPR arguments.
-        """
-        typing_hints = {
-            name: ty
-            for ty in self.arch.RegisterType
-            for name in self.arch.RegisterType.list_registers(ty, with_variants=True)
-        }
-        return {**self._typing_hints, **typing_hints}
-
-    @property
     def outputs(self):
         """The global outputs of the data flow graph."""
         return self._outputs
@@ -377,10 +361,6 @@ class Config:
         """
         return self._allow_useless_instructions
 
-    @typing_hints.setter
-    def typing_hints(self, val):
-        self._typing_hints = val
-
     @outputs.setter
     def outputs(self, val):
         self._outputs = val
@@ -395,7 +375,6 @@ class Config:
 
     def __init__(self, slothy_config: any = None, **kwargs: any):
         self._arch = None
-        self._typing_hints = None
         self._outputs = None
         self._inputs_are_outputs = None
         self._allow_useless_instructions = None
@@ -411,7 +390,6 @@ class Config:
         self._slothy_config = slothy_config
         self._arch = slothy_config.arch
         self._locked_registers = slothy_config.locked_registers
-        self._typing_hints = self._slothy_config.typing_hints
         self._outputs = self._slothy_config.outputs
         self._inputs_are_outputs = self._slothy_config.inputs_are_outputs
         self._allow_useless_instructions = (
@@ -851,14 +829,6 @@ class DataFlowGraph:
                     expectations.append((f"State dictionary: {exp_ty}", exp_ty))
                 else:
                     self.logger.debug("    + %s not in state dictionary", name)
-                # Check if we've been given a type hint
-                if name in self.config.typing_hints.keys():
-                    exp_ty = self.config.typing_hints[name]
-                    self.logger.debug(
-                        f"   + type of {name} according to typing hints: {exp_ty}"
-                    )
-                    expectations.append((f"Typing hint: {exp_ty}", exp_ty))
-
                 exp_ty = self.arch.RegisterType.find_type(name)
                 if exp_ty is not None:
                     self.logger.debug(

@@ -39,6 +39,10 @@ vqdmlsdh.s8 q2, q0, q1
 vqdmlsdh.s16 q2, q0, q1
 vqdmlsdh.s32 q2, q0, q1
 
+vqdmladhx.s8 q2, q0, q1
+vqdmladhx.s16 q2, q0, q1
+vqdmladhx.s32 q2, q0, q1
+
 vqrdmlah.s8 q2, q0, r0
 vqrdmlah.s16 q2, q0, r0
 vqrdmlah.s32 q2, q0, r0
@@ -147,6 +151,11 @@ vshllb.u16 q0, q1, #8
 vshllb.s8 q0, q1, #8
 vshllb.s16 q0, q1, #8
 
+vsli.u8 q0, q1, #6
+vsli.u16 q0, q1, #8
+vsli.s8 q0, q1, #6
+vsli.s16 q0, q1, #8
+
 vmovlb.u8 q1, q0
 vmovlb.u16 q1, q0
 vmovlb.s8 q1, q0
@@ -212,6 +221,9 @@ vsub.i8 q2, q0, q1
 vsub.i16 q2, q0, q1
 vsub.i32 q2, q0, q1
 
+vsub.i32 q2, q0, r0
+
+
 vhsub.u8 q2, q0, q1
 vhsub.u16 q2, q0, q1
 vhsub.u32 q2, q0, q1
@@ -221,16 +233,28 @@ vand.u16 q2, q0, q1
 vand.u32 q2, q0, q1
 vand.u64 q2, q0, q1
 
+vbic.u8 q2, q0, q1
+vbic.u16 q2, q0, q1
+vbic.u32 q2, q0, q1
+
 vorr.u8 q2, q0, q1
 vorr.u16 q2, q0, q1
 vorr.u32 q2, q0, q1
 vorr.u64 q2, q0, q1
+
+vorr.u8 q2, q0, q1
+vorr.u16 q2, q0, q1
+vorr.u32 q2, q0, q1
 
 nop
 
 vstrw.u32 q0, [r0, #16]
 vstrw.u32 q0, [r0], #16
 vstrw.u32 q0, [r0, #16]!
+
+vstrw.32 q0, [r0, #16]
+vstrw.32 q0, [r0], #16
+vstrw.32 q0, [r0, #16]!
 
 vldrb.u8 q0, [r0, #16]
 vldrb.u8 q0, [r0], #16
@@ -247,7 +271,21 @@ vldrw.u32 q0, [r0], #16
 vldrw.u32 q0, [r0, #16]!
 
 vldrw.u32 q1, [r0, q0]
+vldrw.u32 q1, [r0, q0]
 
+vldrw.u32 q1, [r0, q0]
+
+vldrb.u32 q1, [r0, q0]
+
+vldrh.u32 q1, [r0, q0]
+
+vld20.32 {q4,q5}, [r1]
+vld21.32 {q4,q5}, [r1]!
+
+vld40.8 {q3,q4,q5,q6}, [r0]
+vld41.16 {q3,q4,q5,q6}, [r0]!
+vld42.32 {q3,q4,q5,q6}, [r0]
+vld43.32 {q3,q4,q5,q6}, [r0]
 
 vst20.u8 {q0, q1}, [r0]!
 vst20.u16 {q0, q1}, [r0]!
@@ -275,6 +313,9 @@ vst43.u32 {q0, q1, q2, q3}, [r0]!
 
 vsub.f16 q2, q1, q0
 vsub.f32 q2, q1, q0
+
+vsub.f32 q2, q1, r0
+
 
 vadd.f16 q2, q1, q0
 vadd.f32 q2, q1, q0
@@ -312,5 +353,7 @@ vhcadd.s16 q2, q0, q1, #90
 vhcadd.s16 q2, q0, q1, #270
 vhcadd.s32 q2, q0, q1, #90
 vhcadd.s32 q2, q0, q1, #270
+
+vstrw.u32 Q0, [r1, Q2, UXTW #2]
 
 end:
