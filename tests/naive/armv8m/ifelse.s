@@ -3,7 +3,7 @@
 .if (RCxy_\x\()\y % 2) == 0
     vshr.u32 SHR_l, A_l, #32-(RCxy_\x\()\y/2)
 .else
-    vshr.u32 SHR_h, A_l, #32-((RCxy_\x\()\y-1)/2)
+    unimp
 .endif
 .endm
 
