@@ -256,49 +256,6 @@ class RISC_V_intt_rvv_vlen128(OptimizationRunner):
         slothy.optimize("start", "end")
 
 
-class RISC_V_ntt_singleissue_plant_rv64im(OptimizationRunner):
-    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_kyber_singleissue_plant_rv64im"
-        infile = name
-
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
-        super().__init__(
-            infile,
-            name,
-            subfolder=SUBFOLDER,
-            rename=True,
-            arch=arch,
-            target=target,
-            funcname="ntt_rv64im",
-            timeout=timeout,
-        )
-
-    def core(self, slothy):
-        slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 32
-        slothy.config.inputs_are_outputs = True
-
-        r = slothy.config.reserved_regs
-        r += ["x3"]
-        slothy.config.reserved_regs = r
-
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 5
-        slothy.config.split_heuristic_repeat = 2
-        slothy.config.split_heuristic_stepsize = 0.05
-        # slothy.config.split_heuristic_factor = 10
-        # slothy.config.split_heuristic_repeat = 1
-        # slothy.config.split_heuristic_stepsize = 0.3
-        slothy.optimize_loop("ntt_rv64im_loop1")
-        slothy.optimize_loop("ntt_rv64im_loop2")
-
-
 class RISC_V_kyber_normal2ntt_order_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_normal2ntt_order_rvv_vlen128"
