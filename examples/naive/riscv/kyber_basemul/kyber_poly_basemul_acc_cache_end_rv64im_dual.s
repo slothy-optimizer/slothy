@@ -615,7 +615,7 @@ poly_basemul_acc_cache_end_rv64im:
     li a6, qinv
     li a7, 32
     sd a7, 8*15(sp)
-poly_basemul_acc_cached_end_rv64im_loop:
+poly_basemul_acc_cache_end_rv64im_loop:
     # b[0,1,3,5,7]
     lh s0, 2*0(a2)
     lh s1, 2*1(a2)
@@ -735,7 +735,7 @@ poly_basemul_acc_cached_end_rv64im_loop:
     addi a4, a4, 4*8
     addi a7, a7, -1
     sd   a7, 8*15(sp)
-    bne a7, zero, poly_basemul_acc_cached_end_rv64im_loop
+    bne a7, zero, poly_basemul_acc_cache_end_rv64im_loop
     restore_regs
     addi sp, sp, 8*16
 ret
