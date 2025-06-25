@@ -188,8 +188,9 @@ class AddiLoop(Loop):
             r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),"
             r"\s*(?P<imm>[\s|\d|/| |\-|\\*|\\+|\\(|\\)|=|,]+)",
             (
-                rf"^\s*(?P<branch_type>beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu)"
-                rf"\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}"
+                r"^\s*(?P<branch_type>"
+                r"beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu|bnez|beqz)"
+                rf"\s+(?P<cnt>\w+),(\s+(?P<end>\w+,))?\s*{lbl}"
             ),
         )
 
