@@ -591,9 +591,9 @@
 // s0-s11, a2-a5: 16 coeffs; 
 // 16+2+1+1=20 regs; 
 // 8 twiddle factors: can be preloaded; t0-t6, tp; ra: tmp zeta.
-.global intt_rv64im
+.global intt_dilithium_8l_plant_rv64im_dual
 .align 2
-intt_rv64im:
+intt_dilithium_8l_plant_rv64im_dual:
   addi sp, sp, -8*16
   save_regs
   li a6, q32
@@ -648,9 +648,9 @@ intt_rv64im:
     store_coeffs a0, 1, 4
     addi a0, a0, 16*4
     addi a1, a1, 8*15
-  ld gp, 8*15(sp)
+  ld gp, 8*15(sp) // @slothy:reads=[sp-ctr]
   addi gp, gp, -1
-  sd gp, 8*15(sp)
+  sd gp, 8*15(sp) // @slothy:writes=[sp-ctr]
   bne gp, zero, intt_rv64im_loop1
   addi a0, a0, -256*4
   ### LAYER 4+3+2+1
@@ -708,9 +708,9 @@ intt_rv64im:
       a6, ra, \
       s0, s1, s2, s3, s4, s5, s6, s7
     store_coeffs a0, 16, 4
-  ld gp, 8*15(sp)
+  ld gp, 8*15(sp) // @slothy:reads=[sp-ctr]
   addi gp, gp, -1
-  sd gp, 8*15(sp)
+  sd gp, 8*15(sp) // @slothy:writes=[sp-ctr]
   bge gp, zero, intt_rv64im_loop2
   restore_regs
   addi sp, sp, 8*16
