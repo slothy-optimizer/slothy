@@ -1,4 +1,4 @@
-# Plantard based NTT implementation with l=16
+// Plantard based NTT implementation with l=16
 
 .macro load_coeffs poly, len, wordLen
   lh s0,  \len*\wordLen*0(\poly)
@@ -159,11 +159,11 @@
 .endm
 
 // each layer increases coefficients by 0.5q; In ct_bfu, zeta and tmp can be reused because each zeta is only used once. The gs_bfu cannot.
-# .macro ct_bfu a_0, a_1, zeta, q48, tmp
-#   plant_mul_const \q48, \zeta, \a_1, \tmp
-#   sub \a_1, \a_0, \tmp
-#   add \a_0, \a_0, \tmp
-# .endm
+// .macro ct_bfu a_0, a_1, zeta, q48, tmp
+//   plant_mul_const \q48, \zeta, \a_1, \tmp
+//   sub \a_1, \a_0, \tmp
+//   add \a_0, \a_0, \tmp
+// .endm
 .macro ct_bfu a_0, a_1, zeta, q48, tmp
   mulw \tmp, \a_1, \zeta
   srai \tmp, \tmp, 16

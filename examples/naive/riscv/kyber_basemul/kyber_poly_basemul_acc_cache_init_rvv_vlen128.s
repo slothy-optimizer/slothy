@@ -58,7 +58,7 @@ poly_basemul_acc_cache_init_rvv_vlen128_loop:
     add a5, a5, t5
     vle16.v v26, (t4)
     vle16.v v27, (a5)
-    # a0b1 + a1b0
+    // a0b1 + a1b0
     then accumulate
     vadd.vv v16, v16, v20
     vadd.vv v17, v17, v21
@@ -76,7 +76,7 @@ poly_basemul_acc_cache_init_rvv_vlen128_loop:
     add a5, a5, t5
     vse16.v v18, (t4)
     vse16.v v19, (a5)
-    # load zetas
+    // load zetas
     addi t4, a3, 0
     add  a5, a3, a7
     vle16.v v16, (t4)
@@ -89,7 +89,7 @@ poly_basemul_acc_cache_init_rvv_vlen128_loop:
         v8,  v9,  v10, v11, t0, t1, v28, v29, v30, v31
     montmul_x4 v24, v25, v26, v27, v12, v13, v14, v15, \
         v16, v17, v18, v19, t0, t1, v28, v29, v30, v31
-    # store b1zeta
+    // store b1zeta
     addi t4, a4, 0*0
     add  a5, a4, a7
     vse16.v v24, (t4)
@@ -108,7 +108,7 @@ poly_basemul_acc_cache_init_rvv_vlen128_loop:
     add  a5, a5, t5
     vle16.v v30, (t4)
     vle16.v v31, (a5)
-    # a0b0 + a1 * (b1zeta mod q)
+    // a0b0 + a1 * (b1zeta mod q)
     then accumulate
     vadd.vv v20, v20, v0
     vadd.vv v21, v21, v1
