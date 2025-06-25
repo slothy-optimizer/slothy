@@ -733,10 +733,10 @@ poly_basemul_acc_end_rv64im_loop:
     // loop control
     addi a0, a0, 2*8
     addi a1, a1, 2*8
-    ld   a7, 8*15(sp)
     addi a2, a2, 2*8
     addi a3, a3, 4*2
     addi a4, a4, 4*8
+    ld   a7, 8*15(sp)
     addi a7, a7, -1
     sd   a7, 8*15(sp)
     bne a7, zero, poly_basemul_acc_end_rv64im_loop
