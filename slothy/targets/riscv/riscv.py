@@ -173,7 +173,7 @@ class AddiLoop(Loop):
            loop_lbl:
                {code}
                addi <cnt>, <cnt>, -<imm>
-               (bne|bge) <cnt>, <end>, loop_lbl
+               (beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu) <cnt>, <end>, loop_lbl
     ```
     """
 
@@ -185,7 +185,10 @@ class AddiLoop(Loop):
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*(?P<imm>-*\d+)",
-            rf"^\s*(?P<branch_type>bne|bge)\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}",
+            (
+                rf"^\s*(?P<branch_type>beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu)"
+                rf"\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}"
+            ),
         )
 
     def start(
