@@ -93,9 +93,9 @@ poly_basemul_8l_rv64im_looper:
     sw s8, 2*4(a0)
     sw s10, 3*4(a0)
     // loop control
-    addi a0, a0, 4*4
     addi a1, a1, 4*4
     addi a2, a2, 4*4
+    addi a0, a0, 4*4
     bne gp, a0, poly_basemul_8l_rv64im_looper
     restore_regs
     addi sp, sp, 8*15

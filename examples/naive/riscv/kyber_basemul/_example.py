@@ -503,7 +503,7 @@ class RISC_V_poly_reduce_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("poly_reduce_rvv_vlen128")
+        slothy.optimize_loop("poly_reduce_rvv_vlen128_loop")
 
 
 class RISC_V_poly_tomont_rvv_vlen128(OptimizationRunner):

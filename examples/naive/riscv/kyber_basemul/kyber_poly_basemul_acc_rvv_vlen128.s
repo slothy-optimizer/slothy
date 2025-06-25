@@ -58,7 +58,7 @@ poly_basemul_acc_rvv_vlen128_loop:
     add a5, a5, t5
     vle16.v v26, (a4)
     vle16.v v27, (a5)
-    # a0b1 + a1b0
+    // a0b1 + a1b0
     then accumulate
     vadd.vv v16, v16, v20
     vadd.vv v17, v17, v21
@@ -76,7 +76,7 @@ poly_basemul_acc_rvv_vlen128_loop:
     add a5, a5, t5
     vse16.v v18, (a4)
     vse16.v v19, (a5)
-    # load zetas
+    // load zetas
     addi a4, a3, 0
     add  a5, a3, a7
     vle16.v v16, (a4)
@@ -99,7 +99,7 @@ poly_basemul_acc_rvv_vlen128_loop:
     add a5, a5, t5
     vle16.v v30, (a4)
     vle16.v v31, (a5)
-    # a0b0 + b1 * (a1zeta mod q)
+    // a0b0 + b1 * (a1zeta mod q)
     then accumulate
     vadd.vv v20, v20, v0
     vadd.vv v21, v21, v1

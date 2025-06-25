@@ -4,7 +4,7 @@ poly_tomont_rvv_vlen128:
     li a7, 16*8
     li t0, 3329
     vsetvli a7, a7, e16, m8, tu, mu
-    # mont^2 and qinv*mont^2
+    // mont^2 and qinv*mont^2
     li t1, 1353
     li t2, 20553
     slli t3, a7, 2

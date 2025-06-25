@@ -1,4 +1,4 @@
-# Plantard based NTT implementation with l=16
+// Plantard based NTT implementation with l=16
 
 .macro load_coeffs poly, len, wordLen
   lh s0,  \len*\wordLen*0(\poly)
@@ -159,11 +159,11 @@
 .endm
 
 // each layer increases coefficients by 0.5q; In ct_bfu, zeta and tmp can be reused because each zeta is only used once. The gs_bfu cannot.
-# .macro ct_bfu a_0, a_1, zeta, q48, tmp
-#   plant_mul_const \q48, \zeta, \a_1, \tmp
-#   sub \a_1, \a_0, \tmp
-#   add \a_0, \a_0, \tmp
-# .endm
+// .macro ct_bfu a_0, a_1, zeta, q48, tmp
+//   plant_mul_const \q48, \zeta, \a_1, \tmp
+//   sub \a_1, \a_0, \tmp
+//   add \a_0, \a_0, \tmp
+// .endm
 .macro ct_bfu a_0, a_1, zeta, q48, tmp
   mulw \tmp, \a_1, \zeta
   srai \tmp, \tmp, 16
@@ -615,117 +615,117 @@ poly_basemul_acc_end_rv64im:
     li a7, 32
     sd a7, 8*15(sp)
 poly_basemul_acc_end_rv64im_loop:
-    # b[0,1,3,5,7]
+    // b[0,1,3,5,7]
     lh s0, 2*0(a2)
     lh s1, 2*1(a2)
     lh s3, 2*3(a2)
     lh s5, 2*5(a2)
     lh s7, 2*7(a2)
-    # 4 zetas: a7, gp, tp, ra
+    // 4 zetas: a7, gp, tp, ra
     lw  a7, 4*0(a3)
     lw  tp, 4*1(a3)
-    # a[0,1]
+    // a[0,1]
     lh  t0, 2*0(a1)
     lh  t1, 2*1(a1)
     neg gp, a7
     neg ra, tp
-    # available regs: s2, s4, s6, t2-t6
-    # t2,t3,t4,t5 <- b[1,3,5,7]zeta
+    // available regs: s2, s4, s6, t2-t6
+    // t2,t3,t4,t5 <- b[1,3,5,7]zeta
     plant_mul_const_x4    \
       a5, a7, gp, tp, ra, \
       s1, s3, s5, s7,     \
       t2, t3, t4, t5
-    # s8,s9,s10,s11 <- r[0,1,2,3]
+    // s8,s9,s10,s11 <- r[0,1,2,3]
     lw  s8, 4*0(a4)
     lw  s9, 4*1(a4)
-    # a[0]b[0]
+    // a[0]b[0]
     mul s2, t0, s0
-    # a[1](b[1]zeta)
+    // a[1](b[1]zeta)
     mul s4, t1, t2
-    # a[0]b[1]
+    // a[0]b[1]
     mul s6, t0, s1
-    # a[1]b[0]
+    // a[1]b[0]
     mul t6, t1, s0
-    # t0,t1,t2,tp,gp,ra <- a[2,3,4,5,6,7]
+    // t0,t1,t2,tp,gp,ra <- a[2,3,4,5,6,7]
     lh  t0, 2*2(a1)
     lh  t1, 2*3(a1)
-    # r[0]+=a[0]b[0]+a[1](b[1]zeta)
+    // r[0]+=a[0]b[0]+a[1](b[1]zeta)
     add s8, s8, s2
     add s8, s8, s4
-    # s2,s4,s6 <- b[2,4,6]
+    // s2,s4,s6 <- b[2,4,6]
     lh  s2, 2*2(a2)
-    # r[1]+=a[0]b[1]+a[1]b[0]
+    // r[1]+=a[0]b[1]+a[1]b[0]
     add s9, s9, s6
     add s9, s9, t6
     lw  s10,4*2(a4)
     lw  s11,4*3(a4)
-    # available regs: s0, s1, a7, t6
-    # a[2]b[2]
+    // available regs: s0, s1, a7, t6
+    // a[2]b[2]
     mul s0, t0, s2
-    # a[3](b[3]zeta)
+    // a[3](b[3]zeta)
     mul s1, t1, t3
-    # a[2]b[3]
+    // a[2]b[3]
     mul a7, t0, s3
-    # a[3]b[2]
+    // a[3]b[2]
     mul t6, t1, s2
     lh  t2, 2*4(a1)
     lh  tp, 2*5(a1)
     lh  s4, 2*4(a2)
-    # r[2]+=a[2]b[2]+a[3](b[3]zeta)
+    // r[2]+=a[2]b[2]+a[3](b[3]zeta)
     add s10, s10, s0
     add s10, s10, s1
-    # r[3]+=a[2]b[3]+a[3]b[2]
+    // r[3]+=a[2]b[3]+a[3]b[2]
     add s11, s11, a7
     add s11, s11, t6
     plant_red_x4 \
       a5, a6,    \
       s8, s9, s10, s11
-    # store r[0,1,2,3]
+    // store r[0,1,2,3]
     sh  s8, 2*0(a0)
     sh  s9, 2*1(a0)
     sh  s10,2*2(a0)
     sh  s11,2*3(a0)
-    # a[4]b[4]
+    // a[4]b[4]
     mul s0, t2, s4
-    # a[5](b[5]zeta)
+    // a[5](b[5]zeta)
     mul s1, tp, t4
-    # r[4,5]
+    // r[4,5]
     lw  s8, 4*4(a4)
     lw  s9, 4*5(a4)
-    # a[4]b[5]
+    // a[4]b[5]
     mul t0, t2, s5
-    # a[5]b[4]
+    // a[5]b[4]
     mul t1, tp, s4
     lh  s6, 2*6(a2)
     lh  gp, 2*6(a1)
     lh  ra, 2*7(a1)
-    # r[4]+=a[4]b[4]+a[5](b[5]zeta)
+    // r[4]+=a[4]b[4]+a[5](b[5]zeta)
     add s8, s8, s0
     add s8, s8, s1
-    # r[6,7]
+    // r[6,7]
     lw  s10,4*6(a4)
     lw  s11,4*7(a4)
-    # r[5]+=a[4]b[5]+a[5]b[4]
+    // r[5]+=a[4]b[5]+a[5]b[4]
     add s9, s9, t0
     add s9, s9, t1
-    # a[6]b[6]
+    // a[6]b[6]
     mul s0, gp, s6
-    # a[7](b[7]zeta)
+    // a[7](b[7]zeta)
     mul s1, ra, t5
-    # a[6]b[7]
+    // a[6]b[7]
     mul t0, gp, s7
-    # a[7]b[6]
+    // a[7]b[6]
     mul t1, ra, s6
-    # r[6]+=a[6]b[6]+a[7](b[7]zeta)
+    // r[6]+=a[6]b[6]+a[7](b[7]zeta)
     add s10, s10, s0
     add s10, s10, s1
-    # r[7]+=a[6]b[7]+a[7]b[6]
+    // r[7]+=a[6]b[7]+a[7]b[6]
     add s11, s11, t0
     add s11, s11, t1
     plant_red_x4 \
       a5, a6,    \
       s8, s9, s10, s11
-    # store r[0,1,2,3]
+    // store r[0,1,2,3]
     sh  s8, 2*4(a0)
     sh  s9, 2*5(a0)
     sh  s10,2*6(a0)

@@ -4,7 +4,7 @@ poly_reduce_rvv_vlen128:
     li a7, 16*8
     li t0, 3329
     vsetvli a7, a7, e16, m8, tu, mu
-    csrwi vxrm, 0   # round-to-nearest-up (add +0.5 LSB)
+    csrwi vxrm, 0   // round-to-nearest-up (add +0.5 LSB)
     li a6, 20159
     add  t4, a0, 256*2  
     slli t3, a7, 2

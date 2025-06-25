@@ -60,6 +60,7 @@ class RISCVInstruction(Instruction):
         # src = re.sub(r"\]", "\\\\s*\\\\]\\\\s*", src)
         src = re.sub(r"\(", "\\\\s*\\\\(\\\\s*", src)
         src = re.sub(r"\)", "\\\\s*\\\\)\\\\s*", src)
+        src = re.sub(r", ", ",\\\\s*", src)  # allow omitting space after ,
 
         def pattern_transform(g):
             return (

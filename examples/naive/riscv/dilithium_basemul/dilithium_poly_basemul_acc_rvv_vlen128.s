@@ -855,7 +855,7 @@ poly_basemul_acc_rvv_vlen128_loop:
     vle32.v v24, (a0)
     vadd.vv v24, v24, v16
     vse32.v v24, (a0)
-    addi t2, t2, -1
     addi a0, a0, 4*4*8
+    addi t2, t2, -1
     bnez t2, poly_basemul_acc_rvv_vlen128_loop
 ret
