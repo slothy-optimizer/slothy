@@ -204,6 +204,8 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
+        # slothy.config.allow_useless_instructions = True
+
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True

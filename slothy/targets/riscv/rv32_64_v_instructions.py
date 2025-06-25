@@ -31,10 +31,12 @@ from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 VectorLoadUnitStride = ["vle<len>.v"]
 VectorLoadStrided = ["vlse<len>.v"]
 VectorLoadIndexed = ["vluxei<len>.v", "vloxei<len>.v"]
+VectorLoadWholeRegister = ["vl<nf>re<ew>.v", "vl<nf>r.v"]
 
 VectorStoreUnitStride = ["vse<len>.v"]
 VectorStoreStrided = ["vsse<len>.v"]
 VectorStoreIndexed = ["vsuxei<len>.v", "vsoxei<len>.v"]
+VectorStoreWholeRegister = ["vs<nf>re<ew>.v", "vs<nf>r.v"]
 
 VectorIntegerVectorVector = [
     "vadd.vv",
@@ -136,6 +138,9 @@ vsetvli = ["vsetvli"]
 vsetivli = ["vsetivli"]
 vsetvl = ["vsetvl"]
 
+ScalarVectorMove = ["vmv.x.s"]
+VectorScalarMove = ["vmv.s.x"]
+
 
 class RISCVvsetvli(RISCVInstruction):
     pattern = "vsetvli <Xd>, <Xa>, <vtype>"
@@ -203,7 +208,6 @@ def li_pseudo_split_cb():
 
         t.changed = True
         t.inst = insts
-        print(t.inst[0])
         return True
 
     return core
@@ -260,6 +264,18 @@ def generate_rv32_64_v_instructions():
     RISCVInstruction.instr_factory(vsetivli, RISCVvsetivli)
 
     RISCVInstruction.instr_factory(vsetvl, RISCVvsetvl)
+
+    RISCVInstruction.instr_factory(VectorScalarMove, RISCVVectorScalar)
+
+    RISCVInstruction.instr_factory(ScalarVectorMove, RISCVScalarVector)
+
+    RISCVInstruction.instr_factory(
+        VectorLoadWholeRegister, RISCVVectorLoadWholeRegister
+    )
+
+    RISCVInstruction.instr_factory(
+        VectorStoreWholeRegister, RISCVVectorStoreWholeRegister
+    )
 
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}

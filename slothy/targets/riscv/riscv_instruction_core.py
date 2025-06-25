@@ -50,6 +50,8 @@ class RISCVInstruction(Instruction):
     lmul_pattern = r"\\s*(?:m(?:1|2|4|8)|mf(?:2|4|8))"
     tpol_pattern = r"\\s*(?:ta|tu)"
     mpol_pattern = r"\\s*(?:ma|mu)"
+    nf_pattern = "(1|2|4|8)"
+    ew_pattern = "(8|16|32|64|128|256|512|1024)"
 
     @staticmethod
     def _unfold_pattern(src):
@@ -129,6 +131,9 @@ class RISCVInstruction(Instruction):
         src = replace_placeholders(src, "lmul", RISCVInstruction.lmul_pattern, "lmul")
         src = replace_placeholders(src, "tpol", RISCVInstruction.tpol_pattern, "tpol")
         src = replace_placeholders(src, "mpol", RISCVInstruction.mpol_pattern, "mpol")
+
+        src = replace_placeholders(src, "nf", RISCVInstruction.nf_pattern, "nf")
+        src = replace_placeholders(src, "ew", RISCVInstruction.ew_pattern, "ew")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -294,6 +299,8 @@ class RISCVInstruction(Instruction):
         group_to_attribute("lmul", "lmul")
         group_to_attribute("tpol", "tpol")
         group_to_attribute("mpol", "mpol")
+        group_to_attribute("nf", "nf")
+        group_to_attribute("ew", "ew")
 
         for s, ty in obj.pattern_inputs:
             # if ty == RegisterType.FLAGS:
@@ -338,6 +345,8 @@ class RISCVInstruction(Instruction):
         modified_pattern = modified_pattern.replace(
             "<mpol>", RISCVInstruction.mpol_pattern
         )
+        modified_pattern = modified_pattern.replace("<nf>", RISCVInstruction.nf_pattern)
+        modified_pattern = modified_pattern.replace("<ew>", RISCVInstruction.ew_pattern)
 
         if isinstance(src, str):
             if not re.match(modified_pattern.split(" ")[0], src.split(" ")[0]):
@@ -402,6 +411,8 @@ class RISCVInstruction(Instruction):
         out = replace_pattern(out, "lmul", "lmul")
         out = replace_pattern(out, "tpol", "tpol")
         out = replace_pattern(out, "mpol", "mpol")
+        out = replace_pattern(out, "nf", "nf")
+        out = replace_pattern(out, "ew", "ew")
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -429,10 +440,11 @@ class RISCVInstruction(Instruction):
 
         for instr in instr_list:
             classname = instr
-            if "<w>" or "<len>" in instr:
+            if ("<w>" in instr) or ("<len>" in instr):
                 classname = instr.split("<")[0]
             if instr in PythonKeywords:
                 classname = classname + "cls"
+
             RISCVInstruction.dynamic_instr_classes.append(
                 type(
                     classname,

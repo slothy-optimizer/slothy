@@ -89,6 +89,9 @@ class Instruction:
         self.tpol = None
         self.mpol = None
 
+        self.nf = None
+        self.ew = None
+
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
 
@@ -300,7 +303,6 @@ class Instruction:
         instnames = []
 
         src = src_line.text.strip()
-
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds
         for inst_class in Instruction.all_subclass_leaves(Instruction):

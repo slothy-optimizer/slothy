@@ -179,6 +179,7 @@ execution_units = {
         instrs["vsetvli"],
         instrs["vsetivli"],
         instrs["vsetvl"],
+        instrs["vmv.x.s"],
     ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     (
         instrs["vle"],
@@ -240,6 +241,11 @@ execution_units = {
         instrs["vmerge.vim"],
         instrs["vrgather.vx"],
         instrs["vrgather.vi"],
+        instrs["vmv.s.x"],
+        instrs["vl<nf>re<ew>.v"],
+        instrs["vl<nf>r.v"],
+        instrs["vs<nf>re<ew>.v"],
+        instrs["vs<nf>r.v"],
     ): [ExecutionUnit.VEC0],
 }
 
@@ -300,7 +306,7 @@ inverse_throughput = {
         instrs["vse"],
         instrs["vsse"],
         instrs["vsuxei"],
-        instrs["vsoxei"],  # some of the above values are estimated
+        instrs["vsoxei"],  # TODO: some of the above values are estimated
         instrs["vadd.vv"],
         instrs["vsub.vv"],
         instrs["vrsub.vv"],
@@ -335,6 +341,10 @@ inverse_throughput = {
         instrs["vnmsub.vx"],
         instrs["vadd.vi"],
         instrs["vrsub.vi"],
+        instrs["vs<nf>re<ew>.v"],
+        instrs["vs<nf>r.v"],
+        instrs["vl<nf>re<ew>.v"],
+        instrs["vl<nf>r.v"],
     ): 2,
     (
         instrs["vand.vv"],
@@ -378,6 +388,7 @@ inverse_throughput = {
         instrs["vmerge.vim"],
         instrs["vrgather.vx"],
         instrs["vrgather.vi"],
+        instrs["vmv.x.s"],
     ): 1,
     instrs["vdivu.vv"]: 21,
     instrs["vdiv.vv"]: 23,
@@ -389,9 +400,14 @@ inverse_throughput = {
     instrs["vrem.vx"]: 25,
     instrs["vrgather.vv"]: 4,
     instrs["vrgatherei16.vv"]: 4,
-    instrs["vsetvli"]: 2,  # estimated
-    instrs["vsetivli"]: 2,  # estimated
-    instrs["vsetvl"]: 2,  # estimated
+    instrs["vsetvli"]: 2,  # TODO: estimated
+    instrs["vsetivli"]: 2,  # TODO: estimated
+    instrs["vsetvl"]: 2,  # TODO: estimated
+    instrs["vmv.s.x"]: 6,
+    instrs["vl<nf>re<ew>.v"]: 2,  # TODO: estimated
+    instrs["vl<nf>r.v"]: 2,  # TODO: estimated
+    instrs["vs<nf>re<ew>.v"]: 2,  # TODO: estimated
+    instrs["vs<nf>r.v"]: 2,  # TODO: estimated
 }
 
 rv32_inverse_throughput = {
@@ -435,23 +451,25 @@ default_latencies = {
     instrs["divu"]: 4,
     instrs["rem"]: 4,
     instrs["remu"]: 4,
-    instrs["vle"]: 2,
-    instrs["vlse"]: 2,
-    instrs["vluxei"]: 2,
-    instrs["vloxei"]: 2,
-    instrs["vse"]: 2,
-    instrs["vsse"]: 2,
-    instrs["vsuxei"]: 2,
-    instrs["vsoxei"]: 2,
-    RISCVVectorIntegerVectorImmediate: 2,
-    RISCVVectorIntegerVectorScalar: 2,
-    RISCVVectorIntegerVectorVector: 2,
-    RISCVVectorIntegerVectorScalarMasked: 2,
-    RISCVVectorIntegerVectorVectorMasked: 2,
-    RISCVVectorIntegerVectorImmediateMasked: 2,
-    instrs["vsetvli"]: 2,
-    instrs["vsetivli"]: 2,
-    instrs["vsetvl"]: 2,
+    RISCVVectorIntegerVectorImmediate: 4,
+    RISCVVectorIntegerVectorScalar: 4,
+    RISCVVectorIntegerVectorVector: 4,
+    RISCVVectorIntegerVectorScalarMasked: 4,
+    RISCVVectorIntegerVectorVectorMasked: 4,
+    RISCVVectorIntegerVectorImmediateMasked: 4,
+    RISCVVectorLoadUnitStride: 3,  # TODO: estimated
+    RISCVVectorLoadStrided: 3,  # TODO: estimated
+    RISCVVectorLoadIndexed: 3,  # TODO: estimated
+    RISCVVectorLoadWholeRegister: 3,  # TODO: estimated
+    RISCVVectorStoreUnitStride: 1,  # TODO: estimated
+    RISCVVectorStoreStrided: 1,  # TODO: estimated
+    RISCVVectorStoreIndexed: 1,  # TODO: estimated
+    RISCVVectorStoreWholeRegister: 1,  # TODO: estimated
+    instrs["vsetvli"]: 4,  # TODO: estimated
+    instrs["vsetivli"]: 4,  # TODO: estimated
+    instrs["vsetvl"]: 4,  # TODO: estimated
+    RISCVScalarVector: 4,  # TODO: estimated
+    RISCVVectorScalar: 4,  # TODO: estimated
 }
 
 rv32_latencies = {

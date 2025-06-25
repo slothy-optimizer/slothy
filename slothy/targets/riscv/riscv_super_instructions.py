@@ -135,6 +135,20 @@ class RISCVVectorLoadIndexed(RISCVInstruction):
     outputs = ["Vd"]
 
 
+class RISCVVectorLoadWholeRegister(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        # obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    pattern = "mnemonic <Vd>, (<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
+
+
 # Store Instructions ##
 
 
@@ -180,6 +194,20 @@ class RISCVVectorStoreIndexed(RISCVInstruction):
     outputs = ["Vd"]
 
 
+class RISCVVectorStoreWholeRegister(RISCVInstruction):
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        # obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    pattern = "mnemonic <Vd>, (<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
+
+
 # Vector Integer Instructions ##
 
 
@@ -222,4 +250,16 @@ class RISCVVectorIntegerVectorImmediateMasked(RISCVInstruction):
     outputs = ["Vd"]
 
 
-# special super classes
+# Vector Permutation Instructions
+
+
+class RISCVScalarVector(RISCVInstruction):
+    pattern = "mnemonic <Xd>, <Ve>"
+    inputs = ["Ve"]
+    outputs = ["Xd"]
+
+
+class RISCVVectorScalar(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
