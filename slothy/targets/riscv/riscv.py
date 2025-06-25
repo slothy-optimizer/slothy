@@ -247,9 +247,15 @@ class AddiStashLoop(Loop):
         # names to the same registers
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
-            r"^\s*ld?\s+(?P<cnt>\w+).*",
+            (
+                r"^\s*ld?\s+(?P<cnt>\w+),",
+                r"(?P<offset>[|\s|\d|/| |-|\\*|\\+|\\(|\\)|=|,]+)\((?P<ptr>\w+)\)",
+            ),
             r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*(?P<imm>-*\d+)",
-            r"^\s*sd?\s+(?P<cnt>\w+).*",
+            (
+                r"^\s*sd?\s+(?P<cnt>\w+),",
+                r"(?P<offset>[\s|\d|/| |-|\\*|\\+|\\(|\\)|=|,]+)\((?P<ptr>\w+)\)",
+            ),
             rf"^\s*(?P<branch_type>bne|bge)\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}",
         )
 
@@ -267,14 +273,17 @@ class AddiStashLoop(Loop):
     ):
         """Emit starting instruction(s) and jump label for loop"""
         indent = " " * indentation
+        other = self.additional_data
         if unroll > 1:
             assert unroll in [1, 2, 4, 8, 16, 32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
         if fixup != 0:
             # In case the immediate is >1, we need to scale the fixup. This
             # allows for loops that do not use an increment of 1
-            fixup *= self.additional_data["imm"]
+            fixup *= other["imm"]
+            yield f"{indent}ld {other['cnt']}, {other['offset']}({other['ptr']})"
             yield f"{indent}addi {loop_cnt}, {loop_cnt}, {fixup}"
+            yield f"{indent}sd {other['cnt']}, {other['offset']}({other['ptr']})"
         if jump_if_empty is not None:
             yield f"beq {loop_cnt}, {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl}:"
@@ -283,7 +292,9 @@ class AddiStashLoop(Loop):
         """Emit compare-and-branch at the end of the loop"""
         indent = " " * indentation
 
+        yield f"{indent}ld {other['cnt']}, {other['offset']}({other['ptr']})"
         yield f"{indent}addi {other['cnt']}, {other['cnt']}, {other['imm']}"
+        yield f"{indent}sd {other['cnt']}, {other['offset']}({other['ptr']})"
         yield f"{indent}{other['branch_type']} {other['cnt']}, {other['end']}, {self.lbl}"
 
 
