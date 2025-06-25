@@ -4,6 +4,11 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   examples_dry_run:
     name: Dry Run (${{ matrix.target }})
@@ -25,26 +30,6 @@ jobs:
     - name: Run examples
       run: |
         python3 example.py --dry-run --only-target=${{ matrix.target }}
-  tests:
-    name: Tests (${{ matrix.target }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: 
-          - slothy.targets.arm_v7m.cortex_m7
-          - slothy.targets.arm_v81m.cortex_m55r1
-          - slothy.targets.arm_v81m.cortex_m85r1
-          - slothy.targets.aarch64.cortex_a55
-          - slothy.targets.aarch64.cortex_a72_frontend
-          - slothy.targets.aarch64.apple_m1_firestorm_experimental
-          - slothy.targets.aarch64.apple_m1_icestorm_experimental
-          - slothy.targets.aarch64.aarch64_big_experimental
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ./.github/actions/setup-ubuntu
-    - name: Run tests
-      run: |
-        python3 test.py --only-target=${{ matrix.target }}
   tutorial:
     runs-on: ubuntu-latest
     steps:
@@ -61,22 +46,15 @@ jobs:
     - name: Run examples
       run: |
         python3 test.py --tests simple0_m55,simple1_m55,simple0_loop_m55,simple1_loop_m55
-  examples_ntt_kyber_dilithium_helium_core:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ./.github/actions/setup-ubuntu
-    - name: Run examples
-      run: |
-        python3 example.py --examples ntt_kyber_1_23_45_67_m55,ntt_dilithium_12_34_56_78_m55 --timeout=300
-  examples_ntt_kyber_dilithium_neon_core:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ./.github/actions/setup-ubuntu
-    - name: Run examples
-      run: |
-        python3 example.py --examples ntt_kyber_123_4567_a55,ntt_dilithium_123_45678_a55 --timeout=300
+  regression:
+      runs-on: [self-hosted, macOS, ARM64]
+      timeout-minutes: 1440 # 24 hours
+      steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-macos
+      - name: Run regression tests
+        run: |
+          python3 regression.py --iterations 5
   sqmag:
     runs-on: ubuntu-latest
     steps:
