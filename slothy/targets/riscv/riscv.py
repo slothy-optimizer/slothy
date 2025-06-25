@@ -34,6 +34,7 @@ Partial SLOTHY architecture model for RISCV
 
 import inspect
 import math
+from sympy import simplify
 from enum import Enum
 from functools import cache
 from slothy.helper import Loop
@@ -184,7 +185,8 @@ class AddiLoop(Loop):
         # names to the same registers
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
-            r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*(?P<imm>-*\d+)",
+            r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),"
+            r"\s*(?P<imm>[\s|\d|/| |\-|\\*|\\+|\\(|\\)|=|,]+)",
             (
                 rf"^\s*(?P<branch_type>beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu)"
                 rf"\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}"
@@ -205,13 +207,14 @@ class AddiLoop(Loop):
     ):
         """Emit starting instruction(s) and jump label for loop"""
         indent = " " * indentation
+        self.parsed_imm = simplify(self.additional_data["imm"])
         if unroll > 1:
             assert unroll in [1, 2, 4, 8, 16, 32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
         if fixup != 0:
             # In case the immediate is >1, we need to scale the fixup. This
             # allows for loops that do not use an increment of 1
-            fixup *= self.additional_data["imm"]
+            fixup *= self.parsed_imm
             yield f"{indent}addi {loop_cnt}, {loop_cnt}, {fixup}"
         if jump_if_empty is not None:
             yield f"beq {loop_cnt}, {loop_cnt}, {jump_if_empty}"
@@ -221,7 +224,7 @@ class AddiLoop(Loop):
         """Emit compare-and-branch at the end of the loop"""
         indent = " " * indentation
 
-        yield f"{indent}addi {other['cnt']}, {other['cnt']}, {other['imm']}"
+        yield f"{indent}addi {other['cnt']}, {other['cnt']}, {self.parsed_imm}"
         yield f"{indent}{other['branch_type']} {other['cnt']}, {other['end']}, {self.lbl}"
 
 
