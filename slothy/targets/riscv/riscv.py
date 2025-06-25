@@ -252,13 +252,13 @@ class AddiStashLoop(Loop):
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             (
-                r"^\s*ld?\s+(?P<cnt>\w+),",
-                r"(?P<offset>[|\s|\d|/| |-|\\*|\\+|\\(|\\)|=|,]+)\((?P<ptr>\w+)\)",
+                r"^\s*ld?\s+(?P<cnt>\w+),"
+                r"(?P<offset>[|\s|\d|/| |-|\\*|\\+|\\(|\\)|=|,]+)\((?P<ptr>\w+)\)"
             ),
             r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),\s*(?P<imm>-*\d+)",
             (
-                r"^\s*sd?\s+(?P<cnt>\w+),",
-                r"(?P<offset>[\s|\d|/| |-|\\*|\\+|\\(|\\)|=|,]+)\((?P<ptr>\w+)\)",
+                r"^\s*sd?\s+(?P<cnt>\w+),\s*"
+                r"(?P<offset>[\s|\d|/| |-|\\*|\\+|\\(|\\)|=|,]+)\((?P<ptr>\w+)\)"
             ),
             rf"^\s*(?P<branch_type>bne|bge)\s+(?P<cnt>\w+),\s+(?P<end>\w+),\s*{lbl}",
         )
