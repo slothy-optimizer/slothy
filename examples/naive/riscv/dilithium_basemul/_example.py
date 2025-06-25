@@ -35,7 +35,7 @@ class RISC_V_poly_basemul_8l_init_rv64im(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("dilithium_poly_basemul_8l_init_rv64im_looper")
+        slothy.optimize_loop("poly_basemul_8l_init_rv64im_looper")
 
 
 class RISC_V_poly_basemul_8l_rv64im(OptimizationRunner):
@@ -66,7 +66,7 @@ class RISC_V_poly_basemul_8l_rv64im(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("dilithium_poly_basemul_8l_rv64im_looper")
+        slothy.optimize_loop("poly_basemul_8l_rv64im_looper")
 
 
 class RISC_V_poly_basemul_8l_acc_rv64im(OptimizationRunner):
@@ -97,7 +97,7 @@ class RISC_V_poly_basemul_8l_acc_rv64im(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("dilithium_poly_basemul_8l_acc_rv64im_looper")
+        slothy.optimize_loop("poly_basemul_8l_acc_rv64im_looper")
 
 
 class RISC_V_poly_basemul_8l_acc_end_rv64im(OptimizationRunner):
@@ -129,7 +129,7 @@ class RISC_V_poly_basemul_8l_acc_end_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.config.outputs = ["x3"]
-        slothy.optimize_loop("dilithium_poly_basemul_8l_acc_end_rv64im_looper")
+        slothy.optimize_loop("poly_basemul_8l_acc_end_rv64im_looper")
 
 
 class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
@@ -161,7 +161,7 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.config.outputs = ["x3"]
-        slothy.optimize_loop("dilithium_poly_basemul_rvv_vlen128_loop")
+        slothy.optimize_loop("poly_basemul_rvv_vlen128_loop")
 
 
 class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
@@ -193,7 +193,7 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.config.outputs = ["x3"]
-        slothy.optimize_loop("dilithium_poly_basemul_acc_rvv_vlen128_loop")
+        slothy.optimize_loop("poly_basemul_acc_rvv_vlen128_loop")
 
 
 example_instances = [

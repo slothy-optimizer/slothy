@@ -77,9 +77,9 @@ poly_basemul_8l_init_rv64im_looper:
     sd a3, 6*8(a0)
     sd a5, 7*8(a0)
     // loop control
-    addi a0, a0, 8*8
     addi a1, a1, 4*8
     addi a2, a2, 4*8
+    addi a0, a0, 8*8
     bne gp, a0, poly_basemul_8l_init_rv64im_looper
     restore_regs
     addi sp, sp, 8*15
