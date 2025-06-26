@@ -31,6 +31,7 @@ class RISC_V_poly_basemul_acc_cache_end_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -62,6 +63,7 @@ class RISC_V_poly_basemul_acc_cache_init_end_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -93,6 +95,7 @@ class RISC_V_poly_basemul_acc_cache_init_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -124,6 +127,7 @@ class RISC_V_poly_basemul_acc_cached_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -155,6 +159,7 @@ class RISC_V_poly_basemul_acc_end_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -186,6 +191,7 @@ class RISC_V_poly_basemul_acc_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -217,6 +223,7 @@ class RISC_V_poly_basemul_cache_init_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -248,6 +255,7 @@ class RISC_V_poly_plantard_rdc_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -279,6 +287,7 @@ class RISC_V_poly_toplant_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
         r += ["x3"]
