@@ -47,7 +47,7 @@ class Example0(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.unsafe_address_offset_fixup = False
-        slothy.config.outputs = ["inA", "inB"]
+        slothy.config.inputs_are_outputs = True
         slothy.optimize()
 
 

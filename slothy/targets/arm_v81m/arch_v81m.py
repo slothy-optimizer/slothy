@@ -1073,7 +1073,6 @@ class ldrd(MVEInstruction):
 
 class ldrd_with_writeback(MVEInstruction):
     pattern = "ldrd <Rt0>, <Rt1>, [<Rn>, <imm>]!"
-    inputs = []
     outputs = ["Rt0", "Rt1"]
     in_outs = ["Rn"]
 
@@ -1088,7 +1087,6 @@ class ldrd_with_writeback(MVEInstruction):
 
 class ldrd_with_post(MVEInstruction):
     pattern = "ldrd <Rt0>, <Rt1>, [<Rn>], <imm>"
-    inputs = []
     outputs = ["Rt0", "Rt1"]
     in_outs = ["Rn"]
 
@@ -1121,7 +1119,6 @@ class ldr(MVEInstruction):
 
 class ldr_with_writeback(MVEInstruction):
     pattern = "ldr <Rt>, [<Rn>, <imm>]!"
-    inputs = []
     outputs = ["Rt"]
     in_outs = ["Rn"]
 
@@ -1136,7 +1133,6 @@ class ldr_with_writeback(MVEInstruction):
 
 class ldr_with_post(MVEInstruction):
     pattern = "ldr <Rt>, [<Rn>], <imm>"
-    inputs = []
     outputs = ["Rt"]
     in_outs = ["Rn"]
 
@@ -1213,7 +1209,6 @@ class vshlc(MVEInstruction):
 
 class vmov_imm(MVEInstruction):
     pattern = "vmov.<dt> <Qd>, <imm>"
-    inputs = []
     outputs = ["Qd"]
 
 
@@ -1249,13 +1244,11 @@ class mov(MVEInstruction):
 
 class mov_imm(MVEInstruction):
     pattern = "mov <Rd>, <imm>"
-    inputs = []
     outputs = ["Rd"]
 
 
 class mvn_imm(MVEInstruction):
     pattern = "mvn <Rd>, <imm>"
-    inputs = []
     outputs = ["Rd"]
 
 
@@ -1541,7 +1534,6 @@ class vldrb_no_imm(MVEInstruction):
 
 class vldrb_with_writeback(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]!"
-    inputs = []
     outputs = ["Qd"]
     in_outs = ["Rn"]
 
@@ -1556,7 +1548,6 @@ class vldrb_with_writeback(MVEInstruction):
 
 class vldrb_with_post(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>], <imm>"
-    inputs = []
     outputs = ["Qd"]
     in_outs = ["Rn"]
 
@@ -1609,7 +1600,6 @@ class vldrh_no_imm(MVEInstruction):
 
 class vldrh_with_writeback(MVEInstruction):
     pattern = "vldrh.<dt> <Qd>, [<Rn>, <imm>]!"
-    inputs = []
     outputs = ["Qd"]
     in_outs = ["Rn"]
 
@@ -1624,7 +1614,6 @@ class vldrh_with_writeback(MVEInstruction):
 
 class vldrh_with_post(MVEInstruction):
     pattern = "vldrh.<dt> <Qd>, [<Rn>], <imm>"
-    inputs = []
     outputs = ["Qd"]
     in_outs = ["Rn"]
 
@@ -1677,7 +1666,6 @@ class vldrw_no_imm(MVEInstruction):
 
 class vldrw_with_writeback(MVEInstruction):
     pattern = "vldrw.<dt> <Qd>, [<Rn>, <imm>]!"
-    inputs = []
     outputs = ["Qd"]
     in_outs = ["Rn"]
 
@@ -1692,7 +1680,6 @@ class vldrw_with_writeback(MVEInstruction):
 
 class vldrw_with_post(MVEInstruction):
     pattern = "vldrw.<dt> <Qd>, [<Rn>], <imm>"
-    inputs = []
     outputs = ["Qd"]
     in_outs = ["Rn"]
 
@@ -1829,7 +1816,6 @@ class vld21(MVEInstruction):
 
 class vld20_with_writeback(MVEInstruction):
     pattern = "vld20.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
-    inputs = []
     outputs = ["Qd0", "Qd1"]
     in_outs = ["Rn"]
 
@@ -1846,7 +1832,6 @@ class vld20_with_writeback(MVEInstruction):
 
 class vld21_with_writeback(MVEInstruction):
     pattern = "vld21.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
-    inputs = []
     in_outs = ["Rn", "Qd0", "Qd1"]
 
     @classmethod
@@ -1928,7 +1913,6 @@ class vld43(MVEInstruction):
 
 class vld40_with_writeback(MVEInstruction):
     pattern = "vld40.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = []
     outputs = ["Qd0", "Qd1", "Qd2", "Qd3"]
     in_outs = ["Rn"]
 
@@ -1949,7 +1933,6 @@ class vld40_with_writeback(MVEInstruction):
 
 class vld41_with_writeback(MVEInstruction):
     pattern = "vld41.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = []
     in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
@@ -1963,7 +1946,6 @@ class vld41_with_writeback(MVEInstruction):
 
 class vld42_with_writeback(MVEInstruction):
     pattern = "vld42.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = []
     in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
@@ -1977,7 +1959,6 @@ class vld42_with_writeback(MVEInstruction):
 
 class vld43_with_writeback(MVEInstruction):
     pattern = "vld43.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = []
     in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
@@ -2024,7 +2005,6 @@ class vst21(MVEInstruction):
 
 class vst20_with_writeback(MVEInstruction):
     pattern = "vst20.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
-    inputs = []
     in_outs = ["Rn", "Qd0", "Qd1"]
 
     @classmethod
@@ -2116,7 +2096,6 @@ class vst43(MVEInstruction):
 
 class vst40_with_writeback(MVEInstruction):
     pattern = "vst40.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = []
     in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
@@ -2130,7 +2109,6 @@ class vst40_with_writeback(MVEInstruction):
 
 class vst41_with_writeback(MVEInstruction):
     pattern = "vst41.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = []
     in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
@@ -2144,7 +2122,6 @@ class vst41_with_writeback(MVEInstruction):
 
 class vst42_with_writeback(MVEInstruction):
     pattern = "vst42.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = []
     in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod

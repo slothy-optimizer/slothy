@@ -251,14 +251,6 @@ class Config(NestedPrint, LockAttributes):
 
         .. note::
 
-            This feature is now configurable for all supported architectures,
-            including Armv8.1-M. When disabled for Armv8.1-M, memory operations
-            with address register increment (writeback and post-increment variants)
-            will have their address registers modeled as input-output rather than
-            just input, allowing for more accurate dependency tracking.
-
-        .. note::
-
             The user-imposed safety constraint is not a necessity -- in principle,
             SLOTHY could detect when it is safe to reorder ldr/str instructions with
             increment.
