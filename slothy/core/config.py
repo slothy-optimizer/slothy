@@ -251,9 +251,11 @@ class Config(NestedPrint, LockAttributes):
 
         .. note::
 
-            For historical reason, this feature cannot be disabled for
-            the Armv8.1-M architecture model. A refactoring of that model is needed
-            to make address offset fixup configurable.
+            This feature is now configurable for all supported architectures,
+            including Armv8.1-M. When disabled for Armv8.1-M, memory operations
+            with address register increment (writeback and post-increment variants)
+            will have their address registers modeled as input-output rather than
+            just input, allowing for more accurate dependency tracking.
 
         .. note::
 
@@ -1485,8 +1487,6 @@ class Config(NestedPrint, LockAttributes):
 
     @unsafe_address_offset_fixup.setter
     def unsafe_address_offset_fixup(self, val):
-        if val is False and self.arch.arch_name == "Arm_v81M":
-            raise InvalidConfig("unsafe address offset fixup must be set for Armv8.1-M")
         self._unsafe_address_offset_fixup = val
 
     @locked_registers.setter
