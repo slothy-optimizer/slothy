@@ -25,6 +25,7 @@ class RISC_V_poly_basemul_8l_init_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            funcname="poly_basemul_8l_init_rv64im",
         )
 
     def core(self, slothy):
@@ -57,6 +58,7 @@ class RISC_V_poly_basemul_8l_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            funcname="poly_basemul_8l_rv64im",
         )
 
     def core(self, slothy):
@@ -89,6 +91,7 @@ class RISC_V_poly_basemul_8l_acc_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            funcname="poly_basemul_8l_acc_rv64im",
         )
 
     def core(self, slothy):
@@ -121,6 +124,7 @@ class RISC_V_poly_basemul_8l_acc_end_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            funcname="poly_basemul_8l_acc_end_rv64im",
         )
 
     def core(self, slothy):
@@ -186,7 +190,7 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="dilithium_poly_basemul_rvv_vlen128",
+            funcname="poly_basemul_rvv_vlen128",
         )
 
     def core(self, slothy):
@@ -218,7 +222,7 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="dilithium_poly_basemul_acc_rvv_vlen128",
+            funcname="poly_basemul_acc_rvv_vlen128",
         )
 
     def core(self, slothy):
@@ -238,10 +242,12 @@ example_instances = [
     RISC_V_poly_basemul_8l_rv64im(),
     RISC_V_poly_basemul_8l_acc_rv64im(),
     RISC_V_poly_basemul_8l_acc_end_rv64im(),
+    RISC_V_poly_reduce_rv64im(),
     RISC_V_poly_basemul_8l_init_rv64im(var="dual"),
     RISC_V_poly_basemul_8l_rv64im(var="dual"),
     RISC_V_poly_basemul_8l_acc_rv64im(var="dual"),
     RISC_V_poly_basemul_8l_acc_end_rv64im(var="dual"),
+    RISC_V_poly_reduce_rv64im(var="dual"),
     # RVV
     RISC_V_poly_basemul_rvv_vlen128(),
     RISC_V_poly_basemul_acc_rvv_vlen128(),

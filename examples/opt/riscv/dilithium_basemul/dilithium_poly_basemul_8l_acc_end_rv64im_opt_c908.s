@@ -59,9 +59,9 @@
 .equ plantconst2, 0xb7b9f10ccf939804      // (((-2**64) % q) * ((-2**64) % q) * qinv) % (2**64)
 
 # void poly_basemul_8l_acc_end_rv64im(int32_t r[256], const int32_t a[256], const int32_t b[256], int64_t r_double[256])
-.globl poly_basemul_8l_acc_end_rv64im
+.globl poly_basemul_8l_acc_end_rv64im_opt_c908
 .align 2
-poly_basemul_8l_acc_end_rv64im:
+poly_basemul_8l_acc_end_rv64im_opt_c908:
     addi sp, sp, -8*15
     save_regs
     li a4, q32
