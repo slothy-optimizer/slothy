@@ -137,7 +137,7 @@ class RISC_V_intt8l_plant_rv64im(OptimizationRunner):
 
 class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_dilithium_rvv_vlen128"
+        name = "ntt_dilithium_rvv_vlen128_unfolded"
         infile = name
 
         if var != "":
@@ -164,13 +164,16 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_factor = 40
+        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.timeout = 180
         slothy.config.split_heuristic_repeat = 2
-        slothy.config.split_heuristic_stepsize = 0.05
 
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
+        slothy.config.allow_useless_instructions = True
+        slothy.fusion_region("start", "end")
         slothy.optimize("start", "end")
 
 

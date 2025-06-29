@@ -177,7 +177,6 @@ class RISCVVectorStoreStrided(RISCVInstruction):
 
     pattern = "mnemonic <Vd>, (<Xa>), <Xb><vm>"
     inputs = ["Xa", "Xb"]
-    outputs = ["Vd"]
 
 
 class RISCVVectorStoreIndexed(RISCVInstruction):
@@ -191,7 +190,6 @@ class RISCVVectorStoreIndexed(RISCVInstruction):
 
     pattern = "mnemonic <Vd>, (<Xa>), <Ve><vm>"
     inputs = ["Xa", "Ve"]
-    outputs = ["Vd"]
 
 
 class RISCVVectorStoreWholeRegister(RISCVInstruction):
@@ -204,8 +202,7 @@ class RISCVVectorStoreWholeRegister(RISCVInstruction):
         return obj
 
     pattern = "mnemonic <Vd>, (<Xa>)"
-    inputs = ["Xa"]
-    outputs = ["Vd"]
+    inputs = ["Vd", "Xa"]
 
 
 # Vector Integer Instructions ##
@@ -219,8 +216,8 @@ class RISCVVectorIntegerVectorVector(RISCVInstruction):
 
 # mask is fixed to v0
 class RISCVVectorIntegerVectorVectorMasked(RISCVInstruction):
-    pattern = "mnemonic <Vd>, <Ve>, <Vf>, v0"
-    inputs = ["Ve", "Vf"]
+    pattern = "mnemonic <Vd>, <Ve>, <Vf>, <Vg>"  # Vg == v0
+    inputs = ["Ve", "Vf", "Vg"]
     outputs = ["Vd"]
 
 
@@ -232,8 +229,8 @@ class RISCVVectorIntegerVectorScalar(RISCVInstruction):
 
 # mask is fixed to v0
 class RISCVVectorIntegerVectorScalarMasked(RISCVInstruction):
-    pattern = "mnemonic <Vd>, <Ve>, <Xa>, v0"
-    inputs = ["Ve", "Xa"]
+    pattern = "mnemonic <Vd>, <Ve>, <Xa>, <Vg>"  # Vg == v0
+    inputs = ["Ve", "Xa", "Vg"]
     outputs = ["Vd"]
 
 
@@ -245,8 +242,8 @@ class RISCVVectorIntegerVectorImmediate(RISCVInstruction):
 
 # mask is fixed to v0
 class RISCVVectorIntegerVectorImmediateMasked(RISCVInstruction):
-    pattern = "mnemonic <Vd>, <Ve>, <imm>, v0"
-    inputs = ["Ve"]
+    pattern = "mnemonic <Vd>, <Ve>, <imm>, <Vg>"
+    inputs = ["Ve", "Vg"]
     outputs = ["Vd"]
 
 

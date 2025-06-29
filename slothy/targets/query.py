@@ -51,6 +51,8 @@ from slothy.targets.aarch64 import (
 from slothy.targets.aarch64 import (
     apple_m1_icestorm_experimental as Target_AppleM1_Icestorm_Experimental,
 )
+from slothy.targets.riscv import riscv as RISC_V
+from slothy.targets.riscv import xuantie_c908 as Xuantie_c908
 
 
 class UnknownTarget(Exception):
@@ -65,6 +67,7 @@ class Archery:
         "Arm_v7M": Arch_Armv7M,
         "Arm_v81M": Arch_Armv81M,
         "Arm_AArch64": AArch64_Neon,
+        "RISC_V": RISC_V,
     }
 
     _targets = {
@@ -78,6 +81,7 @@ class Archery:
         "Arm_Big_experimental": Target_Big_Experimental,
         "Apple_M1_firestorm_experimental": Target_AppleM1_Firestorm_Experimental,
         "Apple_M1_icestorm_experimental": Target_AppleM1_Icestorm_Experimental,
+        "Xuantie_C908": Xuantie_c908,
     }
 
     @staticmethod

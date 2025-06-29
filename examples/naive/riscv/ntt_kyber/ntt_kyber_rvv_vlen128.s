@@ -916,11 +916,9 @@
 .globl ntt_rvv_vlen128
 .align 2
 ntt_rvv_vlen128:
-start:
     li t0, 3329
     li t1, -3327
     ntt_rvv_level0
     ntt_rvv_level1to6 0, _ZETAS_EXP_1TO6_P0_L1, _ZETAS_EXP_1TO6_P0_L3
     ntt_rvv_level1to6 1, _ZETAS_EXP_1TO6_P1_L1, _ZETAS_EXP_1TO6_P1_L3
-end:
 ret
