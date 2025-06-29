@@ -118,7 +118,7 @@ poly_basemul_8l_acc_end_rv64im_looper:
     add s10, s10, gp
     add s11, s11, ra
     plant_red_x4 a4, a5, s8, s9, s10, s11
-    ld  gp, 8*15(sp)
+    ld  gp, 8*15(sp) // @slothy:ignore_useless_output
     addi a1, a1, 4*8
     addi a2, a2, 4*8
     addi a3, a3, 8*8
