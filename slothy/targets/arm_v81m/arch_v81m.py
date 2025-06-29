@@ -83,7 +83,7 @@ class RegisterType(Enum):
             "RPTR_STACK",
         ]
 
-        gprs_normal = [f"r{i}" for i in range(13)] + ["r14"]
+        gprs_normal = [f"r{i}" for i in range(15)]
         vregs_normal = [f"q{i}" for i in range(8)]
 
         gprs_extra = [f"r{i}_EXT" for i in range(16)]
@@ -123,11 +123,11 @@ class RegisterType(Enum):
         }.get(string, None)
 
     def default_aliases():
-        return {"lr": "r14"}
+        return {"lr": "r14", "sp": "r13"}
 
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["r14"])
+        return set(["r13", "r14"])
 
 
 class LeLoop(Loop):
