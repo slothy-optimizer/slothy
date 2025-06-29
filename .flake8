@@ -8,3 +8,5 @@ extend-ignore =
     # black and flake8 don't agree on these - stick to black
     # E203 whitespace before ':'
     E203
+    F405
+    E741
