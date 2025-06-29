@@ -36,6 +36,9 @@ class Instructions(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.allow_useless_instructions = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 256
         slothy.optimize(start="start", end="end")
 
 

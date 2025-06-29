@@ -5,6 +5,9 @@ add r0, r1, r2
 
 sub r0, r1, r2
 
+ldr r0, [sp, #4]
+ldr r1, [r13, #8]
+
 vmulh.u8 q2, q0, q1
 vmulh.u16 q2, q0, q1
 vmulh.u32 q2, q0, q1
