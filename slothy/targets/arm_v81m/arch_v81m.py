@@ -353,6 +353,7 @@ class Instruction:
                 vst42_with_writeback,
                 vst43_with_writeback,
                 ldrd,
+                ldrd_no_imm,
                 ldrd_with_writeback,
                 ldrd_with_post,
                 strd,
@@ -402,6 +403,7 @@ class Instruction:
         return self._is_instance_of(
             [
                 ldrd,
+                ldrd_no_imm,
                 ldrd_with_writeback,
                 ldrd_with_post,
                 ldr,
@@ -1075,6 +1077,27 @@ class ldrd(MVEInstruction):
         return super().write()
 
 
+class ldrd_no_imm(MVEInstruction):
+    pattern = "ldrd <Rt0>, <Rt1>, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Rt0", "Rt1"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+
+        if int(self.immediate) != 0:
+            self.pattern = ldrd.pattern
+        return super().write()
+
+
 class ldrd_with_writeback(MVEInstruction):
     pattern = "ldrd <Rt0>, <Rt1>, [<Rn>, <imm>]!"
     inputs = ["Rn"]
@@ -1425,6 +1448,12 @@ class vbic(MVEInstruction):
     outputs = ["Qd"]
 
 
+class vbic_nodt(MVEInstruction):
+    pattern = "vbic <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
+
+
 class vorr(MVEInstruction):
     pattern = "vorr.<dt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
@@ -1433,6 +1462,12 @@ class vorr(MVEInstruction):
 
 class veor(MVEInstruction):
     pattern = "veor.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
+
+
+class veor_nodt(MVEInstruction):
+    pattern = "veor <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
     outputs = ["Qd"]
 
