@@ -209,6 +209,7 @@ class AddiLoop(Loop):
         """Emit starting instruction(s) and jump label for loop"""
         indent = " " * indentation
         self.parsed_imm = simplify(self.additional_data["imm"])
+        end_reg = self.additional_data["end"]
         if unroll > 1:
             assert unroll in [1, 2, 4, 8, 16, 32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
@@ -216,7 +217,7 @@ class AddiLoop(Loop):
             # In case the immediate is >1, we need to scale the fixup. This
             # allows for loops that do not use an increment of 1
             fixup *= self.parsed_imm
-            yield f"{indent}addi {loop_cnt}, {loop_cnt}, {fixup}"
+            yield f"{indent}addi {end_reg} {end_reg} {-fixup}"
         if jump_if_empty is not None:
             yield f"beq {loop_cnt}, {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl}:"

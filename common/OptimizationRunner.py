@@ -93,7 +93,7 @@ class OptimizationRunner:
     ):
         if name is None:
             name = infile
-
+        self.var = var
         if var != "":
             name += f"_{var}"
             infile += f"_{var}"
@@ -216,9 +216,13 @@ class OptimizationRunner:
         self.core(slothy, *self.extra_args)
 
         if self.rename:
+            var_str = f"_{self.var}" if self.var != "" else ""
             slothy.rename_function(
-                self.funcname,
-                f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}",
+                f"{self.funcname}{var_str}",
+                (
+                    f"{self.funcname}{var_str}_{self.suffix}"
+                    f"_{target_label_dict[self.target]}"
+                ),
             )
 
         if dry_run is False:

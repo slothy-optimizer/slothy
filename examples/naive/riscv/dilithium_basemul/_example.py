@@ -12,11 +12,6 @@ class RISC_V_poly_basemul_8l_init_rv64im(OptimizationRunner):
         name = "dilithium_poly_basemul_8l_init_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
         super().__init__(
             infile,
             name,
@@ -26,6 +21,7 @@ class RISC_V_poly_basemul_8l_init_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             funcname="poly_basemul_8l_init_rv64im",
+            var=var,
         )
 
     def core(self, slothy):
@@ -45,11 +41,6 @@ class RISC_V_poly_basemul_8l_rv64im(OptimizationRunner):
         name = "dilithium_poly_basemul_8l_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
         super().__init__(
             infile,
             name,
@@ -59,6 +50,7 @@ class RISC_V_poly_basemul_8l_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             funcname="poly_basemul_8l_rv64im",
+            var=var,
         )
 
     def core(self, slothy):
@@ -78,11 +70,6 @@ class RISC_V_poly_basemul_8l_acc_rv64im(OptimizationRunner):
         name = "dilithium_poly_basemul_8l_acc_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
         super().__init__(
             infile,
             name,
@@ -92,6 +79,7 @@ class RISC_V_poly_basemul_8l_acc_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             funcname="poly_basemul_8l_acc_rv64im",
+            var=var,
         )
 
     def core(self, slothy):
@@ -111,11 +99,6 @@ class RISC_V_poly_basemul_8l_acc_end_rv64im(OptimizationRunner):
         name = "dilithium_poly_basemul_8l_acc_end_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
         super().__init__(
             infile,
             name,
@@ -125,6 +108,7 @@ class RISC_V_poly_basemul_8l_acc_end_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             funcname="poly_basemul_8l_acc_end_rv64im",
+            var=var,
         )
 
     def core(self, slothy):
@@ -145,10 +129,6 @@ class RISC_V_poly_reduce_rv64im(OptimizationRunner):
         name = "dilithium_poly_reduce_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -158,6 +138,7 @@ class RISC_V_poly_reduce_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             funcname="poly_reduce_rv64im",
+            var=var,
         )
 
     def core(self, slothy):
@@ -178,10 +159,6 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
         name = "dilithium_poly_basemul_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -191,6 +168,7 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
             target=target,
             timeout=timeout,
             funcname="poly_basemul_rvv_vlen128",
+            var=var,
         )
 
     def core(self, slothy):
@@ -210,10 +188,6 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
         name = "dilithium_poly_basemul_acc_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -223,6 +197,7 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
             target=target,
             timeout=timeout,
             funcname="poly_basemul_acc_rvv_vlen128",
+            var=var,
         )
 
     def core(self, slothy):
