@@ -3992,6 +3992,8 @@ class SlothyBase(LockAttributes):
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
 
+        self._model.cp_solver.parameters.num_workers = 16
+
     def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval, maxval, name)
         self._model.variables.append(r)
