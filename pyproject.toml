@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slothy"
+version = "0.1.0"
+description = "SLOTHY: Assembly superoptimization via constraint solving"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Hanno Becker"},
+    {name = "Amin Abdulrahman"},
+    {name = "Matthias Kannwischer"},
+    {name = "Fabien Klein"},
+]
+maintainers = [
+    {name = "Hanno Becker"},
+    {name = "Matthias Kannwischer"},
+    {name = "Amin Abdulrahman"},
+]
+keywords = [
+    "superoptimization",
+    "constraint solving",
+    "assembly",
+    "cryptography",
+    "optimization",
+    "ortools",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Compilers",
+    "Topic :: System :: Hardware",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "ortools==9.7.2996; python_version < '3.13'",
+    "ortools==9.12.4544; python_version >= '3.13'",
+    "pandas>=2.0.3",
+    "sympy==1.13.3",
+    "unicorn==2.1.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pydoclint==0.6.6",
+    "flake8==7.2.0",
+]
+docs = [
+    "sphinx==8.2.3; python_version >= '3.11'",
+    "sphinx_rtd_theme==3.0.2; python_version >= '3.11'",
+    "sphinx_autoapi; python_version >= '3.11'",
+    "sphinx_mdinclude; python_version >= '3.11'",
+    "myst_parser; python_version >= '3.11'",
+    "sphinx-autobuild; python_version >= '3.11'",
+    "sphinx-autodoc2; python_version >= '3.11'",
+]
+
+[project.urls]
+Homepage = "https://slothy-optimizer.github.io/slothy"
+Repository = "https://github.com/slothy-optimizer/slothy"
+Documentation = "https://slothy-optimizer.github.io/slothy"
+Issues = "https://github.com/slothy-optimizer/slothy/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["slothy*"]
