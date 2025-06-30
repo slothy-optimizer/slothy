@@ -92,10 +92,10 @@ poly_basemul_8l_acc_rv64im_looper:
     add s11, s11, a6
     sd s10, 6*8(a0)
     sd s11, 7*8(a0)
-    addi a0, a0, 8*8
     addi a1, a1, 4*8
     addi a2, a2, 4*8
-    bne gp, a0, poly_basemul_8l_acc_rv64im_looper
+    addi a0, a0, 8*8
+    bne a0, gp, poly_basemul_8l_acc_rv64im_looper
     restore_regs
     addi sp, sp, 8*15
     ret

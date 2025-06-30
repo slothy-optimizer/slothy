@@ -108,7 +108,7 @@ poly_basemul_8l_acc_end_rv64im_looper:
     addi a3, a3, 8*4
     addi a3, a3, 0
     addi a0, a0, 4*4
-    bne gp, a0, poly_basemul_8l_acc_end_rv64im_looper
+    bne a0, gp, poly_basemul_8l_acc_end_rv64im_looper
     restore_regs
     addi sp, sp, 8*15
     ret

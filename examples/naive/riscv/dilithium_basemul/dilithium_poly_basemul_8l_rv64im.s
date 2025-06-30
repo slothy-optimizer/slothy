@@ -88,15 +88,15 @@ poly_basemul_8l_rv64im_looper:
     mul s10, s3, t3
     plant_red_x4 a4, a5, s4, s6, s8, s10
     // store results
-    sw s4, 0*4(a0)
-    sw s6, 1*4(a0)
-    sw s8, 2*4(a0)
-    sw s10, 3*4(a0)
+    sw s4, 0*4(a0) //@slothy:core
+    sw s6, 1*4(a0) //@slothy:core
+    sw s8, 2*4(a0) //@slothy:core
+    sw s10, 3*4(a0) //@slothy:core
     // loop control
     addi a1, a1, 4*4
     addi a2, a2, 4*4
     addi a0, a0, 4*4
-    bne gp, a0, poly_basemul_8l_rv64im_looper
+    bne a0, gp, poly_basemul_8l_rv64im_looper
     restore_regs
     addi sp, sp, 8*15
     ret

@@ -79,7 +79,7 @@ poly_basemul_8l_init_rv64im_looper:
     sd a5,  6*8(a0)
     sd a6,  7*8(a0)
     addi a0, a0, 8*8
-    bne gp, a0, poly_basemul_8l_init_rv64im_looper
+    bne a0, gp, poly_basemul_8l_init_rv64im_looper
     restore_regs
     addi sp, sp, 8*15
     ret
