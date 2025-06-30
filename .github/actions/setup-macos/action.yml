@@ -1,0 +1,36 @@
+name: Setup ubuntu
+description: Setup ubuntu
+
+inputs:
+  packages:
+    description: Space-separated list of additional packages to install
+    required: false
+    default: 'cmake'
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Homebrew
+      id: set-up-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v2
+      with:
+        version: "18"
+    - name: Install additional packages
+      if: ${{ inputs.packages != ''}}
+      shell: bash
+      run: |
+        brew install ${{ inputs.packages }}
+    - name: Setup Python venv
+      shell: bash
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        python3 -m pip install -r requirements.txt
+        deactivate
+        echo "$(pwd)/venv/bin/" >> "$GITHUB_PATH"
