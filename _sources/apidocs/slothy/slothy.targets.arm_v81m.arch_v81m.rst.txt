@@ -413,6 +413,12 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.StackGPR
 
+   .. py:attribute:: HINT
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.HINT
+      :value: (5,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.HINT
+
    .. py:method:: __str__()
       :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.__str__
 
@@ -3839,6 +3845,11 @@ API
    :canonical: slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves
+
+.. py:exception:: UnknownInstruction()
+   :canonical: slothy.targets.arm_v81m.arch_v81m.UnknownInstruction
+
+   Bases: :py:obj:`Exception`
 
 .. py:function:: lookup_multidict(d, inst, default=None)
    :canonical: slothy.targets.arm_v81m.arch_v81m.lookup_multidict
