@@ -107,6 +107,14 @@ class Slothy:
         self.last_result = None
         self.success = None
 
+    def _get_version(self):
+        try:
+            from importlib.metadata import version
+
+            return version("slothy")
+        except Exception:
+            return "unknown"
+
     @property
     def source(self):
         """Returns the current source code as an array of SourceLine objects.
@@ -369,6 +377,7 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = AsmIfElse.process_instructions(body)
         body = SourceLine.apply_indentation(body, indentation)
+        logger.info("SLOTHY version: %s", self._get_version())
         self.logger.info("Instructions in body: %d", len(list(filter(None, body))))
 
         if self.config.with_llvm_mca_before is True:
@@ -599,6 +608,7 @@ class Slothy:
         )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = SourceLine.apply_indentation(body, indentation)
+        logger.info("SLOTHY version: %s", self._get_version())
         self.logger.info(
             "Optimizing loop %s (%d instructions) ...", loop_lbl, len(body)
         )

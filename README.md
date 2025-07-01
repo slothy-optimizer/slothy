@@ -1,7 +1,7 @@
 ## SLOTHY: Assembly optimization via constraint solving
 
 <p align="center">
-    <image src="./docs/slothy_logo.png" width=160>
+    <img src="https://raw.githubusercontent.com/slothy-optimizer/slothy/main/docs/slothy_logo.png" width=160>
 </p>
 
 ![Python 3.9](https://img.shields.io/badge/Python-3.9-blue?logo=python)
@@ -76,7 +76,62 @@ verifies them through automated equivalence-checking in [HOL-Light](https://hol-
 
 ## Installation
 
-### Requirements
+### Option 1: Install from PyPI
+
+The easiest way to install SLOTHY is via pip:
+
+```bash
+pip install slothy
+```
+
+#### Quick Start
+
+Here's a minimal example of using SLOTHY to optimize assembly code:
+
+```python
+import sys
+import logging 
+
+import slothy
+import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
+import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+# Create SLOTHY instance for ARM Cortex-A55
+s = slothy.Slothy(AArch64_Neon, Target_CortexA55)
+
+# Load assembly code from file
+s.load_source_from_file('example.s')
+
+# Optimize the code
+s.optimize(start='start_label', end='end_label')
+
+# Write optimized assembly to file
+s.write_source_to_file('example_optimized.s')
+
+print("Optimization complete! Check example_optimized.s")
+```
+
+Example assembly file (`example.s`):
+```assembly
+start_label:
+    ldr x0, [x1]
+    ldr x2, [x3]
+    add x4, x0, x2
+    str x4, [x5]
+end_label:
+```
+
+### Option 2: Development Installation
+
+For development or to run the examples in this repository, first clone the SLOTHY development repository:
+
+```bash
+git clone https://github.com/slothy-optimizer/slothy.git
+```
+
+#### Requirements
 
 SLOTHY has been successfully used on
 
@@ -89,7 +144,7 @@ See [requirements.txt](requirements.txt) for package requirements, and install v
 **Note:** `requirements.txt` pins versions for reproducibility. If you already have newer versions of some dependencies
 installed and don't want them downgraded, consider using a virtual environment:
 
-```
+```bash
 python3 -m venv venv
 ./venv/bin/python3 -m pip install -r requirements.txt
 ```
@@ -98,15 +153,9 @@ Then, enter the virtual environment via `source venv/bin/activate` prior to runn
 Finally, adjust your PATH environment variable to include the directories containining
 the `slothy-cli` script and the LLVM `llvm-mca` tool.
 
-### Docker
+#### Verify Development Installation
 
-A dockerfile for an Ubuntu-22.04 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
-environments setup can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.Dockerfile). See
-[paper/artifact/README.md](paper/artifact/README.md) for instructions.
-
-### Quick check
-
-To check that your setup is complete, try the following from the base directory:
+To check that your development setup is complete, try the following from the base directory:
 
 ```
 % python3 test.py --tests aarch64_simple0_a55
@@ -116,6 +165,7 @@ You should see something like the following:
 
 ```
 * Example: aarch64_simple0_a55...
+INFO:aarch64_simple0_a55:SLOTHY version: 0.1.0
 INFO:aarch64_simple0_a55:Instructions in body: 20
 INFO:aarch64_simple0_a55.slothy:Perform internal binary search for minimal number of stalls...
 INFO:aarch64_simple0_a55.slothy:Attempt optimization with max 32 stalls...
@@ -129,7 +179,13 @@ INFO:aarch64_simple0_a55.slothy.selfcheck:OK!
 INFO:aarch64_simple0_a55.slothy:Minimum number of stalls: 18
 ```
 
-### Examples
+### Option 3: Docker
+
+A dockerfile for an Ubuntu-22.04 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
+environments setup can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.Dockerfile). See
+[paper/artifact/README.md](paper/artifact/README.md) for instructions.
+
+#### Examples
 
 The [SLOTHY Tutorial](docs/source/tutorial/README.md) and the [examples](examples/naive) directory contain numerous exemplary
 assembly snippets. To try them, use `python3 example.py --examples={YOUR_EXAMPLE}`. See `python3 example.py --help` for
