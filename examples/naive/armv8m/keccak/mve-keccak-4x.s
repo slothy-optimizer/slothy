@@ -267,7 +267,7 @@
     ld_xor5 \state_h, 0, 0, C0_h, A0_h
     ld_xor5 \state_l, 0, 2, C2_l, A2_l
     rot1_xor_h D1_h, C0_h, C2_l
-    vstrw.32 q<C0_h>, [r13, #QSTACK0]
+    vstrw.32 q<C0_h>, [r13, #QSTACK0] // @slothy:writes=stack0
 
     ld_xor5 \state_l, 0, 0, C0_l, A0_l
     ld_xor5 \state_h, 0, 2, C2_h, A2_h
@@ -314,7 +314,7 @@
     ld_xorD_rot_str_o \state_l, \state_h, \state_nl, \state_nh, 2, 4, D2_l, D2_h
 
     rot1_xor_h D4_h, C3_h, C0_l
-    vldrw.32 q<C0_h>, [r13, #QSTACK0]
+    vldrw.32 q<C0_h>, [r13, #QSTACK0] // @slothy:reads=stack0
     rot1_xor_l D4_l, C3_l, C0_h
 
     ld_xorD_rot_str_o \state_l, \state_h, \state_nl, \state_nh, 4, 0, D4_l, D4_h
@@ -354,7 +354,7 @@
     ld_xor5 \state_h, 0, 0, C0_h, A0_h
     ld_xor5 \state_l, 0, 2, C2_l, A2_l
     rot1_xor_h D1_h, C0_h, C2_l
-    vstrw.32 q<C0_h>, [r13, #QSTACK0]
+    vstrw.32 q<C0_h>, [r13, #QSTACK0] // @slothy:writes=stack0
 
     ld_xor5 \state_l, 0, 0, C0_l, A0_l
     ld_xor5 \state_h, 0, 2, C2_h, A2_h
@@ -401,7 +401,7 @@
     ld_xorD_rot_str_o \state_l, \state_h, \state_nl, \state_nh, 2, 4, D2_l, D2_h
 
     rot1_xor_h D4_h, C3_h, C0_l
-    vldrw.32 q<C0_h>, [r13, #QSTACK0]
+    vldrw.32 q<C0_h>, [r13, #QSTACK0] // @slothy:reads=stack0
     rot1_xor_l D4_l, C3_l, C0_h
 
     ld_xorD_rot_str_o \state_l, \state_h, \state_nl, \state_nh, 4, 0, D4_l, D4_h
@@ -496,7 +496,6 @@ roundstart:
     add r5, r4, #400
 
     keccak_4fold_round_theta_rho_pi r2, r3, r4, r5, r6
-bisect1:
     keccak_4fold_round_chi_iota r2, r3, r4, r5, r6
 
     add r6, r6, #8
