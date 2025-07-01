@@ -54,6 +54,11 @@ API
 
       .. autodoc2-docstring:: slothy.core.slothy.Slothy.target
 
+   .. py:method:: _get_version()
+      :canonical: slothy.core.slothy.Slothy._get_version
+
+      .. autodoc2-docstring:: slothy.core.slothy.Slothy._get_version
+
    .. py:property:: source
       :canonical: slothy.core.slothy.Slothy.source
 
