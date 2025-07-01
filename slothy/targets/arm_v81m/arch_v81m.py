@@ -68,6 +68,8 @@ class RegisterType(Enum):
     @staticmethod
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
+        if ty == RegisterType.HINT:
+            return False
         return True
 
     @staticmethod
@@ -99,21 +101,21 @@ class RegisterType(Enum):
             gprs += gprs_extra
             vregs += vregs_extra
 
-        hints = (
-            [f"t{i}" for i in range(100)]
-        )
-
         return {
             RegisterType.GPR: gprs,
             RegisterType.StackGPR: stack_locations,
             RegisterType.StackMVE: qstack_locations,
             RegisterType.MVE: vregs,
-            RegisterType.HINT: hints,
+            RegisterType.HINT: [],
         }[reg_type]
 
     @staticmethod
     def find_type(r):
         """Find type of architectural register"""
+
+        if r.startswith("hint_"):
+            return RegisterType.HINT
+
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
                 return ty
@@ -126,6 +128,7 @@ class RegisterType(Enum):
             "stack": RegisterType.StackGPR,
             "mve": RegisterType.MVE,
             "gpr": RegisterType.GPR,
+            "hint": RegisterType.HINT,
         }.get(string, None)
 
     def default_aliases():
@@ -133,7 +136,7 @@ class RegisterType(Enum):
 
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["r13", "r14"])
+        return set(["r13", "r14"] + RegisterType.list_registers(RegisterType.HINT))
 
 
 class LeLoop(Loop):
