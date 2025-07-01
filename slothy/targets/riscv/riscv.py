@@ -210,6 +210,51 @@ class AddiLoop(Loop):
         indent = " " * indentation
         self.parsed_imm = simplify(self.additional_data["imm"])
         end_reg = self.additional_data["end"]
+
+        # Find out whether loop_cnt is an address or not This is important for
+        # the fixup. If we are dealing with an address, we must not modify
+        # loop_cnt as it would alter the address that is accessed in the loop,
+        # meaning we must adjust the loop "end", the value we compare the
+        # address against. If loop_cnt is an actual counter that's counted
+        # downwards to 0, we can decrement it initially without any harm -- in
+        # case "zero" is used as the value we compare to, we also have no other
+        # choice than going this route because we would reequire an additional
+        # register to hold then modified "end" value in this case.
+
+        # TODO: implement this more properly using the actual instruction
+        # classes and checking against them. Also for stores, only the address
+        # input should be considered.
+        ls_instrs = [
+            "lb",
+            "lbu",
+            "lh",
+            "lhu",
+            "lw",
+            "lwu",
+            "ld",
+            "sb",
+            "sh",
+            "sw",
+            "sd",
+        ]
+
+        loop_cnt_alias = register_aliases[loop_cnt]
+
+        addr_counter_mode = False
+        body_code = [line for line in body_code if line.text != ""]
+        for line in body_code:
+            inst = Instruction.parser(line)
+            # Flags are set through cmp
+            # LIMITATION: By convention, we require the first argument to be the
+            # "counter" and the second the one marking the iteration end.
+            is_load_store = False
+            for mnemonic in ls_instrs:
+                if mnemonic in inst[0].write():
+                    is_load_store = True
+                if is_load_store:
+                    if loop_cnt_alias in inst[0].args_in:
+                        addr_counter_mode = True
+
         if unroll > 1:
             assert unroll in [1, 2, 4, 8, 16, 32]
             yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
@@ -217,7 +262,10 @@ class AddiLoop(Loop):
             # In case the immediate is >1, we need to scale the fixup. This
             # allows for loops that do not use an increment of 1
             fixup *= self.parsed_imm
-            yield f"{indent}addi {end_reg} {end_reg} {-fixup}"
+            if addr_counter_mode:
+                yield f"{indent}addi {end_reg} {end_reg} {-fixup}"
+            else:
+                yield f"{indent}addi {loop_cnt}, {loop_cnt}, {fixup}"
         if jump_if_empty is not None:
             yield f"beq {loop_cnt}, {loop_cnt}, {jump_if_empty}"
         yield f"{self.lbl}:"

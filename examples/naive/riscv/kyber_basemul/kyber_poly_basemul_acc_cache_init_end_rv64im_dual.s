@@ -606,9 +606,9 @@
 // compute basemul, cache bzeta into b_cache, accumulate the 32-bit results into r_double, and reduce r_double to r
 // a0: r, a1: a, a2: b, a3: b_cache, a4: zetas, a5: r_double
 // a6: loop control
-.global poly_basemul_acc_cache_init_end_rv64im
+.global poly_basemul_acc_cache_init_end_rv64im_dual
 .align 2
-poly_basemul_acc_cache_init_end_rv64im:
+poly_basemul_acc_cache_init_end_rv64im_dual:
     addi sp, sp, -8*16
     save_regs
     li a6, qinv

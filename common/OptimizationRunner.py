@@ -215,6 +215,9 @@ class OptimizationRunner:
 
         self.core(slothy, *self.extra_args)
 
+        # TODO: Ensure this is compatible with all examples having variants.
+        # Having the input func name differ as well is superior as it avoids
+        # naming collisions.
         if self.rename:
             var_str = f"_{self.var}" if self.var != "" else ""
             slothy.rename_function(
