@@ -553,6 +553,12 @@ default_latencies = {
         vst41_with_writeback,
         vst42_with_writeback,
         vst43_with_writeback,
+        vstrw,
+        vstrw_no_imm,
+        vstrw_with_writeback,
+        vstrw_with_post,
+        vstrw_scatter,
+        vstrw_scatter_uxtw,
     ): 1,
     (
         vrshr,
