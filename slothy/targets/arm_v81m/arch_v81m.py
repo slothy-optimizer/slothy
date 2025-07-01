@@ -57,6 +57,7 @@ class RegisterType(Enum):
     MVE = (2,)
     StackMVE = (3,)
     StackGPR = (4,)
+    HINT = (5,)
 
     def __str__(self):
         return self.name
@@ -98,11 +99,16 @@ class RegisterType(Enum):
             gprs += gprs_extra
             vregs += vregs_extra
 
+        hints = (
+            [f"t{i}" for i in range(100)]
+        )
+
         return {
             RegisterType.GPR: gprs,
             RegisterType.StackGPR: stack_locations,
             RegisterType.StackMVE: qstack_locations,
             RegisterType.MVE: vregs,
+            RegisterType.HINT: hints,
         }[reg_type]
 
     @staticmethod
