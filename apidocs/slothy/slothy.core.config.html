@@ -319,12 +319,6 @@ on the address register).</p>
 <p>By default, this is enabled for backwards compatibility.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For historical reason, this feature cannot be disabled for
-the Armv8.1-M architecture model. A refactoring of that model is needed
-to make address offset fixup configurable.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
 <p>The user-imposed safety constraint is not a necessity – in principle,
 SLOTHY could detect when it is safe to reorder ldr/str instructions with
 increment.
