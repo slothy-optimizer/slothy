@@ -57,6 +57,7 @@ class RegisterType(Enum):
     MVE = (2,)
     StackMVE = (3,)
     StackGPR = (4,)
+    HINT = (5,)
 
     def __str__(self):
         return self.name
@@ -67,6 +68,8 @@ class RegisterType(Enum):
     @staticmethod
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
+        if ty == RegisterType.HINT:
+            return False
         return True
 
     @staticmethod
@@ -103,11 +106,16 @@ class RegisterType(Enum):
             RegisterType.StackGPR: stack_locations,
             RegisterType.StackMVE: qstack_locations,
             RegisterType.MVE: vregs,
+            RegisterType.HINT: [],
         }[reg_type]
 
     @staticmethod
     def find_type(r):
         """Find type of architectural register"""
+
+        if r.startswith("hint_"):
+            return RegisterType.HINT
+
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
                 return ty
@@ -120,6 +128,7 @@ class RegisterType(Enum):
             "stack": RegisterType.StackGPR,
             "mve": RegisterType.MVE,
             "gpr": RegisterType.GPR,
+            "hint": RegisterType.HINT,
         }.get(string, None)
 
     def default_aliases():
@@ -127,7 +136,7 @@ class RegisterType(Enum):
 
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["r13", "r14"])
+        return set(["r13", "r14"] + RegisterType.list_registers(RegisterType.HINT))
 
 
 class LeLoop(Loop):
@@ -2417,7 +2426,12 @@ def all_subclass_leaves(c):
 Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 
+class UnknownInstruction(Exception):
+    pass
+
+
 def lookup_multidict(d, inst, default=None):
+    instclass = find_class(inst)
     for ll, v in d.items():
         # Multidict entries can be the following:
         # - An instruction class. It matches any instruction of that class.
@@ -2437,7 +2451,7 @@ def lookup_multidict(d, inst, default=None):
             if match(lp):
                 return v
     if default is None:
-        raise Exception(f"Couldn't find {inst}")
+        raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
     return default
 
 

@@ -86,6 +86,17 @@ class LoopLe(OptimizationRunner):
         slothy.optimize_loop("start")
 
 
+class HintTest(OptimizationRunner):
+    def __init__(self):
+        super().__init__(
+            "hint_test", arch=Arch_Armv81M, target=Target_CortexM55r1, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize()
+
+
 test_instances = [
     Instructions(),
     Example0(),
@@ -93,4 +104,5 @@ test_instances = [
     Example2(),
     Example3(),
     LoopLe(),
+    HintTest(),
 ]
