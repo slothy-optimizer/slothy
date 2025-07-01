@@ -46,6 +46,11 @@ class Example0(OptimizationRunner):
     def __init__(self):
         super().__init__("simple0", base_dir="tests")
 
+    def core(self, slothy):
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize()
+
 
 class Example1(OptimizationRunner):
     def __init__(self):
