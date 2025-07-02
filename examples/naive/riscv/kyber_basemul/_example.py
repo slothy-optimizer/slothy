@@ -12,10 +12,6 @@ class RISC_V_poly_basemul_acc_cache_end_rv64im(OptimizationRunner):
         name = "kyber_poly_basemul_acc_cache_end_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -24,6 +20,7 @@ class RISC_V_poly_basemul_acc_cache_end_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_cache_end_rv64im",
         )
 
@@ -44,10 +41,6 @@ class RISC_V_poly_basemul_acc_cache_init_end_rv64im(OptimizationRunner):
         name = "kyber_poly_basemul_acc_cache_init_end_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -56,6 +49,7 @@ class RISC_V_poly_basemul_acc_cache_init_end_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_cache_init_end_rv64im",
         )
 
@@ -76,10 +70,6 @@ class RISC_V_poly_basemul_acc_cache_init_rv64im(OptimizationRunner):
         name = "kyber_poly_basemul_acc_cache_init_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -88,6 +78,7 @@ class RISC_V_poly_basemul_acc_cache_init_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_cache_init_rv64im",
         )
 
@@ -108,10 +99,6 @@ class RISC_V_poly_basemul_acc_cached_rv64im(OptimizationRunner):
         name = "kyber_poly_basemul_acc_cached_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -120,6 +107,7 @@ class RISC_V_poly_basemul_acc_cached_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_cached_rv64im",
         )
 
@@ -140,10 +128,6 @@ class RISC_V_poly_basemul_acc_end_rv64im(OptimizationRunner):
         name = "kyber_poly_basemul_acc_end_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -152,6 +136,7 @@ class RISC_V_poly_basemul_acc_end_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_end_rv64im",
         )
 
@@ -172,10 +157,6 @@ class RISC_V_poly_basemul_acc_rv64im(OptimizationRunner):
         name = "kyber_poly_basemul_acc_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -184,6 +165,7 @@ class RISC_V_poly_basemul_acc_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_rv64im",
         )
 
@@ -204,10 +186,6 @@ class RISC_V_poly_basemul_cache_init_rv64im(OptimizationRunner):
         name = "kyber_poly_basemul_cache_init_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -216,6 +194,7 @@ class RISC_V_poly_basemul_cache_init_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_cache_init_rv64im",
         )
 
@@ -236,10 +215,6 @@ class RISC_V_poly_plantard_rdc_rv64im(OptimizationRunner):
         name = "kyber_poly_plantard_rdc_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -248,6 +223,7 @@ class RISC_V_poly_plantard_rdc_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_plantard_rdc_rv64im",
         )
 
@@ -268,10 +244,6 @@ class RISC_V_poly_toplant_rv64im(OptimizationRunner):
         name = "kyber_poly_toplant_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -280,6 +252,7 @@ class RISC_V_poly_toplant_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_toplant_rv64im",
         )
 
@@ -303,10 +276,6 @@ class RISC_V_poly_basemul_acc_cache_init_rvv_vlen128(OptimizationRunner):
         name = "kyber_poly_basemul_acc_cache_init_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -315,6 +284,7 @@ class RISC_V_poly_basemul_acc_cache_init_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_cache_init_rvv_vlen128",
         )
 
@@ -334,10 +304,6 @@ class RISC_V_poly_basemul_cache_init_rvv_vlen128(OptimizationRunner):
         name = "kyber_poly_basemul_cache_init_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -346,6 +312,7 @@ class RISC_V_poly_basemul_cache_init_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_cache_init_rvv_vlen128",
         )
 
@@ -365,10 +332,6 @@ class RISC_V_poly_basemul_acc_cached_rvv_vlen128(OptimizationRunner):
         name = "kyber_poly_basemul_acc_cached_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -377,6 +340,7 @@ class RISC_V_poly_basemul_acc_cached_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_cached_rvv_vlen128",
         )
 
@@ -396,10 +360,6 @@ class RISC_V_poly_basemul_cached_rvv_vlen128(OptimizationRunner):
         name = "kyber_poly_basemul_cached_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -408,6 +368,7 @@ class RISC_V_poly_basemul_cached_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_cached_rvv_vlen128",
         )
 
@@ -427,10 +388,6 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
         name = "kyber_poly_basemul_acc_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -439,6 +396,7 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_acc_rvv_vlen128",
         )
 
@@ -458,10 +416,6 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
         name = "kyber_poly_basemul_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -470,6 +424,7 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_basemul_rvv_vlen128",
         )
 
@@ -489,10 +444,6 @@ class RISC_V_poly_reduce_rvv_vlen128(OptimizationRunner):
         name = "kyber_poly_reduce_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -501,6 +452,7 @@ class RISC_V_poly_reduce_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_reduce_rvv_vlen128",
         )
 
@@ -520,10 +472,6 @@ class RISC_V_poly_tomont_rvv_vlen128(OptimizationRunner):
         name = "kyber_poly_tomont_rvv_vlen128"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -532,6 +480,7 @@ class RISC_V_poly_tomont_rvv_vlen128(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
+            var=var,
             funcname="poly_tomont_rvv_vlen128",
         )
 

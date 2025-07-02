@@ -605,9 +605,9 @@
 // void poly_basemul_acc_end_rv64im(int16_t *r, const int16_t *a, const int16_t *b, uint32_t *zetas, int32_t *r_double)
 // compute basemul, accumulate the 32-bit results into r_double, and reduce r_double to r
 // a0: r, a1: a, a2: b, a3: zetas, a4: r_double
-.global poly_basemul_acc_end_rv64im
+.global poly_basemul_acc_end_rv64im_dual
 .align 2
-poly_basemul_acc_end_rv64im:
+poly_basemul_acc_end_rv64im_dual:
     addi sp, sp, -8*16
     save_regs
     li a5, q48

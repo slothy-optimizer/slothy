@@ -603,9 +603,9 @@
 .equ plantconst2, 0x97f44fac    // (2^{64} mod q)*qinv mod 2^32
 
 // each coeff is multiplied by plantconst2 using plantard multiplication
-.global poly_toplant_rv64im
+.global poly_toplant_rv64im_dual
 .align 2
-poly_toplant_rv64im:
+poly_toplant_rv64im_dual:
   addi sp, sp, -8*1
   sd   s0, 0(sp)
   li t6, plantconst2

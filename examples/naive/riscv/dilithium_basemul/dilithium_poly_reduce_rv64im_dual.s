@@ -37,5 +37,5 @@ poly_reduce_rv64im_loop:
     sw a6, 2*4(a0)
     sw a7, 3*4(a0)
     addi a0, a0, 4*4
-    bne a3, a0, poly_reduce_rv64im_loop
+    bne a0, a3, poly_reduce_rv64im_loop
     ret
