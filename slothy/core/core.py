@@ -3994,6 +3994,14 @@ class SlothyBase(LockAttributes):
 
         self._model.cp_solver.parameters.num_workers = 16
 
+        # EXPERIMENTAL
+        self._model.cp_solver.parameters.cp_model_presolve = False
+        self._model.cp_solver.parameters.cp_model_probing_level = 0
+        self._model.cp_solver.parameters.symmetry_level = 0
+        self._model.cp_solver.parameters.linearization_level = 0
+        self._model.cp_solver.parameters.search_branching = cp_model.AUTOMATIC_SEARCH
+        self._model.cp_solver.parameters.preferred_variable_order = 0  # DEFAULT
+
     def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval, maxval, name)
         self._model.variables.append(r)
