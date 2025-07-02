@@ -1,3 +1,7 @@
+#include "consts.h"
+
+#define _ZETA_EXP_0TO3_L0 (0 * 2)
+
 // [a0,a1,a2,a3]+[a4,a5,a6,a7] -> [a0,a1,a4,a5]+[a2,a3,a6,a7]
 // related masks are ready for using
 // v0: _MASK_1100, vm0/vm1: _MASK_0101/_MASK_2323
