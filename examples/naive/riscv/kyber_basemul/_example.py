@@ -30,9 +30,14 @@ class RISC_V_poly_basemul_acc_cache_end_rv64im(OptimizationRunner):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
 
+        loop_control = "x17" if self.var == "dual" else "x16"
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += [loop_control]  # loop control
         slothy.config.reserved_regs = r
+        # slothy.config.reserved_regs_are_locked = False
+
+        slothy.config.constraints.allow_reordering = True
+        slothy.config.constraints.allow_renaming = True
         slothy.optimize_loop("poly_basemul_acc_cache_end_rv64im_loop")
 
 
@@ -59,9 +64,11 @@ class RISC_V_poly_basemul_acc_cache_init_end_rv64im(OptimizationRunner):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
 
+        loop_control = "x17" if self.var == "dual" else "x16"
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += [loop_control]  # loop control
         slothy.config.reserved_regs = r
+        slothy.config.reserved_regs_are_locked = False
         slothy.optimize_loop("poly_basemul_acc_cache_init_end_rv64im_loop")
 
 
@@ -89,7 +96,7 @@ class RISC_V_poly_basemul_acc_cache_init_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x16"]  # loop control
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_cache_init_rv64im_loop")
 
@@ -118,7 +125,7 @@ class RISC_V_poly_basemul_acc_cached_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x16"]  # loop control
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_cached_rv64im_loop")
 
@@ -146,9 +153,11 @@ class RISC_V_poly_basemul_acc_end_rv64im(OptimizationRunner):
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
 
+        loop_control = "x17" if self.var == "dual" else "x16"
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += [loop_control]  # loop control
         slothy.config.reserved_regs = r
+        slothy.config.reserved_regs_are_locked = False
         slothy.optimize_loop("poly_basemul_acc_end_rv64im_loop")
 
 
@@ -176,7 +185,7 @@ class RISC_V_poly_basemul_acc_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x16"]  # loop control
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_acc_rv64im_loop")
 
@@ -205,7 +214,7 @@ class RISC_V_poly_basemul_cache_init_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x16"]  # loop control
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_basemul_cache_init_rv64im_loop")
 
