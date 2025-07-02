@@ -169,7 +169,7 @@ class RISCVLiPseudo(RISCVInstruction):
 def li_pseudo_split_cb():
     def core(inst, t, log=None):
         out_reg = inst.args_out[0]
-        imm = int(inst.immediate)
+        imm = int(eval(inst.immediate))
         insts = []
         # if imm fits in signed 12-bit immediate, just use addi
         if -2048 <= imm <= 2047:
