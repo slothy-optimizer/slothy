@@ -25,7 +25,7 @@
 
 """This module contains abstract RISC-V instruction types to represent
 instructions which share the same pattern"""
-
+from slothy.targets.riscv.riscv import RegisterType
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 
@@ -199,6 +199,25 @@ class RISCVVectorStoreWholeRegister(RISCVInstruction):
         obj.increment = None
         # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
+        regs_types, expanded_regs = RISCVInstruction._expand_reg(obj.args_in[0], obj.nf)
+        print(regs_types)
+        mem_reg = obj.args_in[1]
+        obj.args_in =  expanded_regs + [mem_reg]  # add the register holding the memory address
+        print("ARGS_IN")
+        print(obj.args_in)
+        obj.num_in = len(obj.args_in)
+        obj.arg_types_in = regs_types
+        available_regs = RegisterType.list_registers(RegisterType.VECT)
+        obj.args_in_combinations = [
+            (
+                list(range(0, int(obj.num_in-1))),
+                [
+                    [available_regs[i + j] for i in range(0, int(obj.nf))] #+[mem_reg]
+                    for j in range(0, len(available_regs) - int(obj.nf))
+                ],
+            )
+        ]
+        obj.args_in_restrictions = [None for _ in range(obj.num_in)]
         return obj
 
     pattern = "mnemonic <Vd>, (<Xa>)"

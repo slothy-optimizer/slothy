@@ -1,3 +1,3 @@
 start:
-vl2re16.v v4, (x16)
+vs8r.v v4, (x16)
 end:

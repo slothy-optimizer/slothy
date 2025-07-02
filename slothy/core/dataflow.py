@@ -968,7 +968,7 @@ class DataFlowGraph:
         num_valid_candidates = len(valid_candidates)
         if num_valid_candidates == 0:
             raise DataFlowGraphException(
-                f"None of the candidate parsings for {sourceline} type checks!"
+                f"None of the candidate parsings for {sourceline.to_string()} type checks!"
                 f"\nCandidates\n{candidates}"
             )
         # If we have more than one instruction passing the type check,
