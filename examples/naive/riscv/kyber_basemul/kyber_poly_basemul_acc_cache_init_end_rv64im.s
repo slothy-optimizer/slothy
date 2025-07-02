@@ -128,9 +128,8 @@
 .global poly_basemul_acc_cache_init_end_rv64im
 .align 2
 poly_basemul_acc_cache_init_end_rv64im:
-    addi sp, sp, -8*2
-    sd   s0, 0*8(sp)
-    sd   s1, 1*8(sp)
+    addi sp, sp, -8*15
+    save_regs
     li s0, q32
     li s1, qinv
     li a6, 64
@@ -188,7 +187,6 @@ poly_basemul_acc_cache_init_end_rv64im_loop:
     addi a5, a5, 4*4
     addi a6, a6, -1
     bne a6, zero, poly_basemul_acc_cache_init_end_rv64im_loop
-    ld   s0, 0*8(sp)
-    ld   s1, 1*8(sp)
-    addi sp, sp, 8*2
+    restore_regs
+    addi sp, sp, 8*15
 ret

@@ -127,6 +127,8 @@
 .global poly_basemul_acc_rv64im
 .align 2
 poly_basemul_acc_rv64im:
+    addi sp, sp, -8*15
+    save_regs
     li a5, q32
     li a6, 64
 poly_basemul_acc_rv64im_loop:
@@ -175,4 +177,6 @@ poly_basemul_acc_rv64im_loop:
     addi a3, a3, 8*1
     addi a6, a6, -1
     bne a6, zero, poly_basemul_acc_rv64im_loop
+    restore_regs
+    addi sp, sp, 8*15
 ret

@@ -391,7 +391,7 @@ class RISCVInstruction(Instruction):
                 t = t_default
 
             a = getattr(self, attr_name)
-            if a is None:
+            if a is None and attr_name == "is32bit":
                 return txt.replace("<w>", "")
             if not isinstance(a, list):
                 txt = txt.replace(f"<{mnemonic_key}>", t(a))
