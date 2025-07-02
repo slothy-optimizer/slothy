@@ -56,7 +56,7 @@ dependencies = [
 dev = [
     "black",
     "pydoclint==0.6.6",
-    "flake8==7.2.0",
+    "flake8==7.3.0",
 ]
 docs = [
     "sphinx==8.2.3; python_version >= '3.11'",
