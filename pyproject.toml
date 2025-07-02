@@ -48,7 +48,7 @@ dependencies = [
     "ortools==9.7.2996; python_version < '3.13'",
     "ortools==9.12.4544; python_version >= '3.13'",
     "pandas>=2.0.3",
-    "sympy==1.13.3",
+    "sympy==1.14.0",
     "unicorn==2.1.3",
 ]
 
