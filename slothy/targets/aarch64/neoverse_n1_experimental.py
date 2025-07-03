@@ -43,6 +43,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ldr_Q,
     Str_Q,
     Stp_Q,
+    Ldp_Q,
     Vrev,
     uaddlp,
     vmov,
@@ -162,7 +163,7 @@ def get_min_max_objective(slothy):
 
 
 execution_units = {
-    (Ldp_X, Ldr_X, Str_X, Stp_X, Ldr_Q, Str_Q, Stp_Q): ExecutionUnit.LSU(),
+    (Ldp_X, Ldr_X, Str_X, Stp_X, Ldr_Q, Str_Q, Stp_Q, Ldp_Q): ExecutionUnit.LSU(),
     # TODO: The following would be more accurate, but does not
     #       necessarily lead to better results, while making the
     #       optimization slower. Investigate...
@@ -205,7 +206,7 @@ execution_units = {
 }
 
 inverse_throughput = {
-    (Ldr_X, Str_X, Ldr_Q, Str_Q): 1,
+    (Ldr_X, Str_X, Ldr_Q, Str_Q, Ldp_Q): 1,
     (Ldp_X, Stp_X): 2,
     Stp_Q: 2,
     St3: 3,  # Multiple structures, Q form, storing bytes
@@ -242,7 +243,9 @@ inverse_throughput = {
 }
 
 default_latencies = {
-    (Ldp_X, Ldr_X, Ldr_Q, Stp_Q): 4,
+    # For OOO uArch we use relaxed latency modeling for load instructions
+    # since the uArch will heavily front-load them anyway
+    (Ldp_X, Ldr_X, Ldr_Q, Stp_Q, Ldp_Q): 4,
     (Stp_X, Str_X, Str_Q): 2,
     St3: 6,  # Multiple structures, Q form, storing bytes
     St4: 4,
