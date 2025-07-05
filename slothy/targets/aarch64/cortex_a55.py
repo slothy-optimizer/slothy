@@ -104,6 +104,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vuzp1,
     vsri,
     veor,
+    vext,
     vuzp2,
     vsub,
     vshl,
@@ -155,6 +156,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     VShiftImmediateBasic,
     vmlal,
     ubfx,
+    AESInstruction,
 )
 
 issue_rate = 2
@@ -332,6 +334,8 @@ execution_units = {
     is_dform_form_of(vzip1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vzip2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vzip2): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vext): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vext): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vuzp1): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vuzp1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vuzp2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
@@ -389,6 +393,9 @@ execution_units = {
         lsr_wform,
         eor_wform,
     ): ExecutionUnit.SCALAR(),
+    # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
+    # is not modeled
+    AESInstruction: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
 
 inverse_throughput = {
@@ -451,6 +458,7 @@ inverse_throughput = {
     (vsri): 1,
     (vusra): 1,
     (vand, vbic, veor): 1,
+    vext: 1,
     (vuzp1, vuzp2): 1,
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ldr1_post_inc): 1,
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc): 1,
@@ -458,6 +466,7 @@ inverse_throughput = {
     (vzip1, vzip2): 1,
     (eor_wform): 1,
     (eor, bic, eor_ror, bic_ror): 1,
+    AESInstruction: 1,
 }
 
 default_latencies = {
@@ -523,6 +532,7 @@ default_latencies = {
     (vsri): 2,
     (vusra): 3,
     (vand, vbic, veor): 1,
+    vext: 2,
     (vuzp1, vuzp2): 2,
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ldr1_post_inc): 3,
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc): 3,
@@ -534,6 +544,9 @@ default_latencies = {
     # seems to be 1 cycle. See https://eprint.iacr.org/2022/1243.pdf
     (eor_ror, bic_ror): 1,
     (ror, eor, bic): 1,
+    # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
+    # is not modeled
+    AESInstruction: 2,
 }
 
 
