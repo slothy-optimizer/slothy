@@ -380,6 +380,7 @@ class RISCVInstruction(Instruction):
             + list(zip(self.args_out, self.pattern_outputs))
             + list(zip(self.args_in_out, self.pattern_in_outs))
         )
+
         for arg, (s, ty) in l:
             out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
 
@@ -393,6 +394,8 @@ class RISCVInstruction(Instruction):
             a = getattr(self, attr_name)
             if a is None and attr_name == "is32bit":
                 return txt.replace("<w>", "")
+            if a is None:
+                return txt
             if not isinstance(a, list):
                 txt = txt.replace(f"<{mnemonic_key}>", t(a))
                 return txt
