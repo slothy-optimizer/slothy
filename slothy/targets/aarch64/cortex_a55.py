@@ -155,6 +155,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     VShiftImmediateBasic,
     vmlal,
     ubfx,
+    AESInstruction,
 )
 
 issue_rate = 2
@@ -389,6 +390,9 @@ execution_units = {
         lsr_wform,
         eor_wform,
     ): ExecutionUnit.SCALAR(),
+    # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
+    # is not modeled
+    AESInstruction: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
 
 inverse_throughput = {
@@ -458,6 +462,7 @@ inverse_throughput = {
     (vzip1, vzip2): 1,
     (eor_wform): 1,
     (eor, bic, eor_ror, bic_ror): 1,
+    AESInstruction: 1,
 }
 
 default_latencies = {
@@ -534,6 +539,9 @@ default_latencies = {
     # seems to be 1 cycle. See https://eprint.iacr.org/2022/1243.pdf
     (eor_ror, bic_ror): 1,
     (ror, eor, bic): 1,
+    # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
+    # is not modeled
+    AESInstruction: 2,
 }
 
 
