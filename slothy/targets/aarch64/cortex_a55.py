@@ -53,7 +53,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ldr_Q,
     Str_Q,
     vmov,
-    vand,
     vadd,
     vxtn,
     vshli,
@@ -103,7 +102,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     vzip2,
     vuzp1,
     vsri,
-    veor,
     vext,
     vuzp2,
     vsub,
@@ -157,6 +155,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vmlal,
     ubfx,
     AESInstruction,
+    AArch64NeonLogical,
 )
 
 issue_rate = 2
@@ -243,10 +242,7 @@ execution_units = {
         vqrdmulh,
         vqrdmulh_lane,
         vqdmulh_lane,
-        vand,
-        vbic,
         vsri,
-        veor,
         Ldr_Q,
         Str_Q,
         q_ldr1_stack,
@@ -261,6 +257,7 @@ execution_units = {
         vshli,
         vxtn,
         VShiftImmediateRounding,
+        AArch64NeonLogical,
     ): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
     ],  # these instructions use both VEC0 and VEC1
@@ -457,7 +454,7 @@ inverse_throughput = {
     VShiftImmediateBasic: 1,
     (vsri): 1,
     (vusra): 1,
-    (vand, vbic, veor): 1,
+    AArch64NeonLogical: 1,
     vext: 1,
     (vuzp1, vuzp2): 1,
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ldr1_post_inc): 1,
@@ -531,7 +528,7 @@ default_latencies = {
     VShiftImmediateBasic: 2,
     (vsri): 2,
     (vusra): 3,
-    (vand, vbic, veor): 1,
+    AArch64NeonLogical: 1,
     vext: 2,
     (vuzp1, vuzp2): 2,
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ldr1_post_inc): 3,

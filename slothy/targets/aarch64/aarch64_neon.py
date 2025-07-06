@@ -2894,18 +2894,6 @@ class uaddlp(AArch64Instruction):
     outputs = ["Vd"]
 
 
-class vand(AArch64Instruction):
-    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
-    inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
-class vbic(AArch64Instruction):
-    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
-    inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
 class Vzip(AArch64Instruction):
     pass
 
@@ -3098,32 +3086,61 @@ class AArch64NeonLogical(AArch64Instruction):
     pass
 
 
+class vand(AArch64NeonLogical):
+    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vbic(AArch64NeonLogical):
+    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vmvn(AArch64NeonLogical):
+    pattern = "mvn <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vorr(AArch64NeonLogical):
+    pattern = "orr <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vorn(AArch64NeonLogical):
+    pattern = "orn <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class veor(AArch64NeonLogical):
     pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vbif(AArch64NeonLogical):
+class vbif(AArch64Instruction):
     pattern = "bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
-# Not sure about the classification as logical... couldn't find it in SWOG
-class vmov_d(AArch64NeonLogical):
+class vmov_d(AArch64Instruction):
     pattern = "mov <Dd>, <Va>.d[1]"
     inputs = ["Va"]
     outputs = ["Dd"]
 
 
-class vext(AArch64NeonLogical):
+class vext(AArch64Instruction):
     pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vsri(AArch64NeonLogical):
+class vsri(AArch64Instruction):
     pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]

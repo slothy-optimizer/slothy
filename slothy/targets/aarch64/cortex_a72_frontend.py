@@ -95,9 +95,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     ubfx,
     AESInstruction,
     vext,
-    veor,
-    vand,
-    vbic,
+    AArch64NeonLogical,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -182,7 +180,11 @@ execution_units = {
         Vmlal,
         Vmull,
     ): [ExecutionUnit.ASIMD0],
-    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, veor, vand, vbic): [
+    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext): [
+        ExecutionUnit.ASIMD0,
+        ExecutionUnit.ASIMD1,
+    ],
+    AArch64NeonLogical: [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
@@ -214,7 +216,8 @@ inverse_throughput = {
     ): 2,
     (Vmull, Vmlal): 1,
     Vzip: 1,
-    (vadd, vsub, trn1, trn2, ASimdCompare, vext, veor, vand, vbic): 1,
+    (vadd, vsub, trn1, trn2, ASimdCompare, vext): 1,
+    AArch64NeonLogical: 1,
     Vins: 1,
     umov_d: 1,
     (add, add_imm, add_lsl, add_lsr): 1,
@@ -252,10 +255,8 @@ default_latencies = {
         trn2,
         ASimdCompare,
         vext,
-        veor,
-        vand,
-        vbic,
     ): 3,  # Approximation -- not necessary to get it exactly right, as mentioned above
+    AArch64NeonLogical: 3,
     (Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
