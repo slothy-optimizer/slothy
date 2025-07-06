@@ -92,6 +92,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vmla_lane,
     vmls,
     vmls_lane,
+    vext,
 )
 
 issue_rate = 4
@@ -188,6 +189,7 @@ execution_units = {
     AESInstruction: ExecutionUnit.V0(),
     (Vmul, Vmla, Vqdmulh, Vmull, Vmlal): ExecutionUnit.V0(),
     AArch64NeonLogical: ExecutionUnit.V(),
+    vext: ExecutionUnit.V(),
     (
         AArch64BasicArithmetic,
         AArch64ConditionalSelect,
@@ -218,6 +220,7 @@ inverse_throughput = {
     Transpose: 1,
     AESInstruction: 1,
     AArch64NeonLogical: 1,
+    vext: 1,
     (vmovi): 1,
     (vxtn): 1,
     (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn, vsshr): 1,
@@ -254,6 +257,7 @@ default_latencies = {
     (vxtn): 2,
     AESInstruction: 2,
     AArch64NeonLogical: 2,
+    vext: 2,
     Transpose: 2,
     (vand, vadd, vsub): 2,
     (vmov): 2,  # ???
