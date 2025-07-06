@@ -4357,9 +4357,12 @@ def is_dt_form_of(instr_class, dts=None):
         return len([a for a in ls_a if a in ls_b]) > 0
 
     def _check_instr_dt(src):
-        if find_class(src) in instr_class:
-            if dts is None or _intersects(src.datatype, dts):
-                return True
+        # Check if src is an instance of any of the instruction classes
+        # (supports inheritance)
+        for cls in instr_class:
+            if isinstance(src, cls):
+                if dts is None or _intersects(src.datatype, dts):
+                    return True
         return False
 
     return _check_instr_dt
