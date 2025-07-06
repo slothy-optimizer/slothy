@@ -8,6 +8,8 @@ mvn v22.16b, v23.16b
 orr v24.16b, v25.16b, v26.16b
 orn v27.16b, v28.16b, v29.16b
 eor v30.16b, v31.16b, v0.16b
+sri v1.16b, v2.16b, #4
+sli v3.16b, v4.16b, #2
 ext v0.16b, v1.16b, v2.16b, #8
 aese v0.16b, v1.16b
 aesmc v2.16b, v3.16b

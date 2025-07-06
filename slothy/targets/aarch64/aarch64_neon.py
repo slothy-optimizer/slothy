@@ -3140,12 +3140,6 @@ class vext(AArch64Instruction):
     outputs = ["Vd"]
 
 
-class vsri(AArch64Instruction):
-    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    in_outs = ["Vd"]
-
-
 class Vmul(AArch64Instruction):
     pass
 
@@ -3321,8 +3315,18 @@ class vshl_d(AArch64Instruction):
     outputs = ["Dd"]
 
 
-class vshli(AArch64Instruction):
+class AArch64NeonShiftInsert(AArch64Instruction):
+    pass
+
+
+class vsli(AArch64NeonShiftInsert):
     pattern = "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
+class vsri(AArch64NeonShiftInsert):
+    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 

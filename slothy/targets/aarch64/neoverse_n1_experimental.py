@@ -52,7 +52,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     vadd,
     vxtn,
     vshl_d,
-    vshli,
     vshrn,
     vsshr,
     vusra,
@@ -93,6 +92,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vmls,
     vmls_lane,
     vext,
+    AArch64NeonShiftInsert,
 )
 
 issue_rate = 4
@@ -184,7 +184,15 @@ execution_units = {
     (vmovi): ExecutionUnit.V(),
     (vand, vadd, vsub): ExecutionUnit.V(),
     (vxtn): ExecutionUnit.V(),
-    (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn, vsshr): ExecutionUnit.V1(),
+    (
+        vuxtl,
+        vshl,
+        vshl_d,
+        AArch64NeonShiftInsert,
+        vsrshr,
+        vshrn,
+        vsshr,
+    ): ExecutionUnit.V1(),
     vusra: ExecutionUnit.V1(),
     AESInstruction: ExecutionUnit.V0(),
     (Vmul, Vmla, Vqdmulh, Vmull, Vmlal): ExecutionUnit.V0(),
@@ -223,7 +231,7 @@ inverse_throughput = {
     vext: 1,
     (vmovi): 1,
     (vxtn): 1,
-    (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn, vsshr): 1,
+    (vuxtl, vshl, vshl_d, AArch64NeonShiftInsert, vsrshr, vshrn, vsshr): 1,
     (Vmul, Vmla, Vqdmulh): 2,
     vusra: 1,
     (Vmull, Vmlal): 1,
@@ -265,7 +273,7 @@ default_latencies = {
     (Vmul, Vmla, Vqdmulh): 5,
     vusra: 4,  # TODO: Add fwd path
     (Vmull, Vmlal): 4,
-    (vuxtl, vshl, vshl_d, vshli, vshrn, vsshr): 2,
+    (vuxtl, vshl, vshl_d, AArch64NeonShiftInsert, vshrn, vsshr): 2,
     (vsrshr): 4,
     (
         AArch64BasicArithmetic,
