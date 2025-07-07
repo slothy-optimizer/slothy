@@ -3225,13 +3225,13 @@ class Vmull(AArch64Instruction):
     pass
 
 
-class vmull(Vmull):
+class vumull(Vmull):
     pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vmull2(Vmull):
+class vumull2(Vmull):
     pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -3253,7 +3253,7 @@ class Vmlal(AArch64Instruction):
     pass
 
 
-class vmlal(Vmlal):
+class vumlal(Vmlal):
     pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
@@ -3267,6 +3267,12 @@ class vsmlal(Vmlal):
 
 class vsmlal2(Vmlal):
     pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlal2(Vmlal):
+    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
