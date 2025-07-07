@@ -136,6 +136,55 @@ class RISCVVectorLoadIndexed(RISCVInstruction):
 
 
 class RISCVVectorLoadWholeRegister(RISCVInstruction):
+    def write(self):
+        out = self.pattern
+        l = (
+            list(zip(self.args_in, self.pattern_inputs))
+            + list(zip(self.args_out, self.pattern_outputs))
+            + list(zip(self.args_in_out, self.pattern_in_outs))
+        )
+
+        for arg, (s, ty) in l[:2]:
+            out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
+
+        def replace_pattern(txt, attr_name, mnemonic_key, t=None):
+            def t_default(x):
+                return x
+
+            if t is None:
+                t = t_default
+
+            a = getattr(self, attr_name)
+            if a is None and attr_name == "is32bit":
+                return txt.replace("<w>", "")
+            if a is None:
+                return txt
+            if not isinstance(a, list):
+                txt = txt.replace(f"<{mnemonic_key}>", t(a))
+                return txt
+            for i, v in enumerate(a):
+                txt = txt.replace(f"<{mnemonic_key}{i}>", t(v))
+            return txt
+
+        out = replace_pattern(out, "immediate", "imm", lambda x: f"{x}")
+        out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
+        out = replace_pattern(out, "flag", "flag")
+        out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "is32bit", "w", lambda x: x.lower())
+        out = replace_pattern(out, "len", "len")
+        out = replace_pattern(out, "vm", "vm")
+        out = replace_pattern(out, "vtype", "vtype")
+        out = replace_pattern(out, "sew", "sew")
+        out = replace_pattern(out, "lmul", "lmul")
+        out = replace_pattern(out, "tpol", "tpol")
+        out = replace_pattern(out, "mpol", "mpol")
+        out = replace_pattern(out, "nf", "nf")
+        out = replace_pattern(out, "ew", "ew")
+
+        out = out.replace("\\[", "[")
+        out = out.replace("\\]", "]")
+        return out
+
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
@@ -145,13 +194,10 @@ class RISCVVectorLoadWholeRegister(RISCVInstruction):
         regs_types, expanded_regs = RISCVInstruction._expand_reg(
             obj.args_out[0], obj.nf
         )
-        print(regs_types)
         mem_reg = obj.args_in[0]
         obj.args_out = expanded_regs + [
             mem_reg
         ]  # add the register holding the memory address
-        print("ARGS_OUT")
-        print(obj.args_out)
         obj.num_out = len(obj.args_out)
         obj.arg_types_out = regs_types
         available_regs = RegisterType.list_registers(RegisterType.VECT)
@@ -221,6 +267,55 @@ class RISCVVectorStoreIndexed(RISCVInstruction):
 
 
 class RISCVVectorStoreWholeRegister(RISCVInstruction):
+    def write(self):
+        out = self.pattern
+        l = (
+            list(zip(self.args_in, self.pattern_inputs))
+            + list(zip(self.args_out, self.pattern_outputs))
+            + list(zip(self.args_in_out, self.pattern_in_outs))
+        )
+
+        for arg, (s, ty) in [l[-1], l[0]]:
+            out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
+
+        def replace_pattern(txt, attr_name, mnemonic_key, t=None):
+            def t_default(x):
+                return x
+
+            if t is None:
+                t = t_default
+
+            a = getattr(self, attr_name)
+            if a is None and attr_name == "is32bit":
+                return txt.replace("<w>", "")
+            if a is None:
+                return txt
+            if not isinstance(a, list):
+                txt = txt.replace(f"<{mnemonic_key}>", t(a))
+                return txt
+            for i, v in enumerate(a):
+                txt = txt.replace(f"<{mnemonic_key}{i}>", t(v))
+            return txt
+
+        out = replace_pattern(out, "immediate", "imm", lambda x: f"{x}")
+        out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
+        out = replace_pattern(out, "flag", "flag")
+        out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "is32bit", "w", lambda x: x.lower())
+        out = replace_pattern(out, "len", "len")
+        out = replace_pattern(out, "vm", "vm")
+        out = replace_pattern(out, "vtype", "vtype")
+        out = replace_pattern(out, "sew", "sew")
+        out = replace_pattern(out, "lmul", "lmul")
+        out = replace_pattern(out, "tpol", "tpol")
+        out = replace_pattern(out, "mpol", "mpol")
+        out = replace_pattern(out, "nf", "nf")
+        out = replace_pattern(out, "ew", "ew")
+
+        out = out.replace("\\[", "[")
+        out = out.replace("\\]", "]")
+        return out
+
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
