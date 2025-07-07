@@ -177,8 +177,8 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
             "examples/naive/riscv/ntt_dilithium/include"
         )
         # slothy.config.allow_useless_instructions = True
-        slothy.fusion_region("start", "end")
-        # slothy.optimize("start", "end")
+        slothy.fusion_region("start", "end", ssa=False)
+        slothy.optimize("start", "end")
 
 
 class RISC_V_normal2ntt_order_rvv_vlen128(OptimizationRunner):
