@@ -142,6 +142,29 @@ class RISCVVectorLoadWholeRegister(RISCVInstruction):
         obj.increment = None
         # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
+        regs_types, expanded_regs = RISCVInstruction._expand_reg(
+            obj.args_out[0], obj.nf
+        )
+        print(regs_types)
+        mem_reg = obj.args_in[0]
+        obj.args_out = expanded_regs + [
+            mem_reg
+        ]  # add the register holding the memory address
+        print("ARGS_OUT")
+        print(obj.args_out)
+        obj.num_out = len(obj.args_out)
+        obj.arg_types_out = regs_types
+        available_regs = RegisterType.list_registers(RegisterType.VECT)
+        obj.args_out_combinations = [
+            (
+                list(range(0, int(obj.num_in - 1))),
+                [
+                    [available_regs[i + j] for i in range(0, int(obj.nf))]  # +[mem_reg]
+                    for j in range(0, len(available_regs) - int(obj.nf))
+                ],
+            )
+        ]
+        obj.args_out_restrictions = [None for _ in range(obj.num_in)]
         return obj
 
     pattern = "mnemonic <Vd>, (<Xa>)"
@@ -202,7 +225,9 @@ class RISCVVectorStoreWholeRegister(RISCVInstruction):
         regs_types, expanded_regs = RISCVInstruction._expand_reg(obj.args_in[0], obj.nf)
         print(regs_types)
         mem_reg = obj.args_in[1]
-        obj.args_in =  expanded_regs + [mem_reg]  # add the register holding the memory address
+        obj.args_in = expanded_regs + [
+            mem_reg
+        ]  # add the register holding the memory address
         print("ARGS_IN")
         print(obj.args_in)
         obj.num_in = len(obj.args_in)
@@ -210,9 +235,9 @@ class RISCVVectorStoreWholeRegister(RISCVInstruction):
         available_regs = RegisterType.list_registers(RegisterType.VECT)
         obj.args_in_combinations = [
             (
-                list(range(0, int(obj.num_in-1))),
+                list(range(0, int(obj.num_in - 1))),
                 [
-                    [available_regs[i + j] for i in range(0, int(obj.nf))] #+[mem_reg]
+                    [available_regs[i + j] for i in range(0, int(obj.nf))]  # +[mem_reg]
                     for j in range(0, len(available_regs) - int(obj.nf))
                 ],
             )

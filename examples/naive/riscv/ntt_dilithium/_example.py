@@ -173,10 +173,12 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.config.compiler_include_paths = "examples/naive/riscv/ntt_dilithium/include"
-        #slothy.config.allow_useless_instructions = True
+        slothy.config.compiler_include_paths = (
+            "examples/naive/riscv/ntt_dilithium/include"
+        )
+        # slothy.config.allow_useless_instructions = True
         slothy.fusion_region("start", "end")
-        #slothy.optimize("start", "end")
+        # slothy.optimize("start", "end")
 
 
 class RISC_V_normal2ntt_order_rvv_vlen128(OptimizationRunner):
