@@ -459,13 +459,16 @@ class RISCVInstruction(Instruction):
         return RISCVInstruction.dynamic_instr_classes
 
     @staticmethod
-    def _expand_reg(reg: str, cnt: str) -> list:
+    def _expand_reg(reg: str, cnt: str, mode: str) -> list:
         """
 
         :param reg: the base register
         :param cnt: number of registers to expand
+        :param mode: indicates if the expansion is for a
+        mode="load" or mode="store" instruction
         :type reg: str
         :type cnt: str
+        :type mode: str
         :return: list of cnt registers, starting from reg
         :rtype: list
         :raise FatalParsingException: Raises a parsing exception in case
@@ -477,6 +480,9 @@ class RISCVInstruction(Instruction):
         end = start + int(cnt)
         if end > len(vregs):
             raise FatalParsingException
-        return [RegisterType.VECT] * (int(cnt)) + [RegisterType.BASE_INT], [
-            f"v{i}" for i in range(start, end)
-        ]
+        if mode == "store":
+            return [RegisterType.VECT] * (int(cnt)) + [RegisterType.BASE_INT], [
+                f"v{i}" for i in range(start, end)
+            ]
+        elif mode == "load":
+            return [RegisterType.VECT] * int(cnt), [f"v{i}" for i in range(start, end)]

@@ -179,7 +179,9 @@ execution_units = {
         instrs["vsetvli"],
         instrs["vsetivli"],
         instrs["vsetvl"],
+        instrs["vmv.s.x"],
         instrs["vmv.x.s"],
+        instrs["vmv.v.v"],
     ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     (
         instrs["vle"],
@@ -404,6 +406,7 @@ inverse_throughput = {
     instrs["vsetivli"]: 2,  # TODO: estimated
     instrs["vsetvl"]: 2,  # TODO: estimated
     instrs["vmv.s.x"]: 6,
+    instrs["vmv.v.v"]: 2,
     instrs["vl<nf>re<ew>.v"]: 2,  # TODO: estimated
     instrs["vl<nf>r.v"]: 2,  # TODO: estimated
     instrs["vs<nf>re<ew>.v"]: 2,  # TODO: estimated
@@ -470,6 +473,9 @@ default_latencies = {
     instrs["vsetvl"]: 4,  # TODO: estimated
     RISCVScalarVector: 4,  # TODO: estimated
     RISCVVectorScalar: 4,  # TODO: estimated
+    instrs["vmv.s.x"]: 3,  # TODO: estimated
+    instrs["vmv.x.s"]: 3,  # TODO: estimated
+    instrs["vmv.v.v"]: 3,  # TODO: estimated
 }
 
 rv32_latencies = {

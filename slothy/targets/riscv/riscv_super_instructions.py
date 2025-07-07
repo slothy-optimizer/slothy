@@ -192,18 +192,15 @@ class RISCVVectorLoadWholeRegister(RISCVInstruction):
         # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
         regs_types, expanded_regs = RISCVInstruction._expand_reg(
-            obj.args_out[0], obj.nf
+            obj.args_out[0], obj.nf, "load"
         )
-        mem_reg = obj.args_in[0]
-        obj.args_out = expanded_regs + [
-            mem_reg
-        ]  # add the register holding the memory address
+        obj.args_out = expanded_regs
         obj.num_out = len(obj.args_out)
         obj.arg_types_out = regs_types
         available_regs = RegisterType.list_registers(RegisterType.VECT)
         obj.args_out_combinations = [
             (
-                list(range(0, int(obj.num_out - 1))),
+                list(range(0, int(obj.num_out))),
                 [
                     [available_regs[i + j] for i in range(0, int(obj.nf))]  # +[mem_reg]
                     for j in range(0, len(available_regs) - int(obj.nf))
@@ -214,7 +211,7 @@ class RISCVVectorLoadWholeRegister(RISCVInstruction):
         vlist = [
             "V" + chr(i) for i in range(ord("d"), ord("z") + 1)
         ]  # list of all V registers names
-        obj.outputs = vlist[: int(obj.nf)] + ["Xa"]
+        obj.outputs = vlist[: int(obj.nf)]
         obj.pattern_outputs = list(zip(obj.outputs, obj.arg_types_out))
         return obj
 
@@ -322,7 +319,9 @@ class RISCVVectorStoreWholeRegister(RISCVInstruction):
         obj.increment = None
         # obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
-        regs_types, expanded_regs = RISCVInstruction._expand_reg(obj.args_in[0], obj.nf)
+        regs_types, expanded_regs = RISCVInstruction._expand_reg(
+            obj.args_in[0], obj.nf, "store"
+        )
         mem_reg = obj.args_in[1]
         obj.args_in = expanded_regs + [
             mem_reg
@@ -407,4 +406,10 @@ class RISCVScalarVector(RISCVInstruction):
 class RISCVVectorScalar(RISCVInstruction):
     pattern = "mnemonic <Vd>, <Xa>"
     inputs = ["Xa"]
+    outputs = ["Vd"]
+
+
+class RISCVVectorVector(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Va>"
+    inputs = ["Va"]
     outputs = ["Vd"]

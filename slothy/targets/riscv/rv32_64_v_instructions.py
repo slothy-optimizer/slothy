@@ -140,6 +140,7 @@ vsetvl = ["vsetvl"]
 
 ScalarVectorMove = ["vmv.x.s"]
 VectorScalarMove = ["vmv.s.x"]
+VectorVectorMove = ["vmv.v.v"]
 
 
 class RISCVvsetvli(RISCVInstruction):
@@ -268,6 +269,8 @@ def generate_rv32_64_v_instructions():
     RISCVInstruction.instr_factory(VectorScalarMove, RISCVVectorScalar)
 
     RISCVInstruction.instr_factory(ScalarVectorMove, RISCVScalarVector)
+
+    RISCVInstruction.instr_factory(VectorVectorMove, RISCVVectorVector)
 
     RISCVInstruction.instr_factory(
         VectorLoadWholeRegister, RISCVVectorLoadWholeRegister
