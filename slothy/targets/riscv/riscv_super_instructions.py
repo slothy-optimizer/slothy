@@ -157,14 +157,19 @@ class RISCVVectorLoadWholeRegister(RISCVInstruction):
         available_regs = RegisterType.list_registers(RegisterType.VECT)
         obj.args_out_combinations = [
             (
-                list(range(0, int(obj.num_in - 1))),
+                list(range(0, int(obj.num_out - 1))),
                 [
                     [available_regs[i + j] for i in range(0, int(obj.nf))]  # +[mem_reg]
                     for j in range(0, len(available_regs) - int(obj.nf))
                 ],
             )
         ]
-        obj.args_out_restrictions = [None for _ in range(obj.num_in)]
+        obj.args_out_restrictions = [None for _ in range(obj.num_out)]
+        vlist = [
+            "V" + chr(i) for i in range(ord("d"), ord("z") + 1)
+        ]  # list of all V registers names
+        obj.outputs = vlist[: int(obj.nf)] + ["Xa"]
+        obj.pattern_outputs = list(zip(obj.outputs, obj.arg_types_out))
         return obj
 
     pattern = "mnemonic <Vd>, (<Xa>)"
