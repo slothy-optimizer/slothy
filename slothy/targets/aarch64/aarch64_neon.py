@@ -2922,12 +2922,6 @@ class vuzp2(Vzip):
     outputs = ["Vd"]
 
 
-class vuxtl(AArch64Instruction):
-    pattern = "uxtl <Vd>.<dt0>, <Va>.<dt1>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
-
-
 class Vqdmulh(AArch64Instruction):
     pass
 
@@ -3281,18 +3275,20 @@ class VShiftImmediateBasic(AArch64Instruction):
     pass
 
 
-class VShiftImmediateRounding(AArch64Instruction):
-    pass
-
-
-class vsrshr(VShiftImmediateRounding):
-    pattern = "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+class vshl(VShiftImmediateBasic):
+    pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vurshr(VShiftImmediateRounding):
-    pattern = "urshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+class vshl_d(VShiftImmediateBasic):
+    pattern = "shl <Dd>, <Da>, <imm>"
+    inputs = ["Da"]
+    outputs = ["Dd"]
+
+
+class vshrn(VShiftImmediateBasic):
+    pattern = "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
@@ -3309,16 +3305,26 @@ class vushr(VShiftImmediateBasic):
     outputs = ["Vd"]
 
 
-class vshl(VShiftImmediateBasic):
-    pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+class vuxtl(VShiftImmediateBasic):
+    pattern = "uxtl <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class vshl_d(AArch64Instruction):
-    pattern = "shl <Dd>, <Da>, <imm>"
-    inputs = ["Da"]
-    outputs = ["Dd"]
+class VShiftImmediateRounding(AArch64Instruction):
+    pass
+
+
+class vsrshr(VShiftImmediateRounding):
+    pattern = "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vurshr(VShiftImmediateRounding):
+    pattern = "urshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 
 class AArch64NeonShiftInsert(AArch64Instruction):
@@ -3341,12 +3347,6 @@ class vusra(AArch64Instruction):
     pattern = "usra <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
-
-
-class vshrn(AArch64Instruction):
-    pattern = "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
 
 
 class VecToGprMov(AArch64Instruction):

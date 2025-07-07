@@ -1,6 +1,11 @@
 start:
 
 // TODO: this is currently incomplete. We should add all instructions
+shl v0.16b, v1.16b, #4
+shl d2, d3, #8
+sshr v4.16b, v5.16b, #2
+ushr v6.16b, v7.16b, #3
+uxtl v8.8h, v9.8b
 
 zip1 v5.16b, v6.16b, v7.16b
 zip2 v8.16b, v9.16b, v10.16b
