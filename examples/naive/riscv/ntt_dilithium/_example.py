@@ -98,10 +98,6 @@ class RISC_V_intt8l_plant_rv64im(OptimizationRunner):
         name = "intt_dilithium_8l_plant_rv64im"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-
         super().__init__(
             infile,
             name,
@@ -109,8 +105,9 @@ class RISC_V_intt8l_plant_rv64im(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname=f"intt_dilithium_8l_plant_rv64im_{var}",
+            funcname="intt_dilithium_8l_plant_rv64im",
             timeout=timeout,
+            var=var,
         )
 
     def core(self, slothy):
@@ -125,14 +122,14 @@ class RISC_V_intt8l_plant_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        # slothy.config.split_heuristic_factor = 5
-        # slothy.config.split_heuristic_repeat = 2
-        # slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.split_heuristic_factor = 10
-        slothy.config.split_heuristic_repeat = 1
-        slothy.config.split_heuristic_stepsize = 0.3
-        slothy.optimize_loop("intt_rv64im_loop1", forced_loop_type=RISC_V.AddiStashLoop)
-        slothy.optimize_loop("intt_rv64im_loop2", forced_loop_type=RISC_V.AddiStashLoop)
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
+        # slothy.config.split_heuristic_factor = 10
+        # slothy.config.split_heuristic_repeat = 1
+        # slothy.config.split_heuristic_stepsize = 0.3
+        slothy.optimize_loop("intt_rv64im_loop1")
+        slothy.optimize_loop("intt_rv64im_loop2")
 
 
 class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
