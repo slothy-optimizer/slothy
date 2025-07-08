@@ -1,3 +1,29 @@
+.macro montmul_x4 vr0, vr1, vr2, vr3, \
+        va0, va1, va2, va3, \
+        vb0, vb1, vb2, vb3, \
+        xq, xqinv, vt0, vt1, vt2, vt3
+    vmul.vv  \vr0, \va0, \vb0
+    vmul.vv  \vr1, \va1, \vb1
+    vmul.vv  \vr2, \va2, \vb2
+    vmul.vv  \vr3, \va3, \vb3
+    vmul.vx  \vr0, \vr0, \xqinv
+    vmul.vx  \vr1, \vr1, \xqinv
+    vmul.vx  \vr2, \vr2, \xqinv
+    vmul.vx  \vr3, \vr3, \xqinv
+    vmulh.vv \vt0, \va0, \vb0
+    vmulh.vv \vt1, \va1, \vb1
+    vmulh.vv \vt2, \va2, \vb2
+    vmulh.vv \vt3, \va3, \vb3
+    vmulh.vx \vr0, \vr0, \xq
+    vmulh.vx \vr1, \vr1, \xq
+    vmulh.vx \vr2, \vr2, \xq
+    vmulh.vx \vr3, \vr3, \xq
+    vsub.vv  \vr0, \vt0, \vr0
+    vsub.vv  \vr1, \vt1, \vr1
+    vsub.vv  \vr2, \vt2, \vr2
+    vsub.vv  \vr3, \vt3, \vr3
+.endm
+
 // void poly_basemul_cached_rvv_vlen128(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table, int16_t *b_cache)
 .globl poly_basemul_cached_rvv_vlen128
 .align 2
