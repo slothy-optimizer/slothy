@@ -316,6 +316,12 @@ class Instruction:
 
         for i in insts:
             i.source_line = src_line
+            from slothy.targets.riscv.rv32_64_i_instructions import RISCVBranch
+
+            # Mark as branch for BranchLoop
+            if isinstance(i, RISCVBranch):
+                i.source_line.tags["branch"] = True
+
             i.extract_read_writes()
 
         if len(insts) == 0:

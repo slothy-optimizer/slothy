@@ -33,6 +33,7 @@ Partial SLOTHY architecture model for RISCV
 """
 
 import inspect
+import logging
 import math
 from sympy import simplify
 from enum import Enum
@@ -349,6 +350,136 @@ class AddiStashLoop(Loop):
         yield f"{indent}addi {other['cnt']}, {other['cnt']}, {other['imm']}"
         yield f"{indent}sd {other['cnt']}, {other['offset']}({other['ptr']})"
         yield f"{indent}{other['branch_type']} {other['cnt']}, {other['end']}, {self.lbl}"
+
+
+class BranchLoop(Loop):
+    """
+    More general loop type that just considers the branch instruction as part
+    of the boundary.
+    This can help to improve performance as the instructions that belong to
+    handling the loop can be considered by SLOTHY as well.
+
+    .. note::
+
+        This loop type is still rather experimental. It has a lot of logic
+        inside as it needs to be able to "understand" a variety of different
+        ways to express loops, e.g., how counters get incremented, how
+        registers marking the end of the loop need to be modified in case of
+        software pipelining etc.
+
+    Example:
+
+    .. code-block:: asm
+
+        loop_lbl:
+           {code}
+           bltu <cnt>, <end>, loop_lbl
+
+    where cnt is the loop counter that gets incremented within the loop body.
+    """
+
+    def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
+        super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
+        self.lbl = lbl
+        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        # Defines the end of the loop, boolean indicates whether the instruction
+        # shall be considered part of the body or not.
+        self.end_regex = (
+            (
+                (
+                    r"^\s*(?P<branch_type>bge|blt|bne|beq|bnez|beqz|bltu|bgeu)"
+                    rf"\s+(?P<cnt>\w+),\s*(?P<end>\w+),\s*{lbl}"
+                ),
+                True,
+            ),
+        )
+
+    def start(
+        self,
+        loop_cnt,
+        indentation=0,
+        fixup=0,
+        unroll=1,
+        jump_if_empty=None,
+        preamble_code=None,
+        body_code=None,
+        postamble_code=None,
+        register_aliases=None,
+    ):
+        """Emit starting instruction(s) and jump label for loop"""
+        indent = " " * indentation
+        if body_code is None:
+            logging.debug("No body code in loop start: Just printing label.")
+            yield f"{self.lbl}:"
+            return
+
+        # Identify the register that is used as a loop counter from the branch instruction
+        branch_data = self.additional_data
+        loop_cnt_reg = branch_data.get("cnt")
+        loop_end_reg = branch_data.get("end")
+
+        logging.debug(
+            f"Assuming {loop_cnt_reg} as counter register and {loop_end_reg} "
+            "as end register."
+        )
+
+        if unroll > 1:
+            assert unroll in [1, 2, 4, 8, 16, 32]
+            yield f"{indent}srai {loop_end_reg}, {loop_end_reg}, {int(math.log2(unroll))}"
+
+        # Calculate total increment per iteration by analyzing all instructions
+        # that modify the loop counter register
+        inc_per_iter = 0
+        body_code = [line for line in body_code if line.text != ""]
+
+        try:
+            loop_cnt_alias = (
+                register_aliases[loop_cnt_reg] if register_aliases else loop_cnt_reg
+            )
+        except (KeyError, TypeError):
+            loop_cnt_alias = loop_cnt_reg
+
+        for line in body_code:
+            try:
+                inst = Instruction.parser(line)
+                # Check for direct register modifications (addi instructions)
+                if (
+                    hasattr(inst[0], "args_out")
+                    and loop_cnt_alias in inst[0].args_out
+                    and hasattr(inst[0], "immediate")
+                    and inst[0].immediate is not None
+                ):
+                    inc_per_iter += simplify(inst[0].immediate)
+                # Check for in-out register modifications
+                elif (
+                    hasattr(inst[0], "args_in_out")
+                    and loop_cnt_alias in inst[0].args_in_out
+                    and hasattr(inst[0], "immediate")
+                    and inst[0].immediate is not None
+                ):
+                    inc_per_iter += simplify(inst[0].immediate)
+            except Exception as e:
+                logging.debug(f"Could not parse instruction {line}: {e}")
+                continue
+
+        logging.debug(
+            f"Loop counter {loop_cnt_reg} is incremented by {inc_per_iter} per iteration."
+        )
+
+        # Apply fixup for software pipelining
+        if fixup != 0:
+            # For RISC-V, we typically adjust the end register rather than the counter
+            # to avoid affecting address calculations
+            yield f"{indent}addi {loop_end_reg}, {loop_end_reg}, {-fixup * inc_per_iter}"
+
+        if jump_if_empty is not None:
+            yield f"beq {loop_cnt_reg}, {loop_end_reg}, {jump_if_empty}"
+
+        yield f"{self.lbl}:"
+
+    def end(self, other, indentation=0):
+        """Nothing to do here - the branch instruction is already part of the body"""
+        yield ""
 
 
 def iter_riscv_instructions():
