@@ -413,3 +413,21 @@ class RISCVVectorVector(RISCVInstruction):
     pattern = "mnemonic <Vd>, <Va>"
     inputs = ["Va"]
     outputs = ["Vd"]
+
+
+class RISCVBranch(RISCVInstruction):
+    """RISC-V branch instructions with two register operands and a label"""
+
+    pattern = "mnemonic <Xa>, <Xb>, <label>"
+    inputs = ["Xa", "Xb"]
+    outputs = []
+
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        obj.immediate = None
+        # Initialize label attribute to avoid AttributeError
+        if not hasattr(obj, "label"):
+            obj.label = None
+        return obj
