@@ -152,7 +152,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     ASimdCompare,
     and_twoarg,
     VShiftImmediateBasic,
-    vumlal,
     ubfx,
     AESInstruction,
     AArch64NeonLogical,
@@ -577,8 +576,8 @@ def get_latency(src, out_idx, dst):
         latency += 1
 
     if (
-        instclass_src == vumlal
-        and instclass_dst == vumlal
+        isinstance(src, Vmlal)
+        and isinstance(dst, Vmlal)
         and src.args_in_out[0] == dst.args_in_out[0]
     ):
         return (
