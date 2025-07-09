@@ -65,7 +65,7 @@ class keccak_mve_4x(OptimizationRunner):
         slothy.config.constraints.allow_spills = False
         slothy.config.constraints.minimize_spills = True
 
-        slothy.optimize(start="roundstart", end="roundend_pre")
+        slothy.optimize(start="slothy_start", end="slothy_end")
 
         # second pass: splitting heuristic
         slothy.config.constraints.functional_only = False
@@ -82,7 +82,7 @@ class keccak_mve_4x(OptimizationRunner):
         slothy.config.split_heuristic_estimate_performance = False
         slothy.config.split_heuristic_optimize_seam = 2
 
-        slothy.optimize(start="roundstart", end="roundend_pre")
+        slothy.optimize(start="slothy_start", end="slothy_end")
 
 
 example_instances = [
