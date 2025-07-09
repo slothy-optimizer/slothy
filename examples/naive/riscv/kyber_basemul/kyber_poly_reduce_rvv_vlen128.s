@@ -1,3 +1,10 @@
+.macro barrettRdc in, vt0, const_v, const_q
+    vmulh.vx \vt0, \in, \const_v
+    vssra.vi \vt0, \vt0, 10
+    vmul.vx  \vt0, \vt0, \const_q
+    vsub.vv  \in,  \in, \vt0
+.endm
+
 .globl poly_reduce_rvv_vlen128
 .align 2
 poly_reduce_rvv_vlen128:

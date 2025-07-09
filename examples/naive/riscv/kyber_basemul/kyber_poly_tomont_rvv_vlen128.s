@@ -1,3 +1,10 @@
+.macro montmul_const vr0, va0, xzeta, xzetaqinv, xq, vt0
+    vmul.vx  \vr0, \va0, \xzetaqinv
+    vmulh.vx \vt0, \va0, \xzeta
+    vmulh.vx \vr0, \vr0, \xq
+    vsub.vv  \vr0, \vt0, \vr0
+.endm
+
 .globl poly_tomont_rvv_vlen128
 .align 2
 poly_tomont_rvv_vlen128:
