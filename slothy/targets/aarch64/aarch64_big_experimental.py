@@ -56,7 +56,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     veor3,
     VShiftImmediateBasic,
     vshl_d,
-    vshli,
+    vsli,
     vshrn,
     vusra,
     vmul,
@@ -174,7 +174,7 @@ execution_units = {
     (
         VShiftImmediateBasic,
         vshl_d,
-        vshli,
+        vsli,
         vshrn,
     ): ExecutionUnit.V1(),  # TODO: Should be V13?
     vusra: ExecutionUnit.V1(),
@@ -216,7 +216,7 @@ inverse_throughput = {
     AArch64NeonLogical: 1,
     (vmovi): 1,
     (vxtn): 1,
-    (VShiftImmediateBasic, vshl_d, vshli, vshrn): 1,
+    (VShiftImmediateBasic, vshl_d, vsli, vshrn): 1,
     (vmul): 2,
     vusra: 1,
     (vmlal, vmull): 1,
@@ -254,7 +254,7 @@ default_latencies = {
     (vmul): 5,
     vusra: 4,  # TODO: Add fwd path
     (vmlal, vmull): 4,  # TODO: Add fwd path
-    (VShiftImmediateBasic, vshl_d, vshli, vshrn): 2,
+    (VShiftImmediateBasic, vshl_d, vsli, vshrn): 2,
     (
         AArch64BasicArithmetic,
         AArch64ConditionalSelect,

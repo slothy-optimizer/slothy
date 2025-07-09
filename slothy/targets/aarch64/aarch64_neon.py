@@ -2894,18 +2894,6 @@ class uaddlp(AArch64Instruction):
     outputs = ["Vd"]
 
 
-class vand(AArch64Instruction):
-    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
-    inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
-class vbic(AArch64Instruction):
-    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
-    inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
 class Vzip(AArch64Instruction):
     pass
 
@@ -3098,35 +3086,58 @@ class AArch64NeonLogical(AArch64Instruction):
     pass
 
 
+class vand(AArch64NeonLogical):
+    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vbic(AArch64NeonLogical):
+    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vmvn(AArch64NeonLogical):
+    pattern = "mvn <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vorr(AArch64NeonLogical):
+    pattern = "orr <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vorn(AArch64NeonLogical):
+    pattern = "orn <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class veor(AArch64NeonLogical):
     pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vbif(AArch64NeonLogical):
+class vbif(AArch64Instruction):
     pattern = "bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
-# Not sure about the classification as logical... couldn't find it in SWOG
-class vmov_d(AArch64NeonLogical):
+class vmov_d(AArch64Instruction):
     pattern = "mov <Dd>, <Va>.d[1]"
     inputs = ["Va"]
     outputs = ["Dd"]
 
 
-class vext(AArch64NeonLogical):
+class vext(AArch64Instruction):
     pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
-
-
-class vsri(AArch64NeonLogical):
-    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    in_outs = ["Vd"]
 
 
 class Vmul(AArch64Instruction):
@@ -3304,8 +3315,18 @@ class vshl_d(AArch64Instruction):
     outputs = ["Dd"]
 
 
-class vshli(AArch64Instruction):
+class AArch64NeonShiftInsert(AArch64Instruction):
+    pass
+
+
+class vsli(AArch64NeonShiftInsert):
     pattern = "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
+class vsri(AArch64NeonShiftInsert):
+    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
@@ -4336,9 +4357,12 @@ def is_dt_form_of(instr_class, dts=None):
         return len([a for a in ls_a if a in ls_b]) > 0
 
     def _check_instr_dt(src):
-        if find_class(src) in instr_class:
-            if dts is None or _intersects(src.datatype, dts):
-                return True
+        # Check if src is an instance of any of the instruction classes
+        # (supports inheritance)
+        for cls in instr_class:
+            if isinstance(src, cls):
+                if dts is None or _intersects(src.datatype, dts):
+                    return True
         return False
 
     return _check_instr_dt
