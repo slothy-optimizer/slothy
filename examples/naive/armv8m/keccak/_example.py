@@ -57,15 +57,16 @@ class keccak_mve_4x(OptimizationRunner):
 
     def core(self, slothy):
         # first pass: replace symbolic register names by architectural registers
+        slothy.config.unsafe_address_offset_fixup = False
         slothy.config.inputs_are_outputs = True
+        # TODO: This needs to be removed
         slothy.config.allow_useless_instructions = True
-        slothy.config.outputs = ["r0", "r1", "r2", "r3", "r4", "r5", "r6"]
         slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_reordering = False
         slothy.config.constraints.allow_spills = False
         slothy.config.constraints.minimize_spills = True
 
-        slothy.optimize(start="slothy_start", end="slothy_end")
+        slothy.optimize(start="roundstart", end="roundend_pre")
 
         # second pass: splitting heuristic
         slothy.config.constraints.functional_only = False
@@ -82,7 +83,7 @@ class keccak_mve_4x(OptimizationRunner):
         slothy.config.split_heuristic_estimate_performance = False
         slothy.config.split_heuristic_optimize_seam = 2
 
-        slothy.optimize(start="slothy_start", end="slothy_end")
+        slothy.optimize(start="roundstart", end="roundend_pre")
 
 
 example_instances = [

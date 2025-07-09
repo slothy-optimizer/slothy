@@ -379,11 +379,9 @@ mve_keccak_state_permute_4fold:
 roundstart:
     add r3, r2, #400
     add r5, r4, #400
-slothy_start:
     keccak_4fold_round_theta_rho_pi r2, r3, r4, r5, r6
     keccak_4fold_round_chi_iota r2, r3, r4, r5, r6
 
-slothy_end:
     add r6, r6, #8
     add r3, r2, #0
     add r2, r4, #0
