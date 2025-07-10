@@ -132,8 +132,6 @@
 .equ RC23_l, 0x0
 .equ RC23_h, 0x80008082
 
-
-
 .macro ld_xor5 state, round, x, C, A
     vldrw.u32 q<\C>, [\state, #A__\x\()0] // @slothy:reads=A\state\()__\x\()0
     vldrw.u32 q<\A>, [\state, #A__\x\()1] // @slothy:reads=A\state\()__\x\()1
@@ -170,6 +168,7 @@
     vsli.u32 q<SHR_h>, q<A_l>, #(\RC-1)/2
     vstrw.32 q<SHR_h>, [\s_h, #B__\x\()\y] // @slothy:writes=B\s_h\()__\x\()\y
     vshr.u32 q<SHR_l>, q<A_h>, #32-((\RC+1)/2)
+    // TODO: shift by 0 does not appear useful
     vsli.u32 q<SHR_l>, q<A_h>, #(\RC+1)/2
     vstrw.32 q<SHR_l>, [\s_l, #B__\x\()\y] // @slothy:writes=B\s_l\()__\x\()\y
 .endm
@@ -233,8 +232,8 @@
     vstrw.32 q<A4>, [\state, #A__4\y]  // @slothy:writes=A\state\()__4\y
     vbic q<T0>, q<B2>, q<B1>
     veor q<\A0>, q<B0>, q<T0>
+     // TODO: remove this instruction (it's stored again after the RC are added)
     vstrw.32 q<\A0>, [\state, #A__0\y] // @slothy:writes=A\state\()__0\y
-
 .endm
 
 .macro keccak_4fold_round_theta_rho_pi state_l, state_h, state_nl, state_nh, rc

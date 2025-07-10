@@ -59,20 +59,14 @@ class keccak_mve_4x(OptimizationRunner):
         # first pass: replace symbolic register names by architectural registers
         slothy.config.unsafe_address_offset_fixup = False
         slothy.config.inputs_are_outputs = True
-        # TODO: This needs to be removed
-        slothy.config.allow_useless_instructions = True
         slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_reordering = False
-        slothy.config.constraints.allow_spills = False
-        slothy.config.constraints.minimize_spills = True
-
+        slothy.config.allow_useless_instructions = True
         slothy.optimize(start="roundstart", end="roundend_pre")
 
         # second pass: splitting heuristic
         slothy.config.constraints.functional_only = False
         slothy.config.constraints.allow_reordering = True
-        slothy.config.constraints.allow_spills = False
-        slothy.config.absorb_spills = False
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 64
         slothy.config.constraints.stalls_maximum_attempt = 4096
