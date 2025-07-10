@@ -61,7 +61,6 @@ class keccak_mve_4x(OptimizationRunner):
         slothy.config.inputs_are_outputs = True
         slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_reordering = False
-        slothy.config.allow_useless_instructions = True
         slothy.optimize(start="roundstart", end="roundend_pre")
 
         # second pass: splitting heuristic
