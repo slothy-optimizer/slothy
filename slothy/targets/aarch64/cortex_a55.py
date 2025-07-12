@@ -76,6 +76,9 @@ from slothy.targets.aarch64.aarch64_neon import (
     Vmlal,
     vushr,
     vsshr,
+    vuxtl,
+    vshl_d,
+    vshl,
     VShiftImmediateRounding,
     St4,
     Ld4,
@@ -103,7 +106,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     vext,
     vuzp2,
     vsub,
-    vshl,
     w_stp_with_imm_sp,
     x_str_sp_imm,
     x_ldr_stack_imm,
@@ -150,7 +152,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     ASimdCompare,
     and_twoarg,
     VShiftImmediateBasic,
-    vmlal,
     ubfx,
     AESInstruction,
     AArch64NeonLogical,
@@ -249,8 +250,6 @@ execution_units = {
         Vmull,
         Vmlal,
         vusra,
-        vushr,
-        vsshr,
         vshrn,
         vxtn,
         VShiftImmediateRounding,
@@ -340,6 +339,14 @@ execution_units = {
     is_dform_form_of(vadd): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vshl): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vshl): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vshrn): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vshrn): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vushr): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vushr): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vsshr): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vsshr): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    vshl_d: [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    vuxtl: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_qform_form_of(AArch64NeonShiftInsert): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
     ],
@@ -412,6 +419,7 @@ inverse_throughput = {
         Vmlal,
         umov_d,
     ): 1,
+    (vshl, vshl_d, vsshr, vushr, vuxtl): 1,
     (trn2, trn1, ASimdCompare): 1,
     (Ldr_Q): 2,
     (Str_Q): 1,
@@ -451,7 +459,6 @@ inverse_throughput = {
     (cmp_xzr2, cmp_imm, sub, subs_wform, asr_wform, sbcs_zero_to_zero, ngc_zero): 1,
     (bfi, ubfx): 1,
     VShiftImmediateRounding: 1,
-    VShiftImmediateBasic: 1,
     AArch64NeonShiftInsert: 1,
     (vusra): 1,
     AArch64NeonLogical: 1,
@@ -492,6 +499,7 @@ default_latencies = {
     Ld4: 11,
     vxtn: 2,
     vshrn: 2,
+    (vshl, vshl_d, vsshr, vushr, vuxtl): 2,
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,
     (Vins, umov_d): 2,
@@ -568,8 +576,8 @@ def get_latency(src, out_idx, dst):
         latency += 1
 
     if (
-        instclass_src == vmlal
-        and instclass_dst == vmlal
+        isinstance(src, Vmlal)
+        and isinstance(dst, Vmlal)
         and src.args_in_out[0] == dst.args_in_out[0]
     ):
         return (
