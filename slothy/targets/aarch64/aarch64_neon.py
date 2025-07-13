@@ -3243,6 +3243,68 @@ class vsmull2(Vmull):
     outputs = ["Vd"]
 
 
+class vumull_lane(Vmull):
+    pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+class vumull2_lane(Vmull):
+    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+class vsmull_lane(Vmull):
+    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+class vsmull2_lane(Vmull):
+    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "8h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+
 class Vmlal(AArch64Instruction):
     pass
 
@@ -3252,7 +3314,11 @@ class vumlal(Vmlal):
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
-
+class vumlal2(Vmlal):
+    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+    
 class vsmlal(Vmlal):
     pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
@@ -3265,10 +3331,66 @@ class vsmlal2(Vmlal):
     in_outs = ["Vd"]
 
 
-class vumlal2(Vmlal):
-    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+class vumlal_lane(Vmlal):
+    pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
+    
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[1] == "4h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+class vumlal2_lane(Vmlal):
+    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+    
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[1] == "8h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlal_lane(Vmlal):
+    pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+    
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[1] == "4h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+  
+class vsmlal2_lane(Vmlal):
+    pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+    
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[1] == "8h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
 
 
 class VShiftImmediateBasic(AArch64Instruction):
