@@ -45,6 +45,14 @@ smlal v6.4s, v7.4h, v8.h[3]
 smlal2 v9.4s, v10.8h, v11.8h
 smlal2 v9.4s, v10.8h, v11.h[2]
 
+umlsl v3.4s, v4.4h, v5.4h
+umlsl v3.4s, v4.4h, v5.h[0]
+umlsl2 v12.4s, v13.8h, v14.8h
+umlsl2 v12.4s, v13.8h, v14.h[0]
+smlsl v6.4s, v7.4h, v8.4h
+smlsl v6.4s, v7.4h, v8.h[3]
+smlsl2 v9.4s, v10.8h, v11.8h
+smlsl2 v9.4s, v10.8h, v11.h[2]
 
 pmull v4.1q, v5.1d, v6.1d
 pmull2 v7.1q, v8.2d, v9.2d

@@ -3258,6 +3258,7 @@ class vumull_lane(Vmull):
             ]
         return obj
 
+
 class vumull2_lane(Vmull):
     pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
@@ -3273,6 +3274,7 @@ class vumull2_lane(Vmull):
             ]
         return obj
 
+
 class vsmull_lane(Vmull):
     pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
@@ -3287,6 +3289,7 @@ class vsmull_lane(Vmull):
                 [f"v{i}" for i in range(0, 16)],
             ]
         return obj
+
 
 class vsmull2_lane(Vmull):
     pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
@@ -3304,7 +3307,6 @@ class vsmull2_lane(Vmull):
         return obj
 
 
-
 class Vmlal(AArch64Instruction):
     pass
 
@@ -3314,11 +3316,13 @@ class vumlal(Vmlal):
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
+
 class vumlal2(Vmlal):
     pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
-    
+
+
 class vsmlal(Vmlal):
     pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
@@ -3335,7 +3339,7 @@ class vumlal_lane(Vmlal):
     pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
-    
+
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
@@ -3346,11 +3350,12 @@ class vumlal_lane(Vmlal):
             ]
         return obj
 
+
 class vumlal2_lane(Vmlal):
     pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
-    
+
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
@@ -3366,7 +3371,7 @@ class vsmlal_lane(Vmlal):
     pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
-    
+
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
@@ -3376,12 +3381,118 @@ class vsmlal_lane(Vmlal):
                 [f"v{i}" for i in range(0, 16)],
             ]
         return obj
-  
+
+
 class vsmlal2_lane(Vmlal):
     pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
-    
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[1] == "8h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+# comment by Cesare Huang: according to SWOG a72 (and a76) and SWOG a55
+# umlal umlsl smull and smlsl instructions are classified as
+# "ASIMD multiply accumulate long" instructions, and they also share
+# the same forwarding mechanism in pipeline.
+# Also, the websites https://dougallj.github.io/applecpu/firestorm-simd.html
+# and https://dougallj.github.io/applecpu/icestorm-simd.html
+# suggest that these instructions (umlal umlsl smull and smlsl)
+# have the exactly same paramters (latency, throughput, etc.) for respective {fire, ice}storm core.
+# so here we treat these instructions as a subclass of Vmlal.
+# References:
+# SWOG a72: page 25
+# SWOG a76: page 26
+# SWOG a55: page 35
+# https://dougallj.github.io/applecpu/firestorm-simd.html
+# https://dougallj.github.io/applecpu/icestorm-simd.html
+
+
+class vumlsl(Vmlal):
+    pattern = "umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlsl2(Vmlal):
+    pattern = "umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vsmlsl(Vmlal):
+    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vsmlsl2(Vmlal):
+    pattern = "smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlsl_lane(Vmlal):
+    pattern = "umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[1] == "4h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumlsl2_lane(Vmlal):
+    pattern = "umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[1] == "8h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlsl_lane(Vmlal):
+    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[1] == "4h":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlsl2_lane(Vmlal):
+    pattern = "smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
