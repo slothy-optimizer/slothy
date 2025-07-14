@@ -24,14 +24,36 @@ trn1 v17.16b, v18.16b, v19.16b
 trn2 v20.16b, v21.16b, v22.16b
 aese v0.16b, v1.16b
 aesmc v2.16b, v3.16b
+
+// ASIMD multiply long 
 umull v23.4s, v24.4h, v25.4h
 umull2 v26.4s, v27.8h, v28.8h
+umull v11.4s, v12.4h, v13.h[0]
+umull2 v11.4s, v12.8h, v13.h[1]
 smull v29.4s, v30.4h, v31.4h
 smull2 v0.4s, v1.8h, v2.8h
+smull v11.4s, v12.4h, v13.h[0]
+smull2 v11.4s, v12.8h, v13.h[3]
+
+// ASIMD multiply accumulate long
 umlal v3.4s, v4.4h, v5.4h
-smlal v6.4s, v7.4h, v8.4h
-smlal2 v9.4s, v10.8h, v11.8h
+umlal v3.4s, v4.4h, v5.h[0]
 umlal2 v12.4s, v13.8h, v14.8h
+umlal2 v12.4s, v13.8h, v14.h[0]
+smlal v6.4s, v7.4h, v8.4h
+smlal v6.4s, v7.4h, v8.h[3]
+smlal2 v9.4s, v10.8h, v11.8h
+smlal2 v9.4s, v10.8h, v11.h[2]
+
+umlsl v3.4s, v4.4h, v5.4h
+umlsl v3.4s, v4.4h, v5.h[0]
+umlsl2 v12.4s, v13.8h, v14.8h
+umlsl2 v12.4s, v13.8h, v14.h[0]
+smlsl v6.4s, v7.4h, v8.4h
+smlsl v6.4s, v7.4h, v8.h[3]
+smlsl2 v9.4s, v10.8h, v11.8h
+smlsl2 v9.4s, v10.8h, v11.h[2]
+
 pmull v4.1q, v5.1d, v6.1d
 pmull2 v7.1q, v8.2d, v9.2d
 
