@@ -3251,7 +3251,7 @@ class vumull_lane(Vmull):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[0] == "4h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3267,7 +3267,7 @@ class vumull2_lane(Vmull):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[0] == "8h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3283,7 +3283,7 @@ class vsmull_lane(Vmull):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[0] == "4h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3299,7 +3299,7 @@ class vsmull2_lane(Vmull):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[0] == "8h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3343,7 +3343,7 @@ class vumlal_lane(Vmlal):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[1] == "4h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3359,7 +3359,7 @@ class vumlal2_lane(Vmlal):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[1] == "8h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3375,7 +3375,7 @@ class vsmlal_lane(Vmlal):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[1] == "4h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3391,7 +3391,7 @@ class vsmlal2_lane(Vmlal):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[1] == "8h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3431,7 +3431,7 @@ class vumlsl_lane(Vmlal):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[1] == "4h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3447,7 +3447,7 @@ class vumlsl2_lane(Vmlal):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[1] == "8h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3463,7 +3463,7 @@ class vsmlsl_lane(Vmlal):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[1] == "4h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
@@ -3479,7 +3479,7 @@ class vsmlsl2_lane(Vmlal):
     @classmethod
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
-        if obj.datatype[1] == "8h":
+        if obj.datatype[0] == "4s":
             obj.args_in_restrictions = [
                 [f"v{i}" for i in range(0, 32)],
                 [f"v{i}" for i in range(0, 16)],
