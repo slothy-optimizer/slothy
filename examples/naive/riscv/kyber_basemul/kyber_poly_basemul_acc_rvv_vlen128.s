@@ -28,7 +28,7 @@
 #define _ZETAS_EXP_1TO6_P1_L4 240
 #define _ZETAS_EXP_1TO6_P1_L5 256
 #define _ZETAS_EXP_1TO6_P1_L6 288
-#define _ZETAS_BASEMUL 320
+#define _ZETAS_BASEMUL 0
 #define _ZETA_EXP_INTT_0TO5_P0_L0 448
 #define _ZETA_EXP_INTT_0TO5_P0_L1 480
 #define _ZETA_EXP_INTT_0TO5_P0_L2 512
@@ -911,9 +911,48 @@
 .endm
 
 // void poly_basemul_acc_rvv_vlen128(int16_t *r, const int16_t *a, const int16_t *b, const int16_t *table)
+
+.macro save_regs
+  sd s0,  0*8(sp)
+  sd s1,  1*8(sp)
+  sd s2,  2*8(sp)
+  sd s3,  3*8(sp)
+  sd s4,  4*8(sp)
+  sd s5,  5*8(sp)
+  sd s6,  6*8(sp)
+  sd s7,  7*8(sp)
+  sd s8,  8*8(sp)
+  sd s9,  9*8(sp)
+  sd s10, 10*8(sp)
+  sd s11, 11*8(sp)
+  sd gp,  12*8(sp)
+  sd tp,  13*8(sp)
+  sd ra,  14*8(sp)
+.endm
+
+.macro restore_regs
+  ld s0,  0*8(sp)
+  ld s1,  1*8(sp)
+  ld s2,  2*8(sp)
+  ld s3,  3*8(sp)
+  ld s4,  4*8(sp)
+  ld s5,  5*8(sp)
+  ld s6,  6*8(sp)
+  ld s7,  7*8(sp)
+  ld s8,  8*8(sp)
+  ld s9,  9*8(sp)
+  ld s10, 10*8(sp)
+  ld s11, 11*8(sp)
+  ld gp,  12*8(sp)
+  ld tp,  13*8(sp)
+  ld ra,  14*8(sp)
+.endm
+
 .globl poly_basemul_acc_rvv_vlen128
 .align 2
 poly_basemul_acc_rvv_vlen128:
+    addi sp, sp, -8*15
+    save_regs
     li a7, 32
     li t3, _ZETAS_BASEMUL*2
     vsetvli a7, a7, e16, m1, tu, mu
@@ -928,35 +967,35 @@ poly_basemul_acc_rvv_vlen128:
 poly_basemul_acc_rvv_vlen128_loop:
     vle16.v v0, (a1)
     vle16.v v8,  (a2)
-    add a1, a1, a7
+    addi a1, a1, 32
     add a2, a2, a7
     vle16.v v4, (a1)
     vle16.v v12, (a2)
-    add a1, a1, a7
+    addi a1, a1, 32
     add a2, a2, a7
     vle16.v v1, (a1)
     vle16.v v9,  (a2)
-    add a1, a1, a7
+    addi a1, a1, 32
     add a2, a2, a7
     vle16.v v5, (a1)
     vle16.v v13, (a2)
-    add a1, a1, a7
+    addi a1, a1, 32
     add a2, a2, a7
     vle16.v v2, (a1)
     vle16.v v10, (a2)
-    add a1, a1, a7
+    addi a1, a1, 32
     add a2, a2, a7
     vle16.v v6, (a1)
     vle16.v v14, (a2)
-    add a1, a1, a7
+    addi a1, a1, 32
     add a2, a2, a7
     vle16.v v3, (a1)
     vle16.v v11, (a2)
-    add a1, a1, a7
+    addi a1, a1, 32
     add a2, a2, a7
     vle16.v v7, (a1)
     vle16.v v15, (a2)
-    add a1, a1, a7
+    addi a1, a1, 32
     add a2, a2, a7
     montmul_x4 v16, v17, v18, v19, v0, v1, v2, v3, \
         v12, v13, v14, v15, t0, t1, v24, v25, v26, v27
@@ -1033,4 +1072,6 @@ poly_basemul_acc_rvv_vlen128_loop:
     add a3, a3, t5
     add a0, a0, t5
     bltu a1, t2, poly_basemul_acc_rvv_vlen128_loop
+    restore_regs
+    addi sp, sp, 8*15
 ret
