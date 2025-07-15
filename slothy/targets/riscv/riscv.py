@@ -277,7 +277,13 @@ class AddiLoop(Loop):
         indent = " " * indentation
 
         yield f"{indent}addi {other['cnt']}, {other['cnt']}, {self.parsed_imm}"
-        yield f"{indent}{other['branch_type']} {other['cnt']}, {other['end']} {self.lbl}"
+        if other["end"] is not None:
+            yield (
+                f"{indent}{other['branch_type']}"
+                f"{other['cnt']}, {other['end']} {self.lbl}"
+            )
+        else:
+            yield f"{indent}{other['branch_type']} {other['cnt']}, {self.lbl}"
 
 
 class AddiStashLoop(Loop):
