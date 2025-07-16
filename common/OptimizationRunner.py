@@ -87,7 +87,8 @@ class OptimizationRunner:
         base_dir="examples",
         outfile_full=False,
         var="",
-        write_config=True,  # indicates if current config for the example should be stored for reference
+        write_config=True,  # indicates if current config
+                            # for the example should be stored for reference
         **kwargs,
     ):
         if name is None:
@@ -228,12 +229,14 @@ class OptimizationRunner:
             out_dir.mkdir(parents=True, exist_ok=True)
             slothy.write_source_to_file(self.outfile_full)
 
-    def _write_config(self):
+    def _write_config(self) -> None:
         """
-        Writes the configuration for the current example to a file {example_name}.conf along with the
-        optimized code. This helps to keep track of different configurations while looking for the best one.
+        Writes the configuration for the current example to a file {example_name}.conf
+        along with the optimized code. This helps to keep track of different
+        configurations while looking for the best one.
 
         :return: None
+        :rtype: None
         """
         example_name = self.__class__.__name__
         subfolder_full = arch_label_dict[self.arch] + "/" + self.subfolder
@@ -241,10 +244,11 @@ class OptimizationRunner:
         out_name = f"{self.base_dir}/opt/{subfolder_full}{self.outfile}.conf"
         self.extract_class_source(example_config_path, example_name, out_name)
 
-    def extract_class_source(self, file_path: str, class_name: str, output_file: str):
+    def extract_class_source(self, file_path: str,
+                             class_name: str, output_file: str) -> None:
         """
-        Extracts the example's configuration from the matching _example.py file and writes it
-        to a file {output_file}.conf
+        Extracts the example's configuration from the matching _example.py
+        file and writes it to a file {output_file}.conf
 
         :param file_path: the path to example file
         :type file_path: str
@@ -253,6 +257,7 @@ class OptimizationRunner:
         :param output_file: the file name of the original optimized example
         :type output_file: str
         :return: None
+        :rtype: None
         """
         base_level = logging.INFO
 
@@ -264,7 +269,8 @@ class OptimizationRunner:
             content = file.read()
 
         # Use regular expression to find the class definition
-        # This pattern looks for the class definition with any whitespace and also captures the class body
+        # This pattern looks for the class definition with any
+        # whitespace and also captures the class body
         pattern = r"class\s+{}\s?\(.*\):[\s\S]*?(?=\nclass\s|\Z)".format(
             re.escape(class_name)
         )
@@ -275,8 +281,9 @@ class OptimizationRunner:
             class_source_code = match.group(0)
             output_file_striped = output_file.split(".")[0].split("/")[-1]
             comment = (
-                f"# This configuration was used to generate the most recent optimized code for "
-                + f"\n# the {output_file_striped} example.\n\n"
+                '# This configuration was used to generate the most ' +
+                'recent optimized code for' +
+                f'\n# the {output_file_striped} example.\n\n'
             )
             class_source_code = comment + class_source_code
             with open(output_file, "w") as output:
