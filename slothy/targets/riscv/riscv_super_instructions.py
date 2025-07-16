@@ -415,6 +415,12 @@ class RISCVVectorVector(RISCVInstruction):
     outputs = ["Vd"]
 
 
+class RISCVectorVectorMasked(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Va><vm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
 class RISCVBranch(RISCVInstruction):
     """RISC-V branch instructions with two register operands and a label"""
 

@@ -38,6 +38,7 @@ from slothy.targets.riscv.riscv import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_i_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_m_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_v_instructions import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_pseudo_instructions import *  # noqa: F403
 
 issue_rate = 2
 llvm_mca_target = "cortex-a55"
@@ -46,6 +47,7 @@ lmul = None
 sew = None
 tpol = None
 mpol = None
+
 
 class ExecutionUnit(Enum):
     """Enumeration of execution units in C908 model"""
@@ -259,6 +261,7 @@ execution_units = {
         instrs["vl<nf>r.v"],
         instrs["vs<nf>re<ew>.v"],
         instrs["vs<nf>r.v"],
+        instrs["vnot.v"],
     ): [ExecutionUnit.VEC0],
 }
 
@@ -410,6 +413,7 @@ inverse_throughput = {
         instrs["vrgather.vx"],
         instrs["vrgather.vi"],
         instrs["vmv.x.s"],
+        instrs["vnot.v"],
     ): 1,
     instrs["vdivu.vv"]: 21,
     instrs["vdiv.vv"]: 23,
@@ -496,6 +500,7 @@ default_latencies = {
     instrs["vmv.s.x"]: 3,  # TODO: estimated
     instrs["vmv.x.s"]: 3,  # TODO: estimated
     instrs["vmv.v.v"]: 3,  # TODO: estimated
+    instrs["vnot.v"]: 4,
 }
 
 rv32_latencies = {

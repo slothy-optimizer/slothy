@@ -1,3 +1,3 @@
 start:
-vsetvli a7, a7, e16, m1, tu, mu
+neg x1, x3
 end:
