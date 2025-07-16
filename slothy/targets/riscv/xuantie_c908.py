@@ -47,6 +47,7 @@ sew = None
 tpol = None
 mpol = None
 
+
 class ExecutionUnit(Enum):
     """Enumeration of execution units in C908 model"""
 
