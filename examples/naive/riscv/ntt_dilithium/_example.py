@@ -204,12 +204,15 @@ class RISC_V_normal2ntt_order_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # slothy.config.sw_pipelining.enabled = True
+        # slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 5
-        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_factor = 10
+        slothy.config.split_heuristic_repeat = 1
         slothy.config.split_heuristic_stepsize = 0.05
+
+        slothy.config.constraints.allow_renaming = False
+        slothy.config.constraints.allow_reordering = False
 
         r = slothy.config.reserved_regs
         r += ["x3"]

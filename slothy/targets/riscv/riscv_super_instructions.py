@@ -318,7 +318,7 @@ class RISCVVectorStoreWholeRegister(RISCVInstruction):
         obj = RISCVInstruction.build(cls, src)
         obj.increment = None
         # obj.pre_index = obj.immediate
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in[1]
         regs_types, expanded_regs = RISCVInstruction._expand_reg(
             obj.args_in[0], obj.nf, "store"
         )

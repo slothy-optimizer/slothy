@@ -1,22 +1,24 @@
         start:
-                                // Instructions:    1
+                                // Instructions:    2
                                 // Expected cycles: 1
-                                // Expected IPC:    1.00
+                                // Expected IPC:    2.00
                                 //
                                 // Cycle bound:     1.0
-                                // IPC bound:       1.00
+                                // IPC bound:       2.00
                                 //
-                                // Wall time:     0.02s
-                                // User time:     0.02s
+                                // Wall time:     0.05s
+                                // User time:     0.05s
                                 //
                                 // ----- cycle (expected) ------>
                                 // 0                        25
                                 // |------------------------|----
         vl8r.v v4, (x16)        // *.............................
+        sd x2,  (x1)            // *.............................
 
                                  // ------ cycle (expected) ------>
                                  // 0                        25
                                  // |------------------------|-----
         // vl8r.v v4, (x16)      // *..............................
+        // sd x2, (x1)           // *..............................
 
         end:
