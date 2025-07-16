@@ -26,6 +26,7 @@
 #
 
 import logging
+import re
 import sys
 from pathlib import Path
 
@@ -86,6 +87,7 @@ class OptimizationRunner:
         base_dir="examples",
         outfile_full=False,
         var="",
+        write_config=True,  # indicates if current config for the example should be stored for reference
         **kwargs,
     ):
         if name is None:
@@ -96,6 +98,9 @@ class OptimizationRunner:
             infile += f"_{var}"
         name += f"_{target_label_dict[target]}"
 
+        self.base_dir = base_dir
+        self.subfolder = subfolder
+        self.write_config = write_config
         self.arch = arch
         self.target = target
         self.funcname = funcname
@@ -222,3 +227,57 @@ class OptimizationRunner:
             out_dir = Path(self.outfile_full).parent
             out_dir.mkdir(parents=True, exist_ok=True)
             slothy.write_source_to_file(self.outfile_full)
+
+    def _write_config(self):
+        """
+        Writes the configuration for the current example to a file {example_name}.conf along with the
+        optimized code. This helps to keep track of different configurations while looking for the best one.
+
+        :return: None
+        """
+        example_name = self.__class__.__name__
+        subfolder_full = arch_label_dict[self.arch] + "/" + self.subfolder
+        example_config_path = f"{self.base_dir}/naive/{subfolder_full}_example.py"
+        out_name = f"{self.base_dir}/opt/{subfolder_full}{self.outfile}.conf"
+        self.extract_class_source(example_config_path, example_name, out_name)
+
+
+    def extract_class_source(self, file_path: str, class_name: str, output_file: str):
+        """
+        Extracts the example's configuration from the matching _example.py file and writes it
+        to a file {output_file}.conf
+
+        :param file_path: the path to example file
+        :type file_path: str
+        :param class_name: the name of the example class
+        :type class_name: str
+        :param output_file: the file name of the original optimized example
+        :type output_file: str
+        :return: None
+        """
+        base_level = logging.INFO
+
+        logging.basicConfig(
+            level=base_level,
+        )
+        logger = logging.getLogger(self.name)
+        with open(file_path, 'r') as file:
+            content = file.read()
+
+        # Use regular expression to find the class definition
+        # This pattern looks for the class definition with any whitespace and also captures the class body
+        pattern = r'class\s+{}\s?\(.*\):[\s\S]*?(?=\nclass\s|\Z)'.format(re.escape(class_name))
+
+        match = re.search(pattern, content)
+
+        if match:
+            class_source_code = match.group(0)
+            comment = (f"# This configuration was used to generate the most recent optimized code for "+
+                       f"\n# the {output_file.split(".")[0].split("/")[-1]} example.\n\n")
+            class_source_code = comment + class_source_code
+            with open(output_file, 'w') as output:
+                output.write(class_source_code)
+            logger.info(f" Config for class '{class_name}' has been written to {output_file}")
+        else:
+            logger.warning(f" Config for class '{class_name}' not found in {file_path}.")
+            pass
