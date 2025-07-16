@@ -45,6 +45,9 @@ import slothy.targets.aarch64.aarch64_big_experimental as Target_AArch64Big
 import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
+import slothy.targets.riscv.riscv as RISC_V
+import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
+
 target_label_dict = {
     Target_CortexA55: "a55",
     Target_CortexA72: "a72",
@@ -55,12 +58,14 @@ target_label_dict = {
     Target_AppleM1_firestorm: "m1_firestorm",
     Target_AppleM1_icestorm: "m1_icestorm",
     Target_AArch64Big: "aarch64_big",
+    Target_XuanTieC908: "c908",
 }
 
 arch_label_dict = {
     Arch_Armv7M: "armv7m",
     Arch_Armv81M: "armv8m",
     AArch64_Neon: "aarch64",
+    RISC_V: "riscv",
 }
 
 
@@ -90,7 +95,7 @@ class OptimizationRunner:
     ):
         if name is None:
             name = infile
-
+        self.var = var
         if var != "":
             name += f"_{var}"
             infile += f"_{var}"
@@ -212,10 +217,17 @@ class OptimizationRunner:
 
         self.core(slothy, *self.extra_args)
 
+        # TODO: Ensure this is compatible with all examples having variants.
+        # Having the input func name differ as well is superior as it avoids
+        # naming collisions.
         if self.rename:
+            var_str = f"_{self.var}" if self.var != "" else ""
             slothy.rename_function(
-                self.funcname,
-                f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}",
+                f"{self.funcname}{var_str}",
+                (
+                    f"{self.funcname}{var_str}_{self.suffix}"
+                    f"_{target_label_dict[self.target]}"
+                ),
             )
 
         if dry_run is False:

@@ -193,6 +193,8 @@ class Slothy:
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
         for line in s:
+            if isinstance(line, SourceLine):
+                line = line.to_string()  # Explicitly convert SourceLine to string
             fun(f"> {line}")
 
     def global_selftest(
@@ -248,7 +250,6 @@ class Slothy:
     def unfold(self, start=None, end=None, macros=True, aliases=False):
         """Unfold macros and/or register aliases in specified region"""
         pre, body, post = AsmHelper.extract(self.source, start, end)
-
         aliases = AsmAllocation.parse_allocs(pre)
         c = self.config.copy()
         c.add_aliases(aliases)
