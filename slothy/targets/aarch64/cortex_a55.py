@@ -53,10 +53,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ldr_Q,
     Str_Q,
     vmov,
-    vand,
     vadd,
     vxtn,
-    vshli,
     vshrn,
     vusra,
     vmul,
@@ -78,6 +76,9 @@ from slothy.targets.aarch64.aarch64_neon import (
     Vmlal,
     vushr,
     vsshr,
+    vuxtl,
+    vshl_d,
+    vshl,
     VShiftImmediateRounding,
     St4,
     Ld4,
@@ -102,11 +103,9 @@ from slothy.targets.aarch64.aarch64_neon import (
     vzip1,
     vzip2,
     vuzp1,
-    vsri,
-    veor,
+    vext,
     vuzp2,
     vsub,
-    vshl,
     w_stp_with_imm_sp,
     x_str_sp_imm,
     x_ldr_stack_imm,
@@ -153,8 +152,10 @@ from slothy.targets.aarch64.aarch64_neon import (
     ASimdCompare,
     and_twoarg,
     VShiftImmediateBasic,
-    vmlal,
     ubfx,
+    AESInstruction,
+    AArch64NeonLogical,
+    AArch64NeonShiftInsert,
 )
 
 issue_rate = 2
@@ -241,10 +242,6 @@ execution_units = {
         vqrdmulh,
         vqrdmulh_lane,
         vqdmulh_lane,
-        vand,
-        vbic,
-        vsri,
-        veor,
         Ldr_Q,
         Str_Q,
         q_ldr1_stack,
@@ -253,12 +250,10 @@ execution_units = {
         Vmull,
         Vmlal,
         vusra,
-        vushr,
-        vsshr,
         vshrn,
-        vshli,
         vxtn,
         VShiftImmediateRounding,
+        AArch64NeonLogical,
     ): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
     ],  # these instructions use both VEC0 and VEC1
@@ -332,6 +327,8 @@ execution_units = {
     is_dform_form_of(vzip1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vzip2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vzip2): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vext): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vext): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vuzp1): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vuzp1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vuzp2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
@@ -342,6 +339,18 @@ execution_units = {
     is_dform_form_of(vadd): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vshl): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vshl): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vshrn): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vshrn): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vushr): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vushr): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vsshr): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vsshr): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    vshl_d: [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    vuxtl: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_qform_form_of(AArch64NeonShiftInsert): [
+        [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
+    ],
+    is_dform_form_of(AArch64NeonShiftInsert): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     (Stp_X, w_stp_with_imm_sp, x_str_sp_imm, Str_X): ExecutionUnit.SCALAR_STORE,
     (
         x_ldr_stack_imm,
@@ -389,6 +398,9 @@ execution_units = {
         lsr_wform,
         eor_wform,
     ): ExecutionUnit.SCALAR(),
+    # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
+    # is not modeled
+    AESInstruction: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
 
 inverse_throughput = {
@@ -407,6 +419,7 @@ inverse_throughput = {
         Vmlal,
         umov_d,
     ): 1,
+    (vshl, vshl_d, vsshr, vushr, vuxtl): 1,
     (trn2, trn1, ASimdCompare): 1,
     (Ldr_Q): 2,
     (Str_Q): 1,
@@ -421,7 +434,6 @@ inverse_throughput = {
     Ld2: 4,
     vxtn: 1,
     vshrn: 2,
-    vshli: 2,
     (fcsel_dform): 1,
     (VecToGprMov, Mov_xtov_d): 1,
     (movk_imm, mov, mov_imm, movw_imm): 1,
@@ -447,10 +459,10 @@ inverse_throughput = {
     (cmp_xzr2, cmp_imm, sub, subs_wform, asr_wform, sbcs_zero_to_zero, ngc_zero): 1,
     (bfi, ubfx): 1,
     VShiftImmediateRounding: 1,
-    VShiftImmediateBasic: 1,
-    (vsri): 1,
+    AArch64NeonShiftInsert: 1,
     (vusra): 1,
-    (vand, vbic, veor): 1,
+    AArch64NeonLogical: 1,
+    vext: 1,
     (vuzp1, vuzp2): 1,
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ldr1_post_inc): 1,
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc): 1,
@@ -458,6 +470,7 @@ inverse_throughput = {
     (vzip1, vzip2): 1,
     (eor_wform): 1,
     (eor, bic, eor_ror, bic_ror): 1,
+    AESInstruction: 1,
 }
 
 default_latencies = {
@@ -486,7 +499,7 @@ default_latencies = {
     Ld4: 11,
     vxtn: 2,
     vshrn: 2,
-    vshli: 2,
+    (vshl, vshl_d, vsshr, vushr, vuxtl): 2,
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,
     (Vins, umov_d): 2,
@@ -520,9 +533,10 @@ default_latencies = {
     (bfi, ubfx): 2,
     VShiftImmediateRounding: 3,
     VShiftImmediateBasic: 2,
-    (vsri): 2,
+    AArch64NeonShiftInsert: 2,
     (vusra): 3,
-    (vand, vbic, veor): 1,
+    AArch64NeonLogical: 1,
+    vext: 2,
     (vuzp1, vuzp2): 2,
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ldr1_post_inc): 3,
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc): 3,
@@ -534,6 +548,9 @@ default_latencies = {
     # seems to be 1 cycle. See https://eprint.iacr.org/2022/1243.pdf
     (eor_ror, bic_ror): 1,
     (ror, eor, bic): 1,
+    # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
+    # is not modeled
+    AESInstruction: 2,
 }
 
 
@@ -559,8 +576,8 @@ def get_latency(src, out_idx, dst):
         latency += 1
 
     if (
-        instclass_src == vmlal
-        and instclass_dst == vmlal
+        isinstance(src, Vmlal)
+        and isinstance(dst, Vmlal)
         and src.args_in_out[0] == dst.args_in_out[0]
     ):
         return (

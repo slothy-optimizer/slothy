@@ -52,6 +52,7 @@ class ntt_dilithium_123_45678(OptimizationRunner):
             target=target,
             timeout=timeout,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -88,6 +89,7 @@ class intt_dilithium_123_45678(OptimizationRunner):
             target=target,
             timeout=timeout,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -121,7 +123,13 @@ class ntt_dilithium_123(OptimizationRunner):
         infile = "ntt_dilithium_123_45678"
 
         super().__init__(
-            infile, name, rename=True, arch=arch, target=target, subfolder=SUBFOLDER
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -145,7 +153,13 @@ class ntt_dilithium_45678(OptimizationRunner):
         infile = "ntt_dilithium_123_45678"
 
         super().__init__(
-            infile, name, rename=True, arch=arch, target=target, subfolder=SUBFOLDER
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -176,6 +190,7 @@ class ntt_dilithium_1234_5678(OptimizationRunner):
             target=target,
             timeout=timeout,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -224,6 +239,7 @@ class intt_dilithium_1234_5678(OptimizationRunner):
             target=target,
             timeout=timeout,
             subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -263,7 +279,13 @@ class ntt_dilithium_1234(OptimizationRunner):
         infile = "ntt_dilithium_1234_5678"
 
         super().__init__(
-            infile, name, rename=True, arch=arch, target=target, subfolder=SUBFOLDER
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):
@@ -283,7 +305,13 @@ class ntt_dilithium_5678(OptimizationRunner):
         infile = "ntt_dilithium_1234_5678"
 
         super().__init__(
-            infile, name, rename=True, arch=arch, target=target, subfolder=SUBFOLDER
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            subfolder=SUBFOLDER,
+            var=var,
         )
 
     def core(self, slothy):

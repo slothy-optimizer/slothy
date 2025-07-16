@@ -251,12 +251,6 @@ class Config(NestedPrint, LockAttributes):
 
         .. note::
 
-            For historical reason, this feature cannot be disabled for
-            the Armv8.1-M architecture model. A refactoring of that model is needed
-            to make address offset fixup configurable.
-
-        .. note::
-
             The user-imposed safety constraint is not a necessity -- in principle,
             SLOTHY could detect when it is safe to reorder ldr/str instructions with
             increment.
@@ -1485,8 +1479,6 @@ class Config(NestedPrint, LockAttributes):
 
     @unsafe_address_offset_fixup.setter
     def unsafe_address_offset_fixup(self, val):
-        if val is False and self.arch.arch_name == "Arm_v81M":
-            raise InvalidConfig("unsafe address offset fixup must be set for Armv8.1-M")
         self._unsafe_address_offset_fixup = val
 
     @locked_registers.setter

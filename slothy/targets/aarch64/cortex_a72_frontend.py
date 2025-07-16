@@ -93,6 +93,10 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ld3,
     Ld4,
     ubfx,
+    AESInstruction,
+    vext,
+    AArch64NeonLogical,
+    AArch64NeonShiftInsert,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -177,10 +181,15 @@ execution_units = {
         Vmlal,
         Vmull,
     ): [ExecutionUnit.ASIMD0],
-    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare): [
+    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext): [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
+    (AArch64NeonLogical): [
+        ExecutionUnit.ASIMD0,
+        ExecutionUnit.ASIMD1,
+    ],
+    AArch64NeonShiftInsert: [ExecutionUnit.ASIMD1],
     Vins: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     umov_d: ExecutionUnit.LOAD(),  # ???
     (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
@@ -192,6 +201,7 @@ execution_units = {
         [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
         [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
     ],
+    AESInstruction: [ExecutionUnit.ASIMD0],
 }
 
 inverse_throughput = {
@@ -208,7 +218,9 @@ inverse_throughput = {
     ): 2,
     (Vmull, Vmlal): 1,
     Vzip: 1,
-    (vadd, vsub, trn1, trn2, ASimdCompare): 1,
+    (vadd, vsub, trn1, trn2, ASimdCompare, vext): 1,
+    AArch64NeonLogical: 1,
+    AArch64NeonShiftInsert: 1,
     Vins: 1,
     umov_d: 1,
     (add, add_imm, add_lsl, add_lsr): 1,
@@ -221,6 +233,7 @@ inverse_throughput = {
     Ld3: 3,
     Ld4: 4,
     ubfx: 1,
+    AESInstruction: 1,
 }
 
 # REVISIT
@@ -244,7 +257,10 @@ default_latencies = {
         trn1,
         trn2,
         ASimdCompare,
+        vext,
     ): 3,  # Approximation -- not necessary to get it exactly right, as mentioned above
+    AArch64NeonLogical: 3,
+    AArch64NeonShiftInsert: 3,
     (Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
@@ -258,6 +274,7 @@ default_latencies = {
     Ld3: 3,
     Ld4: 4,
     ubfx: 1,
+    AESInstruction: 3,
 }
 
 

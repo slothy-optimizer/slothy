@@ -2894,18 +2894,6 @@ class uaddlp(AArch64Instruction):
     outputs = ["Vd"]
 
 
-class vand(AArch64Instruction):
-    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
-    inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
-class vbic(AArch64Instruction):
-    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
-    inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
 class Vzip(AArch64Instruction):
     pass
 
@@ -2931,12 +2919,6 @@ class vuzp1(Vzip):
 class vuzp2(Vzip):
     pattern = "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
-class vuxtl(AArch64Instruction):
-    pattern = "uxtl <Vd>.<dt0>, <Va>.<dt1>"
-    inputs = ["Va"]
     outputs = ["Vd"]
 
 
@@ -3098,35 +3080,58 @@ class AArch64NeonLogical(AArch64Instruction):
     pass
 
 
+class vand(AArch64NeonLogical):
+    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vbic(AArch64NeonLogical):
+    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vmvn(AArch64NeonLogical):
+    pattern = "mvn <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vorr(AArch64NeonLogical):
+    pattern = "orr <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class vorn(AArch64NeonLogical):
+    pattern = "orn <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class veor(AArch64NeonLogical):
     pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vbif(AArch64NeonLogical):
+class vbif(AArch64Instruction):
     pattern = "bif <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
-# Not sure about the classification as logical... couldn't find it in SWOG
-class vmov_d(AArch64NeonLogical):
+class vmov_d(AArch64Instruction):
     pattern = "mov <Dd>, <Va>.d[1]"
     inputs = ["Va"]
     outputs = ["Dd"]
 
 
-class vext(AArch64NeonLogical):
+class vext(AArch64Instruction):
     pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
-
-
-class vsri(AArch64NeonLogical):
-    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    in_outs = ["Vd"]
 
 
 class Vmul(AArch64Instruction):
@@ -3214,13 +3219,13 @@ class Vmull(AArch64Instruction):
     pass
 
 
-class vmull(Vmull):
+class vumull(Vmull):
     pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vmull2(Vmull):
+class vumull2(Vmull):
     pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
@@ -3238,12 +3243,82 @@ class vsmull2(Vmull):
     outputs = ["Vd"]
 
 
+class vumull_lane(Vmull):
+    pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumull2_lane(Vmull):
+    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmull_lane(Vmull):
+    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmull2_lane(Vmull):
+    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
 class Vmlal(AArch64Instruction):
     pass
 
 
-class vmlal(Vmlal):
+class vumlal(Vmlal):
     pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlal2(Vmlal):
+    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
@@ -3260,8 +3335,196 @@ class vsmlal2(Vmlal):
     in_outs = ["Vd"]
 
 
+class vumlal_lane(Vmlal):
+    pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumlal2_lane(Vmlal):
+    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlal_lane(Vmlal):
+    pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlal2_lane(Vmlal):
+    pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumlsl(Vmlal):
+    pattern = "umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlsl2(Vmlal):
+    pattern = "umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vsmlsl(Vmlal):
+    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vsmlsl2(Vmlal):
+    pattern = "smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlsl_lane(Vmlal):
+    pattern = "umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumlsl2_lane(Vmlal):
+    pattern = "umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlsl_lane(Vmlal):
+    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlsl2_lane(Vmlal):
+    pattern = "smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
 class VShiftImmediateBasic(AArch64Instruction):
     pass
+
+
+class vshl(VShiftImmediateBasic):
+    pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vshl_d(VShiftImmediateBasic):
+    pattern = "shl <Dd>, <Da>, <imm>"
+    inputs = ["Da"]
+    outputs = ["Dd"]
+
+
+class vshrn(VShiftImmediateBasic):
+    pattern = "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vsshr(VShiftImmediateBasic):
+    pattern = "sshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vushr(VShiftImmediateBasic):
+    pattern = "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vuxtl(VShiftImmediateBasic):
+    pattern = "uxtl <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 
 class VShiftImmediateRounding(AArch64Instruction):
@@ -3280,32 +3543,18 @@ class vurshr(VShiftImmediateRounding):
     outputs = ["Vd"]
 
 
-class vsshr(VShiftImmediateBasic):
-    pattern = "sshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
+class AArch64NeonShiftInsert(AArch64Instruction):
+    pass
 
 
-class vushr(VShiftImmediateBasic):
-    pattern = "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
-
-
-class vshl(VShiftImmediateBasic):
-    pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
-
-
-class vshl_d(AArch64Instruction):
-    pattern = "shl <Dd>, <Da>, <imm>"
-    inputs = ["Da"]
-    outputs = ["Dd"]
-
-
-class vshli(AArch64Instruction):
+class vsli(AArch64NeonShiftInsert):
     pattern = "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
+class vsri(AArch64NeonShiftInsert):
+    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
@@ -3314,12 +3563,6 @@ class vusra(AArch64Instruction):
     pattern = "usra <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
-
-
-class vshrn(AArch64Instruction):
-    pattern = "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
 
 
 class VecToGprMov(AArch64Instruction):
@@ -4336,9 +4579,12 @@ def is_dt_form_of(instr_class, dts=None):
         return len([a for a in ls_a if a in ls_b]) > 0
 
     def _check_instr_dt(src):
-        if find_class(src) in instr_class:
-            if dts is None or _intersects(src.datatype, dts):
-                return True
+        # Check if src is an instance of any of the instruction classes
+        # (supports inheritance)
+        for cls in instr_class:
+            if isinstance(src, cls):
+                if dts is None or _intersects(src.datatype, dts):
+                    return True
         return False
 
     return _check_instr_dt

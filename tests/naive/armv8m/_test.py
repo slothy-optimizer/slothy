@@ -36,12 +36,20 @@ class Instructions(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.allow_useless_instructions = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 256
         slothy.optimize(start="start", end="end")
 
 
 class Example0(OptimizationRunner):
     def __init__(self):
         super().__init__("simple0", base_dir="tests")
+
+    def core(self, slothy):
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize()
 
 
 class Example1(OptimizationRunner):
@@ -83,6 +91,17 @@ class LoopLe(OptimizationRunner):
         slothy.optimize_loop("start")
 
 
+class HintTest(OptimizationRunner):
+    def __init__(self):
+        super().__init__(
+            "hint_test", arch=Arch_Armv81M, target=Target_CortexM55r1, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize()
+
+
 test_instances = [
     Instructions(),
     Example0(),
@@ -90,4 +109,5 @@ test_instances = [
     Example2(),
     Example3(),
     LoopLe(),
+    HintTest(),
 ]

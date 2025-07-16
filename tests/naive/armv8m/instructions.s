@@ -5,6 +5,9 @@ add r0, r1, r2
 
 sub r0, r1, r2
 
+ldr r0, [sp, #4]
+ldr r1, [r13, #8]
+
 vmulh.u8 q2, q0, q1
 vmulh.u16 q2, q0, q1
 vmulh.u32 q2, q0, q1
@@ -55,6 +58,7 @@ vqdmulh.s8 q2, q0, q1
 vqdmulh.s16 q2, q0, q1
 vqdmulh.s32 q2, q0, q1
 
+ldrd r0, r1, [r2]
 ldrd r0, r1, [r2, #16]
 ldrd r0, r1, [r2, #-16]
 ldrd r0, r1, [r2], #16
@@ -236,15 +240,18 @@ vand.u64 q2, q0, q1
 vbic.u8 q2, q0, q1
 vbic.u16 q2, q0, q1
 vbic.u32 q2, q0, q1
+vbic q2, q0, q1
 
 vorr.u8 q2, q0, q1
 vorr.u16 q2, q0, q1
 vorr.u32 q2, q0, q1
 vorr.u64 q2, q0, q1
 
-vorr.u8 q2, q0, q1
-vorr.u16 q2, q0, q1
-vorr.u32 q2, q0, q1
+veor.u8 q2, q0, q1
+veor.u16 q2, q0, q1
+veor.u32 q2, q0, q1
+veor.u64 q2, q0, q1
+veor q2, q0, q1
 
 nop
 

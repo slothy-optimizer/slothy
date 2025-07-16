@@ -57,6 +57,7 @@ class RegisterType(Enum):
     MVE = (2,)
     StackMVE = (3,)
     StackGPR = (4,)
+    HINT = (5,)
 
     def __str__(self):
         return self.name
@@ -67,6 +68,8 @@ class RegisterType(Enum):
     @staticmethod
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
+        if ty == RegisterType.HINT:
+            return False
         return True
 
     @staticmethod
@@ -83,7 +86,7 @@ class RegisterType(Enum):
             "RPTR_STACK",
         ]
 
-        gprs_normal = [f"r{i}" for i in range(13)] + ["r14"]
+        gprs_normal = [f"r{i}" for i in range(15)]
         vregs_normal = [f"q{i}" for i in range(8)]
 
         gprs_extra = [f"r{i}_EXT" for i in range(16)]
@@ -103,11 +106,16 @@ class RegisterType(Enum):
             RegisterType.StackGPR: stack_locations,
             RegisterType.StackMVE: qstack_locations,
             RegisterType.MVE: vregs,
+            RegisterType.HINT: [],
         }[reg_type]
 
     @staticmethod
     def find_type(r):
         """Find type of architectural register"""
+
+        if r.startswith("hint_"):
+            return RegisterType.HINT
+
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
                 return ty
@@ -120,14 +128,15 @@ class RegisterType(Enum):
             "stack": RegisterType.StackGPR,
             "mve": RegisterType.MVE,
             "gpr": RegisterType.GPR,
+            "hint": RegisterType.HINT,
         }.get(string, None)
 
     def default_aliases():
-        return {"lr": "r14"}
+        return {"lr": "r14", "sp": "r13"}
 
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["r14"])
+        return set(["r13", "r14"] + RegisterType.list_registers(RegisterType.HINT))
 
 
 class LeLoop(Loop):
@@ -353,6 +362,7 @@ class Instruction:
                 vst42_with_writeback,
                 vst43_with_writeback,
                 ldrd,
+                ldrd_no_imm,
                 ldrd_with_writeback,
                 ldrd_with_post,
                 strd,
@@ -402,6 +412,7 @@ class Instruction:
         return self._is_instance_of(
             [
                 ldrd,
+                ldrd_no_imm,
                 ldrd_with_writeback,
                 ldrd_with_post,
                 ldr,
@@ -1075,31 +1086,52 @@ class ldrd(MVEInstruction):
         return super().write()
 
 
-class ldrd_with_writeback(MVEInstruction):
-    pattern = "ldrd <Rt0>, <Rt1>, [<Rn>, <imm>]!"
+class ldrd_no_imm(MVEInstruction):
+    pattern = "ldrd <Rt0>, <Rt1>, [<Rn>]"
     inputs = ["Rn"]
     outputs = ["Rt0", "Rt1"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+
+        if int(self.immediate) != 0:
+            self.pattern = ldrd.pattern
+        return super().write()
+
+
+class ldrd_with_writeback(MVEInstruction):
+    pattern = "ldrd <Rt0>, <Rt1>, [<Rn>, <imm>]!"
+    outputs = ["Rt0", "Rt1"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
 class ldrd_with_post(MVEInstruction):
     pattern = "ldrd <Rt0>, <Rt1>, [<Rn>], <imm>"
-    inputs = ["Rn"]
     outputs = ["Rt0", "Rt1"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
@@ -1123,29 +1155,29 @@ class ldr(MVEInstruction):
 
 class ldr_with_writeback(MVEInstruction):
     pattern = "ldr <Rt>, [<Rn>, <imm>]!"
-    inputs = ["Rn"]
     outputs = ["Rt"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
 class ldr_with_post(MVEInstruction):
     pattern = "ldr <Rt>, [<Rn>], <imm>"
-    inputs = ["Rn"]
     outputs = ["Rt"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
@@ -1168,27 +1200,29 @@ class strd(MVEInstruction):
 
 class strd_with_writeback(MVEInstruction):
     pattern = "strd <Rt0>, <Rt1>, [<Rn>, <imm>]!"
-    inputs = ["Rt0", "Rt1", "Rn"]
+    inputs = ["Rt0", "Rt1"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[2]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
 class strd_with_post(MVEInstruction):
     pattern = "strd <Rt0>, <Rt1>, [<Rn>], <imm>"
-    inputs = ["Rt0", "Rt1", "Rn"]
+    inputs = ["Rt0", "Rt1"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[2]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
@@ -1211,7 +1245,6 @@ class vshlc(MVEInstruction):
 
 class vmov_imm(MVEInstruction):
     pattern = "vmov.<dt> <Qd>, <imm>"
-    inputs = []
     outputs = ["Qd"]
 
 
@@ -1247,13 +1280,11 @@ class mov(MVEInstruction):
 
 class mov_imm(MVEInstruction):
     pattern = "mov <Rd>, <imm>"
-    inputs = []
     outputs = ["Rd"]
 
 
 class mvn_imm(MVEInstruction):
     pattern = "mvn <Rd>, <imm>"
-    inputs = []
     outputs = ["Rd"]
 
 
@@ -1425,6 +1456,12 @@ class vbic(MVEInstruction):
     outputs = ["Qd"]
 
 
+class vbic_nodt(MVEInstruction):
+    pattern = "vbic <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
+
+
 class vorr(MVEInstruction):
     pattern = "vorr.<dt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
@@ -1433,6 +1470,12 @@ class vorr(MVEInstruction):
 
 class veor(MVEInstruction):
     pattern = "veor.<dt> <Qd>, <Qn>, <Qm>"
+    inputs = ["Qn", "Qm"]
+    outputs = ["Qd"]
+
+
+class veor_nodt(MVEInstruction):
+    pattern = "veor <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]
     outputs = ["Qd"]
 
@@ -1479,26 +1522,28 @@ class vstrw_no_imm(MVEInstruction):
 
 class vstrw_with_writeback(MVEInstruction):
     pattern = "vstrw.<dt> <Qd>, [<Rn>, <imm>]!"
-    inputs = ["Qd", "Rn"]
+    inputs = ["Qd"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[1]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
 class vstrw_with_post(MVEInstruction):
     pattern = "vstrw.<dt> <Qd>, [<Rn>], <imm>"
-    inputs = ["Qd", "Rn"]
+    inputs = ["Qd"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
-        obj.addr = obj.args_in[1]
+        obj.addr = obj.args_in_out[0]
         obj.pre_index = None
         return obj
 
@@ -1569,29 +1614,29 @@ class vldrb_no_imm(MVEInstruction):
 
 class vldrb_with_writeback(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]!"
-    inputs = ["Rn"]
     outputs = ["Qd"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
 class vldrb_with_post(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>], <imm>"
-    inputs = ["Rn"]
     outputs = ["Qd"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
@@ -1635,29 +1680,29 @@ class vldrh_no_imm(MVEInstruction):
 
 class vldrh_with_writeback(MVEInstruction):
     pattern = "vldrh.<dt> <Qd>, [<Rn>, <imm>]!"
-    inputs = ["Rn"]
     outputs = ["Qd"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
 class vldrh_with_post(MVEInstruction):
     pattern = "vldrh.<dt> <Qd>, [<Rn>], <imm>"
-    inputs = ["Rn"]
     outputs = ["Qd"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
@@ -1701,29 +1746,29 @@ class vldrw_no_imm(MVEInstruction):
 
 class vldrw_with_writeback(MVEInstruction):
     pattern = "vldrw.<dt> <Qd>, [<Rn>, <imm>]!"
-    inputs = ["Rn"]
     outputs = ["Qd"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
 class vldrw_with_post(MVEInstruction):
     pattern = "vldrw.<dt> <Qd>, [<Rn>], <imm>"
-    inputs = ["Rn"]
     outputs = ["Qd"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         return obj
 
 
@@ -1851,8 +1896,8 @@ class vld21(MVEInstruction):
 
 class vld20_with_writeback(MVEInstruction):
     pattern = "vld20.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
-    inputs = ["Rn"]
     outputs = ["Qd0", "Qd1"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
@@ -1860,20 +1905,19 @@ class vld20_with_writeback(MVEInstruction):
         obj.args_out_combinations = [
             ([0, 1], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
         ]
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 32
         return obj
 
 
 class vld21_with_writeback(MVEInstruction):
     pattern = "vld21.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
-    inputs = ["Rn"]
-    in_outs = ["Qd0", "Qd1"]
+    in_outs = ["Rn", "Qd0", "Qd1"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 32
         return obj
 
@@ -1949,8 +1993,8 @@ class vld43(MVEInstruction):
 
 class vld40_with_writeback(MVEInstruction):
     pattern = "vld40.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = ["Rn"]
     outputs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
@@ -1961,7 +2005,7 @@ class vld40_with_writeback(MVEInstruction):
                 [[f"q{i}", f"q{i+1}", f"q{i+2}", f"q{i+3}"] for i in range(0, 5)],
             )
         ]
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 64
 
         return obj
@@ -1969,13 +2013,12 @@ class vld40_with_writeback(MVEInstruction):
 
 class vld41_with_writeback(MVEInstruction):
     pattern = "vld41.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = ["Rn"]
-    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+    in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 64
 
         return obj
@@ -1983,13 +2026,12 @@ class vld41_with_writeback(MVEInstruction):
 
 class vld42_with_writeback(MVEInstruction):
     pattern = "vld42.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = ["Rn"]
-    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+    in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 64
 
         return obj
@@ -1997,13 +2039,12 @@ class vld42_with_writeback(MVEInstruction):
 
 class vld43_with_writeback(MVEInstruction):
     pattern = "vld43.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = ["Rn"]
-    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+    in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 64
 
         return obj
@@ -2044,28 +2085,28 @@ class vst21(MVEInstruction):
 
 class vst20_with_writeback(MVEInstruction):
     pattern = "vst20.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
-    inputs = ["Rn"]
-    in_outs = ["Qd0", "Qd1"]
+    in_outs = ["Rn", "Qd0", "Qd1"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 32
         return obj
 
 
 class vst21_with_writeback(MVEInstruction):
     pattern = "vst21.<dt> {<Qd0>, <Qd1>}, [<Rn>]!"
-    inputs = ["Rn", "Qd0", "Qd1"]
+    inputs = ["Qd0", "Qd1"]
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.args_in_combinations = [
-            ([1, 2], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
+            ([0, 1], [[f"q{i}", f"q{i+1}"] for i in range(0, 7)])
         ]
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 32
 
         return obj
@@ -2135,13 +2176,12 @@ class vst43(MVEInstruction):
 
 class vst40_with_writeback(MVEInstruction):
     pattern = "vst40.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = ["Rn"]
-    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+    in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 64
 
         return obj
@@ -2149,13 +2189,12 @@ class vst40_with_writeback(MVEInstruction):
 
 class vst41_with_writeback(MVEInstruction):
     pattern = "vst41.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = ["Rn"]
-    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+    in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 64
 
         return obj
@@ -2163,13 +2202,12 @@ class vst41_with_writeback(MVEInstruction):
 
 class vst42_with_writeback(MVEInstruction):
     pattern = "vst42.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = ["Rn"]
-    in_outs = ["Qd0", "Qd1", "Qd2", "Qd3"]
+    in_outs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 64
 
         return obj
@@ -2177,20 +2215,20 @@ class vst42_with_writeback(MVEInstruction):
 
 class vst43_with_writeback(MVEInstruction):
     pattern = "vst43.<dt> {<Qd0>, <Qd1>, <Qd2>, <Qd3>}, [<Rn>]!"
-    inputs = ["Rn", "Qd0", "Qd1", "Qd2", "Qd3"]
+    inputs = ["Qd0", "Qd1", "Qd2", "Qd3"]
     outputs = []
-    in_outs = []
+    in_outs = ["Rn"]
 
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
         obj.args_in_combinations = [
             (
-                [1, 2, 3, 4],
+                [0, 1, 2, 3],
                 [[f"q{i}", f"q{i+1}", f"q{i+2}", f"q{i+3}"] for i in range(0, 5)],
             )
         ]
-        obj.addr = obj.args_in[0]
+        obj.addr = obj.args_in_out[0]
         obj.increment = 64
 
         return obj
@@ -2382,7 +2420,12 @@ def all_subclass_leaves(c):
 Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 
+class UnknownInstruction(Exception):
+    pass
+
+
 def lookup_multidict(d, inst, default=None):
+    instclass = find_class(inst)
     for ll, v in d.items():
         # Multidict entries can be the following:
         # - An instruction class. It matches any instruction of that class.
@@ -2402,7 +2445,7 @@ def lookup_multidict(d, inst, default=None):
             if match(lp):
                 return v
     if default is None:
-        raise Exception(f"Couldn't find {inst}")
+        raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
     return default
 
 

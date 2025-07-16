@@ -43,6 +43,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ldr_Q,
     Str_Q,
     Stp_Q,
+    Ldp_Q,
     Vrev,
     uaddlp,
     vmov,
@@ -50,16 +51,13 @@ from slothy.targets.aarch64.aarch64_neon import (
     vand,
     vadd,
     vxtn,
-    vshl_d,
-    vshli,
-    vshrn,
-    vsshr,
     vusra,
     vmul,
     vdup,
     AESInstruction,
     Transpose,
     AArch64NeonLogical,
+    VShiftImmediateBasic,
     AArch64BasicArithmetic,
     AArch64ConditionalSelect,
     AArch64ConditionalCompare,
@@ -77,8 +75,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     St4,
     Vzip,
     vsub,
-    vuxtl,
-    vshl,
     vsrshr,
     Vmul,
     Vmla,
@@ -91,6 +87,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     vmla_lane,
     vmls,
     vmls_lane,
+    vext,
+    AArch64NeonShiftInsert,
 )
 
 issue_rate = 4
@@ -162,7 +160,7 @@ def get_min_max_objective(slothy):
 
 
 execution_units = {
-    (Ldp_X, Ldr_X, Str_X, Stp_X, Ldr_Q, Str_Q, Stp_Q): ExecutionUnit.LSU(),
+    (Ldp_X, Ldr_X, Str_X, Stp_X, Ldr_Q, Str_Q, Stp_Q, Ldp_Q): ExecutionUnit.LSU(),
     # TODO: The following would be more accurate, but does not
     #       necessarily lead to better results, while making the
     #       optimization slower. Investigate...
@@ -182,11 +180,16 @@ execution_units = {
     (vmovi): ExecutionUnit.V(),
     (vand, vadd, vsub): ExecutionUnit.V(),
     (vxtn): ExecutionUnit.V(),
-    (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn, vsshr): ExecutionUnit.V1(),
+    VShiftImmediateBasic: ExecutionUnit.V1(),
+    (
+        AArch64NeonShiftInsert,
+        vsrshr,
+    ): ExecutionUnit.V1(),
     vusra: ExecutionUnit.V1(),
     AESInstruction: ExecutionUnit.V0(),
     (Vmul, Vmla, Vqdmulh, Vmull, Vmlal): ExecutionUnit.V0(),
     AArch64NeonLogical: ExecutionUnit.V(),
+    vext: ExecutionUnit.V(),
     (
         AArch64BasicArithmetic,
         AArch64ConditionalSelect,
@@ -205,7 +208,7 @@ execution_units = {
 }
 
 inverse_throughput = {
-    (Ldr_X, Str_X, Ldr_Q, Str_Q): 1,
+    (Ldr_X, Str_X, Ldr_Q, Str_Q, Ldp_Q): 1,
     (Ldp_X, Stp_X): 2,
     Stp_Q: 2,
     St3: 3,  # Multiple structures, Q form, storing bytes
@@ -217,9 +220,11 @@ inverse_throughput = {
     Transpose: 1,
     AESInstruction: 1,
     AArch64NeonLogical: 1,
+    vext: 1,
     (vmovi): 1,
     (vxtn): 1,
-    (vuxtl, vshl, vshl_d, vshli, vsrshr, vshrn, vsshr): 1,
+    VShiftImmediateBasic: 1,
+    (AArch64NeonShiftInsert, vsrshr): 1,
     (Vmul, Vmla, Vqdmulh): 2,
     vusra: 1,
     (Vmull, Vmlal): 1,
@@ -242,7 +247,9 @@ inverse_throughput = {
 }
 
 default_latencies = {
-    (Ldp_X, Ldr_X, Ldr_Q, Stp_Q): 4,
+    # For OOO uArch we use relaxed latency modeling for load instructions
+    # since the uArch will heavily front-load them anyway
+    (Ldp_X, Ldr_X, Ldr_Q, Stp_Q, Ldp_Q): 4,
     (Stp_X, Str_X, Str_Q): 2,
     St3: 6,  # Multiple structures, Q form, storing bytes
     St4: 4,
@@ -251,6 +258,7 @@ default_latencies = {
     (vxtn): 2,
     AESInstruction: 2,
     AArch64NeonLogical: 2,
+    vext: 2,
     Transpose: 2,
     (vand, vadd, vsub): 2,
     (vmov): 2,  # ???
@@ -258,7 +266,8 @@ default_latencies = {
     (Vmul, Vmla, Vqdmulh): 5,
     vusra: 4,  # TODO: Add fwd path
     (Vmull, Vmlal): 4,
-    (vuxtl, vshl, vshl_d, vshli, vshrn, vsshr): 2,
+    VShiftImmediateBasic: 2,
+    AArch64NeonShiftInsert: 2,
     (vsrshr): 4,
     (
         AArch64BasicArithmetic,
