@@ -241,7 +241,8 @@ class OptimizationRunner:
         example_name = self.__class__.__name__
         subfolder_full = arch_label_dict[self.arch] + "/" + self.subfolder
         example_config_path = f"{self.base_dir}/naive/{subfolder_full}_example.py"
-        out_name = f"{self.base_dir}/opt/{subfolder_full}{self.outfile}.conf"
+        outfile = self.outfile.split("/")[-1].split(".")[0]
+        out_name = f"{self.base_dir}/opt/{subfolder_full}{outfile}.conf"
         self.extract_class_source(example_config_path, example_name, out_name)
 
     def extract_class_source(
