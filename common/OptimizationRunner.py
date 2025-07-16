@@ -273,9 +273,10 @@ class OptimizationRunner:
 
         if match:
             class_source_code = match.group(0)
+            output_file_striped = output_file.split(".")[0].split("/")[-1]
             comment = (
                 f"# This configuration was used to generate the most recent optimized code for "
-                + f"\n# the {output_file.split(".")[0].split("/")[-1]} example.\n\n"
+                + f"\n# the {output_file_striped} example.\n\n"
             )
             class_source_code = comment + class_source_code
             with open(output_file, "w") as output:
