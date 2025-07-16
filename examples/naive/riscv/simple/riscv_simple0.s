@@ -1,4 +1,3 @@
 start:
-vl8r.v v4, (x16)
-sd x2, (x1)
+vsetvli a7, a7, e16, m1, tu, mu
 end:

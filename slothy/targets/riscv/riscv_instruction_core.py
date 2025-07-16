@@ -26,7 +26,7 @@
 # Authors: Hanno Becker <hannobecker@posteo.de>
 #          Justus Bergermann <mail@justus-bergermann.de>
 #
-
+from slothy.targets.riscv import xuantie_c908
 from slothy.targets.riscv.instruction_core import Instruction
 import re as re
 from slothy.targets.riscv.riscv import RegisterType
@@ -281,6 +281,8 @@ class RISCVInstruction(Instruction):
                 f = f_default
             if group_name in res.keys():
                 setattr(obj, attr_name, f(res[group_name]))
+                if group_name in ["sew", "lmul", "tpol", "mpol"]:
+                    setattr(xuantie_c908, group_name, f(res[group_name]))
             else:
                 idxs = [i for i in range(4) if group_name_i(i) in res.keys()]
                 if len(idxs) == 0:

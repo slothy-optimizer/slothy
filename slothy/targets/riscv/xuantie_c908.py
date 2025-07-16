@@ -42,7 +42,10 @@ from slothy.targets.riscv.rv32_64_v_instructions import *  # noqa: F403
 issue_rate = 2
 llvm_mca_target = "cortex-a55"
 instrs = RISCVInstruction.classes_by_names
-
+lmul = None
+sew = None
+tpol = None
+mpol = None
 
 class ExecutionUnit(Enum):
     """Enumeration of execution units in C908 model"""
@@ -517,7 +520,6 @@ def get_latency(src, out_idx, dst):
 
     # instclass_src = find_class(src)
     # instclass_dst = find_class(dst)
-
     if src.is_32_bit():
         latency = lookup_multidict(rv32_latencies, src)
         return latency
@@ -527,6 +529,7 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
+    print(lmul)
     units = lookup_multidict(execution_units, src)
     if isinstance(units, list):
         return units
