@@ -88,7 +88,7 @@ class OptimizationRunner:
         outfile_full=False,
         var="",
         write_config=True,  # indicates if current config
-                            # for the example should be stored for reference
+        # for the example should be stored for reference
         **kwargs,
     ):
         if name is None:
@@ -244,8 +244,9 @@ class OptimizationRunner:
         out_name = f"{self.base_dir}/opt/{subfolder_full}{self.outfile}.conf"
         self.extract_class_source(example_config_path, example_name, out_name)
 
-    def extract_class_source(self, file_path: str,
-                             class_name: str, output_file: str) -> None:
+    def extract_class_source(
+        self, file_path: str, class_name: str, output_file: str
+    ) -> None:
         """
         Extracts the example's configuration from the matching _example.py
         file and writes it to a file {output_file}.conf
@@ -281,9 +282,9 @@ class OptimizationRunner:
             class_source_code = match.group(0)
             output_file_striped = output_file.split(".")[0].split("/")[-1]
             comment = (
-                '# This configuration was used to generate the most ' +
-                'recent optimized code for' +
-                f'\n# the {output_file_striped} example.\n\n'
+                "# This configuration was used to generate the most "
+                + "recent optimized code for"
+                + f"\n# the {output_file_striped} example.\n\n"
             )
             class_source_code = comment + class_source_code
             with open(output_file, "w") as output:
