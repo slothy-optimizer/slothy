@@ -305,7 +305,15 @@ class RISC_V_poly_basemul_acc_cache_init_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("poly_basemul_acc_cache_init_rvv_vlen128_loop")
+
+        slothy.config.unsafe_address_offset_fixup = False
+
+        # slothy.config.sw_pipelining.enabled = True
+
+        slothy.optimize_loop(
+            "poly_basemul_acc_cache_init_rvv_vlen128_loop",
+            forced_loop_type=RISC_V.BranchLoop,
+        )
 
 
 class RISC_V_poly_basemul_cache_init_rvv_vlen128(OptimizationRunner):
@@ -333,7 +341,10 @@ class RISC_V_poly_basemul_cache_init_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("poly_basemul_cache_init_rvv_vlen128_loop")
+        slothy.optimize_loop(
+            "poly_basemul_cache_init_rvv_vlen128_loop",
+            forced_loop_type=RISC_V.BranchLoop,
+        )
 
 
 class RISC_V_poly_basemul_acc_cached_rvv_vlen128(OptimizationRunner):
@@ -361,7 +372,10 @@ class RISC_V_poly_basemul_acc_cached_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("poly_basemul_acc_cached_rvv_vlen128_loop")
+        slothy.optimize_loop(
+            "poly_basemul_acc_cached_rvv_vlen128_loop",
+            forced_loop_type=RISC_V.BranchLoop,
+        )
 
 
 class RISC_V_poly_basemul_cached_rvv_vlen128(OptimizationRunner):
@@ -389,7 +403,9 @@ class RISC_V_poly_basemul_cached_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("poly_basemul_cached_rvv_vlen128_loop")
+        slothy.optimize_loop(
+            "poly_basemul_cached_rvv_vlen128_loop", forced_loop_type=RISC_V.BranchLoop
+        )
 
 
 class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
@@ -417,7 +433,9 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("poly_basemul_acc_rvv_vlen128_loop")
+        slothy.optimize_loop(
+            "poly_basemul_acc_rvv_vlen128_loop", forced_loop_type=RISC_V.BranchLoop
+        )
 
 
 class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
@@ -445,7 +463,9 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("poly_basemul_rvv_vlen128_loop")
+        slothy.optimize_loop(
+            "poly_basemul_rvv_vlen128_loop", forced_loop_type=RISC_V.BranchLoop
+        )
 
 
 class RISC_V_poly_reduce_rvv_vlen128(OptimizationRunner):

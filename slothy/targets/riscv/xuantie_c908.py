@@ -114,6 +114,14 @@ execution_units = {
         instrs["lui"],
         instrs["auipc"],
         instrs["li"],
+        instrs["beq"],  # guessed but also not important
+        instrs["bne"],  # guessed but also not important
+        instrs["blt"],  # guessed but also not important
+        instrs["bge"],  # guessed but also not important
+        instrs["bltu"],  # guessed but also not important
+        instrs["bgeu"],  # guessed but also not important
+        instrs["bnez"],  # guessed but also not important
+        instrs["beqz"],  # guessed but also not important
     ): ExecutionUnit.SCALAR(),
     (
         instrs["lb"],
@@ -299,6 +307,14 @@ inverse_throughput = {
         instrs["rem"],
         instrs["remu"],
         instrs["li"],
+        instrs["beq"],  # guessed but also not important
+        instrs["bne"],  # guessed but also not important
+        instrs["blt"],  # guessed but also not important
+        instrs["bge"],  # guessed but also not important
+        instrs["bltu"],  # guessed but also not important
+        instrs["bgeu"],  # guessed but also not important
+        instrs["bnez"],  # guessed but also not important
+        instrs["beqz"],  # guessed but also not important
     ): 2,
     (
         instrs["vle"],
@@ -454,6 +470,7 @@ default_latencies = {
     instrs["divu"]: 4,
     instrs["rem"]: 4,
     instrs["remu"]: 4,
+    RISCVBranch: 3,  # guessed but also not important
     RISCVVectorIntegerVectorImmediate: 4,
     RISCVVectorIntegerVectorScalar: 4,
     RISCVVectorIntegerVectorVector: 4,

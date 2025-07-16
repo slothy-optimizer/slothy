@@ -57,6 +57,7 @@ IntegerRegisterRegisterInstructions = [
 LoadInstructions = ["lb", "lbu", "lh", "lhu", "lw", "lwu", "ld"]
 StoreInstructions = ["sb", "sh", "sw", "sd"]
 UTypeInstructions = ["lui", "auipc"]
+BranchInstructions = ["beq", "bne", "blt", "bge", "bltu", "bgeu", "bnez", "beqz"]
 
 
 def generate_rv32_64_i_instructions():
@@ -75,6 +76,7 @@ def generate_rv32_64_i_instructions():
     RISCVInstruction.instr_factory(LoadInstructions, RISCVLoad)
     RISCVInstruction.instr_factory(StoreInstructions, RISCVStore)
     RISCVInstruction.instr_factory(UTypeInstructions, RISCVUType)
+    RISCVInstruction.instr_factory(BranchInstructions, RISCVBranch)
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
     )

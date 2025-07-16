@@ -111,6 +111,7 @@ class RISCVInstruction(Instruction):
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = "(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
         index_pattern = "[0-9]+"
+        label_pattern = "\\\\w+"
 
         src = re.sub(" ", "\\\\s+", src)
         src = re.sub(",", "\\\\s*,\\\\s*", src)
@@ -119,6 +120,7 @@ class RISCVInstruction(Instruction):
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag")
+        src = replace_placeholders(src, "label", label_pattern, "label")
         src = replace_placeholders(
             src, "w", RISCVInstruction.is32bit_pattern, "is32bit"
         )
@@ -292,6 +294,7 @@ class RISCVInstruction(Instruction):
         group_to_attribute("imm", "immediate")
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
+        group_to_attribute("label", "label")
         group_to_attribute("is32bit", "is32bit")
         group_to_attribute("len", "len")
         group_to_attribute("vm", "vm")
@@ -391,7 +394,7 @@ class RISCVInstruction(Instruction):
             if t is None:
                 t = t_default
 
-            a = getattr(self, attr_name)
+            a = getattr(self, attr_name, None)
             if a is None and attr_name == "is32bit":
                 return txt.replace("<w>", "")
             if a is None:
@@ -407,6 +410,7 @@ class RISCVInstruction(Instruction):
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "label", "label")
         out = replace_pattern(out, "is32bit", "w", lambda x: x.lower())
         out = replace_pattern(out, "len", "len")
         out = replace_pattern(out, "vm", "vm")
