@@ -653,7 +653,7 @@ round_constants:
 
     ldr X<caddr>, [sp, #STACK_OFFSET_CONST_SCALAR]
     ldr X<count>, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
-    ldr X<cur_const>, [X<caddr>, X<count>, UXTW #3]
+    ldr X<cur_const>, [X<caddr>, X<count>, LSL #3]
     add X<count>, X<count>, #1
     cmp X<count>, #(KECCAK_F1600_ROUNDS-1)  // @slothy:ignore_useless_output
     str X<count>, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
