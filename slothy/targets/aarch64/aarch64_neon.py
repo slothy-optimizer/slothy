@@ -3092,6 +3092,11 @@ class vbic(AArch64NeonLogical):
     outputs = ["Vd"]
 
 
+class vbic_imm_lsl(AArch64NeonLogical):
+    pattern = "bic <Vda>.<dt>, <imm0>, lsl <imm1>"
+    in_outs = ["Vda"]
+
+
 class vmvn(AArch64NeonLogical):
     pattern = "mvn <Vd>.<dt0>, <Va>.<dt1>"
     inputs = ["Va"]

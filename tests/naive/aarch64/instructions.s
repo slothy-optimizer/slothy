@@ -13,6 +13,7 @@ uzp1 v11.16b, v12.16b, v13.16b
 uzp2 v14.16b, v15.16b, v16.16b
 and v16.16b, v17.16b, v18.16b
 bic v19.16b, v20.16b, v21.16b
+bic v0.8h, #0xf0, lsl #8
 mvn v22.16b, v23.16b
 orr v24.16b, v25.16b, v26.16b
 orn v27.16b, v28.16b, v29.16b
