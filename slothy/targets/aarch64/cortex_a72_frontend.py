@@ -82,6 +82,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     ASimdCompare,
     Vins,
     umov_d,
+    AArch64Move,
     add,
     add_imm,
     add_lsl,
@@ -194,7 +195,7 @@ execution_units = {
     umov_d: ExecutionUnit.LOAD(),  # ???
     (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
     (Str_Q, Str_X): ExecutionUnit.STORE(),
-    (add, add_imm, add_lsl, add_lsr, ubfx): ExecutionUnit.SCALAR(),
+    (add, add_imm, add_lsl, add_lsr, ubfx, AArch64Move): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     (Ld3, Ld4): [
@@ -216,6 +217,7 @@ inverse_throughput = {
         vmls_lane,
         vqdmulh_lane,
     ): 2,
+    AArch64Move: 1,
     (Vmull, Vmlal): 1,
     Vzip: 1,
     (vadd, vsub, trn1, trn2, ASimdCompare, vext): 1,
@@ -267,6 +269,7 @@ default_latencies = {
     (add, add_imm, add_lsl, add_lsr): 2,
     VShiftImmediateRounding: 3,  # approx
     VShiftImmediateBasic: 3,
+    AArch64Move: 1,
     # TODO: this seems in accurate; revisiting may improve performance
     St2: 4,
     St3: 6,
