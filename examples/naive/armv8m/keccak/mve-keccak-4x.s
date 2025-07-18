@@ -197,6 +197,23 @@ qA20_l .req q2
     rot_str_e \state_nl, \state_nh, A_l, A_h, RCxy_\x\()\y, \x, \y
 .endm
 
+.macro rot_str_e_0 s_l, s_h, A_l, A_h, RC, x, y, regl, regh
+    vshr.u32 q<\regl>, q<A_l>, #32-(\RC/2)
+    vsli.u32 q<\regl>, q<A_l>, #\RC/2
+    //vstrw.32 q<SHR_l>, [\s_l, #B__\x\()\y]
+    vshr.u32 q<\regh>, q<A_h>, #32-(\RC/2)
+    vsli.u32 q<\regh>, q<A_h>, #\RC/2
+    //vstrw.32 q<SHR_h>, [\s_h, #B__\x\()\y]
+.endm
+
+.macro ld_xorD_rot_str_e_0 state_l, state_h, state_nl, state_nh, x, y, Dx_l, Dx_h, regl, regh
+    vldrw.u32 q<A_l>, [\state_l, #A__\x\()\y] // @slothy:reads=A\state_l\()__\x\()\y
+    vldrw.u32 q<A_h>, [\state_h, #A__\x\()\y] // @slothy:reads=A\state_h\()__\x\()\y
+    veor q<A_l>, q<A_l>, q<\Dx_l>
+    veor q<A_h>, q<A_h>, q<\Dx_h>
+    rot_str_e_0 \state_nl, \state_nh, A_l, A_h, RCxy_\x\()\y, \x, \y, \regl, \regh
+.endm
+
 .macro ld_xorD_rot_str_o state_l, state_h, state_nl, state_nh, x, y, Dx_l, Dx_h
     vldrw.u32 q<A_l>, [\state_l, #A__\x\()\y] // @slothy:reads=A\state_l\()__\x\()\y
     vldrw.u32 q<A_h>, [\state_h, #A__\x\()\y] // @slothy:reads=A\state_h\()__\x\()\y
@@ -274,6 +291,53 @@ qA20_l .req q2
     // A0 is stored later after the round-constant is added
 .endm
 
+.macro ld_1_bic_str state, round, y, B1
+    vldrw.u32 q<B0>, [\state, #A__0\y] // @slothy:reads=A\state\()__0\y
+    //vldrw.u32 q<B1>, [\state, #A__1\y] // @slothy:reads=A\state\()__1\y
+    vldrw.u32 q<B2>, [\state, #A__2\y] // @slothy:reads=A\state\()__2\y
+    vbic q<T0>, q<B2>, q<\B1>
+    veor q<A0>, q<B0>, q<T0>
+    vstrw.32 q<A0>, [\state, #A__0\y]  // @slothy:writes=A\state\()__0\y
+    vldrw.u32 q<B3>, [\state, #A__3\y] // @slothy:reads=A\state\()__3\y
+    vbic q<T1>, q<B3>, q<B2>
+    veor q<A1>, q<\B1>, q<T1>
+    vstrw.32 q<A1>, [\state, #A__1\y]  // @slothy:writes=A\state\()__1\y
+    vldrw.u32 q<B4>, [\state, #A__4\y] // @slothy:reads=A\state\()__4\y
+    vbic q<T2>, q<B4>, q<B3>
+    veor q<A2>, q<B2>, q<T2>
+    vstrw.32 q<A2>, [\state, #A__2\y]  // @slothy:writes=A\state\()__2\y
+    vbic q<T3>, q<B0>, q<B4>
+    veor q<A3>, q<B3>, q<T3>
+    vstrw.32 q<A3>, [\state, #A__3\y]  // @slothy:writes=A\state\()__3\y
+    vbic q<T4>, q<\B1>, q<B0>
+    veor q<A4>, q<B4>, q<T4>
+    vstrw.32 q<A4>, [\state, #A__4\y]  // @slothy:writes=A\state\()__4\y
+.endm
+
+.macro ld_3_bic_str state, round, y, B3
+    vldrw.u32 q<B0>, [\state, #A__0\y] // @slothy:reads=A\state\()__0\y
+    vldrw.u32 q<B1>, [\state, #A__1\y] // @slothy:reads=A\state\()__1\y
+    vldrw.u32 q<B2>, [\state, #A__2\y] // @slothy:reads=A\state\()__2\y
+    vbic q<T0>, q<B2>, q<B1>
+    veor q<A0>, q<B0>, q<T0>
+    vstrw.32 q<A0>, [\state, #A__0\y]  // @slothy:writes=A\state\()__0\y
+    //vldrw.u32 q<B3>, [\state, #A__3\y] // @slothy:reads=A\state\()__3\y
+    vbic q<T1>, q<\B3>, q<B2>
+    veor q<A1>, q<B1>, q<T1>
+    vstrw.32 q<A1>, [\state, #A__1\y]  // @slothy:writes=A\state\()__1\y
+    vldrw.u32 q<B4>, [\state, #A__4\y] // @slothy:reads=A\state\()__4\y
+    vbic q<T2>, q<B4>, q<\B3>
+    veor q<A2>, q<B2>, q<T2>
+    vstrw.32 q<A2>, [\state, #A__2\y]  // @slothy:writes=A\state\()__2\y
+    vbic q<T3>, q<B0>, q<B4>
+    veor q<A3>, q<\B3>, q<T3>
+    vstrw.32 q<A3>, [\state, #A__3\y]  // @slothy:writes=A\state\()__3\y
+    vbic q<T4>, q<B1>, q<B0>
+    veor q<A4>, q<B4>, q<T4>
+    vstrw.32 q<A4>, [\state, #A__4\y]  // @slothy:writes=A\state\()__4\y
+.endm
+
+
 
 .macro keccak_4fold_round_theta_rho_pi state_l, state_h, state_nl, state_nh, rc
     ld_xor5_0 \state_h, 0, 0, C0_h, A0_h, qA00_h
@@ -329,18 +393,22 @@ qA20_l .req q2
     vldrw.32 q<C0_h>, [r13, #QSTACK0] // @slothy:reads=stack0
     rot1_xor_l D4_l, C3_l, C0_h
 
-    ld_xorD_rot_str_o \state_l, \state_h, \state_nl, \state_nh, 4, 0, D4_l, D4_h
-    ld_xorD_rot_str_e \state_l, \state_h, \state_nl, \state_nh, 4, 1, D4_l, D4_h
-    ld_xorD_rot_str_o \state_l, \state_h, \state_nl, \state_nh, 4, 2, D4_l, D4_h
-    ld_xorD_rot_str_e \state_l, \state_h, \state_nl, \state_nh, 4, 3, D4_l, D4_h
-    ld_xorD_rot_str_e \state_l, \state_h, \state_nl, \state_nh, 4, 4, D4_l, D4_h
+
+    ld_xorD_rot_str_o \state_l, \state_h, \state_nl, \state_nh, 4, 0, D4_l, D4_h // B40 = A03
+    ld_xorD_rot_str_o \state_l, \state_h, \state_nl, \state_nh, 4, 2, D4_l, D4_h // B42 = A24
+    ld_xorD_rot_str_e \state_l, \state_h, \state_nl, \state_nh, 4, 4, D4_l, D4_h // B44 = A40
+    // A11_l, A11_h, A32_l are held in registers from the next step
+    ld_xorD_rot_str_e_0 \state_l, \state_h, \state_nl, \state_nh, 4, 3, D4_l, D4_h, A32_l, A32_h // B43 = A32 
+    vstrw.32 q<A32_h>, [\state_nh, #B__43]
+    ld_xorD_rot_str_e_0 \state_l, \state_h, \state_nl, \state_nh, 4, 1, D4_l, D4_h, A11_l, A11_h // B41 = A11
 .endm
 
 .macro keccak_4fold_round_chi_iota state_l, state_h, state_nl, state_nh, rc    // now BIC
-    ld_bic_str \state_nl, 0, 1
-    ld_bic_str \state_nh, 0, 1
+    // A11_l, A11_h, A32_l are held in registers from the previous step
+    ld_1_bic_str \state_nl, 0, 1, A11_l
+    ld_1_bic_str \state_nh, 0, 1, A11_h
 
-    ld_bic_str \state_nl, 0, 2
+    ld_3_bic_str \state_nl, 0, 2, A32_l
     ld_bic_str \state_nh, 0, 2
 
     ld_bic_str \state_nl, 0, 3
@@ -348,7 +416,6 @@ qA20_l .req q2
 
     ld_bic_str \state_nl, 0, 4
     ld_bic_str \state_nh, 0, 4
-
 
     ld_bic_str_1 \state_nl, 0, 0, A00_l, qA20_l
     ld_bic_str_0 \state_nh, 0, 0, A00_h
