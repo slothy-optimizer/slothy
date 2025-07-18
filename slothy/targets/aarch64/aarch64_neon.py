@@ -4273,6 +4273,12 @@ class cmge(ASimdCompare):
     outputs = ["Vd"]
 
 
+class cmhi(ASimdCompare):
+    pattern = "cmhi <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class Spill:
     def spill(reg, loc):
         return f"str {reg}, [sp, #STACK_LOC_{loc}]"

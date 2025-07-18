@@ -26,6 +26,8 @@ trn2 v20.16b, v21.16b, v22.16b
 aese v0.16b, v1.16b
 aesmc v2.16b, v3.16b
 
+cmhi v4.8h, v30.8h, v16.8h
+
 // ASIMD multiply long 
 umull v23.4s, v24.4h, v25.4h
 umull2 v26.4s, v27.8h, v28.8h

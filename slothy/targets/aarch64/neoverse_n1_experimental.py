@@ -89,6 +89,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     vmls_lane,
     vext,
     AArch64NeonShiftInsert,
+    ASimdCompare,
+    cmhi,
 )
 
 issue_rate = 4
@@ -173,6 +175,7 @@ execution_units = {
     # TODO: As above, this should somehow occupy both V and L
     St3: ExecutionUnit.V(),
     St4: ExecutionUnit.V(),
+    cmhi: ExecutionUnit.V(),
     (Vzip, Vrev, uaddlp): ExecutionUnit.V(),
     (vmov): ExecutionUnit.V(),
     VecToGprMov: ExecutionUnit.V(),
@@ -217,6 +220,7 @@ inverse_throughput = {
     VecToGprMov: 1,
     (vand, vadd, vsub): 1,
     (vmov): 1,
+    ASimdCompare: 1,
     Transpose: 1,
     AESInstruction: 1,
     AArch64NeonLogical: 1,
@@ -256,6 +260,7 @@ default_latencies = {
     (Vzip, Vrev, uaddlp): 2,
     VecToGprMov: 2,
     (vxtn): 2,
+    ASimdCompare: 2,
     AESInstruction: 2,
     AArch64NeonLogical: 2,
     vext: 2,
