@@ -99,6 +99,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
     AArch64NeonCount,
+    vtbl,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -183,7 +184,7 @@ execution_units = {
         Vmlal,
         Vmull,
     ): [ExecutionUnit.ASIMD0],
-    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext): [
+    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, vtbl): [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
@@ -241,6 +242,7 @@ inverse_throughput = {
     Ld3: 3,
     Ld4: 4,
     ubfx: 1,
+    vtbl: 2,
     AESInstruction: 1,
 }
 
@@ -284,6 +286,7 @@ default_latencies = {
     Ld3: 3,
     Ld4: 4,
     ubfx: 1,
+    vtbl: 3,
     AESInstruction: 3,
 }
 
