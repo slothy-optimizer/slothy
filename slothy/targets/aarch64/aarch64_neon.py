@@ -3037,6 +3037,16 @@ class vins_d_force_output(Vins):
         return AArch64Instruction.build(cls, src)
 
 
+class AArch64NeonCount(AArch64Instruction):
+    pass
+
+
+class vcnt(AArch64NeonCount):
+    pattern = "cnt <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
 class Mov_xtov_d(AArch64Instruction):
     pass
 
@@ -3096,6 +3106,12 @@ class vxar(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
 
 class AArch64NeonLogical(AArch64Instruction):
     pass
+
+
+class vtbl(AArch64Instruction):
+    pattern = "tbl <Vd>.<dt0>, {<Va>.<dt1>}, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 
 class vand(AArch64NeonLogical):

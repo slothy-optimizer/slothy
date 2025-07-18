@@ -158,6 +158,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AESInstruction,
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
+    AArch64NeonCount,
 )
 
 issue_rate = 2
@@ -256,6 +257,7 @@ execution_units = {
         vxtn,
         VShiftImmediateRounding,
         AArch64NeonLogical,
+        AArch64NeonCount,
     ): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
     ],  # these instructions use both VEC0 and VEC1
@@ -426,6 +428,7 @@ inverse_throughput = {
     (vshl, vshl_d, vsshr, vushr, vuxtl): 1,
     (trn2, trn1, ASimdCompare): 1,
     (Ldr_Q): 2,
+    (AArch64NeonCount): 2,
     (Str_Q): 1,
     (tst_wform): 1,
     (nop, Vins, Ldr_X, Str_X): 1,
@@ -494,6 +497,7 @@ default_latencies = {
         Vmlal,
     ): 4,
     (Ldr_Q, Str_Q): 4,
+    AArch64NeonCount: 2,
     St4: 5,
     St3: 3,
     St2: 2,
