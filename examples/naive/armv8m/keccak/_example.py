@@ -66,20 +66,20 @@ class keccak_mve_4x(OptimizationRunner):
         slothy.optimize(start="roundstart", end="roundend_pre")
 
         # second pass: splitting heuristic
-        # slothy.config.constraints.functional_only = False
-        # slothy.config.constraints.allow_reordering = True
-        # slothy.config.variable_size = True
-        # slothy.config.constraints.stalls_first_attempt = 64
-        # slothy.config.constraints.max_displacement = 1
-        # slothy.config.constraints.stalls_maximum_attempt = 4096
-        # slothy.config.split_heuristic = True
-        # slothy.config.split_heuristic_stepsize = 0.05
-        # slothy.config.split_heuristic_factor = 20
-        # slothy.config.split_heuristic_repeat = 2
-        # slothy.config.split_heuristic_estimate_performance = False
-        # slothy.config.split_heuristic_optimize_seam = 2
+        slothy.config.constraints.functional_only = False
+        slothy.config.constraints.allow_reordering = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 64
+        slothy.config.constraints.max_displacement = 1
+        slothy.config.constraints.stalls_maximum_attempt = 4096
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_stepsize = 0.05
+        slothy.config.split_heuristic_factor = 20
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_estimate_performance = False
+        slothy.config.split_heuristic_optimize_seam = 2
 
-        # slothy.optimize(start="roundstart", end="roundend_pre")
+        slothy.optimize(start="roundstart", end="roundend_pre")
 
 
 example_instances = [

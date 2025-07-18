@@ -180,13 +180,22 @@ qA20_l .req q2
 .endm
 
 .macro rot_str_o  s_l, s_h, A_l, A_h, RC, x, y
-    vshr.u32 q<SHR_h>, q<A_l>, #32-((\RC-1)/2)
-    vsli.u32 q<SHR_h>, q<A_l>, #(\RC-1)/2
-    vstrw.32 q<SHR_h>, [\s_h, #B__\x\()\y]
-    vshr.u32 q<SHR_l>, q<A_h>, #32-((\RC+1)/2)
-    // TODO: shift by 0 does not appear useful
-    vsli.u32 q<SHR_l>, q<A_h>, #(\RC+1)/2
-    vstrw.32 q<SHR_l>, [\s_l, #B__\x\()\y]
+    .if (\RC-1)/2 == 0
+        vstrw.32 q<A_l>, [\s_h, #B__\x\()\y]
+    .else
+        vshr.u32 q<SHR_h>, q<A_l>, #32-((\RC-1)/2)
+        vsli.u32 q<SHR_h>, q<A_l>, #(\RC-1)/2
+        vstrw.32 q<SHR_h>, [\s_h, #B__\x\()\y]
+    .endif
+
+    .if (\RC+1)/2 == 0
+        // should never happen
+        vstrw.32 q<A_h>, [\s_l, #B__\x\()\y]
+    .else
+        vshr.u32 q<SHR_l>, q<A_h>, #32-((\RC+1)/2)
+        vsli.u32 q<SHR_l>, q<A_h>, #(\RC+1)/2
+        vstrw.32 q<SHR_l>, [\s_l, #B__\x\()\y]
+    .endif
 .endm
 
 .macro ld_xorD_rot_str_e state_l, state_h, state_nl, state_nh, x, y, Dx_l, Dx_h
