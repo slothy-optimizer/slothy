@@ -89,6 +89,10 @@ from slothy.targets.aarch64.aarch64_neon import (
     vmls_lane,
     vext,
     AArch64NeonShiftInsert,
+    ASimdCompare,
+    cmhi,
+    AArch64NeonCount,
+    vtbl,
 )
 
 issue_rate = 4
@@ -173,6 +177,9 @@ execution_units = {
     # TODO: As above, this should somehow occupy both V and L
     St3: ExecutionUnit.V(),
     St4: ExecutionUnit.V(),
+    cmhi: ExecutionUnit.V(),
+    vtbl: ExecutionUnit.V(),
+    AArch64NeonCount: ExecutionUnit.V(),
     (Vzip, Vrev, uaddlp): ExecutionUnit.V(),
     (vmov): ExecutionUnit.V(),
     VecToGprMov: ExecutionUnit.V(),
@@ -210,6 +217,7 @@ execution_units = {
 inverse_throughput = {
     (Ldr_X, Str_X, Ldr_Q, Str_Q, Ldp_Q): 1,
     (Ldp_X, Stp_X): 2,
+    AArch64NeonCount: 2,
     Stp_Q: 2,
     St3: 3,  # Multiple structures, Q form, storing bytes
     St4: 6,  # TODO: Really??
@@ -217,6 +225,7 @@ inverse_throughput = {
     VecToGprMov: 1,
     (vand, vadd, vsub): 1,
     (vmov): 1,
+    ASimdCompare: 1,
     Transpose: 1,
     AESInstruction: 1,
     AArch64NeonLogical: 1,
@@ -227,6 +236,7 @@ inverse_throughput = {
     (AArch64NeonShiftInsert, vsrshr): 1,
     (Vmul, Vmla, Vqdmulh): 2,
     vusra: 1,
+    vtbl: 2,
     (Vmull, Vmlal): 1,
     (
         AArch64BasicArithmetic,
@@ -256,6 +266,8 @@ default_latencies = {
     (Vzip, Vrev, uaddlp): 2,
     VecToGprMov: 2,
     (vxtn): 2,
+    ASimdCompare: 2,
+    AArch64NeonCount: 2,
     AESInstruction: 2,
     AArch64NeonLogical: 2,
     vext: 2,
@@ -285,6 +297,7 @@ default_latencies = {
     AArch64Multiply: 4,
     (vdup): 3,
     umull_wform: 2,
+    vtbl: 2,
 }
 
 
