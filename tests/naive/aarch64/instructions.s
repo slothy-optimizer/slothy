@@ -35,6 +35,8 @@ cmge v4.8h, v30.8h, v16.8h
 cmhi v4.8h, v30.8h, v16.8h
 mov x12, #0
 ldr q24, [x3, x12, lsl #4]
+clz v0.16b, v0.16b
+cnt v0.16b, v0.16b
 
 // ASIMD multiply long 
 umull v23.4s, v24.4h, v25.4h

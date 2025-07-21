@@ -3037,6 +3037,22 @@ class vins_d_force_output(Vins):
         return AArch64Instruction.build(cls, src)
 
 
+class AArch64NeonCount(AArch64Instruction):
+    pass
+
+
+class vcnt(AArch64NeonCount):
+    pattern = "cnt <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vclz(AArch64NeonCount):
+    pattern = "clz <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
 class Mov_xtov_d(AArch64Instruction):
     pass
 
