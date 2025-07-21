@@ -3114,6 +3114,12 @@ class AArch64NeonLogical(AArch64Instruction):
     pass
 
 
+class vtbl(AArch64Instruction):
+    pattern = "tbl <Vd>.<dt0>, {<Va>.<dt1>}, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class vand(AArch64NeonLogical):
     pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
