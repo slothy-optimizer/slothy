@@ -1451,6 +1451,24 @@ class q_ldr_with_inc(Ldr_Q):
         return super().write()
 
 
+class q_ldr_lsl_with_inc(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xa>, <Xc>, lsl <imm>]"
+    inputs = ["Xa", "Xc"]
+    outputs = ["Qa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
 class q_ld1_with_inc(Ldr_Q):
     pattern = "ld1 {<Va>.<dt>}, [<Xc>, <imm>]"
     inputs = ["Xc"]
