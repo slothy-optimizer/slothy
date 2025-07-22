@@ -72,4 +72,6 @@ smlsl2 v9.4s, v10.8h, v11.h[2]
 pmull v4.1q, v5.1d, v6.1d
 pmull2 v7.1q, v8.2d, v9.2d
 
+uaddlv s20, v4.8h
+
 end:

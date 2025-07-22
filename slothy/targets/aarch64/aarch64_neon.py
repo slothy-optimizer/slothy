@@ -4367,6 +4367,12 @@ class cmlt(ASimdCompare):
     outputs = ["Vd"]
 
 
+class vuaddlv_sform(AArch64Instruction):
+    pattern = "uaddlv <Sd>, <Va>.<dt>"
+    inputs = ["Va"]
+    outputs = ["Sd"]
+
+
 class Spill:
     def spill(reg, loc):
         return f"str {reg}, [sp, #STACK_LOC_{loc}]"
