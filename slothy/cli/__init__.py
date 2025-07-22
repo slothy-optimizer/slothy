@@ -71,7 +71,7 @@ def main():
         metavar="OPTION=VALUE",
         help="""Set SLOTHY configuration value (can be used multiple times).
                 See Python API documentation for details here:
-                https://slothy-optimizer.github.io/slothy/apidocs/slothy/slothy.core.config.html""",
+                https://slothy-optimizer.github.io/slothy/apidocs/slothy/slothy.core.config.html""",  # noqa: E501
     )
     parser.add_argument(
         "-l",
@@ -209,7 +209,7 @@ def main():
                 return None
 
         def check_ty(ty_real):
-            if ty is None or ty == type(None) or ty == ty_real:
+            if ty is None or ty is type(None) or ty == ty_real:
                 return
             raise CmdLineException(
                 f"Configuration value {val} isn't correctly typed -- "
@@ -254,7 +254,7 @@ def main():
 
             # Check for range entries (e.g. 'x10--x18')
             def unfold_range(v):
-                if not "--" in v:
+                if "--" not in v:
                     return [v]
                 vs = v.split("--")
                 if not len(vs) == 2:
@@ -357,16 +357,16 @@ def main():
     # Fusion
     if done is False and args.fusion is True:
         if len(args.loop) > 0:
-            for l in args.loop:
-                slothy.fusion_loop(l)
+            for lll in args.loop:
+                slothy.fusion_loop(lll)
         if args.fusion_only:
             done = True
 
     # Optimize
     if done is False:
         if len(args.loop) > 0:
-            for l in args.loop:
-                slothy.optimize_loop(l)
+            for lll in args.loop:
+                slothy.optimize_loop(lll)
         else:
             slothy.optimize(start=args.start, end=args.end)
 
