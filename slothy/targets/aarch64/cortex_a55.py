@@ -160,6 +160,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vtbl,
     sub_imm,
     vuaddlv_sform,
+    fmov_s_form,  # from double/single to gen reg
 )
 
 issue_rate = 2
@@ -259,7 +260,6 @@ execution_units = {
         vtbl,
         VShiftImmediateRounding,
         AArch64NeonLogical,
-        sub_imm,
         vuaddlv_sform,
     ): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
@@ -317,6 +317,7 @@ execution_units = {
         d_ldr_stack_with_inc,
         q_ldr1_stack,
         Q_Ld2_Lane_Post_Inc,
+        fmov_s_form,  # from double/single to gen reg
     ): [
         ExecutionUnit.VEC0,
         ExecutionUnit.VEC1,
@@ -397,6 +398,7 @@ execution_units = {
         tst_wform,
         movk_imm,
         sub,
+        sub_imm,
         sbcs_zero_to_zero,
         cmp_xzr2,
         mov,
@@ -484,6 +486,7 @@ inverse_throughput = {
     (eor_wform): 1,
     (eor, bic, eor_ror, bic_ror): 1,
     AESInstruction: 1,
+    fmov_s_form: 1,  # from double/single to gen reg
 }
 
 default_latencies = {
@@ -568,6 +571,7 @@ default_latencies = {
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: 2,
+    fmov_s_form: 1,  # from double/single to gen reg
 }
 
 

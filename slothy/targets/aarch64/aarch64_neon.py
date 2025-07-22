@@ -3630,6 +3630,12 @@ class Fmov(AArch64Instruction):
     pass
 
 
+class fmov_s_form(Fmov):
+    pattern = "fmov <Wd>, <Sa>"
+    inputs = ["Sa"]
+    outputs = ["Wd"]
+
+
 class fmov_0(Fmov):
     pattern = "fmov <Dd>, <Xa>"
     inputs = ["Xa"]

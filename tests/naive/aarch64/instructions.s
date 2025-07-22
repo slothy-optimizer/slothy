@@ -39,6 +39,7 @@ ldr q24, [x3, x12, lsl #4]
 clz v0.16b, v0.16b
 cnt v0.16b, v0.16b
 tbl v16.16b, {v16.16b}, v24.16b
+fmov w12, s20
 
 // ASIMD multiply long 
 umull v23.4s, v24.4h, v25.4h
