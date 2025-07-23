@@ -35,11 +35,16 @@ class RISCVLiPseudo(RISCVInstruction):
     outputs = ["Xd"]
 
 
+class RISCVULaPseudo(RISCVInstruction):
+    pattern = "mnemonic <Xd>, <imm>"
+    outputs = ["Xd"]
+
+
 pseudo_instrs = [
     (["li"], RISCVLiPseudo),
     (["neg"], RISCVIntegerRegister),
     (["vnot.v"], RISCVectorVectorMasked),
-    (["la"], RISCVUType),
+    (["la"], RISCVULaPseudo),
 ]
 
 
@@ -88,6 +93,10 @@ def li_pseudo_split_cb():
         return True
 
     return core
+
+
+def la_pseudo_split_cb():
+    pass
 
 
 RISCVLiPseudo.global_fusion_cb = li_pseudo_split_cb()
