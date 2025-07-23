@@ -28,16 +28,19 @@ from slothy.helper import SourceLine
 from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
-li = ["li"]
-neg = ["neg"]
-vnot = ["vnot.v"]
-la = ["la"]
-
 
 class RISCVLiPseudo(RISCVInstruction):
     pattern = "li <Xd>, <imm>"
     inputs = []
     outputs = ["Xd"]
+
+
+pseudo_instrs = [
+    (["li"], RISCVLiPseudo),
+    (["neg"], RISCVIntegerRegister),
+    (["vnot.v"], RISCVectorVectorMasked),
+    (["la"], RISCVUType),
+]
 
 
 def li_pseudo_split_cb():
@@ -95,9 +98,8 @@ def generate_rv32_64_pseudo_instructions():
     Generates all instruction classes for the rv32_64 pseudo instructions
     """
 
-    RISCVInstruction.instr_factory(li, RISCVLiPseudo)
-    RISCVInstruction.instr_factory(neg, RISCVIntegerRegister)
-    RISCVInstruction.instr_factory(vnot, RISCVectorVectorMasked)
+    for elem in pseudo_instrs:
+        RISCVInstruction.instr_factory(elem[0], elem[1])
 
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
