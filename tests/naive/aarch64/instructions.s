@@ -26,6 +26,7 @@ trn2 v20.16b, v21.16b, v22.16b
 aese v0.16b, v1.16b
 aesmc v2.16b, v3.16b
 
+sub  x2, x2, #48
 cmlt v4.8h, v30.8h, #0
 cmle v4.8h, v30.8h, #0
 cmhs v4.8h, v30.8h, v16.8h
