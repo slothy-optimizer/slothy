@@ -312,13 +312,13 @@ class ComputationNode:
         ret.append(f"* Pos: {self.orig_pos}")
         ret.append(f"* ASM: {self.inst}")
         ret.append(
-            f"  + Outputs: {list(zip(self.inst.args_out,self.inst.arg_types_out))}"
+            f"  + Outputs: {list(zip(self.inst.args_out, self.inst.arg_types_out))}"
         )
         ret.append(
-            f"  + Inputs:  {list(zip(self.inst.args_in,self.inst.arg_types_in))}"
+            f"  + Inputs:  {list(zip(self.inst.args_in, self.inst.arg_types_in))}"
         )
         ret.append(
-            f"  + In/Outs: {list(zip(self.inst.args_in_out,self.inst.arg_types_in_out))}"
+            f"  + In/Outs: {list(zip(self.inst.args_in_out, self.inst.arg_types_in_out))}"
         )
         ret.append(f"* TYPE: {self.inst.__class__.__name__}")
         _append_src("Input sources", self.src_in)
@@ -615,7 +615,6 @@ class DataFlowGraph:
                 return [x for y in llst for x in y]
 
             z = flatten(map(map_node, z))
-
             self.src = list(z)
 
             # Otherwise, parse again
@@ -969,7 +968,8 @@ class DataFlowGraph:
         num_valid_candidates = len(valid_candidates)
         if num_valid_candidates == 0:
             raise DataFlowGraphException(
-                f"None of the candidate parsings for {sourceline} type checks!"
+                f"None of the candidate parsings for {sourceline.to_string()} "
+                f"type checks!"
                 f"\nCandidates\n{candidates}"
             )
         # If we have more than one instruction passing the type check,

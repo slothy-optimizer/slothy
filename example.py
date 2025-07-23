@@ -39,6 +39,8 @@ import slothy.targets.aarch64.aarch64_big_experimental as Target_AArch64Big
 import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
+import slothy.targets.riscv.xuantie_c908 as Target_C908
+
 ##########################################################################################
 
 from examples.naive.aarch64.dilithium._example import (
@@ -80,6 +82,30 @@ from examples.naive.armv8m.crt._example import (
     example_instances as example_instances_armv8m_crt,
 )
 
+from examples.naive.riscv.simple._example import (
+    example_instances as example_instances_riscv_simple,
+)
+
+from examples.naive.riscv.ntt_dilithium._example import (
+    example_instances as example_instances_riscv_ntt_dilithium,
+)
+
+from examples.naive.riscv.dilithium_basemul._example import (
+    example_instances as example_instances_riscv_poly_basemul,
+)
+
+from examples.naive.riscv.ntt_kyber._example import (
+    example_instances as example_instances_riscv_ntt_kyber,
+)
+
+from examples.naive.riscv.kyber_basemul._example import (
+    example_instances as example_instances_riscv_kyber_basemul,
+)
+
+from examples.naive.riscv.kyber_sampling._example import (
+    example_instances as example_instances_riscv_kyber_sampling,
+)
+
 
 def main():
     examples = (
@@ -95,6 +121,12 @@ def main():
         + example_instances_armv8m_flt_r4_fft
         + example_instances_armv8m_fx_r4_fft
         + example_instances_armv8m_ntt_256
+        + example_instances_riscv_simple
+        + example_instances_riscv_ntt_dilithium
+        + example_instances_riscv_poly_basemul
+        + example_instances_riscv_ntt_kyber
+        + example_instances_riscv_kyber_basemul
+        + example_instances_riscv_kyber_sampling
     )
 
     all_example_names = [e.name for e in examples]
@@ -131,6 +163,7 @@ def main():
             Target_AppleM1_firestorm.__name__,
             Target_AppleM1_icestorm.__name__,
             Target_AArch64Big.__name__,
+            Target_C908.__name__,
         ],
     )
     args = parser.parse_args()
