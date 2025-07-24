@@ -626,9 +626,15 @@ Classes
      -
    * - :py:obj:`aese_x4 <slothy.targets.aarch64.aarch64_neon.aese_x4>`
      -
+   * - :py:obj:`aesdr <slothy.targets.aarch64.aarch64_neon.aesdr>`
+     -
    * - :py:obj:`aese <slothy.targets.aarch64.aarch64_neon.aese>`
      -
    * - :py:obj:`aesmc <slothy.targets.aarch64.aarch64_neon.aesmc>`
+     -
+   * - :py:obj:`aesd <slothy.targets.aarch64.aarch64_neon.aesd>`
+     -
+   * - :py:obj:`aesimc <slothy.targets.aarch64.aarch64_neon.aesimc>`
      -
    * - :py:obj:`pmull1_q <slothy.targets.aarch64.aarch64_neon.pmull1_q>`
      -
@@ -7805,6 +7811,29 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aese_x4.in_outs
 
+.. py:class:: aesdr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.aesdr
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AESInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesdr.pattern
+      :value: 'aesdr <Vd>.16b, <Va>.16b'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesdr.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesdr.inputs
+      :value: ['Va']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesdr.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesdr.in_outs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesdr.in_outs
+
 .. py:class:: aese(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.aese
 
@@ -7850,6 +7879,52 @@ API
       :value: ['Vd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesmc.outputs
+
+.. py:class:: aesd(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.aesd
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AESInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesd.pattern
+      :value: 'aesd <Vd>.16b, <Va>.16b'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesd.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesd.inputs
+      :value: ['Va']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesd.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesd.in_outs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesd.in_outs
+
+.. py:class:: aesimc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.aesimc
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AESInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesimc.pattern
+      :value: 'aesimc <Vd>.16b, <Va>.16b'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesimc.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesimc.inputs
+      :value: ['Va']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesimc.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.aesimc.outputs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.aesimc.outputs
 
 .. py:class:: pmull1_q(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.pmull1_q
