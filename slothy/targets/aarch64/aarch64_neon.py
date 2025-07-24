@@ -3712,6 +3712,12 @@ class aese_x4(AArch64Instruction):
     in_outs = ["Vd0", "Vd1", "Vd2", "Vd3"]
 
 
+class aesdr(AESInstruction):
+    pattern = "aesdr <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
 class aese(AESInstruction):
     pattern = "aese <Vd>.16b, <Va>.16b"
     inputs = ["Va"]
@@ -3720,6 +3726,18 @@ class aese(AESInstruction):
 
 class aesmc(AESInstruction):
     pattern = "aesmc <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class aesd(AESInstruction):
+    pattern = "aesd <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
+class aesimc(AESInstruction):
+    pattern = "aesimc <Vd>.16b, <Va>.16b"
     inputs = ["Va"]
     outputs = ["Vd"]
 
