@@ -70,6 +70,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vqrdmulh_lane,
     vqdmulh_lane,
     vbic,
+    vbic_imm_lsl,
     q_ldr1_stack,
     q_ldr1_post_inc,
     Vmull,
@@ -99,7 +100,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     is_dform_form_of,
     trn1,
     trn2,
-    cmge,
     vzip1,
     vzip2,
     vuzp1,
@@ -154,8 +154,11 @@ from slothy.targets.aarch64.aarch64_neon import (
     VShiftImmediateBasic,
     ubfx,
     AESInstruction,
+    AArch64NeonCount,
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
+    vtbl,
+    sub_imm,
 )
 
 issue_rate = 2
@@ -252,8 +255,10 @@ execution_units = {
         vusra,
         vshrn,
         vxtn,
+        vtbl,
         VShiftImmediateRounding,
         AArch64NeonLogical,
+        sub_imm,
     ): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
     ],  # these instructions use both VEC0 and VEC1
@@ -321,9 +326,11 @@ execution_units = {
     is_qform_form_of(trn2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_qform_form_of(trn2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn2): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
-    is_qform_form_of(cmge): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
-    is_dform_form_of(cmge): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(ASimdCompare): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(ASimdCompare): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vzip1): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_qform_form_of(AArch64NeonCount): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(AArch64NeonCount): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_dform_form_of(vzip1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vzip2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vzip2): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
@@ -419,9 +426,11 @@ inverse_throughput = {
         Vmlal,
         umov_d,
     ): 1,
+    sub_imm: 1,
     (vshl, vshl_d, vsshr, vushr, vuxtl): 1,
     (trn2, trn1, ASimdCompare): 1,
     (Ldr_Q): 2,
+    (AArch64NeonCount): 1,
     (Str_Q): 1,
     (tst_wform): 1,
     (nop, Vins, Ldr_X, Str_X): 1,
@@ -434,6 +443,7 @@ inverse_throughput = {
     Ld2: 4,
     vxtn: 1,
     vshrn: 2,
+    vtbl: 1,  # N cycles (N = number of registers in the table)
     (fcsel_dform): 1,
     (VecToGprMov, Mov_xtov_d): 1,
     (movk_imm, mov, mov_imm, movw_imm): 1,
@@ -490,6 +500,8 @@ default_latencies = {
         Vmlal,
     ): 4,
     (Ldr_Q, Str_Q): 4,
+    sub_imm: 2,
+    AArch64NeonCount: 2,
     St4: 5,
     St3: 3,
     St2: 2,
@@ -499,6 +511,7 @@ default_latencies = {
     Ld4: 11,
     vxtn: 2,
     vshrn: 2,
+    vtbl: 2,  # 2+N-1 cycles (N = number of registers in the table)
     (vshl, vshl_d, vsshr, vushr, vuxtl): 2,
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,
@@ -572,6 +585,7 @@ def get_latency(src, out_idx, dst):
         [lsr, mul_wform],
         [lsr, umaddl_wform],
         [vbic, vusra],
+        [vbic_imm_lsl, vusra],
     ]:
         latency += 1
 

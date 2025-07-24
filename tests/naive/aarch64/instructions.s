@@ -13,6 +13,7 @@ uzp1 v11.16b, v12.16b, v13.16b
 uzp2 v14.16b, v15.16b, v16.16b
 and v16.16b, v17.16b, v18.16b
 bic v19.16b, v20.16b, v21.16b
+bic v0.8h, #0xf0, lsl #8
 mvn v22.16b, v23.16b
 orr v24.16b, v25.16b, v26.16b
 orn v27.16b, v28.16b, v29.16b
@@ -24,6 +25,20 @@ trn1 v17.16b, v18.16b, v19.16b
 trn2 v20.16b, v21.16b, v22.16b
 aese v0.16b, v1.16b
 aesmc v2.16b, v3.16b
+
+sub  x2, x2, #48
+cmlt v4.8h, v30.8h, #0
+cmle v4.8h, v30.8h, #0
+cmhs v4.8h, v30.8h, v16.8h
+cmgt v4.8h, v30.8h, v16.8h
+cmeq v4.8h, v30.8h, v16.8h
+cmge v4.8h, v30.8h, v16.8h
+cmhi v4.8h, v30.8h, v16.8h
+mov x12, #0
+ldr q24, [x3, x12, lsl #4]
+clz v0.16b, v0.16b
+cnt v0.16b, v0.16b
+tbl v16.16b, {v16.16b}, v24.16b
 
 // ASIMD multiply long 
 umull v23.4s, v24.4h, v25.4h

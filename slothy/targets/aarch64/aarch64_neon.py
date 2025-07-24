@@ -1451,6 +1451,24 @@ class q_ldr_with_inc(Ldr_Q):
         return super().write()
 
 
+class q_ldr_lsl_with_inc(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xa>, <Xc>, lsl <imm>]"
+    inputs = ["Xa", "Xc"]
+    outputs = ["Qa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
 class q_ld1_with_inc(Ldr_Q):
     pattern = "ld1 {<Va>.<dt>}, [<Xc>, <imm>]"
     inputs = ["Xc"]
@@ -3019,6 +3037,22 @@ class vins_d_force_output(Vins):
         return AArch64Instruction.build(cls, src)
 
 
+class AArch64NeonCount(AArch64Instruction):
+    pass
+
+
+class vcnt(AArch64NeonCount):
+    pattern = "cnt <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vclz(AArch64NeonCount):
+    pattern = "clz <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
 class Mov_xtov_d(AArch64Instruction):
     pass
 
@@ -3080,6 +3114,12 @@ class AArch64NeonLogical(AArch64Instruction):
     pass
 
 
+class vtbl(AArch64Instruction):
+    pattern = "tbl <Vd>.<dt0>, {<Va>.<dt1>}, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class vand(AArch64NeonLogical):
     pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
@@ -3090,6 +3130,11 @@ class vbic(AArch64NeonLogical):
     pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
+
+
+class vbic_imm_lsl(AArch64NeonLogical):
+    pattern = "bic <Vda>.<dt>, <imm0>, lsl <imm1>"
+    in_outs = ["Vda"]
 
 
 class vmvn(AArch64NeonLogical):
@@ -4265,6 +4310,42 @@ class ASimdCompare(AArch64Instruction):
 class cmge(ASimdCompare):
     pattern = "cmge <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
     inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmhi(ASimdCompare):
+    pattern = "cmhi <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmeq(ASimdCompare):
+    pattern = "cmeq <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmgt(ASimdCompare):
+    pattern = "cmgt <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmhs(ASimdCompare):
+    pattern = "cmhs <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmle(ASimdCompare):
+    pattern = "cmle <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class cmlt(ASimdCompare):
+    pattern = "cmlt <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
     outputs = ["Vd"]
 
 

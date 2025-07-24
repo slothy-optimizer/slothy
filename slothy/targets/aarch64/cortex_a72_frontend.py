@@ -82,6 +82,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     ASimdCompare,
     Vins,
     umov_d,
+    AArch64Move,
     add,
     add_imm,
     add_lsl,
@@ -95,8 +96,11 @@ from slothy.targets.aarch64.aarch64_neon import (
     ubfx,
     AESInstruction,
     vext,
+    AArch64NeonCount,
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
+    vtbl,
+    sub_imm,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -181,11 +185,15 @@ execution_units = {
         Vmlal,
         Vmull,
     ): [ExecutionUnit.ASIMD0],
-    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext): [
+    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, vtbl, sub_imm): [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
     (AArch64NeonLogical): [
+        ExecutionUnit.ASIMD0,
+        ExecutionUnit.ASIMD1,
+    ],
+    (AArch64NeonCount): [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
@@ -194,6 +202,7 @@ execution_units = {
     umov_d: ExecutionUnit.LOAD(),  # ???
     (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
     (Str_Q, Str_X): ExecutionUnit.STORE(),
+    AArch64Move: ExecutionUnit.SCALAR(),
     (add, add_imm, add_lsl, add_lsr, ubfx): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
@@ -216,9 +225,12 @@ inverse_throughput = {
         vmls_lane,
         vqdmulh_lane,
     ): 2,
+    AArch64Move: 1,
     (Vmull, Vmlal): 1,
+    AArch64NeonCount: 1,
     Vzip: 1,
-    (vadd, vsub, trn1, trn2, ASimdCompare, vext): 1,
+    ASimdCompare: 1,
+    (vadd, vsub, trn1, trn2, vext): 1,
     AArch64NeonLogical: 1,
     AArch64NeonShiftInsert: 1,
     Vins: 1,
@@ -233,7 +245,9 @@ inverse_throughput = {
     Ld3: 3,
     Ld4: 4,
     ubfx: 1,
+    vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
+    sub_imm: 1,
 }
 
 # REVISIT
@@ -250,6 +264,7 @@ default_latencies = {
         vqdmulh_lane,
     ): 5,
     (Vmull, Vmlal): 1,
+    AArch64NeonCount: 3,
     (
         vadd,
         vsub,
@@ -267,6 +282,7 @@ default_latencies = {
     (add, add_imm, add_lsl, add_lsr): 2,
     VShiftImmediateRounding: 3,  # approx
     VShiftImmediateBasic: 3,
+    AArch64Move: 1,
     # TODO: this seems in accurate; revisiting may improve performance
     St2: 4,
     St3: 6,
@@ -274,7 +290,9 @@ default_latencies = {
     Ld3: 3,
     Ld4: 4,
     ubfx: 1,
+    vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
+    sub_imm: 3,
 }
 
 
