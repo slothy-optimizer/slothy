@@ -75,4 +75,8 @@ pmull2 v7.1q, v8.2d, v9.2d
 
 uaddlv s20, v4.8h
 
+mla v4.4s, v5.4s, v6.4s
+mla v4.4s, v5.4s, v6.s[0]
+mls v4.4s, v5.4s, v6.4s
+mls v4.4s, v5.4s, v6.s[0]
 end:
