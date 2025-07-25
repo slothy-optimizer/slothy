@@ -834,7 +834,7 @@ class AArch64Instruction(Instruction):
                 f"<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
             )
 
-        src = re.sub(r"<([BHWXVQTD])(\w+)>", pattern_transform, src)
+        src = re.sub(r"<([BHWXVQTDS])(\w+)>", pattern_transform, src)
 
         # Replace <key> or <key0>, <key1>, ... with pattern
         def replace_placeholders(src, mnemonic_key, regexp, group_name):
@@ -923,7 +923,7 @@ class AArch64Instruction(Instruction):
     def __infer_register_type(ptrn):
         if ptrn[0].upper() in ["X", "W"]:
             return RegisterType.GPR
-        if ptrn[0].upper() in ["V", "Q", "D", "B"]:
+        if ptrn[0].upper() in ["V", "Q", "D", "S", "B"]:
             return RegisterType.NEON
         if ptrn[0].upper() in ["T"]:
             return RegisterType.HINT
@@ -3630,6 +3630,12 @@ class Fmov(AArch64Instruction):
     pass
 
 
+class fmov_s_form(Fmov):
+    pattern = "fmov <Wd>, <Sa>"
+    inputs = ["Sa"]
+    outputs = ["Wd"]
+
+
 class fmov_0(Fmov):
     pattern = "fmov <Dd>, <Xa>"
     inputs = ["Xa"]
@@ -4365,6 +4371,12 @@ class cmlt(ASimdCompare):
     pattern = "cmlt <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
+
+
+class vuaddlv_sform(AArch64Instruction):
+    pattern = "uaddlv <Sd>, <Va>.<dt>"
+    inputs = ["Va"]
+    outputs = ["Sd"]
 
 
 class Spill:

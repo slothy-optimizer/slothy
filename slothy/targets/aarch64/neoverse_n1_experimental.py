@@ -93,6 +93,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64NeonShiftInsert,
     vtbl,
     sub_imm,
+    vuaddlv_sform,
+    fmov_s_form,  # from vec to gen reg
 )
 
 issue_rate = 4
@@ -209,10 +211,13 @@ execution_units = {
     Tst: ExecutionUnit.I(),
     AArch64ShiftedArithmetic: ExecutionUnit.M(),
     Fmov: ExecutionUnit.M(),
+    fmov_s_form: ExecutionUnit.V1(),  # from vec to gen reg
     umull_wform: ExecutionUnit.M(),
     (AArch64HighMultiply, AArch64Multiply): ExecutionUnit.M(),
     vdup: ExecutionUnit.M(),
     sub_imm: ExecutionUnit.V(),
+    # 8B/8H occupies both V0, V1
+    vuaddlv_sform: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
 
 inverse_throughput = {
@@ -251,11 +256,13 @@ inverse_throughput = {
     AArch64ShiftedArithmetic: 1,
     Tst: 1,
     Fmov: 1,
+    fmov_s_form: 1,  # from vec to gen reg
     (AArch64HighMultiply): 4,
     (AArch64Multiply): 3,
     (vdup): 1,
     umull_wform: 1,
     sub_imm: 1,
+    vuaddlv_sform: 1,  # 8B/8H
 }
 
 default_latencies = {
@@ -295,12 +302,14 @@ default_latencies = {
     AArch64ShiftedArithmetic: 2,
     Tst: 1,
     Fmov: 3,
+    fmov_s_form: 2,  # from vec to gen reg
     AArch64HighMultiply: 5,
     AArch64Multiply: 4,
     (vdup): 3,
     umull_wform: 2,
     vtbl: 2,
     sub_imm: 2,
+    vuaddlv_sform: 5,  # 8B/8H
 }
 
 

@@ -159,6 +159,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64NeonShiftInsert,
     vtbl,
     sub_imm,
+    vuaddlv_sform,
+    fmov_s_form,  # from double/single to gen reg
 )
 
 issue_rate = 2
@@ -258,7 +260,7 @@ execution_units = {
         vtbl,
         VShiftImmediateRounding,
         AArch64NeonLogical,
-        sub_imm,
+        vuaddlv_sform,
     ): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
     ],  # these instructions use both VEC0 and VEC1
@@ -315,6 +317,7 @@ execution_units = {
         d_ldr_stack_with_inc,
         q_ldr1_stack,
         Q_Ld2_Lane_Post_Inc,
+        fmov_s_form,  # from double/single to gen reg
     ): [
         ExecutionUnit.VEC0,
         ExecutionUnit.VEC1,
@@ -395,6 +398,7 @@ execution_units = {
         tst_wform,
         movk_imm,
         sub,
+        sub_imm,
         sbcs_zero_to_zero,
         cmp_xzr2,
         mov,
@@ -425,6 +429,7 @@ inverse_throughput = {
         Vmull,
         Vmlal,
         umov_d,
+        vuaddlv_sform,
     ): 1,
     sub_imm: 1,
     (vshl, vshl_d, vsshr, vushr, vuxtl): 1,
@@ -481,6 +486,7 @@ inverse_throughput = {
     (eor_wform): 1,
     (eor, bic, eor_ror, bic_ror): 1,
     AESInstruction: 1,
+    fmov_s_form: 1,  # from double/single to gen reg
 }
 
 default_latencies = {
@@ -526,6 +532,7 @@ default_latencies = {
     (ldr_sxtw_wform): 5,
     (lsr, lsr_wform): 1,
     (umull_wform, mul_wform, umaddl_wform): 3,
+    (vuaddlv_sform): 3,
     (and_imm, and_imm_wform): 1,
     (add2, add_lsr, add_lsl, add_sp_imm): 2,
     (
@@ -564,6 +571,7 @@ default_latencies = {
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: 2,
+    fmov_s_form: 1,  # from double/single to gen reg
 }
 
 

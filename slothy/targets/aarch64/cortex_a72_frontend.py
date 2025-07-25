@@ -101,6 +101,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64NeonShiftInsert,
     vtbl,
     sub_imm,
+    vuaddlv_sform,
+    fmov_s_form,  # from vec to gen reg
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -198,6 +200,8 @@ execution_units = {
         ExecutionUnit.ASIMD1,
     ],
     AArch64NeonShiftInsert: [ExecutionUnit.ASIMD1],
+    # 8B/8H occupies both F0, F1
+    vuaddlv_sform: [[ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]],
     Vins: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     umov_d: ExecutionUnit.LOAD(),  # ???
     (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
@@ -211,6 +215,7 @@ execution_units = {
         [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
     ],
     AESInstruction: [ExecutionUnit.ASIMD0],
+    fmov_s_form: ExecutionUnit.LOAD(),  # from vec to gen reg
 }
 
 inverse_throughput = {
@@ -248,6 +253,8 @@ inverse_throughput = {
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
     sub_imm: 1,
+    vuaddlv_sform: 1,
+    fmov_s_form: 1,  # from vec to gen reg
 }
 
 # REVISIT
@@ -293,6 +300,8 @@ default_latencies = {
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
     sub_imm: 3,
+    vuaddlv_sform: 6,  # 8B/8H
+    fmov_s_form: 5,  # from vec to gen reg
 }
 
 
