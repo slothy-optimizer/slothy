@@ -620,6 +620,45 @@ class Slothy:
                 early, body, late, "ORIGINAL", indentation
             )
 
+        # Pre-allocate registers for unknown iteration count before kernel optimization
+        if (
+            self.config.sw_pipelining.unknown_iteration_count
+            and self.config.sw_pipelining.unroll > 1
+        ):
+            # Get available registers excluding loop counter and used inputs
+            # Resolve loop counter alias to actual register
+            resolved_loop_cnt = c.register_aliases.get(loop_cnt, loop_cnt)
+
+            # Analyze body to find used registers before kernel optimization
+            dfg_config = DFGConfig(self.config, outputs=[])
+            temp_dfg = DFG(body, logger, dfg_config)
+            used_input_registers = temp_dfg.inputs
+
+            available_gprs = [
+                r
+                for r in self.config.arch.RegisterType.list_registers(
+                    self.config.arch.RegisterType.GPR
+                )
+                if r not in self.config.reserved_regs
+                and r != resolved_loop_cnt
+                and r not in used_input_registers
+            ]
+            if len(available_gprs) < 2:
+                raise ValueError(
+                    "Need at least 2 available temporary registers for tail section "
+                    "implementation. Used inputs: "
+                    f"{used_input_registers}, Available: {available_gprs}"
+                )
+
+            # Reserve remainder register before kernel optimization
+            remainder_reg = available_gprs[0]
+            # Properly add to reserved registers by creating new set
+            current_reserved = c.reserved_regs.copy()
+            current_reserved.add(remainder_reg)
+            c.reserved_regs = current_reserved
+            self._tail_remainder_reg = remainder_reg
+            self._tail_divisor_reg = available_gprs[1]
+
         preamble_code, kernel_code, postamble_code, num_exceptional = (
             Heuristics.periodic(body, logger, c)
         )
@@ -685,28 +724,9 @@ class Slothy:
             if self.config.sw_pipelining.unroll > 1:
                 tail_lbl = f"{loop_lbl}_tail"
 
-                # Find registers that can be safely used for division and remainder
-                dfg_config = DFGConfig(self.config, outputs=[])
-                kernel_dfg = DFG(kernel_code, logger, dfg_config)
-                used_input_registers = kernel_dfg.inputs
-
-                available_gprs = [
-                    r
-                    for r in self.config.arch.RegisterType.list_registers(
-                        self.config.arch.RegisterType.GPR
-                    )
-                    if r not in self.config.reserved_regs
-                    and r != loop_cnt
-                    and r not in used_input_registers
-                ]
-                if len(available_gprs) < 2:
-                    raise ValueError(
-                        "Need at least 2 available temporary registers for tail section "
-                        "implementation. Used inputs: "
-                        f"{used_input_registers}, Available: {available_gprs}"
-                    )
-                temp_reg = available_gprs[0]
-                divisor_reg = available_gprs[1]
+                # Use pre-allocated registers (allocated before kernel optimization)
+                temp_reg = self._tail_remainder_reg
+                divisor_reg = self._tail_divisor_reg
 
                 optimized_code += indented(
                     self.arch.Branch.if_less_than(
