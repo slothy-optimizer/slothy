@@ -35,17 +35,17 @@ import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 
 
-class fft_fixedpoint_radix4(OptimizationRunner):
-    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM55r1):
-        name = "fixedpoint_radix4_fft"
-        infile = "base_symbolic"
+class cmplx_mag_sqr_fx_unroll(OptimizationRunner):
+    def __init__(self, var="", unroll=1, arch=Arch_Armv81M, target=Target_CortexM55r1):
+        name = f"cmplx_mag_sqr_fx_unroll{unroll}"
+        infile = "cmplx_mag_sqr_fx"
         outfile = name
-
+        self.unroll = unroll
         super().__init__(
             infile,
             name,
             outfile=outfile,
-            rename=True,
+            rename=False,
             arch=arch,
             target=target,
             subfolder=SUBFOLDER,
@@ -63,18 +63,25 @@ class fft_fixedpoint_radix4(OptimizationRunner):
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
-        slothy.optimize_loop("fixedpoint_radix4_fft_loop_start")
+        slothy.config.sw_pipelining.unroll = self.unroll
+        slothy.optimize_loop("start")
         if self.target == Target_CortexM55r1:
             slothy.rename_function(
-                "fixedpoint_radix4_fft_symbolic", "fixedpoint_radix4_fft_opt_M55"
+                "cmplx_mag_sqr_fx", f"cmplx_mag_sqr_fx_unroll{self.unroll}_opt_M55"
             )
         elif self.target == Target_CortexM85r1:
             slothy.rename_function(
-                "fixedpoint_radix4_fft_symbolic", "fixedpoint_radix4_fft_opt_M85"
+                "cmplx_mag_sqr_fx", f"cmplx_mag_sqr_fx_unroll{self.unroll}_opt_M85"
             )
 
 
 example_instances = [
-    fft_fixedpoint_radix4(),
-    fft_fixedpoint_radix4(target=Target_CortexM85r1),
+    cmplx_mag_sqr_fx_unroll(unroll=1),
+    cmplx_mag_sqr_fx_unroll(unroll=1, target=Target_CortexM85r1),
+    cmplx_mag_sqr_fx_unroll(
+        unroll=2,
+    ),
+    cmplx_mag_sqr_fx_unroll(unroll=2, target=Target_CortexM85r1),
+    cmplx_mag_sqr_fx_unroll(unroll=4),
+    cmplx_mag_sqr_fx_unroll(unroll=4, target=Target_CortexM85r1),
 ]
