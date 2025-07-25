@@ -234,6 +234,42 @@ class AArch64Ubfx(OptimizationRunner):
         slothy.optimize()
 
 
+class AArch64UnknownIter(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_unknown_iter"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.unroll = 3
+        slothy.config.sw_pipelining.unknown_iteration_count = True
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("start")
+
+
+class AArch64UnknownIterPow2(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_unknown_iter_pow2"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.unroll = 4
+        slothy.config.sw_pipelining.unknown_iteration_count = True
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("start")
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -253,4 +289,6 @@ test_instances = [
     AArch64LoopSubs(),
     AArch64LoopSubTabs(),
     AArch64Ubfx(),
+    AArch64UnknownIter(),
+    AArch64UnknownIterPow2(),
 ]

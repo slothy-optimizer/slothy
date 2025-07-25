@@ -574,6 +574,8 @@ class Slothy:
         :type postamble_label: str
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
         :type forced_loop_type: any
+        :raises ValueError: If insufficient temporary registers are available for tail
+                          section implementation.
         """
 
         logger = self.logger.getChild(loop_lbl)
@@ -680,6 +682,48 @@ class Slothy:
         if self.config.sw_pipelining.unknown_iteration_count:
             if postamble_label is None:
                 postamble_label = f"{loop_lbl}_postamble"
+            if self.config.sw_pipelining.unroll > 1:
+                tail_lbl = f"{loop_lbl}_tail"
+
+                # Find registers that can be safely used for division and remainder
+                dfg_config = DFGConfig(self.config, outputs=[])
+                kernel_dfg = DFG(kernel_code, logger, dfg_config)
+                used_input_registers = kernel_dfg.inputs
+
+                available_gprs = [
+                    r
+                    for r in self.config.arch.RegisterType.list_registers(
+                        self.config.arch.RegisterType.GPR
+                    )
+                    if r not in self.config.reserved_regs
+                    and r != loop_cnt
+                    and r not in used_input_registers
+                ]
+                if len(available_gprs) < 2:
+                    raise ValueError(
+                        "Need at least 2 available temporary registers for tail section "
+                        "implementation. Used inputs: "
+                        f"{used_input_registers}, Available: {available_gprs}"
+                    )
+                temp_reg = available_gprs[0]
+                divisor_reg = available_gprs[1]
+
+                optimized_code += indented(
+                    self.arch.Branch.if_less_than(
+                        loop_cnt, self.config.sw_pipelining.unroll, tail_lbl
+                    )
+                )
+                optimized_code += indented(
+                    self.arch.Branch.extract_remainder(
+                        temp_reg,
+                        loop_cnt,
+                        self.config.sw_pipelining.unroll,
+                        divisor_reg,
+                    )
+                )
+                self._tail_remainder_reg = (
+                    temp_reg  # Used later for tail section branching
+                )
             jump_if_empty = postamble_label
         else:
             jump_if_empty = None
@@ -695,6 +739,9 @@ class Slothy:
                 body_code=kernel_code,
                 postamble_code=postamble_code,
                 register_aliases=c.register_aliases,
+                temp_reg_for_division=(
+                    divisor_reg if self.config.sw_pipelining.unroll > 1 else None
+                ),
             )
         )
         optimized_code += indented(kernel_code)
@@ -708,7 +755,48 @@ class Slothy:
         optimized_code += indented(postamble_code)
 
         if self.config.sw_pipelining.unknown_iteration_count:
+            # Add jump to tail section for remainder handling after main loop
+            if self.config.sw_pipelining.unroll > 1:
+                tail_lbl = f"{loop_lbl}_tail"
+                temp_reg = self._tail_remainder_reg
+
+                optimized_code += indented(
+                    ["// Jump to tail section based on remainder"]
+                )
+                optimized_code += indented(
+                    self.arch.Branch.if_zero(temp_reg, loop_lbl_end)
+                )
+
+                # Add conditional branches for each possible remainder value
+                for i in range(1, self.config.sw_pipelining.unroll):
+                    optimized_code += indented(
+                        self.arch.Branch.if_equal(temp_reg, i, f"{tail_lbl}_{i}")
+                    )
+
             optimized_code += indented(self.arch.Branch.unconditional(loop_lbl_end))
+
+            # Generate TAIL section for remainder iterations when unroll > 1
+            if self.config.sw_pipelining.unroll > 1:
+                tail_lbl = f"{loop_lbl}_tail"
+                optimized_code += [
+                    SourceLine(f"{tail_lbl}:").add_comment(
+                        "TAIL - handle remainder iterations"
+                    )
+                ]
+
+                # Generate tail code for remainder iterations (1 to unroll-1)
+                for i in range(1, self.config.sw_pipelining.unroll):
+                    tail_body = i * body
+                    c2 = c.copy()
+                    c2.sw_pipelining.enabled = False
+                    res = Heuristics.linear(tail_body, logger.getChild(f"tail_{i}"), c2)
+                    optimized_code += [SourceLine(f"{tail_lbl}_{i}:")]
+                    optimized_code += indented(res.code)
+                    if i < self.config.sw_pipelining.unroll - 1:
+                        optimized_code += indented(
+                            self.arch.Branch.unconditional(loop_lbl_end)
+                        )
+
             for i in range(1, num_exceptional):
                 exceptional = i * body
                 c2 = c.copy()
