@@ -1,0 +1,40 @@
+:py:mod:`slothy.cli`
+====================
+
+.. py:module:: slothy.cli
+
+.. autodoc2-docstring:: slothy.cli
+   :allowtitles:
+
+Package Contents
+----------------
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`main <slothy.cli.main>`
+     - .. autodoc2-docstring:: slothy.cli.main
+          :summary:
+
+API
+~~~
+
+.. py:exception:: CmdLineException()
+   :canonical: slothy.cli.CmdLineException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.cli.CmdLineException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.cli.CmdLineException.__init__
+
+.. py:function:: main()
+   :canonical: slothy.cli.main
+
+   .. autodoc2-docstring:: slothy.cli.main
