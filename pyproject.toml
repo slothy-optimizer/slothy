@@ -74,6 +74,9 @@ Repository = "https://github.com/slothy-optimizer/slothy"
 Documentation = "https://slothy-optimizer.github.io/slothy"
 Issues = "https://github.com/slothy-optimizer/slothy/issues"
 
+[project.scripts]
+slothy-cli = "slothy.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["slothy*"]
