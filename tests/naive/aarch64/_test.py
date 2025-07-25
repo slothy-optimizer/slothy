@@ -249,6 +249,9 @@ class AArch64UnknownIter(OptimizationRunner):
         slothy.config.sw_pipelining.unroll = 3
         slothy.config.sw_pipelining.unknown_iteration_count = True
         slothy.config.inputs_are_outputs = True
+        current_reserved = slothy.config.reserved_regs.copy()
+        current_reserved.add("x2")
+        slothy.config.reserved_regs = current_reserved
         slothy.optimize_loop("start")
 
 
@@ -267,6 +270,9 @@ class AArch64UnknownIterPow2(OptimizationRunner):
         slothy.config.sw_pipelining.unroll = 4
         slothy.config.sw_pipelining.unknown_iteration_count = True
         slothy.config.inputs_are_outputs = True
+        current_reserved = slothy.config.reserved_regs.copy()
+        current_reserved.add("x2")
+        slothy.config.reserved_regs = current_reserved
         slothy.optimize_loop("start")
 
 
