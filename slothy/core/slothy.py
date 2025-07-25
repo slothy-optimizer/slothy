@@ -657,7 +657,7 @@ class Slothy:
             current_reserved.add(remainder_reg)
             c.reserved_regs = current_reserved
             self._tail_remainder_reg = remainder_reg
-            self._tail_divisor_reg = available_gprs[1]
+            self._unrolling_trailing_tmp_reg = available_gprs[1]
 
         preamble_code, kernel_code, postamble_code, num_exceptional = (
             Heuristics.periodic(body, logger, c)
@@ -718,6 +718,9 @@ class Slothy:
 
         optimized_code += indented(preamble_code)
 
+        # Initialize unrolling_trailing_tmp_reg to None by default
+        unrolling_trailing_tmp_reg = None
+
         if self.config.sw_pipelining.unknown_iteration_count:
             if postamble_label is None:
                 postamble_label = f"{loop_lbl}_postamble"
@@ -726,7 +729,7 @@ class Slothy:
 
                 # Use pre-allocated registers (allocated before kernel optimization)
                 temp_reg = self._tail_remainder_reg
-                divisor_reg = self._tail_divisor_reg
+                unrolling_trailing_tmp_reg = self._unrolling_trailing_tmp_reg
 
                 optimized_code += indented(
                     self.arch.Branch.if_less_than(
@@ -738,7 +741,7 @@ class Slothy:
                         temp_reg,
                         loop_cnt,
                         self.config.sw_pipelining.unroll,
-                        divisor_reg,
+                        unrolling_trailing_tmp_reg,
                     )
                 )
                 self._tail_remainder_reg = (
@@ -760,7 +763,9 @@ class Slothy:
                 postamble_code=postamble_code,
                 register_aliases=c.register_aliases,
                 temp_reg_for_division=(
-                    divisor_reg if self.config.sw_pipelining.unroll > 1 else None
+                    unrolling_trailing_tmp_reg
+                    if self.config.sw_pipelining.unroll > 1
+                    else None
                 ),
             )
         )
