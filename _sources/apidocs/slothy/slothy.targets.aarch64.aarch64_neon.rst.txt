@@ -602,6 +602,8 @@ Classes
      -
    * - :py:obj:`Fmov <slothy.targets.aarch64.aarch64_neon.Fmov>`
      -
+   * - :py:obj:`fmov_s_form <slothy.targets.aarch64.aarch64_neon.fmov_s_form>`
+     -
    * - :py:obj:`fmov_0 <slothy.targets.aarch64.aarch64_neon.fmov_0>`
      -
    * - :py:obj:`fmov_0_force_output <slothy.targets.aarch64.aarch64_neon.fmov_0_force_output>`
@@ -734,6 +736,8 @@ Classes
    * - :py:obj:`cmle <slothy.targets.aarch64.aarch64_neon.cmle>`
      -
    * - :py:obj:`cmlt <slothy.targets.aarch64.aarch64_neon.cmlt>`
+     -
+   * - :py:obj:`vuaddlv_sform <slothy.targets.aarch64.aarch64_neon.vuaddlv_sform>`
      -
    * - :py:obj:`Spill <slothy.targets.aarch64.aarch64_neon.Spill>`
      - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.Spill
@@ -7563,6 +7567,29 @@ API
 
    Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
 
+.. py:class:: fmov_s_form(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.fmov_s_form
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Fmov`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.fmov_s_form.pattern
+      :value: 'fmov <Wd>, <Sa>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fmov_s_form.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.fmov_s_form.inputs
+      :value: ['Sa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fmov_s_form.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.fmov_s_form.outputs
+      :value: ['Wd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fmov_s_form.outputs
+
 .. py:class:: fmov_0(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.fmov_0
 
@@ -8987,6 +9014,29 @@ API
       :value: ['Vd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cmlt.outputs
+
+.. py:class:: vuaddlv_sform(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.vuaddlv_sform
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.vuaddlv_sform.pattern
+      :value: 'uaddlv <Sd>, <Va>.<dt>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vuaddlv_sform.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vuaddlv_sform.inputs
+      :value: ['Va']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vuaddlv_sform.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vuaddlv_sform.outputs
+      :value: ['Sd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vuaddlv_sform.outputs
 
 .. py:class:: Spill
    :canonical: slothy.targets.aarch64.aarch64_neon.Spill
