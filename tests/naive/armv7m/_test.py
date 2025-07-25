@@ -61,6 +61,27 @@ class Armv7mExample0Func(OptimizationRunner):
         slothy.global_selftest("my_func", {"r0": 1024})
 
 
+class Armv7mUnknownIter(OptimizationRunner):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "test_unknown_iter"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.unroll = 3
+        slothy.config.sw_pipelining.unknown_iteration_count = True
+        slothy.config.inputs_are_outputs = True
+        current_reserved = slothy.config.reserved_regs.copy()
+        current_reserved.add("r2")
+        slothy.config.reserved_regs = current_reserved
+        slothy.optimize_loop("start")
+
+
 class Armv7mLoopSubs(OptimizationRunner):
     def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
         name = "loop_subs"
@@ -123,6 +144,27 @@ class Armv7mLoopVmovCmpForced(OptimizationRunner):
         slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.CmpLoop)
 
 
+class Armv7mUnknownIterPow2(OptimizationRunner):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "test_unknown_iter_pow2"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.unroll = 4
+        slothy.config.sw_pipelining.unknown_iteration_count = True
+        slothy.config.inputs_are_outputs = True
+        current_reserved = slothy.config.reserved_regs.copy()
+        current_reserved.add("r2")
+        slothy.config.reserved_regs = current_reserved
+        slothy.optimize_loop("start")
+
+
 test_instances = [
     Armv7mLoopSubs(),
     Armv7mLoopCmp(),
@@ -130,4 +172,6 @@ test_instances = [
     Armv7mLoopVmovCmpForced(),
     Armv7mExample0(),
     Armv7mExample0Func(),
+    Armv7mUnknownIter(),
+    Armv7mUnknownIterPow2(),
 ]
