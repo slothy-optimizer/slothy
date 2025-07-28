@@ -274,6 +274,49 @@ class Branch:
         """Emit unconditional branch"""
         yield f"b {lbl}"
 
+    @staticmethod
+    def if_less_than(cnt, val, lbl):
+        """Emit assembly for a branch-if-less-than sequence"""
+        yield f"cmp {cnt}, #{val}"
+        yield f"blo {lbl}"
+
+    @staticmethod
+    def if_zero(reg, lbl):
+        """Emit assembly for a branch-if-zero sequence"""
+        yield f"cbz {reg}, {lbl}"
+
+    @staticmethod
+    def extract_remainder(dst_reg, src_reg, divisor, temp_reg=None):
+        """Extract remainder using AND for power-of-2 or modulo for general case"""
+        if divisor > 0 and (divisor & (divisor - 1)) == 0:
+            # Power of 2: use AND
+            yield f"and {dst_reg}, {src_reg}, #{divisor - 1}"
+        else:
+            # General case: use division and subtraction (limited on ARMv7-M)
+            # mls requires register operands, so we need a temp register for the divisor
+            if temp_reg is None:
+                raise ValueError(
+                    "temp_reg required for non-power-of-2 divisor in extract_remainder"
+                )
+            yield f"mov {temp_reg}, #{divisor}"
+            yield f"udiv {dst_reg}, {src_reg}, {temp_reg}"
+            yield f"mls {dst_reg}, {dst_reg}, {temp_reg}, {src_reg}"
+
+    @staticmethod
+    def divide_by_constant(dst_reg, src_reg, divisor, temp_reg=None):
+        """Divide by constant using shift for power-of-2 or udiv for general case"""
+        if divisor > 0 and (divisor & (divisor - 1)) == 0:
+            # Power of 2: use LSR
+            yield f"lsr {dst_reg}, {src_reg}, #{int(math.log2(divisor))}"
+        else:
+            # General case: use udiv with register operand
+            if temp_reg is None:
+                raise ValueError(
+                    "temp_reg required for non-power-of-2 divisor in divide_by_constant"
+                )
+            yield f"mov {temp_reg}, #{divisor}"
+            yield f"udiv {dst_reg}, {src_reg}, {temp_reg}"
+
 
 class VmovCmpLoop(Loop):
     """
@@ -325,15 +368,16 @@ class VmovCmpLoop(Loop):
         body_code=None,
         postamble_code=None,
         register_aliases=None,
+        temp_reg_for_division=None,
     ):
         """Emit starting instruction(s) and jump label for loop"""
         indent = " " * indentation
         if unroll > 1:
-            assert unroll in [1, 2, 4, 8, 16, 32]
-            yield (
-                f"{indent}lsr {self.additional_data['end']}, "
-                f"{self.additional_data['end']}, #{int(math.log2(unroll))}"
-            )
+            # Handle both power-of-2 and arbitrary divisors
+            for line in Branch.divide_by_constant(
+                self.additional_data["end"], self.additional_data["end"], unroll
+            ):
+                yield f"{indent}{line}"
 
         # Find out by how much the loop counter is modified in one iteration
         inc_per_iter = 0
@@ -445,6 +489,7 @@ class BranchLoop(Loop):
         body_code=None,
         postamble_code=None,
         register_aliases=None,
+        temp_reg_for_division=None,
     ):
         """Emit starting instruction(s) and jump label for loop"""
         indent = " " * indentation
@@ -496,8 +541,9 @@ class BranchLoop(Loop):
                 break
 
         if unroll > 1:
-            assert unroll in [1, 2, 4, 8, 16, 32]
-            yield f"{indent}lsr {loop_end_reg}, {loop_end_reg}, #{int(math.log2(unroll))}"
+            # Handle both power-of-2 and arbitrary divisors
+            for line in Branch.divide_by_constant(loop_end_reg, loop_end_reg, unroll):
+                yield f"{indent}{line}"
 
         inc_per_iter = 0
         for line in body_code:
@@ -574,15 +620,16 @@ class CmpLoop(Loop):
         body_code=None,
         postamble_code=None,
         register_aliases=None,
+        temp_reg_for_division=None,
     ):
         """Emit starting instruction(s) and jump label for loop"""
         indent = " " * indentation
         if unroll > 1:
-            assert unroll in [1, 2, 4, 8, 16, 32]
-            yield (
-                f"{indent}lsr {self.additional_data['end']}, "
-                f"{self.additional_data['end']}, #{int(math.log2(unroll))}"
-            )
+            # Handle both power-of-2 and arbitrary divisors
+            for line in Branch.divide_by_constant(
+                self.additional_data["end"], self.additional_data["end"], unroll
+            ):
+                yield f"{indent}{line}"
 
         # Find out by how much the loop counter is modified in one iteration
         inc_per_iter = 0
@@ -676,12 +723,16 @@ class SubsLoop(Loop):
         body_code=None,
         postamble_code=None,
         register_aliases=None,
+        temp_reg_for_division=None,
     ):
         """Emit starting instruction(s) and jump label for loop"""
         indent = " " * indentation
         if unroll > 1:
-            assert unroll in [1, 2, 4, 8, 16, 32]
-            yield f"{indent}lsr {loop_cnt}, {loop_cnt}, #{int(math.log2(unroll))}"
+            # Handle both power-of-2 and arbitrary divisors
+            for line in Branch.divide_by_constant(
+                loop_cnt, loop_cnt, unroll, temp_reg_for_division
+            ):
+                yield f"{indent}{line}"
         if fixup != 0:
             yield f"{indent}sub {loop_cnt}, {loop_cnt}, #{fixup}"
         if jump_if_empty is not None:
