@@ -30,6 +30,7 @@ import os
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
+import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 
@@ -59,15 +60,24 @@ class fft_floatingpoint_radix4(OptimizationRunner):
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.stalls_first_attempt = 4
+        slothy.config.variable_size = True
+        slothy.config.timeout = 300
         slothy.config.sw_pipelining.minimize_overlapping = False
         slothy.config.sw_pipelining.optimize_preamble = False
         slothy.config.sw_pipelining.optimize_postamble = False
         slothy.optimize_loop("flt_radix4_fft_loop_start")
-        slothy.rename_function(
-            "floatingpoint_radix4_fft_symbolic", "floatingpoint_radix4_fft_opt_M55"
-        )
+        if self.target == Target_CortexM55r1:
+            slothy.rename_function(
+                "floatingpoint_radix4_fft_symbolic", "floatingpoint_radix4_fft_opt_M55"
+            )
+        elif self.target == Target_CortexM85r1:
+            slothy.rename_function(
+                "floatingpoint_radix4_fft_symbolic", "floatingpoint_radix4_fft_opt_M85"
+            )
 
 
 example_instances = [
     fft_floatingpoint_radix4(),
+    fft_floatingpoint_radix4(target=Target_CortexM85r1),
 ]
