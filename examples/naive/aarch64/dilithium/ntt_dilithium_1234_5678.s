@@ -47,9 +47,6 @@
 .macro str_vi vec, base, inc
         str qform_\vec, [\base], #\inc
 .endm
-.macro vqrdmulh d,a,b
-        sqrdmulh \d\().4s, \a\().4s, \b\().4s
-.endm
 .macro vmla d,a,b
         mla \d\().4s, \a\().4s, \b\().4s
 .endm
@@ -74,7 +71,7 @@
 .endm
 
 .macro mulmod dst, src, const, const_twisted
-        vqrdmulh   t2,  \src, \const_twisted
+        sqrdmulh t2.4s,  \src.4s, \const_twisted.4s
         mul        \dst\().4s,  \src\().4s, \const\().4s
         vmla       \dst,  t2, modulus
 .endm
