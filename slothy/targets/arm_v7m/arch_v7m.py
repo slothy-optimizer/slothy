@@ -1079,7 +1079,11 @@ class Armv7mInstruction(Instruction):
         flag_pattern = "|".join(flaglist)
         # TODO: Notion of dt can be placed with notion for size in FP instructions
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
-        imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
+        imm_pattern = (
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=)+)"
+            "|"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
+        )
         index_pattern = "[0-9]+"
         width_pattern = r"(?:\.w|\.n|)"
         barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
@@ -1292,7 +1296,9 @@ class Armv7mInstruction(Instruction):
                 )
 
         group_to_attribute("datatype", "datatype", lambda x: x.lower())
-        group_to_attribute("imm", "immediate", lambda x: x[1:])  # Strip '#'
+        group_to_attribute(
+            "imm", "immediate", lambda x: x.replace("#", "")
+        )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
         group_to_attribute("width", "width")
