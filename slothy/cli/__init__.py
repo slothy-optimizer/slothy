@@ -35,6 +35,17 @@ class CmdLineException(Exception):
     """Exception thrown when a problem is encountered with the command line parameters"""
 
 
+def validate_output_path(output_path):
+    """Validate that the output path can be written to."""
+    if output_path is None:
+        return
+    output_dir = os.path.dirname(output_path) or "."
+    if not os.path.exists(output_dir):
+        raise CmdLineException(f"Output directory '{output_dir}' does not exist")
+    if not os.path.isdir(output_dir):
+        raise CmdLineException(f"'{output_dir}' is not a directory")
+
+
 def main():
     """Main entry point for the slothy-cli command."""
 
@@ -338,6 +349,9 @@ def main():
             setattr_recursive(slothy.config, kv[0], kv[1])
         else:
             raise CmdLineException(f"Invalid configuration {kv}")
+
+    # Validate output path before starting optimization
+    validate_output_path(args.output)
 
     # Read input
     slothy.load_source_from_file(args.input)
