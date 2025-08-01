@@ -619,7 +619,11 @@ class MVEInstruction(Instruction):
 
         dt_pattern = "(?:|u|s|i|U|S|I)(?:8|16|32|64)"
         fdt_pattern = "(?:|f|F)(?:16|32)"
-        imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
+        imm_pattern = (
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=)+)"
+            "|"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
+        )
         index_pattern = "[0-9]+"
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
@@ -783,7 +787,9 @@ class MVEInstruction(Instruction):
                 )
 
         group_to_attribute("datatype", "datatype", lambda x: x.lower())
-        group_to_attribute("imm", "immediate", lambda x: x[1:])  # Strip '#'
+        group_to_attribute(
+            "imm", "immediate", lambda x: x.replace("#", "")
+        )  # Strip '#'
         group_to_attribute("index", "index", int)
 
         for s, ty in obj.pattern_inputs:

@@ -1,6 +1,10 @@
 start:
 
 // TODO: this is currently incomplete. We should add all instructions
+
+add x2, x1, #64
+add x2, x1, 64
+
 shl v0.16b, v1.16b, #4
 shl d2, d3, #8
 sshr v4.16b, v5.16b, #2
@@ -13,7 +17,11 @@ uzp1 v11.16b, v12.16b, v13.16b
 uzp2 v14.16b, v15.16b, v16.16b
 and v16.16b, v17.16b, v18.16b
 bic v19.16b, v20.16b, v21.16b
+bic v0.8h, #0xf0, lsl 8
 bic v0.8h, #0xf0, lsl #8
+bic v0.8h, 0xf0, lsl 8
+bic v0.8h, 0xf0, lsl #8
+
 mvn v22.16b, v23.16b
 orr v24.16b, v25.16b, v26.16b
 orn v27.16b, v28.16b, v29.16b
@@ -29,6 +37,7 @@ aesmc v2.16b, v3.16b
 sub  x2, x2, #48
 cmlt v4.8h, v30.8h, #0
 cmle v4.8h, v30.8h, #0
+cmle v4.8h, v30.8h, 0
 cmhs v4.8h, v30.8h, v16.8h
 cmgt v4.8h, v30.8h, v16.8h
 cmeq v4.8h, v30.8h, v16.8h

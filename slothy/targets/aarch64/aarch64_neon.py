@@ -874,7 +874,11 @@ class AArch64Instruction(Instruction):
 
         flag_pattern = "|".join(flaglist)
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
-        imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
+        imm_pattern = (
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=)+)"
+            "|"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
+        )
         index_pattern = "[0-9]+"
 
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
@@ -1046,7 +1050,9 @@ class AArch64Instruction(Instruction):
                 )
 
         group_to_attribute("datatype", "datatype", lambda x: x.lower())
-        group_to_attribute("imm", "immediate", lambda x: x[1:])  # Strip '#'
+        group_to_attribute(
+            "imm", "immediate", lambda x: x.replace("#", "")
+        )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
 
