@@ -16,6 +16,9 @@ Functions
    :class: autosummary longtable
    :align: left
 
+   * - :py:obj:`validate_output_path <slothy.cli.validate_output_path>`
+     - .. autodoc2-docstring:: slothy.cli.validate_output_path
+          :summary:
    * - :py:obj:`main <slothy.cli.main>`
      - .. autodoc2-docstring:: slothy.cli.main
           :summary:
@@ -33,6 +36,11 @@ API
    .. rubric:: Initialization
 
    .. autodoc2-docstring:: slothy.cli.CmdLineException.__init__
+
+.. py:function:: validate_output_path(output_path)
+   :canonical: slothy.cli.validate_output_path
+
+   .. autodoc2-docstring:: slothy.cli.validate_output_path
 
 .. py:function:: main()
    :canonical: slothy.cli.main
