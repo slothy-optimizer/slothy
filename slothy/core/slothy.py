@@ -193,7 +193,7 @@ class Slothy:
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
         for line in s:
-            fun(f"> {line}")
+            fun(f"> {line.to_string()}")
 
     def global_selftest(
         self, funcname: str, address_registers: any, iterations: int = 5
