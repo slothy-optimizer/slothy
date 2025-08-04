@@ -1,4 +1,3 @@
-import logging
 import sys
 
 if __name__ == "__main__":
@@ -8,8 +7,6 @@ from slothy import Slothy
 
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
 import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 arch = AArch64_Neon
 target = Target_CortexA55

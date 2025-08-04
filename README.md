@@ -89,14 +89,9 @@ pip install slothy
 Here's a minimal example of using SLOTHY to optimize assembly code:
 
 ```python
-import sys
-import logging 
-
 import slothy
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
 import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 # Create SLOTHY instance for ARM Cortex-A55
 s = slothy.Slothy(AArch64_Neon, Target_CortexA55)

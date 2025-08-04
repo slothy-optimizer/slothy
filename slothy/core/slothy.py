@@ -48,6 +48,7 @@ one-shot and heuristic optimizations using SLOTHY.
 """
 
 import logging
+import sys
 from types import SimpleNamespace
 
 from slothy.core.dataflow import DataFlowGraph as DFG
@@ -97,7 +98,15 @@ class Slothy:
 
     def __init__(self, arch, target, logger=None):
         self.config = Config(arch, target)
-        self.logger = logger if logger is not None else logging.getLogger("slothy")
+
+        # Configure default logging to stdout if no handlers are configured
+        if logger is None:
+            root_logger = logging.getLogger()
+            if not root_logger.handlers:
+                logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+            self.logger = logging.getLogger("slothy")
+        else:
+            self.logger = logger
 
         # The source, once loaded, is represented as a list of strings
         self._source = None
