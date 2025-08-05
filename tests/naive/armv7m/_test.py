@@ -123,6 +123,22 @@ class Armv7mLoopVmovCmpForced(OptimizationRunner):
         slothy.optimize_loop("start", forced_loop_type=Arch_Armv7M.CmpLoop)
 
 
+class Armv7mLoopLabels(OptimizationRunner):
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "armv7m_loop_labels"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["r0", "r1", "r5"]
+        slothy.optimize_loop(".loop", forced_loop_type=Arch_Armv7M.SubsLoop)
+        slothy.optimize_loop("loop", forced_loop_type=Arch_Armv7M.SubsLoop)
+
+
 test_instances = [
     Armv7mLoopSubs(),
     Armv7mLoopCmp(),
@@ -130,4 +146,5 @@ test_instances = [
     Armv7mLoopVmovCmpForced(),
     Armv7mExample0(),
     Armv7mExample0Func(),
+    Armv7mLoopLabels(),
 ]
