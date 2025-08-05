@@ -28,11 +28,12 @@
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
+import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
 
 class Instructions(OptimizationRunner):
-    def __init__(self):
-        super().__init__("instructions", base_dir="tests")
+    def __init__(self, arch=Arch_Armv81M, target=Target_CortexM55r1):
+        super().__init__("instructions", base_dir="tests", arch=arch, target=target)
 
     def core(self, slothy):
         slothy.config.allow_useless_instructions = True
@@ -104,6 +105,7 @@ class HintTest(OptimizationRunner):
 
 test_instances = [
     Instructions(),
+    Instructions(target=Target_CortexM85r1),
     Example0(),
     Example1(),
     Example2(),
