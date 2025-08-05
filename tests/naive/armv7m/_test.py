@@ -137,6 +137,7 @@ class Armv7mLoopLabels(OptimizationRunner):
         slothy.config.outputs = ["r0", "r1", "r5"]
         slothy.optimize_loop(".loop", forced_loop_type=Arch_Armv7M.SubsLoop)
         slothy.optimize_loop("loop", forced_loop_type=Arch_Armv7M.SubsLoop)
+        slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.SubsLoop)
 
 
 test_instances = [

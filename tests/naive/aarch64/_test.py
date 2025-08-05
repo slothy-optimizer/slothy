@@ -251,6 +251,7 @@ class AArch64LoopLabels(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.optimize_loop(".loop")
         slothy.optimize_loop("loop")
+        slothy.optimize_loop("1")
 
 
 test_instances = [
