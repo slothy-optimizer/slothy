@@ -210,7 +210,7 @@ class ComputationNode:
     ):
 
         def isinstancelist(ll, c):
-            return all(map(lambda e: isinstance(e, c), ll))
+            return all(isinstance(e, c) for e in ll)
 
         if src_in is None:
             src_in = []
@@ -440,7 +440,7 @@ class DataFlowGraph:
         the original source code. Compared to DataFlowGraph.nodes_all, this
         omits "virtual" computation nodes.
         """
-        return list(filter(lambda x: x.is_not_virtual, self.nodes_all))
+        return [x for x in self.nodes_all if x.is_not_virtual]
 
     @property
     def num_nodes(self):
@@ -600,7 +600,7 @@ class DataFlowGraph:
             if some_change is False:
                 break
 
-            z = filter(lambda x: x.delete is False, self.nodes)
+            z = [x for x in self.nodes if x.delete is False]
 
             def pair_with_source(i):
                 return ([i], i.source_line)

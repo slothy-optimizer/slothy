@@ -1364,21 +1364,23 @@ class Armv7mInstruction(Instruction):
             out = Armv7mInstruction._instantiate_pattern(s, ty, arg, out)
 
         def replace_pattern(txt, attr_name, mnemonic_key, t=None):
-            def t_default(x):
-                return x
-
-            if t is None:
-                t = t_default
-
             a = getattr(self, attr_name)
             if a is None:
                 return txt
-            if not isinstance(a, list):
-                txt = txt.replace(f"<{mnemonic_key}>", t(a))
+            if t is None:
+                if not isinstance(a, list):
+                    txt = txt.replace(f"<{mnemonic_key}>", str(a))
+                    return txt
+                for i, v in enumerate(a):
+                    txt = txt.replace(f"<{mnemonic_key}{i}>", str(v))
                 return txt
-            for i, v in enumerate(a):
-                txt = txt.replace(f"<{mnemonic_key}{i}>", t(v))
-            return txt
+            else:
+                if not isinstance(a, list):
+                    txt = txt.replace(f"<{mnemonic_key}>", t(a))
+                    return txt
+                for i, v in enumerate(a):
+                    txt = txt.replace(f"<{mnemonic_key}{i}>", t(v))
+                return txt
 
         out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())

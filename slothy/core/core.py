@@ -2318,9 +2318,7 @@ class SlothyBase(LockAttributes):
         dfg_log = self.logger.getChild("kernel_input_output")
 
         conf = self.config.copy()
-        conf.outputs = list(
-            map(lambda o: self._result.output_renamings.get(o, o), conf.outputs)
-        )
+        conf.outputs = [self._result.output_renamings.get(o, o) for o in conf.outputs]
 
         self._result.kernel_input_output = list(
             DFG(

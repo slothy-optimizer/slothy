@@ -932,7 +932,7 @@ class AsmMacro:
         assert SourceLine.is_source(source)
 
         def list_of_instances(line, c):
-            return isinstance(line, list) and all(map(lambda m: isinstance(m, c), line))
+            return isinstance(line, list) and all(isinstance(m, c) for m in line)
 
         def dict_of_instances(line, c):
             return isinstance(line, dict) and list_of_instances(list(line.values()), c)
