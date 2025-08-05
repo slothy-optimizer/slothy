@@ -380,7 +380,7 @@ class SubLoop(Loop):
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*(?P<sub_type>sub[s]?)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
             rf"^\s*(?P<br_type>(cbnz|cbz))\s+(?P<cnt>\w+),\s*{lbl}",
@@ -448,7 +448,7 @@ class SubsLoop(Loop):
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*(?P<sub_type>subs)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\w+)",
             rf"^\s*b(?P<br_type>"
