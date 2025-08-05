@@ -265,15 +265,10 @@ When writing your own calls to SLOTHY, there are generally two options:
 To reproduce the example above, you can place the following code into your own Python script in the root directory of SLOTHY:
 
 ```python
-import logging
-import sys
-
 from slothy import Slothy
 
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
 import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 arch = AArch64_Neon
 target = Target_CortexA55
