@@ -170,6 +170,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vsubf_T2,
     vcaddf,
     vmlaldava,
+    vaddva,
 )
 
 issue_rate = 1
@@ -307,6 +308,7 @@ execution_units = {
     vadd_vv: ExecutionUnit.VEC_INT,
     vsub: ExecutionUnit.VEC_INT,
     vsub_T2: ExecutionUnit.VEC_INT,
+    vaddva: ExecutionUnit.VEC_MUL,
     vhadd: ExecutionUnit.VEC_INT,
     vhsub: ExecutionUnit.VEC_INT,
     vhcadd: ExecutionUnit.VEC_INT,
@@ -538,6 +540,7 @@ inverse_throughput = {
         vsubf,
         vsubf_T2,
         vhcadd,
+        vaddva,
     ): 2,
     (vmulf_T1, vmulf_T2): 2,
     # MACs
@@ -659,6 +662,7 @@ default_latencies = {
         vsubf,
         vsubf_T2,
         vhcadd,
+        vaddva,
     ): 2,
     (vmulf_T1, vmulf_T2, vcmul): 3,
     (vld20, vld21): 4,
