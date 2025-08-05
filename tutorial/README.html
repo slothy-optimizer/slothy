@@ -346,15 +346,10 @@ renamed, but without any specific reason.</p>
 <p>When writing your own calls to SLOTHY, there are generally two options:
 (1) Using SLOTHY as a Python module, or (2) using <code class="docutils literal notranslate"><span class="pre">slothy-cli</span></code> using command line options. We will continue with (1) to demonstrate some features.
 To reproduce the example above, you can place the following code into your own Python script in the root directory of SLOTHY:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">slothy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Slothy</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slothy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Slothy</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">slothy.targets.aarch64.aarch64_neon</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">AArch64_Neon</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">slothy.targets.aarch64.cortex_a55</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">Target_CortexA55</span>
-
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 <span class="n">arch</span> <span class="o">=</span> <span class="n">AArch64_Neon</span>
 <span class="n">target</span> <span class="o">=</span> <span class="n">Target_CortexA55</span>
