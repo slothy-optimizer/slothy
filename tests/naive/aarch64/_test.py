@@ -85,6 +85,10 @@ class AArch64LoopSubs(OptimizationRunner):
 
         slothy.optimize_loop("start4")
 
+        slothy.optimize_loop("start5")
+
+        slothy.optimize_loop("start6")
+
 
 class AArch64LoopSubTabs(OptimizationRunner):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
