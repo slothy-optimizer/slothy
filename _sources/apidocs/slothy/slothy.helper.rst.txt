@@ -845,7 +845,7 @@ API
 
       .. autodoc2-docstring:: slothy.helper.Loop._extract
 
-   .. py:method:: extract(source: list, lbl: str, forced_loop_type: any = None) -> any
+   .. py:method:: extract(arch: any, source: list, lbl: str, forced_loop_type: any = None) -> any
       :canonical: slothy.helper.Loop.extract
       :staticmethod:
 
