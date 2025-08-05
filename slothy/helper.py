@@ -1765,11 +1765,13 @@ class Loop(ABC):
         return pre, body, post, lbl, self.additional_data
 
     @staticmethod
-    def extract(source: list, lbl: str, forced_loop_type: any = None) -> any:
+    def extract(arch: any, source: list, lbl: str, forced_loop_type: any = None) -> any:
         """
         Find a loop with start label `lbl` in `source` and return it together
         with its type.
 
+        :param arch: module representing architecture for which loops are extracted
+        :type arch: any
         :param source: list of SourceLine objects
         :type source: list
         :param lbl: label of the loop to extract
@@ -1785,6 +1787,9 @@ class Loop(ABC):
         else:
             loop_types = Loop.__subclasses__()
         for loop_type in loop_types:
+            # Skip loop type that does not match the architecture
+            if not arch.__name__ == loop_type.__module__:
+                continue
             try:
                 lt = loop_type(lbl)
                 # concatenate the extracted loop with an instance of the

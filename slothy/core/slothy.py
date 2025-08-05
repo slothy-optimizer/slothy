@@ -450,7 +450,7 @@ class Slothy:
         """
         logger = self.logger.getChild(loop_lbl)
         _, body, _, _, _ = self.arch.Loop.extract(
-            self.source, loop_lbl, forced_loop_type=forced_loop_type
+            self.arch, self.source, loop_lbl, forced_loop_type=forced_loop_type
         )
 
         c = self.config.copy()
@@ -551,7 +551,7 @@ class Slothy:
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
         pre, body, post, _, other_data, loop = self.arch.Loop.extract(
-            self.source, loop_lbl, forced_loop_type=forced_loop_type
+            self.arch, self.source, loop_lbl, forced_loop_type=forced_loop_type
         )
 
         try:
@@ -588,7 +588,7 @@ class Slothy:
         logger = self.logger.getChild(loop_lbl)
 
         early, body, late, _, other_data, loop = self.arch.Loop.extract(
-            self.source, loop_lbl, forced_loop_type=forced_loop_type
+            self.arch, self.source, loop_lbl, forced_loop_type=forced_loop_type
         )
 
         try:
