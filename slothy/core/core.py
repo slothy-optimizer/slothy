@@ -27,6 +27,7 @@
 
 import logging
 import math
+import os
 import time
 
 from types import SimpleNamespace
@@ -4045,6 +4046,10 @@ class SlothyBase(LockAttributes):
     def _export_model(self):
         if self.config.log_model is None:
             return
+
+        # Create log_model_dir if it doesn't exist
+        if not os.path.exists(self.config.log_model_dir):
+            os.makedirs(self.config.log_model_dir)
 
         if self.config.log_model is True:
             model_file = "slothy_model"
