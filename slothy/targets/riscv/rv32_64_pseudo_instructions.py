@@ -45,6 +45,10 @@ pseudo_instrs = [
     (["neg"], RISCVIntegerRegister),
     (["vnot.v"], RISCVectorVectorMasked),
     (["la"], RISCVULaPseudo),
+    # translates to auipc + addi instruction; uses information
+    # during compilation that are not easily
+    # available during parsing. Thus, latency, inverse
+    # throughput etc. are estimated
 ]
 
 
@@ -93,10 +97,6 @@ def li_pseudo_split_cb():
         return True
 
     return core
-
-
-def la_pseudo_split_cb():
-    pass
 
 
 RISCVLiPseudo.global_fusion_cb = li_pseudo_split_cb()
