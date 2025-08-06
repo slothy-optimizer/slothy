@@ -186,283 +186,17 @@ constants_keccak:
     xor \T01_s, \T01_s, \S12_s
     xor \T01_s, \T01_s, \S17_s
     xor \T01_s, \T01_s, \S22_s
-    rori \T02_s, \T01_s, 64-1;              vxor.vv \T00_v, \S00_v, \S05_v
+    rori \T02_s, \T01_s, 64-1
+    vxor.vv \T00_v, \S00_v, \S05_v
     xor  \T02_s, \T02_s, \T00_s
     xor \T03_s, \S01_s, \S06_s
     xor \T03_s, \T03_s, \S11_s
     xor \T03_s, \T03_s, \S16_s
-    xor \T03_s, \T03_s, \S21_s
-    xor \S01_s, \S01_s, \T02_s
-    xor \S06_s, \S06_s, \T02_s
-    xor \S11_s, \S11_s, \T02_s;             vxor.vv \T00_v, \T00_v, \S10_v
-    xor \S16_s, \S16_s, \T02_s
-    xor \S21_s, \S21_s, \T02_s
-    xor \T02_s, \S04_s, \S09_s
-    xor \T02_s, \T02_s, \S14_s
-    xor \T02_s, \T02_s, \S19_s
-    xor \T02_s, \T02_s, \S24_s
-    rori \T04_s, \T02_s, 63
-    xor  \T01_s, \T01_s, \T04_s;            vxor.vv \T00_v, \T00_v, \S15_v
-    xor \T04_s, \S03_s, \S08_s
-    xor \T04_s, \T04_s, \S13_s
-    xor \T04_s, \T04_s, \S18_s
-    xor \T04_s, \T04_s, \S23_s
-    xor \S03_s, \S03_s, \T01_s
-    xor \S08_s, \S08_s, \T01_s
-    xor \S13_s, \S13_s, \T01_s
-    xor \S18_s, \S18_s, \T01_s;             vxor.vv \T00_v, \T00_v, \S20_v
-    xor \S23_s, \S23_s, \T01_s
-    rori \T00_s, \T00_s, 64-1
-    xor  \T00_s, \T00_s, \T04_s
-    xor \S04_s, \S04_s, \T00_s
-    xor \S09_s, \S09_s, \T00_s
-    xor \S14_s, \S14_s, \T00_s
-    xor \S19_s, \S19_s, \T00_s
-    xor \S24_s, \S24_s, \T00_s;             vxor.vv \T01_v, \S02_v, \S07_v
-    rori \T04_s, \T04_s, 64-1
-    xor  \T04_s, \T04_s, \T03_s
-    xor \S02_s, \S02_s, \T04_s
-    xor \S07_s, \S07_s, \T04_s
-    xor \S12_s, \S12_s, \T04_s
-    xor \S17_s, \S17_s, \T04_s
-    xor \S22_s, \S22_s, \T04_s
-    rori \T03_s, \T03_s, 64-1
-    xor  \T03_s, \T03_s, \T02_s;            vxor.vv \T01_v, \T01_v, \S12_v
-    xor \S05_s, \S05_s, \T03_s
-    xor \S10_s, \S10_s, \T03_s
-    xor \S15_s, \S15_s, \T03_s
-    xor \S20_s, \S20_s, \T03_s
-    xor \T00_s, \S00_s, \T03_s
-    rori \T01_s, \S06_s, 64-44
-    rori \S00_s, \S02_s, 64-62
-    rori \S02_s, \S12_s, 64-43;             vxor.vv \T01_v, \T01_v, \S17_v
-    rori \S12_s, \S13_s, 64-25
-    rori \S13_s, \S19_s, 64-8
-    rori \S19_s, \S23_s, 64-56
-    rori \S23_s, \S15_s, 64-41
-    rori \S15_s, \S01_s, 64-1
-    rori \S01_s, \S08_s, 64-55
-    rori \S08_s, \S16_s, 64-45
-    rori \S16_s, \S07_s, 64-6;              vxor.vv \T01_v, \T01_v, \S22_v
-    rori \S07_s, \S10_s, 64-3
-    rori \S10_s, \S03_s, 64-28
-    rori \S03_s, \S18_s, 64-21
-    rori \S18_s, \S17_s, 64-15
-    rori \S17_s, \S11_s, 64-10
-    rori \S11_s, \S09_s, 64-20;             li \T04_s, 64-1
-    rori \S09_s, \S22_s, 64-61;             vsll.vi \T03_v, \T01_v, 1
-    rori \S22_s, \S14_s, 64-39
-    rori \S14_s, \S20_s, 64-18
-    rori \S20_s, \S04_s, 64-27
-    rori \S04_s, \S24_s, 64-14
-    rori \S24_s, \S21_s, 64-2
-    rori \S21_s, \S05_s, 64-36
-    andn \T02_s, \S07_s, \S11_s
-    xor \S05_s, \T02_s, \S10_s;             vsrl.vx \T02_v, \T01_v, \T04_s
-    andn \T03_s, \S08_s, \S07_s
-    xor \S06_s, \T03_s, \S11_s
-    andn \T02_s, \S09_s, \S08_s
-    xor \S07_s, \T02_s, \S07_s
-    andn \T03_s, \S10_s, \S09_s
-    xor \S08_s, \T03_s, \S08_s
-    andn \T02_s, \S11_s, \S10_s
-    xor \S09_s, \T02_s, \S09_s
-    andn \T03_s, \S12_s, \S16_s;            vxor.vv \T02_v, \T02_v, \T03_v
-    xor \S10_s, \T03_s, \S15_s
-    andn \T02_s, \S13_s, \S12_s
-    xor \S11_s, \T02_s, \S16_s
-    andn \T03_s, \S14_s, \S13_s
-    xor \S12_s, \T03_s, \S12_s
-    andn \T02_s, \S15_s, \S14_s
-    xor \S13_s, \T02_s, \S13_s
-    andn \T03_s, \S16_s, \S15_s;            vxor.vv  \T02_v, \T02_v, \T00_v
-    xor \S14_s, \T03_s, \S14_s
-    andn \T02_s, \S17_s, \S21_s
-    xor \S15_s, \T02_s, \S20_s
-    andn \T03_s, \S18_s, \S17_s
-    xor \S16_s, \T03_s, \S21_s
-    andn \T02_s, \S19_s, \S18_s
-    xor \S17_s, \T02_s, \S17_s
-    andn \T03_s, \S20_s, \S19_s;            vxor.vv \T03_v, \S01_v, \S06_v
-    xor \S18_s, \T03_s, \S18_s
-    andn \T02_s, \S21_s, \S20_s
-    xor \S19_s, \T02_s, \S19_s
-    andn \T03_s, \S22_s, \S01_s
-    xor \S20_s, \T03_s, \S00_s
-    andn \T02_s, \S23_s, \S22_s
-    xor \S21_s, \T02_s, \S01_s
-    andn \T03_s, \S24_s, \S23_s;            vxor.vv \T03_v, \T03_v, \S11_v
-    xor \S22_s, \T03_s, \S22_s
-    andn \T02_s, \S00_s, \S24_s
-    xor \S23_s, \T02_s, \S23_s
-    andn \T03_s, \S01_s, \S00_s
-    xor \S24_s, \T03_s, \S24_s
-    andn \T02_s, \S02_s, \T01_s
-    xor \S00_s, \T02_s, \T00_s
-    andn \T03_s, \S03_s, \S02_s;            vxor.vv \T03_v, \T03_v, \S16_v
-    xor \S01_s, \T03_s, \T01_s
-    andn \T02_s, \S04_s, \S03_s
-    xor \S02_s, \T02_s, \S02_s
-    andn \T03_s, \T00_s, \S04_s
-    xor \S03_s, \T03_s, \S03_s
-    andn \T02_s, \T01_s, \T00_s
-    xor \S04_s, \T02_s, \S04_s
-    ld   \T04_s, 17*8(sp)
-    ld   \T03_s, 0(\T04_s);                 vxor.vv \T03_v, \T03_v, \S21_v
-    xor  \S00_s, \S00_s, \T03_s
-    addi \T04_s, \T04_s, 8
-    sd   \T04_s, 17*8(sp)
-    xor \T00_s, \S00_s, \S05_s
-    xor \T00_s, \T00_s, \S10_s
-    xor \T00_s, \T00_s, \S15_s
-    xor \T00_s, \T00_s, \S20_s
-    xor \T01_s, \S02_s, \S07_s;             vxor.vv \S01_v, \S01_v, \T02_v
-    xor \T01_s, \T01_s, \S12_s
-    xor \T01_s, \T01_s, \S17_s
-    xor \T01_s, \T01_s, \S22_s
-    rori \T02_s, \T01_s, 64-1
-    xor  \T02_s, \T02_s, \T00_s
-    xor \T03_s, \S01_s, \S06_s
-    xor \T03_s, \T03_s, \S11_s
-    xor \T03_s, \T03_s, \S16_s;             vxor.vv \S06_v, \S06_v, \T02_v
     xor \T03_s, \T03_s, \S21_s
     xor \S01_s, \S01_s, \T02_s
     xor \S06_s, \S06_s, \T02_s
     xor \S11_s, \S11_s, \T02_s
-    xor \S16_s, \S16_s, \T02_s
-    xor \S21_s, \S21_s, \T02_s
-    xor \T02_s, \S04_s, \S09_s
-    xor \T02_s, \T02_s, \S14_s;             vxor.vv \S11_v, \S11_v, \T02_v
-    xor \T02_s, \T02_s, \S19_s
-    xor \T02_s, \T02_s, \S24_s
-    rori \T04_s, \T02_s, 63
-    xor  \T01_s, \T01_s, \T04_s
-    xor \T04_s, \S03_s, \S08_s
-    xor \T04_s, \T04_s, \S13_s
-    xor \T04_s, \T04_s, \S18_s
-    xor \T04_s, \T04_s, \S23_s;             vxor.vv \S16_v, \S16_v, \T02_v
-    xor \S03_s, \S03_s, \T01_s
-    xor \S08_s, \S08_s, \T01_s
-    xor \S13_s, \S13_s, \T01_s
-    xor \S18_s, \S18_s, \T01_s
-    xor \S23_s, \S23_s, \T01_s
-    rori \T00_s, \T00_s, 64-1
-    xor  \T00_s, \T00_s, \T04_s
-    xor \S04_s, \S04_s, \T00_s
-    xor \S09_s, \S09_s, \T00_s;             vxor.vv \S21_v, \S21_v, \T02_v
-    xor \S14_s, \S14_s, \T00_s
-    xor \S19_s, \S19_s, \T00_s
-    xor \S24_s, \S24_s, \T00_s
-    rori \T04_s, \T04_s, 64-1
-    xor  \T04_s, \T04_s, \T03_s
-    xor \S02_s, \S02_s, \T04_s
-    xor \S07_s, \S07_s, \T04_s
-    xor \S12_s, \S12_s, \T04_s;             vxor.vv \T02_v, \S04_v, \S09_v
-    xor \S17_s, \S17_s, \T04_s
-    xor \S22_s, \S22_s, \T04_s
-    rori \T03_s, \T03_s, 64-1
-    xor  \T03_s, \T03_s, \T02_s
-    xor \S05_s, \S05_s, \T03_s
-    xor \S10_s, \S10_s, \T03_s
-    xor \S15_s, \S15_s, \T03_s
-    xor \S20_s, \S20_s, \T03_s;             vxor.vv \T02_v, \T02_v, \S14_v
-    xor \T00_s, \S00_s, \T03_s
-    rori \T01_s, \S06_s, 64-44
-    rori \S00_s, \S02_s, 64-62
-    rori \S02_s, \S12_s, 64-43
-    rori \S12_s, \S13_s, 64-25
-    rori \S13_s, \S19_s, 64-8
-    rori \S19_s, \S23_s, 64-56
-    rori \S23_s, \S15_s, 64-41;             vxor.vv \T02_v, \T02_v, \S19_v
-    rori \S15_s, \S01_s, 64-1
-    rori \S01_s, \S08_s, 64-55
-    rori \S08_s, \S16_s, 64-45
-    rori \S16_s, \S07_s, 64-6
-    rori \S07_s, \S10_s, 64-3
-    rori \S10_s, \S03_s, 64-28
-    rori \S03_s, \S18_s, 64-21
-    rori \S18_s, \S17_s, 64-15;             vxor.vv \T02_v, \T02_v, \S24_v
-    rori \S17_s, \S11_s, 64-10
-    rori \S11_s, \S09_s, 64-20
-    rori \S09_s, \S22_s, 64-61
-    rori \S22_s, \S14_s, 64-39
-    rori \S14_s, \S20_s, 64-18
-    rori \S20_s, \S04_s, 64-27
-    rori \S04_s, \S24_s, 64-14
-    rori \S24_s, \S21_s, 64-2
-    rori \S21_s, \S05_s, 64-36;             vsll.vi \T04_v, \T02_v, 1
-    andn \T02_s, \S07_s, \S11_s
-    xor \S05_s, \T02_s, \S10_s
-    andn \T03_s, \S08_s, \S07_s
-    xor \S06_s, \T03_s, \S11_s
-    andn \T02_s, \S09_s, \S08_s
-    xor \S07_s, \T02_s, \S07_s
-    andn \T03_s, \S10_s, \S09_s
-    xor \S08_s, \T03_s, \S08_s;             vxor.vv \T01_v, \T01_v, \T04_v
-    andn \T02_s, \S11_s, \S10_s
-    xor \S09_s, \T02_s, \S09_s
-    andn \T03_s, \S12_s, \S16_s
-    xor \S10_s, \T03_s, \S15_s
-    andn \T02_s, \S13_s, \S12_s
-    xor \S11_s, \T02_s, \S16_s;             li \T04_s, 63
-    andn \T03_s, \S14_s, \S13_s;            vsrl.vx \T04_v, \T02_v, \T04_s
-    xor \S12_s, \T03_s, \S12_s
-    andn \T02_s, \S15_s, \S14_s
-    xor \S13_s, \T02_s, \S13_s
-    andn \T03_s, \S16_s, \S15_s
-    xor \S14_s, \T03_s, \S14_s
-    andn \T02_s, \S17_s, \S21_s
-    xor \S15_s, \T02_s, \S20_s
-    andn \T03_s, \S18_s, \S17_s;            vxor.vv \T01_v, \T01_v, \T04_v
-    xor \S16_s, \T03_s, \S21_s
-    andn \T02_s, \S19_s, \S18_s
-    xor \S17_s, \T02_s, \S17_s
-    andn \T03_s, \S20_s, \S19_s
-    xor \S18_s, \T03_s, \S18_s
-    andn \T02_s, \S21_s, \S20_s
-    xor \S19_s, \T02_s, \S19_s
-    andn \T03_s, \S22_s, \S01_s;            vxor.vv \T04_v, \S03_v, \S08_v
-    xor \S20_s, \T03_s, \S00_s
-    andn \T02_s, \S23_s, \S22_s
-    xor \S21_s, \T02_s, \S01_s
-    andn \T03_s, \S24_s, \S23_s
-    xor \S22_s, \T03_s, \S22_s
-    andn \T02_s, \S00_s, \S24_s
-    xor \S23_s, \T02_s, \S23_s
-    andn \T03_s, \S01_s, \S00_s
-    xor \S24_s, \T03_s, \S24_s;             vxor.vv \T04_v, \T04_v, \S13_v
-    andn \T02_s, \S02_s, \T01_s
-    xor \S00_s, \T02_s, \T00_s
-    andn \T03_s, \S03_s, \S02_s
-    xor \S01_s, \T03_s, \T01_s
-    andn \T02_s, \S04_s, \S03_s
-    xor \S02_s, \T02_s, \S02_s
-    andn \T03_s, \T00_s, \S04_s
-    xor \S03_s, \T03_s, \S03_s;             vxor.vv \T04_v, \T04_v, \S18_v
-    andn \T02_s, \T01_s, \T00_s
-    xor \S04_s, \T02_s, \S04_s
-    ld   \T04_s, 17*8(sp)
-    ld   \T03_s, 0(\T04_s)
-    xor  \S00_s, \S00_s, \T03_s
-    addi \T04_s, \T04_s, 8
-    sd   \T04_s, 17*8(sp)
-    xor \T00_s, \S00_s, \S05_s;             vxor.vv \T04_v, \T04_v, \S23_v
-    xor \T00_s, \T00_s, \S10_s
-    xor \T00_s, \T00_s, \S15_s
-    xor \T00_s, \T00_s, \S20_s
-    xor \T01_s, \S02_s, \S07_s
-    xor \T01_s, \T01_s, \S12_s
-    xor \T01_s, \T01_s, \S17_s
-    xor \T01_s, \T01_s, \S22_s
-    rori \T02_s, \T01_s, 64-1;              vxor.vv \S03_v, \S03_v, \T01_v
-    xor  \T02_s, \T02_s, \T00_s
-    xor \T03_s, \S01_s, \S06_s
-    xor \T03_s, \T03_s, \S11_s
-    xor \T03_s, \T03_s, \S16_s
-    xor \T03_s, \T03_s, \S21_s
-    xor \S01_s, \S01_s, \T02_s
-    xor \S06_s, \S06_s, \T02_s
-    xor \S11_s, \S11_s, \T02_s;             vxor.vv \S08_v, \S08_v, \T01_v
+    vxor.vv \T00_v, \T00_v, \S10_v
     xor \S16_s, \S16_s, \T02_s
     xor \S21_s, \S21_s, \T02_s
     xor \T02_s, \S04_s, \S09_s
@@ -471,7 +205,8 @@ constants_keccak:
     xor \T02_s, \T02_s, \S24_s
     rori \T04_s, \T02_s, 63
     xor  \T01_s, \T01_s, \T04_s
-    xor \T04_s, \S03_s, \S08_s;             vxor.vv \S13_v, \S13_v, \T01_v
+    vxor.vv \T00_v, \T00_v, \S15_v
+    xor \T04_s, \S03_s, \S08_s
     xor \T04_s, \T04_s, \S13_s
     xor \T04_s, \T04_s, \S18_s
     xor \T04_s, \T04_s, \S23_s
@@ -479,7 +214,8 @@ constants_keccak:
     xor \S08_s, \S08_s, \T01_s
     xor \S13_s, \S13_s, \T01_s
     xor \S18_s, \S18_s, \T01_s
-    xor \S23_s, \S23_s, \T01_s;             vxor.vv \S18_v, \S18_v, \T01_v
+    vxor.vv \T00_v, \T00_v, \S20_v
+    xor \S23_s, \S23_s, \T01_s
     rori \T00_s, \T00_s, 64-1
     xor  \T00_s, \T00_s, \T04_s
     xor \S04_s, \S04_s, \T00_s
@@ -487,23 +223,26 @@ constants_keccak:
     xor \S14_s, \S14_s, \T00_s
     xor \S19_s, \S19_s, \T00_s
     xor \S24_s, \S24_s, \T00_s
-    rori \T04_s, \T04_s, 64-1;              vxor.vv \S23_v, \S23_v, \T01_v
+    vxor.vv \T01_v, \S02_v, \S07_v
+    rori \T04_s, \T04_s, 64-1
     xor  \T04_s, \T04_s, \T03_s
     xor \S02_s, \S02_s, \T04_s
     xor \S07_s, \S07_s, \T04_s
     xor \S12_s, \S12_s, \T04_s
     xor \S17_s, \S17_s, \T04_s
-    xor \S22_s, \S22_s, \T04_s;             li \T04_s, 64-1
-    rori \T03_s, \T03_s, 64-1;              vsll.vi \T01_v, \T00_v, 1
+    xor \S22_s, \S22_s, \T04_s
+    rori \T03_s, \T03_s, 64-1
     xor  \T03_s, \T03_s, \T02_s
+    vxor.vv \T01_v, \T01_v, \S12_v
     xor \S05_s, \S05_s, \T03_s
     xor \S10_s, \S10_s, \T03_s
     xor \S15_s, \S15_s, \T03_s
     xor \S20_s, \S20_s, \T03_s
     xor \T00_s, \S00_s, \T03_s
     rori \T01_s, \S06_s, 64-44
-    rori \S00_s, \S02_s, 64-62;             vsrl.vx \T00_v, \T00_v, \T04_s
+    rori \S00_s, \S02_s, 64-62
     rori \S02_s, \S12_s, 64-43
+    vxor.vv \T01_v, \T01_v, \S17_v
     rori \S12_s, \S13_s, 64-25
     rori \S13_s, \S19_s, 64-8
     rori \S19_s, \S23_s, 64-56
@@ -511,15 +250,18 @@ constants_keccak:
     rori \S15_s, \S01_s, 64-1
     rori \S01_s, \S08_s, 64-55
     rori \S08_s, \S16_s, 64-45
-    rori \S16_s, \S07_s, 64-6;              vxor.vv \T00_v, \T00_v, \T01_v
+    rori \S16_s, \S07_s, 64-6
+    vxor.vv \T01_v, \T01_v, \S22_v
     rori \S07_s, \S10_s, 64-3
     rori \S10_s, \S03_s, 64-28
     rori \S03_s, \S18_s, 64-21
     rori \S18_s, \S17_s, 64-15
     rori \S17_s, \S11_s, 64-10
     rori \S11_s, \S09_s, 64-20
+    li \T04_s, 64-1
     rori \S09_s, \S22_s, 64-61
-    rori \S22_s, \S14_s, 64-39;             vxor.vv \T00_v, \T00_v, \T04_v
+    vsll.vi \T03_v, \T01_v, 1
+    rori \S22_s, \S14_s, 64-39
     rori \S14_s, \S20_s, 64-18
     rori \S20_s, \S04_s, 64-27
     rori \S04_s, \S24_s, 64-14
@@ -527,7 +269,8 @@ constants_keccak:
     rori \S21_s, \S05_s, 64-36
     andn \T02_s, \S07_s, \S11_s
     xor \S05_s, \T02_s, \S10_s
-    andn \T03_s, \S08_s, \S07_s;            vxor.vv \S04_v, \S04_v, \T00_v
+    vsrl.vx \T02_v, \T01_v, \T04_s
+    andn \T03_s, \S08_s, \S07_s
     xor \S06_s, \T03_s, \S11_s
     andn \T02_s, \S09_s, \S08_s
     xor \S07_s, \T02_s, \S07_s
@@ -535,7 +278,8 @@ constants_keccak:
     xor \S08_s, \T03_s, \S08_s
     andn \T02_s, \S11_s, \S10_s
     xor \S09_s, \T02_s, \S09_s
-    andn \T03_s, \S12_s, \S16_s;            vxor.vv \S09_v, \S09_v, \T00_v
+    andn \T03_s, \S12_s, \S16_s
+    vxor.vv \T02_v, \T02_v, \T03_v
     xor \S10_s, \T03_s, \S15_s
     andn \T02_s, \S13_s, \S12_s
     xor \S11_s, \T02_s, \S16_s
@@ -543,7 +287,8 @@ constants_keccak:
     xor \S12_s, \T03_s, \S12_s
     andn \T02_s, \S15_s, \S14_s
     xor \S13_s, \T02_s, \S13_s
-    andn \T03_s, \S16_s, \S15_s;            vxor.vv \S14_v, \S14_v, \T00_v
+    andn \T03_s, \S16_s, \S15_s
+    vxor.vv  \T02_v, \T02_v, \T00_v
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
     xor \S15_s, \T02_s, \S20_s
@@ -552,7 +297,8 @@ constants_keccak:
     andn \T02_s, \S19_s, \S18_s
     xor \S17_s, \T02_s, \S17_s
     andn \T03_s, \S20_s, \S19_s
-    xor \S18_s, \T03_s, \S18_s;             vxor.vv \S19_v, \S19_v, \T00_v
+    vxor.vv \T03_v, \S01_v, \S06_v
+    xor \S18_s, \T03_s, \S18_s
     andn \T02_s, \S21_s, \S20_s
     xor \S19_s, \T02_s, \S19_s
     andn \T03_s, \S22_s, \S01_s
@@ -560,31 +306,35 @@ constants_keccak:
     andn \T02_s, \S23_s, \S22_s
     xor \S21_s, \T02_s, \S01_s
     andn \T03_s, \S24_s, \S23_s
-    xor \S22_s, \T03_s, \S22_s;             vxor.vv \S24_v, \S24_v, \T00_v
+    vxor.vv \T03_v, \T03_v, \S11_v
+    xor \S22_s, \T03_s, \S22_s
     andn \T02_s, \S00_s, \S24_s
     xor \S23_s, \T02_s, \S23_s
     andn \T03_s, \S01_s, \S00_s
     xor \S24_s, \T03_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
-    xor \S00_s, \T02_s, \T00_s;             li \T04_s, 64-1
-    andn \T03_s, \S03_s, \S02_s;            vsll.vi \T01_v, \T04_v, 1
+    xor \S00_s, \T02_s, \T00_s
+    andn \T03_s, \S03_s, \S02_s
+    vxor.vv \T03_v, \T03_v, \S16_v
     xor \S01_s, \T03_s, \T01_s
     andn \T02_s, \S04_s, \S03_s
     xor \S02_s, \T02_s, \S02_s
     andn \T03_s, \T00_s, \S04_s
     xor \S03_s, \T03_s, \S03_s
     andn \T02_s, \T01_s, \T00_s
-    xor \S04_s, \T02_s, \S04_s;             vsrl.vx \T04_v, \T04_v, \T04_s
+    xor \S04_s, \T02_s, \S04_s
     ld   \T04_s, 17*8(sp)
     ld   \T03_s, 0(\T04_s)
+    vxor.vv \T03_v, \T03_v, \S21_v
     xor  \S00_s, \S00_s, \T03_s
     addi \T04_s, \T04_s, 8
     sd   \T04_s, 17*8(sp)
     xor \T00_s, \S00_s, \S05_s
     xor \T00_s, \T00_s, \S10_s
     xor \T00_s, \T00_s, \S15_s
-    xor \T00_s, \T00_s, \S20_s;             vxor.vv \T04_v, \T04_v, \T01_v
+    xor \T00_s, \T00_s, \S20_s
     xor \T01_s, \S02_s, \S07_s
+    vxor.vv \S01_v, \S01_v, \T02_v
     xor \T01_s, \T01_s, \S12_s
     xor \T01_s, \T01_s, \S17_s
     xor \T01_s, \T01_s, \S22_s
@@ -592,7 +342,8 @@ constants_keccak:
     xor  \T02_s, \T02_s, \T00_s
     xor \T03_s, \S01_s, \S06_s
     xor \T03_s, \T03_s, \S11_s
-    xor \T03_s, \T03_s, \S16_s;             vxor.vv  \T04_v, \T04_v, \T03_v
+    xor \T03_s, \T03_s, \S16_s
+    vxor.vv \S06_v, \S06_v, \T02_v
     xor \T03_s, \T03_s, \S21_s
     xor \S01_s, \S01_s, \T02_s
     xor \S06_s, \S06_s, \T02_s
@@ -600,7 +351,8 @@ constants_keccak:
     xor \S16_s, \S16_s, \T02_s
     xor \S21_s, \S21_s, \T02_s
     xor \T02_s, \S04_s, \S09_s
-    xor \T02_s, \T02_s, \S14_s;             vxor.vv \S02_v, \S02_v, \T04_v
+    xor \T02_s, \T02_s, \S14_s
+    vxor.vv \S11_v, \S11_v, \T02_v
     xor \T02_s, \T02_s, \S19_s
     xor \T02_s, \T02_s, \S24_s
     rori \T04_s, \T02_s, 63
@@ -608,7 +360,8 @@ constants_keccak:
     xor \T04_s, \S03_s, \S08_s
     xor \T04_s, \T04_s, \S13_s
     xor \T04_s, \T04_s, \S18_s
-    xor \T04_s, \T04_s, \S23_s;             vxor.vv \S07_v, \S07_v, \T04_v
+    xor \T04_s, \T04_s, \S23_s
+    vxor.vv \S16_v, \S16_v, \T02_v
     xor \S03_s, \S03_s, \T01_s
     xor \S08_s, \S08_s, \T01_s
     xor \S13_s, \S13_s, \T01_s
@@ -616,7 +369,312 @@ constants_keccak:
     xor \S23_s, \S23_s, \T01_s
     rori \T00_s, \T00_s, 64-1
     xor  \T00_s, \T00_s, \T04_s
-    xor \S04_s, \S04_s, \T00_s;             vxor.vv \S12_v, \S12_v, \T04_v
+    xor \S04_s, \S04_s, \T00_s
+    xor \S09_s, \S09_s, \T00_s
+    vxor.vv \S21_v, \S21_v, \T02_v
+    xor \S14_s, \S14_s, \T00_s
+    xor \S19_s, \S19_s, \T00_s
+    xor \S24_s, \S24_s, \T00_s
+    rori \T04_s, \T04_s, 64-1
+    xor  \T04_s, \T04_s, \T03_s
+    xor \S02_s, \S02_s, \T04_s
+    xor \S07_s, \S07_s, \T04_s
+    xor \S12_s, \S12_s, \T04_s
+    vxor.vv \T02_v, \S04_v, \S09_v
+    xor \S17_s, \S17_s, \T04_s
+    xor \S22_s, \S22_s, \T04_s
+    rori \T03_s, \T03_s, 64-1
+    xor  \T03_s, \T03_s, \T02_s
+    xor \S05_s, \S05_s, \T03_s
+    xor \S10_s, \S10_s, \T03_s
+    xor \S15_s, \S15_s, \T03_s
+    xor \S20_s, \S20_s, \T03_s
+    vxor.vv \T02_v, \T02_v, \S14_v
+    xor \T00_s, \S00_s, \T03_s
+    rori \T01_s, \S06_s, 64-44
+    rori \S00_s, \S02_s, 64-62
+    rori \S02_s, \S12_s, 64-43
+    rori \S12_s, \S13_s, 64-25
+    rori \S13_s, \S19_s, 64-8
+    rori \S19_s, \S23_s, 64-56
+    rori \S23_s, \S15_s, 64-41
+    vxor.vv \T02_v, \T02_v, \S19_v
+    rori \S15_s, \S01_s, 64-1
+    rori \S01_s, \S08_s, 64-55
+    rori \S08_s, \S16_s, 64-45
+    rori \S16_s, \S07_s, 64-6
+    rori \S07_s, \S10_s, 64-3
+    rori \S10_s, \S03_s, 64-28
+    rori \S03_s, \S18_s, 64-21
+    rori \S18_s, \S17_s, 64-15
+    vxor.vv \T02_v, \T02_v, \S24_v
+    rori \S17_s, \S11_s, 64-10
+    rori \S11_s, \S09_s, 64-20
+    rori \S09_s, \S22_s, 64-61
+    rori \S22_s, \S14_s, 64-39
+    rori \S14_s, \S20_s, 64-18
+    rori \S20_s, \S04_s, 64-27
+    rori \S04_s, \S24_s, 64-14
+    rori \S24_s, \S21_s, 64-2
+    rori \S21_s, \S05_s, 64-36
+    vsll.vi \T04_v, \T02_v, 1
+    andn \T02_s, \S07_s, \S11_s
+    xor \S05_s, \T02_s, \S10_s
+    andn \T03_s, \S08_s, \S07_s
+    xor \S06_s, \T03_s, \S11_s
+    andn \T02_s, \S09_s, \S08_s
+    xor \S07_s, \T02_s, \S07_s
+    andn \T03_s, \S10_s, \S09_s
+    xor \S08_s, \T03_s, \S08_s
+    vxor.vv \T01_v, \T01_v, \T04_v
+    andn \T02_s, \S11_s, \S10_s
+    xor \S09_s, \T02_s, \S09_s
+    andn \T03_s, \S12_s, \S16_s
+    xor \S10_s, \T03_s, \S15_s
+    andn \T02_s, \S13_s, \S12_s
+    xor \S11_s, \T02_s, \S16_s
+    li \T04_s, 63
+    andn \T03_s, \S14_s, \S13_s
+    vsrl.vx \T04_v, \T02_v, \T04_s
+    xor \S12_s, \T03_s, \S12_s
+    andn \T02_s, \S15_s, \S14_s
+    xor \S13_s, \T02_s, \S13_s
+    andn \T03_s, \S16_s, \S15_s
+    xor \S14_s, \T03_s, \S14_s
+    andn \T02_s, \S17_s, \S21_s
+    xor \S15_s, \T02_s, \S20_s
+    andn \T03_s, \S18_s, \S17_s
+    vxor.vv \T01_v, \T01_v, \T04_v
+    xor \S16_s, \T03_s, \S21_s
+    andn \T02_s, \S19_s, \S18_s
+    xor \S17_s, \T02_s, \S17_s
+    andn \T03_s, \S20_s, \S19_s
+    xor \S18_s, \T03_s, \S18_s
+    andn \T02_s, \S21_s, \S20_s
+    xor \S19_s, \T02_s, \S19_s
+    andn \T03_s, \S22_s, \S01_s
+    vxor.vv \T04_v, \S03_v, \S08_v
+    xor \S20_s, \T03_s, \S00_s
+    andn \T02_s, \S23_s, \S22_s
+    xor \S21_s, \T02_s, \S01_s
+    andn \T03_s, \S24_s, \S23_s
+    xor \S22_s, \T03_s, \S22_s
+    andn \T02_s, \S00_s, \S24_s
+    xor \S23_s, \T02_s, \S23_s
+    andn \T03_s, \S01_s, \S00_s
+    xor \S24_s, \T03_s, \S24_s
+    vxor.vv \T04_v, \T04_v, \S13_v
+    andn \T02_s, \S02_s, \T01_s
+    xor \S00_s, \T02_s, \T00_s
+    andn \T03_s, \S03_s, \S02_s
+    xor \S01_s, \T03_s, \T01_s
+    andn \T02_s, \S04_s, \S03_s
+    xor \S02_s, \T02_s, \S02_s
+    andn \T03_s, \T00_s, \S04_s
+    xor \S03_s, \T03_s, \S03_s
+    vxor.vv \T04_v, \T04_v, \S18_v
+    andn \T02_s, \T01_s, \T00_s
+    xor \S04_s, \T02_s, \S04_s
+    ld   \T04_s, 17*8(sp)
+    ld   \T03_s, 0(\T04_s)
+    xor  \S00_s, \S00_s, \T03_s
+    addi \T04_s, \T04_s, 8
+    sd   \T04_s, 17*8(sp)
+    xor \T00_s, \S00_s, \S05_s
+    vxor.vv \T04_v, \T04_v, \S23_v
+    xor \T00_s, \T00_s, \S10_s
+    xor \T00_s, \T00_s, \S15_s
+    xor \T00_s, \T00_s, \S20_s
+    xor \T01_s, \S02_s, \S07_s
+    xor \T01_s, \T01_s, \S12_s
+    xor \T01_s, \T01_s, \S17_s
+    xor \T01_s, \T01_s, \S22_s
+    rori \T02_s, \T01_s, 64-1
+    vxor.vv \S03_v, \S03_v, \T01_v
+    xor  \T02_s, \T02_s, \T00_s
+    xor \T03_s, \S01_s, \S06_s
+    xor \T03_s, \T03_s, \S11_s
+    xor \T03_s, \T03_s, \S16_s
+    xor \T03_s, \T03_s, \S21_s
+    xor \S01_s, \S01_s, \T02_s
+    xor \S06_s, \S06_s, \T02_s
+    xor \S11_s, \S11_s, \T02_s
+    vxor.vv \S08_v, \S08_v, \T01_v
+    xor \S16_s, \S16_s, \T02_s
+    xor \S21_s, \S21_s, \T02_s
+    xor \T02_s, \S04_s, \S09_s
+    xor \T02_s, \T02_s, \S14_s
+    xor \T02_s, \T02_s, \S19_s
+    xor \T02_s, \T02_s, \S24_s
+    rori \T04_s, \T02_s, 63
+    xor  \T01_s, \T01_s, \T04_s
+    xor \T04_s, \S03_s, \S08_s
+    vxor.vv \S13_v, \S13_v, \T01_v
+    xor \T04_s, \T04_s, \S13_s
+    xor \T04_s, \T04_s, \S18_s
+    xor \T04_s, \T04_s, \S23_s
+    xor \S03_s, \S03_s, \T01_s
+    xor \S08_s, \S08_s, \T01_s
+    xor \S13_s, \S13_s, \T01_s
+    xor \S18_s, \S18_s, \T01_s
+    xor \S23_s, \S23_s, \T01_s
+    vxor.vv \S18_v, \S18_v, \T01_v
+    rori \T00_s, \T00_s, 64-1
+    xor  \T00_s, \T00_s, \T04_s
+    xor \S04_s, \S04_s, \T00_s
+    xor \S09_s, \S09_s, \T00_s
+    xor \S14_s, \S14_s, \T00_s
+    xor \S19_s, \S19_s, \T00_s
+    xor \S24_s, \S24_s, \T00_s
+    rori \T04_s, \T04_s, 64-1
+    vxor.vv \S23_v, \S23_v, \T01_v
+    xor  \T04_s, \T04_s, \T03_s
+    xor \S02_s, \S02_s, \T04_s
+    xor \S07_s, \S07_s, \T04_s
+    xor \S12_s, \S12_s, \T04_s
+    xor \S17_s, \S17_s, \T04_s
+    xor \S22_s, \S22_s, \T04_s
+    li \T04_s, 64-1
+    rori \T03_s, \T03_s, 64-1
+    vsll.vi \T01_v, \T00_v, 1
+    xor  \T03_s, \T03_s, \T02_s
+    xor \S05_s, \S05_s, \T03_s
+    xor \S10_s, \S10_s, \T03_s
+    xor \S15_s, \S15_s, \T03_s
+    xor \S20_s, \S20_s, \T03_s
+    xor \T00_s, \S00_s, \T03_s
+    rori \T01_s, \S06_s, 64-44
+    rori \S00_s, \S02_s, 64-62
+    vsrl.vx \T00_v, \T00_v, \T04_s
+    rori \S02_s, \S12_s, 64-43
+    rori \S12_s, \S13_s, 64-25
+    rori \S13_s, \S19_s, 64-8
+    rori \S19_s, \S23_s, 64-56
+    rori \S23_s, \S15_s, 64-41
+    rori \S15_s, \S01_s, 64-1
+    rori \S01_s, \S08_s, 64-55
+    rori \S08_s, \S16_s, 64-45
+    rori \S16_s, \S07_s, 64-6
+    vxor.vv \T00_v, \T00_v, \T01_v
+    rori \S07_s, \S10_s, 64-3
+    rori \S10_s, \S03_s, 64-28
+    rori \S03_s, \S18_s, 64-21
+    rori \S18_s, \S17_s, 64-15
+    rori \S17_s, \S11_s, 64-10
+    rori \S11_s, \S09_s, 64-20
+    rori \S09_s, \S22_s, 64-61
+    rori \S22_s, \S14_s, 64-39
+    vxor.vv \T00_v, \T00_v, \T04_v
+    rori \S14_s, \S20_s, 64-18
+    rori \S20_s, \S04_s, 64-27
+    rori \S04_s, \S24_s, 64-14
+    rori \S24_s, \S21_s, 64-2
+    rori \S21_s, \S05_s, 64-36
+    andn \T02_s, \S07_s, \S11_s
+    xor \S05_s, \T02_s, \S10_s
+    andn \T03_s, \S08_s, \S07_s
+    vxor.vv \S04_v, \S04_v, \T00_v
+    xor \S06_s, \T03_s, \S11_s
+    andn \T02_s, \S09_s, \S08_s
+    xor \S07_s, \T02_s, \S07_s
+    andn \T03_s, \S10_s, \S09_s
+    xor \S08_s, \T03_s, \S08_s
+    andn \T02_s, \S11_s, \S10_s
+    xor \S09_s, \T02_s, \S09_s
+    andn \T03_s, \S12_s, \S16_s
+    vxor.vv \S09_v, \S09_v, \T00_v
+    xor \S10_s, \T03_s, \S15_s
+    andn \T02_s, \S13_s, \S12_s
+    xor \S11_s, \T02_s, \S16_s
+    andn \T03_s, \S14_s, \S13_s
+    xor \S12_s, \T03_s, \S12_s
+    andn \T02_s, \S15_s, \S14_s
+    xor \S13_s, \T02_s, \S13_s
+    andn \T03_s, \S16_s, \S15_s
+    vxor.vv \S14_v, \S14_v, \T00_v
+    xor \S14_s, \T03_s, \S14_s
+    andn \T02_s, \S17_s, \S21_s
+    xor \S15_s, \T02_s, \S20_s
+    andn \T03_s, \S18_s, \S17_s
+    xor \S16_s, \T03_s, \S21_s
+    andn \T02_s, \S19_s, \S18_s
+    xor \S17_s, \T02_s, \S17_s
+    andn \T03_s, \S20_s, \S19_s
+    xor \S18_s, \T03_s, \S18_s
+    vxor.vv \S19_v, \S19_v, \T00_v
+    andn \T02_s, \S21_s, \S20_s
+    xor \S19_s, \T02_s, \S19_s
+    andn \T03_s, \S22_s, \S01_s
+    xor \S20_s, \T03_s, \S00_s
+    andn \T02_s, \S23_s, \S22_s
+    xor \S21_s, \T02_s, \S01_s
+    andn \T03_s, \S24_s, \S23_s
+    xor \S22_s, \T03_s, \S22_s
+    vxor.vv \S24_v, \S24_v, \T00_v
+    andn \T02_s, \S00_s, \S24_s
+    xor \S23_s, \T02_s, \S23_s
+    andn \T03_s, \S01_s, \S00_s
+    xor \S24_s, \T03_s, \S24_s
+    andn \T02_s, \S02_s, \T01_s
+    xor \S00_s, \T02_s, \T00_s
+    li \T04_s, 64-1
+    andn \T03_s, \S03_s, \S02_s
+    vsll.vi \T01_v, \T04_v, 1
+    xor \S01_s, \T03_s, \T01_s
+    andn \T02_s, \S04_s, \S03_s
+    xor \S02_s, \T02_s, \S02_s
+    andn \T03_s, \T00_s, \S04_s
+    xor \S03_s, \T03_s, \S03_s
+    andn \T02_s, \T01_s, \T00_s
+    xor \S04_s, \T02_s, \S04_s
+    vsrl.vx \T04_v, \T04_v, \T04_s
+    ld   \T04_s, 17*8(sp)
+    ld   \T03_s, 0(\T04_s)
+    xor  \S00_s, \S00_s, \T03_s
+    addi \T04_s, \T04_s, 8
+    sd   \T04_s, 17*8(sp)
+    xor \T00_s, \S00_s, \S05_s
+    xor \T00_s, \T00_s, \S10_s
+    xor \T00_s, \T00_s, \S15_s
+    xor \T00_s, \T00_s, \S20_s
+    vxor.vv \T04_v, \T04_v, \T01_v
+    xor \T01_s, \S02_s, \S07_s
+    xor \T01_s, \T01_s, \S12_s
+    xor \T01_s, \T01_s, \S17_s
+    xor \T01_s, \T01_s, \S22_s
+    rori \T02_s, \T01_s, 64-1
+    xor  \T02_s, \T02_s, \T00_s
+    xor \T03_s, \S01_s, \S06_s
+    xor \T03_s, \T03_s, \S11_s
+    xor \T03_s, \T03_s, \S16_s
+    vxor.vv  \T04_v, \T04_v, \T03_v
+    xor \T03_s, \T03_s, \S21_s
+    xor \S01_s, \S01_s, \T02_s
+    xor \S06_s, \S06_s, \T02_s
+    xor \S11_s, \S11_s, \T02_s
+    xor \S16_s, \S16_s, \T02_s
+    xor \S21_s, \S21_s, \T02_s
+    xor \T02_s, \S04_s, \S09_s
+    xor \T02_s, \T02_s, \S14_s
+    vxor.vv \S02_v, \S02_v, \T04_v
+    xor \T02_s, \T02_s, \S19_s
+    xor \T02_s, \T02_s, \S24_s
+    rori \T04_s, \T02_s, 63
+    xor  \T01_s, \T01_s, \T04_s
+    xor \T04_s, \S03_s, \S08_s
+    xor \T04_s, \T04_s, \S13_s
+    xor \T04_s, \T04_s, \S18_s
+    xor \T04_s, \T04_s, \S23_s
+    vxor.vv \S07_v, \S07_v, \T04_v
+    xor \S03_s, \S03_s, \T01_s
+    xor \S08_s, \S08_s, \T01_s
+    xor \S13_s, \S13_s, \T01_s
+    xor \S18_s, \S18_s, \T01_s
+    xor \S23_s, \S23_s, \T01_s
+    rori \T00_s, \T00_s, 64-1
+    xor  \T00_s, \T00_s, \T04_s
+    xor \S04_s, \S04_s, \T00_s
+    vxor.vv \S12_v, \S12_v, \T04_v
     xor \S09_s, \S09_s, \T00_s
     xor \S14_s, \S14_s, \T00_s
     xor \S19_s, \S19_s, \T00_s
@@ -624,7 +682,8 @@ constants_keccak:
     rori \T04_s, \T04_s, 64-1
     xor  \T04_s, \T04_s, \T03_s
     xor \S02_s, \S02_s, \T04_s
-    xor \S07_s, \S07_s, \T04_s;             vxor.vv \S17_v, \S17_v, \T04_v
+    xor \S07_s, \S07_s, \T04_s
+    vxor.vv \S17_v, \S17_v, \T04_v
     xor \S12_s, \S12_s, \T04_s
     xor \S17_s, \S17_s, \T04_s
     xor \S22_s, \S22_s, \T04_s
@@ -633,14 +692,17 @@ constants_keccak:
     xor \S05_s, \S05_s, \T03_s
     xor \S10_s, \S10_s, \T03_s
     xor \S15_s, \S15_s, \T03_s
-    xor \S20_s, \S20_s, \T03_s;             vxor.vv \S22_v, \S22_v, \T04_v
+    xor \S20_s, \S20_s, \T03_s
+    vxor.vv \S22_v, \S22_v, \T04_v
     xor \T00_s, \S00_s, \T03_s
     rori \T01_s, \S06_s, 64-44
     rori \S00_s, \S02_s, 64-62
     rori \S02_s, \S12_s, 64-43
     rori \S12_s, \S13_s, 64-25
-    rori \S13_s, \S19_s, 64-8;              li \T04_s, 64-1
-    rori \S19_s, \S23_s, 64-56;             vsll.vi \T01_v, \T03_v, 1
+    rori \S13_s, \S19_s, 64-8
+    li \T04_s, 64-1
+    rori \S19_s, \S23_s, 64-56
+    vsll.vi \T01_v, \T03_v, 1
     rori \S23_s, \S15_s, 64-41
     rori \S15_s, \S01_s, 64-1
     rori \S01_s, \S08_s, 64-55
@@ -648,7 +710,8 @@ constants_keccak:
     rori \S16_s, \S07_s, 64-6
     rori \S07_s, \S10_s, 64-3
     rori \S10_s, \S03_s, 64-28
-    rori \S03_s, \S18_s, 64-21;             vsrl.vx \T03_v, \T03_v, \T04_s
+    rori \S03_s, \S18_s, 64-21
+    vsrl.vx \T03_v, \T03_v, \T04_s
     rori \S18_s, \S17_s, 64-15
     rori \S17_s, \S11_s, 64-10
     rori \S11_s, \S09_s, 64-20
@@ -656,7 +719,8 @@ constants_keccak:
     rori \S22_s, \S14_s, 64-39
     rori \S14_s, \S20_s, 64-18
     rori \S20_s, \S04_s, 64-27
-    rori \S04_s, \S24_s, 64-14;             vxor.vv \T03_v, \T03_v, \T01_v
+    rori \S04_s, \S24_s, 64-14
+    vxor.vv \T03_v, \T03_v, \T01_v
     rori \S24_s, \S21_s, 64-2
     rori \S21_s, \S05_s, 64-36
     andn \T02_s, \S07_s, \S11_s
@@ -664,7 +728,8 @@ constants_keccak:
     andn \T03_s, \S08_s, \S07_s
     xor \S06_s, \T03_s, \S11_s
     andn \T02_s, \S09_s, \S08_s
-    xor \S07_s, \T02_s, \S07_s;             vxor.vv  \T03_v, \T03_v, \T02_v
+    xor \S07_s, \T02_s, \S07_s
+    vxor.vv  \T03_v, \T03_v, \T02_v
     andn \T03_s, \S10_s, \S09_s
     xor \S08_s, \T03_s, \S08_s
     andn \T02_s, \S11_s, \S10_s
@@ -673,7 +738,8 @@ constants_keccak:
     xor \S10_s, \T03_s, \S15_s
     andn \T02_s, \S13_s, \S12_s
     xor \S11_s, \T02_s, \S16_s
-    andn \T03_s, \S14_s, \S13_s;            vxor.vv \S05_v, \S05_v, \T03_v
+    andn \T03_s, \S14_s, \S13_s
+    vxor.vv \S05_v, \S05_v, \T03_v
     xor \S12_s, \T03_s, \S12_s
     andn \T02_s, \S15_s, \S14_s
     xor \S13_s, \T02_s, \S13_s
@@ -681,7 +747,8 @@ constants_keccak:
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
     xor \S15_s, \T02_s, \S20_s
-    andn \T03_s, \S18_s, \S17_s;            vxor.vv \S10_v, \S10_v, \T03_v
+    andn \T03_s, \S18_s, \S17_s
+    vxor.vv \S10_v, \S10_v, \T03_v
     xor \S16_s, \T03_s, \S21_s
     andn \T02_s, \S19_s, \S18_s
     xor \S17_s, \T02_s, \S17_s
@@ -689,7 +756,8 @@ constants_keccak:
     xor \S18_s, \T03_s, \S18_s
     andn \T02_s, \S21_s, \S20_s
     xor \S19_s, \T02_s, \S19_s
-    andn \T03_s, \S22_s, \S01_s;            vxor.vv \S15_v, \S15_v, \T03_v
+    andn \T03_s, \S22_s, \S01_s
+    vxor.vv \S15_v, \S15_v, \T03_v
     xor \S20_s, \T03_s, \S00_s
     andn \T02_s, \S23_s, \S22_s
     xor \S21_s, \T02_s, \S01_s
@@ -697,7 +765,8 @@ constants_keccak:
     xor \S22_s, \T03_s, \S22_s
     andn \T02_s, \S00_s, \S24_s
     xor \S23_s, \T02_s, \S23_s
-    andn \T03_s, \S01_s, \S00_s;            vxor.vv \S20_v, \S20_v, \T03_v
+    andn \T03_s, \S01_s, \S00_s
+    vxor.vv \S20_v, \S20_v, \T03_v
     xor \S24_s, \T03_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
     xor \S00_s, \T02_s, \T00_s
@@ -705,15 +774,18 @@ constants_keccak:
     xor \S01_s, \T03_s, \T01_s
     andn \T02_s, \S04_s, \S03_s
     xor \S02_s, \T02_s, \S02_s
-    andn \T03_s, \T00_s, \S04_s;            vxor.vv \T00_v, \S00_v, \T03_v
+    andn \T03_s, \T00_s, \S04_s
+    vxor.vv \T00_v, \S00_v, \T03_v
     xor \S03_s, \T03_s, \S03_s
     andn \T02_s, \T01_s, \T00_s
     xor \S04_s, \T02_s, \S04_s
     ld   \T04_s, 17*8(sp)
     ld   \T03_s, 0(\T04_s)
     xor  \S00_s, \S00_s, \T03_s
-    addi \T04_s, \T04_s, 8;                 li \T01_s, 44
-    sd   \T04_s, 17*8(sp);                  vsll.vx \T02_v, \S06_v, \T01_s
+    addi \T04_s, \T04_s, 8
+    li \T01_s, 44
+    sd   \T04_s, 17*8(sp)
+    vsll.vx \T02_v, \S06_v, \T01_s
     xor \T00_s, \S00_s, \S05_s
     xor \T00_s, \T00_s, \S10_s
     xor \T00_s, \T00_s, \S15_s
@@ -721,7 +793,8 @@ constants_keccak:
     xor \T01_s, \S02_s, \S07_s
     xor \T01_s, \T01_s, \S12_s
     xor \T01_s, \T01_s, \S17_s
-    xor \T01_s, \T01_s, \S22_s;             vsrl.vi \T01_v, \S06_v, 64-44
+    xor \T01_s, \T01_s, \S22_s
+    vsrl.vi \T01_v, \S06_v, 64-44
     rori \T02_s, \T01_s, 64-1
     xor  \T02_s, \T02_s, \T00_s
     xor \T03_s, \S01_s, \S06_s
@@ -729,14 +802,17 @@ constants_keccak:
     xor \T03_s, \T03_s, \S16_s
     xor \T03_s, \T03_s, \S21_s
     xor \S01_s, \S01_s, \T02_s
-    xor \S06_s, \S06_s, \T02_s;             vxor.vv \T01_v, \T01_v, \T02_v
+    xor \S06_s, \S06_s, \T02_s
+    vxor.vv \T01_v, \T01_v, \T02_v
     xor \S11_s, \S11_s, \T02_s
     xor \S16_s, \S16_s, \T02_s
     xor \S21_s, \S21_s, \T02_s
     xor \T02_s, \S04_s, \S09_s
     xor \T02_s, \T02_s, \S14_s
-    xor \T02_s, \T02_s, \S19_s;             li \T04_s, 62
-    xor \T02_s, \T02_s, \S24_s;             vsll.vx \T03_v, \S02_v, \T04_s
+    xor \T02_s, \T02_s, \S19_s
+    li \T04_s, 62
+    xor \T02_s, \T02_s, \S24_s
+    vsll.vx \T03_v, \S02_v, \T04_s
     rori \T04_s, \T02_s, 63
     xor  \T01_s, \T01_s, \T04_s
     xor \T04_s, \S03_s, \S08_s
@@ -744,7 +820,8 @@ constants_keccak:
     xor \T04_s, \T04_s, \S18_s
     xor \T04_s, \T04_s, \S23_s
     xor \S03_s, \S03_s, \T01_s
-    xor \S08_s, \S08_s, \T01_s;             vsrl.vi \S00_v, \S02_v, 64-62
+    xor \S08_s, \S08_s, \T01_s
+    vsrl.vi \S00_v, \S02_v, 64-62
     xor \S13_s, \S13_s, \T01_s
     xor \S18_s, \S18_s, \T01_s
     xor \S23_s, \S23_s, \T01_s
@@ -753,14 +830,17 @@ constants_keccak:
     xor \S04_s, \S04_s, \T00_s
     xor \S09_s, \S09_s, \T00_s
     xor \S14_s, \S14_s, \T00_s
-    xor \S19_s, \S19_s, \T00_s;             vxor.vv \S00_v, \S00_v, \T03_v
+    xor \S19_s, \S19_s, \T00_s
+    vxor.vv \S00_v, \S00_v, \T03_v
     xor \S24_s, \S24_s, \T00_s
     rori \T04_s, \T04_s, 64-1
     xor  \T04_s, \T04_s, \T03_s
     xor \S02_s, \S02_s, \T04_s
     xor \S07_s, \S07_s, \T04_s
-    xor \S12_s, \S12_s, \T04_s;             li \T01_s, 43
-    xor \S17_s, \S17_s, \T04_s;             vsll.vx \T02_v, \S12_v, \T01_s
+    xor \S12_s, \S12_s, \T04_s
+    li \T01_s, 43
+    xor \S17_s, \S17_s, \T04_s
+    vsll.vx \T02_v, \S12_v, \T01_s
     xor \S22_s, \S22_s, \T04_s
     rori \T03_s, \T03_s, 64-1
     xor  \T03_s, \T03_s, \T02_s
@@ -768,7 +848,8 @@ constants_keccak:
     xor \S10_s, \S10_s, \T03_s
     xor \S15_s, \S15_s, \T03_s
     xor \S20_s, \S20_s, \T03_s
-    xor \T00_s, \S00_s, \T03_s;             vsrl.vi \S02_v, \S12_v, 64-43
+    xor \T00_s, \S00_s, \T03_s
+    vsrl.vi \S02_v, \S12_v, 64-43
     rori \T01_s, \S06_s, 64-44
     rori \S00_s, \S02_s, 64-62
     rori \S02_s, \S12_s, 64-43
@@ -776,14 +857,17 @@ constants_keccak:
     rori \S13_s, \S19_s, 64-8
     rori \S19_s, \S23_s, 64-56
     rori \S23_s, \S15_s, 64-41
-    rori \S15_s, \S01_s, 64-1;              vxor.vv \S02_v, \S02_v, \T02_v
+    rori \S15_s, \S01_s, 64-1
+    vxor.vv \S02_v, \S02_v, \T02_v
     rori \S01_s, \S08_s, 64-55
     rori \S08_s, \S16_s, 64-45
     rori \S16_s, \S07_s, 64-6
     rori \S07_s, \S10_s, 64-3
     rori \S10_s, \S03_s, 64-28
-    rori \S03_s, \S18_s, 64-21;             li \T04_s, 64-25
-    rori \S18_s, \S17_s, 64-15;             vsll.vi \T03_v, \S13_v, 25
+    rori \S03_s, \S18_s, 64-21
+    li \T04_s, 64-25
+    rori \S18_s, \S17_s, 64-15
+    vsll.vi \T03_v, \S13_v, 25
     rori \S17_s, \S11_s, 64-10
     rori \S11_s, \S09_s, 64-20
     rori \S09_s, \S22_s, 64-61
@@ -792,7 +876,8 @@ constants_keccak:
     rori \S20_s, \S04_s, 64-27
     rori \S04_s, \S24_s, 64-14
     rori \S24_s, \S21_s, 64-2
-    rori \S21_s, \S05_s, 64-36;             vsrl.vx \S12_v, \S13_v, \T04_s
+    rori \S21_s, \S05_s, 64-36
+    vsrl.vx \S12_v, \S13_v, \T04_s
     andn \T02_s, \S07_s, \S11_s
     xor \S05_s, \T02_s, \S10_s
     andn \T03_s, \S08_s, \S07_s
@@ -800,14 +885,17 @@ constants_keccak:
     andn \T02_s, \S09_s, \S08_s
     xor \S07_s, \T02_s, \S07_s
     andn \T03_s, \S10_s, \S09_s
-    xor \S08_s, \T03_s, \S08_s;             vxor.vv \S12_v, \S12_v, \T03_v
+    xor \S08_s, \T03_s, \S08_s
+    vxor.vv \S12_v, \S12_v, \T03_v
     andn \T02_s, \S11_s, \S10_s
     xor \S09_s, \T02_s, \S09_s
     andn \T03_s, \S12_s, \S16_s
     xor \S10_s, \T03_s, \S15_s
     andn \T02_s, \S13_s, \S12_s
-    xor \S11_s, \T02_s, \S16_s;             li \T04_s, 64-8
-    andn \T03_s, \S14_s, \S13_s;            vsll.vi \T02_v, \S19_v, 8
+    xor \S11_s, \T02_s, \S16_s
+    li \T04_s, 64-8
+    andn \T03_s, \S14_s, \S13_s
+    vsll.vi \T02_v, \S19_v, 8
     xor \S12_s, \T03_s, \S12_s
     andn \T02_s, \S15_s, \S14_s
     xor \S13_s, \T02_s, \S13_s
@@ -815,7 +903,8 @@ constants_keccak:
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
     xor \S15_s, \T02_s, \S20_s
-    andn \T03_s, \S18_s, \S17_s;            vsrl.vx \S13_v, \S19_v, \T04_s
+    andn \T03_s, \S18_s, \S17_s
+    vsrl.vx \S13_v, \S19_v, \T04_s
     xor \S16_s, \T03_s, \S21_s
     andn \T02_s, \S19_s, \S18_s
     xor \S17_s, \T02_s, \S17_s
@@ -823,15 +912,18 @@ constants_keccak:
     xor \S18_s, \T03_s, \S18_s
     andn \T02_s, \S21_s, \S20_s
     xor \S19_s, \T02_s, \S19_s
-    andn \T03_s, \S22_s, \S01_s;            vxor.vv \S13_v, \S13_v, \T02_v
+    andn \T03_s, \S22_s, \S01_s
+    vxor.vv \S13_v, \S13_v, \T02_v
     xor \S20_s, \T03_s, \S00_s
     andn \T02_s, \S23_s, \S22_s
     xor \S21_s, \T02_s, \S01_s
     andn \T03_s, \S24_s, \S23_s
     xor \S22_s, \T03_s, \S22_s
     andn \T02_s, \S00_s, \S24_s
-    xor \S23_s, \T02_s, \S23_s;             li \T04_s, 56
-    andn \T03_s, \S01_s, \S00_s;            vsll.vx \T03_v, \S23_v, \T04_s
+    xor \S23_s, \T02_s, \S23_s
+    li \T04_s, 56
+    andn \T03_s, \S01_s, \S00_s
+    vsll.vx \T03_v, \S23_v, \T04_s
     xor \S24_s, \T03_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
     xor \S00_s, \T02_s, \T00_s
@@ -839,7 +931,8 @@ constants_keccak:
     xor \S01_s, \T03_s, \T01_s
     andn \T02_s, \S04_s, \S03_s
     xor \S02_s, \T02_s, \S02_s
-    andn \T03_s, \T00_s, \S04_s;            vsrl.vi \S19_v, \S23_v, 64-56
+    andn \T03_s, \T00_s, \S04_s
+    vsrl.vi \S19_v, \S23_v, 64-56
     xor \S03_s, \T03_s, \S03_s
     andn \T02_s, \T01_s, \T00_s
     xor \S04_s, \T02_s, \S04_s
@@ -847,14 +940,17 @@ constants_keccak:
     ld   \T03_s, 0(\T04_s)
     xor  \S00_s, \S00_s, \T03_s
     addi \T04_s, \T04_s, 8
-    sd   \T04_s, 17*8(sp);                  vxor.vv \S19_v, \S19_v, \T03_v
+    sd   \T04_s, 17*8(sp)
+    vxor.vv \S19_v, \S19_v, \T03_v
     xor \T00_s, \S00_s, \S05_s
     xor \T00_s, \T00_s, \S10_s
     xor \T00_s, \T00_s, \S15_s
     xor \T00_s, \T00_s, \S20_s
     xor \T01_s, \S02_s, \S07_s
-    xor \T01_s, \T01_s, \S12_s;             li \T04_s, 41
-    xor \T01_s, \T01_s, \S17_s;             vsll.vx \T02_v, \S15_v, \T04_s
+    xor \T01_s, \T01_s, \S12_s
+    li \T04_s, 41
+    xor \T01_s, \T01_s, \S17_s
+    vsll.vx \T02_v, \S15_v, \T04_s
     xor \T01_s, \T01_s, \S22_s
     rori \T02_s, \T01_s, 64-1
     xor  \T02_s, \T02_s, \T00_s
@@ -862,7 +958,8 @@ constants_keccak:
     xor \T03_s, \T03_s, \S11_s
     xor \T03_s, \T03_s, \S16_s
     xor \T03_s, \T03_s, \S21_s
-    xor \S01_s, \S01_s, \T02_s;             vsrl.vi \S23_v, \S15_v, 64-41
+    xor \S01_s, \S01_s, \T02_s
+    vsrl.vi \S23_v, \S15_v, 64-41
     xor \S06_s, \S06_s, \T02_s
     xor \S11_s, \S11_s, \T02_s
     xor \S16_s, \S16_s, \T02_s
@@ -871,14 +968,18 @@ constants_keccak:
     xor \T02_s, \T02_s, \S14_s
     xor \T02_s, \T02_s, \S19_s
     xor \T02_s, \T02_s, \S24_s
-    rori \T04_s, \T02_s, 63;                vxor.vv \S23_v, \S23_v, \T02_v
+    rori \T04_s, \T02_s, 63
+    vxor.vv \S23_v, \S23_v, \T02_v
     xor  \T01_s, \T01_s, \T04_s
     xor \T04_s, \S03_s, \S08_s
     xor \T04_s, \T04_s, \S13_s
-    xor \T04_s, \T04_s, \S18_s;             sd \S00_s, 19*8(sp)
+    xor \T04_s, \T04_s, \S18_s
+    sd \S00_s, 19*8(sp)
     xor \T04_s, \T04_s, \S23_s
-    xor \S03_s, \S03_s, \T01_s;             li \S00_s, 64-1
-    xor \S08_s, \S08_s, \T01_s;             vsll.vi \T03_v, \S01_v, 1
+    xor \S03_s, \S03_s, \T01_s
+    li \S00_s, 64-1
+    xor \S08_s, \S08_s, \T01_s
+    vsll.vi \T03_v, \S01_v, 1
     xor \S13_s, \S13_s, \T01_s
     xor \S18_s, \S18_s, \T01_s
     xor \S23_s, \S23_s, \T01_s
@@ -886,22 +987,27 @@ constants_keccak:
     xor  \T00_s, \T00_s, \T04_s
     xor \S04_s, \S04_s, \T00_s
     xor \S09_s, \S09_s, \T00_s
-    xor \S14_s, \S14_s, \T00_s;             vsrl.vx \S15_v, \S01_v, \S00_s
+    xor \S14_s, \S14_s, \T00_s
+    vsrl.vx \S15_v, \S01_v, \S00_s
     xor \S19_s, \S19_s, \T00_s
-    xor \S24_s, \S24_s, \T00_s;             ld \S00_s, 19*8(sp)
+    xor \S24_s, \S24_s, \T00_s
+    ld \S00_s, 19*8(sp)
     rori \T04_s, \T04_s, 64-1
     xor  \T04_s, \T04_s, \T03_s
     xor \S02_s, \S02_s, \T04_s
     xor \S07_s, \S07_s, \T04_s
     xor \S12_s, \S12_s, \T04_s
-    xor \S17_s, \S17_s, \T04_s;             vxor.vv \S15_v, \S15_v, \T03_v
+    xor \S17_s, \S17_s, \T04_s
+    vxor.vv \S15_v, \S15_v, \T03_v
     xor \S22_s, \S22_s, \T04_s
     rori \T03_s, \T03_s, 64-1
     xor  \T03_s, \T03_s, \T02_s
     xor \S05_s, \S05_s, \T03_s
     xor \S10_s, \S10_s, \T03_s
-    xor \S15_s, \S15_s, \T03_s;             li \T04_s, 55
-    xor \S20_s, \S20_s, \T03_s;             vsll.vx \T02_v, \S08_v, \T04_s
+    xor \S15_s, \S15_s, \T03_s
+    li \T04_s, 55
+    xor \S20_s, \S20_s, \T03_s
+    vsll.vx \T02_v, \S08_v, \T04_s
     xor \T00_s, \S00_s, \T03_s
     rori \T01_s, \S06_s, 64-44
     rori \S00_s, \S02_s, 64-62
@@ -910,7 +1016,8 @@ constants_keccak:
     rori \S13_s, \S19_s, 64-8
     rori \S19_s, \S23_s, 64-56
     rori \S23_s, \S15_s, 64-41
-    rori \S15_s, \S01_s, 64-1;              vsrl.vi \S01_v, \S08_v, 64-55
+    rori \S15_s, \S01_s, 64-1
+    vsrl.vi \S01_v, \S08_v, 64-55
     rori \S01_s, \S08_s, 64-55
     rori \S08_s, \S16_s, 64-45
     rori \S16_s, \S07_s, 64-6
@@ -918,14 +1025,17 @@ constants_keccak:
     rori \S10_s, \S03_s, 64-28
     rori \S03_s, \S18_s, 64-21
     rori \S18_s, \S17_s, 64-15
-    rori \S17_s, \S11_s, 64-10;             vxor.vv \S01_v, \S01_v, \T02_v
+    rori \S17_s, \S11_s, 64-10
+    vxor.vv \S01_v, \S01_v, \T02_v
     rori \S11_s, \S09_s, 64-20
     rori \S09_s, \S22_s, 64-61
     rori \S22_s, \S14_s, 64-39
     rori \S14_s, \S20_s, 64-18
     rori \S20_s, \S04_s, 64-27
-    rori \S04_s, \S24_s, 64-14;             li \T04_s, 45
-    rori \S24_s, \S21_s, 64-2;              vsll.vx \T03_v, \S16_v, \T04_s
+    rori \S04_s, \S24_s, 64-14
+    li \T04_s, 45
+    rori \S24_s, \S21_s, 64-2
+    vsll.vx \T03_v, \S16_v, \T04_s
     rori \S21_s, \S05_s, 64-36
     andn \T02_s, \S07_s, \S11_s
     xor \S05_s, \T02_s, \S10_s
@@ -933,7 +1043,8 @@ constants_keccak:
     xor \S06_s, \T03_s, \S11_s
     andn \T02_s, \S09_s, \S08_s
     xor \S07_s, \T02_s, \S07_s
-    andn \T03_s, \S10_s, \S09_s;            vsrl.vi \S08_v, \S16_v, 64-45
+    andn \T03_s, \S10_s, \S09_s
+    vsrl.vi \S08_v, \S16_v, 64-45
     xor \S08_s, \T03_s, \S08_s
     andn \T02_s, \S11_s, \S10_s
     xor \S09_s, \T02_s, \S09_s
@@ -941,15 +1052,18 @@ constants_keccak:
     xor \S10_s, \T03_s, \S15_s
     andn \T02_s, \S13_s, \S12_s
     xor \S11_s, \T02_s, \S16_s
-    andn \T03_s, \S14_s, \S13_s;            vxor.vv \S08_v, \S08_v, \T03_v
+    andn \T03_s, \S14_s, \S13_s
+    vxor.vv \S08_v, \S08_v, \T03_v
     xor \S12_s, \T03_s, \S12_s
     andn \T02_s, \S15_s, \S14_s
     xor \S13_s, \T02_s, \S13_s
     andn \T03_s, \S16_s, \S15_s
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
-    xor \S15_s, \T02_s, \S20_s;             li \T04_s, 64-6
-    andn \T03_s, \S18_s, \S17_s;            vsll.vi \T02_v, \S07_v, 6
+    xor \S15_s, \T02_s, \S20_s
+    li \T04_s, 64-6
+    andn \T03_s, \S18_s, \S17_s
+    vsll.vi \T02_v, \S07_v, 6
     xor \S16_s, \T03_s, \S21_s
     andn \T02_s, \S19_s, \S18_s
     xor \S17_s, \T02_s, \S17_s
@@ -957,7 +1071,8 @@ constants_keccak:
     xor \S18_s, \T03_s, \S18_s
     andn \T02_s, \S21_s, \S20_s
     xor \S19_s, \T02_s, \S19_s
-    andn \T03_s, \S22_s, \S01_s;            vsrl.vx \S16_v, \S07_v, \T04_s
+    andn \T03_s, \S22_s, \S01_s
+    vsrl.vx \S16_v, \S07_v, \T04_s
     xor \S20_s, \T03_s, \S00_s
     andn \T02_s, \S23_s, \S22_s
     xor \S21_s, \T02_s, \S01_s
@@ -965,22 +1080,26 @@ constants_keccak:
     xor \S22_s, \T03_s, \S22_s
     andn \T02_s, \S00_s, \S24_s
     xor \S23_s, \T02_s, \S23_s
-    andn \T03_s, \S01_s, \S00_s;            vxor.vv \S16_v, \S16_v, \T02_v
+    andn \T03_s, \S01_s, \S00_s
+    vxor.vv \S16_v, \S16_v, \T02_v
     xor \S24_s, \T03_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
     xor \S00_s, \T02_s, \T00_s
     andn \T03_s, \S03_s, \S02_s
     xor \S01_s, \T03_s, \T01_s
     andn \T02_s, \S04_s, \S03_s
-    xor \S02_s, \T02_s, \S02_s;             vsll.vi \T03_v, \S10_v, 3
+    xor \S02_s, \T02_s, \S02_s
+    vsll.vi \T03_v, \S10_v, 3
     andn \T03_s, \T00_s, \S04_s
     xor \S03_s, \T03_s, \S03_s
     andn \T02_s, \T01_s, \T00_s
-    xor \S04_s, \T02_s, \S04_s;             li \T00_s, 64-3
+    xor \S04_s, \T02_s, \S04_s
+    li \T00_s, 64-3
     ld   \T04_s, 17*8(sp)
     ld   \T03_s, 0(\T04_s)
     xor  \S00_s, \S00_s, \T03_s
-    addi \T04_s, \T04_s, 8;                 vsrl.vx \S07_v, \S10_v, \T00_s
+    addi \T04_s, \T04_s, 8
+    vsrl.vx \S07_v, \S10_v, \T00_s
     sd   \T04_s, 17*8(sp)
     xor \T00_s, \S00_s, \S05_s
     xor \T00_s, \T00_s, \S10_s
@@ -989,14 +1108,17 @@ constants_keccak:
     xor \T01_s, \S02_s, \S07_s
     xor \T01_s, \T01_s, \S12_s
     xor \T01_s, \T01_s, \S17_s
-    xor \T01_s, \T01_s, \S22_s;             vxor.vv \S07_v, \S07_v, \T03_v
+    xor \T01_s, \T01_s, \S22_s
+    vxor.vv \S07_v, \S07_v, \T03_v
     rori \T02_s, \T01_s, 64-1
     xor  \T02_s, \T02_s, \T00_s
     xor \T03_s, \S01_s, \S06_s
     xor \T03_s, \T03_s, \S11_s
     xor \T03_s, \T03_s, \S16_s
-    xor \T03_s, \T03_s, \S21_s;             li \T04_s, 64-28
-    xor \S01_s, \S01_s, \T02_s;             vsll.vi \T02_v, \S03_v, 28
+    xor \T03_s, \T03_s, \S21_s
+    li \T04_s, 64-28
+    xor \S01_s, \S01_s, \T02_s
+    vsll.vi \T02_v, \S03_v, 28
     xor \S06_s, \S06_s, \T02_s
     xor \S11_s, \S11_s, \T02_s
     xor \S16_s, \S16_s, \T02_s
@@ -1004,7 +1126,8 @@ constants_keccak:
     xor \T02_s, \S04_s, \S09_s
     xor \T02_s, \T02_s, \S14_s
     xor \T02_s, \T02_s, \S19_s
-    xor \T02_s, \T02_s, \S24_s;             vsrl.vx \S10_v, \S03_v, \T04_s
+    xor \T02_s, \T02_s, \S24_s
+    vsrl.vx \S10_v, \S03_v, \T04_s
     rori \T04_s, \T02_s, 63
     xor  \T01_s, \T01_s, \T04_s
     xor \T04_s, \S03_s, \S08_s
@@ -1012,14 +1135,17 @@ constants_keccak:
     xor \T04_s, \T04_s, \S18_s
     xor \T04_s, \T04_s, \S23_s
     xor \S03_s, \S03_s, \T01_s
-    xor \S08_s, \S08_s, \T01_s;             vxor.vv \S10_v, \S10_v, \T02_v
+    xor \S08_s, \S08_s, \T01_s
+    vxor.vv \S10_v, \S10_v, \T02_v
     xor \S13_s, \S13_s, \T01_s
     xor \S18_s, \S18_s, \T01_s
     xor \S23_s, \S23_s, \T01_s
     rori \T00_s, \T00_s, 64-1
     xor  \T00_s, \T00_s, \T04_s
-    xor \S04_s, \S04_s, \T00_s;             li \T01_s, 64-21
-    xor \S09_s, \S09_s, \T00_s;             vsll.vi \T03_v, \S18_v, 21
+    xor \S04_s, \S04_s, \T00_s
+    li \T01_s, 64-21
+    xor \S09_s, \S09_s, \T00_s
+    vsll.vi \T03_v, \S18_v, 21
     xor \S14_s, \S14_s, \T00_s
     xor \S19_s, \S19_s, \T00_s
     xor \S24_s, \S24_s, \T00_s
@@ -1028,7 +1154,8 @@ constants_keccak:
     xor \S02_s, \S02_s, \T04_s
     xor \S07_s, \S07_s, \T04_s
     xor \S12_s, \S12_s, \T04_s
-    xor \S17_s, \S17_s, \T04_s;             vsrl.vx \S03_v, \S18_v, \T01_s
+    xor \S17_s, \S17_s, \T04_s
+    vsrl.vx \S03_v, \S18_v, \T01_s
     xor \S22_s, \S22_s, \T04_s
     rori \T03_s, \T03_s, 64-1
     xor  \T03_s, \T03_s, \T02_s
@@ -1036,14 +1163,17 @@ constants_keccak:
     xor \S10_s, \S10_s, \T03_s
     xor \S15_s, \S15_s, \T03_s
     xor \S20_s, \S20_s, \T03_s
-    xor \T00_s, \S00_s, \T03_s;             vxor.vv \S03_v, \S03_v, \T03_v
+    xor \T00_s, \S00_s, \T03_s
+    vxor.vv \S03_v, \S03_v, \T03_v
     rori \T01_s, \S06_s, 64-44
     rori \S00_s, \S02_s, 64-62
     rori \S02_s, \S12_s, 64-43
     rori \S12_s, \S13_s, 64-25
     rori \S13_s, \S19_s, 64-8
-    rori \S19_s, \S23_s, 64-56;             li \T04_s, 64-15
-    rori \S23_s, \S15_s, 64-41;             vsll.vi \T02_v, \S17_v, 15
+    rori \S19_s, \S23_s, 64-56
+    li \T04_s, 64-15
+    rori \S23_s, \S15_s, 64-41
+    vsll.vi \T02_v, \S17_v, 15
     rori \S15_s, \S01_s, 64-1
     rori \S01_s, \S08_s, 64-55
     rori \S08_s, \S16_s, 64-45
@@ -1051,7 +1181,8 @@ constants_keccak:
     rori \S07_s, \S10_s, 64-3
     rori \S10_s, \S03_s, 64-28
     rori \S03_s, \S18_s, 64-21
-    rori \S18_s, \S17_s, 64-15;             vsrl.vx \S18_v, \S17_v, \T04_s
+    rori \S18_s, \S17_s, 64-15
+    vsrl.vx \S18_v, \S17_v, \T04_s
     rori \S17_s, \S11_s, 64-10
     rori \S11_s, \S09_s, 64-20
     rori \S09_s, \S22_s, 64-61
@@ -1059,15 +1190,18 @@ constants_keccak:
     rori \S14_s, \S20_s, 64-18
     rori \S20_s, \S04_s, 64-27
     rori \S04_s, \S24_s, 64-14
-    rori \S24_s, \S21_s, 64-2;              vxor.vv \S18_v, \S18_v, \T02_v
+    rori \S24_s, \S21_s, 64-2
+    vxor.vv \S18_v, \S18_v, \T02_v
     rori \S21_s, \S05_s, 64-36
     andn \T02_s, \S07_s, \S11_s
     xor \S05_s, \T02_s, \S10_s
     andn \T03_s, \S08_s, \S07_s
     xor \S06_s, \T03_s, \S11_s
     andn \T02_s, \S09_s, \S08_s
-    xor \S07_s, \T02_s, \S07_s;             li \T04_s, 64-10
-    andn \T03_s, \S10_s, \S09_s;            vsll.vi \T03_v, \S11_v, 10
+    xor \S07_s, \T02_s, \S07_s
+    li \T04_s, 64-10
+    andn \T03_s, \S10_s, \S09_s
+    vsll.vi \T03_v, \S11_v, 10
     xor \S08_s, \T03_s, \S08_s
     andn \T02_s, \S11_s, \S10_s
     xor \S09_s, \T02_s, \S09_s
@@ -1075,7 +1209,8 @@ constants_keccak:
     xor \S10_s, \T03_s, \S15_s
     andn \T02_s, \S13_s, \S12_s
     xor \S11_s, \T02_s, \S16_s
-    andn \T03_s, \S14_s, \S13_s;            vsrl.vx \S17_v, \S11_v, \T04_s
+    andn \T03_s, \S14_s, \S13_s
+    vsrl.vx \S17_v, \S11_v, \T04_s
     xor \S12_s, \T03_s, \S12_s
     andn \T02_s, \S15_s, \S14_s
     xor \S13_s, \T02_s, \S13_s
@@ -1083,14 +1218,17 @@ constants_keccak:
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
     xor \S15_s, \T02_s, \S20_s
-    andn \T03_s, \S18_s, \S17_s;            vxor.vv \S17_v, \S17_v, \T03_v
+    andn \T03_s, \S18_s, \S17_s
+    vxor.vv \S17_v, \S17_v, \T03_v
     xor \S16_s, \T03_s, \S21_s
     andn \T02_s, \S19_s, \S18_s
     xor \S17_s, \T02_s, \S17_s
     andn \T03_s, \S20_s, \S19_s
     xor \S18_s, \T03_s, \S18_s
-    andn \T02_s, \S21_s, \S20_s;            li \T04_s, 64-20
-    xor \S19_s, \T02_s, \S19_s;             vsll.vi \T02_v, \S09_v, 20
+    andn \T02_s, \S21_s, \S20_s
+    li \T04_s, 64-20
+    xor \S19_s, \T02_s, \S19_s
+    vsll.vi \T02_v, \S09_v, 20
     andn \T03_s, \S22_s, \S01_s
     xor \S20_s, \T03_s, \S00_s
     andn \T02_s, \S23_s, \S22_s
@@ -1098,7 +1236,8 @@ constants_keccak:
     andn \T03_s, \S24_s, \S23_s
     xor \S22_s, \T03_s, \S22_s
     andn \T02_s, \S00_s, \S24_s
-    xor \S23_s, \T02_s, \S23_s;             vsrl.vx \S11_v, \S09_v, \T04_s
+    xor \S23_s, \T02_s, \S23_s
+    vsrl.vx \S11_v, \S09_v, \T04_s
     andn \T03_s, \S01_s, \S00_s
     xor \S24_s, \T03_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
@@ -1107,14 +1246,17 @@ constants_keccak:
     xor \S01_s, \T03_s, \T01_s
     andn \T02_s, \S04_s, \S03_s
     xor \S02_s, \T02_s, \S02_s
-    andn \T03_s, \T00_s, \S04_s;            vxor.vv \S11_v, \S11_v, \T02_v
+    andn \T03_s, \T00_s, \S04_s
+    vxor.vv \S11_v, \S11_v, \T02_v
     xor \S03_s, \T03_s, \S03_s
     andn \T02_s, \T01_s, \T00_s
     xor \S04_s, \T02_s, \S04_s
     ld   \T04_s, 17*8(sp)
     ld   \T03_s, 0(\T04_s)
-    xor  \S00_s, \S00_s, \T03_s;            li \T02_s, 61
-    addi \T04_s, \T04_s, 8;                 vsll.vx \T03_v, \S22_v, \T02_s
+    xor  \S00_s, \S00_s, \T03_s
+    li \T02_s, 61
+    addi \T04_s, \T04_s, 8
+    vsll.vx \T03_v, \S22_v, \T02_s
     sd   \T04_s, 17*8(sp)
     xor \T00_s, \S00_s, \S05_s
     xor \T00_s, \T00_s, \S10_s
@@ -1122,7 +1264,8 @@ constants_keccak:
     xor \T00_s, \T00_s, \S20_s
     xor \T01_s, \S02_s, \S07_s
     xor \T01_s, \T01_s, \S12_s
-    xor \T01_s, \T01_s, \S17_s;             vsrl.vi \S09_v, \S22_v, 64-61
+    xor \T01_s, \T01_s, \S17_s
+    vsrl.vi \S09_v, \S22_v, 64-61
     xor \T01_s, \T01_s, \S22_s
     rori \T02_s, \T01_s, 64-1
     xor  \T02_s, \T02_s, \T00_s
@@ -1130,14 +1273,17 @@ constants_keccak:
     xor \T03_s, \T03_s, \S11_s
     xor \T03_s, \T03_s, \S16_s
     xor \T03_s, \T03_s, \S21_s
-    xor \S01_s, \S01_s, \T02_s;             vxor.vv \S09_v, \S09_v, \T03_v
+    xor \S01_s, \S01_s, \T02_s
+    vxor.vv \S09_v, \S09_v, \T03_v
     xor \S06_s, \S06_s, \T02_s
     xor \S11_s, \S11_s, \T02_s
     xor \S16_s, \S16_s, \T02_s
     xor \S21_s, \S21_s, \T02_s
     xor \T02_s, \S04_s, \S09_s
-    xor \T02_s, \T02_s, \S14_s;             li \T04_s, 39
-    xor \T02_s, \T02_s, \S19_s;             vsll.vx \T02_v, \S14_v, \T04_s
+    xor \T02_s, \T02_s, \S14_s
+    li \T04_s, 39
+    xor \T02_s, \T02_s, \S19_s
+    vsll.vx \T02_v, \S14_v, \T04_s
     xor \T02_s, \T02_s, \S24_s
     rori \T04_s, \T02_s, 63
     xor  \T01_s, \T01_s, \T04_s
@@ -1146,7 +1292,8 @@ constants_keccak:
     xor \T04_s, \T04_s, \S18_s
     xor \T04_s, \T04_s, \S23_s
     xor \S03_s, \S03_s, \T01_s
-    xor \S08_s, \S08_s, \T01_s;             vsrl.vi \S22_v, \S14_v, 64-39
+    xor \S08_s, \S08_s, \T01_s
+    vsrl.vi \S22_v, \S14_v, 64-39
     xor \S13_s, \S13_s, \T01_s
     xor \S18_s, \S18_s, \T01_s
     xor \S23_s, \S23_s, \T01_s
@@ -1154,14 +1301,17 @@ constants_keccak:
     xor  \T00_s, \T00_s, \T04_s
     xor \S04_s, \S04_s, \T00_s
     xor \S09_s, \S09_s, \T00_s
-    xor \S14_s, \S14_s, \T00_s;             vxor.vv \S22_v, \S22_v, \T02_v
+    xor \S14_s, \S14_s, \T00_s
+    vxor.vv \S22_v, \S22_v, \T02_v
     xor \S19_s, \S19_s, \T00_s
     xor \S24_s, \S24_s, \T00_s
     rori \T04_s, \T04_s, 64-1
     xor  \T04_s, \T04_s, \T03_s
     xor \S02_s, \S02_s, \T04_s
-    xor \S07_s, \S07_s, \T04_s;             li \T00_s, 64-18
-    xor \S12_s, \S12_s, \T04_s;             vsll.vi \T03_v, \S20_v, 18
+    xor \S07_s, \S07_s, \T04_s
+    li \T00_s, 64-18
+    xor \S12_s, \S12_s, \T04_s
+    vsll.vi \T03_v, \S20_v, 18
     xor \S17_s, \S17_s, \T04_s
     xor \S22_s, \S22_s, \T04_s
     rori \T03_s, \T03_s, 64-1
@@ -1169,7 +1319,8 @@ constants_keccak:
     xor \S05_s, \S05_s, \T03_s
     xor \S10_s, \S10_s, \T03_s
     xor \S15_s, \S15_s, \T03_s
-    xor \S20_s, \S20_s, \T03_s;             vsrl.vx \S14_v, \S20_v, \T00_s
+    xor \S20_s, \S20_s, \T03_s
+    vsrl.vx \S14_v, \S20_v, \T00_s
     xor \T00_s, \S00_s, \T03_s
     rori \T01_s, \S06_s, 64-44
     rori \S00_s, \S02_s, 64-62
@@ -1177,15 +1328,18 @@ constants_keccak:
     rori \S12_s, \S13_s, 64-25
     rori \S13_s, \S19_s, 64-8
     rori \S19_s, \S23_s, 64-56
-    rori \S23_s, \S15_s, 64-41;             vxor.vv \S14_v, \S14_v, \T03_v
+    rori \S23_s, \S15_s, 64-41
+    vxor.vv \S14_v, \S14_v, \T03_v
     rori \S15_s, \S01_s, 64-1
     rori \S01_s, \S08_s, 64-55
     rori \S08_s, \S16_s, 64-45
     rori \S16_s, \S07_s, 64-6
     rori \S07_s, \S10_s, 64-3
     rori \S10_s, \S03_s, 64-28
-    rori \S03_s, \S18_s, 64-21;             li \T04_s, 64-27
-    rori \S18_s, \S17_s, 64-15;             vsll.vi \T02_v, \S04_v, 27
+    rori \S03_s, \S18_s, 64-21
+    li \T04_s, 64-27
+    rori \S18_s, \S17_s, 64-15
+    vsll.vi \T02_v, \S04_v, 27
     rori \S17_s, \S11_s, 64-10
     rori \S11_s, \S09_s, 64-20
     rori \S09_s, \S22_s, 64-61
@@ -1193,7 +1347,8 @@ constants_keccak:
     rori \S14_s, \S20_s, 64-18
     rori \S20_s, \S04_s, 64-27
     rori \S04_s, \S24_s, 64-14
-    rori \S24_s, \S21_s, 64-2;              vsrl.vx \S20_v, \S04_v, \T04_s
+    rori \S24_s, \S21_s, 64-2
+    vsrl.vx \S20_v, \S04_v, \T04_s
     rori \S21_s, \S05_s, 64-36
     andn \T02_s, \S07_s, \S11_s
     xor \S05_s, \T02_s, \S10_s
@@ -1201,14 +1356,17 @@ constants_keccak:
     xor \S06_s, \T03_s, \S11_s
     andn \T02_s, \S09_s, \S08_s
     xor \S07_s, \T02_s, \S07_s
-    andn \T03_s, \S10_s, \S09_s;            vxor.vv \S20_v, \S20_v, \T02_v
+    andn \T03_s, \S10_s, \S09_s
+    vxor.vv \S20_v, \S20_v, \T02_v
     xor \S08_s, \T03_s, \S08_s
     andn \T02_s, \S11_s, \S10_s
     xor \S09_s, \T02_s, \S09_s
     andn \T03_s, \S12_s, \S16_s
     xor \S10_s, \T03_s, \S15_s
-    andn \T02_s, \S13_s, \S12_s;            li \T04_s, 64-14
-    xor \S11_s, \T02_s, \S16_s;             vsll.vi \T03_v, \S24_v, 14
+    andn \T02_s, \S13_s, \S12_s
+    li \T04_s, 64-14
+    xor \S11_s, \T02_s, \S16_s
+    vsll.vi \T03_v, \S24_v, 14
     andn \T03_s, \S14_s, \S13_s
     xor \S12_s, \T03_s, \S12_s
     andn \T02_s, \S15_s, \S14_s
@@ -1216,7 +1374,8 @@ constants_keccak:
     andn \T03_s, \S16_s, \S15_s
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
-    xor \S15_s, \T02_s, \S20_s;             vsrl.vx \S04_v, \S24_v, \T04_s
+    xor \S15_s, \T02_s, \S20_s
+    vsrl.vx \S04_v, \S24_v, \T04_s
     andn \T03_s, \S18_s, \S17_s
     xor \S16_s, \T03_s, \S21_s
     andn \T02_s, \S19_s, \S18_s
@@ -1225,14 +1384,17 @@ constants_keccak:
     xor \S18_s, \T03_s, \S18_s
     andn \T02_s, \S21_s, \S20_s
     xor \S19_s, \T02_s, \S19_s
-    andn \T03_s, \S22_s, \S01_s;            vxor.vv \S04_v, \S04_v, \T03_v
+    andn \T03_s, \S22_s, \S01_s
+    vxor.vv \S04_v, \S04_v, \T03_v
     xor \S20_s, \T03_s, \S00_s
     andn \T02_s, \S23_s, \S22_s
     xor \S21_s, \T02_s, \S01_s
     andn \T03_s, \S24_s, \S23_s
     xor \S22_s, \T03_s, \S22_s
-    andn \T02_s, \S00_s, \S24_s;            li \T04_s, 64-2
-    xor \S23_s, \T02_s, \S23_s;             vsll.vi \T02_v, \S21_v, 2
+    andn \T02_s, \S00_s, \S24_s
+    li \T04_s, 64-2
+    xor \S23_s, \T02_s, \S23_s
+    vsll.vi \T02_v, \S21_v, 2
     andn \T03_s, \S01_s, \S00_s
     xor \S24_s, \T03_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
@@ -1240,7 +1402,8 @@ constants_keccak:
     andn \T03_s, \S03_s, \S02_s
     xor \S01_s, \T03_s, \T01_s
     andn \T02_s, \S04_s, \S03_s
-    xor \S02_s, \T02_s, \S02_s;             vsrl.vx \S24_v, \S21_v, \T04_s
+    xor \S02_s, \T02_s, \S02_s
+    vsrl.vx \S24_v, \S21_v, \T04_s
     andn \T03_s, \T00_s, \S04_s
     xor \S03_s, \T03_s, \S03_s
     andn \T02_s, \T01_s, \T00_s
@@ -1248,14 +1411,17 @@ constants_keccak:
     ld   \T04_s, 17*8(sp)
     ld   \T03_s, 0(\T04_s)
     xor  \S00_s, \S00_s, \T03_s
-    addi \T04_s, \T04_s, 8;                 vxor.vv \S24_v, \S24_v, \T02_v
+    addi \T04_s, \T04_s, 8
+    vxor.vv \S24_v, \S24_v, \T02_v
     sd   \T04_s, 17*8(sp)
     xor \T00_s, \S00_s, \S05_s
     xor \T00_s, \T00_s, \S10_s
     xor \T00_s, \T00_s, \S15_s
     xor \T00_s, \T00_s, \S20_s
-    xor \T01_s, \S02_s, \S07_s;             li \T04_s, 36
-    xor \T01_s, \T01_s, \S12_s;             vsll.vx \T03_v, \S05_v, \T04_s
+    xor \T01_s, \S02_s, \S07_s
+    li \T04_s, 36
+    xor \T01_s, \T01_s, \S12_s
+    vsll.vx \T03_v, \S05_v, \T04_s
     xor \T01_s, \T01_s, \S17_s
     xor \T01_s, \T01_s, \S22_s
     rori \T02_s, \T01_s, 64-1
@@ -1264,7 +1430,8 @@ constants_keccak:
     xor \T03_s, \T03_s, \S11_s
     xor \T03_s, \T03_s, \S16_s
     xor \T03_s, \T03_s, \S21_s
-    xor \S01_s, \S01_s, \T02_s;             vsrl.vi \S21_v, \S05_v, 64-36
+    xor \S01_s, \S01_s, \T02_s
+    vsrl.vi \S21_v, \S05_v, 64-36
     xor \S06_s, \S06_s, \T02_s
     xor \S11_s, \S11_s, \T02_s
     xor \S16_s, \S16_s, \T02_s
@@ -1272,7 +1439,8 @@ constants_keccak:
     xor \T02_s, \S04_s, \S09_s
     xor \T02_s, \T02_s, \S14_s
     xor \T02_s, \T02_s, \S19_s
-    xor \T02_s, \T02_s, \S24_s;             vxor.vv \S21_v, \S21_v, \T03_v
+    xor \T02_s, \T02_s, \S24_s
+    vxor.vv \S21_v, \S21_v, \T03_v
     rori \T04_s, \T02_s, 63
     xor  \T01_s, \T01_s, \T04_s
     xor \T04_s, \S03_s, \S08_s
@@ -1280,7 +1448,8 @@ constants_keccak:
     xor \T04_s, \T04_s, \S18_s
     xor \T04_s, \T04_s, \S23_s
     xor \S03_s, \S03_s, \T01_s
-    xor \S08_s, \S08_s, \T01_s;             vor.vv \T02_v, \S11_v, \S07_v
+    xor \S08_s, \S08_s, \T01_s
+    vor.vv \T02_v, \S11_v, \S07_v
     xor \S13_s, \S13_s, \T01_s
     xor \S18_s, \S18_s, \T01_s
     xor \S23_s, \S23_s, \T01_s
@@ -1288,7 +1457,8 @@ constants_keccak:
     xor  \T00_s, \T00_s, \T04_s
     xor \S04_s, \S04_s, \T00_s
     xor \S09_s, \S09_s, \T00_s
-    xor \S14_s, \S14_s, \T00_s;             vxor.vv \S05_v, \S10_v, \T02_v
+    xor \S14_s, \S14_s, \T00_s
+    vxor.vv \S05_v, \S10_v, \T02_v
     xor \S19_s, \S19_s, \T00_s
     xor \S24_s, \S24_s, \T00_s
     rori \T04_s, \T04_s, 64-1
@@ -1296,7 +1466,8 @@ constants_keccak:
     xor \S02_s, \S02_s, \T04_s
     xor \S07_s, \S07_s, \T04_s
     xor \S12_s, \S12_s, \T04_s
-    xor \S17_s, \S17_s, \T04_s;             vand.vv \T03_v, \S07_v, \S08_v
+    xor \S17_s, \S17_s, \T04_s
+    vand.vv \T03_v, \S07_v, \S08_v
     xor \S22_s, \S22_s, \T04_s
     rori \T03_s, \T03_s, 64-1
     xor  \T03_s, \T03_s, \T02_s
@@ -1305,7 +1476,8 @@ constants_keccak:
     xor \S15_s, \S15_s, \T03_s
     xor \S20_s, \S20_s, \T03_s
     xor \T00_s, \S00_s, \T03_s
-    rori \T01_s, \S06_s, 64-44;             vxor.vv \S06_v, \S11_v, \T03_v
+    rori \T01_s, \S06_s, 64-44
+    vxor.vv \S06_v, \S11_v, \T03_v
     rori \S00_s, \S02_s, 64-62
     rori \S02_s, \S12_s, 64-43
     rori \S12_s, \S13_s, 64-25
@@ -1313,7 +1485,8 @@ constants_keccak:
     rori \S19_s, \S23_s, 64-56
     rori \S23_s, \S15_s, 64-41
     rori \S15_s, \S01_s, 64-1
-    rori \S01_s, \S08_s, 64-55;             vnot.v \T02_v, \S09_v
+    rori \S01_s, \S08_s, 64-55
+    vnot.v \T02_v, \S09_v
     rori \S08_s, \S16_s, 64-45
     rori \S16_s, \S07_s, 64-6
     rori \S07_s, \S10_s, 64-3
@@ -1321,7 +1494,8 @@ constants_keccak:
     rori \S03_s, \S18_s, 64-21
     rori \S18_s, \S17_s, 64-15
     rori \S17_s, \S11_s, 64-10
-    rori \S11_s, \S09_s, 64-20;             vor.vv  \T02_v, \T02_v, \S08_v
+    rori \S11_s, \S09_s, 64-20
+    vor.vv  \T02_v, \T02_v, \S08_v
     rori \S09_s, \S22_s, 64-61
     rori \S22_s, \S14_s, 64-39
     rori \S14_s, \S20_s, 64-18
@@ -1329,7 +1503,8 @@ constants_keccak:
     rori \S04_s, \S24_s, 64-14
     rori \S24_s, \S21_s, 64-2
     rori \S21_s, \S05_s, 64-36
-    andn \T02_s, \S07_s, \S11_s;            vxor.vv \S07_v, \S07_v, \T02_v
+    andn \T02_s, \S07_s, \S11_s
+    vxor.vv \S07_v, \S07_v, \T02_v
     xor \S05_s, \T02_s, \S10_s
     andn \T03_s, \S08_s, \S07_s
     xor \S06_s, \T03_s, \S11_s
@@ -1337,7 +1512,8 @@ constants_keccak:
     xor \S07_s, \T02_s, \S07_s
     andn \T03_s, \S10_s, \S09_s
     xor \S08_s, \T03_s, \S08_s
-    andn \T02_s, \S11_s, \S10_s;            vor.vv \T03_v, \S09_v, \S10_v
+    andn \T02_s, \S11_s, \S10_s
+    vor.vv \T03_v, \S09_v, \S10_v
     xor \S09_s, \T02_s, \S09_s
     andn \T03_s, \S12_s, \S16_s
     xor \S10_s, \T03_s, \S15_s
@@ -1346,7 +1522,8 @@ constants_keccak:
     andn \T03_s, \S14_s, \S13_s
     xor \S12_s, \T03_s, \S12_s
     andn \T02_s, \S15_s, \S14_s
-    xor \S13_s, \T02_s, \S13_s;             vxor.vv \S08_v, \S08_v, \T03_v
+    xor \S13_s, \T02_s, \S13_s
+    vxor.vv \S08_v, \S08_v, \T03_v
     andn \T03_s, \S16_s, \S15_s
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
@@ -1354,7 +1531,8 @@ constants_keccak:
     andn \T03_s, \S18_s, \S17_s
     xor \S16_s, \T03_s, \S21_s
     andn \T02_s, \S19_s, \S18_s
-    xor \S17_s, \T02_s, \S17_s;             vand.vv \T02_v, \S10_v, \S11_v
+    xor \S17_s, \T02_s, \S17_s
+    vand.vv \T02_v, \S10_v, \S11_v
     andn \T03_s, \S20_s, \S19_s
     xor \S18_s, \T03_s, \S18_s
     andn \T02_s, \S21_s, \S20_s
@@ -1362,7 +1540,8 @@ constants_keccak:
     andn \T03_s, \S22_s, \S01_s
     xor \S20_s, \T03_s, \S00_s
     andn \T02_s, \S23_s, \S22_s
-    xor \S21_s, \T02_s, \S01_s;             vxor.vv \S09_v, \S09_v, \T02_v
+    xor \S21_s, \T02_s, \S01_s
+    vxor.vv \S09_v, \S09_v, \T02_v
     andn \T03_s, \S24_s, \S23_s
     xor \S22_s, \T03_s, \S22_s
     andn \T02_s, \S00_s, \S24_s
@@ -1370,7 +1549,8 @@ constants_keccak:
     andn \T03_s, \S01_s, \S00_s
     xor \S24_s, \T03_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
-    xor \S00_s, \T02_s, \T00_s;             vor.vv \T03_v, \S16_v, \S12_v
+    xor \S00_s, \T02_s, \T00_s
+    vor.vv \T03_v, \S16_v, \S12_v
     andn \T03_s, \S03_s, \S02_s
     xor \S01_s, \T03_s, \T01_s
     andn \T02_s, \S04_s, \S03_s
@@ -1378,7 +1558,8 @@ constants_keccak:
     andn \T03_s, \T00_s, \S04_s
     xor \S03_s, \T03_s, \S03_s
     andn \T02_s, \T01_s, \T00_s
-    xor \S04_s, \T02_s, \S04_s;             vxor.vv \S10_v, \S15_v, \T03_v
+    xor \S04_s, \T02_s, \S04_s
+    vxor.vv \S10_v, \S15_v, \T03_v
     ld   \T04_s, 17*8(sp)
     ld   \T03_s, 0(\T04_s)
     xor  \S00_s, \S00_s, \T03_s
@@ -1387,7 +1568,8 @@ constants_keccak:
     xor \T00_s, \S00_s, \S05_s
     xor \T00_s, \T00_s, \S10_s
     xor \T00_s, \T00_s, \S15_s
-    xor \T00_s, \T00_s, \S20_s;             vand.vv \T02_v, \S12_v, \S13_v
+    xor \T00_s, \T00_s, \S20_s
+    vand.vv \T02_v, \S12_v, \S13_v
     xor \T01_s, \S02_s, \S07_s
     xor \T01_s, \T01_s, \S12_s
     xor \T01_s, \T01_s, \S17_s
@@ -1395,7 +1577,8 @@ constants_keccak:
     rori \T02_s, \T01_s, 64-1
     xor  \T02_s, \T02_s, \T00_s
     xor \T03_s, \S01_s, \S06_s
-    xor \T03_s, \T03_s, \S11_s;             vxor.vv \S11_v, \S16_v, \T02_v
+    xor \T03_s, \T03_s, \S11_s
+    vxor.vv \S11_v, \S16_v, \T02_v
     xor \T03_s, \T03_s, \S16_s
     xor \T03_s, \T03_s, \S21_s
     xor \S01_s, \S01_s, \T02_s
@@ -1403,7 +1586,8 @@ constants_keccak:
     xor \S11_s, \S11_s, \T02_s
     xor \S16_s, \S16_s, \T02_s
     xor \S21_s, \S21_s, \T02_s
-    xor \T02_s, \S04_s, \S09_s;             vnot.v \T03_v, \S13_v
+    xor \T02_s, \S04_s, \S09_s
+    vnot.v \T03_v, \S13_v
     xor \T02_s, \T02_s, \S14_s
     xor \T02_s, \T02_s, \S19_s
     xor \T02_s, \T02_s, \S24_s
@@ -1411,7 +1595,8 @@ constants_keccak:
     xor  \T01_s, \T01_s, \T04_s
     xor \T04_s, \S03_s, \S08_s
     xor \T04_s, \T04_s, \S13_s
-    xor \T04_s, \T04_s, \S18_s;             vand.vv \T03_v, \T03_v, \S14_v
+    xor \T04_s, \T04_s, \S18_s
+    vand.vv \T03_v, \T03_v, \S14_v
     xor \T04_s, \T04_s, \S23_s
     xor \S03_s, \S03_s, \T01_s
     xor \S08_s, \S08_s, \T01_s
@@ -1419,7 +1604,8 @@ constants_keccak:
     xor \S18_s, \S18_s, \T01_s
     xor \S23_s, \S23_s, \T01_s
     rori \T00_s, \T00_s, 64-1
-    xor  \T00_s, \T00_s, \T04_s;            vxor.vv \S12_v, \S12_v, \T03_v
+    xor  \T00_s, \T00_s, \T04_s
+    vxor.vv \S12_v, \S12_v, \T03_v
     xor \S04_s, \S04_s, \T00_s
     xor \S09_s, \S09_s, \T00_s
     xor \S14_s, \S14_s, \T00_s
@@ -1428,7 +1614,8 @@ constants_keccak:
     rori \T04_s, \T04_s, 64-1
     xor  \T04_s, \T04_s, \T03_s
     xor \S02_s, \S02_s, \T04_s
-    xor \S07_s, \S07_s, \T04_s;             vnot.v \T03_v, \S13_v
+    xor \S07_s, \S07_s, \T04_s
+    vnot.v \T03_v, \S13_v
     xor \S12_s, \S12_s, \T04_s
     xor \S17_s, \S17_s, \T04_s
     xor \S22_s, \S22_s, \T04_s
@@ -1436,7 +1623,8 @@ constants_keccak:
     xor  \T03_s, \T03_s, \T02_s
     xor \S05_s, \S05_s, \T03_s
     xor \S10_s, \S10_s, \T03_s
-    xor \S15_s, \S15_s, \T03_s;             vor.vv  \T02_v, \S14_v, \S15_v
+    xor \S15_s, \S15_s, \T03_s
+    vor.vv  \T02_v, \S14_v, \S15_v
     xor \S20_s, \S20_s, \T03_s
     xor \T00_s, \S00_s, \T03_s
     rori \T01_s, \S06_s, 64-44
@@ -1444,7 +1632,8 @@ constants_keccak:
     rori \S02_s, \S12_s, 64-43
     rori \S12_s, \S13_s, 64-25
     rori \S13_s, \S19_s, 64-8
-    rori \S19_s, \S23_s, 64-56;             vxor.vv \S13_v, \T03_v, \T02_v
+    rori \S19_s, \S23_s, 64-56
+    vxor.vv \S13_v, \T03_v, \T02_v
     rori \S23_s, \S15_s, 64-41
     rori \S15_s, \S01_s, 64-1
     rori \S01_s, \S08_s, 64-55
@@ -1452,7 +1641,8 @@ constants_keccak:
     rori \S16_s, \S07_s, 64-6
     rori \S07_s, \S10_s, 64-3
     rori \S10_s, \S03_s, 64-28
-    rori \S03_s, \S18_s, 64-21;             vand.vv \T03_v, \S15_v, \S16_v
+    rori \S03_s, \S18_s, 64-21
+    vand.vv \T03_v, \S15_v, \S16_v
     rori \S18_s, \S17_s, 64-15
     rori \S17_s, \S11_s, 64-10
     rori \S11_s, \S09_s, 64-20
@@ -1460,7 +1650,8 @@ constants_keccak:
     rori \S22_s, \S14_s, 64-39
     rori \S14_s, \S20_s, 64-18
     rori \S20_s, \S04_s, 64-27
-    rori \S04_s, \S24_s, 64-14;             vxor.vv \S14_v, \S14_v, \T03_v
+    rori \S04_s, \S24_s, 64-14
+    vxor.vv \S14_v, \S14_v, \T03_v
     rori \S24_s, \S21_s, 64-2
     rori \S21_s, \S05_s, 64-36
     andn \T02_s, \S07_s, \S11_s
@@ -1469,7 +1660,8 @@ constants_keccak:
     xor \S06_s, \T03_s, \S11_s
     andn \T02_s, \S09_s, \S08_s
     xor \S07_s, \T02_s, \S07_s
-    andn \T03_s, \S10_s, \S09_s;            vand.vv \T02_v, \S21_v, \S17_v
+    andn \T03_s, \S10_s, \S09_s
+    vand.vv \T02_v, \S21_v, \S17_v
     xor \S08_s, \T03_s, \S08_s
     andn \T02_s, \S11_s, \S10_s
     xor \S09_s, \T02_s, \S09_s
@@ -1477,7 +1669,8 @@ constants_keccak:
     xor \S10_s, \T03_s, \S15_s
     andn \T02_s, \S13_s, \S12_s
     xor \S11_s, \T02_s, \S16_s
-    andn \T03_s, \S14_s, \S13_s;            vxor.vv \S15_v, \S20_v, \T02_v
+    andn \T03_s, \S14_s, \S13_s
+    vxor.vv \S15_v, \S20_v, \T02_v
     xor \S12_s, \T03_s, \S12_s
     andn \T02_s, \S15_s, \S14_s
     xor \S13_s, \T02_s, \S13_s
@@ -1485,7 +1678,8 @@ constants_keccak:
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
     xor \S15_s, \T02_s, \S20_s
-    andn \T03_s, \S18_s, \S17_s;            vor.vv \T03_v, \S17_v, \S18_v
+    andn \T03_s, \S18_s, \S17_s
+    vor.vv \T03_v, \S17_v, \S18_v
     xor \S16_s, \T03_s, \S21_s
     andn \T02_s, \S19_s, \S18_s
     xor \S17_s, \T02_s, \S17_s
@@ -1493,7 +1687,8 @@ constants_keccak:
     xor \S18_s, \T03_s, \S18_s
     andn \T02_s, \S21_s, \S20_s
     xor \S19_s, \T02_s, \S19_s
-    andn \T03_s, \S22_s, \S01_s;            vxor.vv \S16_v, \S21_v, \T03_v
+    andn \T03_s, \S22_s, \S01_s
+    vxor.vv \S16_v, \S21_v, \T03_v
     xor \S20_s, \T03_s, \S00_s
     andn \T02_s, \S23_s, \S22_s
     xor \S21_s, \T02_s, \S01_s
@@ -1501,7 +1696,8 @@ constants_keccak:
     xor \S22_s, \T03_s, \S22_s
     andn \T02_s, \S00_s, \S24_s
     xor \S23_s, \T02_s, \S23_s
-    andn \T03_s, \S01_s, \S00_s;            vnot.v \T02_v, \S18_v
+    andn \T03_s, \S01_s, \S00_s
+    vnot.v \T02_v, \S18_v
     xor \S24_s, \T03_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
     xor \S00_s, \T02_s, \T00_s
@@ -1510,7 +1706,8 @@ constants_keccak:
     andn \T02_s, \S04_s, \S03_s
     xor \S02_s, \T02_s, \S02_s
     andn \T03_s, \T00_s, \S04_s
-    xor \S03_s, \T03_s, \S03_s;             vor.vv  \T02_v, \T02_v, \S19_v
+    xor \S03_s, \T03_s, \S03_s
+    vor.vv  \T02_v, \T02_v, \S19_v
     andn \T02_s, \T01_s, \T00_s
     xor \S04_s, \T02_s, \S04_s
     ld   \T04_s, 17*8(sp)
@@ -1518,7 +1715,8 @@ constants_keccak:
     xor  \S00_s, \S00_s, \T03_s
     addi \T04_s, \T04_s, 8
     sd   \T04_s, 17*8(sp)
-    xor \T00_s, \S00_s, \S05_s;             vxor.vv \S17_v, \S17_v, \T02_v
+    xor \T00_s, \S00_s, \S05_s
+    vxor.vv \S17_v, \S17_v, \T02_v
     xor \T00_s, \T00_s, \S10_s
     xor \T00_s, \T00_s, \S15_s
     xor \T00_s, \T00_s, \S20_s
@@ -1526,7 +1724,8 @@ constants_keccak:
     xor \T01_s, \T01_s, \S12_s
     xor \T01_s, \T01_s, \S17_s
     xor \T01_s, \T01_s, \S22_s
-    rori \T02_s, \T01_s, 64-1;              vnot.v \T02_v, \S18_v
+    rori \T02_s, \T01_s, 64-1
+    vnot.v \T02_v, \S18_v
     xor  \T02_s, \T02_s, \T00_s
     xor \T03_s, \S01_s, \S06_s
     xor \T03_s, \T03_s, \S11_s
@@ -1534,7 +1733,8 @@ constants_keccak:
     xor \T03_s, \T03_s, \S21_s
     xor \S01_s, \S01_s, \T02_s
     xor \S06_s, \S06_s, \T02_s
-    xor \S11_s, \S11_s, \T02_s;             vand.vv \T03_v, \S19_v, \S20_v
+    xor \S11_s, \S11_s, \T02_s
+    vand.vv \T03_v, \S19_v, \S20_v
     xor \S16_s, \S16_s, \T02_s
     xor \S21_s, \S21_s, \T02_s
     xor \T02_s, \S04_s, \S09_s
@@ -1542,7 +1742,8 @@ constants_keccak:
     xor \T02_s, \T02_s, \S19_s
     xor \T02_s, \T02_s, \S24_s
     rori \T04_s, \T02_s, 63
-    xor  \T01_s, \T01_s, \T04_s;            vxor.vv \S18_v, \T02_v, \T03_v
+    xor  \T01_s, \T01_s, \T04_s
+    vxor.vv \S18_v, \T02_v, \T03_v
     xor \T04_s, \S03_s, \S08_s
     xor \T04_s, \T04_s, \S13_s
     xor \T04_s, \T04_s, \S18_s
@@ -1551,7 +1752,8 @@ constants_keccak:
     xor \S08_s, \S08_s, \T01_s
     xor \S13_s, \S13_s, \T01_s
     xor \S18_s, \S18_s, \T01_s
-    xor \S23_s, \S23_s, \T01_s;             vor.vv \T02_v, \S20_v, \S21_v
+    xor \S23_s, \S23_s, \T01_s
+    vor.vv \T02_v, \S20_v, \S21_v
     rori \T00_s, \T00_s, 64-1
     xor  \T00_s, \T00_s, \T04_s
     xor \S04_s, \S04_s, \T00_s
@@ -1559,7 +1761,8 @@ constants_keccak:
     xor \S14_s, \S14_s, \T00_s
     xor \S19_s, \S19_s, \T00_s
     xor \S24_s, \S24_s, \T00_s
-    rori \T04_s, \T04_s, 64-1;              vxor.vv \S19_v, \S19_v, \T02_v
+    rori \T04_s, \T04_s, 64-1
+    vxor.vv \S19_v, \S19_v, \T02_v
     xor  \T04_s, \T04_s, \T03_s
     xor \S02_s, \S02_s, \T04_s
     xor \S07_s, \S07_s, \T04_s
@@ -1567,7 +1770,8 @@ constants_keccak:
     xor \S17_s, \S17_s, \T04_s
     xor \S22_s, \S22_s, \T04_s
     rori \T03_s, \T03_s, 64-1
-    xor  \T03_s, \T03_s, \T02_s;            vnot.v \T03_v, \S01_v
+    xor  \T03_s, \T03_s, \T02_s
+    vnot.v \T03_v, \S01_v
     xor \S05_s, \S05_s, \T03_s
     xor \S10_s, \S10_s, \T03_s
     xor \S15_s, \S15_s, \T03_s
@@ -1575,7 +1779,8 @@ constants_keccak:
     xor \T00_s, \S00_s, \T03_s
     rori \T01_s, \S06_s, 64-44
     rori \S00_s, \S02_s, 64-62
-    rori \S02_s, \S12_s, 64-43;             vand.vv \T03_v, \T03_v, \S22_v
+    rori \S02_s, \S12_s, 64-43
+    vand.vv \T03_v, \T03_v, \S22_v
     rori \S12_s, \S13_s, 64-25
     rori \S13_s, \S19_s, 64-8
     rori \S19_s, \S23_s, 64-56
@@ -1583,7 +1788,8 @@ constants_keccak:
     rori \S15_s, \S01_s, 64-1
     rori \S01_s, \S08_s, 64-55
     rori \S08_s, \S16_s, 64-45
-    rori \S16_s, \S07_s, 64-6;              vxor.vv \S20_v, \S00_v, \T03_v
+    rori \S16_s, \S07_s, 64-6
+    vxor.vv \S20_v, \S00_v, \T03_v
     rori \S07_s, \S10_s, 64-3
     rori \S10_s, \S03_s, 64-28
     rori \S03_s, \S18_s, 64-21
@@ -1592,7 +1798,8 @@ constants_keccak:
     rori \S11_s, \S09_s, 64-20
     rori \S09_s, \S22_s, 64-61
     rori \S22_s, \S14_s, 64-39
-    rori \S14_s, \S20_s, 64-18;             vnot.v \T03_v, \S01_v
+    rori \S14_s, \S20_s, 64-18
+    vnot.v \T03_v, \S01_v
     rori \S20_s, \S04_s, 64-27
     rori \S04_s, \S24_s, 64-14
     rori \S24_s, \S21_s, 64-2
@@ -1600,7 +1807,8 @@ constants_keccak:
     andn \T02_s, \S07_s, \S11_s
     xor \S05_s, \T02_s, \S10_s
     andn \T03_s, \S08_s, \S07_s
-    xor \S06_s, \T03_s, \S11_s;             vor.vv  \T02_v, \S22_v, \S23_v
+    xor \S06_s, \T03_s, \S11_s
+    vor.vv  \T02_v, \S22_v, \S23_v
     andn \T02_s, \S09_s, \S08_s
     xor \S07_s, \T02_s, \S07_s
     andn \T03_s, \S10_s, \S09_s
@@ -1608,7 +1816,8 @@ constants_keccak:
     andn \T02_s, \S11_s, \S10_s
     xor \S09_s, \T02_s, \S09_s
     andn \T03_s, \S12_s, \S16_s
-    xor \S10_s, \T03_s, \S15_s;             vxor.vv \S21_v, \T03_v, \T02_v
+    xor \S10_s, \T03_s, \S15_s
+    vxor.vv \S21_v, \T03_v, \T02_v
     andn \T02_s, \S13_s, \S12_s
     xor \S11_s, \T02_s, \S16_s
     andn \T03_s, \S14_s, \S13_s
@@ -1616,7 +1825,8 @@ constants_keccak:
     andn \T02_s, \S15_s, \S14_s
     xor \S13_s, \T02_s, \S13_s
     andn \T03_s, \S16_s, \S15_s
-    xor \S14_s, \T03_s, \S14_s;             vand.vv \T03_v, \S23_v, \S24_v
+    xor \S14_s, \T03_s, \S14_s
+    vand.vv \T03_v, \S23_v, \S24_v
     andn \T02_s, \S17_s, \S21_s
     xor \S15_s, \T02_s, \S20_s
     andn \T03_s, \S18_s, \S17_s
@@ -1624,7 +1834,8 @@ constants_keccak:
     andn \T02_s, \S19_s, \S18_s
     xor \S17_s, \T02_s, \S17_s
     andn \T03_s, \S20_s, \S19_s
-    xor \S18_s, \T03_s, \S18_s;             vxor.vv \S22_v, \S22_v, \T03_v
+    xor \S18_s, \T03_s, \S18_s
+    vxor.vv \S22_v, \S22_v, \T03_v
     andn \T02_s, \S21_s, \S20_s
     xor \S19_s, \T02_s, \S19_s
     andn \T03_s, \S22_s, \S01_s
@@ -1633,7 +1844,8 @@ constants_keccak:
     xor \S21_s, \T02_s, \S01_s
     andn \T03_s, \S24_s, \S23_s
     xor \S22_s, \T03_s, \S22_s
-    andn \T02_s, \S00_s, \S24_s;            vor.vv \T02_v, \S24_v, \S00_v
+    andn \T02_s, \S00_s, \S24_s
+    vor.vv \T02_v, \S24_v, \S00_v
     xor \S23_s, \T02_s, \S23_s
     andn \T03_s, \S01_s, \S00_s
     xor \S24_s, \T03_s, \S24_s
@@ -1641,7 +1853,8 @@ constants_keccak:
     xor \S00_s, \T02_s, \T00_s
     andn \T03_s, \S03_s, \S02_s
     xor \S01_s, \T03_s, \T01_s
-    andn \T02_s, \S04_s, \S03_s;            vxor.vv \S23_v, \S23_v, \T02_v
+    andn \T02_s, \S04_s, \S03_s
+    vxor.vv \S23_v, \S23_v, \T02_v
     xor \S02_s, \T02_s, \S02_s
     andn \T03_s, \T00_s, \S04_s
     xor \S03_s, \T03_s, \S03_s
@@ -1649,7 +1862,8 @@ constants_keccak:
     xor \S04_s, \T02_s, \S04_s
     ld   \T04_s, 17*8(sp)
     ld   \T03_s, 0(\T04_s)
-    xor  \S00_s, \S00_s, \T03_s;            vand.vv \T03_v, \S00_v, \S01_v
+    xor  \S00_s, \S00_s, \T03_s
+    vand.vv \T03_v, \S00_v, \S01_v
     addi \T04_s, \T04_s, 8
     sd   \T04_s, 17*8(sp)
     xor \T00_s, \S00_s, \S05_s
@@ -1657,7 +1871,8 @@ constants_keccak:
     xor \T00_s, \T00_s, \S15_s
     xor \T00_s, \T00_s, \S20_s
     xor \T01_s, \S02_s, \S07_s
-    xor \T01_s, \T01_s, \S12_s;             vxor.vv \S24_v, \S24_v, \T03_v
+    xor \T01_s, \T01_s, \S12_s
+    vxor.vv \S24_v, \S24_v, \T03_v
     xor \T01_s, \T01_s, \S17_s
     xor \T01_s, \T01_s, \S22_s
     rori \T02_s, \T01_s, 64-1
@@ -1665,7 +1880,8 @@ constants_keccak:
     xor \T03_s, \S01_s, \S06_s
     xor \T03_s, \T03_s, \S11_s
     xor \T03_s, \T03_s, \S16_s
-    xor \T03_s, \T03_s, \S21_s;             vor.vv \T02_v, \T01_v, \S02_v
+    xor \T03_s, \T03_s, \S21_s
+    vor.vv \T02_v, \T01_v, \S02_v
     xor \S01_s, \S01_s, \T02_s
     xor \S06_s, \S06_s, \T02_s
     xor \S11_s, \S11_s, \T02_s
@@ -1674,7 +1890,8 @@ constants_keccak:
     xor \T02_s, \S04_s, \S09_s
     xor \T02_s, \T02_s, \S14_s
     xor \T02_s, \T02_s, \S19_s
-    xor \T02_s, \T02_s, \S24_s;             vxor.vv \S00_v, \T00_v, \T02_v
+    xor \T02_s, \T02_s, \S24_s
+    vxor.vv \S00_v, \T00_v, \T02_v
     rori \T04_s, \T02_s, 63
     xor  \T01_s, \T01_s, \T04_s
     xor \T04_s, \S03_s, \S08_s
@@ -1682,7 +1899,8 @@ constants_keccak:
     xor \T04_s, \T04_s, \S18_s
     xor \T04_s, \T04_s, \S23_s
     xor \S03_s, \S03_s, \T01_s
-    xor \S08_s, \S08_s, \T01_s;             vnot.v \T03_v, \S02_v
+    xor \S08_s, \S08_s, \T01_s
+    vnot.v \T03_v, \S02_v
     xor \S13_s, \S13_s, \T01_s
     xor \S18_s, \S18_s, \T01_s
     xor \S23_s, \S23_s, \T01_s
@@ -1690,7 +1908,8 @@ constants_keccak:
     xor  \T00_s, \T00_s, \T04_s
     xor \S04_s, \S04_s, \T00_s
     xor \S09_s, \S09_s, \T00_s
-    xor \S14_s, \S14_s, \T00_s;             vor.vv \T03_v, \T03_v, \S03_v
+    xor \S14_s, \S14_s, \T00_s
+    vor.vv \T03_v, \T03_v, \S03_v
     xor \S19_s, \S19_s, \T00_s
     xor \S24_s, \S24_s, \T00_s
     rori \T04_s, \T04_s, 64-1
@@ -1698,7 +1917,8 @@ constants_keccak:
     xor \S02_s, \S02_s, \T04_s
     xor \S07_s, \S07_s, \T04_s
     xor \S12_s, \S12_s, \T04_s
-    xor \S17_s, \S17_s, \T04_s;             vxor.vv \S01_v, \T01_v, \T03_v
+    xor \S17_s, \S17_s, \T04_s
+    vxor.vv \S01_v, \T01_v, \T03_v
     xor \S22_s, \S22_s, \T04_s
     rori \T03_s, \T03_s, 64-1
     xor  \T03_s, \T03_s, \T02_s
@@ -1706,7 +1926,8 @@ constants_keccak:
     xor \S10_s, \S10_s, \T03_s
     xor \S15_s, \S15_s, \T03_s
     xor \S20_s, \S20_s, \T03_s
-    xor \T00_s, \S00_s, \T03_s;             vand.vv \T02_v, \S03_v, \S04_v
+    xor \T00_s, \S00_s, \T03_s
+    vand.vv \T02_v, \S03_v, \S04_v
     rori \T01_s, \S06_s, 64-44
     rori \S00_s, \S02_s, 64-62
     rori \S02_s, \S12_s, 64-43
@@ -1715,7 +1936,8 @@ constants_keccak:
     rori \S19_s, \S23_s, 64-56
     rori \S23_s, \S15_s, 64-41
     rori \S15_s, \S01_s, 64-1
-    rori \S01_s, \S08_s, 64-55;             vxor.vv \S02_v, \S02_v, \T02_v
+    rori \S01_s, \S08_s, 64-55
+    vxor.vv \S02_v, \S02_v, \T02_v
     rori \S08_s, \S16_s, 64-45
     rori \S16_s, \S07_s, 64-6
     rori \S07_s, \S10_s, 64-3
@@ -1723,7 +1945,8 @@ constants_keccak:
     rori \S03_s, \S18_s, 64-21
     rori \S18_s, \S17_s, 64-15
     rori \S17_s, \S11_s, 64-10
-    rori \S11_s, \S09_s, 64-20;             vor.vv \T03_v, \S04_v, \T00_v
+    rori \S11_s, \S09_s, 64-20
+    vor.vv \T03_v, \S04_v, \T00_v
     rori \S09_s, \S22_s, 64-61
     rori \S22_s, \S14_s, 64-39
     rori \S14_s, \S20_s, 64-18
@@ -1731,7 +1954,8 @@ constants_keccak:
     rori \S04_s, \S24_s, 64-14
     rori \S24_s, \S21_s, 64-2
     rori \S21_s, \S05_s, 64-36
-    andn \T02_s, \S07_s, \S11_s;            vxor.vv \S03_v, \S03_v, \T03_v
+    andn \T02_s, \S07_s, \S11_s
+    vxor.vv \S03_v, \S03_v, \T03_v
     xor \S05_s, \T02_s, \S10_s
     andn \T03_s, \S08_s, \S07_s
     xor \S06_s, \T03_s, \S11_s
@@ -1739,7 +1963,8 @@ constants_keccak:
     xor \S07_s, \T02_s, \S07_s
     andn \T03_s, \S10_s, \S09_s
     xor \S08_s, \T03_s, \S08_s
-    andn \T02_s, \S11_s, \S10_s;            vand.vv \T02_v, \T00_v, \T01_v
+    andn \T02_s, \S11_s, \S10_s
+    vand.vv \T02_v, \T00_v, \T01_v
     xor \S09_s, \T02_s, \S09_s
     andn \T03_s, \S12_s, \S16_s
     xor \S10_s, \T03_s, \S15_s
@@ -1747,16 +1972,19 @@ constants_keccak:
     xor \S11_s, \T02_s, \S16_s
     andn \T03_s, \S14_s, \S13_s
     xor \S12_s, \T03_s, \S12_s
-    andn \T02_s, \S15_s, \S14_s;            vxor.vv \S04_v, \S04_v, \T02_v
+    andn \T02_s, \S15_s, \S14_s
+    vxor.vv \S04_v, \S04_v, \T02_v
     xor \S13_s, \T02_s, \S13_s
     andn \T03_s, \S16_s, \S15_s
     xor \S14_s, \T03_s, \S14_s
     andn \T02_s, \S17_s, \S21_s
     xor \S15_s, \T02_s, \S20_s
     andn \T02_s, \S18_s, \S17_s
-    xor \S16_s, \T02_s, \S21_s;             ld   \T03_s, 18*8(sp)
+    xor \S16_s, \T02_s, \S21_s
+    ld   \T03_s, 18*8(sp)
     andn \T02_s, \S19_s, \S18_s
-    xor \S17_s, \T02_s, \S17_s;             ld   \T04_s, 0(\T03_s)
+    xor \S17_s, \T02_s, \S17_s
+    ld   \T04_s, 0(\T03_s)
     andn \T02_s, \S20_s, \S19_s
     xor \S18_s, \T02_s, \S18_s
     andn \T02_s, \S21_s, \S20_s
@@ -1764,7 +1992,8 @@ constants_keccak:
     andn \T02_s, \S22_s, \S01_s
     xor \S20_s, \T02_s, \S00_s
     andn \T02_s, \S23_s, \S22_s
-    xor \S21_s, \T02_s, \S01_s;             vxor.vx \S00_v, \S00_v, \T04_s
+    xor \S21_s, \T02_s, \S01_s
+    vxor.vx \S00_v, \S00_v, \T04_s
     andn \T02_s, \S24_s, \S23_s
     xor \S22_s, \T02_s, \S22_s
     andn \T02_s, \S00_s, \S24_s
@@ -1772,8 +2001,10 @@ constants_keccak:
     andn \T02_s, \S01_s, \S00_s
     xor \S24_s, \T02_s, \S24_s
     andn \T02_s, \S02_s, \T01_s
-    xor \S00_s, \T02_s, \T00_s;             addi \T03_s, \T03_s, 8
-    andn \T02_s, \S03_s, \S02_s;            sd   \T03_s, 18*8(sp)
+    xor \S00_s, \T02_s, \T00_s
+    addi \T03_s, \T03_s, 8
+    andn \T02_s, \S03_s, \S02_s
+    sd   \T03_s, 18*8(sp)
     xor \S01_s, \T02_s, \T01_s
     andn \T02_s, \S04_s, \S03_s
     xor \S02_s, \T02_s, \S02_s

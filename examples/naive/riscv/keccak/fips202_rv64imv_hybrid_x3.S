@@ -289,10 +289,14 @@ constants_keccak:
 .macro XOR5 \
         out_v, S00_v, S01_v, S02_v, S03_v, S04_v, \
         out_s, S00_s, S01_s, S02_s, S03_s, S04_s
-    xor     \out_s, \S00_s, \S01_s;             vxor.vv \out_v, \S00_v, \S01_v
-    xor     \out_s, \out_s, \S02_s;             vxor.vv \out_v, \out_v, \S02_v
-    xor     \out_s, \out_s, \S03_s;             vxor.vv \out_v, \out_v, \S03_v
-    xor     \out_s, \out_s, \S04_s;             vxor.vv \out_v, \out_v, \S04_v
+    xor     \out_s, \S00_s, \S01_s
+    vxor.vv \out_v, \S00_v, \S01_v
+    xor     \out_s, \out_s, \S02_s
+    vxor.vv \out_v, \out_v, \S02_v
+    xor     \out_s, \out_s, \S03_s
+    vxor.vv \out_v, \out_v, \S03_v
+    xor     \out_s, \out_s, \S04_s
+    vxor.vv \out_v, \out_v, \S04_v
 .endm
 
 .macro ROLn \
@@ -300,14 +304,20 @@ constants_keccak:
         out_s, in_s, tmp_s, tmp1_s, n
 .if \n < 32
     li      \tmp1_s, 64-\n
-    slli    \tmp_s, \in_s, \n;                  vsll.vi \tmp_v, \in_v, \n
-    srli    \out_s, \in_s, 64-\n;               vsrl.vx \out_v, \in_v, \tmp1_s
-    xor     \out_s, \out_s, \tmp_s;             vxor.vv \out_v, \out_v, \tmp_v
+    slli    \tmp_s, \in_s, \n
+    vsll.vi \tmp_v, \in_v, \n
+    srli    \out_s, \in_s, 64-\n
+    vsrl.vx \out_v, \in_v, \tmp1_s
+    xor     \out_s, \out_s, \tmp_s
+    vxor.vv \out_v, \out_v, \tmp_v
 .else
     li      \tmp1_s, \n
-    slli    \tmp_s, \in_s, \n;                  vsll.vx \tmp_v, \in_v, \tmp1_s
-    srli    \out_s, \in_s, 64-\n;               vsrl.vi \out_v, \in_v, 64-\n
-    xor     \out_s, \out_s, \tmp_s;             vxor.vv \out_v, \out_v, \tmp_v
+    slli    \tmp_s, \in_s, \n
+    vsll.vx \tmp_v, \in_v, \tmp1_s
+    srli    \out_s, \in_s, 64-\n
+    vsrl.vi \out_v, \in_v, 64-\n
+    xor     \out_s, \out_s, \tmp_s
+    xor.vv \out_v, \out_v, \tmp_v
 .endif
 
 .endm
@@ -321,73 +331,100 @@ constants_keccak:
 .macro EachXOR \
         S00_v, S01_v, S02_v, S03_v, S04_v, D_v, \
         S00_s, S01_s, S02_s, S03_s, S04_s, D_s
-    xor     \S00_s, \S00_s, \D_s;               vxor.vv \S00_v, \S00_v, \D_v
-    xor     \S01_s, \S01_s, \D_s;               vxor.vv \S01_v, \S01_v, \D_v
-    xor     \S02_s, \S02_s, \D_s;               vxor.vv \S02_v, \S02_v, \D_v
-    xor     \S03_s, \S03_s, \D_s;               vxor.vv \S03_v, \S03_v, \D_v
-    xor     \S04_s, \S04_s, \D_s;               vxor.vv \S04_v, \S04_v, \D_v
+    xor     \S00_s, \S00_s, \D_s
+    vxor.vv \S00_v, \S00_v, \D_v
+    xor     \S01_s, \S01_s, \D_s
+    vxor.vv \S01_v, \S01_v, \D_v
+    xor     \S02_s, \S02_s, \D_s
+    vxor.vv \S02_v, \S02_v, \D_v
+    xor     \S03_s, \S03_s, \D_s
+    vxor.vv \S03_v, \S03_v, \D_v
+    xor     \S04_s, \S04_s, \D_s
+    vxor.vv \S04_v, \S04_v, \D_v
 .endm
 
 .macro ChiOp \
         out_v, S00_v, S01_v, S02_v, T_v, \
         out_s, S00_s, S01_s, S02_s, T_s
-    not     \T_s, \S01_s;                       vnot.v  \T_v, \S01_v
-    and     \T_s, \T_s, \S02_s;                 vand.vv \T_v, \T_v, \S02_v
-    xor     \out_s, \T_s, \S00_s;               vxor.vv \out_v, \T_v, \S00_v
+    not     \T_s, \S01_s
+    vnot.v  \T_v, \S01_v
+    and     \T_s, \T_s, \S02_s
+    vand.vv \T_v, \T_v, \S02_v
+    xor     \out_s, \T_s, \S00_s
+    vxor.vv \out_v, \T_v, \S00_v
 .endm
 
 .macro xoror \
         out_v, S00_v, S01_v, S02_v, T_v, \
         out_s, S00_s, S01_s, S02_s, T_s
-    or      \T_s, \S01_s, \S02_s;               vor.vv  \T_v, \S01_v, \S02_v
-    xor     \out_s, \S00_s, \T_s;               vxor.vv \out_v, \S00_v, \T_v
+    or      \T_s, \S01_s, \S02_s
+    vor.vv  \T_v, \S01_v, \S02_v
+    xor     \out_s, \S00_s, \T_s
+    vxor.vv \out_v, \S00_v, \T_v
 .endm
 
 .macro xornotor \
         out_v, S00_v, S01_v, S02_v, T_v, \
         out_s, S00_s, S01_s, S02_s, T_s
-    not     \T_s, \S01_s;                       vnot.v  \T_v, \S01_v
-    or      \T_s, \T_s, \S02_s;                 vor.vv  \T_v, \T_v, \S02_v
-    xor     \out_s, \S00_s, \T_s;               vxor.vv \out_v, \S00_v, \T_v
+    not     \T_s, \S01_s
+    vnot.v  \T_v, \S01_v
+    or      \T_s, \T_s, \S02_s
+    vor.vv  \T_v, \T_v, \S02_v
+    xor     \out_s, \S00_s, \T_s
+    vxor.vv \out_v, \S00_v, \T_v
 .endm
 
 .macro xorand \
         out_v, S00_v, S01_v, S02_v, T_v, \
         out_s, S00_s, S01_s, S02_s, T_s
-    and     \T_s, \S01_s, \S02_s;               vand.vv \T_v, \S01_v, \S02_v
-    xor     \out_s, \S00_s, \T_s;               vxor.vv \out_v, \S00_v, \T_v
+    and     \T_s, \S01_s, \S02_s
+    vand.vv \T_v, \S01_v, \S02_v
+    xor     \out_s, \S00_s, \T_s
+    vxor.vv \out_v, \S00_v, \T_v
 .endm
 
 .macro xorornot \
         out_v, S00_v, S01_v, S02_v, T_v, \
         out_s, S00_s, S01_s, S02_s, T_s
-    not     \T_s, \S02_s;                       vnot.v  \T_v, \S02_v
-    or      \T_s, \T_s, \S01_s;                 vor.vv  \T_v, \T_v, \S01_v
-    xor     \out_s, \S00_s, \T_s;               vxor.vv \out_v, \S00_v, \T_v
+    not     \T_s, \S02_s
+    vnot.v  \T_v, \S02_v
+    or      \T_s, \T_s, \S01_s
+    vor.vv  \T_v, \T_v, \S01_v
+    xor     \out_s, \S00_s, \T_s
+    vxor.vv \out_v, \S00_v, \T_v
 .endm
 
 .macro xornotand \
         out_v, S00_v, S01_v, S02_v, T_v, \
         out_s, S00_s, S01_s, S02_s, T_s
-    not     \T_s, \S01_s;                       vnot.v  \T_v, \S01_v
-    and     \T_s, \T_s, \S02_s;                 vand.vv \T_v, \T_v, \S02_v
-    xor     \out_s, \S00_s, \T_s;               vxor.vv \out_v, \S00_v, \T_v
+    not     \T_s, \S01_s
+    vnot.v  \T_v, \S01_v
+    and     \T_s, \T_s, \S02_s
+    vand.vv \T_v, \T_v, \S02_v
+    xor     \out_s, \S00_s, \T_s
+    vxor.vv \out_v, \S00_v, \T_v
 .endm
 
 .macro notxoror \
         out_v, S00_v, S01_v, S02_v, T_v, T_v0, \
         out_s, S00_s, S01_s, S02_s, T_s, T0_s
-    not     \T0_s, \S00_s;                      vnot.v  \T_v0, \S00_v
-    or      \T_s, \S01_s, \S02_s;               vor.vv  \T_v, \S01_v, \S02_v
-    xor     \out_s, \T0_s, \T_s;                vxor.vv \out_v, \T_v0, \T_v
+    not     \T0_s, \S00_s
+    vnot.v  \T_v0, \S00_v
+    or      \T_s, \S01_s, \S02_s
+    vor.vv  \T_v, \S01_v, \S02_v
+    xor     \out_s, \T0_s, \T_s
+    vxor.vv \out_v, \T_v0, \T_v
 .endm
 
 .macro notxorand \
         out_v, S00_v, S01_v, S02_v, T_v, T_v0, \
         out_s, S00_s, S01_s, S02_s, T_s, T0_s
-    not     \T0_s, \S00_s;                      vnot.v  \T_v0, \S00_v
-    and     \T_s, \S01_s, \S02_s;               vand.vv \T_v, \S01_v, \S02_v
-    xor     \out_s, \T0_s, \T_s;                vxor.vv \out_v, \T_v0, \T_v
+    not     \T0_s, \S00_s
+    vnot.v  \T_v0, \S00_v
+    and     \T_s, \S01_s, \S02_s
+    vand.vv \T_v, \S01_v, \S02_v
+    xor     \out_s, \T0_s, \T_s
+    vxor.vv \out_v, \T_v0, \T_v
 .endm
 
 .macro ARoundInPlace  \
@@ -407,7 +444,8 @@ constants_keccak:
     # D1 = C0 ^ ROL(C2, 1)
     ROL1 \T02_v, \T01_v, \T03_v, \
          \T02_s, \T01_s, \T03_s, \T04_s
-    xor  \T02_s, \T02_s, \T00_s;              vxor.vv  \T02_v, \T02_v, \T00_v
+    xor  \T02_s, \T02_s, \T00_s
+              vxor.vv  \T02_v, \T02_v, \T00_v
     # T00_s=C0 T01_s=C2 T02_s=D1
 
     # C1 = S01_v ^ S06_v ^ S11_v ^ S16_v ^ S21_v
@@ -425,11 +463,15 @@ constants_keccak:
          \T02_s, \S04_s, \S09_s, \S14_s, \S19_s, \S24_s
     # D3 = C2 ^ ROL(C4, 1); C2 can be overwritten
     # T00_s=C0 T01_s=D3 T03_s=C1 T02_s=C4
-    slli \T04_s, \T02_s, 1;                 vsll.vi \T04_v, \T02_v, 1
-    xor  \T01_s, \T01_s, \T04_s;            vxor.vv \T01_v, \T01_v, \T04_v
+    slli \T04_s, \T02_s, 1
+                 vsll.vi \T04_v, \T02_v, 1
+    xor  \T01_s, \T01_s, \T04_s
+            vxor.vv \T01_v, \T01_v, \T04_v
     li \S01_s, 63
-    srli \T04_s, \T02_s, 63;                vsrl.vx \T04_v, \T02_v, \S01_s
-    xor  \T01_s, \T01_s, \T04_s;            vxor.vv \T01_v, \T01_v, \T04_v
+    srli \T04_s, \T02_s, 63
+                vsrl.vx \T04_v, \T02_v, \S01_s
+    xor  \T01_s, \T01_s, \T04_s
+            vxor.vv \T01_v, \T01_v, \T04_v
 
     # C3 = S03_v ^ S08_v ^ S13_v ^ S18_v ^ S23_v
     XOR5 \T04_v, \S03_v, \S08_v, \S13_v, \S18_v, \S23_v, \
@@ -442,7 +484,8 @@ constants_keccak:
     # D4 = C3 ^ ROL(C0, 1); C0 can be overwritten
     ROL1 \T00_v, \T00_v, \T01_v, \
          \T00_s, \T00_s, \T01_s, \S01_s
-    xor  \T00_s, \T00_s, \T04_s;              vxor.vv \T00_v, \T00_v, \T04_v
+    xor  \T00_s, \T00_s, \T04_s
+              vxor.vv \T00_v, \T00_v, \T04_v
     # S24_v ^= D4; S09_v ^= D4; S19_v ^= D4; S04_v ^= D4; S14_v ^= D4
     EachXOR \S04_v, \S09_v, \S14_v, \S19_v, \S24_v, \T00_v, \
             \S04_s, \S09_s, \S14_s, \S19_s, \S24_s, \T00_s
@@ -450,7 +493,8 @@ constants_keccak:
     # D2 = C1 ^ ROL(C3, 1)
     ROL1 \T04_v, \T04_v, \T01_v, \
          \T04_s, \T04_s, \T01_s, \S01_s
-    xor  \T04_s, \T04_s, \T03_s;              vxor.vv  \T04_v, \T04_v, \T03_v
+    xor  \T04_s, \T04_s, \T03_s
+              vxor.vv  \T04_v, \T04_v, \T03_v
     # S12_v ^= D2; S22_v ^= D2; S07_v ^= D2; S17_v ^= D2; S02_v ^= D2
     EachXOR \S02_v, \S07_v, \S12_v, \S17_v, \S22_v, \T04_v, \
             \S02_s, \S07_s, \S12_s, \S17_s, \S22_s, \T04_s
@@ -458,14 +502,20 @@ constants_keccak:
     # D0 = C4 ^ ROL(C1, 1)
     ROL1 \T03_v, \T03_v, \T01_v, \
          \T03_s, \T03_s, \T01_s, \S01_s
-    xor  \T03_s, \T03_s, \T02_s;              vxor.vv  \T03_v, \T03_v, \T02_v
+    xor  \T03_s, \T03_s, \T02_s
+    vxor.vv  \T03_v, \T03_v, \T02_v
     # S00_v ^= D0; S05_v ^= D0; S10_v ^= D0; S15_v ^= D0; S20_v ^= D0
     # EachXOR \S00_v, \S05_v, \S10_v, \S15_v, \S20_v, \T03_v
-    xor \S05_s, \S05_s, \T03_s;               vxor.vv \S05_v, \S05_v, \T03_v
-    xor \S10_s, \S10_s, \T03_s;               vxor.vv \S10_v, \S10_v, \T03_v
-    xor \S15_s, \S15_s, \T03_s;               vxor.vv \S15_v, \S15_v, \T03_v
-    xor \S20_s, \S20_s, \T03_s;               vxor.vv \S20_v, \S20_v, \T03_v
-    xor \T00_s, \S00_s, \T03_s;               vxor.vv \T00_v, \S00_v, \T03_v
+    xor \S05_s, \S05_s, \T03_s
+    vxor.vv \S05_v, \S05_v, \T03_v
+    xor \S10_s, \S10_s, \T03_s
+    vxor.vv \S10_v, \S10_v, \T03_v
+    xor \S15_s, \S15_s, \T03_s
+    vxor.vv \S15_v, \S15_v, \T03_v
+    xor \S20_s, \S20_s, \T03_s
+    vxor.vv \S20_v, \S20_v, \T03_v
+    xor \T00_s, \S00_s, \T03_s
+    vxor.vv \T00_v, \S00_v, \T03_v
     # theta - end
 
     # restore S01_s from stack
@@ -530,7 +580,8 @@ constants_keccak:
     # Iota
     ld   \T04_s, 17*8(sp)
     ld   \T03_s, 0(\T04_s)
-    xor  \S00_s, \S00_s, \T03_s;              vxor.vx \S00_v, \S00_v, \T03_s
+    xor  \S00_s, \S00_s, \T03_s
+    vxor.vx \S00_v, \S00_v, \T03_s
     addi \T04_s, \T04_s, 8
     sd   \T04_s, 17*8(sp)
     # Rho & Pi & Chi - end
