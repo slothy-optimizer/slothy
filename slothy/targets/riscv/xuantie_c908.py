@@ -39,6 +39,7 @@ from slothy.targets.riscv.rv32_64_i_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_m_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_v_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_pseudo_instructions import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_b_instructions import *  # noqa: F403
 
 issue_rate = 2
 llvm_mca_target = "cortex-a55"
@@ -127,6 +128,18 @@ execution_units = {
         instrs["bgeu"],  # guessed but also not important
         instrs["bnez"],  # guessed but also not important
         instrs["beqz"],  # guessed but also not important
+        instrs["rol"],  # Zbkb instructions are guessed
+        instrs["ror"],
+        instrs["andn"],
+        instrs["orn"],
+        instrs["xnor"],
+        instrs["pack"],
+        instrs["packh"],
+        instrs["rori"],
+        instrs["brev8"],
+        instrs["rev8"],
+        instrs["zip"],
+        instrs["unzip"],  # Zbkb instuctions end
     ): ExecutionUnit.SCALAR(),
     (
         instrs["lb"],
@@ -289,6 +302,18 @@ inverse_throughput = {
         instrs["sra"],
         instrs["lui"],
         instrs["auipc"],
+        instrs["rol"],  # Zbkb instructions are guessed
+        instrs["ror"],
+        instrs["andn"],
+        instrs["orn"],
+        instrs["xnor"],
+        instrs["pack"],
+        instrs["packh"],
+        instrs["rori"],
+        instrs["brev8"],
+        instrs["rev8"],
+        instrs["zip"],
+        instrs["unzip"],  # Zbkb instuctions end
     ): 1,
     (
         instrs["lb"],
@@ -451,6 +476,10 @@ rv32_inverse_throughput = {
     instrs["divu"]: 2,
     instrs["rem"]: 2,
     instrs["remu"]: 2,
+    instrs["rol"]: 1,  # TODO: estimated
+    instrs["ror"]: 1,  # TODO: estimated
+    instrs["rori"]: 1,  # TODO: estimated
+    instrs["pack"]: 1,  # TODO: estimated
 }
 
 default_latencies = {
@@ -517,6 +546,10 @@ rv32_latencies = {
     instrs["divu"]: 4,
     instrs["rem"]: 4,
     instrs["remu"]: 4,
+    instrs["rol"]: 1,  # TODO: estimated
+    instrs["ror"]: 1,  # TODO: estimated
+    instrs["rori"]: 1,  # TODO: estimated
+    instrs["pack"]: 1,  # TODO: estimated
 }
 
 

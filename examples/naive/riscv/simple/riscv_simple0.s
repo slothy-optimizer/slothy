@@ -1,3 +1,3 @@
 start:
-neg x1, x3
+    unzip x1, x2
 end:
