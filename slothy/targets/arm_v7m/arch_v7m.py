@@ -307,7 +307,7 @@ class VmovCmpLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*vmov(?:\.w)?\s+(?P<end>\w+),\s*(?P<endf>\w+)",
             r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
@@ -429,7 +429,7 @@ class BranchLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         # Defines the end of the loop, boolean indicates whether the instruction
         # shall be considered part of the body or not.
         self.end_regex = ((rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}", True),)
@@ -557,7 +557,7 @@ class CmpLoop(Loop):
 
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
             rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}",
@@ -659,7 +659,7 @@ class SubsLoop(Loop):
 
     def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*sub[s]?(?:\.w)?\s+(?P<cnt>\w+),(?:\s*(?P<reg1>\w+),)?\s*(?P<imm>#1)",
             rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl_start}",

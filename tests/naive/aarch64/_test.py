@@ -238,6 +238,22 @@ class AArch64Ubfx(OptimizationRunner):
         slothy.optimize()
 
 
+class AArch64LoopLabels(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_loop_labels"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.optimize_loop(".loop")
+        slothy.optimize_loop("loop")
+        slothy.optimize_loop("1")
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -257,4 +273,5 @@ test_instances = [
     AArch64LoopSubs(),
     AArch64LoopSubTabs(),
     AArch64Ubfx(),
+    AArch64LoopLabels(),
 ]
