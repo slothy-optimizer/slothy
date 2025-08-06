@@ -31,7 +31,6 @@ SLOTHY configuration
 
 
 from copy import deepcopy
-import os
 
 from slothy.helper import LockAttributes, NestedPrint
 
@@ -1391,8 +1390,6 @@ class Config(NestedPrint, LockAttributes):
 
         self.log_model_log_results = True
         self.log_model_results_file = "results.txt"
-        if not os.path.exists(self.log_model_dir):
-            os.makedirs(self.log_model_dir)
 
         self.lock()
 
