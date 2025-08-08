@@ -1309,6 +1309,10 @@ class add_imm(MVEInstruction):
     inputs = ["Rn"]
     outputs = ["Rd"]
 
+class and_imm(MVEInstruction):
+    pattern = "and <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
 
 class sub_imm(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <imm>"
