@@ -325,9 +325,17 @@ Classes
      -
    * - :py:obj:`AArch64ConditionalCompare <slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare>`
      -
+   * - :py:obj:`ccmp <slothy.targets.aarch64.aarch64_neon.ccmp>`
+     -
    * - :py:obj:`ccmp_xzr <slothy.targets.aarch64.aarch64_neon.ccmp_xzr>`
      -
-   * - :py:obj:`ccmp <slothy.targets.aarch64.aarch64_neon.ccmp>`
+   * - :py:obj:`ccmp_xzr2 <slothy.targets.aarch64.aarch64_neon.ccmp_xzr2>`
+     -
+   * - :py:obj:`ccmn <slothy.targets.aarch64.aarch64_neon.ccmn>`
+     -
+   * - :py:obj:`ccmn_xzr <slothy.targets.aarch64.aarch64_neon.ccmn_xzr>`
+     -
+   * - :py:obj:`ccmn_xzr2 <slothy.targets.aarch64.aarch64_neon.ccmn_xzr2>`
      -
    * - :py:obj:`AArch64ConditionalSelect <slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect>`
      -
@@ -4694,35 +4702,6 @@ API
 
    Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
 
-.. py:class:: ccmp_xzr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
-   :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr
-
-   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare`
-
-   .. py:attribute:: pattern
-      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.pattern
-      :value: 'ccmp <Xa>, xzr, <imm>, <flag>'
-
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.pattern
-
-   .. py:attribute:: inputs
-      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.inputs
-      :value: ['Xa']
-
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.inputs
-
-   .. py:attribute:: modifiesFlags
-      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.modifiesFlags
-      :value: True
-
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.modifiesFlags
-
-   .. py:attribute:: dependsOnFlags
-      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.dependsOnFlags
-      :value: True
-
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.dependsOnFlags
-
 .. py:class:: ccmp(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.ccmp
 
@@ -4751,6 +4730,151 @@ API
       :value: True
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp.dependsOnFlags
+
+.. py:class:: ccmp_xzr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.pattern
+      :value: 'ccmp xzr, <Xa>, <imm>, <flag>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.inputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.modifiesFlags
+
+   .. py:attribute:: dependsOnFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.dependsOnFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr.dependsOnFlags
+
+.. py:class:: ccmp_xzr2(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.pattern
+      :value: 'ccmp <Xa>, xzr, <imm>, <flag>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.inputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.modifiesFlags
+
+   .. py:attribute:: dependsOnFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.dependsOnFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.dependsOnFlags
+
+.. py:class:: ccmn(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.ccmn
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn.pattern
+      :value: 'ccmn <Xa>, <Xb>, <imm>, <flag>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn.inputs
+      :value: ['Xa', 'Xb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn.modifiesFlags
+
+   .. py:attribute:: dependsOnFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn.dependsOnFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn.dependsOnFlags
+
+.. py:class:: ccmn_xzr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr.pattern
+      :value: 'ccmn xzr, <Xa>, <imm>, <flag>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn_xzr.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr.inputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn_xzr.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn_xzr.modifiesFlags
+
+   .. py:attribute:: dependsOnFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr.dependsOnFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn_xzr.dependsOnFlags
+
+.. py:class:: ccmn_xzr2(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.pattern
+      :value: 'ccmn <Xa>, xzr, <imm>, <flag>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.inputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.modifiesFlags
+
+   .. py:attribute:: dependsOnFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.dependsOnFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.dependsOnFlags
 
 .. py:class:: AArch64ConditionalSelect(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect

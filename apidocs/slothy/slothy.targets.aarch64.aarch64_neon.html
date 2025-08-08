@@ -566,10 +566,22 @@ similar to those used in the Arm ARM.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AArch64ConditionalCompare</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr" title="slothy.targets.aarch64.aarch64_neon.ccmp_xzr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccmp_xzr</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ccmp" title="slothy.targets.aarch64.aarch64_neon.ccmp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccmp</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ccmp" title="slothy.targets.aarch64.aarch64_neon.ccmp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccmp</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr" title="slothy.targets.aarch64.aarch64_neon.ccmp_xzr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccmp_xzr</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr2" title="slothy.targets.aarch64.aarch64_neon.ccmp_xzr2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccmp_xzr2</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ccmn" title="slothy.targets.aarch64.aarch64_neon.ccmn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccmn</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr" title="slothy.targets.aarch64.aarch64_neon.ccmn_xzr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccmn_xzr</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr2" title="slothy.targets.aarch64.aarch64_neon.ccmn_xzr2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccmn_xzr2</span></code></a></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AArch64ConditionalSelect</span></code></a></p></td>
@@ -5041,32 +5053,6 @@ of a subclass of Instruction.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">ccmp_xzr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ccmp</span> <span class="pre">&lt;Xa&gt;,</span> <span class="pre">xzr,</span> <span class="pre">&lt;imm&gt;,</span> <span class="pre">&lt;flag&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr.pattern" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr.inputs">
-<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr.inputs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr.modifiesFlags">
-<span class="sig-name descname"><span class="pre">modifiesFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr.modifiesFlags" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr.dependsOnFlags">
-<span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr.dependsOnFlags" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">ccmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare</span></code></a></p>
@@ -5088,6 +5074,136 @@ of a subclass of Instruction.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp.dependsOnFlags">
 <span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp.dependsOnFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">ccmp_xzr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ccmp</span> <span class="pre">xzr,</span> <span class="pre">&lt;Xa&gt;,</span> <span class="pre">&lt;imm&gt;,</span> <span class="pre">&lt;flag&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr.modifiesFlags">
+<span class="sig-name descname"><span class="pre">modifiesFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr.modifiesFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr.dependsOnFlags">
+<span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr.dependsOnFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr2">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">ccmp_xzr2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr2" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ccmp</span> <span class="pre">&lt;Xa&gt;,</span> <span class="pre">xzr,</span> <span class="pre">&lt;imm&gt;,</span> <span class="pre">&lt;flag&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.modifiesFlags">
+<span class="sig-name descname"><span class="pre">modifiesFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.modifiesFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.dependsOnFlags">
+<span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmp_xzr2.dependsOnFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">ccmn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ccmn</span> <span class="pre">&lt;Xa&gt;,</span> <span class="pre">&lt;Xb&gt;,</span> <span class="pre">&lt;imm&gt;,</span> <span class="pre">&lt;flag&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xa',</span> <span class="pre">'Xb']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn.modifiesFlags">
+<span class="sig-name descname"><span class="pre">modifiesFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn.modifiesFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn.dependsOnFlags">
+<span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn.dependsOnFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">ccmn_xzr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ccmn</span> <span class="pre">xzr,</span> <span class="pre">&lt;Xa&gt;,</span> <span class="pre">&lt;imm&gt;,</span> <span class="pre">&lt;flag&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr.modifiesFlags">
+<span class="sig-name descname"><span class="pre">modifiesFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr.modifiesFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr.dependsOnFlags">
+<span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr.dependsOnFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr2">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">ccmn_xzr2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr2" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64ConditionalCompare</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ccmn</span> <span class="pre">&lt;Xa&gt;,</span> <span class="pre">xzr,</span> <span class="pre">&lt;imm&gt;,</span> <span class="pre">&lt;flag&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.modifiesFlags">
+<span class="sig-name descname"><span class="pre">modifiesFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.modifiesFlags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.dependsOnFlags">
+<span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ccmn_xzr2.dependsOnFlags" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
