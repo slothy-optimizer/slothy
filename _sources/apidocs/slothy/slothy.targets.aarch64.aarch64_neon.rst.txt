@@ -303,6 +303,8 @@ Classes
      -
    * - :py:obj:`bic <slothy.targets.aarch64.aarch64_neon.bic>`
      -
+   * - :py:obj:`bic_reg <slothy.targets.aarch64.aarch64_neon.bic_reg>`
+     -
    * - :py:obj:`orr_imm <slothy.targets.aarch64.aarch64_neon.orr_imm>`
      -
    * - :py:obj:`sbfx <slothy.targets.aarch64.aarch64_neon.sbfx>`
@@ -4474,6 +4476,29 @@ API
       :value: ['Xd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.bic.outputs
+
+.. py:class:: bic_reg(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.bic_reg
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Logical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.bic_reg.pattern
+      :value: 'bic <Xd>, <Xa>, <Xb>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.bic_reg.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.bic_reg.inputs
+      :value: ['Xa', 'Xb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.bic_reg.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.bic_reg.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.bic_reg.outputs
 
 .. py:class:: orr_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.orr_imm
