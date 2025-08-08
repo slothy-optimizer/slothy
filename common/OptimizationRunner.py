@@ -213,9 +213,19 @@ class OptimizationRunner:
         self.core(slothy, *self.extra_args)
 
         if self.rename:
+            # SLOTHY is also commonly used for pre-processing files, e.g.,
+            # resolving symbolic register names or naive interleaving. In these
+            # cases, the uArch model is not really important (yet) and may be
+            # confusing.
+            #
+            # TODO: Find a more generalized approach to file/function renaming.
+            new_name = f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}"
+            if self.suffix != "opt":
+                new_name = f"{self.funcname}_{self.suffix}"
+
             slothy.rename_function(
                 self.funcname,
-                f"{self.funcname}_{self.suffix}_{target_label_dict[self.target]}",
+                new_name,
             )
 
         if dry_run is False:
