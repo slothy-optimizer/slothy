@@ -1314,15 +1314,23 @@ class add_imm(MVEInstruction):
     outputs = ["Rd"]
 
 
+class and_imm(MVEInstruction):
+    pattern = "and <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
 class sub_imm(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <imm>"
     inputs = ["Rn"]
     outputs = ["Rd"]
 
+
 class rsb_imm(MVEInstruction):
     pattern = "rsb <Rd>, <Rn>, <imm>"
     inputs = ["Rn"]
     outputs = ["Rd"]
+
 
 class vshr(MVEInstruction):
     pattern = "vshr.<dt> <Qd>, <Qm>, <imm>"
@@ -1591,6 +1599,7 @@ class vstrw_scatter_uxtw(MVEInstruction):
         obj.addr = obj.args_in[1]
         return obj
 
+
 class vstrb(MVEInstruction):
     pattern = "vstrb.<dt> <Qd>, [<Rn>, <imm>]"
     inputs = ["Qd", "Rn"]
@@ -1653,6 +1662,7 @@ class vstrb_with_post(MVEInstruction):
         obj.addr = obj.args_in_out[0]
         obj.pre_index = None
         return obj
+
 
 class vldrb(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]"
@@ -2342,6 +2352,7 @@ class lsr(MVEInstruction):
     pattern = "lsr <Rd>, <Rn>, <imm>"
     outputs = ["Rd"]
     inputs = ["Rn"]
+
 
 class vcmul(MVEInstruction):
     pattern = "vcmul.<fdt> <Qd>, <Qn>, <Qm>, <imm>"
