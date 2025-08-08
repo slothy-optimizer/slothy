@@ -385,5 +385,6 @@ vhcadd.s16 q2, q0, q1, #270
 vhcadd.s32 q2, q0, q1, #90
 vhcadd.s32 q2, q0, q1, #270
 
+lsr r0, r0, #1
 
 end:
