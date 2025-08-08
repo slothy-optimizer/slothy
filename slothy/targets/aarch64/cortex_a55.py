@@ -46,6 +46,7 @@ from enum import Enum
 from slothy.targets.aarch64.aarch64_neon import (
     lookup_multidict,
     find_class,
+    AArch64ConditionalCompare,
     Ldp_X,
     Ldr_X,
     Str_X,
@@ -413,6 +414,7 @@ execution_units = {
         lsr_wform,
         eor_wform,
     ): ExecutionUnit.SCALAR(),
+    AArch64ConditionalCompare: ExecutionUnit.SCALAR(),
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
@@ -493,6 +495,7 @@ inverse_throughput = {
     (vzip1, vzip2): 1,
     (eor_wform): 1,
     (eor, bic, bic_reg, eor_ror, bic_ror): 1,
+    AArch64ConditionalCompare: 1,
     AESInstruction: 1,
     fmov_s_form: 1,  # from double/single to gen reg
 }
@@ -572,6 +575,7 @@ default_latencies = {
     # seems to be 1 cycle. See https://eprint.iacr.org/2022/1243.pdf
     (eor_ror, bic_ror): 1,
     (ror, eor, bic, bic_reg): 1,
+    AArch64ConditionalCompare: 1,
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: 2,

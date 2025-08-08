@@ -50,6 +50,41 @@ cnt v0.16b, v0.16b
 tbl v16.16b, {v16.16b}, v24.16b
 fmov w12, s20
 
+// Conditional Compare
+ccmp x0,  x1, #0, eq
+ccmp x2,  x3, #1, ne
+ccmp x4,  x5, #2, cs
+ccmp x6,  x7, #3, cc
+ccmp xzr, x9, #4, mi
+ccmp xzr, x11, #5, pl
+ccmp xzr, x13, #6, vs
+ccmp xzr, x15, #7, vc
+ccmp xzr, x17, #8, hi
+ccmp x18, xzr, #9, ls
+ccmp x20, xzr, #10, ge
+ccmp x22, xzr, #11, lt
+ccmp x24, xzr, #12, gt
+ccmp x26, xzr, #13, le
+
+ccmn x1,  x0,  #14, eq
+ccmn x3,  x2,  #15, ne
+ccmn x5,  x4,  #0, cs
+ccmn x7,  x6,  #1, cc
+ccmn x9,  xzr,  #2, mi
+ccmn x11, xzr,  #3, pl
+ccmn x13, xzr,  #4, vs
+ccmn x15, xzr,  #5, vc
+ccmn x17, xzr,  #6, hi
+ccmn xzr, x18,  #7, ls
+ccmn xzr, x20,  #8, ge
+ccmn xzr, x22,  #9, lt
+ccmn xzr, x24,  #10, gt
+ccmn xzr, x26,  #11, le
+
+
+
+
+
 // ASIMD multiply long 
 umull v23.4s, v24.4h, v25.4h
 umull2 v26.4s, v27.8h, v28.8h
