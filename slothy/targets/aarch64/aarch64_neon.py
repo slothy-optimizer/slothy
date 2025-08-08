@@ -2572,6 +2572,12 @@ class bic(AArch64Logical):
     outputs = ["Xd"]
 
 
+class bic_reg(AArch64Logical):
+    pattern = "bic <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
 class orr_imm(AArch64Logical):
     pattern = "orr <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]

@@ -87,6 +87,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     umaddl_wform,
     lsr,
     bic,
+    bic_reg,
     add_sp_imm,
     and_imm,
     movk_imm,
@@ -240,6 +241,7 @@ execution_units = {
     (
         lsr,
         bic,
+        bic_reg,
         ubfx,
         add_sp_imm,
         and_imm,
@@ -309,6 +311,7 @@ inverse_throughput = {
     (
         lsr,
         bic,
+        bic_reg,
         ubfx,
         add_sp_imm,
         and_imm,
@@ -377,6 +380,7 @@ default_latencies = {
     (
         lsr,
         bic,
+        bic_reg,
         ubfx,
         add_sp_imm,
         and_imm,
