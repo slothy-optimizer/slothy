@@ -331,12 +331,12 @@ class Instruction:
                 vldrw_no_imm,
                 vldrw_with_writeback,
                 vldrw_with_post,
-                vstrw,
-                vstrw_no_imm,
-                vstrw_with_writeback,
-                vstrw_with_post,
                 vstrw_scatter,
                 vstrw_scatter_uxtw,
+                vstrb,
+                vstrb_no_imm,
+                vstrb_with_writeback,
+                vstrb_with_post,
                 vld20,
                 vld21,
                 vld20_with_writeback,
@@ -435,6 +435,10 @@ class Instruction:
                 vstrw_with_post,
                 vstrw_scatter,
                 vstrw_scatter_uxtw,
+                vstrb,
+                vstrb_no_imm,
+                vstrb_with_writeback,
+                vstrb_with_post,
                 vst20,
                 vst21,
                 vst20_with_writeback,
@@ -1579,6 +1583,68 @@ class vstrw_scatter_uxtw(MVEInstruction):
         obj.addr = obj.args_in[1]
         return obj
 
+class vstrb(MVEInstruction):
+    pattern = "vstrb.<dt> <Qd>, [<Rn>, <imm>]"
+    inputs = ["Qd", "Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[1]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class vstrb_no_imm(MVEInstruction):
+    pattern = "vstrb.<dt> <Qd>, [<Rn>]"
+    inputs = ["Qd", "Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.addr = obj.args_in[1]
+        obj.pre_index = 0
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        if int(self.immediate) != 0:
+            self.pattern = vstrb.pattern
+        return super().write()
+
+
+class vstrb_with_writeback(MVEInstruction):
+    pattern = "vstrb.<dt> <Qd>, [<Rn>, <imm>]!"
+    inputs = ["Qd"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class vstrb_with_post(MVEInstruction):
+    pattern = "vstrb.<dt> <Qd>, [<Rn>], <imm>"
+    inputs = ["Qd"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.addr = obj.args_in_out[0]
+        obj.pre_index = None
+        return obj
 
 class vldrb(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]"
