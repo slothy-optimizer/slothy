@@ -116,6 +116,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     umaddl_wform,
     lsr,
     bic,
+    bic_reg,
     eor,
     ror,
     eor_ror,
@@ -375,6 +376,7 @@ execution_units = {
     (
         lsr,
         bic,
+        bic_reg,
         bfi,
         ubfx,
         add,
@@ -490,7 +492,7 @@ inverse_throughput = {
     (mov_d01, mov_b00): 1,
     (vzip1, vzip2): 1,
     (eor_wform): 1,
-    (eor, bic, eor_ror, bic_ror): 1,
+    (eor, bic, bic_reg, eor_ror, bic_ror): 1,
     AESInstruction: 1,
     fmov_s_form: 1,  # from double/single to gen reg
 }
@@ -569,7 +571,7 @@ default_latencies = {
     # _non-shifted_ input to the next instruction, the effective latency
     # seems to be 1 cycle. See https://eprint.iacr.org/2022/1243.pdf
     (eor_ror, bic_ror): 1,
-    (ror, eor, bic): 1,
+    (ror, eor, bic, bic_reg): 1,
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: 2,
