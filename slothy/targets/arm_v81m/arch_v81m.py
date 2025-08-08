@@ -1319,6 +1319,10 @@ class sub_imm(MVEInstruction):
     inputs = ["Rn"]
     outputs = ["Rd"]
 
+class rsb_imm(MVEInstruction):
+    pattern = "rsb <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
 
 class vshr(MVEInstruction):
     pattern = "vshr.<dt> <Qd>, <Qm>, <imm>"
