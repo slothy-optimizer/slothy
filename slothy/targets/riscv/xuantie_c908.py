@@ -98,6 +98,7 @@ def get_min_max_objective(slothy):
 execution_units = {
     (
         instrs["addi"],
+        instrs["mv"],
         instrs["slti"],
         instrs["sltiu"],
         instrs["andi"],
@@ -141,6 +142,7 @@ execution_units = {
         instrs["zip"],
         instrs["unzip"],  # Zbkb instuctions end
         instrs["la"],  # pseudo instruction, estimated
+        instrs["not"],
     ): ExecutionUnit.SCALAR(),
     (
         instrs["lb"],
@@ -282,11 +284,13 @@ execution_units = {
 inverse_throughput = {
     (
         instrs["addi"],
+        instrs["mv"],
         instrs["slti"],
         instrs["sltiu"],
         instrs["andi"],
         instrs["ori"],
         instrs["xori"],
+        instrs["not"],
         instrs["slli"],
         instrs["srli"],
         instrs["srai"],
@@ -570,7 +574,6 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    print(lmul)
     units = lookup_multidict(execution_units, src)
     if isinstance(units, list):
         return units

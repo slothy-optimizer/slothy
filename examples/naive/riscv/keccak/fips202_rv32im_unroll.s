@@ -86,7 +86,7 @@ constants_keccak:
     lw \S17h_s, 17*8+4(a0)
     lw \S21l_s, 21*8(a0)
     lw \S21h_s, 21*8+4(a0)
-    # lane complement: 1,2,8,12,17,20
+    // lane complement: 1,2,8,12,17,20
     lw \T00l_s, 1*8(a0)
     lw \T00h_s, 1*8+4(a0)
     lw \S23l_s, 23*8(a0)
@@ -119,7 +119,7 @@ constants_keccak:
         S02h_s, S02l_s, S04h_s, S04l_s, S05h_s, S05l_s, S08h_s, S08l_s, S10h_s, S10l_s, \
         S14h_s, S14l_s, S16h_s, S16l_s, S17h_s, S17l_s, S21h_s, S21l_s, S23h_s, S23l_s, \
         T00h_s, T00l_s, T01h_s, T01l_s, T02h_s, T02l_s, T03h_s, T03l_s, T04_s
-    # lane complement: 1,2,8,12,17,20
+    // lane complement: 1,2,8,12,17,20
     lw \T00l_s, 1*8(a0)
     lw \T00h_s, 1*8+4(a0)
     not \S02l_s, \S02l_s
@@ -788,19 +788,20 @@ constants_keccak:
     xor \S04l_s, \S04l_s, \T03l_s
 .endm
 
-# stack: 
-# 0*4-14*4 for saving registers
-# 15*4 for saving a0
-# 16*4 for loop control
-# 17*4 for table index
-# 18*4,19*4 for C0
-# 20*4,21*4 for C1
-# 22*4,23*4 for C2
-# 24*4,25*4 for C3
-# 26*4,27*4 for C4
+// stack: 
+// 0*4-14*4 for saving registers
+// 15*4 for saving a0
+// 16*4 for loop control
+// 17*4 for table index
+// 18*4,19*4 for C0
+// 20*4,21*4 for C1
+// 22*4,23*4 for C2
+// 24*4,25*4 for C3
+// 26*4,27*4 for C4
 .globl KeccakF1600_StatePermute_RV32ASM
 .align 2
 KeccakF1600_StatePermute_RV32ASM:
+start:
     addi sp, sp, -4*28
     SaveRegs
     la tp, constants_keccak
@@ -812,7 +813,7 @@ KeccakF1600_StatePermute_RV32ASM:
         s6, s7, s8, s9, s10,s11,ra, gp, tp
 
     li tp, 24
-
+end:
 loop_start:
     sw tp, 16*4(sp)
     ARound \

@@ -184,7 +184,7 @@ constants_keccak:
         S02h, S02l, S04h, S04l, S05h, S05l, S08h, S08l, S10h, S10l, \
         S14h, S14l, S16h, S16l, S17h, S17l, S21h, S21l, S23h, S23l, \
         T00h, T00l, T01h, T01l, T02h, T02l, T03h, T03l, T04
-    # lane complement: 1,2,8,12,17,20
+    // lane complement: 1,2,8,12,17,20
     lw \T00l, 1*8(a0)
     lw \T00h, 1*8+4(a0)
     lw \T01l, 12*8(a0)
@@ -235,7 +235,7 @@ constants_keccak:
         S02h, S02l, S04h, S04l, S05h, S05l, S08h, S08l, S10h, S10l, \
         S14h, S14l, S16h, S16l, S17h, S17l, S21h, S21l, S23h, S23l, \
         T00h, T00l, T01h, T01l, T02h, T02l, T03h, T03l, T04
-    # lane complement: 1,2,8,12,17,20
+    // lane complement: 1,2,8,12,17,20
     lw \T00l, 1*8(a0)
     lw \T00h, 1*8+4(a0)
     lw \T01l, 12*8(a0)
@@ -286,7 +286,7 @@ constants_keccak:
         S02h, S02l, S04h, S04l, S05h, S05l, S08h, S08l, S10h, S10l, \
         S14h, S14l, S16h, S16l, S17h, S17l, S21h, S21l, S23h, S23l, \
         T00h, T00l, T01h, T01l, T02h, T02l, T03h, T03l, T04
-    # C0=S00+S05+S10+S15+S20
+    // C0=S00+S05+S10+S15+S20
     lw \T03l, 0*8(a0)
     lw \T03h, 0*8+4(a0)
     XOR1Init \T00h, \T00l, \S05h, \S05l, \S10h, \S10l
@@ -299,11 +299,11 @@ constants_keccak:
     XOR1 \T00h, \T00l, \T03h, \T03l
     lw \T03l, 3*8(a0)
     lw \T03h, 3*8+4(a0)
-    # save C0
+    // save C0
     sw \T00l, 18*4(sp)
     sw \T00h, 19*4(sp)
-    # T00=C0
-    # C3=S03+S08+S13+S18+S23
+    // T00=C0
+    // C3=S03+S08+S13+S18+S23
     XOR1Init \T01h, \T01l, \S08h, \S08l, \S23h, \S23l
     lw \T02l, 13*8(a0)
     lw \T02h, 13*8+4(a0)
@@ -312,16 +312,16 @@ constants_keccak:
     lw \T03h, 18*8+4(a0)
     XOR1 \T01h, \T01l, \T02h, \T02l
     XOR1 \T01h, \T01l, \T03h, \T03l
-    # T00=C0, T01=C3
-    # D4=C3^ROL(C0,1);
+    // T00=C0, T01=C3
+    // D4=C3^ROL(C0,1);
     ROLnInplace \T00h, \T00l, \T03h, \T03l, 1
-    # save C3
+    // save C3
     sw \T01l, 24*4(sp)
     sw \T01h, 25*4(sp)
     XOR1 \T00h, \T00l, \T01h, \T01l
-    # T00=D4
-    # C4=S04+S09+S14+S19+S24
-    # S04,S09,S14,S19,S24 += D4
+    // T00=D4
+    // C4=S04+S09+S14+S19+S24
+    // S04,S09,S14,S19,S24 += D4
     lw \T03l, 9*8(a0)
     lw \T03h, 9*8+4(a0)
     XOR1Init \T01h, \T01l, \S04h, \S04l, \S14h, \S14l
@@ -345,10 +345,10 @@ constants_keccak:
     sw \T01h, 27*4(sp)
     sw \T03l, 24*8(a0)
     sw \T03h, 24*8+4(a0)
-    # T01=C4
+    // T01=C4
     lw \T03l, 1*8(a0)
     lw \T03h, 1*8+4(a0)
-    # C1=S01+S06+S11+S16+S21
+    // C1=S01+S06+S11+S16+S21
     XOR1Init \T00h, \T00l, \S16h, \S16l, \S21h, \S21l
     lw \T02l, 6*8(a0)
     lw \T02h, 6*8+4(a0)
@@ -357,17 +357,17 @@ constants_keccak:
     lw \T03h, 11*8+4(a0)
     XOR1 \T00h, \T00l, \T02h, \T02l
     XOR1 \T00h, \T00l, \T03h, \T03l
-    # save C1
+    // save C1
     sw \T00l, 20*4(sp)
     sw \T00h, 21*4(sp)
-    # T01=C4,T00=C1
-    # D0=C4^ROL(C1,1)
+    // T01=C4,T00=C1
+    // D0=C4^ROL(C1,1)
     ROLnInplace \T00h, \T00l, \T03h, \T03l, 1
     lw \T02l, 0*8(a0)
     lw \T02h, 0*8+4(a0)
     XOR1 \T00h, \T00l, \T01h, \T01l
-    # T01=C4,T00=D0
-    # S00,S05,S10,S15,S20 += D0
+    // T01=C4,T00=D0
+    // S00,S05,S10,S15,S20 += D0
     XOR1 \S05h, \S05l, \T00h, \T00l
     lw \T03l, 20*8(a0)
     lw \T03h, 20*8+4(a0)
@@ -387,15 +387,15 @@ constants_keccak:
     lw \T00h, 21*4(sp)
     sw \T03l, 20*8(a0)
     sw \T03h, 20*8+4(a0)
-    # T01=C4
-    # D2=C1^ROL(C3,1)
+    // T01=C4
+    // D2=C1^ROL(C3,1)
     ROLnInplace \T02h, \T02l, \T03h, \T03l, 1
     lw \T03l, 7*8(a0)
     lw \T03h, 7*8+4(a0)
     XOR1 \T02h, \T02l, \T00h, \T00l
-    # T01=C4,T02=D2
-    # C2=S02+S07+S12+S17+S22
-    # S02,S07,S12,S17,S22 += D2
+    // T01=C4,T02=D2
+    // C2=S02+S07+S12+S17+S22
+    // S02,S07,S12,S17,S22 += D2
     XOR1Init \T00h, \T00l, \S02h, \S02l, \S17h, \S17l
     XOR1 \T00h, \T00l, \T03h, \T03l
     XOR1 \T03h, \T03l, \T02h, \T02l
@@ -413,19 +413,19 @@ constants_keccak:
     lw \T03h, 22*8+4(a0)
     XOR1 \T00h, \T00l, \T03h, \T03l
     XOR1 \T03h, \T03l, \T02h, \T02l
-    # save C2
+    // save C2
     sw \T00l, 22*4(sp)
     sw \T00h, 23*4(sp)
     sw \T03l, 22*8(a0)
     sw \T03h, 22*8+4(a0)
-    # T01=C4,T00=C2
-    # D3=C2^ROL(C4,1)
+    // T01=C4,T00=C2
+    // D3=C2^ROL(C4,1)
     ROLnInplace \T01h, \T01l, \T03h, \T03l, 1
     lw \T03l, 3*8(a0)
     lw \T03h, 3*8+4(a0)
     XOR1 \T01h, \T01l, \T00h, \T00l
-    # T01=D3
-    # S03,S08,S13,S18,S23 += D3
+    // T01=D3
+    // S03,S08,S13,S18,S23 += D3
     XOR1 \S08h, \S08l, \T01h, \T01l
     XOR1 \T03h, \T03l, \T01h, \T01l
     lw \T02l, 13*8(a0)
@@ -443,14 +443,14 @@ constants_keccak:
     lw \T01h, 19*4(sp)
     sw \T03l, 18*8(a0)
     sw \T03h, 18*8+4(a0)
-    # T00=C2
-    # D1=C0^ROL(C2,1)
+    // T00=C2
+    // D1=C0^ROL(C2,1)
     ROLnInplace \T00h, \T00l, \T03h, \T03l, 1
     lw \T02l, 1*8(a0)
     lw \T02h, 1*8+4(a0)
     XOR1 \T00h, \T00l, \T01h, \T01l
-    # T00=D1
-    # S01,S06,S11,S16,S21 += D1
+    // T00=D1
+    // S01,S06,S11,S16,S21 += D1
     lw \T03l, 6*8(a0)
     lw \T03h, 6*8+4(a0)
     XOR1 \S16h, \S16l, \T00h, \T00l
@@ -574,7 +574,7 @@ constants_keccak:
     lw \T00h, 18*8+4(a0)
     xor \S05h, \S05h, \T03h
     xor \S05l, \S05l, \T03l
-    # T00,T01,S14,S10,T02=S'12,S'13,S'14,S'10,S'11
+    // T00,T01,S14,S10,T02=S'12,S'13,S'14,S'10,S'11
     xornotand \T03h, \T03l, \T00h, \T00l, \T01h, \T01l, \S14h, \S14l, \T03h, \T03l
     lw \T02l, 11*8(a0)
     lw \T02h, 11*8+4(a0)
@@ -590,7 +590,7 @@ constants_keccak:
     lw \T01h, 20*8+4(a0)
     sw \T02h, 11*8+4(a0)
     sw \T02l, 11*8(a0)
-    # T00,T01,T02,S16,S17=S'18,S'19,S'15,S'16,S'17
+    // T00,T01,T02,S16,S17=S'18,S'19,S'15,S'16,S'17
     lw \T02h, 15*8+4(a0)
     lw \T01l, 20*8(a0)
     lw \T02l, 15*8(a0)
@@ -617,7 +617,7 @@ constants_keccak:
     lw \T01h, 1*8+4(a0)
     xor \S17l, \S17l, \T03l
     xor \S17h, \S17h, \T03h
-    # T00,T01,S21,T02,S23=S'24,S'20,S'21,S'22,S'23
+    // T00,T01,S21,T02,S23=S'24,S'20,S'21,S'22,S'23
     xorand \T03h, \T03l, \T00h, \T00l, \T01h, \T01l, \S21h, \S21l, \T03h, \T03l
     sw \T03l, 24*8(a0)
     sw \T03h, 24*8+4(a0)
@@ -637,12 +637,12 @@ constants_keccak:
     lw \T01h, 21*4(sp)
     xor \S23h, \S23h, \T03h
     xor \S23l, \S23l, \T03l
-    # T00,T01,S02,T02,S04=S'00-S'04
+    // T00,T01,S02,T02,S04=S'00-S'04
     lw \T02l, 0(\T04)
     lw \T02h, 4(\T04)
     addi \T04, \T04, 8
     xoror \T03h, \T03l, \T00h, \T00l, \T01h, \T01l, \S02h, \S02l, \T03h, \T03l
-    # Itoa
+    // Itoa
     sw  \T04, 17*4(sp)
     XOR1 \T03h, \T03l, \T02h, \T02l
     lw \T02l, 3*8(a0)
@@ -653,7 +653,7 @@ constants_keccak:
     sw \T03l, 1*8(a0)
     sw \T03h, 1*8+4(a0)
     xorand \S02h, \S02l, \S02h, \S02l, \T02h, \T02l, \S04h, \S04l, \T03h, \T03l
-    # loop control
+    // loop control
     lw \T04, 16*4(sp)
     xoror \T03h, \T03l, \T02h, \T02l, \S04h, \S04l, \T00h, \T00l, \T03h, \T03l
     sw \T03l, 3*8(a0)
@@ -662,19 +662,20 @@ constants_keccak:
     xorand \S04h, \S04l, \S04h, \S04l, \T00h, \T00l, \T01h, \T01l, \T03h, \T03l
 .endm
 
-# stack: 
-# 0*4-14*4 for saving registers
-# 15*4 for saving a0
-# 16*4 for loop control
-# 17*4 for table index
-# 18*4,19*4 for C0
-# 20*4,21*4 for C1
-# 22*4,23*4 for C2
-# 24*4,25*4 for C3
-# 26*4,27*4 for C4
+// stack: 
+// 0*4-14*4 for saving registers
+// 15*4 for saving a0
+// 16*4 for loop control
+// 17*4 for table index
+// 18*4,19*4 for C0
+// 20*4,21*4 for C1
+// 22*4,23*4 for C2
+// 24*4,25*4 for C3
+// 26*4,27*4 for C4
 .globl KeccakF1600_StatePermute_RV32ASM
 .align 2
 KeccakF1600_StatePermute_RV32ASM:
+start:
     addi sp, sp, -4*28
     la t0, constants_keccak
     SaveRegs
@@ -694,9 +695,11 @@ loop_start:
         t3, t4, t5, t6, s0, s1, s2, s3, s4, s5, \
         s6, s7, s8, s9, s10,s11,ra, gp, tp
     
-    # lw tp, 16*4(sp)
-    # addi tp, tp, -1
+    // lw tp, 16*4(sp)
+    // addi tp, tp, -1
+
     bnez tp, loop_start
+    end:
 
     FinalStore \
         a1, a2, a3, a4, a5, a6, a7, t0, t1, t2, \

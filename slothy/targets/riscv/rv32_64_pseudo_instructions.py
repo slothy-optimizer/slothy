@@ -42,7 +42,7 @@ class RISCVULaPseudo(RISCVInstruction):
 
 pseudo_instrs = [
     (["li"], RISCVLiPseudo),
-    (["neg"], RISCVIntegerRegister),
+    (["neg", "not", "mv"], RISCVIntegerRegister),
     (["vnot.v"], RISCVectorVectorMasked),
     (["la"], RISCVULaPseudo),
     # translates to auipc + addi instruction; uses information

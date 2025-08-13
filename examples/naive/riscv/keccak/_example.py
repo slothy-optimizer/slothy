@@ -9,7 +9,7 @@ SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 
 class RISC_V_fips202_rv32im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "fips202_rv32im"
+        name = "fips202_rv32im_unroll"
         infile = name
 
         super().__init__(
@@ -29,10 +29,16 @@ class RISC_V_fips202_rv32im(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 7
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_stepsize = 0.1
 
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
+        # slothy.optimize("start", "end")
         slothy.optimize_loop("loop_start")
 
 
