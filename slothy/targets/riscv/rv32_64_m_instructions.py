@@ -29,15 +29,11 @@ from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 # the following lists maybe could be encapsulated somehow
-IntegerRegisterRegisterInstructions = [
-    "mul<w>",
-    "mulh",
-    "mulhsu",
-    "mulhu",
-    "div<w>",
-    "divu<w>",
-    "rem<w>",
-    "remu<w>",
+m_instrs = [
+    (
+        ["mul<w>", "mulh", "mulhsu", "mulhu", "div<w>", "divu<w>", "rem<w>", "remu<w>"],
+        RISCVIntegerRegisterRegisterMul,
+    ),
 ]
 
 
@@ -45,10 +41,9 @@ def generate_rv32_64_m_instructions():
     """
     Generates all instruction classes for the rv32_64_m extension set
     """
+    for elem in m_instrs:
+        RISCVInstruction.instr_factory(elem[0], elem[1])
 
-    RISCVInstruction.instr_factory(
-        IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegisterMul
-    )
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
     )

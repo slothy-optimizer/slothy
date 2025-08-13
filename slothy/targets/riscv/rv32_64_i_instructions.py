@@ -30,50 +30,50 @@ from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 # the following lists maybe could be encapsulated somehow
 
-IntegerRegisterImmediateInstructions = [
-    "addi<w>",
-    "slti",
-    "sltiu",
-    "andi",
-    "ori",
-    "xori",
-    "slli<w>",
-    "srli<w>",
-    "srai<w>",
+i_instrs = [
+    (
+        [
+            "addi<w>",
+            "slti",
+            "sltiu",
+            "andi",
+            "ori",
+            "xori",
+            "slli<w>",
+            "srli<w>",
+            "srai<w>",
+        ],
+        RISCVIntegerRegisterImmediate,
+    ),
+    (
+        [
+            "and",
+            "or",
+            "xor",
+            "add<w>",
+            "slt",
+            "sltu",
+            "sll<w>",
+            "srl<w>",
+            "sub<w>",
+            "sra<w>",
+        ],
+        RISCVIntegerRegisterRegister,
+    ),
+    (["lb", "lbu", "lh", "lhu", "lw", "lwu", "ld"], RISCVLoad),
+    (["sb", "sh", "sw", "sd"], RISCVStore),
+    (["lui", "auipc"], RISCVUType),
+    (["beq", "bne", "blt", "bge", "bltu", "bgeu", "bnez", "beqz"], RISCVBranch),
 ]
-IntegerRegisterRegisterInstructions = [
-    "and",
-    "or",
-    "xor",
-    "add<w>",
-    "slt",
-    "sltu",
-    "sll<w>",
-    "srl<w>",
-    "sub<w>",
-    "sra<w>",
-]
-LoadInstructions = ["lb", "lbu", "lh", "lhu", "lw", "lwu", "ld"]
-StoreInstructions = ["sb", "sh", "sw", "sd"]
-UTypeInstructions = ["lui", "auipc"]
-BranchInstructions = ["beq", "bne", "blt", "bge", "bltu", "bgeu", "bnez", "beqz"]
 
 
 def generate_rv32_64_i_instructions():
     """
     Generates all instruction classes for the rv32_64_i extension set
     """
+    for elem in i_instrs:
+        RISCVInstruction.instr_factory(elem[0], elem[1])
 
-    RISCVInstruction.instr_factory(
-        IntegerRegisterImmediateInstructions, RISCVIntegerRegisterImmediate
-    )
-    RISCVInstruction.instr_factory(
-        IntegerRegisterRegisterInstructions, RISCVIntegerRegisterRegister
-    )
-    RISCVInstruction.instr_factory(LoadInstructions, RISCVLoad)
-    RISCVInstruction.instr_factory(StoreInstructions, RISCVStore)
-    RISCVInstruction.instr_factory(UTypeInstructions, RISCVUType)
-    RISCVInstruction.instr_factory(BranchInstructions, RISCVBranch)
     RISCVInstruction.classes_by_names.update(
         {cls.__name__: cls for cls in RISCVInstruction.dynamic_instr_classes}
     )
