@@ -3993,6 +3993,16 @@ class SlothyBase(LockAttributes):
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
 
+        self._model.cp_solver.parameters.num_workers = 16
+
+        # EXPERIMENTAL
+        self._model.cp_solver.parameters.use_feasibility_jump = False
+        self._model.cp_solver.parameters.core_minimization_level = 1
+        self._model.cp_solver.parameters.linear_split_size = (
+            1000000  # Very large value to disable
+        )
+        self._model.cp_solver.parameters.feasibility_jump_decay = 1.0
+
     def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval, maxval, name)
         self._model.variables.append(r)

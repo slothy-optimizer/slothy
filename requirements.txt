@@ -1,5 +1,4 @@
-ortools==9.7.2996 ; python_version < "3.13"
-ortools==9.12.4544 ; python_version >= "3.13"
+ortools==9.14.6206
 # TODO: remove pandas once upgraded to ortools 9.12
 pandas>=2.0.3
 sympy==1.14.0
