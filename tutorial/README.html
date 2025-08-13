@@ -148,16 +148,16 @@ formally verified using the <a class="reference external" href="https://github.c
 <section id="table-of-contents">
 <h2>Table of contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p><a class="reference internal" href="#installation"><span class="xref myst">Installation</span></a>. This is limited to the fastest way of installing SLOTHY using pip. For more complete instructions, see the <span class="xref myst">README</span>.</p></li>
-<li><p><a class="reference internal" href="#getting-started"><span class="xref myst">Getting started</span></a></p></li>
-<li><p><a class="reference internal" href="#writing-your-own-calling-code"><span class="xref myst">Using SLOTHY for your own code</span></a></p></li>
-<li><p><a class="reference internal" href="#software-pipelining"><span class="xref myst">Using SLOTHY’s Software Pipelining</span></a></p></li>
-<li><p><a class="reference internal" href="#checking-the-quality-of-slothy-optimizations"><span class="xref myst">Checking the quality of SLOTHY optimizations</span></a></p></li>
-<li><p><a class="reference internal" href="#optimizing-a-full-neon-ntt"><span class="xref myst">Optimizing a full Neon NTT</span></a></p></li>
-<li><p><a class="reference internal" href="#optimizing-larger-pieces-of-code"><span class="xref myst">Optimizing larger pieces of code</span></a></p></li>
-<li><p><a class="reference internal" href="#adding-a-new-microarchitecture"><span class="xref myst">Adding a new microarchitecture</span></a></p></li>
+<li><p><a class="reference internal" href="#1-installation"><span class="xref myst">Installation</span></a>. This is limited to the fastest way of installing SLOTHY using pip. For more complete instructions, see the <span class="xref myst">README</span>.</p></li>
+<li><p><a class="reference internal" href="#2-getting-started"><span class="xref myst">Getting started</span></a></p></li>
+<li><p><a class="reference internal" href="#3-writing-your-own-calling-code"><span class="xref myst">Using SLOTHY for your own code</span></a></p></li>
+<li><p><a class="reference internal" href="#4-software-pipelining"><span class="xref myst">Using SLOTHY’s Software Pipelining</span></a></p></li>
+<li><p><a class="reference internal" href="#5-checking-the-quality-of-slothy-optimizations"><span class="xref myst">Checking the quality of SLOTHY optimizations</span></a></p></li>
+<li><p><a class="reference internal" href="#6-optimizing-a-full-neon-ntt"><span class="xref myst">Optimizing a full Neon NTT</span></a></p></li>
+<li><p><a class="reference internal" href="#7-optimizing-larger-pieces-of-code"><span class="xref myst">Optimizing larger pieces of code</span></a></p></li>
+<li><p><a class="reference internal" href="#8-adding-a-new-microarchitecture"><span class="xref myst">Adding a new microarchitecture</span></a></p></li>
 </ol>
-<p>The SLOTHY calling code used for the parts 3-7 is located in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/tree/main/tutorial_files">tutorial-files/tuturial-{3a,3b,4,5,6,7}.py</a>.</p>
+<p>The SLOTHY calling code used for the parts 3-7 is located in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/tree/main/tutorial">tutorial/tutorial-{3a,3b,4,5,6,7}.py</a>.</p>
 </section>
 <section id="installation">
 <h2>1. Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
@@ -184,10 +184,10 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 <h2>2. Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <p>The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
 Once you work on your own code, you will likely be using the <code class="docutils literal notranslate"><span class="pre">slothy-cli</span></code> command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has.
-However, for now we will be using the <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.pyy">example.py</a> script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
+However, for now we will be using the <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.py">example.py</a> script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
 You can run <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">example.py</span> <span class="pre">--help</span></code> to see all examples available.</p>
 <p>Let’s look at a very simple example from the previous section called <code class="docutils literal notranslate"><span class="pre">aarch64_simple0</span></code>.
-You can find the corresponding code in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/aarch64_simple0.s">examples/naive/aarch64/aarch64_simple0.s</a>:</p>
+You can find the corresponding code in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/tests/naive/aarch64/aarch64_simple0.s">tests/naive/aarch64/aarch64_simple0.s</a>:</p>
 <div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nf">ldr</span><span class="w"> </span><span class="no">q0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
 <span class="nf">ldr</span><span class="w"> </span><span class="no">q1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x2</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
 
@@ -224,8 +224,7 @@ Note, however, that SLOTHY has been used to also obtain significant speed-ups fo
 <p>SLOTHY comes with models for various Arm architectures, including the power-efficient, in-order
 <a class="reference external" href="https://developer.arm.com/Processors/Cortex-A55">Cortex-A55</a>, so we can now optimize this piece of code for that
 microarchitecture. <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.py">example.py</a> contains the needed SLOTHY incarnations for convenience, so we can simply run <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">example.py</span> <span class="pre">--examples</span> <span class="pre">aarch64_simple0_a55</span></code> which will optimize for the Cortex-A55 microarchitecture. You can check
-<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.pyy">example.py</a> for the details. This will optimize the piece of code above and write the output code to
-<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/aarch64_simple0_opt_a55.s">examples/opt/aarch64/aarch64_simple0_opt_a55.s</a>.
+<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.py">example.py</a> for the details. This will optimize the piece of code above and write the output code to <code class="docutils literal notranslate"><span class="pre">examples/opt/aarch64/aarch64_simple0_opt_a55.s</span></code>.
 SLOTHY should print something similar to this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>INFO:aarch64_simple0_a55:Instructions in body: 20
 INFO:aarch64_simple0_a55.slothy:Perform internal binary search for minimal number of stalls...
@@ -245,7 +244,7 @@ At the same time it is trying to minimize the number of stalls. This is passed a
 The best solution it can find has 16 stalls – which is guaranteed to be the minimum number of stalls given this piece of code and the model of the microarchitecture in SLOTHY.
 In the last step, SLOTHY will transform the found traversal of the DFG into actual assembly and write it to the file.
 To make sure everything worked out as expected, it will perform a selfcheck which consists of transforming the output assembly into a DFG again and testing that the resulting graph is isomorphic to the input DFG.</p>
-<p>We can now take a look at the output assembly in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/aarch64_simple0_opt_a55.s">examples/opt/aarch64/aarch64_simple0_opt_a55.s</a>:</p>
+<p>We can now take a look at the output assembly:</p>
 <div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nf">ldr</span><span class="w"> </span><span class="no">q8</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span><span class="w">                        </span><span class="c1">// *...................</span>
 <span class="c1">// gap                                  // ....................</span>
 <span class="c1">// gap                                  // ....................</span>
@@ -386,7 +385,7 @@ find the minimum number of stalls for which a solution exists.</p>
 <p>Even with this small Neon example, you can see that understanding the input code is much easier than the output code. In
 fact, the input code can be further clarified through the use of macros and register aliases, leading to the following
 ‘clean’ version from
-<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/aarch64_simple0_macros.s">examples/naive/aarch64/aarch64_simple0_macros.s</a> which makes it
+<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/tests/naive/aarch64/aarch64_simple0_macros.s">tests/naive/aarch64/aarch64_simple0_macros.s</a> which makes it
 apparent that our example is just a pair of NTT butterflies using Barrett multiplication. Note that the <code class="docutils literal notranslate"><span class="pre">.req</span></code> and
 <code class="docutils literal notranslate"><span class="pre">.macro</span></code> directives used here are commonly supported <a class="reference external" href="https://www.sourceware.org/binutils/docs/as/ARM-Directives.html">assembly
 directives</a>.</p>
@@ -445,7 +444,7 @@ directives</a>.</p>
 <p>SLOTHY will then internally expand all macros and the resulting DFG will be exactly the same as before.
 To make this work, we have to slightly change the SLOTHY code:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># example</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../examples/naive/aarch64/aarch64_simple0_macros.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../tests/naive/aarch64/aarch64_simple0_macros.s&quot;</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
 
@@ -878,13 +877,13 @@ to the last cycle and fine-tuning your model, there is no way around measurement
 Let’s look at a real-world example: The Kyber number-theoretic transform – a core arithmetic function of the Kyber key-encapsulation mechanism making up a large chunk of the total run-time.
 The target platform is again the Arm Cortex-A55 and the code primarily consists of
 Neon vector instructions.
-We’ll consider a straightforward implementation available here: <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/ntt_kyber_123_4567.s">ntt_kyber_123_4567.s</a>.
+We’ll consider a straightforward implementation available here: <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/kyber/ntt_kyber_123_4567.s">ntt_kyber_123_4567.s</a>.
 If you have ever written an NTT, it should be fairly easy to understand what the code is doing.
 The code consists of 2 main loops implementing layers 1+2+3 and 4+5+6+7 of the NTT.
 The actual operations are wrapped in macros implementing butterflies on single vector registers.
 Note that this code performs very poorly: No consideration was given to the intricacies of the microarchitecture.</p>
 <p>Let’s run SLOTHY on this code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;examples/naive/aarch64/ntt_kyber_123_4567.s&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;examples/naive/aarch64/kyber/ntt_kyber_123_4567.s&quot;</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">inputs_are_outputs</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">minimize_overlapping</span> <span class="o">=</span> <span class="kc">False</span>
@@ -907,7 +906,7 @@ registers. If you are familiar with inline assembly, SLOTHY’s <code class="doc
 ‘clobber list’.</p>
 <p>When running this example, you will notice that it has a significantly longer runtime.
 On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
-You may instead look at an optimized version of the same code <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s">examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s</a>.
+You may instead look at an optimized version of the same code <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/kyber/ntt_kyber_123_4567_opt_a55.s">examples/opt/aarch64/kyber/ntt_kyber_123_4567_opt_a55.s</a>.
 You notice that both loops have many early instructions, and coming up with this code by hand would be tedious, time-consuming and error-prone.</p>
 </section>
 <section id="optimizing-larger-pieces-of-code">
@@ -916,7 +915,7 @@ You notice that both loops have many early instructions, and coming up with this
 When using a more powerful machine and allowing optimization times of hours, one can scale this up to larger examples.
 We’ve successfully used (vanilla) SLOTHY for optimized code snippets of up to 180 instructions.
 However, for larger code at a certain point the constraint solving becomes prohibitively expensive and we need to use a different strategy.</p>
-<p>One such example is the X25519 implementation we looked at in the <a class="reference external" href="https://eprint.iacr.org/2022/1303">SLOTHY paper</a> available in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/X25519-AArch64-simple.s">X25519-AArch64-simple.s</a>
+<p>One such example is the X25519 implementation we looked at in the <a class="reference external" href="https://eprint.iacr.org/2022/1303">SLOTHY paper</a> available in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/x25519/X25519-AArch64-simple.s">X25519-AArch64-simple.s</a>
 It is a hybrid vector-scalar implementation based on an <a class="reference external" href="https://github.com/Emill/X25519-AArch64">implementation</a> by Lenngren.
 Its core loop consists of 958 instructions which well exceeds what SLOTHY can currently optimize in a single pass.</p>
 <p>However, we can still make use of SLOTHY to optimize this code by employing heuristics.
@@ -926,7 +925,7 @@ With this approach one loses the optimality guarantees as it may be that there i
 However, by repeatedly running SLOTHY using the <code class="docutils literal notranslate"><span class="pre">splitting</span></code> heuristic, we managed to outperform the state-of-the-art and get very close to optimal results (in terms of IPC).</p>
 <p>To demonstrate the splitting heuristic we can use the following SLOTHY call:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># example</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../examples/naive/aarch64/X25519-AArch64-simple.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../examples/naive/aarch64/x25519/X25519-AArch64-simple.s&quot;</span><span class="p">)</span>
 
 <span class="c1"># first pass: replace symbolic register names by architectural registers</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">inputs_are_outputs</span><span class="o">=</span><span class="kc">True</span>
@@ -965,7 +964,7 @@ Unfortunately, it is not compatible with the splitting heuristic (as register al
 We can configure SLOTHY to only consider register allocation by setting the <code class="docutils literal notranslate"><span class="pre">allow_reordering=False</span></code> (disabling the ordering constraints) and <code class="docutils literal notranslate"><span class="pre">functional_only=True</span></code> (disabling the microarchitectural constraints).
 In this way, the constraints remain manageable, and SLOTHY finds a register allocation within a few minutes.</p>
 <p>Running this example takes around 15 minutes.
-You can instead look at the output available in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/tree/main/tutorial_files/opt/X25519-AArch64-simple_opt.s">opt/X25519-AArch64-simple_opt.s</a>
+You can instead look at the output available in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/tree/main/tutorial/opt/X25519-AArch64-simple_opt.s">opt/X25519-AArch64-simple_opt.s</a>
 The output will look similar to the previous examples and contains significantly less pipeline stalls than the input.
 For achieving the best performance, we require a few more calls to SLOTHY. You can find the script we used <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/paper/scripts/slothy_x25519.sh">here</a> - it runs around 1.5 hours.</p>
 </section>
