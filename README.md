@@ -186,7 +186,7 @@ The [SLOTHY Tutorial](docs/source/tutorial/README.md) and the [examples](example
 assembly snippets. To try them, use `python3 example.py --examples={YOUR_EXAMPLE}`. See `python3 example.py --help` for
 the list of all available examples.
 
-The use of SLOTHY from the command line is illustrated in [scripts/](scripts/) supporting the real-world optimizations
+The use of SLOTHY from the command line is illustrated in [paper/scripts/](paper/scripts/) supporting the real-world optimizations
 for the NTT, FFT and X25519 discussed in [Fast and Clean: Auditable high-performance assembly via constraint
 solving](https://eprint.iacr.org/2022/1303).
 
