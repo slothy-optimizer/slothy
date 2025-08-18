@@ -323,6 +323,10 @@ class Instruction:
                 vldrb_no_imm,
                 vldrb_with_writeback,
                 vldrb_with_post,
+                ldrb,
+                ldrb_no_imm,
+                ldrb_with_writeback,
+                ldrb_with_post,
                 vldrh,
                 vldrh_no_imm,
                 vldrh_with_writeback,
@@ -1719,6 +1723,72 @@ class vldrb_with_writeback(MVEInstruction):
 class vldrb_with_post(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>], <imm>"
     outputs = ["Qd"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class ldrb(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>, <imm>]"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class ldrb_no_imm(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.addr = obj.args_in[0]
+        obj.pre_index = 0
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        if int(self.immediate) != 0:
+            self.pattern = ldrb.pattern
+        return super().write()
+
+
+class ldrb_with_writeback(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>, <imm>]!"
+    outputs = ["Rd"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class ldrb_with_post(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>], <imm>"
+    outputs = ["Rd"]
     in_outs = ["Rn"]
 
     @classmethod
