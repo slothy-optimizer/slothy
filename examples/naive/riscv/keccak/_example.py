@@ -3,6 +3,7 @@ import os
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.riscv.riscv as RISC_V
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
+from slothy.targets.riscv.riscv import AddiStashLoop
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 
@@ -74,7 +75,7 @@ class RISC_V_fips202_rv32imbv_hybrid_x3(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         # slothy.optimize("start", "end")
-        slothy.optimize_loop("loop_start")
+        slothy.optimize_loop("loop_start", forced_loop_type=AddiStashLoop)
 
 
 example_instances = [

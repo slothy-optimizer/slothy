@@ -1112,9 +1112,8 @@ vsetivli a2, 2, e64, m1, tu, mu
         s6, s7, s8, s9, s10,s11,ra, gp, tp
 
     li tp, 24
-
+    sw tp, 16*4(sp)  # intial store
 loop_start:
-    sw tp, 16*4(sp)
     ARound \
         v0,  v1,  v2,  v3,  v4,  v5,  v6,  v7,  v8,  v9,    \
         v10, v11, v12, v13, v14, v15, v16, v17, v18, v19,   \
@@ -1126,7 +1125,8 @@ loop_start:
     
     lw tp, 16*4(sp)
     addi tp, tp, -1
-    bnez tp, loop_start
+    sw tp, 16*4(sp)
+    bne tp, x0, loop_start
 
     addi a0, a0, -25*16
     StoreStates_v
