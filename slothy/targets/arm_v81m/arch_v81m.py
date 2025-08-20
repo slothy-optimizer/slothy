@@ -306,7 +306,7 @@ class Instruction:
 
     @staticmethod
     def unfold_abbrevs(mnemonic):
-        mnemonic = re.sub("<dt>", "(?P<datatype>(?:|i|u|s)(?:8|16|32|64))", mnemonic)
+        mnemonic = re.sub("<dt>", "(?P<datatype>(?:|i|u|s|p)(?:8|16|32|64))", mnemonic)
         mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f)(?:8|16|32))", mnemonic)
         return mnemonic
 
@@ -629,7 +629,7 @@ class MVEInstruction(Instruction):
 
             return src
 
-        dt_pattern = "(?:|u|s|i|U|S|I)(?:8|16|32|64)"
+        dt_pattern = "(?:|u|s|i|p|U|S|I|P)(?:8|16|32|64)"
         fdt_pattern = "(?:|f|F)(?:16|32)"
         imm_pattern = (
             "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=)+)"
