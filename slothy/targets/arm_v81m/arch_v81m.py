@@ -2430,6 +2430,12 @@ class lsr_imm(MVEInstruction):
     inputs = ["Rn"]
 
 
+class lsl_imm(MVEInstruction):
+    pattern = "lsl <Rd>, <Rn>, <imm>"
+    outputs = ["Rd"]
+    inputs = ["Rn"]
+
+
 class vcmul(MVEInstruction):
     pattern = "vcmul.<fdt> <Qd>, <Qn>, <Qm>, <imm>"
     inputs = ["Qn", "Qm"]
