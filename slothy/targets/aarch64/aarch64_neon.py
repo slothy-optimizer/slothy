@@ -807,6 +807,16 @@ class AArch64Instruction(Instruction):
     PARSERS = {}
 
     @staticmethod
+    def _replace_duplicate_mnemonicKey(src, mnemonic_key):
+        pattern = f"<{mnemonic_key}>"
+
+        cnt = src.count(pattern)
+        if cnt > 1:
+            for i in range(cnt):
+                src = re.sub(pattern, f"<{mnemonic_key}{i}>", src, count=1)
+        return src
+
+    @staticmethod
     def _unfold_pattern(src):
 
         # Those replacements may look pointless, but they replace
@@ -882,6 +892,7 @@ class AArch64Instruction(Instruction):
         index_pattern = "[0-9]+"
 
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
+        src = AArch64Instruction._replace_duplicate_mnemonicKey(src, "dt")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag")
@@ -1131,6 +1142,7 @@ class AArch64Instruction(Instruction):
             return txt
 
         out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
+        out = AArch64Instruction._replace_duplicate_mnemonicKey(out, "dt")
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
@@ -3497,7 +3509,7 @@ class vumlsl2(Vmlal):
 
 
 class vsmlsl(Vmlal):
-    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smlsl <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
