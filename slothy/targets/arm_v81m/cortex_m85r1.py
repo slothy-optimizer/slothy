@@ -179,6 +179,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vaddva,
     lsr,
     lsr_imm,
+    lsl_imm,
 )
 
 issue_rate = 1
@@ -297,6 +298,7 @@ execution_units = {
     sub_imm: ExecutionUnit.SCALAR,
     lsr: ExecutionUnit.SCALAR,
     lsr_imm: ExecutionUnit.SCALAR,
+    lsl_imm: ExecutionUnit.SCALAR,
     vshrnb: ExecutionUnit.VEC_SHFT,
     vshrnt: ExecutionUnit.VEC_SHFT,
     vrshr: ExecutionUnit.VEC_SHFT,
@@ -457,6 +459,7 @@ inverse_throughput = {
         save,
         lsr,
         lsr_imm,
+        lsl_imm,
     ): 1,
     (
         vrshr,
@@ -662,6 +665,7 @@ default_latencies = {
         vstrb_with_post,
         lsr,
         lsr_imm,
+        lsl_imm,
         rsb_imm,
         and_imm,
     ): 1,

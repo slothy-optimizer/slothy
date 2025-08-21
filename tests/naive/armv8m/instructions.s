@@ -390,5 +390,6 @@ vstrb.u8 q0, [r2], #16
 rsb r0, r0, #0
 and r1, r0, #1
 lsr r4, r4, r5
+lsl r5, r5, #2
 
 end:
