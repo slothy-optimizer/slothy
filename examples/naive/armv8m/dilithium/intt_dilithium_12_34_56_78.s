@@ -197,6 +197,18 @@ layer34_loop:
         ldrd root1, root1_twisted, [root_ptr], #+8
         ldrd root2, root2_twisted, [root_ptr], #+8
 
+        // Load scaling constants into scalar registers
+        scaling_factor         .req r8
+        scaling_factor_twisted .req r9
+
+        // ninv = 16382 (2^24 mod Q)
+        movw scaling_factor, #16382
+        movt scaling_factor, #0
+
+        // ninv_tw = 4197891
+        movw scaling_factor_twisted, #3587
+        movt scaling_factor_twisted, #64
+
         mov lr, #16
 layer12_loop:
 
@@ -210,12 +222,20 @@ layer12_loop:
         gs_butterfly data0, data2, root0, root0_twisted
         gs_butterfly data1, data3, root0, root0_twisted
 
-        vstrw.u32 data0, [in_low], #16
-        vstrw.u32 data1, [in_low, #(4*64 - 16)]
+        // Scale half the coeffs 2^-8 and the Montgomery factor 2^32.
+        // For the other half, the scaling has been merged into the
+        // multiplication with the twiddle factor on the last layer.
+        mulmod tmp, data0, scaling_factor, scaling_factor_twisted
+        vstrw.u32 tmp, [in_low], #16
+        mulmod tmp, data1, scaling_factor, scaling_factor_twisted
+        vstrw.u32 tmp, [in_low, #(4*64 - 16)]
         vstrw.u32 data2, [in_high], #16
         vstrw.u32 data3, [in_high, #(4*64 - 16)]
 
         le lr, layer12_loop
+
+        .unreq scaling_factor
+        .unreq scaling_factor_twisted
 
         // Restore MVE vector registers
         vpop {d8-d15}
