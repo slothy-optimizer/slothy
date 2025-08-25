@@ -149,26 +149,6 @@ layer56_loop:
 
         sub in, in, #(4*256)
 
-        // TEMPORARY: Barrett reduction
-        //
-        // This is grossly inefficient and largely unnecessary, but it's just outside
-        // the scope of our work to optimize this: We only want to demonstrate the
-        // ability of Helight to optimize the core loops.
-        barrett_const .req r1
-        .equ const_barrett, 63
-        movw barrett_const, #:lower16:const_barrett
-        movt barrett_const, #:upper16:const_barrett
-        mov lr, #64
-1:
-        vldrw.u32 data0, [in]
-        vqrdmulh.s32 tmp, data0, barrett_const
-        vmla.s32 data0, tmp, modulus
-        vstrw.u32 data0, [in], #16
-        le lr, 1b
-2:
-        sub in, in, #(4*256)
-        .unreq barrett_const
-
         // Layers 3,4
 
         // 4 butterfly blocks per root config, 4 root configs
@@ -206,25 +186,6 @@ layer34_loop:
         bne out_start
 
         sub in, in, #(4*256)
-
-        // TEMPORARY: Barrett reduction
-        //
-        // This is grossly inefficient and largely unnecessary, but it's just outside
-        // the scope of our work to optimize this: We only want to demonstrate the
-        // ability of Helight to optimize the core loops.
-        barrett_const .req r1
-        movw barrett_const, #:lower16:const_barrett
-        movt barrett_const, #:upper16:const_barrett
-        mov lr, #64
-1:
-        vldrw.u32 data0, [in]
-        vqrdmulh.s32 tmp, data0, barrett_const
-        vmla.s32 data0, tmp, modulus
-        vstrw.u32 data0, [in], #16
-        le lr, 1b
-2:
-        sub in, in, #(4*256)
-        .unreq barrett_const
 
         in_low       .req r0
         in_high      .req r1
