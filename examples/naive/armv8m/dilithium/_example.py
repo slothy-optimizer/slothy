@@ -273,6 +273,8 @@ class intt_dilithium_12_34_56_78(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 8
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
         slothy.optimize_loop("layer56_loop")
