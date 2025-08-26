@@ -42,6 +42,12 @@ roots_inv:
         mulmod         \b,  tmp, \root, \root_twisted
 .endm
 
+.macro barrett_reduce reg
+        vqdmulh.s16 tmp, \reg, barrett_const
+        vrshr.s16 tmp, tmp, #10
+        vmla.s16 \reg, tmp, modulus
+.endm
+
 .macro load_first_root root0, root0_twisted
         ldrd root0, root0_twisted, [root_ptr], #+8
 .endm
@@ -86,14 +92,33 @@ intt_kyber_1_23_45_67:
 
         tmp .req q4
 
-        // Layers 6,7
+        scaling_factor         .req r8
+        scaling_factor_twisted .req r9
+        barrett_const          .req r1
 
+        // ninv = 512 (scaling factor 1/128 and Montgomery factor 2^16)
+        movw scaling_factor, #512
+
+        // ninv_tw = 5040 (Barrett multiplication factor)
+        movw scaling_factor_twisted, #5040
+
+        // Barrett reduction constant = 10079
+        movw barrett_const, #10079
+
+        // Layers 6,7
         mov lr, #8
 layer67_loop:
-        vldrw.u32 data0, [in]
-        vldrw.u32 data1, [in, #(4*4*1)]
-        vldrw.u32 data2, [in, #(4*4*2)]
-        vldrw.u32 data3, [in, #(4*4*3)]
+        // We perform the scaling by 1/128 and the Montgomery factor 2^16
+        // at the beginning to also reduce coefficients to < q.
+        vldrw.u32 tmp, [in]
+        mulmod data0, tmp, scaling_factor, scaling_factor_twisted
+        vldrw.u32 tmp, [in, #(4*4*1)]
+        mulmod data1, tmp, scaling_factor, scaling_factor_twisted
+        vldrw.u32 tmp, [in, #(4*4*2)]
+        mulmod data2, tmp, scaling_factor, scaling_factor_twisted
+        vldrw.u32 tmp, [in, #(4*4*3)]
+        mulmod data3, tmp, scaling_factor, scaling_factor_twisted
+        // Bounds: Absolute value < q
 
         vldrw.u32 root1,         [root_ptr, #(32)]
         vldrw.u32 root1_twisted, [root_ptr, #(32+16)]
@@ -103,10 +128,19 @@ layer67_loop:
         vldrw.u32 root2_twisted, [root_ptr, #(64+16)]
         gs_butterfly data2, data3, root2, root2_twisted
 
+        // Bounds:
+        // data0, data2: < 2q
+        // data1, data3: < q
+
         vldrw.u32 root0,         [root_ptr], #(3*32)
         vldrw.u32 root0_twisted, [root_ptr, #(16 - 3*32)]
         gs_butterfly data0, data2, root0, root0_twisted
         gs_butterfly data1, data3, root0, root0_twisted
+
+        // Bounds:
+        // data0: < 4q
+        // data1: < 2q
+        // data2, data3: < q
 
         vstrw.u32 data0, [in], #64
         vstrw.u32 data1, [in, #(4*4*1 - 64)]
@@ -131,30 +165,7 @@ layer67_loop:
         root2         .req r6
         root2_twisted .req r7
 
-        .equ const_barrett, 10079
-        .equ barrett_shift, 10
-
-        // TEMPORARY: Barrett reduction
-        //
-        // This is grossly inefficient and largely unnecessary, but it's just outside
-        // the scope of our work to optimize this: We only want to demonstrate the
-        // ability of Helight to optimize the core loops.
-        barrett_const .req r1
-        movw barrett_const, #:lower16:const_barrett
-        mov lr, #32
-1:
-        vldrh.u16 data0, [in]
-        vqdmulh.s16 tmp, data0, barrett_const
-        vrshr.s16 tmp, tmp, barrett_shift
-        vmla.s16 data0, tmp, modulus
-        vstrh.u16 data0, [in], #16
-        le lr, 1b
-2:
-        sub in, in, #(4*128)
-        .unreq barrett_const
-
         // Layers 4,5
-
         mov lr, #8
 layer45_loop:
         load_next_roots root0, root0_twisted, root1, root1_twisted, root2, root2_twisted
@@ -166,8 +177,26 @@ layer45_loop:
 
         gs_butterfly data0, data1, root1, root1_twisted
         gs_butterfly data2, data3, root2, root2_twisted
+
+        // data0, data2: < 8q
+        // data1, data3: < q
+        // data0 and data2 have reached a bound of 8q now, so
+        // reduction of them is required.
+        barrett_reduce data0
+        barrett_reduce data2
+        // data0, data2: < q/2
+        // data1, data3: < q
+
+
         gs_butterfly data0, data2, root0, root0_twisted
         gs_butterfly data1, data3, root0, root0_twisted
+        // data0, data2, data3: < q
+        // data1: < 2q
+
+        barrett_reduce data1
+        // data1: < q/2 < q
+        // data0, data2, data3: < q
+        // Therefore, all < q
 
         vstrw.u32 data0, [in, #(4*4*0 - 64)]
         vstrw.u32 data1, [in, #(4*4*1 - 64)]
@@ -177,26 +206,6 @@ layer45_loop:
         le lr, layer45_loop
 
         sub in, in, #(4*128)
-
-        // TEMPORARY: Barrett reduction
-        //
-        // This is grossly inefficient and largely unnecessary, but it's just outside
-        // the scope of our work to optimize this: We only want to demonstrate the
-        // ability of Helight to optimize the core loops.
-
-        barrett_const .req r1
-        movw barrett_const, #:lower16:const_barrett
-        mov lr, #32
-1:
-        vldrh.u16 data0, [in]
-        vqdmulh.s16 tmp, data0, barrett_const
-        vrshr.s16 tmp, tmp, barrett_shift
-        vmla.s16 data0, tmp, modulus
-        vstrh.u16 data0, [in], #16
-        le lr, 1b
-2:
-        sub in, in, #(4*128)
-        .unreq barrett_const
 
         // Layers 2,3
 
@@ -214,8 +223,11 @@ layer23_loop:
 
         gs_butterfly data0, data1, root1, root1_twisted
         gs_butterfly data2, data3, root2, root2_twisted
+        // Bounds: < 2q
+
         gs_butterfly data0, data2, root0, root0_twisted
         gs_butterfly data1, data3, root0, root0_twisted
+        // Bounds: < 4q
 
         vstrw.u32 data0, [in], #(16)
         vstrw.u32 data1, [in, #(4*16*1 - 16)]
@@ -229,40 +241,9 @@ layer23_loop:
 
         sub in, in, #(4*128)
 
-        // TEMPORARY: Barrett reduction
-        //
-        // This is grossly inefficient and largely unnecessary, but it's just outside
-        // the scope of our work to optimize this: We only want to demonstrate the
-        // ability of Helight to optimize the core loops.
-        barrett_const .req r1
-        movw barrett_const, #:lower16:const_barrett
-        mov lr, #32
-1:
-        vldrh.u16 data0, [in]
-        vqdmulh.s16 tmp, data0, barrett_const
-        vrshr.s16 tmp, tmp, barrett_shift
-        vmla.s16 data0, tmp, modulus
-        vstrh.u16 data0, [in], #16
-        le lr, 1b
-2:
-        sub in, in, #(4*128)
-        .unreq barrett_const
-
         in_low       .req r0
         in_high      .req r1
         add in_high, in_low, #(4*64)
-
-        // Load scaling constants into scalar registers
-        scaling_factor         .req r8
-        scaling_factor_twisted .req r9
-
-        // ninv = 512 (scaling factor mod 3329)
-        movw scaling_factor, #512
-        movt scaling_factor, #0
-
-        // ninv_tw = 5040 (Barrett multiplication factor)
-        movw scaling_factor_twisted, #5040
-        movt scaling_factor_twisted, #0
 
         // Layers 1
 
@@ -275,17 +256,12 @@ layer1_loop:
         vldrw.u32 data1, [in_high]
 
         gs_butterfly data0, data1, root0, root0_twisted
+        // Bounds: < 8q
 
-        // Apply scaling to all coefficients using Barrett multiplication
-        mulmod tmp, data0, scaling_factor, scaling_factor_twisted
-        vstrw.u32 tmp, [in_low], #16
-        mulmod tmp, data1, scaling_factor, scaling_factor_twisted
-        vstrw.u32 tmp, [in_high], #16
+        vstrw.u32 data0, [in_low], #16
+        vstrw.u32 data1, [in_high], #16
 
         le lr, layer1_loop
-
-        .unreq scaling_factor
-        .unreq scaling_factor_twisted
 
         // Restore MVE vector registers
         vpop {d8-d15}

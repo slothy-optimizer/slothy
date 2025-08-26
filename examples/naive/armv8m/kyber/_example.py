@@ -316,6 +316,7 @@ class intt_kyber_1_23_45_67(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.timeout = 600
         slothy.optimize_loop("layer1_loop")
         slothy.optimize_loop("layer23_loop")
         slothy.optimize_loop("layer45_loop")
