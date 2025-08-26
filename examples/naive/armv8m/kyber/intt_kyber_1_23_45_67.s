@@ -252,6 +252,18 @@ layer23_loop:
         in_high      .req r1
         add in_high, in_low, #(4*64)
 
+        // Load scaling constants into scalar registers
+        scaling_factor         .req r8
+        scaling_factor_twisted .req r9
+
+        // ninv = 512 (scaling factor mod 3329)
+        movw scaling_factor, #512
+        movt scaling_factor, #0
+
+        // ninv_tw = 5040 (Barrett multiplication factor)
+        movw scaling_factor_twisted, #5040
+        movt scaling_factor_twisted, #0
+
         // Layers 1
 
         load_first_root root0, root0_twisted
@@ -264,10 +276,16 @@ layer1_loop:
 
         gs_butterfly data0, data1, root0, root0_twisted
 
-        vstrw.u32 data0, [in_low], #16
-        vstrw.u32 data1, [in_high], #16
+        // Apply scaling to all coefficients using Barrett multiplication
+        mulmod tmp, data0, scaling_factor, scaling_factor_twisted
+        vstrw.u32 tmp, [in_low], #16
+        mulmod tmp, data1, scaling_factor, scaling_factor_twisted
+        vstrw.u32 tmp, [in_high], #16
 
         le lr, layer1_loop
+
+        .unreq scaling_factor
+        .unreq scaling_factor_twisted
 
         // Restore MVE vector registers
         vpop {d8-d15}
