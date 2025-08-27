@@ -719,6 +719,7 @@ class DataFlowGraph:
         self.config = config
         self.src = self._parse_source(src)
 
+        # breakpoint()
         self._build_graph()
 
         if parsing_cb is True:
@@ -776,12 +777,46 @@ class DataFlowGraph:
                 "Ignoring this as requested by `config.allow_useless_instructions`!"
             )
 
+    def extract_read_writes(self, inst):
+        src_line = inst.source_line
+
+        def hint_register_name(tag):
+            return f"hint_{tag}"
+
+        def add_memory_write(tag):
+            inst.num_out += 1
+            inst.args_out_restrictions.append(None)
+            inst.args_out.append(hint_register_name(tag))
+            inst.arg_types_out.append(self.arch.RegisterType.HINT)
+
+        def add_memory_read(tag):
+            inst.num_in += 1
+            inst.args_in_restrictions.append(None)
+            inst.args_in.append(hint_register_name(tag))
+            inst.arg_types_in.append(self.arch.RegisterType.HINT)
+
+        write_tags = src_line.tags.get("writes", [])
+        read_tags = src_line.tags.get("reads", [])
+
+        if not isinstance(write_tags, list):
+            write_tags = [write_tags]
+        if not isinstance(read_tags, list):
+            read_tags = [read_tags]
+
+        for w in write_tags:
+            add_memory_write(w)
+        for r in read_tags:
+            add_memory_read(r)
+
+        return inst
+
     def _parse_line(self, line):
         assert SourceLine.is_source_line(line)
         insts = self.arch.Instruction.parser(line)
         # Remember options from source line
         # TODO: Might not be the right place to remember options
         for inst in insts:
+            self.extract_read_writes(inst)
             inst.source_line = line
         return (insts, line)
 
@@ -985,6 +1020,7 @@ class DataFlowGraph:
                 self.logger.error("* %s", c)
             raise DataFlowGraphException("Parsing failure during type checking")
         # Add the single valid candidate parsing to the CFG
+        # breakpoint()
         self._add_node(valid_candidates[0])
 
     def _find_source_single(self, ty, name):
