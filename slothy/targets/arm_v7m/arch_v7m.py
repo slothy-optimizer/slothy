@@ -998,8 +998,6 @@ class Instruction:
             if isinstance(i, Armv7mBranch):
                 i.source_line.tags["branch"] = True
 
-            i.extract_read_writes()
-
         if len(insts) == 0:
             logging.error("Failed to parse instruction %s", src)
             logging.error("A list of attempted parsers and their exceptions follows.")

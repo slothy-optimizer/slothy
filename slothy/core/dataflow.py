@@ -785,12 +785,18 @@ class DataFlowGraph:
 
         def add_memory_write(tag):
             inst.num_out += 1
+            # breakpoint()
+            if self.arch.__name__.endswith("arch_v7m"):
+                inst.pattern_outputs.append((hint_register_name(tag), "HINT"))
             inst.args_out_restrictions.append(None)
             inst.args_out.append(hint_register_name(tag))
             inst.arg_types_out.append(self.arch.RegisterType.HINT)
 
         def add_memory_read(tag):
             inst.num_in += 1
+            # breakpoint()
+            if self.arch.__name__.endswith("arch_v7m"):
+                inst.pattern_inputs.append((hint_register_name(tag), "HINT"))
             inst.args_in_restrictions.append(None)
             inst.args_in.append(hint_register_name(tag))
             inst.arg_types_in.append(self.arch.RegisterType.HINT)
