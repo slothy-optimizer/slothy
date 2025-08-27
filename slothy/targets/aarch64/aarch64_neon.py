@@ -551,44 +551,6 @@ class Instruction:
         self.index = None
         self.flag = None
 
-    def extract_read_writes(self):
-        """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
-
-        src_line = self.source_line
-
-        def hint_register_name(tag):
-            return f"hint_{tag}"
-
-        # Check if the source line is tagged as reading/writing from memory
-        def add_memory_write(tag):
-            self.num_out += 1
-            self.args_out_restrictions.append(None)
-            self.args_out.append(hint_register_name(tag))
-            self.arg_types_out.append(RegisterType.HINT)
-
-        def add_memory_read(tag):
-            self.num_in += 1
-            self.args_in_restrictions.append(None)
-            self.args_in.append(hint_register_name(tag))
-            self.arg_types_in.append(RegisterType.HINT)
-
-        write_tags = src_line.tags.get("writes", [])
-        read_tags = src_line.tags.get("reads", [])
-
-        if not isinstance(write_tags, list):
-            write_tags = [write_tags]
-
-        if not isinstance(read_tags, list):
-            read_tags = [read_tags]
-
-        for w in write_tags:
-            add_memory_write(w)
-
-        for r in read_tags:
-            add_memory_read(r)
-
-        return self
-
     def global_parsing_cb(self, a, log=None):
         """Parsing callback triggered after DataFlowGraph parsing which allows
         modification of the instruction in the context of the overall computation.
@@ -781,7 +743,7 @@ class Instruction:
 
         for i in insts:
             i.source_line = src_line
-            i.extract_read_writes()
+            # i.extract_read_writes()
 
         if len(insts) == 0:
             logging.error("Failed to parse instruction %s", src)
@@ -4545,7 +4507,7 @@ def q_ld2_lane_post_inc_parsing_cb():
         t.inst = q_ld2_lane_post_inc_force_output.make(inst_txt, force=True)
         t.inst.source_line = old_src
         t.changed = True
-        t.inst.extract_read_writes()
+        # t.inst.extract_read_writes()
         return True
 
     return core
