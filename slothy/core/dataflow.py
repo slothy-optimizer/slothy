@@ -790,7 +790,7 @@ class DataFlowGraph:
                 inst.pattern_outputs.append((hint_register_name(tag), "HINT"))
             inst.args_out_restrictions.append(None)
             inst.args_out.append(hint_register_name(tag))
-            inst.arg_types_out.append(self.arch.RegisterType.HINT)
+            inst.arg_types_out.append("HINT")
 
         def add_memory_read(tag):
             inst.num_in += 1
@@ -799,7 +799,7 @@ class DataFlowGraph:
                 inst.pattern_inputs.append((hint_register_name(tag), "HINT"))
             inst.args_in_restrictions.append(None)
             inst.args_in.append(hint_register_name(tag))
-            inst.arg_types_in.append(self.arch.RegisterType.HINT)
+            inst.arg_types_in.append("HINT")
 
         write_tags = src_line.tags.get("writes", [])
         read_tags = src_line.tags.get("reads", [])
@@ -864,6 +864,7 @@ class DataFlowGraph:
                 expectations = []
                 # Check if we know the type from the dictionary
                 if name in self.reg_state:
+                    # breakpoint()
                     exp_ty = self.reg_state[name].get_type()
                     self.logger.debug(
                         "   + type of %s in state dictionary: %s", name, exp_ty
@@ -871,6 +872,7 @@ class DataFlowGraph:
                     expectations.append((f"State dictionary: {exp_ty}", exp_ty))
                 else:
                     self.logger.debug("    + %s not in state dictionary", name)
+                # breakpoint()
                 exp_ty = self.arch.RegisterType.find_type(name)
                 if exp_ty is not None:
                     self.logger.debug(
@@ -882,6 +884,7 @@ class DataFlowGraph:
                 # instruction signature. Note that this also works in the case
                 # where we don't have any type expectation, as all([]) == True.
                 for fail in [msg for (msg, exp) in expectations if exp != ty]:
+                    # breakpoint()
                     self.logger.debug(
                         "Typecheck for %s failed -- mismatch: %s", name, fail
                     )
