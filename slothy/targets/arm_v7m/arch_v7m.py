@@ -213,7 +213,7 @@ class RegisterType(Enum):
         """Find type of architectural register"""
 
         if r.startswith("hint_"):
-            return RegisterType.HINT
+            return "HINT"
 
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
@@ -224,7 +224,7 @@ class RegisterType(Enum):
     @staticmethod
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
-        if ty == RegisterType.HINT:
+        if ty == "HINT":
             return False
         return True
 
