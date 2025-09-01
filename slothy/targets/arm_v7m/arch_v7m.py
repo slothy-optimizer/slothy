@@ -1212,7 +1212,7 @@ class Armv7mInstruction(Instruction):
             c = "r"
         elif ty == RegisterType.FPR:
             c = "s"
-        elif ty == RegisterType.HINT:
+        elif ty == "HINT":
             c = "t"
         else:
             assert False
@@ -1238,7 +1238,7 @@ class Armv7mInstruction(Instruction):
 
     @staticmethod
     def _instantiate_pattern(s, ty, arg, out):
-        if ty == RegisterType.FLAGS or ty == RegisterType.HINT:
+        if ty == RegisterType.FLAGS or ty == "HINT":
             return out
         rep = Armv7mInstruction._build_pattern_replacement(s, ty, arg)
         res = out.replace(f"<{s}>", rep)
