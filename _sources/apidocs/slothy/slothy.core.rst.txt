@@ -14,7 +14,7 @@ Submodules
    :maxdepth: 1
 
    slothy.core.slothy
-   slothy.core.core
-   slothy.core.heuristics
    slothy.core.dataflow
+   slothy.core.heuristics
    slothy.core.config
+   slothy.core.core
