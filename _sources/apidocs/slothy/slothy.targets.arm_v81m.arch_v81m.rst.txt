@@ -215,6 +215,14 @@ Classes
      -
    * - :py:obj:`vldrb_with_post <slothy.targets.arm_v81m.arch_v81m.vldrb_with_post>`
      -
+   * - :py:obj:`ldrb <slothy.targets.arm_v81m.arch_v81m.ldrb>`
+     -
+   * - :py:obj:`ldrb_no_imm <slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm>`
+     -
+   * - :py:obj:`ldrb_with_writeback <slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback>`
+     -
+   * - :py:obj:`ldrb_with_post <slothy.targets.arm_v81m.arch_v81m.ldrb_with_post>`
+     -
    * - :py:obj:`vldrh <slothy.targets.arm_v81m.arch_v81m.vldrh>`
      -
    * - :py:obj:`vldrh_no_imm <slothy.targets.arm_v81m.arch_v81m.vldrh_no_imm>`
@@ -2776,6 +2784,120 @@ API
 
    .. py:method:: make(src)
       :canonical: slothy.targets.arm_v81m.arch_v81m.vldrb_with_post.make
+      :classmethod:
+
+.. py:class:: ldrb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb.pattern
+      :value: 'ldrb <Rd>, [<Rn>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb.inputs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb.write
+
+.. py:class:: ldrb_no_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm.pattern
+      :value: 'ldrb <Rd>, [<Rn>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm.inputs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_no_imm.write
+
+.. py:class:: ldrb_with_writeback(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback.pattern
+      :value: 'ldrb <Rd>, [<Rn>, <imm>]!'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback.pattern
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback.outputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback.in_outs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback.in_outs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_writeback.make
+      :classmethod:
+
+.. py:class:: ldrb_with_post(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_post
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_post.pattern
+      :value: 'ldrb <Rd>, [<Rn>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_with_post.pattern
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_post.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_with_post.outputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_post.in_outs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldrb_with_post.in_outs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ldrb_with_post.make
       :classmethod:
 
 .. py:class:: vldrh(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
