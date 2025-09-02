@@ -125,6 +125,9 @@ vmullb.s8 q2, q0, q1
 vmullb.s16 q2, q0, q1
 vmullb.s32 q2, q0, q1
 
+vmullb.p8 q5, q4, q0
+vmullt.p8 q4, q4, q0
+
 vdup.u8 q0, r0
 vdup.u16 q0, r0
 vdup.u32 q0, r0
@@ -389,5 +392,9 @@ lsr r0, r0, #1
 vstrb.u8 q0, [r2], #16
 rsb r0, r0, #0
 and r1, r0, #1
+
+ldrb r0, [r0, #16]
+ldrb r0, [r0], #16
+ldrb r0, [r0, #16]!
 
 end:

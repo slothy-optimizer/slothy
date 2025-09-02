@@ -178,6 +178,10 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vstrb_no_imm,
     vstrb_with_writeback,
     vstrb_with_post,
+    ldrb,
+    ldrb_no_imm,
+    ldrb_with_writeback,
+    ldrb_with_post,
 )
 
 issue_rate = 1
@@ -355,6 +359,10 @@ execution_units = {
     ldrd_no_imm: ExecutionUnit.LOAD,
     ldrd_with_writeback: ExecutionUnit.LOAD,
     ldrd_with_post: ExecutionUnit.LOAD,
+    ldrb: ExecutionUnit.LOAD,
+    ldrb_no_imm: ExecutionUnit.LOAD,
+    ldrb_with_writeback: ExecutionUnit.LOAD,
+    ldrb_with_post: ExecutionUnit.LOAD,
     strd: ExecutionUnit.STORE,
     strd_with_writeback: ExecutionUnit.STORE,
     strd_with_post: ExecutionUnit.STORE,
@@ -445,6 +453,10 @@ inverse_throughput = {
         ldrd_no_imm,
         ldrd_with_writeback,
         ldrd_with_post,
+        ldrb,
+        ldrb_no_imm,
+        ldrb_with_writeback,
+        ldrb_with_post,
         strd,
         strd_with_writeback,
         strd_with_post,
@@ -577,6 +589,12 @@ default_latencies = {
         ldrd_no_imm,
         ldrd_with_writeback,
         ldrd_with_post,
+    ): 2,
+    (
+        ldrb,
+        ldrb_no_imm,
+        ldrb_with_writeback,
+        ldrb_with_post,
     ): 2,
     restored: 2,
     (
