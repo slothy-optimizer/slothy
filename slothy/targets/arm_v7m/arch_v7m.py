@@ -213,7 +213,7 @@ class RegisterType(Enum):
         """Find type of architectural register"""
 
         if r.startswith("hint_"):
-            return RegisterType.HINT
+            return "HINT"
 
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
@@ -224,7 +224,7 @@ class RegisterType(Enum):
     @staticmethod
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
-        if ty == RegisterType.HINT:
+        if ty == "HINT":
             return False
         return True
 
@@ -998,8 +998,6 @@ class Instruction:
             if isinstance(i, Armv7mBranch):
                 i.source_line.tags["branch"] = True
 
-            i.extract_read_writes()
-
         if len(insts) == 0:
             logging.error("Failed to parse instruction %s", src)
             logging.error("A list of attempted parsers and their exceptions follows.")
@@ -1214,7 +1212,7 @@ class Armv7mInstruction(Instruction):
             c = "r"
         elif ty == RegisterType.FPR:
             c = "s"
-        elif ty == RegisterType.HINT:
+        elif ty == "HINT":
             c = "t"
         else:
             assert False
@@ -1240,7 +1238,7 @@ class Armv7mInstruction(Instruction):
 
     @staticmethod
     def _instantiate_pattern(s, ty, arg, out):
-        if ty == RegisterType.FLAGS or ty == RegisterType.HINT:
+        if ty == RegisterType.FLAGS or ty == "HINT":
             return out
         rep = Armv7mInstruction._build_pattern_replacement(s, ty, arg)
         res = out.replace(f"<{s}>", rep)

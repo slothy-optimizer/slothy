@@ -140,6 +140,17 @@ class Armv7mLoopLabels(OptimizationRunner):
         slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.SubsLoop)
 
 
+class HintTest(OptimizationRunner):
+    def __init__(self):
+        super().__init__(
+            "hint_test", arch=Arch_Armv7M, target=Target_CortexM7, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize()
+
+
 test_instances = [
     Armv7mLoopSubs(),
     Armv7mLoopCmp(),
@@ -148,4 +159,5 @@ test_instances = [
     Armv7mExample0(),
     Armv7mExample0Func(),
     Armv7mLoopLabels(),
+    HintTest(),
 ]

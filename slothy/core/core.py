@@ -1818,6 +1818,7 @@ class SlothyBase(LockAttributes):
             will be picked afterwards (we can't do it immediately because we try
             to avoid collisions with fixed static assignments)."""
             reg, ty = t.inst.orig_reg, t.inst.orig_ty
+            # breakpoint()
             is_arch = self._reg_is_architectural(reg, ty)
             arch_str = "arch" if is_arch else "symbolic"
 
@@ -1884,6 +1885,7 @@ class SlothyBase(LockAttributes):
                 }
             )
 
+        # breakpoint()
         inputs_tagged = list(map(tag_input, self._model.tree.nodes_input))
         outputs_tagged = list(map(tag_output, self._model.tree.nodes_output))
 

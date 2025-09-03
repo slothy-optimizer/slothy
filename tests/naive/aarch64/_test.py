@@ -254,6 +254,17 @@ class AArch64LoopLabels(OptimizationRunner):
         slothy.optimize_loop("1")
 
 
+class HintTest(OptimizationRunner):
+    def __init__(self):
+        super().__init__(
+            "hint_test", arch=AArch64_Neon, target=Target_CortexA55, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize()
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -274,4 +285,5 @@ test_instances = [
     AArch64LoopSubTabs(),
     AArch64Ubfx(),
     AArch64LoopLabels(),
+    HintTest(),
 ]

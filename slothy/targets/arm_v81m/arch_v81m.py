@@ -68,7 +68,7 @@ class RegisterType(Enum):
     @staticmethod
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
-        if ty == RegisterType.HINT:
+        if ty == "HINT":
             return False
         return True
 
@@ -114,7 +114,7 @@ class RegisterType(Enum):
         """Find type of architectural register"""
 
         if r.startswith("hint_"):
-            return RegisterType.HINT
+            return "HINT"
 
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
@@ -242,44 +242,6 @@ class Instruction:
         self.datatype = None
         self.index = None
         self.flag = None
-
-    def extract_read_writes(self):
-        """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
-
-        src_line = self.source_line
-
-        def hint_register_name(tag):
-            return f"hint_{tag}"
-
-        # Check if the source line is tagged as reading/writing from memory
-        def add_memory_write(tag):
-            self.num_out += 1
-            self.args_out_restrictions.append(None)
-            self.args_out.append(hint_register_name(tag))
-            self.arg_types_out.append(RegisterType.HINT)
-
-        def add_memory_read(tag):
-            self.num_in += 1
-            self.args_in_restrictions.append(None)
-            self.args_in.append(hint_register_name(tag))
-            self.arg_types_in.append(RegisterType.HINT)
-
-        write_tags = src_line.tags.get("writes", [])
-        read_tags = src_line.tags.get("reads", [])
-
-        if not isinstance(write_tags, list):
-            write_tags = [write_tags]
-
-        if not isinstance(read_tags, list):
-            read_tags = [read_tags]
-
-        for w in write_tags:
-            add_memory_write(w)
-
-        for r in read_tags:
-            add_memory_read(r)
-
-        return self
 
     def global_parsing_cb(self, a, log=None):
         """Parsing callback triggered after DataFlowGraph parsing which allows
@@ -559,7 +521,7 @@ class Instruction:
                 exceptions[inst_class.__name__] = e
         for i in insts:
             i.source_line = src_line
-            i.extract_read_writes()
+
         if len(insts) == 0:
             logging.error("Failed to parse instruction %s", src)
             logging.error("A list of attempted parsers and their exceptions follows.")
