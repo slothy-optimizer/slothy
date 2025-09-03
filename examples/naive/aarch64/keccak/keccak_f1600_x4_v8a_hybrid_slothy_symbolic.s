@@ -169,7 +169,7 @@ round_constants:
 
     /* Mapping of Kecck-f1600 state to scalar registers
      * at the beginning and end of each round. */
-    sAba     .req x1
+    s_Aba     .req x1
     sAbe     .req x6
     sAbi     .req x11
     sAbo     .req x16
@@ -278,7 +278,7 @@ round_constants:
 .endm
 
 .macro store_input_scalar num idx
-    str sAba, [input_addr, 8*(\num*(0)  +\idx)]
+    str s_Aba, [input_addr, 8*(\num*(0)  +\idx)]
     str sAbe, [input_addr, 8*(\num*(0+1) +\idx)]
     str sAbi, [input_addr, 8*(\num*(2)+   \idx)]
     str sAbo, [input_addr, 8*(\num*(2+1) +\idx)]
@@ -306,7 +306,7 @@ round_constants:
 .endm
 
 .macro load_input_scalar num idx
-    ldr sAba, [input_addr, 8*(\num*(0)  +\idx)]
+    ldr s_Aba, [input_addr, 8*(\num*(0)  +\idx)]
     ldr sAbe, [input_addr, 8*(\num*(0+1) +\idx)]
     ldr sAbi, [input_addr, 8*(\num*(2)+   \idx)]
     ldr sAbo, [input_addr, 8*(\num*(2+1) +\idx)]
@@ -445,7 +445,7 @@ round_constants:
 .endm
 
 .macro scalar_round_initial
-    eor5 X<sC0>, sAma, sAsa, sAba, sAga, sAka
+    eor5 X<sC0>, sAma, sAsa, s_Aba, sAga, sAka
     eor5 X<sC1>, sAme, sAse, sAbe, sAge, sAke
     eor5 X<sC2>, sAmi, sAsi, sAbi, sAgi, sAki
     eor5 X<sC3>, sAmo, sAso, sAbo, sAgo, sAko
@@ -457,7 +457,7 @@ round_constants:
     eor X<sE2>, X<sC1>, X<sC3>, ror #63
     eor X<sE4>, X<sC3>, X<sC0>, ror #63
 
-    eor X<sBba>, sAba, X<sE0>
+    eor X<sBba>, s_Aba, X<sE0>
     eor X<sBsa>, sAbi, X<sE2>
     eor X<sBbi>, sAki, X<sE2>
     eor X<sBki>, sAko, X<sE3>
@@ -508,13 +508,13 @@ round_constants:
     chi_step_ror sAsi, X<sBsi>, X<sBsu>, X<sBso>, 25, 27
     chi_step_ror sAso, X<sBso>, X<sBsa>, X<sBsu>, 60, 21
     chi_step_ror sAsu, X<sBsu>, X<sBse>, X<sBsa>, 57, 53
-    chi_step_ror2 sAba, X<sBba>, X<sBbi>, X<sBbe>, 63, 21
+    chi_step_ror2 s_Aba, X<sBba>, X<sBbi>, X<sBbe>, 63, 21
     chi_step_ror sAbe, X<sBbe>, X<sBbo>, X<sBbi>, 42, 41
     chi_step_ror sAbi, X<sBbi>, X<sBbu>, X<sBbo>, 57, 35
     chi_step_ror sAbo, X<sBbo>, X<sBba>, X<sBbu>, 50, 43
     chi_step_ror sAbu, X<sBbu>, X<sBbe>, X<sBba>, 44, 30
 
-    eor sAba, sAba, X<cur_const>
+    eor s_Aba, s_Aba, X<cur_const>
 .endm
 
 .macro vector_round
@@ -591,7 +591,7 @@ round_constants:
 
 .macro scalar_round_noninitial
 
-    eor X<sC0>, sAba,   sAga, ror #61
+    eor X<sC0>, s_Aba,   sAga, ror #61
     eor X<sC0>, X<sC0>, sAma, ror #54
     eor X<sC0>, X<sC0>, sAka, ror #39
     eor X<sC0>, X<sC0>, sAsa, ror #25
@@ -625,7 +625,7 @@ round_constants:
     eor X<sE2>, X<sC1>, X<sC3>, ror #63
     eor X<sE4>, X<sC3>, X<sC0>, ror #63
 
-    eor X<sBba>, X<sE0>, sAba
+    eor X<sBba>, X<sE0>, s_Aba
     eor X<sBsa>, X<sE2>, sAbi, ror #50
     eor X<sBbi>, X<sE2>, sAki, ror #46
     eor X<sBki>, X<sE3>, sAko, ror #63
@@ -653,7 +653,7 @@ round_constants:
 
     ldr X<caddr>, [sp, #STACK_OFFSET_CONST_SCALAR]
     ldr X<count>, [sp, #STACK_OFFSET_COUNT] // @slothy:reads=STACK_OFFSET_COUNT
-    ldr X<cur_const>, [X<caddr>, X<count>, UXTW #3]
+    ldr X<cur_const>, [X<caddr>, X<count>, LSL #3]
     add X<count>, X<count>, #1
     cmp X<count>, #(KECCAK_F1600_ROUNDS-1)  // @slothy:ignore_useless_output
     str X<count>, [sp, #STACK_OFFSET_COUNT] // @slothy:writes=STACK_OFFSET_COUNT
@@ -678,13 +678,13 @@ round_constants:
     chi_step_ror sAsi, X<sBsi>, X<sBsu>, X<sBso>, 25, 27
     chi_step_ror sAso, X<sBso>, X<sBsa>, X<sBsu>, 60, 21
     chi_step_ror sAsu, X<sBsu>, X<sBse>, X<sBsa>, 57, 53
-    chi_step_ror2 sAba, X<sBba>, X<sBbi>, X<sBbe>, 63, 21
+    chi_step_ror2 s_Aba, X<sBba>, X<sBbi>, X<sBbe>, 63, 21
     chi_step_ror sAbe, X<sBbe>, X<sBbo>, X<sBbi>, 42, 41
     chi_step_ror sAbi, X<sBbi>, X<sBbu>, X<sBbo>, 57, 35
     chi_step_ror sAbo, X<sBbo>, X<sBba>, X<sBbu>, 50, 43
     chi_step_ror sAbu, X<sBbu>, X<sBbe>, X<sBba>, 44, 30
 
-    eor sAba, sAba, X<cur_const>
+    eor s_Aba, s_Aba, X<cur_const>
 .endm
 
 .macro final_scalar_rotate
