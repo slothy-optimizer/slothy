@@ -103,6 +103,19 @@ class HintTest(OptimizationRunner):
         slothy.optimize()
 
 
+class TagTest(OptimizationRunner):
+    def __init__(self):
+        super().__init__(
+            "tag_test",
+            arch=Arch_Armv81M,
+            target=Target_CortexM55r1,
+            base_dir="tests",
+        )
+
+    def core(self, slothy):
+        slothy.optimize()
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexM85r1),
@@ -112,4 +125,5 @@ test_instances = [
     Example3(),
     LoopLe(),
     HintTest(),
+    TagTest(),
 ]
