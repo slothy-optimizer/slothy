@@ -1,4 +1,48 @@
-// include "consts.h"
+#define _ZETA_EXP_0TO3_L0 (0 * 2)
+#define _ZETA_EXP_0TO3_L1 (_ZETA_EXP_0TO3_L0 + 1 * 2)
+#define _ZETA_EXP_0TO3_L2 (_ZETA_EXP_0TO3_L1 + 2 * 2)
+#define _ZETA_EXP_0TO3_L3 (_ZETA_EXP_0TO3_L2 + 4 * 2)
+#define _ZETA_EXP_4TO7_P0_L4 (_ZETA_EXP_0TO3_L3 + 8 * 2)
+#define _ZETA_EXP_4TO7_P0_L5 (_ZETA_EXP_4TO7_P0_L4 + 4 * 2)
+#define _ZETA_EXP_4TO7_P0_L6 (_ZETA_EXP_4TO7_P0_L5 + 8 * 2)
+#define _ZETA_EXP_4TO7_P0_L7 (_ZETA_EXP_4TO7_P0_L6 + 16 * 2 * 2)
+#define _ZETA_EXP_4TO7_P1_L4 (_ZETA_EXP_4TO7_P0_L7 + 32 * 2)
+#define _ZETA_EXP_4TO7_P1_L5 (_ZETA_EXP_4TO7_P1_L4 + 4 * 2)
+#define _ZETA_EXP_4TO7_P1_L6 (_ZETA_EXP_4TO7_P1_L5 + 8 * 2)
+#define _ZETA_EXP_4TO7_P1_L7 (_ZETA_EXP_4TO7_P1_L6 + 16 * 2 * 2)
+#define _ZETA_EXP_4TO7_P2_L4 (_ZETA_EXP_4TO7_P1_L7 + 32 * 2)
+#define _ZETA_EXP_4TO7_P2_L5 (_ZETA_EXP_4TO7_P2_L4 + 4 * 2)
+#define _ZETA_EXP_4TO7_P2_L6 (_ZETA_EXP_4TO7_P2_L5 + 8 * 2)
+#define _ZETA_EXP_4TO7_P2_L7 (_ZETA_EXP_4TO7_P2_L6 + 16 * 2 * 2)
+#define _ZETA_EXP_4TO7_P3_L4 (_ZETA_EXP_4TO7_P2_L7 + 32 * 2)
+#define _ZETA_EXP_4TO7_P3_L5 (_ZETA_EXP_4TO7_P3_L4 + 4 * 2)
+#define _ZETA_EXP_4TO7_P3_L6 (_ZETA_EXP_4TO7_P3_L5 + 8 * 2)
+#define _ZETA_EXP_4TO7_P3_L7 (_ZETA_EXP_4TO7_P3_L6 + 16 * 2 * 2)
+#define _MASK_1100 (_ZETA_EXP_4TO7_P3_L7 + 32 * 2)
+#define _MASK_1010 (_MASK_1100 + 4)
+#define _MASK_0101 (_MASK_1010 + 4)
+#define _MASK_2323 (_MASK_0101 + 4)
+#define _MASK_1032 (_MASK_2323 + 4)
+#define _ZETA_EXP_INTT_0TO3_P0_L0 (_MASK_1032 + 4)
+#define _ZETA_EXP_INTT_0TO3_P0_L1 (_ZETA_EXP_INTT_0TO3_P0_L0 + 32 * 2)
+#define _ZETA_EXP_INTT_0TO3_P0_L2 (_ZETA_EXP_INTT_0TO3_P0_L1 + 16 * 2 * 2)
+#define _ZETA_EXP_INTT_0TO3_P0_L3 (_ZETA_EXP_INTT_0TO3_P0_L2 + 8 * 2)
+#define _ZETA_EXP_INTT_0TO3_P1_L0 (_ZETA_EXP_INTT_0TO3_P0_L3 + 4 * 2)
+#define _ZETA_EXP_INTT_0TO3_P1_L1 (_ZETA_EXP_INTT_0TO3_P1_L0 + 32 * 2)
+#define _ZETA_EXP_INTT_0TO3_P1_L2 (_ZETA_EXP_INTT_0TO3_P1_L1 + 16 * 2 * 2)
+#define _ZETA_EXP_INTT_0TO3_P1_L3 (_ZETA_EXP_INTT_0TO3_P1_L2 + 8 * 2)
+#define _ZETA_EXP_INTT_0TO3_P2_L0 (_ZETA_EXP_INTT_0TO3_P1_L3 + 4 * 2)
+#define _ZETA_EXP_INTT_0TO3_P2_L1 (_ZETA_EXP_INTT_0TO3_P2_L0 + 32 * 2)
+#define _ZETA_EXP_INTT_0TO3_P2_L2 (_ZETA_EXP_INTT_0TO3_P2_L1 + 16 * 2 * 2)
+#define _ZETA_EXP_INTT_0TO3_P2_L3 (_ZETA_EXP_INTT_0TO3_P2_L2 + 8 * 2)
+#define _ZETA_EXP_INTT_0TO3_P3_L0 (_ZETA_EXP_INTT_0TO3_P2_L3 + 4 * 2)
+#define _ZETA_EXP_INTT_0TO3_P3_L1 (_ZETA_EXP_INTT_0TO3_P3_L0 + 32 * 2)
+#define _ZETA_EXP_INTT_0TO3_P3_L2 (_ZETA_EXP_INTT_0TO3_P3_L1 + 16 * 2 * 2)
+#define _ZETA_EXP_INTT_0TO3_P3_L3 (_ZETA_EXP_INTT_0TO3_P3_L2 + 8 * 2)
+#define _ZETA_EXP_INTT_4TO7_L4 (_ZETA_EXP_INTT_0TO3_P3_L3 + 4 * 2)
+#define _ZETA_EXP_INTT_4TO7_L5 (_ZETA_EXP_INTT_4TO7_L4 + 8 * 2)
+#define _ZETA_EXP_INTT_4TO7_L6 (_ZETA_EXP_INTT_4TO7_L5 + 4 * 2)
+#define _ZETA_EXP_INTT_4TO7_L7 (_ZETA_EXP_INTT_4TO7_L6 + 2 * 2)
 
 // [a0,a1,a2,a3]+[a4,a5,a6,a7] -> [a0,a1,a4,a5]+[a2,a3,a6,a7]
 // related masks are ready for using
@@ -496,103 +540,6 @@
     vsub.vv  \va6_1, \vt6_1, \va6_1
     vsub.vv  \va7_1, \vt7_1, \va7_1
 .endm
-
-// Do not use the vlse instruction to implement NTT, as its latency is higher than that of the vle instruction.
-// This is a version using vector-grouping. The performance is slightly slower than normal version
-// .macro ntt_8l_level0to3_rvv off
-// vsetivli t2, 4, e32, m1, tu, mu
-// lw   t2, (_ZETA_EXP_0TO3_L0+0)*4(a1)
-// lw   t1, (_ZETA_EXP_0TO3_L0+1)*4(a1)
-// addi a0, a0, (4*\off)*4
-// vle32.v v16, (a0) // addi a0, a0, 16*4
-// vle32.v v17, (a0) // addi a0, a0, 16*4
-// vle32.v v18, (a0) // addi a0, a0, 16*4
-// vle32.v v19, (a0) // addi a0, a0, 16*4
-// vle32.v v20, (a0) // addi a0, a0, 16*4
-// vle32.v v21, (a0) // addi a0, a0, 16*4
-// vle32.v v22, (a0) // addi a0, a0, 16*4
-// vle32.v v23, (a0) // addi a0, a0, 16*4
-// vle32.v v24, (a0) // addi a0, a0, 16*4
-// vle32.v v25, (a0) // addi a0, a0, 16*4
-// vle32.v v26, (a0) // addi a0, a0, 16*4
-// vle32.v v27, (a0) // addi a0, a0, 16*4
-// vle32.v v28, (a0) // addi a0, a0, 16*4
-// vle32.v v29, (a0) // addi a0, a0, 16*4
-// vle32.v v30, (a0) // addi a0, a0, 16*4
-// vle32.v v31, (a0) // addi a0, a0, -(16*15)*4
-// level0
-// li t1, 32
-// vsetvli t2, t1, e32, m8, tu, mu
-// ct_bfu v16, v24, t1, t2, t0, v0, v8
-// level1
-// lw   t2, (_ZETA_EXP_0TO3_L1+0)*4(a1)
-// lw   t1, (_ZETA_EXP_0TO3_L1+1)*4(a1)
-// lw   t4, (_ZETA_EXP_0TO3_L1+2)*4(a1)
-// lw   t3, (_ZETA_EXP_0TO3_L1+3)*4(a1)
-// vsetivli t2, 16, e32, m4, tu, mu
-// ct_bfu_x2 \
-// v16,v20,v24,v28, \
-// t1, t2, t3, t4, \
-// t0, v0, v4, v8, v12
-// level2
-// lw   t2, (_ZETA_EXP_0TO3_L2+0)*4(a1)
-// lw   t1, (_ZETA_EXP_0TO3_L2+1)*4(a1)
-// lw   t4, (_ZETA_EXP_0TO3_L2+2)*4(a1)
-// lw   t3, (_ZETA_EXP_0TO3_L2+3)*4(a1)
-// lw   t6, (_ZETA_EXP_0TO3_L2+4)*4(a1)
-// lw   t5, (_ZETA_EXP_0TO3_L2+5)*4(a1)
-// lw   a6, (_ZETA_EXP_0TO3_L2+6)*4(a1)
-// lw   a5, (_ZETA_EXP_0TO3_L2+7)*4(a1)
-// vsetivli t2, 8, e32, m2, tu, mu
-// ct_bfu_x4 \
-// v16,v18,v20,v22,v24,v26,v28,v30,\
-// t1, t2, t3, t4, t5, t6, a5, a6, \
-// t0, v0, v2, v4, v6, v8, v10,v12,v14
-// level3
-// lw   t2, (_ZETA_EXP_0TO3_L3+0)*4(a1)
-// lw   t1, (_ZETA_EXP_0TO3_L3+1)*4(a1)
-// lw   t4, (_ZETA_EXP_0TO3_L3+2)*4(a1)
-// lw   t3, (_ZETA_EXP_0TO3_L3+3)*4(a1)
-// lw   t6, (_ZETA_EXP_0TO3_L3+4)*4(a1)
-// lw   t5, (_ZETA_EXP_0TO3_L3+5)*4(a1)
-// lw   a6, (_ZETA_EXP_0TO3_L3+6)*4(a1)
-// lw   a5, (_ZETA_EXP_0TO3_L3+7)*4(a1)
-// vsetivli t2, 4, e32, m1, tu, mu
-// ct_bfu_x4 \
-// v16,v17,v18,v19,v20,v21,v22,v23,\
-// t1, t2, t3, t4, t5, t6, a5, a6, \
-// t0, \
-// v0, v1, v2, v3, v4, v5, v6, v7
-// lw   t2, (_ZETA_EXP_0TO3_L3+8+0)*4(a1)
-// lw   t1, (_ZETA_EXP_0TO3_L3+8+1)*4(a1)
-// lw   t4, (_ZETA_EXP_0TO3_L3+8+2)*4(a1)
-// lw   t3, (_ZETA_EXP_0TO3_L3+8+3)*4(a1)
-// lw   t6, (_ZETA_EXP_0TO3_L3+8+4)*4(a1)
-// lw   t5, (_ZETA_EXP_0TO3_L3+8+5)*4(a1)
-// lw   a6, (_ZETA_EXP_0TO3_L3+8+6)*4(a1)
-// lw   a5, (_ZETA_EXP_0TO3_L3+8+7)*4(a1)
-// ct_bfu_x4 \
-// v24,v25,v26,v27,v28,v29,v30,v31,\
-// t1, t2, t3, t4, t5, t6, a5, a6, \
-// t0, \
-// v0, v1, v2, v3, v4, v5, v6, v7
-// vse32.v v16, (a0) // addi a0, a0, 16*4
-// vse32.v v17, (a0) // addi a0, a0, 16*4
-// vse32.v v18, (a0) // addi a0, a0, 16*4
-// vse32.v v19, (a0) // addi a0, a0, 16*4
-// vse32.v v20, (a0) // addi a0, a0, 16*4
-// vse32.v v21, (a0) // addi a0, a0, 16*4
-// vse32.v v22, (a0) // addi a0, a0, 16*4
-// vse32.v v23, (a0) // addi a0, a0, 16*4
-// vse32.v v24, (a0) // addi a0, a0, 16*4
-// vse32.v v25, (a0) // addi a0, a0, 16*4
-// vse32.v v26, (a0) // addi a0, a0, 16*4
-// vse32.v v27, (a0) // addi a0, a0, 16*4
-// vse32.v v28, (a0) // addi a0, a0, 16*4
-// vse32.v v29, (a0) // addi a0, a0, 16*4
-// vse32.v v30, (a0) // addi a0, a0, 16*4
-// vse32.v v31, (a0) // addi a0, a0, -(4*\off+16*15)*4
-// .endm
 
 .macro ntt_8l_level0to3_rvv off
     lw   t2, (_ZETA_EXP_0TO3_L0+0)*4(a1)
