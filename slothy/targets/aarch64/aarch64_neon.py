@@ -550,6 +550,7 @@ class Instruction:
         self.datatype = None
         self.index = None
         self.flag = None
+        self.barrel = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -880,11 +881,13 @@ class AArch64Instruction(Instruction):
             "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
         )
         index_pattern = "[0-9]+"
+        barrel_pattern = "(?i:lsl|ror|lsr|asr)\\\\s*"
 
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag")
+        src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -1055,6 +1058,7 @@ class AArch64Instruction(Instruction):
         )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
+        group_to_attribute("barrel", "barrel")
 
         for s, ty in obj.pattern_inputs:
             if ty == RegisterType.FLAGS:
@@ -1134,6 +1138,7 @@ class AArch64Instruction(Instruction):
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "barrel", "barrel", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
