@@ -2427,8 +2427,8 @@ class AArch64ShiftedArithmetic(AArch64Instruction):
     pass
 
 
-class eor_ror(AArch64ShiftedArithmetic):
-    pattern = "eor <Xd>, <Xa>, <Xb>, ror <imm>"
+class eor_shifted(AArch64ShiftedArithmetic):
+    pattern = "eor <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2625,12 +2625,6 @@ class orr_shifted_asr_w(AArch64LogicalShifted):
 
 class orr_shifted_asr(AArch64LogicalShifted):
     pattern = "orr <Xd>, <Xa>, <Xb>, asr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-
-
-class eor_shifted_lsl(AArch64LogicalShifted):
-    pattern = "eor <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
