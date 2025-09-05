@@ -2439,14 +2439,8 @@ class bic_shifted(AArch64ShiftedArithmetic):
     outputs = ["Xd"]
 
 
-class add_lsl(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, lsl <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-
-
-class add_lsr(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, lsr <imm>"
+class add_shifted(AArch64ShiftedArithmetic):
+    pattern = "add <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2463,12 +2457,6 @@ class adds_lsr(AArch64ShiftedArithmetic):
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     modifiesFlags = True
-
-
-class add_asr(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, asr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
 
 
 class add_imm_lsl(AArch64ShiftedArithmetic):
