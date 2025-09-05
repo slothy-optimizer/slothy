@@ -123,4 +123,29 @@ mla v4.4s, v5.4s, v6.4s
 mla v4.4s, v5.4s, v6.s[0]
 mls v4.4s, v5.4s, v6.4s
 mls v4.4s, v5.4s, v6.s[0]
+
+eor x2, x30,  x3, ROR #39
+eor x2, x30,  x3, ror #39
+eor x2, x30,  x3, LSR #39
+eor x2, x30,  x3, lsr #39
+eor x2, x30,  x3, LSL #39
+eor x2, x30,  x3, lsl #39
+eor x2, x30,  x3, ASR #39
+eor x2, x30,  x3, asr #39
+
+bic x2, x30,  x3, ROR #39
+bic x2, x30,  x3, ror #39
+bic x2, x30,  x3, LSR #39
+bic x2, x30,  x3, lsr #39
+bic x2, x30,  x3, LSL #39
+bic x2, x30,  x3, lsl #39
+bic x2, x30,  x3, ASR #39
+bic x2, x30,  x3, asr #39
+
+add x2, x30,  x3, LSR #39
+add x2, x30,  x3, lsr #39
+add x2, x30,  x3, LSL #39
+add x2, x30,  x3, lsl #39
+add x2, x30,  x3, ASR #39
+add x2, x30,  x3, asr #39
 end:

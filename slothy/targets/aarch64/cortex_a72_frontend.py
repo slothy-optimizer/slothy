@@ -86,8 +86,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64Move,
     add,
     add_imm,
-    add_lsl,
-    add_lsr,
+    add_shifted,
     VShiftImmediateRounding,
     VShiftImmediateBasic,
     St3,
@@ -104,6 +103,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     sub_imm,
     vuaddlv_sform,
     fmov_s_form,  # from vec to gen reg
+    eor_shifted,
+    bic_shifted,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -209,7 +210,7 @@ execution_units = {
     (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
     (Str_Q, Str_X): ExecutionUnit.STORE(),
     AArch64Move: ExecutionUnit.SCALAR(),
-    (add, add_imm, add_lsl, add_lsr, ubfx): ExecutionUnit.SCALAR(),
+    (add, add_imm, add_shifted, ubfx): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     (Ld3, Ld4): [
@@ -218,6 +219,8 @@ execution_units = {
     ],
     AESInstruction: [ExecutionUnit.ASIMD0],
     fmov_s_form: ExecutionUnit.LOAD(),  # from vec to gen reg
+    eor_shifted: ExecutionUnit.SCALAR(),
+    bic_shifted: ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
@@ -243,7 +246,7 @@ inverse_throughput = {
     AArch64ConditionalCompare: 1,
     Vins: 1,
     umov_d: 1,
-    (add, add_imm, add_lsl, add_lsr): 1,
+    (add, add_imm, add_shifted): 1,
     (Ldr_Q, Str_Q, Ldr_X, Str_X): 1,
     (VShiftImmediateRounding, VShiftImmediateBasic): 1,
     # TODO: this seems in accurate; revisiting may improve performance
@@ -258,6 +261,8 @@ inverse_throughput = {
     sub_imm: 1,
     vuaddlv_sform: 1,
     fmov_s_form: 1,  # from vec to gen reg
+    eor_shifted: 1,
+    bic_shifted: 1,
 }
 
 # REVISIT
@@ -290,7 +295,7 @@ default_latencies = {
     (Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
-    (add, add_imm, add_lsl, add_lsr): 2,
+    (add, add_imm, add_shifted): 2,
     VShiftImmediateRounding: 3,  # approx
     VShiftImmediateBasic: 3,
     AArch64Move: 1,
@@ -306,6 +311,8 @@ default_latencies = {
     sub_imm: 3,
     vuaddlv_sform: 6,  # 8B/8H
     fmov_s_form: 5,  # from vec to gen reg
+    eor_shifted: 2,
+    bic_shifted: 2,
 }
 
 
