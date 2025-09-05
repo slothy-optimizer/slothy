@@ -1463,7 +1463,7 @@ class q_ldr_with_inc(Ldr_Q):
 
 
 class q_ldr_lsl_with_inc(Ldr_Q):
-    pattern = "ldr <Qa>, [<Xa>, <Xc>, lsl <imm>]"
+    pattern = "ldr <Qa>, [<Xa>, <Xc>, <barrel> <imm>]"
     inputs = ["Xa", "Xc"]
     outputs = ["Qa"]
 
@@ -1849,7 +1849,7 @@ class x_ldr_with_imm_uxtw(Ldr_X):
 
 
 class x_ldr_with_imm_lsl(Ldr_X):
-    pattern = "ldr <Xd>, [<Xa>, <Xb>, LSL <imm>]"
+    pattern = "ldr <Xd>, [<Xa>, <Xb>, <barrel> <imm>]"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2453,7 +2453,7 @@ class adds_shifted(AArch64ShiftedArithmetic):
 
 
 class add_imm_lsl(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <imm0>, lsl <imm1>"
+    pattern = "add <Xd>, <Xa>, <imm0>, <barrel> <imm1>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -3147,7 +3147,7 @@ class vbic(AArch64NeonLogical):
 
 
 class vbic_imm_lsl(AArch64NeonLogical):
-    pattern = "bic <Vda>.<dt>, <imm0>, lsl <imm1>"
+    pattern = "bic <Vda>.<dt>, <imm0>, <barrel> <imm1>"
     in_outs = ["Vda"]
 
 
