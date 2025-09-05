@@ -142,4 +142,10 @@ bic x2, x30,  x3, lsl #39
 bic x2, x30,  x3, ASR #39
 bic x2, x30,  x3, asr #39
 
+add x2, x30,  x3, LSR #39
+add x2, x30,  x3, lsr #39
+add x2, x30,  x3, LSL #39
+add x2, x30,  x3, lsl #39
+add x2, x30,  x3, ASR #39
+add x2, x30,  x3, asr #39
 end:

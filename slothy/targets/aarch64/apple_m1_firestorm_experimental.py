@@ -80,8 +80,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     is_dform_form_of,
     add,
     add_imm,
-    add_lsl,
-    add_lsr,
+    add_shifted,
     add2,
     umull_wform,
     mul_wform,
@@ -269,7 +268,7 @@ execution_units = {
     (vzip1, vzip2, vuzp1, vuzp2): ExecutionUnit.V(),
     # Arithmetic
     (add, add_imm): ExecutionUnit.I(),
-    (add_lsl, add_lsr, add2): list(map(list, combinations(ExecutionUnit.I(), 2))),
+    (add_shifted, add2): list(map(list, combinations(ExecutionUnit.I(), 2))),
     (umull_wform, mul_wform): ExecutionUnit.M(),
     (umaddl_wform): ExecutionUnit.SCALAR_I5,
     (
@@ -350,7 +349,7 @@ inverse_throughput = {
     (vzip1, vzip2, vuzp1, vuzp2): 1,
     # Arithmetic
     (add, add_imm): 1,
-    (add_lsl, add_lsr, add2): 1,
+    (add_shifted, add2): 1,
     (umull_wform, mul_wform): 1,
     (umaddl_wform): 1,
     (
@@ -419,7 +418,7 @@ default_latencies = {
     (vzip1, vzip2, vuzp1, vuzp2): 2,
     # Arithmetic
     (add, add_imm): 1,
-    (add_lsl, add_lsr, add2): 2,
+    (add_shifted, add2): 2,
     (umull_wform, mul_wform): 3,
     (umaddl_wform): 3,
     (
