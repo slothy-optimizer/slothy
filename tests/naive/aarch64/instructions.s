@@ -132,4 +132,14 @@ eor x2, x30,  x3, LSL #39
 eor x2, x30,  x3, lsl #39
 eor x2, x30,  x3, ASR #39
 eor x2, x30,  x3, asr #39
+
+bic x2, x30,  x3, ROR #39
+bic x2, x30,  x3, ror #39
+bic x2, x30,  x3, LSR #39
+bic x2, x30,  x3, lsr #39
+bic x2, x30,  x3, LSL #39
+bic x2, x30,  x3, lsl #39
+bic x2, x30,  x3, ASR #39
+bic x2, x30,  x3, asr #39
+
 end:

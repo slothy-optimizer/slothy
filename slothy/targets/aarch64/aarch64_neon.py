@@ -2433,8 +2433,8 @@ class eor_shifted(AArch64ShiftedArithmetic):
     outputs = ["Xd"]
 
 
-class bic_ror(AArch64ShiftedArithmetic):
-    pattern = "bic <Xd>, <Xa>, <Xb>, ror <imm>"
+class bic_shifted(AArch64ShiftedArithmetic):
+    pattern = "bic <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
