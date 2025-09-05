@@ -104,6 +104,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     sub_imm,
     vuaddlv_sform,
     fmov_s_form,  # from vec to gen reg
+    eor_shifted,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -218,6 +219,7 @@ execution_units = {
     ],
     AESInstruction: [ExecutionUnit.ASIMD0],
     fmov_s_form: ExecutionUnit.LOAD(),  # from vec to gen reg
+    eor_shifted: ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
@@ -258,6 +260,7 @@ inverse_throughput = {
     sub_imm: 1,
     vuaddlv_sform: 1,
     fmov_s_form: 1,  # from vec to gen reg
+    eor_shifted: 1,
 }
 
 # REVISIT
@@ -306,6 +309,7 @@ default_latencies = {
     sub_imm: 3,
     vuaddlv_sform: 6,  # 8B/8H
     fmov_s_form: 5,  # from vec to gen reg
+    eor_shifted: 2,
 }
 
 
