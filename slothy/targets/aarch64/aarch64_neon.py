@@ -1462,8 +1462,8 @@ class q_ldr_with_inc(Ldr_Q):
         return super().write()
 
 
-class q_ldr_lsl_with_inc(Ldr_Q):
-    pattern = "ldr <Qa>, [<Xa>, <Xc>, lsl <imm>]"
+class q_ldr_with_imm_shifted(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xa>, <Xc>, <barrel> <imm>]"
     inputs = ["Xa", "Xc"]
     outputs = ["Qa"]
 
@@ -1848,8 +1848,8 @@ class x_ldr_with_imm_uxtw(Ldr_X):
         return super().write()
 
 
-class x_ldr_with_imm_lsl(Ldr_X):
-    pattern = "ldr <Xd>, [<Xa>, <Xb>, LSL <imm>]"
+class x_ldr_with_imm_shifted(Ldr_X):
+    pattern = "ldr <Xd>, [<Xa>, <Xb>, <barrel> <imm>]"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2452,8 +2452,8 @@ class adds_shifted(AArch64ShiftedArithmetic):
     modifiesFlags = True
 
 
-class add_imm_lsl(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <imm0>, lsl <imm1>"
+class add_imm_shifted(AArch64ShiftedArithmetic):
+    pattern = "add <Xd>, <Xa>, <imm0>, <barrel> <imm1>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -3146,8 +3146,8 @@ class vbic(AArch64NeonLogical):
     outputs = ["Vd"]
 
 
-class vbic_imm_lsl(AArch64NeonLogical):
-    pattern = "bic <Vda>.<dt>, <imm0>, lsl <imm1>"
+class vbic_imm_shifted(AArch64NeonLogical):
+    pattern = "bic <Vda>.<dt>, <imm0>, <barrel> <imm1>"
     in_outs = ["Vda"]
 
 

@@ -71,7 +71,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vqrdmulh_lane,
     vqdmulh_lane,
     vbic,
-    vbic_imm_lsl,
+    vbic_imm_shifted,
     q_ldr1_stack,
     q_ldr1_post_inc,
     Vmull,
@@ -598,7 +598,7 @@ def get_latency(src, out_idx, dst):
         [lsr, mul_wform],
         [lsr, umaddl_wform],
         [vbic, vusra],
-        [vbic_imm_lsl, vusra],
+        [vbic_imm_shifted, vusra],
     ]:
         latency += 1
 
