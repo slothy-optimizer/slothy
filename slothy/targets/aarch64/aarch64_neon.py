@@ -4636,6 +4636,10 @@ def eor3_fusion_cb():
     return core
 
 
+# Enable fusing of multiple veor into veor3
+veor.global_fusion_cb = eor3_fusion_cb()
+
+
 def eor3_splitting_cb():
     """
     Example for a splitting call back. Allows to split one eor instruction with
@@ -4703,10 +4707,6 @@ def eor3_splitting_cb():
         return True
 
     return core
-
-
-# Can alternatively set veor3.global_fusion_cb to eor3_fusion_cb() here
-veor3.global_fusion_cb = eor3_splitting_cb()
 
 
 def iter_aarch64_instructions():
