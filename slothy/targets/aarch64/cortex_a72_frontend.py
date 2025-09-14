@@ -59,6 +59,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     find_class,
     all_subclass_leaves,
     AArch64ConditionalCompare,
+    AArch64Logical,
     Ldr_X,
     Str_X,
     Ldr_Q,
@@ -93,7 +94,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     St2,
     Ld3,
     Ld4,
-    ubfx,
     AESInstruction,
     vext,
     AArch64NeonCount,
@@ -203,6 +203,7 @@ execution_units = {
     ],
     AArch64NeonShiftInsert: [ExecutionUnit.ASIMD1],
     AArch64ConditionalCompare: ExecutionUnit.INT(),
+    AArch64Logical: [ExecutionUnit.INT()],
     # 8B/8H occupies both F0, F1
     vuaddlv_sform: [[ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]],
     Vins: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
@@ -210,7 +211,7 @@ execution_units = {
     (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
     (Str_Q, Str_X): ExecutionUnit.STORE(),
     AArch64Move: ExecutionUnit.SCALAR(),
-    (add, add_imm, add_shifted, ubfx): ExecutionUnit.SCALAR(),
+    (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     (Ld3, Ld4): [
@@ -244,6 +245,7 @@ inverse_throughput = {
     AArch64NeonLogical: 1,
     AArch64NeonShiftInsert: 1,
     AArch64ConditionalCompare: 1,
+    AArch64Logical: 1,
     Vins: 1,
     umov_d: 1,
     (add, add_imm, add_shifted): 1,
@@ -255,7 +257,6 @@ inverse_throughput = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
-    ubfx: 1,
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
     sub_imm: 1,
@@ -292,6 +293,7 @@ default_latencies = {
     AArch64NeonLogical: 3,
     AArch64NeonShiftInsert: 3,
     AArch64ConditionalCompare: 1,
+    AArch64Logical: 1,
     (Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
@@ -305,7 +307,6 @@ default_latencies = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
-    ubfx: 1,
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
     sub_imm: 3,
