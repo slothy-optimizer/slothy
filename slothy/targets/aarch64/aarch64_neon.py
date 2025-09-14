@@ -2172,6 +2172,12 @@ class eor_wform(AArch64Instruction):
     outputs = ["Wd"]
 
 
+class eon_wform(AArch64Instruction):
+    pattern = "eon <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
 class AArch64BasicArithmetic(AArch64Instruction):
     pass
 
@@ -2428,6 +2434,12 @@ class eor_ror(AArch64ShiftedArithmetic):
     outputs = ["Xd"]
 
 
+class eon_ror(AArch64ShiftedArithmetic):
+    pattern = "eon <Xd>, <Xa>, <Xb>, ror <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
 class bic_ror(AArch64ShiftedArithmetic):
     pattern = "bic <Xd>, <Xa>, <Xb>, ror <imm>"
     inputs = ["Xa", "Xb"]
@@ -2519,6 +2531,12 @@ class rev_w(AArch64Logical):
 
 class eor(AArch64Logical):
     pattern = "eor <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class eon(AArch64Logical):
+    pattern = "eon <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2626,6 +2644,12 @@ class orr_shifted_asr(AArch64LogicalShifted):
 
 class eor_shifted_lsl(AArch64LogicalShifted):
     pattern = "eor <Xd>, <Xa>, <Xb>, lsl <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class eon_shifted_lsl(AArch64LogicalShifted):
+    pattern = "eon <Xd>, <Xa>, <Xb>, lsl <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 

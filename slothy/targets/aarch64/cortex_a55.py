@@ -119,8 +119,10 @@ from slothy.targets.aarch64.aarch64_neon import (
     bic,
     bic_reg,
     eor,
+    eon,
     ror,
     eor_ror,
+    eon_ror,
     bic_ror,
     bfi,
     add,
@@ -150,6 +152,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     asr_wform,
     and_imm_wform,
     eor_wform,
+    eon_wform,
     lsr_wform,
     ASimdCompare,
     and_twoarg,
@@ -386,6 +389,8 @@ execution_units = {
         cmp_imm,
         eor,
         eor_ror,
+        eon,
+        eon_ror,
         bic_ror,
         ror,
         add_imm,
@@ -413,6 +418,7 @@ execution_units = {
         and_imm_wform,
         lsr_wform,
         eor_wform,
+        eon_wform,
     ): ExecutionUnit.SCALAR(),
     AArch64ConditionalCompare: ExecutionUnit.SCALAR(),
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
@@ -494,7 +500,7 @@ inverse_throughput = {
     (mov_d01, mov_b00): 1,
     (vzip1, vzip2): 1,
     (eor_wform): 1,
-    (eor, bic, bic_reg, eor_ror, bic_ror): 1,
+    (eor, eon, bic, bic_reg, eor_ror, bic_ror): 1,
     AArch64ConditionalCompare: 1,
     AESInstruction: 1,
     fmov_s_form: 1,  # from double/single to gen reg
@@ -570,11 +576,12 @@ default_latencies = {
     (mov_d01, mov_b00): 2,
     (vzip1, vzip2): 2,
     (eor_wform): 1,
+    (eon_wform): 1,
     # According to SWOG, this is 2 cycles, byt if the output is used as a
     # _non-shifted_ input to the next instruction, the effective latency
     # seems to be 1 cycle. See https://eprint.iacr.org/2022/1243.pdf
     (eor_ror, bic_ror): 1,
-    (ror, eor, bic, bic_reg): 1,
+    (ror, eor, eon, bic, bic_reg): 1,
     AArch64ConditionalCompare: 1,
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled

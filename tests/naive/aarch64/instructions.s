@@ -5,6 +5,9 @@ start:
 add x2, x1, #64
 add x2, x1, 64
 
+eor x1, x2, x3
+eon x1, x2, x3
+
 shl v0.16b, v1.16b, #4
 shl d2, d3, #8
 sshr v4.16b, v5.16b, #2
