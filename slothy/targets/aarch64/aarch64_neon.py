@@ -550,6 +550,7 @@ class Instruction:
         self.datatype = None
         self.index = None
         self.flag = None
+        self.barrel = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -880,11 +881,13 @@ class AArch64Instruction(Instruction):
             "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
         )
         index_pattern = "[0-9]+"
+        barrel_pattern = "(?i:lsl|ror|lsr|asr)\\\\s*"
 
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag")
+        src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -1055,6 +1058,7 @@ class AArch64Instruction(Instruction):
         )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
+        group_to_attribute("barrel", "barrel")
 
         for s, ty in obj.pattern_inputs:
             if ty == RegisterType.FLAGS:
@@ -1134,6 +1138,7 @@ class AArch64Instruction(Instruction):
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "barrel", "barrel", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -1457,8 +1462,8 @@ class q_ldr_with_inc(Ldr_Q):
         return super().write()
 
 
-class q_ldr_lsl_with_inc(Ldr_Q):
-    pattern = "ldr <Qa>, [<Xa>, <Xc>, lsl <imm>]"
+class q_ldr_with_imm_shifted(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xa>, <Xc>, <barrel> <imm>]"
     inputs = ["Xa", "Xc"]
     outputs = ["Qa"]
 
@@ -1843,8 +1848,8 @@ class x_ldr_with_imm_uxtw(Ldr_X):
         return super().write()
 
 
-class x_ldr_with_imm_lsl(Ldr_X):
-    pattern = "ldr <Xd>, [<Xa>, <Xb>, LSL <imm>]"
+class x_ldr_with_imm_shifted(Ldr_X):
+    pattern = "ldr <Xd>, [<Xa>, <Xb>, <barrel> <imm>]"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2422,52 +2427,33 @@ class AArch64ShiftedArithmetic(AArch64Instruction):
     pass
 
 
-class eor_ror(AArch64ShiftedArithmetic):
-    pattern = "eor <Xd>, <Xa>, <Xb>, ror <imm>"
+class eor_shifted(AArch64ShiftedArithmetic):
+    pattern = "eor <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class bic_ror(AArch64ShiftedArithmetic):
-    pattern = "bic <Xd>, <Xa>, <Xb>, ror <imm>"
+class bic_shifted(AArch64ShiftedArithmetic):
+    pattern = "bic <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class add_lsl(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, lsl <imm>"
+class add_shifted(AArch64ShiftedArithmetic):
+    pattern = "add <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class add_lsr(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, lsr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-
-
-class adds_lsl(AArch64ShiftedArithmetic):
-    pattern = "adds <Xd>, <Xa>, <Xb>, lsl <imm>"
+class adds_shifted(AArch64ShiftedArithmetic):
+    pattern = "adds <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class adds_lsr(AArch64ShiftedArithmetic):
-    pattern = "adds <Xd>, <Xa>, <Xb>, lsr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-    modifiesFlags = True
-
-
-class add_asr(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, asr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-
-
-class add_imm_lsl(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <imm0>, lsl <imm1>"
+class add_imm_shifted(AArch64ShiftedArithmetic):
+    pattern = "add <Xd>, <Xa>, <imm0>, <barrel> <imm1>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -2607,27 +2593,15 @@ class AArch64LogicalShifted(AArch64Instruction):
 
 
 class orr_shifted(AArch64LogicalShifted):
-    pattern = "orr <Xd>, <Xa>, <Xb>, lsl <imm>"
+    pattern = "orr <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class orr_shifted_asr_w(AArch64LogicalShifted):
-    pattern = "and <Wd>, <Wa>, <Wb>, asr <imm>"
+class orr_shifted_w(AArch64LogicalShifted):
+    pattern = "and <Wd>, <Wa>, <Wb>, <barrel> <imm>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
-
-
-class orr_shifted_asr(AArch64LogicalShifted):
-    pattern = "orr <Xd>, <Xa>, <Xb>, asr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-
-
-class eor_shifted_lsl(AArch64LogicalShifted):
-    pattern = "eor <Xd>, <Xa>, <Xb>, lsl <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
 
 
 class AArch64ConditionalCompare(AArch64Instruction):
@@ -3172,8 +3146,8 @@ class vbic(AArch64NeonLogical):
     outputs = ["Vd"]
 
 
-class vbic_imm_lsl(AArch64NeonLogical):
-    pattern = "bic <Vda>.<dt>, <imm0>, lsl <imm1>"
+class vbic_imm_shifted(AArch64NeonLogical):
+    pattern = "bic <Vda>.<dt>, <imm0>, <barrel> <imm1>"
     in_outs = ["Vda"]
 
 
