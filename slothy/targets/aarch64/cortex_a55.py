@@ -326,7 +326,6 @@ execution_units = {
     is_qform_form_of(trn1): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(trn2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
-    is_qform_form_of(trn2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn2): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(ASimdCompare): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(ASimdCompare): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
@@ -522,7 +521,7 @@ default_latencies = {
     vxtn: 2,
     vshrn: 2,
     vtbl: 2,  # 2+N-1 cycles (N = number of registers in the table)
-    (vshl, vshl_d, vsshr, vushr, vuxtl): 2,
+    (vuxtl): 2,
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,
     (Vins, umov_d): 2,
