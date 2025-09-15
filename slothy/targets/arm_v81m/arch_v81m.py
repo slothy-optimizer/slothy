@@ -2602,8 +2602,10 @@ class UnknownInstruction(Exception):
     pass
 
 
-def lookup_multidict(d, inst, default=None):
+def lookup_multidict(d, inst):
     instclass = find_class(inst)
+    result = None
+
     for ll, v in d.items():
         # Multidict entries can be the following:
         # - An instruction class. It matches any instruction of that class.
@@ -2621,10 +2623,16 @@ def lookup_multidict(d, inst, default=None):
             ll = [ll]
         for lp in ll:
             if match(lp):
-                return v
-    if default is None:
+                if result is not None:
+                    raise UnknownInstruction(
+                        f"Multiple matches found for {instclass} for {inst}"
+                    )
+                result = v
+                break
+
+    if result is None:
         raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
-    return default
+    return result
 
 
 def iter_MVE_instructions():
