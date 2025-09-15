@@ -33,7 +33,6 @@
 #
 
 import logging
-import inspect
 import re
 import math
 
@@ -2600,39 +2599,6 @@ Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 class UnknownInstruction(Exception):
     pass
-
-
-def lookup_multidict(d, inst):
-    instclass = find_class(inst)
-    result = None
-
-    for ll, v in d.items():
-        # Multidict entries can be the following:
-        # - An instruction class. It matches any instruction of that class.
-        # - A callable. It matches any instruction returning `True` when passed
-        #   to the callable.
-        # - A tuple of instruction classes or callables. It matches any instruction
-        #   which matches at least one element in the tuple.
-        def match(x):
-            if inspect.isclass(x):
-                return isinstance(inst, x)
-            assert callable(x)
-            return x(inst)
-
-        if not isinstance(ll, tuple):
-            ll = [ll]
-        for lp in ll:
-            if match(lp):
-                if result is not None:
-                    raise UnknownInstruction(
-                        f"Multiple matches found for {instclass} for {inst}"
-                    )
-                result = v
-                break
-
-    if result is None:
-        raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
-    return result
 
 
 def iter_MVE_instructions():

@@ -37,9 +37,9 @@
 # ################################################################################# #
 
 from enum import Enum
+from slothy.helper import lookup_multidict
 from slothy.targets.arm_v81m.arch_v81m import (
     find_class,
-    lookup_multidict,
     nop,
     ldr,
     ldr_with_writeback,
@@ -739,7 +739,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    default_latency = lookup_multidict(default_latencies, src)
+    default_latency = lookup_multidict(default_latencies, src, instclass_src)
 
     #
     # Check for latency exceptions
@@ -860,7 +860,8 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     else:
@@ -868,4 +869,5 @@ def get_units(src):
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)
