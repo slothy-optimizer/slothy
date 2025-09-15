@@ -32,10 +32,9 @@
 
 from enum import Enum
 from itertools import combinations, product
-
+from slothy.helper import lookup_multidict
 
 from slothy.targets.aarch64.aarch64_neon import (
-    lookup_multidict,
     find_class,
     Ldr_X,
     Str_X,
@@ -452,7 +451,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    latency = lookup_multidict(default_latencies, src)
+    latency = lookup_multidict(default_latencies, src, instclass_src)
 
     if (
         instclass_src == umaddl_wform
@@ -468,7 +467,8 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     else:
@@ -476,4 +476,5 @@ def get_units(src):
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)
