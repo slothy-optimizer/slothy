@@ -309,6 +309,10 @@ Classes
      -
    * - :py:obj:`lsr <slothy.targets.arm_v81m.arch_v81m.lsr>`
      -
+   * - :py:obj:`lsr_imm <slothy.targets.arm_v81m.arch_v81m.lsr_imm>`
+     -
+   * - :py:obj:`lsl_imm <slothy.targets.arm_v81m.arch_v81m.lsl_imm>`
+     -
    * - :py:obj:`vcmul <slothy.targets.arm_v81m.arch_v81m.vcmul>`
      -
    * - :py:obj:`vcadd <slothy.targets.arm_v81m.arch_v81m.vcadd>`
@@ -3983,7 +3987,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.arm_v81m.arch_v81m.lsr.pattern
-      :value: 'lsr <Rd>, <Rn>, <imm>'
+      :value: 'lsr <Rd>, <Rn>, <Rm>'
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lsr.pattern
 
@@ -3995,9 +3999,55 @@ API
 
    .. py:attribute:: inputs
       :canonical: slothy.targets.arm_v81m.arch_v81m.lsr.inputs
-      :value: ['Rn']
+      :value: ['Rn', 'Rm']
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lsr.inputs
+
+.. py:class:: lsr_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.lsr_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.lsr_imm.pattern
+      :value: 'lsr <Rd>, <Rn>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lsr_imm.pattern
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.lsr_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lsr_imm.outputs
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.lsr_imm.inputs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lsr_imm.inputs
+
+.. py:class:: lsl_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.lsl_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.lsl_imm.pattern
+      :value: 'lsl <Rd>, <Rn>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lsl_imm.pattern
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.lsl_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lsl_imm.outputs
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.lsl_imm.inputs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lsl_imm.inputs
 
 .. py:class:: vcmul(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.vcmul

@@ -535,6 +535,12 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.arch_v81m.lsr" title="slothy.targets.arm_v81m.arch_v81m.lsr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lsr</span></code></a></p></td>
 <td></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.arch_v81m.lsr_imm" title="slothy.targets.arm_v81m.arch_v81m.lsr_imm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lsr_imm</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.arch_v81m.lsl_imm" title="slothy.targets.arm_v81m.arch_v81m.lsl_imm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lsl_imm</span></code></a></p></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.arch_v81m.vcmul" title="slothy.targets.arm_v81m.arch_v81m.vcmul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vcmul</span></code></a></p></td>
 <td></td>
 </tr>
@@ -4080,7 +4086,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.arm_v81m.arch_v81m.MVEInstruction" title="slothy.targets.arm_v81m.arch_v81m.MVEInstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.arm_v81m.arch_v81m.MVEInstruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsr.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lsr</span> <span class="pre">&lt;Rd&gt;,</span> <span class="pre">&lt;Rn&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsr.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lsr</span> <span class="pre">&lt;Rd&gt;,</span> <span class="pre">&lt;Rn&gt;,</span> <span class="pre">&lt;Rm&gt;'</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsr.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -4090,7 +4096,49 @@ of a subclass of Instruction.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsr.inputs">
-<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Rn']</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsr.inputs" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Rn',</span> <span class="pre">'Rm']</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsr.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsr_imm">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.arch_v81m.</span></span><span class="sig-name descname"><span class="pre">lsr_imm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsr_imm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.arm_v81m.arch_v81m.MVEInstruction" title="slothy.targets.arm_v81m.arch_v81m.MVEInstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.arm_v81m.arch_v81m.MVEInstruction</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsr_imm.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lsr</span> <span class="pre">&lt;Rd&gt;,</span> <span class="pre">&lt;Rn&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsr_imm.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsr_imm.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Rd']</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsr_imm.outputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsr_imm.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Rn']</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsr_imm.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsl_imm">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.arch_v81m.</span></span><span class="sig-name descname"><span class="pre">lsl_imm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsl_imm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.arm_v81m.arch_v81m.MVEInstruction" title="slothy.targets.arm_v81m.arch_v81m.MVEInstruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.arm_v81m.arch_v81m.MVEInstruction</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsl_imm.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'lsl</span> <span class="pre">&lt;Rd&gt;,</span> <span class="pre">&lt;Rn&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsl_imm.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsl_imm.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Rd']</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsl_imm.outputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.arch_v81m.lsl_imm.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Rn']</span></em><a class="headerlink" href="#slothy.targets.arm_v81m.arch_v81m.lsl_imm.inputs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
