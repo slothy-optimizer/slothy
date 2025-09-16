@@ -2419,7 +2419,19 @@ class vcmla(MVEInstruction):
 
 
 class lsr(MVEInstruction):
+    pattern = "lsr <Rd>, <Rn>, <Rm>"
+    outputs = ["Rd"]
+    inputs = ["Rn", "Rm"]
+
+
+class lsr_imm(MVEInstruction):
     pattern = "lsr <Rd>, <Rn>, <imm>"
+    outputs = ["Rd"]
+    inputs = ["Rn"]
+
+
+class lsl_imm(MVEInstruction):
+    pattern = "lsl <Rd>, <Rn>, <imm>"
     outputs = ["Rd"]
     inputs = ["Rn"]
 
