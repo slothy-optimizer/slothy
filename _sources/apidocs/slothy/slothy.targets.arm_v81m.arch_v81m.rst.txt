@@ -335,9 +335,6 @@ Functions
    * - :py:obj:`all_subclass_leaves <slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves
           :summary:
-   * - :py:obj:`lookup_multidict <slothy.targets.arm_v81m.arch_v81m.lookup_multidict>`
-     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lookup_multidict
-          :summary:
    * - :py:obj:`iter_MVE_instructions <slothy.targets.arm_v81m.arch_v81m.iter_MVE_instructions>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.iter_MVE_instructions
           :summary:
@@ -4171,11 +4168,6 @@ API
    :canonical: slothy.targets.arm_v81m.arch_v81m.UnknownInstruction
 
    Bases: :py:obj:`Exception`
-
-.. py:function:: lookup_multidict(d, inst, default=None)
-   :canonical: slothy.targets.arm_v81m.arch_v81m.lookup_multidict
-
-   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.lookup_multidict
 
 .. py:function:: iter_MVE_instructions()
    :canonical: slothy.targets.arm_v81m.arch_v81m.iter_MVE_instructions

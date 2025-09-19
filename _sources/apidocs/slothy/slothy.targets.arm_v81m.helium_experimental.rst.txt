@@ -38,9 +38,6 @@ Functions
    * - :py:obj:`find_class <slothy.targets.arm_v81m.helium_experimental.find_class>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.find_class
           :summary:
-   * - :py:obj:`lookup_multidict <slothy.targets.arm_v81m.helium_experimental.lookup_multidict>`
-     - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.lookup_multidict
-          :summary:
    * - :py:obj:`get_latency <slothy.targets.arm_v81m.helium_experimental.get_latency>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.get_latency
           :summary:
@@ -167,11 +164,6 @@ API
    :canonical: slothy.targets.arm_v81m.helium_experimental.find_class
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.find_class
-
-.. py:function:: lookup_multidict(d, k, default=None)
-   :canonical: slothy.targets.arm_v81m.helium_experimental.lookup_multidict
-
-   .. autodoc2-docstring:: slothy.targets.arm_v81m.helium_experimental.lookup_multidict
 
 .. py:function:: get_latency(src, out_idx, dst)
    :canonical: slothy.targets.arm_v81m.helium_experimental.get_latency

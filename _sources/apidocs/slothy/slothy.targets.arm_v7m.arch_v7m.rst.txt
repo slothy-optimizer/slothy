@@ -277,9 +277,6 @@ Functions
    * - :py:obj:`find_class <slothy.targets.arm_v7m.arch_v7m.find_class>`
      - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.find_class
           :summary:
-   * - :py:obj:`lookup_multidict <slothy.targets.arm_v7m.arch_v7m.lookup_multidict>`
-     - .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.lookup_multidict
-          :summary:
 
 Data
 ~~~~
@@ -3105,8 +3102,3 @@ API
    :canonical: slothy.targets.arm_v7m.arch_v7m.find_class
 
    .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.find_class
-
-.. py:function:: lookup_multidict(d, inst, default=None)
-   :canonical: slothy.targets.arm_v7m.arch_v7m.lookup_multidict
-
-   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.lookup_multidict

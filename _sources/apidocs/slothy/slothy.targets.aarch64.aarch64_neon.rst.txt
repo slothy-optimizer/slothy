@@ -792,9 +792,6 @@ Functions
    * - :py:obj:`all_subclass_leaves <slothy.targets.aarch64.aarch64_neon.all_subclass_leaves>`
      - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.all_subclass_leaves
           :summary:
-   * - :py:obj:`lookup_multidict <slothy.targets.aarch64.aarch64_neon.lookup_multidict>`
-     - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.lookup_multidict
-          :summary:
 
 Data
 ~~~~
@@ -9140,8 +9137,3 @@ API
    :canonical: slothy.targets.aarch64.aarch64_neon.all_subclass_leaves
 
    .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.all_subclass_leaves
-
-.. py:function:: lookup_multidict(d, inst, default=None)
-   :canonical: slothy.targets.aarch64.aarch64_neon.lookup_multidict
-
-   .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.lookup_multidict

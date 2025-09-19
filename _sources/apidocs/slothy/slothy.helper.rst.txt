@@ -68,6 +68,9 @@ Functions
    * - :py:obj:`binary_search <slothy.helper.binary_search>`
      - .. autodoc2-docstring:: slothy.helper.binary_search
           :summary:
+   * - :py:obj:`lookup_multidict <slothy.helper.lookup_multidict>`
+     - .. autodoc2-docstring:: slothy.helper.lookup_multidict
+          :summary:
 
 API
 ~~~
@@ -850,3 +853,8 @@ API
       :staticmethod:
 
       .. autodoc2-docstring:: slothy.helper.Loop.extract
+
+.. py:function:: lookup_multidict(d: dict, inst: any, instclass: any) -> any
+   :canonical: slothy.helper.lookup_multidict
+
+   .. autodoc2-docstring:: slothy.helper.lookup_multidict
