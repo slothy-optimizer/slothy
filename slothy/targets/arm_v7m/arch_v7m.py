@@ -1,5 +1,4 @@
 import logging
-import inspect
 import re
 import math
 import itertools
@@ -2660,28 +2659,3 @@ def find_class(src):
     raise UnknownInstruction(
         f"Couldn't find instruction class for {src} (type {type(src)})"
     )
-
-
-def lookup_multidict(d, inst, default=None):
-    instclass = find_class(inst)
-    for ll, v in d.items():
-        # Multidict entries can be the following:
-        # - An instruction class. It matches any instruction of that class.
-        # - A callable. It matches any instruction returning `True` when passed
-        #   to the callable.
-        # - A tuple of instruction classes or callables. It matches any instruction
-        #   which matches at least one element in the tuple.
-        def match(x):
-            if inspect.isclass(x):
-                return isinstance(inst, x)
-            assert callable(x)
-            return x(inst)
-
-        if not isinstance(ll, tuple):
-            ll = [ll]
-        for lp in ll:
-            if match(lp):
-                return v
-    if default is None:
-        raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
-    return default

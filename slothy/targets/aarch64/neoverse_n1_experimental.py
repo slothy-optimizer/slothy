@@ -31,9 +31,9 @@ frontend limitations and latencies of the Neoverse N1 CPU
 """
 
 from enum import Enum
+from slothy.helper import lookup_multidict
 from slothy.targets.aarch64.aarch64_neon import (
     is_neon_instruction,
-    lookup_multidict,
     find_class,
     all_subclass_leaves,
     Ldp_X,
@@ -48,7 +48,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     uaddlp,
     vmov,
     vmovi,
-    vand,
     vadd,
     vxtn,
     vusra,
@@ -67,7 +66,6 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64Shift,
     Tst,
     AArch64ShiftedArithmetic,
-    Fmov,
     AArch64HighMultiply,
     AArch64Multiply,
     VecToGprMov,
@@ -92,9 +90,12 @@ from slothy.targets.aarch64.aarch64_neon import (
     vext,
     AArch64NeonShiftInsert,
     vtbl,
-    sub_imm,
     vuaddlv_sform,
     fmov_s_form,  # from vec to gen reg
+    fmov_0,
+    fmov_0_force_output,
+    fmov_1,
+    fmov_1_force_output,
 )
 
 issue_rate = 4
@@ -187,7 +188,7 @@ execution_units = {
     VecToGprMov: ExecutionUnit.V(),
     Transpose: ExecutionUnit.V(),
     (vmovi): ExecutionUnit.V(),
-    (vand, vadd, vsub): ExecutionUnit.V(),
+    (vadd, vsub): ExecutionUnit.V(),
     (vxtn): ExecutionUnit.V(),
     VShiftImmediateBasic: ExecutionUnit.V1(),
     (
@@ -210,12 +211,16 @@ execution_units = {
     AArch64Shift: ExecutionUnit.I(),
     Tst: ExecutionUnit.I(),
     AArch64ShiftedArithmetic: ExecutionUnit.M(),
-    Fmov: ExecutionUnit.M(),
+    (
+        fmov_0,
+        fmov_0_force_output,
+        fmov_1,
+        fmov_1_force_output,
+    ): ExecutionUnit.M(),
     fmov_s_form: ExecutionUnit.V1(),  # from vec to gen reg
     umull_wform: ExecutionUnit.M(),
     (AArch64HighMultiply, AArch64Multiply): ExecutionUnit.M(),
     vdup: ExecutionUnit.M(),
-    sub_imm: ExecutionUnit.V(),
     # 8B/8H occupies both V0, V1
     vuaddlv_sform: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
 }
@@ -229,7 +234,7 @@ inverse_throughput = {
     St4: 6,  # TODO: Really??
     (Vzip, uaddlp, Vrev): 1,
     VecToGprMov: 1,
-    (vand, vadd, vsub): 1,
+    (vadd, vsub): 1,
     (vmov): 1,
     ASimdCompare: 1,
     Transpose: 1,
@@ -255,13 +260,17 @@ inverse_throughput = {
     AArch64Shift: 1,
     AArch64ShiftedArithmetic: 1,
     Tst: 1,
-    Fmov: 1,
+    (
+        fmov_0,
+        fmov_0_force_output,
+        fmov_1,
+        fmov_1_force_output,
+    ): 1,
     fmov_s_form: 1,  # from vec to gen reg
     (AArch64HighMultiply): 4,
     (AArch64Multiply): 3,
     (vdup): 1,
     umull_wform: 1,
-    sub_imm: 1,
     vuaddlv_sform: 1,  # 8B/8H
 }
 
@@ -281,7 +290,7 @@ default_latencies = {
     AArch64NeonLogical: 2,
     vext: 2,
     Transpose: 2,
-    (vand, vadd, vsub): 2,
+    (vadd, vsub): 2,
     (vmov): 2,  # ???
     (vmovi): 2,
     (Vmul, Vmla, Vqdmulh): 5,
@@ -301,14 +310,18 @@ default_latencies = {
     AArch64Shift: 1,
     AArch64ShiftedArithmetic: 2,
     Tst: 1,
-    Fmov: 3,
+    (
+        fmov_0,
+        fmov_0_force_output,
+        fmov_1,
+        fmov_1_force_output,
+    ): 3,
     fmov_s_form: 2,  # from vec to gen reg
     AArch64HighMultiply: 5,
     AArch64Multiply: 4,
     (vdup): 3,
     umull_wform: 2,
     vtbl: 2,
-    sub_imm: 2,
     vuaddlv_sform: 5,  # 8B/8H
 }
 
@@ -319,7 +332,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    latency = lookup_multidict(default_latencies, src)
+    latency = lookup_multidict(default_latencies, src, instclass_src)
 
     # Fast mul->mla forwarding
     if (
@@ -354,11 +367,13 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     return [units]
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)

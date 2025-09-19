@@ -19,9 +19,9 @@ Experimental Cortex-M7 microarchitecture model for SLOTHY
 
 from enum import Enum
 from itertools import product
+from slothy.helper import lookup_multidict
 from slothy.targets.arm_v7m.arch_v7m import (
     find_class,
-    lookup_multidict,
     ldr,
     ldr_with_imm,
     ldr_with_imm_stack,
@@ -522,7 +522,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    latency = lookup_multidict(default_latencies, src)
+    latency = lookup_multidict(default_latencies, src, instclass_src)
 
     # Forwarding path to MAC instructions
     if instclass_dst in [mla, mls, smlabb, smlabt, smlatt, smlatb] and dst.args_in[
@@ -612,7 +612,8 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
 
     def evaluate_immediate(string_expr):
         if string_expr is None:
@@ -639,7 +640,8 @@ def get_units(src):
 
 
 def get_inverse_throughput(src):
-    itp = lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    itp = lookup_multidict(inverse_throughput, src, instclass_src)
     if find_class(src) in [
         ldm_interval,
         ldm_interval_inc_writeback,

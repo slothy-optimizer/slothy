@@ -43,8 +43,8 @@ Some latency exceptions were manually identified through microbenchmarks.
 # ################################################################################## #
 
 from enum import Enum
+from slothy.helper import lookup_multidict
 from slothy.targets.aarch64.aarch64_neon import (
-    lookup_multidict,
     find_class,
     AArch64ConditionalCompare,
     Ldp_X,
@@ -326,7 +326,6 @@ execution_units = {
     is_qform_form_of(trn1): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(trn2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
-    is_qform_form_of(trn2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn2): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(ASimdCompare): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(ASimdCompare): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
@@ -522,7 +521,7 @@ default_latencies = {
     vxtn: 2,
     vshrn: 2,
     vtbl: 2,  # 2+N-1 cycles (N = number of registers in the table)
-    (vshl, vshl_d, vsshr, vushr, vuxtl): 2,
+    (vuxtl): 2,
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,
     (Vins, umov_d): 2,
@@ -586,7 +585,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    latency = lookup_multidict(default_latencies, src)
+    latency = lookup_multidict(default_latencies, src, instclass_src)
 
     if (
         instclass_dst in [trn1, trn2, vzip1, vzip2, vuzp1, vuzp2, fcsel_dform]
@@ -626,11 +625,13 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     return [units]
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)
