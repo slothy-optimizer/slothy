@@ -917,6 +917,30 @@ class AArch64Instruction(Instruction):
                 raise Instruction.ParsingException(
                     f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
                 )
+            # Enforcing that all <dt*> are equal during parsing.
+            # Here is an example:
+            # For src: "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>""
+            # When parsing:
+            # smlsl v6.4s, v7.4h, v8.4h -> Passed
+            # smlsl v6.4s, v7.4h, v8.4s -> Failed,
+            # return "Inconsistent datatype for <dt1>: 4h vs 4s"
+            datatypes = {}
+
+            for s_op, l_op in zip(src.split(","), line.split(",")):
+
+                if "." in s_op.strip() and "." in l_op.strip():
+                    dt_name = s_op.split(".", 1)[1]
+                    dt_value = l_op.split(".", 1)[1]
+
+                    if dt_name in datatypes:
+                        if datatypes[dt_name] != dt_value:
+                            raise Instruction.ParsingException(
+                                f"Inconsistent datatype for {dt_name}: "
+                                f"{datatypes[dt_name]} vs {dt_value}"
+                            )
+                    else:
+                        datatypes[dt_name] = dt_value
+
             res = regexp.match(line).groupdict()
             items = list(res.items())
             for k, v in items:
