@@ -2170,12 +2170,6 @@ class asr_wform(AArch64Instruction):
     outputs = ["Wd"]
 
 
-class eor_wform(AArch64Instruction):
-    pattern = "eor <Wd>, <Wa>, <Wb>"
-    inputs = ["Wa", "Wb"]
-    outputs = ["Wd"]
-
-
 class AArch64BasicArithmetic(AArch64Instruction):
     pass
 
@@ -2502,8 +2496,26 @@ class rev_w(AArch64Logical):
     outputs = ["Wd"]
 
 
+class eor_wform(AArch64Logical):
+    pattern = "eor <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class eon_wform(AArch64Logical):
+    pattern = "eon <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
 class eor(AArch64Logical):
     pattern = "eor <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class eon(AArch64Logical):
+    pattern = "eon <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
