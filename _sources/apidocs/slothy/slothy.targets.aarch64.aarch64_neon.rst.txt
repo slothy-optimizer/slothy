@@ -177,8 +177,6 @@ Classes
      -
    * - :py:obj:`asr_wform <slothy.targets.aarch64.aarch64_neon.asr_wform>`
      -
-   * - :py:obj:`eor_wform <slothy.targets.aarch64.aarch64_neon.eor_wform>`
-     -
    * - :py:obj:`AArch64BasicArithmetic <slothy.targets.aarch64.aarch64_neon.AArch64BasicArithmetic>`
      -
    * - :py:obj:`subs_wform <slothy.targets.aarch64.aarch64_neon.subs_wform>`
@@ -279,7 +277,13 @@ Classes
      -
    * - :py:obj:`rev_w <slothy.targets.aarch64.aarch64_neon.rev_w>`
      -
+   * - :py:obj:`eor_wform <slothy.targets.aarch64.aarch64_neon.eor_wform>`
+     -
+   * - :py:obj:`eon_wform <slothy.targets.aarch64.aarch64_neon.eon_wform>`
+     -
    * - :py:obj:`eor <slothy.targets.aarch64.aarch64_neon.eor>`
+     -
+   * - :py:obj:`eon <slothy.targets.aarch64.aarch64_neon.eon>`
      -
    * - :py:obj:`orr <slothy.targets.aarch64.aarch64_neon.orr>`
      -
@@ -2885,29 +2889,6 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.asr_wform.outputs
 
-.. py:class:: eor_wform(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
-   :canonical: slothy.targets.aarch64.aarch64_neon.eor_wform
-
-   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
-
-   .. py:attribute:: pattern
-      :canonical: slothy.targets.aarch64.aarch64_neon.eor_wform.pattern
-      :value: 'eor <Wd>, <Wa>, <Wb>'
-
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eor_wform.pattern
-
-   .. py:attribute:: inputs
-      :canonical: slothy.targets.aarch64.aarch64_neon.eor_wform.inputs
-      :value: ['Wa', 'Wb']
-
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eor_wform.inputs
-
-   .. py:attribute:: outputs
-      :canonical: slothy.targets.aarch64.aarch64_neon.eor_wform.outputs
-      :value: ['Wd']
-
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eor_wform.outputs
-
 .. py:class:: AArch64BasicArithmetic(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.AArch64BasicArithmetic
 
@@ -4184,6 +4165,52 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.rev_w.outputs
 
+.. py:class:: eor_wform(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.eor_wform
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Logical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.eor_wform.pattern
+      :value: 'eor <Wd>, <Wa>, <Wb>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eor_wform.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.eor_wform.inputs
+      :value: ['Wa', 'Wb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eor_wform.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.eor_wform.outputs
+      :value: ['Wd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eor_wform.outputs
+
+.. py:class:: eon_wform(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.eon_wform
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Logical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.eon_wform.pattern
+      :value: 'eon <Wd>, <Wa>, <Wb>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eon_wform.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.eon_wform.inputs
+      :value: ['Wa', 'Wb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eon_wform.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.eon_wform.outputs
+      :value: ['Wd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eon_wform.outputs
+
 .. py:class:: eor(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.eor
 
@@ -4206,6 +4233,29 @@ API
       :value: ['Xd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eor.outputs
+
+.. py:class:: eon(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.eon
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Logical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.eon.pattern
+      :value: 'eon <Xd>, <Xa>, <Xb>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eon.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.eon.inputs
+      :value: ['Xa', 'Xb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eon.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.eon.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.eon.outputs
 
 .. py:class:: orr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.orr
