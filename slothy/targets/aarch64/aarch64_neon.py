@@ -1247,13 +1247,13 @@ class nop(AArch64Instruction):
 
 
 class vadd(AArch64Instruction):
-    pattern = "add <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>"
+    pattern = "add <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>"
     inputs = ["Vb", "Vc"]
     outputs = ["Va"]
 
 
 class vsub(AArch64Instruction):
-    pattern = "sub <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>"
+    pattern = "sub <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>"
     inputs = ["Vb", "Vc"]
     outputs = ["Va"]
 
@@ -1386,7 +1386,7 @@ class Q_Ld2_Lane_Post_Inc(AArch64Instruction):
 
 
 class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
-    pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
+    pattern = "ld2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>"
     in_outs = ["Va", "Vb", "Xa"]
 
     @classmethod
@@ -1403,7 +1403,7 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
 
 
 class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
-    pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
+    pattern = "ld2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>"
     # TODO: Model sp dependency
     in_outs = ["Xa"]
     outputs = ["Va", "Vb"]
@@ -2973,25 +2973,25 @@ class Vzip(AArch64Instruction):
 
 
 class vzip1(Vzip):
-    pattern = "zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "zip1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vzip2(Vzip):
-    pattern = "zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "zip2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vuzp1(Vzip):
-    pattern = "uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "uzp1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vuzp2(Vzip):
-    pattern = "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "uzp2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3001,13 +3001,13 @@ class Vqdmulh(AArch64Instruction):
 
 
 class vqrdmulh(Vqdmulh):
-    pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "sqrdmulh <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vqrdmulh_lane(Vqdmulh):
-    pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3023,7 +3023,7 @@ class vqrdmulh_lane(Vqdmulh):
 
 
 class vqdmulh_lane(Vqdmulh):
-    pattern = "sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "sqdmulh <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3098,13 +3098,13 @@ class AArch64NeonCount(AArch64Instruction):
 
 
 class vcnt(AArch64NeonCount):
-    pattern = "cnt <Vd>.<dt0>, <Va>.<dt1>"
+    pattern = "cnt <Vd>.<dt>, <Va>.<dt>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
 class vclz(AArch64NeonCount):
-    pattern = "clz <Vd>.<dt0>, <Va>.<dt1>"
+    pattern = "clz <Vd>.<dt>, <Va>.<dt>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
@@ -3143,25 +3143,25 @@ class SHA3Instruction(
 
 
 class vrax1(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
-    pattern = "rax1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "rax1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class veor3(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
-    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    pattern = "eor3 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>"
     inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
 
 class vbcax(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
-    pattern = "bcax <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    pattern = "bcax <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>"
     inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
 
 class vxar(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
-    pattern = "xar <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
+    pattern = "xar <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3171,19 +3171,19 @@ class AArch64NeonLogical(AArch64Instruction):
 
 
 class vtbl(AArch64Instruction):
-    pattern = "tbl <Vd>.<dt0>, {<Va>.<dt1>}, <Vb>.<dt2>"
+    pattern = "tbl <Vd>.<dt>, {<Va>.<dt>}, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vand(AArch64NeonLogical):
-    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "and <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vbic(AArch64NeonLogical):
-    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "bic <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3194,25 +3194,25 @@ class vbic_imm_shifted(AArch64NeonLogical):
 
 
 class vmvn(AArch64NeonLogical):
-    pattern = "mvn <Vd>.<dt0>, <Va>.<dt1>"
+    pattern = "mvn <Vd>.<dt>, <Va>.<dt>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
 class vorr(AArch64NeonLogical):
-    pattern = "orr <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "orr <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vorn(AArch64NeonLogical):
-    pattern = "orn <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "orn <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class veor(AArch64NeonLogical):
-    pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "eor <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3230,7 +3230,7 @@ class vmov_d(AArch64Instruction):
 
 
 class vext(AArch64Instruction):
-    pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
+    pattern = "ext <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3240,13 +3240,13 @@ class Vmul(AArch64Instruction):
 
 
 class vmul(Vmul):
-    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "mul <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vmul_lane(Vmul):
-    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "mul <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3267,13 +3267,13 @@ class Vmla(AArch64Instruction):
 
 
 class vmla(Vmla):
-    pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "mla <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vmla_lane(Vmla):
-    pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "mla <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
@@ -3289,13 +3289,13 @@ class vmla_lane(Vmla):
 
 
 class vmls(Vmla):
-    pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "mls <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vmls_lane(Vmla):
-    pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "mls <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
@@ -3321,25 +3321,25 @@ class Vmull(AArch64Instruction):
 
 
 class vumull(Vmull):
-    pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vumull2(Vmull):
-    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vsmull(Vmull):
-    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vsmull2(Vmull):
-    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3413,25 +3413,25 @@ class Vmlal(AArch64Instruction):
 
 
 class vumlal(Vmlal):
-    pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vumlal2(Vmlal):
-    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vsmlal(Vmlal):
-    pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vsmlal2(Vmlal):
-    pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
@@ -3501,25 +3501,25 @@ class vsmlal2_lane(Vmlal):
 
 
 class vumlsl(Vmlal):
-    pattern = "umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vumlsl2(Vmlal):
-    pattern = "umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vsmlsl(Vmlal):
-    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vsmlsl2(Vmlal):
-    pattern = "smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
@@ -3593,7 +3593,7 @@ class VShiftImmediateBasic(AArch64Instruction):
 
 
 class vshl(VShiftImmediateBasic):
-    pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "shl <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
@@ -3611,13 +3611,13 @@ class vshrn(VShiftImmediateBasic):
 
 
 class vsshr(VShiftImmediateBasic):
-    pattern = "sshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "sshr <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
 class vushr(VShiftImmediateBasic):
-    pattern = "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "ushr <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
@@ -3633,13 +3633,13 @@ class VShiftImmediateRounding(AArch64Instruction):
 
 
 class vsrshr(VShiftImmediateRounding):
-    pattern = "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "srshr <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
 class vurshr(VShiftImmediateRounding):
-    pattern = "urshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "urshr <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
@@ -3649,13 +3649,13 @@ class AArch64NeonShiftInsert(AArch64Instruction):
 
 
 class vsli(AArch64NeonShiftInsert):
-    pattern = "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "sli <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
 
 class vsri(AArch64NeonShiftInsert):
-    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "sri <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
@@ -3733,13 +3733,13 @@ class Transpose(AArch64Instruction):
 
 
 class trn1(Transpose):
-    pattern = "trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "trn1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class trn2(Transpose):
-    pattern = "trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "trn2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -4157,7 +4157,7 @@ class St4(AArch64Instruction):
 
 
 class st4_base(St4):
-    pattern = "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]"
+    pattern = "st4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb", "Vc", "Vd"]
 
     @classmethod
@@ -4175,7 +4175,7 @@ class st4_base(St4):
 
 
 class st4_with_inc(St4):
-    pattern = "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>"
+    pattern = "st4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb", "Vc", "Vd"]
     in_outs = ["Xc"]
 
@@ -4199,7 +4199,7 @@ class St3(AArch64Instruction):
 
 
 class st3_base(St3):
-    pattern = "st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]"
+    pattern = "st3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb", "Vc"]
 
     @classmethod
@@ -4214,7 +4214,7 @@ class st3_base(St3):
 
 
 class st3_with_inc(St3):
-    pattern = "st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>"
+    pattern = "st3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb", "Vc"]
     in_outs = ["Xc"]
 
@@ -4235,7 +4235,7 @@ class St2(AArch64Instruction):
 
 
 class st2_base(St2):
-    pattern = "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]"
+    pattern = "st2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb"]
 
     @classmethod
@@ -4250,7 +4250,7 @@ class st2_base(St2):
 
 
 class st2_with_inc(St2):
-    pattern = "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    pattern = "st2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb"]
     in_outs = ["Xc"]
 
@@ -4271,7 +4271,7 @@ class Ld4(AArch64Instruction):
 
 
 class ld4_base(Ld4):
-    pattern = "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]"
+    pattern = "ld4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb", "Vc", "Vd"]
 
@@ -4290,7 +4290,7 @@ class ld4_base(Ld4):
 
 
 class ld4_with_inc(Ld4):
-    pattern = "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>"
+    pattern = "ld4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb", "Vc", "Vd"]
 
@@ -4314,7 +4314,7 @@ class Ld3(AArch64Instruction):
 
 
 class ld3_base(Ld3):
-    pattern = "ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]"
+    pattern = "ld3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb", "Vc"]
 
@@ -4330,7 +4330,7 @@ class ld3_base(Ld3):
 
 
 class ld3_with_inc(Ld3):
-    pattern = "ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>"
+    pattern = "ld3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb", "Vc"]
 
@@ -4351,7 +4351,7 @@ class Ld2(AArch64Instruction):
 
 
 class ld2_base(Ld2):
-    pattern = "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]"
+    pattern = "ld2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb"]
 
@@ -4367,7 +4367,7 @@ class ld2_base(Ld2):
 
 
 class ld2_with_inc(Ld2):
-    pattern = "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    pattern = "ld2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb"]
 
@@ -4388,43 +4388,43 @@ class ASimdCompare(AArch64Instruction):
 
 
 class cmge(ASimdCompare):
-    pattern = "cmge <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "cmge <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class cmhi(ASimdCompare):
-    pattern = "cmhi <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "cmhi <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class cmeq(ASimdCompare):
-    pattern = "cmeq <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "cmeq <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class cmgt(ASimdCompare):
-    pattern = "cmgt <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "cmgt <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class cmhs(ASimdCompare):
-    pattern = "cmhs <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "cmhs <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class cmle(ASimdCompare):
-    pattern = "cmle <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "cmle <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
 class cmlt(ASimdCompare):
-    pattern = "cmlt <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "cmlt <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
