@@ -820,6 +820,20 @@ class AArch64Instruction(Instruction):
         return src
 
     @staticmethod
+    def _enforce_datatype_matching(pattern, res):
+        datatypes = {}
+        for i, m in enumerate(re.finditer(r"<dt\d*>", pattern)):
+            dt = m.group(0)
+            val = res.get(f"datatype{i}", res.get("datatype"))
+            if dt in datatypes and datatypes[dt] != val:
+                raise FatalParsingException(
+                    f"Inconsistent data type: {datatypes[dt]} vs {val}"
+                )
+            elif dt not in datatypes and val in datatypes.values():
+                raise FatalParsingException(f"Inconsistent dt: {dt}")
+            datatypes[dt] = val
+
+    @staticmethod
     def _unfold_pattern(src):
 
         # Those replacements may look pointless, but they replace
@@ -1103,6 +1117,8 @@ class AArch64Instruction(Instruction):
         else:
             assert isinstance(src, dict)
             res = src
+
+        AArch64Instruction._enforce_datatype_matching(pattern, res)
 
         obj = c(
             pattern,
