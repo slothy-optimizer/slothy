@@ -254,6 +254,23 @@ class AArch64LoopLabels(OptimizationRunner):
         slothy.optimize_loop("1")
 
 
+class AArch64LoopBranch(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_loop_branch"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["flags"]
+        slothy.optimize_loop("loop")
+        slothy.config.outputs = ["flags", "x1"]
+        slothy.optimize_loop("loop2")
+
+
 class AArch64FusionVeor(OptimizationRunner):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
         name = "aarch64_fusion_veor"
@@ -290,5 +307,6 @@ test_instances = [
     AArch64LoopSubTabs(),
     AArch64Ubfx(),
     AArch64LoopLabels(),
+    AArch64LoopBranch(),
     AArch64FusionVeor(),
 ]

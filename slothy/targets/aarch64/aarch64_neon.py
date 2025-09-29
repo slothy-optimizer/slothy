@@ -495,6 +495,115 @@ class SubsLoop(Loop):
         yield f"{indent}b{other['br_type']} {lbl_start}"
 
 
+class BranchLoop(Loop):
+    """
+    More general loop type that just considers the branch instruction as part
+    of the boundary.
+    This can help to improve performance as the instructions that belong to
+    handling the loop can be considered by SLOTHY as well.
+
+    .. note::
+
+        This loop type is still rather experimental. It has a lot of logics
+        inside as it needs to be able to "understand" a variety of different
+        ways to express loops, e.g., how counters get incremented, how
+        registers marking the end of the
+        loop need to be modified in case of software pipelining etc.
+
+    """
+
+    def __init__(self, lbl="lbl") -> None:
+        super().__init__()
+        # The group naming in the regex should be consistent; give same group
+        # names to the same registers
+        self.lbl = lbl
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
+        self.end_regex = (
+            (
+                rf"^\s*b(?P<br_type>"
+                rf"[\.]?(eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al))"
+                rf"\s+{lbl}",
+                False,
+            ),
+        )
+
+    def start(
+        self,
+        loop_cnt,
+        indentation=0,
+        fixup=0,
+        unroll=1,
+        jump_if_empty=None,
+        preamble_code=None,
+        body_code=None,
+        postamble_code=None,
+        register_aliases=None,
+    ):
+        """Emit starting instruction(s) and jump label for loop"""
+        indent = " " * indentation
+        if body_code is None:
+            logging.debug("No body code in loop start: Just printing label.")
+            yield f"{self.lbl}:"
+            return
+        # Identify the register that is used as a loop counter
+        body_code = [line for line in body_code if line.text != ""]
+        loop_cnt_reg = None
+        for idx, line in enumerate(body_code):
+            inst = Instruction.parser(line)
+            # Flags are set through cmp
+            # LIMITATION: By convention, we require the first argument to be the
+            # "counter" and the second the one marking the iteration end.
+            if isinstance(inst[0], cmp):
+                # Assume this mapping
+                loop_cnt_reg = inst[0].args_in[0]
+                loop_end_reg = inst[0].args_in[1]
+                body_code[idx].add_tag("id", "cmp")
+                logging.debug(
+                    f"Assuming {loop_cnt_reg} as counter register and {loop_end_reg} "
+                    "as end register."
+                )
+                break
+        if loop_cnt_reg is None:
+            raise FatalParsingException("No flag-setting instruction found!")
+
+        if unroll > 1:
+            assert unroll in [1, 2, 4, 8, 16, 32]
+            yield f"{indent}lsr {loop_end_reg}, {loop_end_reg}, #{int(math.log2(unroll))}"
+
+        inc_per_iter = 0
+        for idx, line in enumerate(body_code):
+            inst = Instruction.parser(line)
+            modifies_counter = False
+            # Increment happens through pointer modification
+            if loop_cnt_reg.lower() == inst[0].addr and inst[0].increment is not None:
+                inc_per_iter = inc_per_iter + simplify(inst[0].increment)
+                modifies_counter = True
+            # Increment through explicit modification
+            elif (
+                loop_cnt_reg.lower() in (inst[0].args_out + inst[0].args_in_out)
+                and inst[0].immediate is not None
+            ):
+                # TODO: subtract if we have a subtraction
+                inc_per_iter = inc_per_iter + simplify(inst[0].immediate)
+                modifies_counter = True
+            if modifies_counter:
+                body_code[idx].add_tags({"before": "cmp", "core": "True"})
+        logging.debug(
+            f"Loop counter {loop_cnt_reg} is incremented by {inc_per_iter} per iteration."
+        )
+
+        if fixup != 0:
+            yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
+
+        if jump_if_empty is not None:
+            yield f"cbz {loop_cnt}, {jump_if_empty}"
+        yield f"{self.lbl}:"
+
+    def end(self, other, indentation=0):
+        """Nothing to do here"""
+        yield f"{' ' * indentation}b{self.additional_data['br_type']} {self.lbl}"
+
+
 class Instruction:
 
     class ParsingException(Exception):
