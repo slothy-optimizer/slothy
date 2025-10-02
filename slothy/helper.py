@@ -37,6 +37,10 @@ from slothy.targets.common import FatalParsingException, UnknownInstruction
 
 from unicorn import Uc, UcError
 
+# Markers for /* */ comment preservation
+_BLOCK_COMMENT_MARKER = "__SLOTHY_BLOCK__"
+_NEWLINE_MARKER = "__SLOTHY_NL__"
+
 
 class SourceLine:
     """Representation of a single line of source code"""
@@ -232,7 +236,21 @@ class SourceLine:
         additional = []
 
         if comments is True:
-            additional += list(map(lambda s: f"// {s}", double_comments))
+            # Convert comments with markers back to /* */ format
+            def format_comment(s):
+                if _NEWLINE_MARKER in s:
+                    # Restore as multi-line /* */ comment
+                    lines = s.split(_NEWLINE_MARKER)
+                    lines = [line.strip() for line in lines]
+                    return "/* " + "\n   ".join(lines) + " */"
+                elif s.startswith(_BLOCK_COMMENT_MARKER):
+                    # Restore as single-line /* */ comment
+                    return f"/* {s[len(_BLOCK_COMMENT_MARKER):]} */"
+                else:
+                    # Regular // comment - keep as is
+                    return f"// {s}"
+
+            additional += list(map(format_comment, double_comments))
             additional += list(map(lambda s: f"///{s}", triple_comments))
 
         if tags is True:
@@ -346,6 +364,21 @@ class SourceLine:
         if isinstance(s, str):
             # Retain newline termination
             terminated_by_newline = len(s) > 0 and s[-1] == "\n"
+
+            # Convert /* */ comments to // style with markers for restoration
+            def replace_comment(match):
+                content = match.group(1)
+                if "\n" in content:
+                    # Multi-line /* */ comment - mark newlines
+                    content = content.replace("\n", f" {_NEWLINE_MARKER} ")
+                    content = " ".join(content.split())
+                    return f"// {content}" if content else ""
+                else:
+                    # Single-line /* */ comment - mark with prefix
+                    content = content.strip()
+                    return f"// {_BLOCK_COMMENT_MARKER}{content}" if content else ""
+
+            s = re.sub(r"/\*(.*?)\*/", replace_comment, s, flags=re.DOTALL)
             s = s.splitlines()
             if terminated_by_newline:
                 s.append("")
