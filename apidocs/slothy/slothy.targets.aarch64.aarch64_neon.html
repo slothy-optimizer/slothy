@@ -1670,6 +1670,16 @@ of a subclass of Instruction.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.AArch64Instruction._replace_duplicate_datatypes">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_replace_duplicate_datatypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mnemonic_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.AArch64Instruction._replace_duplicate_datatypes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.AArch64Instruction._enforce_datatype_matching">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_enforce_datatype_matching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.AArch64Instruction._enforce_datatype_matching" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.AArch64Instruction._unfold_pattern">
 <em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_unfold_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.AArch64Instruction._unfold_pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
@@ -1797,7 +1807,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64Instruction" title="slothy.targets.aarch64.aarch64_neon.AArch64Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64Instruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vadd.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'add</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vadd.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'add</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vadd.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1818,7 +1828,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64Instruction" title="slothy.targets.aarch64.aarch64_neon.AArch64Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64Instruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsub.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sub</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsub.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sub</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsub.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2034,7 +2044,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Q_Ld2_Lane_Post_Inc" title="slothy.targets.aarch64.aarch64_neon.Q_Ld2_Lane_Post_Inc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Q_Ld2_Lane_Post_Inc</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld2</span> <span class="pre">{</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;</span> <span class="pre">}[&lt;index&gt;],</span> <span class="pre">[&lt;Xa&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld2</span> <span class="pre">{</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;</span> <span class="pre">}[&lt;index&gt;],</span> <span class="pre">[&lt;Xa&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2060,7 +2070,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Q_Ld2_Lane_Post_Inc" title="slothy.targets.aarch64.aarch64_neon.Q_Ld2_Lane_Post_Inc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Q_Ld2_Lane_Post_Inc</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc_force_output.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld2</span> <span class="pre">{</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;</span> <span class="pre">}[&lt;index&gt;],</span> <span class="pre">[&lt;Xa&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc_force_output.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld2</span> <span class="pre">{</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;</span> <span class="pre">}[&lt;index&gt;],</span> <span class="pre">[&lt;Xa&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc_force_output.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6041,7 +6051,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vzip" title="slothy.targets.aarch64.aarch64_neon.Vzip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vzip</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vzip1.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'zip1</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vzip1.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'zip1</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vzip1.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6062,7 +6072,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vzip" title="slothy.targets.aarch64.aarch64_neon.Vzip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vzip</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vzip2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'zip2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vzip2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'zip2</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vzip2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6083,7 +6093,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vzip" title="slothy.targets.aarch64.aarch64_neon.Vzip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vzip</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vuzp1.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uzp1</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vuzp1.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uzp1</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vuzp1.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6104,7 +6114,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vzip" title="slothy.targets.aarch64.aarch64_neon.Vzip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vzip</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vuzp2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uzp2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vuzp2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uzp2</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vuzp2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6131,7 +6141,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vqdmulh" title="slothy.targets.aarch64.aarch64_neon.Vqdmulh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vqdmulh</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vqrdmulh.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sqrdmulh</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vqrdmulh.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sqrdmulh</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vqrdmulh.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6152,7 +6162,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vqdmulh" title="slothy.targets.aarch64.aarch64_neon.Vqdmulh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vqdmulh</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vqrdmulh_lane.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sqrdmulh</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vqrdmulh_lane.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sqrdmulh</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vqrdmulh_lane.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6178,7 +6188,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vqdmulh" title="slothy.targets.aarch64.aarch64_neon.Vqdmulh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vqdmulh</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vqdmulh_lane.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sqdmulh</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vqdmulh_lane.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sqdmulh</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vqdmulh_lane.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6280,7 +6290,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonCount" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonCount</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vcnt.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cnt</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vcnt.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cnt</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vcnt.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6301,7 +6311,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonCount" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonCount"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonCount</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vclz.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'clz</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vclz.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'clz</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vclz.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6413,7 +6423,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.SHA3Instruction" title="slothy.targets.aarch64.aarch64_neon.SHA3Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.SHA3Instruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vrax1.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'rax1</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vrax1.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'rax1</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vrax1.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6434,7 +6444,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.SHA3Instruction" title="slothy.targets.aarch64.aarch64_neon.SHA3Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.SHA3Instruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.veor3.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'eor3</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt3&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.veor3.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'eor3</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.veor3.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6455,7 +6465,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.SHA3Instruction" title="slothy.targets.aarch64.aarch64_neon.SHA3Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.SHA3Instruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vbcax.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bcax</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt3&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vbcax.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bcax</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vbcax.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6476,7 +6486,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.SHA3Instruction" title="slothy.targets.aarch64.aarch64_neon.SHA3Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.SHA3Instruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vxar.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xar</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vxar.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'xar</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vxar.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6503,7 +6513,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64Instruction" title="slothy.targets.aarch64.aarch64_neon.AArch64Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64Instruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vtbl.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tbl</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">{&lt;Va&gt;.&lt;dt1&gt;},</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vtbl.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tbl</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;},</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vtbl.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6524,7 +6534,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vand.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'and</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vand.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'and</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vand.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6545,7 +6555,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vbic.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bic</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vbic.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bic</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vbic.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6582,7 +6592,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vmvn.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mvn</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmvn.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mvn</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmvn.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6603,7 +6613,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vorr.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'orr</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vorr.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'orr</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vorr.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6624,7 +6634,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vorn.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'orn</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vorn.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'orn</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vorn.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6645,7 +6655,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.veor.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'eor</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.veor.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'eor</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.veor.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6708,7 +6718,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64Instruction" title="slothy.targets.aarch64.aarch64_neon.AArch64Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64Instruction</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vext.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ext</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vext.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ext</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vext.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6735,7 +6745,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmul" title="slothy.targets.aarch64.aarch64_neon.Vmul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmul</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vmul.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mul</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmul.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mul</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmul.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6756,7 +6766,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmul" title="slothy.targets.aarch64.aarch64_neon.Vmul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmul</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vmul_lane.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mul</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmul_lane.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mul</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmul_lane.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6788,7 +6798,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmla" title="slothy.targets.aarch64.aarch64_neon.Vmla"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmla</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vmla.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mla</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmla.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mla</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmla.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6809,7 +6819,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmla" title="slothy.targets.aarch64.aarch64_neon.Vmla"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmla</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vmla_lane.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mla</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmla_lane.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mla</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmla_lane.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6835,7 +6845,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmla" title="slothy.targets.aarch64.aarch64_neon.Vmla"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmla</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vmls.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mls</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmls.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mls</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmls.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6856,7 +6866,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmla" title="slothy.targets.aarch64.aarch64_neon.Vmla"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmla</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vmls_lane.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mls</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmls_lane.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'mls</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;[&lt;index&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vmls_lane.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6909,7 +6919,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmull" title="slothy.targets.aarch64.aarch64_neon.Vmull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmull</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vumull.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umull</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumull.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umull</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumull.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6930,7 +6940,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmull" title="slothy.targets.aarch64.aarch64_neon.Vmull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmull</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vumull2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umull2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumull2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umull2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumull2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6951,7 +6961,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmull" title="slothy.targets.aarch64.aarch64_neon.Vmull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmull</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsmull.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smull</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmull.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smull</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmull.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6972,7 +6982,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmull" title="slothy.targets.aarch64.aarch64_neon.Vmull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmull</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsmull2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smull2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmull2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smull2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmull2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7103,7 +7113,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmlal" title="slothy.targets.aarch64.aarch64_neon.Vmlal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmlal</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vumlal.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umlal</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumlal.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umlal</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumlal.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7124,7 +7134,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmlal" title="slothy.targets.aarch64.aarch64_neon.Vmlal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmlal</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vumlal2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umlal2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumlal2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umlal2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumlal2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7145,7 +7155,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmlal" title="slothy.targets.aarch64.aarch64_neon.Vmlal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmlal</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsmlal.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smlal</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmlal.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smlal</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmlal.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7166,7 +7176,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmlal" title="slothy.targets.aarch64.aarch64_neon.Vmlal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmlal</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsmlal2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smlal2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmlal2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smlal2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmlal2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7291,7 +7301,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmlal" title="slothy.targets.aarch64.aarch64_neon.Vmlal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmlal</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vumlsl.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umlsl</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumlsl.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umlsl</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumlsl.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7312,7 +7322,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmlal" title="slothy.targets.aarch64.aarch64_neon.Vmlal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmlal</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vumlsl2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umlsl2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumlsl2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'umlsl2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vumlsl2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7333,7 +7343,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmlal" title="slothy.targets.aarch64.aarch64_neon.Vmlal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmlal</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsmlsl.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smlsl</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmlsl.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smlsl</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmlsl.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7354,7 +7364,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Vmlal" title="slothy.targets.aarch64.aarch64_neon.Vmlal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Vmlal</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsmlsl2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smlsl2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmlsl2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'smlsl2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsmlsl2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7485,7 +7495,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic" title="slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vshl.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'shl</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vshl.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'shl</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vshl.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7548,7 +7558,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic" title="slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsshr.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sshr</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsshr.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sshr</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsshr.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7569,7 +7579,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic" title="slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.VShiftImmediateBasic</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vushr.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ushr</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vushr.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ushr</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vushr.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7617,7 +7627,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.VShiftImmediateRounding" title="slothy.targets.aarch64.aarch64_neon.VShiftImmediateRounding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.VShiftImmediateRounding</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsrshr.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'srshr</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsrshr.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'srshr</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsrshr.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7638,7 +7648,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.VShiftImmediateRounding" title="slothy.targets.aarch64.aarch64_neon.VShiftImmediateRounding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.VShiftImmediateRounding</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vurshr.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'urshr</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vurshr.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'urshr</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vurshr.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7665,7 +7675,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonShiftInsert" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonShiftInsert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonShiftInsert</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsli.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sli</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsli.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sli</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsli.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7686,7 +7696,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64NeonShiftInsert" title="slothy.targets.aarch64.aarch64_neon.AArch64NeonShiftInsert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64NeonShiftInsert</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.vsri.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sri</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsri.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sri</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.vsri.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7903,7 +7913,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Transpose" title="slothy.targets.aarch64.aarch64_neon.Transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Transpose</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.trn1.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'trn1</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.trn1.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'trn1</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.trn1.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -7924,7 +7934,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Transpose" title="slothy.targets.aarch64.aarch64_neon.Transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Transpose</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.trn2.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'trn2</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.trn2.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'trn2</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.trn2.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8724,7 +8734,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.St4" title="slothy.targets.aarch64.aarch64_neon.St4"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.St4</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st4_base.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st4</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;,</span> <span class="pre">&lt;Vd&gt;.&lt;dt3&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st4_base.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st4</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st4_base.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8745,7 +8755,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.St4" title="slothy.targets.aarch64.aarch64_neon.St4"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.St4</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st4_with_inc.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st4</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;,</span> <span class="pre">&lt;Vd&gt;.&lt;dt3&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st4_with_inc.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st4</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st4_with_inc.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8777,7 +8787,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.St3" title="slothy.targets.aarch64.aarch64_neon.St3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.St3</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st3_base.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st3</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st3_base.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st3</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st3_base.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8798,7 +8808,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.St3" title="slothy.targets.aarch64.aarch64_neon.St3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.St3</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st3_with_inc.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st3</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st3_with_inc.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st3</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st3_with_inc.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8830,7 +8840,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.St2" title="slothy.targets.aarch64.aarch64_neon.St2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.St2</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_base.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st2</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_base.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st2</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_base.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8851,7 +8861,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.St2" title="slothy.targets.aarch64.aarch64_neon.St2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.St2</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_with_inc.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st2</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_with_inc.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st2</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_with_inc.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8883,7 +8893,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Ld4" title="slothy.targets.aarch64.aarch64_neon.Ld4"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Ld4</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ld4_base.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld4</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;,</span> <span class="pre">&lt;Vd&gt;.&lt;dt3&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld4_base.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld4</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld4_base.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8909,7 +8919,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Ld4" title="slothy.targets.aarch64.aarch64_neon.Ld4"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Ld4</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ld4_with_inc.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld4</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;,</span> <span class="pre">&lt;Vd&gt;.&lt;dt3&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld4_with_inc.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld4</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld4_with_inc.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8941,7 +8951,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Ld3" title="slothy.targets.aarch64.aarch64_neon.Ld3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Ld3</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ld3_base.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld3</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld3_base.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld3</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld3_base.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8967,7 +8977,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Ld3" title="slothy.targets.aarch64.aarch64_neon.Ld3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Ld3</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ld3_with_inc.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld3</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt2&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld3_with_inc.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld3</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vc&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld3_with_inc.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -8999,7 +9009,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Ld2" title="slothy.targets.aarch64.aarch64_neon.Ld2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Ld2</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ld2_base.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld2</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld2_base.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld2</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld2_base.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -9025,7 +9035,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Ld2" title="slothy.targets.aarch64.aarch64_neon.Ld2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.Ld2</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ld2_with_inc.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld2</span> <span class="pre">{&lt;Va&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt1&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld2_with_inc.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ld2</span> <span class="pre">{&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;},</span> <span class="pre">[&lt;Xc&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ld2_with_inc.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -9059,7 +9069,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ASimdCompare" title="slothy.targets.aarch64.aarch64_neon.ASimdCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.ASimdCompare</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.cmge.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmge</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmge.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmge</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmge.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -9080,7 +9090,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ASimdCompare" title="slothy.targets.aarch64.aarch64_neon.ASimdCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.ASimdCompare</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.cmhi.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmhi</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmhi.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmhi</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmhi.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -9101,7 +9111,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ASimdCompare" title="slothy.targets.aarch64.aarch64_neon.ASimdCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.ASimdCompare</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.cmeq.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmeq</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmeq.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmeq</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmeq.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -9122,7 +9132,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ASimdCompare" title="slothy.targets.aarch64.aarch64_neon.ASimdCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.ASimdCompare</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.cmgt.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmgt</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmgt.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmgt</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmgt.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -9143,7 +9153,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ASimdCompare" title="slothy.targets.aarch64.aarch64_neon.ASimdCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.ASimdCompare</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.cmhs.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmhs</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt2&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmhs.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmhs</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmhs.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -9164,7 +9174,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ASimdCompare" title="slothy.targets.aarch64.aarch64_neon.ASimdCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.ASimdCompare</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.cmle.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmle</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmle.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmle</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmle.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -9185,7 +9195,7 @@ of a subclass of Instruction.</p>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ASimdCompare" title="slothy.targets.aarch64.aarch64_neon.ASimdCompare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.ASimdCompare</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.cmlt.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmlt</span> <span class="pre">&lt;Vd&gt;.&lt;dt0&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt1&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmlt.pattern" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cmlt</span> <span class="pre">&lt;Vd&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.cmlt.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">

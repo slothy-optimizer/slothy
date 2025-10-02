@@ -1179,6 +1179,18 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.AArch64Instruction.PARSERS
 
+   .. py:method:: _replace_duplicate_datatypes(src, mnemonic_key)
+      :canonical: slothy.targets.aarch64.aarch64_neon.AArch64Instruction._replace_duplicate_datatypes
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.AArch64Instruction._replace_duplicate_datatypes
+
+   .. py:method:: _enforce_datatype_matching(pattern, res)
+      :canonical: slothy.targets.aarch64.aarch64_neon.AArch64Instruction._enforce_datatype_matching
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.AArch64Instruction._enforce_datatype_matching
+
    .. py:method:: _unfold_pattern(src)
       :canonical: slothy.targets.aarch64.aarch64_neon.AArch64Instruction._unfold_pattern
       :staticmethod:
@@ -1321,7 +1333,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vadd.pattern
-      :value: 'add <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>'
+      :value: 'add <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vadd.pattern
 
@@ -1344,7 +1356,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsub.pattern
-      :value: 'sub <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>'
+      :value: 'sub <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsub.pattern
 
@@ -1556,7 +1568,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc.pattern
-      :value: 'ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>'
+      :value: 'ld2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc.pattern
 
@@ -1580,7 +1592,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc_force_output.pattern
-      :value: 'ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>'
+      :value: 'ld2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_ld2_lane_post_inc_force_output.pattern
 
@@ -5784,7 +5796,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vzip1.pattern
-      :value: 'zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'zip1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vzip1.pattern
 
@@ -5807,7 +5819,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vzip2.pattern
-      :value: 'zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'zip2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vzip2.pattern
 
@@ -5830,7 +5842,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vuzp1.pattern
-      :value: 'uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'uzp1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vuzp1.pattern
 
@@ -5853,7 +5865,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vuzp2.pattern
-      :value: 'uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'uzp2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vuzp2.pattern
 
@@ -5881,7 +5893,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vqrdmulh.pattern
-      :value: 'sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'sqrdmulh <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vqrdmulh.pattern
 
@@ -5904,7 +5916,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vqrdmulh_lane.pattern
-      :value: 'sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]'
+      :value: 'sqrdmulh <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vqrdmulh_lane.pattern
 
@@ -5931,7 +5943,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vqdmulh_lane.pattern
-      :value: 'sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]'
+      :value: 'sqdmulh <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vqdmulh_lane.pattern
 
@@ -6036,7 +6048,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vcnt.pattern
-      :value: 'cnt <Vd>.<dt0>, <Va>.<dt1>'
+      :value: 'cnt <Vd>.<dt>, <Va>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vcnt.pattern
 
@@ -6059,7 +6071,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vclz.pattern
-      :value: 'clz <Vd>.<dt0>, <Va>.<dt1>'
+      :value: 'clz <Vd>.<dt>, <Va>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vclz.pattern
 
@@ -6178,7 +6190,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vrax1.pattern
-      :value: 'rax1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'rax1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vrax1.pattern
 
@@ -6201,7 +6213,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.veor3.pattern
-      :value: 'eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>'
+      :value: 'eor3 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.veor3.pattern
 
@@ -6224,7 +6236,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vbcax.pattern
-      :value: 'bcax <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>'
+      :value: 'bcax <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vbcax.pattern
 
@@ -6247,7 +6259,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vxar.pattern
-      :value: 'xar <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>'
+      :value: 'xar <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vxar.pattern
 
@@ -6275,7 +6287,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vtbl.pattern
-      :value: 'tbl <Vd>.<dt0>, {<Va>.<dt1>}, <Vb>.<dt2>'
+      :value: 'tbl <Vd>.<dt>, {<Va>.<dt>}, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vtbl.pattern
 
@@ -6298,7 +6310,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vand.pattern
-      :value: 'and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'and <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vand.pattern
 
@@ -6321,7 +6333,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vbic.pattern
-      :value: 'bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'bic <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vbic.pattern
 
@@ -6361,7 +6373,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vmvn.pattern
-      :value: 'mvn <Vd>.<dt0>, <Va>.<dt1>'
+      :value: 'mvn <Vd>.<dt>, <Va>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vmvn.pattern
 
@@ -6384,7 +6396,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vorr.pattern
-      :value: 'orr <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'orr <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vorr.pattern
 
@@ -6407,7 +6419,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vorn.pattern
-      :value: 'orn <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'orn <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vorn.pattern
 
@@ -6430,7 +6442,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.veor.pattern
-      :value: 'eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'eor <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.veor.pattern
 
@@ -6499,7 +6511,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vext.pattern
-      :value: 'ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>'
+      :value: 'ext <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vext.pattern
 
@@ -6527,7 +6539,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vmul.pattern
-      :value: 'mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'mul <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vmul.pattern
 
@@ -6550,7 +6562,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vmul_lane.pattern
-      :value: 'mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]'
+      :value: 'mul <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vmul_lane.pattern
 
@@ -6582,7 +6594,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vmla.pattern
-      :value: 'mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'mla <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vmla.pattern
 
@@ -6605,7 +6617,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vmla_lane.pattern
-      :value: 'mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]'
+      :value: 'mla <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vmla_lane.pattern
 
@@ -6632,7 +6644,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vmls.pattern
-      :value: 'mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'mls <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vmls.pattern
 
@@ -6655,7 +6667,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vmls_lane.pattern
-      :value: 'mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]'
+      :value: 'mls <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vmls_lane.pattern
 
@@ -6710,7 +6722,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vumull.pattern
-      :value: 'umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vumull.pattern
 
@@ -6733,7 +6745,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vumull2.pattern
-      :value: 'umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vumull2.pattern
 
@@ -6756,7 +6768,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsmull.pattern
-      :value: 'smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsmull.pattern
 
@@ -6779,7 +6791,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsmull2.pattern
-      :value: 'smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsmull2.pattern
 
@@ -6915,7 +6927,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vumlal.pattern
-      :value: 'umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vumlal.pattern
 
@@ -6938,7 +6950,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vumlal2.pattern
-      :value: 'umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vumlal2.pattern
 
@@ -6961,7 +6973,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsmlal.pattern
-      :value: 'smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsmlal.pattern
 
@@ -6984,7 +6996,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsmlal2.pattern
-      :value: 'smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsmlal2.pattern
 
@@ -7115,7 +7127,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vumlsl.pattern
-      :value: 'umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vumlsl.pattern
 
@@ -7138,7 +7150,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vumlsl2.pattern
-      :value: 'umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vumlsl2.pattern
 
@@ -7161,7 +7173,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsmlsl.pattern
-      :value: 'smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsmlsl.pattern
 
@@ -7184,7 +7196,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsmlsl2.pattern
-      :value: 'smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsmlsl2.pattern
 
@@ -7320,7 +7332,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vshl.pattern
-      :value: 'shl <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'shl <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vshl.pattern
 
@@ -7389,7 +7401,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsshr.pattern
-      :value: 'sshr <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'sshr <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsshr.pattern
 
@@ -7412,7 +7424,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vushr.pattern
-      :value: 'ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'ushr <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vushr.pattern
 
@@ -7463,7 +7475,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsrshr.pattern
-      :value: 'srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'srshr <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsrshr.pattern
 
@@ -7486,7 +7498,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vurshr.pattern
-      :value: 'urshr <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'urshr <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vurshr.pattern
 
@@ -7514,7 +7526,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsli.pattern
-      :value: 'sli <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'sli <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsli.pattern
 
@@ -7537,7 +7549,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vsri.pattern
-      :value: 'sri <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'sri <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsri.pattern
 
@@ -7767,7 +7779,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.trn1.pattern
-      :value: 'trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'trn1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.trn1.pattern
 
@@ -7790,7 +7802,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.trn2.pattern
-      :value: 'trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'trn2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.trn2.pattern
 
@@ -8584,7 +8596,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.st4_base.pattern
-      :value: 'st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]'
+      :value: 'st4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st4_base.pattern
 
@@ -8605,7 +8617,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.st4_with_inc.pattern
-      :value: 'st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>'
+      :value: 'st4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st4_with_inc.pattern
 
@@ -8637,7 +8649,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.st3_base.pattern
-      :value: 'st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]'
+      :value: 'st3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st3_base.pattern
 
@@ -8658,7 +8670,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.st3_with_inc.pattern
-      :value: 'st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>'
+      :value: 'st3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>], <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st3_with_inc.pattern
 
@@ -8690,7 +8702,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.st2_base.pattern
-      :value: 'st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]'
+      :value: 'st2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st2_base.pattern
 
@@ -8711,7 +8723,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.st2_with_inc.pattern
-      :value: 'st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>'
+      :value: 'st2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st2_with_inc.pattern
 
@@ -8743,7 +8755,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.ld4_base.pattern
-      :value: 'ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]'
+      :value: 'ld4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ld4_base.pattern
 
@@ -8770,7 +8782,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.ld4_with_inc.pattern
-      :value: 'ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>'
+      :value: 'ld4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ld4_with_inc.pattern
 
@@ -8802,7 +8814,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.ld3_base.pattern
-      :value: 'ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]'
+      :value: 'ld3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ld3_base.pattern
 
@@ -8829,7 +8841,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.ld3_with_inc.pattern
-      :value: 'ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>'
+      :value: 'ld3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>], <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ld3_with_inc.pattern
 
@@ -8861,7 +8873,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.ld2_base.pattern
-      :value: 'ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]'
+      :value: 'ld2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ld2_base.pattern
 
@@ -8888,7 +8900,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.ld2_with_inc.pattern
-      :value: 'ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>'
+      :value: 'ld2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ld2_with_inc.pattern
 
@@ -8926,7 +8938,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.cmge.pattern
-      :value: 'cmge <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'cmge <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cmge.pattern
 
@@ -8949,7 +8961,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.cmhi.pattern
-      :value: 'cmhi <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'cmhi <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cmhi.pattern
 
@@ -8972,7 +8984,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.cmeq.pattern
-      :value: 'cmeq <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'cmeq <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cmeq.pattern
 
@@ -8995,7 +9007,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.cmgt.pattern
-      :value: 'cmgt <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'cmgt <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cmgt.pattern
 
@@ -9018,7 +9030,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.cmhs.pattern
-      :value: 'cmhs <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>'
+      :value: 'cmhs <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cmhs.pattern
 
@@ -9041,7 +9053,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.cmle.pattern
-      :value: 'cmle <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'cmle <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cmle.pattern
 
@@ -9064,7 +9076,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.cmlt.pattern
-      :value: 'cmlt <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'cmlt <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cmlt.pattern
 
