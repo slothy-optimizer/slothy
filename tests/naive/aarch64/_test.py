@@ -85,6 +85,10 @@ class AArch64LoopSubs(OptimizationRunner):
 
         slothy.optimize_loop("start4")
 
+        slothy.optimize_loop("start5")
+
+        slothy.optimize_loop("start6")
+
 
 class AArch64LoopSubTabs(OptimizationRunner):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
@@ -234,6 +238,38 @@ class AArch64Ubfx(OptimizationRunner):
         slothy.optimize()
 
 
+class AArch64LoopLabels(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_loop_labels"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.optimize_loop(".loop")
+        slothy.optimize_loop("loop")
+        slothy.optimize_loop("1")
+
+
+class AArch64FusionVeor(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA72):
+        name = "aarch64_fusion_veor"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.outputs = ["v10"]
+        slothy.fusion_region(start="start", end="end", ssa=False)
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -253,4 +289,6 @@ test_instances = [
     AArch64LoopSubs(),
     AArch64LoopSubTabs(),
     AArch64Ubfx(),
+    AArch64LoopLabels(),
+    AArch64FusionVeor(),
 ]

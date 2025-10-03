@@ -51,16 +51,16 @@ formally verified using the [HOL-Light](https://github.com/jrh13/hol-light) proo
 
 ## Table of contents
 
-1) [Installation](#installation). This is limited to the fastest way of installing SLOTHY using pip. For more complete instructions, see the [README](../../../README.md).
-2) [Getting started](#getting-started)
-3) [Using SLOTHY for your own code](#writing-your-own-calling-code)
-4) [Using SLOTHY's Software Pipelining](#software-pipelining)
-5) [Checking the quality of SLOTHY optimizations](#checking-the-quality-of-slothy-optimizations)
-6) [Optimizing a full Neon NTT](#optimizing-a-full-neon-ntt)
-7) [Optimizing larger pieces of code](#optimizing-larger-pieces-of-code)
-8) [Adding a new microarchitecture](#adding-a-new-microarchitecture)
+1) [Installation](#1-installation). This is limited to the fastest way of installing SLOTHY using pip. For more complete instructions, see the [README](../../../README.md).
+2) [Getting started](#2-getting-started)
+3) [Using SLOTHY for your own code](#3-writing-your-own-calling-code)
+4) [Using SLOTHY's Software Pipelining](#4-software-pipelining)
+5) [Checking the quality of SLOTHY optimizations](#5-checking-the-quality-of-slothy-optimizations)
+6) [Optimizing a full Neon NTT](#6-optimizing-a-full-neon-ntt)
+7) [Optimizing larger pieces of code](#7-optimizing-larger-pieces-of-code)
+8) [Adding a new microarchitecture](#8-adding-a-new-microarchitecture)
 
-The SLOTHY calling code used for the parts 3-7 is located in [tutorial-files/tuturial-{3a,3b,4,5,6,7}.py](https://github.com/slothy-optimizer/slothy/tree/main/tutorial_files).
+The SLOTHY calling code used for the parts 3-7 is located in [tutorial/tutorial-{3a,3b,4,5,6,7}.py](https://github.com/slothy-optimizer/slothy/tree/main/tutorial).
 
 ## 1. Installation
 
@@ -91,11 +91,11 @@ We will look into more examples shortly and discuss input, output, and available
 
 The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
 Once you work on your own code, you will likely be using the `slothy-cli` command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has.
-However, for now we will be using the [example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.pyy) script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
+However, for now we will be using the [example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.py) script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
 You can run `python3 example.py --help` to see all examples available.
 
 Let's look at a very simple example from the previous section called `aarch64_simple0`.
-You can find the corresponding code in [examples/naive/aarch64/aarch64_simple0.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/aarch64_simple0.s):
+You can find the corresponding code in [tests/naive/aarch64/aarch64_simple0.s](https://github.com/slothy-optimizer/slothy/blob/main/tests/naive/aarch64/aarch64_simple0.s):
 ```asm
 ldr q0, [x1, #0]
 ldr q1, [x2, #0]
@@ -135,8 +135,7 @@ SLOTHY comes with models for various Arm architectures, including the power-effi
 [Cortex-A55](https://developer.arm.com/Processors/Cortex-A55), so we can now optimize this piece of code for that
 microarchitecture. [example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.py) contains the needed SLOTHY incarnations for convenience, so we can simply run `python3
 example.py --examples aarch64_simple0_a55` which will optimize for the Cortex-A55 microarchitecture. You can check
-[example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.pyy) for the details. This will optimize the piece of code above and write the output code to
-[examples/opt/aarch64/aarch64_simple0_opt_a55.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/aarch64_simple0_opt_a55.s).
+[example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.py) for the details. This will optimize the piece of code above and write the output code to `examples/opt/aarch64/aarch64_simple0_opt_a55.s`.
 SLOTHY should print something similar to this:
 ```
 INFO:aarch64_simple0_a55:Instructions in body: 20
@@ -158,7 +157,7 @@ The best solution it can find has 16 stalls -- which is guaranteed to be the min
 In the last step, SLOTHY will transform the found traversal of the DFG into actual assembly and write it to the file.
 To make sure everything worked out as expected, it will perform a selfcheck which consists of transforming the output assembly into a DFG again and testing that the resulting graph is isomorphic to the input DFG.
 
-We can now take a look at the output assembly in [examples/opt/aarch64/aarch64_simple0_opt_a55.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/aarch64_simple0_opt_a55.s):
+We can now take a look at the output assembly:
 ```asm
 ldr q8, [x1, #0]                        // *...................
 // gap                                  // ....................
@@ -265,15 +264,10 @@ When writing your own calls to SLOTHY, there are generally two options:
 To reproduce the example above, you can place the following code into your own Python script in the root directory of SLOTHY:
 
 ```python
-import logging
-import sys
-
 from slothy import Slothy
 
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
 import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 arch = AArch64_Neon
 target = Target_CortexA55
@@ -312,7 +306,7 @@ find the minimum number of stalls for which a solution exists.
 Even with this small Neon example, you can see that understanding the input code is much easier than the output code. In
 fact, the input code can be further clarified through the use of macros and register aliases, leading to the following
 'clean' version from
-[examples/naive/aarch64/aarch64_simple0_macros.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/aarch64_simple0_macros.s) which makes it
+[tests/naive/aarch64/aarch64_simple0_macros.s](https://github.com/slothy-optimizer/slothy/blob/main/tests/naive/aarch64/aarch64_simple0_macros.s) which makes it
 apparent that our example is just a pair of NTT butterflies using Barrett multiplication. Note that the `.req` and
 `.macro` directives used here are commonly supported [assembly
 directives](https://www.sourceware.org/binutils/docs/as/ARM-Directives.html).
@@ -374,7 +368,7 @@ SLOTHY will then internally expand all macros and the resulting DFG will be exac
 To make this work, we have to slightly change the SLOTHY code:
 ```python
 # example
-slothy.load_source_from_file("../examples/naive/aarch64/aarch64_simple0_macros.s")
+slothy.load_source_from_file("../tests/naive/aarch64/aarch64_simple0_macros.s")
 slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
 
@@ -824,7 +818,7 @@ The examples previously considered were all toy examples, so you may wonder how 
 Let's look at a real-world example: The Kyber number-theoretic transform -- a core arithmetic function of the Kyber key-encapsulation mechanism making up a large chunk of the total run-time.
 The target platform is again the Arm Cortex-A55 and the code primarily consists of
 Neon vector instructions.
-We'll consider a straightforward implementation available here: [ntt_kyber_123_4567.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/ntt_kyber_123_4567.s).
+We'll consider a straightforward implementation available here: [ntt_kyber_123_4567.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/kyber/ntt_kyber_123_4567.s).
 If you have ever written an NTT, it should be fairly easy to understand what the code is doing.
 The code consists of 2 main loops implementing layers 1+2+3 and 4+5+6+7 of the NTT.
 The actual operations are wrapped in macros implementing butterflies on single vector registers.
@@ -832,7 +826,7 @@ Note that this code performs very poorly: No consideration was given to the intr
 
 Let's run SLOTHY on this code:
 ```python
-slothy.load_source_from_file("examples/naive/aarch64/ntt_kyber_123_4567.s")
+slothy.load_source_from_file("examples/naive/aarch64/kyber/ntt_kyber_123_4567.s")
 slothy.config.sw_pipelining.enabled = True
 slothy.config.inputs_are_outputs = True
 slothy.config.sw_pipelining.minimize_overlapping = False
@@ -857,7 +851,7 @@ registers. If you are familiar with inline assembly, SLOTHY's `reserved_regs` ar
 
 When running this example, you will notice that it has a significantly longer runtime.
 On my Intel i7-1360P it takes approximately 15 minutes to optimize both loops.
-You may instead look at an optimized version of the same code [examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/ntt_kyber_123_4567_opt_a55.s).
+You may instead look at an optimized version of the same code [examples/opt/aarch64/kyber/ntt_kyber_123_4567_opt_a55.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/opt/aarch64/kyber/ntt_kyber_123_4567_opt_a55.s).
 You notice that both loops have many early instructions, and coming up with this code by hand would be tedious, time-consuming and error-prone.
 
 
@@ -868,7 +862,7 @@ When using a more powerful machine and allowing optimization times of hours, one
 We've successfully used (vanilla) SLOTHY for optimized code snippets of up to 180 instructions.
 However, for larger code at a certain point the constraint solving becomes prohibitively expensive and we need to use a different strategy.
 
-One such example is the X25519 implementation we looked at in the [SLOTHY paper](https://eprint.iacr.org/2022/1303) available in [X25519-AArch64-simple.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/X25519-AArch64-simple.s)
+One such example is the X25519 implementation we looked at in the [SLOTHY paper](https://eprint.iacr.org/2022/1303) available in [X25519-AArch64-simple.s](https://github.com/slothy-optimizer/slothy/blob/main/examples/naive/aarch64/x25519/X25519-AArch64-simple.s)
 It is a hybrid vector-scalar implementation based on an [implementation](https://github.com/Emill/X25519-AArch64) by Lenngren.
 Its core loop consists of 958 instructions which well exceeds what SLOTHY can currently optimize in a single pass.
 
@@ -881,7 +875,7 @@ However, by repeatedly running SLOTHY using the `splitting` heuristic, we manage
 To demonstrate the splitting heuristic we can use the following SLOTHY call:
 ```python
 # example
-slothy.load_source_from_file("../examples/naive/aarch64/X25519-AArch64-simple.s")
+slothy.load_source_from_file("../examples/naive/aarch64/x25519/X25519-AArch64-simple.s")
 
 # first pass: replace symbolic register names by architectural registers
 slothy.config.inputs_are_outputs=True
@@ -921,7 +915,7 @@ We can configure SLOTHY to only consider register allocation by setting the `all
 In this way, the constraints remain manageable, and SLOTHY finds a register allocation within a few minutes.
 
 Running this example takes around 15 minutes.
-You can instead look at the output available in [opt/X25519-AArch64-simple_opt.s](https://github.com/slothy-optimizer/slothy/tree/main/tutorial_files/opt/X25519-AArch64-simple_opt.s)
+You can instead look at the output available in [opt/X25519-AArch64-simple_opt.s](https://github.com/slothy-optimizer/slothy/tree/main/tutorial/opt/X25519-AArch64-simple_opt.s)
 The output will look similar to the previous examples and contains significantly less pipeline stalls than the input.
 For achieving the best performance, we require a few more calls to SLOTHY. You can find the script we used [here](https://github.com/slothy-optimizer/slothy/blob/main/paper/scripts/slothy_x25519.sh) - it runs around 1.5 hours.
 

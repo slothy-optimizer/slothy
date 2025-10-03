@@ -38,7 +38,6 @@ similar to those used in the Arm ARM.
 """
 
 import logging
-import inspect
 import re
 import math
 from enum import Enum
@@ -380,7 +379,7 @@ class SubLoop(Loop):
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*(?P<sub_type>sub[s]?)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\d+)",
             rf"^\s*(?P<br_type>(cbnz|cbz))\s+(?P<cnt>\w+),\s*{lbl}",
@@ -448,7 +447,7 @@ class SubsLoop(Loop):
         # The group naming in the regex should be consistent; give same group
         # names to the same registers
         self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*(?P<sub_type>subs)\s+(?P<cnt>\w+),\s*(?P<reg1>\w+),\s*#(?P<imm>\w+)",
             rf"^\s*b(?P<br_type>"
@@ -550,6 +549,7 @@ class Instruction:
         self.datatype = None
         self.index = None
         self.flag = None
+        self.barrel = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -807,6 +807,33 @@ class AArch64Instruction(Instruction):
     PARSERS = {}
 
     @staticmethod
+    def _replace_duplicate_datatypes(src, mnemonic_key):
+        pattern = re.compile(rf"<{re.escape(mnemonic_key)}\d*>")
+
+        matches = list(pattern.finditer(src))
+
+        if len(matches) > 1:
+            for i, match in enumerate(reversed(matches)):
+                start, end = match.span()
+                src = src[:start] + f"<{mnemonic_key}{len(matches)-1-i}>" + src[end:]
+
+        return src
+
+    @staticmethod
+    def _enforce_datatype_matching(pattern, res):
+        datatypes = {}
+        for i, m in enumerate(re.finditer(r"<dt\d*>", pattern)):
+            dt = m.group(0)
+            val = res.get(f"datatype{i}", res.get("datatype"))
+            if dt in datatypes and datatypes[dt] != val:
+                raise FatalParsingException(
+                    f"Inconsistent data type: {datatypes[dt]} vs {val}"
+                )
+            elif dt not in datatypes and val in datatypes.values():
+                raise FatalParsingException(f"Inconsistent dt: {dt}")
+            datatypes[dt] = val
+
+    @staticmethod
     def _unfold_pattern(src):
 
         # Those replacements may look pointless, but they replace
@@ -834,7 +861,7 @@ class AArch64Instruction(Instruction):
                 f"<(?P<symbol_{g.group(1)}{g.group(2)}>\\w+)>))"
             )
 
-        src = re.sub(r"<([BHWXVQTD])(\w+)>", pattern_transform, src)
+        src = re.sub(r"<([BHWXVQTDS])(\w+)>", pattern_transform, src)
 
         # Replace <key> or <key0>, <key1>, ... with pattern
         def replace_placeholders(src, mnemonic_key, regexp, group_name):
@@ -874,13 +901,20 @@ class AArch64Instruction(Instruction):
 
         flag_pattern = "|".join(flaglist)
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
-        imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
+        imm_pattern = (
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=)+)"
+            "|"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
+        )
         index_pattern = "[0-9]+"
+        barrel_pattern = "(?i:lsl|ror|lsr|asr)\\\\s*"
 
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
+        src = AArch64Instruction._replace_duplicate_datatypes(src, "dt")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag")
+        src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -923,7 +957,7 @@ class AArch64Instruction(Instruction):
     def __infer_register_type(ptrn):
         if ptrn[0].upper() in ["X", "W"]:
             return RegisterType.GPR
-        if ptrn[0].upper() in ["V", "Q", "D", "B"]:
+        if ptrn[0].upper() in ["V", "Q", "D", "S", "B"]:
             return RegisterType.NEON
         if ptrn[0].upper() in ["T"]:
             return RegisterType.HINT
@@ -1046,9 +1080,12 @@ class AArch64Instruction(Instruction):
                 )
 
         group_to_attribute("datatype", "datatype", lambda x: x.lower())
-        group_to_attribute("imm", "immediate", lambda x: x[1:])  # Strip '#'
+        group_to_attribute(
+            "imm", "immediate", lambda x: x.replace("#", "")
+        )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
+        group_to_attribute("barrel", "barrel")
 
         for s, ty in obj.pattern_inputs:
             if ty == RegisterType.FLAGS:
@@ -1080,6 +1117,8 @@ class AArch64Instruction(Instruction):
         else:
             assert isinstance(src, dict)
             res = src
+
+        AArch64Instruction._enforce_datatype_matching(pattern, res)
 
         obj = c(
             pattern,
@@ -1125,9 +1164,11 @@ class AArch64Instruction(Instruction):
             return txt
 
         out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
+        out = AArch64Instruction._replace_duplicate_datatypes(out, "dt")
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "barrel", "barrel", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -1206,13 +1247,13 @@ class nop(AArch64Instruction):
 
 
 class vadd(AArch64Instruction):
-    pattern = "add <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>"
+    pattern = "add <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>"
     inputs = ["Vb", "Vc"]
     outputs = ["Va"]
 
 
 class vsub(AArch64Instruction):
-    pattern = "sub <Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>"
+    pattern = "sub <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>"
     inputs = ["Vb", "Vc"]
     outputs = ["Va"]
 
@@ -1345,7 +1386,7 @@ class Q_Ld2_Lane_Post_Inc(AArch64Instruction):
 
 
 class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
-    pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
+    pattern = "ld2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>"
     in_outs = ["Va", "Vb", "Xa"]
 
     @classmethod
@@ -1362,7 +1403,7 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
 
 
 class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
-    pattern = "ld2 { <Va>.<dt0>, <Vb>.<dt1> }[<index>], [<Xa>], <imm>"
+    pattern = "ld2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>"
     # TODO: Model sp dependency
     in_outs = ["Xa"]
     outputs = ["Va", "Vb"]
@@ -1436,6 +1477,24 @@ class q_ldr_stack_with_inc(Ldr_Q):
 class q_ldr_with_inc(Ldr_Q):
     pattern = "ldr <Qa>, [<Xc>, <imm>]"
     inputs = ["Xc"]
+    outputs = ["Qa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class q_ldr_with_imm_shifted(Ldr_Q):
+    pattern = "ldr <Qa>, [<Xa>, <Xc>, <barrel> <imm>]"
+    inputs = ["Xa", "Xc"]
     outputs = ["Qa"]
 
     @classmethod
@@ -1819,8 +1878,8 @@ class x_ldr_with_imm_uxtw(Ldr_X):
         return super().write()
 
 
-class x_ldr_with_imm_lsl(Ldr_X):
-    pattern = "ldr <Xd>, [<Xa>, <Xb>, LSL <imm>]"
+class x_ldr_with_imm_shifted(Ldr_X):
+    pattern = "ldr <Xd>, [<Xa>, <Xb>, <barrel> <imm>]"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2142,12 +2201,6 @@ class asr_wform(AArch64Instruction):
     outputs = ["Wd"]
 
 
-class eor_wform(AArch64Instruction):
-    pattern = "eor <Wd>, <Wa>, <Wb>"
-    inputs = ["Wa", "Wb"]
-    outputs = ["Wd"]
-
-
 class AArch64BasicArithmetic(AArch64Instruction):
     pass
 
@@ -2398,52 +2451,33 @@ class AArch64ShiftedArithmetic(AArch64Instruction):
     pass
 
 
-class eor_ror(AArch64ShiftedArithmetic):
-    pattern = "eor <Xd>, <Xa>, <Xb>, ror <imm>"
+class eor_shifted(AArch64ShiftedArithmetic):
+    pattern = "eor <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class bic_ror(AArch64ShiftedArithmetic):
-    pattern = "bic <Xd>, <Xa>, <Xb>, ror <imm>"
+class bic_shifted(AArch64ShiftedArithmetic):
+    pattern = "bic <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class add_lsl(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, lsl <imm>"
+class add_shifted(AArch64ShiftedArithmetic):
+    pattern = "add <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class add_lsr(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, lsr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-
-
-class adds_lsl(AArch64ShiftedArithmetic):
-    pattern = "adds <Xd>, <Xa>, <Xb>, lsl <imm>"
+class adds_shifted(AArch64ShiftedArithmetic):
+    pattern = "adds <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
     modifiesFlags = True
 
 
-class adds_lsr(AArch64ShiftedArithmetic):
-    pattern = "adds <Xd>, <Xa>, <Xb>, lsr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-    modifiesFlags = True
-
-
-class add_asr(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <Xb>, asr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-
-
-class add_imm_lsl(AArch64ShiftedArithmetic):
-    pattern = "add <Xd>, <Xa>, <imm0>, lsl <imm1>"
+class add_imm_shifted(AArch64ShiftedArithmetic):
+    pattern = "add <Xd>, <Xa>, <imm0>, <barrel> <imm1>"
     inputs = ["Xa"]
     outputs = ["Xd"]
 
@@ -2493,8 +2527,26 @@ class rev_w(AArch64Logical):
     outputs = ["Wd"]
 
 
+class eor_wform(AArch64Logical):
+    pattern = "eor <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class eon_wform(AArch64Logical):
+    pattern = "eon <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
 class eor(AArch64Logical):
     pattern = "eor <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class eon(AArch64Logical):
+    pattern = "eon <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2548,6 +2600,12 @@ class bic(AArch64Logical):
     outputs = ["Xd"]
 
 
+class bic_reg(AArch64Logical):
+    pattern = "bic <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
 class orr_imm(AArch64Logical):
     pattern = "orr <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
@@ -2577,43 +2635,59 @@ class AArch64LogicalShifted(AArch64Instruction):
 
 
 class orr_shifted(AArch64LogicalShifted):
-    pattern = "orr <Xd>, <Xa>, <Xb>, lsl <imm>"
+    pattern = "orr <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
-class orr_shifted_asr_w(AArch64LogicalShifted):
-    pattern = "and <Wd>, <Wa>, <Wb>, asr <imm>"
+class orr_shifted_w(AArch64LogicalShifted):
+    pattern = "and <Wd>, <Wa>, <Wb>, <barrel> <imm>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
-
-
-class orr_shifted_asr(AArch64LogicalShifted):
-    pattern = "orr <Xd>, <Xa>, <Xb>, asr <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
-
-
-class eor_shifted_lsl(AArch64LogicalShifted):
-    pattern = "eor <Xd>, <Xa>, <Xb>, lsl <imm>"
-    inputs = ["Xa", "Xb"]
-    outputs = ["Xd"]
 
 
 class AArch64ConditionalCompare(AArch64Instruction):
     pass
 
 
+class ccmp(AArch64ConditionalCompare):
+    pattern = "ccmp <Xa>, <Xb>, <imm>, <flag>"
+    inputs = ["Xa", "Xb"]
+    modifiesFlags = True
+    dependsOnFlags = True
+
+
 class ccmp_xzr(AArch64ConditionalCompare):
+    pattern = "ccmp xzr, <Xa>, <imm>, <flag>"
+    inputs = ["Xa"]
+    modifiesFlags = True
+    dependsOnFlags = True
+
+
+class ccmp_xzr2(AArch64ConditionalCompare):
     pattern = "ccmp <Xa>, xzr, <imm>, <flag>"
     inputs = ["Xa"]
     modifiesFlags = True
     dependsOnFlags = True
 
 
-class ccmp(AArch64ConditionalCompare):
-    pattern = "ccmp <Xa>, <Xb>, <imm>, <flag>"
+class ccmn(AArch64ConditionalCompare):
+    pattern = "ccmn <Xa>, <Xb>, <imm>, <flag>"
     inputs = ["Xa", "Xb"]
+    modifiesFlags = True
+    dependsOnFlags = True
+
+
+class ccmn_xzr(AArch64ConditionalCompare):
+    pattern = "ccmn xzr, <Xa>, <imm>, <flag>"
+    inputs = ["Xa"]
+    modifiesFlags = True
+    dependsOnFlags = True
+
+
+class ccmn_xzr2(AArch64ConditionalCompare):
+    pattern = "ccmn <Xa>, xzr, <imm>, <flag>"
+    inputs = ["Xa"]
     modifiesFlags = True
     dependsOnFlags = True
 
@@ -2899,32 +2973,26 @@ class Vzip(AArch64Instruction):
 
 
 class vzip1(Vzip):
-    pattern = "zip1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "zip1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vzip2(Vzip):
-    pattern = "zip2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "zip2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vuzp1(Vzip):
-    pattern = "uzp1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "uzp1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vuzp2(Vzip):
-    pattern = "uzp2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "uzp2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
-    outputs = ["Vd"]
-
-
-class vuxtl(AArch64Instruction):
-    pattern = "uxtl <Vd>.<dt0>, <Va>.<dt1>"
-    inputs = ["Va"]
     outputs = ["Vd"]
 
 
@@ -2933,13 +3001,13 @@ class Vqdmulh(AArch64Instruction):
 
 
 class vqrdmulh(Vqdmulh):
-    pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "sqrdmulh <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vqrdmulh_lane(Vqdmulh):
-    pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "sqrdmulh <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -2955,7 +3023,7 @@ class vqrdmulh_lane(Vqdmulh):
 
 
 class vqdmulh_lane(Vqdmulh):
-    pattern = "sqdmulh <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "sqdmulh <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3025,6 +3093,22 @@ class vins_d_force_output(Vins):
         return AArch64Instruction.build(cls, src)
 
 
+class AArch64NeonCount(AArch64Instruction):
+    pass
+
+
+class vcnt(AArch64NeonCount):
+    pattern = "cnt <Vd>.<dt>, <Va>.<dt>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vclz(AArch64NeonCount):
+    pattern = "clz <Vd>.<dt>, <Va>.<dt>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
 class Mov_xtov_d(AArch64Instruction):
     pass
 
@@ -3059,25 +3143,25 @@ class SHA3Instruction(
 
 
 class vrax1(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
-    pattern = "rax1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "rax1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class veor3(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
-    pattern = "eor3 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    pattern = "eor3 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>"
     inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
 
 class vbcax(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
-    pattern = "bcax <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <Vc>.<dt3>"
+    pattern = "bcax <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>"
     inputs = ["Va", "Vb", "Vc"]
     outputs = ["Vd"]
 
 
 class vxar(SHA3Instruction):  # pylint: disable=missing-docstring,invalid-name
-    pattern = "xar <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
+    pattern = "xar <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3086,38 +3170,49 @@ class AArch64NeonLogical(AArch64Instruction):
     pass
 
 
+class vtbl(AArch64Instruction):
+    pattern = "tbl <Vd>.<dt>, {<Va>.<dt>}, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class vand(AArch64NeonLogical):
-    pattern = "and <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "and <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vbic(AArch64NeonLogical):
-    pattern = "bic <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "bic <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
+class vbic_imm_shifted(AArch64NeonLogical):
+    pattern = "bic <Vda>.<dt>, <imm0>, <barrel> <imm1>"
+    in_outs = ["Vda"]
+
+
 class vmvn(AArch64NeonLogical):
-    pattern = "mvn <Vd>.<dt0>, <Va>.<dt1>"
+    pattern = "mvn <Vd>.<dt>, <Va>.<dt>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
 class vorr(AArch64NeonLogical):
-    pattern = "orr <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "orr <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vorn(AArch64NeonLogical):
-    pattern = "orn <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "orn <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class veor(AArch64NeonLogical):
-    pattern = "eor <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "eor <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3135,7 +3230,7 @@ class vmov_d(AArch64Instruction):
 
 
 class vext(AArch64Instruction):
-    pattern = "ext <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>, <imm>"
+    pattern = "ext <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>, <imm>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3145,13 +3240,13 @@ class Vmul(AArch64Instruction):
 
 
 class vmul(Vmul):
-    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "mul <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vmul_lane(Vmul):
-    pattern = "mul <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "mul <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3172,13 +3267,13 @@ class Vmla(AArch64Instruction):
 
 
 class vmla(Vmla):
-    pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "mla <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vmla_lane(Vmla):
-    pattern = "mla <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "mla <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
@@ -3194,13 +3289,13 @@ class vmla_lane(Vmla):
 
 
 class vmls(Vmla):
-    pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "mls <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vmls_lane(Vmla):
-    pattern = "mls <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    pattern = "mls <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
@@ -3225,54 +3320,312 @@ class Vmull(AArch64Instruction):
     pass
 
 
-class vmull(Vmull):
-    pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+class vumull(Vmull):
+    pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
-class vmull2(Vmull):
-    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+class vumull2(Vmull):
+    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vsmull(Vmull):
-    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class vsmull2(Vmull):
-    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
+
+
+class vumull_lane(Vmull):
+    pattern = "umull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumull2_lane(Vmull):
+    pattern = "umull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmull_lane(Vmull):
+    pattern = "smull <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmull2_lane(Vmull):
+    pattern = "smull2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
 
 
 class Vmlal(AArch64Instruction):
     pass
 
 
-class vmlal(Vmlal):
-    pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+class vumlal(Vmlal):
+    pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlal2(Vmlal):
+    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vsmlal(Vmlal):
-    pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
 class vsmlal2(Vmlal):
-    pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
     inputs = ["Va", "Vb"]
     in_outs = ["Vd"]
 
 
+class vumlal_lane(Vmlal):
+    pattern = "umlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumlal2_lane(Vmlal):
+    pattern = "umlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlal_lane(Vmlal):
+    pattern = "smlal <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlal2_lane(Vmlal):
+    pattern = "smlal2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumlsl(Vmlal):
+    pattern = "umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlsl2(Vmlal):
+    pattern = "umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vsmlsl(Vmlal):
+    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vsmlsl2(Vmlal):
+    pattern = "smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class vumlsl_lane(Vmlal):
+    pattern = "umlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vumlsl2_lane(Vmlal):
+    pattern = "umlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlsl_lane(Vmlal):
+    pattern = "smlsl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
+class vsmlsl2_lane(Vmlal):
+    pattern = "smlsl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        if obj.datatype[0] == "4s":
+            obj.args_in_restrictions = [
+                [f"v{i}" for i in range(0, 32)],
+                [f"v{i}" for i in range(0, 16)],
+            ]
+        return obj
+
+
 class VShiftImmediateBasic(AArch64Instruction):
     pass
+
+
+class vshl(VShiftImmediateBasic):
+    pattern = "shl <Vd>.<dt>, <Va>.<dt>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vshl_d(VShiftImmediateBasic):
+    pattern = "shl <Dd>, <Da>, <imm>"
+    inputs = ["Da"]
+    outputs = ["Dd"]
+
+
+class vshrn(VShiftImmediateBasic):
+    pattern = "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vsshr(VShiftImmediateBasic):
+    pattern = "sshr <Vd>.<dt>, <Va>.<dt>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vushr(VShiftImmediateBasic):
+    pattern = "ushr <Vd>.<dt>, <Va>.<dt>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vuxtl(VShiftImmediateBasic):
+    pattern = "uxtl <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
 
 
 class VShiftImmediateRounding(AArch64Instruction):
@@ -3280,39 +3633,15 @@ class VShiftImmediateRounding(AArch64Instruction):
 
 
 class vsrshr(VShiftImmediateRounding):
-    pattern = "srshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "srshr <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
 class vurshr(VShiftImmediateRounding):
-    pattern = "urshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "urshr <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     outputs = ["Vd"]
-
-
-class vsshr(VShiftImmediateBasic):
-    pattern = "sshr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
-
-
-class vushr(VShiftImmediateBasic):
-    pattern = "ushr <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
-
-
-class vshl(VShiftImmediateBasic):
-    pattern = "shl <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
-
-
-class vshl_d(AArch64Instruction):
-    pattern = "shl <Dd>, <Da>, <imm>"
-    inputs = ["Da"]
-    outputs = ["Dd"]
 
 
 class AArch64NeonShiftInsert(AArch64Instruction):
@@ -3320,13 +3649,13 @@ class AArch64NeonShiftInsert(AArch64Instruction):
 
 
 class vsli(AArch64NeonShiftInsert):
-    pattern = "sli <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "sli <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
 
 class vsri(AArch64NeonShiftInsert):
-    pattern = "sri <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "sri <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
@@ -3335,12 +3664,6 @@ class vusra(AArch64Instruction):
     pattern = "usra <Vd>.<dt0>, <Va>.<dt1>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
-
-
-class vshrn(AArch64Instruction):
-    pattern = "shrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
-    inputs = ["Va"]
-    outputs = ["Vd"]
 
 
 class VecToGprMov(AArch64Instruction):
@@ -3361,6 +3684,12 @@ class mov_d(VecToGprMov):
 
 class Fmov(AArch64Instruction):
     pass
+
+
+class fmov_s_form(Fmov):
+    pattern = "fmov <Wd>, <Sa>"
+    inputs = ["Sa"]
+    outputs = ["Wd"]
 
 
 class fmov_0(Fmov):
@@ -3404,13 +3733,13 @@ class Transpose(AArch64Instruction):
 
 
 class trn1(Transpose):
-    pattern = "trn1 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "trn1 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 
 class trn2(Transpose):
-    pattern = "trn2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "trn2 <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
@@ -3445,6 +3774,12 @@ class aese_x4(AArch64Instruction):
     in_outs = ["Vd0", "Vd1", "Vd2", "Vd3"]
 
 
+class aesdr(AESInstruction):
+    pattern = "aesdr <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
 class aese(AESInstruction):
     pattern = "aese <Vd>.16b, <Va>.16b"
     inputs = ["Va"]
@@ -3453,6 +3788,18 @@ class aese(AESInstruction):
 
 class aesmc(AESInstruction):
     pattern = "aesmc <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class aesd(AESInstruction):
+    pattern = "aesd <Vd>.16b, <Va>.16b"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
+class aesimc(AESInstruction):
+    pattern = "aesimc <Vd>.16b, <Va>.16b"
     inputs = ["Va"]
     outputs = ["Vd"]
 
@@ -3810,7 +4157,7 @@ class St4(AArch64Instruction):
 
 
 class st4_base(St4):
-    pattern = "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]"
+    pattern = "st4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb", "Vc", "Vd"]
 
     @classmethod
@@ -3828,7 +4175,7 @@ class st4_base(St4):
 
 
 class st4_with_inc(St4):
-    pattern = "st4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>"
+    pattern = "st4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb", "Vc", "Vd"]
     in_outs = ["Xc"]
 
@@ -3852,7 +4199,7 @@ class St3(AArch64Instruction):
 
 
 class st3_base(St3):
-    pattern = "st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]"
+    pattern = "st3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb", "Vc"]
 
     @classmethod
@@ -3867,7 +4214,7 @@ class st3_base(St3):
 
 
 class st3_with_inc(St3):
-    pattern = "st3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>"
+    pattern = "st3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb", "Vc"]
     in_outs = ["Xc"]
 
@@ -3888,7 +4235,7 @@ class St2(AArch64Instruction):
 
 
 class st2_base(St2):
-    pattern = "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]"
+    pattern = "st2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]"
     inputs = ["Xc", "Va", "Vb"]
 
     @classmethod
@@ -3903,7 +4250,7 @@ class st2_base(St2):
 
 
 class st2_with_inc(St2):
-    pattern = "st2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    pattern = "st2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb"]
     in_outs = ["Xc"]
 
@@ -3924,7 +4271,7 @@ class Ld4(AArch64Instruction):
 
 
 class ld4_base(Ld4):
-    pattern = "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>]"
+    pattern = "ld4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb", "Vc", "Vd"]
 
@@ -3943,7 +4290,7 @@ class ld4_base(Ld4):
 
 
 class ld4_with_inc(Ld4):
-    pattern = "ld4 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>, <Vd>.<dt3>}, [<Xc>], <imm>"
+    pattern = "ld4 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb", "Vc", "Vd"]
 
@@ -3967,7 +4314,7 @@ class Ld3(AArch64Instruction):
 
 
 class ld3_base(Ld3):
-    pattern = "ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>]"
+    pattern = "ld3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb", "Vc"]
 
@@ -3983,7 +4330,7 @@ class ld3_base(Ld3):
 
 
 class ld3_with_inc(Ld3):
-    pattern = "ld3 {<Va>.<dt0>, <Vb>.<dt1>, <Vc>.<dt2>}, [<Xc>], <imm>"
+    pattern = "ld3 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb", "Vc"]
 
@@ -4004,7 +4351,7 @@ class Ld2(AArch64Instruction):
 
 
 class ld2_base(Ld2):
-    pattern = "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>]"
+    pattern = "ld2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va", "Vb"]
 
@@ -4020,7 +4367,7 @@ class ld2_base(Ld2):
 
 
 class ld2_with_inc(Ld2):
-    pattern = "ld2 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    pattern = "ld2 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va", "Vb"]
 
@@ -4041,9 +4388,51 @@ class ASimdCompare(AArch64Instruction):
 
 
 class cmge(ASimdCompare):
-    pattern = "cmge <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt2>"
+    pattern = "cmge <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
     outputs = ["Vd"]
+
+
+class cmhi(ASimdCompare):
+    pattern = "cmhi <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmeq(ASimdCompare):
+    pattern = "cmeq <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmgt(ASimdCompare):
+    pattern = "cmgt <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmhs(ASimdCompare):
+    pattern = "cmhs <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class cmle(ASimdCompare):
+    pattern = "cmle <Vd>.<dt>, <Va>.<dt>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class cmlt(ASimdCompare):
+    pattern = "cmlt <Vd>.<dt>, <Va>.<dt>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class vuaddlv_sform(AArch64Instruction):
+    pattern = "uaddlv <Sd>, <Va>.<dt>"
+    inputs = ["Va"]
+    outputs = ["Sd"]
 
 
 class Spill:
@@ -4263,6 +4652,10 @@ def eor3_fusion_cb():
     return core
 
 
+# Enable fusing of multiple veor into veor3
+veor.global_fusion_cb = eor3_fusion_cb()
+
+
 def eor3_splitting_cb():
     """
     Example for a splitting call back. Allows to split one eor instruction with
@@ -4330,10 +4723,6 @@ def eor3_splitting_cb():
         return True
 
     return core
-
-
-# Can alternatively set veor3.global_fusion_cb to eor3_fusion_cb() here
-veor3.global_fusion_cb = eor3_splitting_cb()
 
 
 def iter_aarch64_instructions():
@@ -4416,28 +4805,3 @@ def all_subclass_leaves(c):
 
 
 Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
-
-
-def lookup_multidict(d, inst, default=None):
-    instclass = find_class(inst)
-    for ll, v in d.items():
-        # Multidict entries can be the following:
-        # - An instruction class. It matches any instruction of that class.
-        # - A callable. It matches any instruction returning `True` when passed
-        #   to the callable.
-        # - A tuple of instruction classes or callables. It matches any instruction
-        #   which matches at least one element in the tuple.
-        def match(x):
-            if inspect.isclass(x):
-                return isinstance(inst, x)
-            assert callable(x)
-            return x(inst)
-
-        if not isinstance(ll, tuple):
-            ll = [ll]
-        for lp in ll:
-            if match(lp):
-                return v
-    if default is None:
-        raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
-    return default

@@ -32,10 +32,9 @@
 
 from enum import Enum
 from itertools import combinations, product
-
+from slothy.helper import lookup_multidict
 
 from slothy.targets.aarch64.aarch64_neon import (
-    lookup_multidict,
     find_class,
     Ldr_X,
     Str_X,
@@ -50,8 +49,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     VShiftImmediateBasic,
     vusra,
     vmul,
-    vmlal,
-    vmull,
+    vumlal,
+    vumull,
     vmla,
     vmla_lane,
     vmls,
@@ -80,14 +79,14 @@ from slothy.targets.aarch64.aarch64_neon import (
     is_dform_form_of,
     add,
     add_imm,
-    add_lsl,
-    add_lsr,
+    add_shifted,
     add2,
     umull_wform,
     mul_wform,
     umaddl_wform,
     lsr,
     bic,
+    bic_reg,
     add_sp_imm,
     and_imm,
     movk_imm,
@@ -217,8 +216,8 @@ execution_units = {
         vqrdmulh,
         vqrdmulh_lane,
         vqdmulh_lane,
-        vmull,
-        vmlal,
+        vumull,
+        vumlal,
         vsrshr,
         vusra,
         vand,
@@ -268,12 +267,13 @@ execution_units = {
     (vzip1, vzip2, vuzp1, vuzp2): ExecutionUnit.V(),
     # Arithmetic
     (add, add_imm): ExecutionUnit.I(),
-    (add_lsl, add_lsr, add2): list(map(list, combinations(ExecutionUnit.I(), 2))),
+    (add_shifted, add2): list(map(list, combinations(ExecutionUnit.I(), 2))),
     (umull_wform, mul_wform): ExecutionUnit.M(),
     (umaddl_wform): ExecutionUnit.SCALAR_I5,
     (
         lsr,
         bic,
+        bic_reg,
         ubfx,
         add_sp_imm,
         and_imm,
@@ -317,8 +317,8 @@ inverse_throughput = {
         vmls,
         vmls_lane,
         vqdmulh_lane,
-        vmull,
-        vmlal,
+        vumull,
+        vumlal,
         vusra,
         vand,
         vbic,
@@ -348,12 +348,13 @@ inverse_throughput = {
     (vzip1, vzip2, vuzp1, vuzp2): 1,
     # Arithmetic
     (add, add_imm): 1,
-    (add_lsl, add_lsr, add2): 1,
+    (add_shifted, add2): 1,
     (umull_wform, mul_wform): 1,
     (umaddl_wform): 1,
     (
         lsr,
         bic,
+        bic_reg,
         ubfx,
         add_sp_imm,
         and_imm,
@@ -387,8 +388,8 @@ default_latencies = {
         vmla,
         vmla_lane,
         vqdmulh_lane,
-        vmull,
-        vmlal,
+        vumull,
+        vumlal,
         vusra,
     ): 3,
     VShiftImmediateRounding: 3,
@@ -416,12 +417,13 @@ default_latencies = {
     (vzip1, vzip2, vuzp1, vuzp2): 2,
     # Arithmetic
     (add, add_imm): 1,
-    (add_lsl, add_lsr, add2): 2,
+    (add_shifted, add2): 2,
     (umull_wform, mul_wform): 3,
     (umaddl_wform): 3,
     (
         lsr,
         bic,
+        bic_reg,
         ubfx,
         add_sp_imm,
         and_imm,
@@ -449,7 +451,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    latency = lookup_multidict(default_latencies, src)
+    latency = lookup_multidict(default_latencies, src, instclass_src)
 
     if (
         instclass_src == umaddl_wform
@@ -465,7 +467,8 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     else:
@@ -473,4 +476,5 @@ def get_units(src):
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)

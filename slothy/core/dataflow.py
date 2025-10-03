@@ -772,9 +772,15 @@ class DataFlowGraph:
                 f"of instruction {t.id}:[{t.inst}] are neither used "
                 "nor declared as global outputs."
             )
-            self.logger.warning(
-                "Ignoring this as requested by `config.allow_useless_instructions`!"
-            )
+            if ignore_useless_output:
+                self.logger.warning(
+                    "Ignoring this as requested by "
+                    "`// @slothy:ignore_useless_output` annotation!"
+                )
+            else:
+                self.logger.warning(
+                    "Ignoring this as requested by `config.allow_useless_instructions`!"
+                )
 
     def _parse_line(self, line):
         assert SourceLine.is_source_line(line)

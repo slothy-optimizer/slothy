@@ -30,9 +30,10 @@ import subprocess
 import os
 import platform
 import logging
+import inspect
 from abc import ABC, abstractmethod
 from sympy import simplify
-from slothy.targets.common import FatalParsingException
+from slothy.targets.common import FatalParsingException, UnknownInstruction
 
 from unicorn import Uc, UcError
 
@@ -1765,11 +1766,13 @@ class Loop(ABC):
         return pre, body, post, lbl, self.additional_data
 
     @staticmethod
-    def extract(source: list, lbl: str, forced_loop_type: any = None) -> any:
+    def extract(arch: any, source: list, lbl: str, forced_loop_type: any = None) -> any:
         """
         Find a loop with start label `lbl` in `source` and return it together
         with its type.
 
+        :param arch: module representing architecture for which loops are extracted
+        :type arch: any
         :param source: list of SourceLine objects
         :type source: list
         :param lbl: label of the loop to extract
@@ -1785,6 +1788,9 @@ class Loop(ABC):
         else:
             loop_types = Loop.__subclasses__()
         for loop_type in loop_types:
+            # Skip loop type that does not match the architecture
+            if not arch.__name__ == loop_type.__module__:
+                continue
             try:
                 lt = loop_type(lbl)
                 # concatenate the extracted loop with an instance of the
@@ -1796,3 +1802,48 @@ class Loop(ABC):
                 pass
 
         raise FatalParsingException(f"Couldn't identify loop {lbl}")
+
+
+def lookup_multidict(d: dict, inst: any, instclass: any) -> any:
+    """
+    Lookup a value in a multidict based on an instruction instance.
+
+    :param d: The multidict mapping keys (classes, callables, or tuples) to values.
+    :type d: dict
+    :param inst: The instruction instance to match against the keys.
+    :type inst: any
+    :param instclass: A descriptive name of the instruction class, used in error messages.
+    :type instclass: any
+    :return: The value corresponding to the only matching key in the multidict.
+    :rtype: any
+    :raises UnknownInstruction: If no matching key found, or multiple matches found.
+    """
+
+    result = None
+    for ll, v in d.items():
+        # Multidict entries can be the following:
+        # - An instruction class. It matches any instruction of that class.
+        # - A callable. It matches any instruction returning `True` when passed
+        #   to the callable.
+        # - A tuple of instruction classes or callables. It matches any instruction
+        #   which matches at least one element in the tuple.
+        def match(x):
+            if inspect.isclass(x):
+                return isinstance(inst, x)
+            assert callable(x)
+            return x(inst)
+
+        if not isinstance(ll, tuple):
+            ll = [ll]
+        for lp in ll:
+            if match(lp):
+                if result is not None:
+                    raise UnknownInstruction(
+                        f"Multiple matches found for {instclass} for {inst}"
+                    )
+                result = v
+                break
+
+    if result is None:
+        raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
+    return result

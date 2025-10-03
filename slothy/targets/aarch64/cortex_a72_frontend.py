@@ -54,10 +54,12 @@ Guide.
 """
 
 from enum import Enum, auto
+from slothy.helper import lookup_multidict
 from slothy.targets.aarch64.aarch64_neon import (
-    lookup_multidict,
     find_class,
     all_subclass_leaves,
+    AArch64ConditionalCompare,
+    AArch64Logical,
     Ldr_X,
     Str_X,
     Ldr_Q,
@@ -82,21 +84,27 @@ from slothy.targets.aarch64.aarch64_neon import (
     ASimdCompare,
     Vins,
     umov_d,
+    AArch64Move,
     add,
     add_imm,
-    add_lsl,
-    add_lsr,
+    add_shifted,
     VShiftImmediateRounding,
     VShiftImmediateBasic,
     St3,
     St2,
     Ld3,
     Ld4,
-    ubfx,
     AESInstruction,
     vext,
+    AArch64NeonCount,
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
+    vtbl,
+    sub_imm,
+    vuaddlv_sform,
+    fmov_s_form,  # from vec to gen reg
+    eor_shifted,
+    bic_shifted,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -181,7 +189,7 @@ execution_units = {
         Vmlal,
         Vmull,
     ): [ExecutionUnit.ASIMD0],
-    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext): [
+    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, vtbl, sub_imm): [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
@@ -189,12 +197,21 @@ execution_units = {
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
+    (AArch64NeonCount): [
+        ExecutionUnit.ASIMD0,
+        ExecutionUnit.ASIMD1,
+    ],
     AArch64NeonShiftInsert: [ExecutionUnit.ASIMD1],
+    AArch64ConditionalCompare: ExecutionUnit.INT(),
+    AArch64Logical: [ExecutionUnit.INT()],
+    # 8B/8H occupies both F0, F1
+    vuaddlv_sform: [[ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]],
     Vins: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     umov_d: ExecutionUnit.LOAD(),  # ???
     (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
     (Str_Q, Str_X): ExecutionUnit.STORE(),
-    (add, add_imm, add_lsl, add_lsr, ubfx): ExecutionUnit.SCALAR(),
+    AArch64Move: ExecutionUnit.SCALAR(),
+    (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     (Ld3, Ld4): [
@@ -202,6 +219,9 @@ execution_units = {
         [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
     ],
     AESInstruction: [ExecutionUnit.ASIMD0],
+    fmov_s_form: ExecutionUnit.LOAD(),  # from vec to gen reg
+    eor_shifted: ExecutionUnit.SCALAR(),
+    bic_shifted: ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
@@ -216,14 +236,19 @@ inverse_throughput = {
         vmls_lane,
         vqdmulh_lane,
     ): 2,
+    AArch64Move: 1,
     (Vmull, Vmlal): 1,
+    AArch64NeonCount: 1,
     Vzip: 1,
-    (vadd, vsub, trn1, trn2, ASimdCompare, vext): 1,
+    ASimdCompare: 1,
+    (vadd, vsub, trn1, trn2, vext): 1,
     AArch64NeonLogical: 1,
     AArch64NeonShiftInsert: 1,
+    AArch64ConditionalCompare: 1,
+    AArch64Logical: 1,
     Vins: 1,
     umov_d: 1,
-    (add, add_imm, add_lsl, add_lsr): 1,
+    (add, add_imm, add_shifted): 1,
     (Ldr_Q, Str_Q, Ldr_X, Str_X): 1,
     (VShiftImmediateRounding, VShiftImmediateBasic): 1,
     # TODO: this seems in accurate; revisiting may improve performance
@@ -232,8 +257,13 @@ inverse_throughput = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
-    ubfx: 1,
+    vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
+    sub_imm: 1,
+    vuaddlv_sform: 1,
+    fmov_s_form: 1,  # from vec to gen reg
+    eor_shifted: 1,
+    bic_shifted: 1,
 }
 
 # REVISIT
@@ -250,6 +280,7 @@ default_latencies = {
         vqdmulh_lane,
     ): 5,
     (Vmull, Vmlal): 1,
+    AArch64NeonCount: 3,
     (
         vadd,
         vsub,
@@ -261,20 +292,28 @@ default_latencies = {
     ): 3,  # Approximation -- not necessary to get it exactly right, as mentioned above
     AArch64NeonLogical: 3,
     AArch64NeonShiftInsert: 3,
+    AArch64ConditionalCompare: 1,
+    AArch64Logical: 1,
     (Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
-    (add, add_imm, add_lsl, add_lsr): 2,
+    (add, add_imm, add_shifted): 2,
     VShiftImmediateRounding: 3,  # approx
     VShiftImmediateBasic: 3,
+    AArch64Move: 1,
     # TODO: this seems in accurate; revisiting may improve performance
     St2: 4,
     St3: 6,
     St4: 8,
     Ld3: 3,
     Ld4: 4,
-    ubfx: 1,
+    vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
+    sub_imm: 3,
+    vuaddlv_sform: 6,  # 8B/8H
+    fmov_s_form: 5,  # from vec to gen reg
+    eor_shifted: 2,
+    bic_shifted: 2,
 }
 
 
@@ -284,7 +323,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    latency = lookup_multidict(default_latencies, src)
+    latency = lookup_multidict(default_latencies, src, instclass_src)
 
     # Fast mul->mla forwarding
     if (
@@ -319,11 +358,13 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     return [units]
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)

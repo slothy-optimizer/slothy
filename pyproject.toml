@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "slothy"
-version = "0.1.0"
+version = "0.1.6"
 description = "SLOTHY: Assembly superoptimization via constraint solving"
 readme = "README.md"
 license = {text = "MIT"}
@@ -46,16 +46,19 @@ classifiers = [
 requires-python = ">=3.9"
 dependencies = [
     "ortools==9.7.2996; python_version < '3.13'",
+    # ortools depends on pandas, but 9.7 does not specify it as dependency
+    "pandas>=2.0.3; python_version < '3.13'",
+    # ortools 9.7 requires protobuf<=6.31.1
+    "protobuf<=6.31.1 ; python_version < '3.13'",
     "ortools==9.12.4544; python_version >= '3.13'",
-    "pandas>=2.0.3",
     "sympy==1.14.0",
-    "unicorn==2.1.3",
+    "unicorn==2.1.4",
 ]
 
 [project.optional-dependencies]
 dev = [
     "black",
-    "pydoclint==0.6.6",
+    "pydoclint==0.7.3",
     "flake8==7.3.0",
 ]
 docs = [
@@ -73,6 +76,9 @@ Homepage = "https://slothy-optimizer.github.io/slothy"
 Repository = "https://github.com/slothy-optimizer/slothy"
 Documentation = "https://slothy-optimizer.github.io/slothy"
 Issues = "https://github.com/slothy-optimizer/slothy/issues"
+
+[project.scripts]
+slothy-cli = "slothy.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

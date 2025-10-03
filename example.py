@@ -79,6 +79,9 @@ from examples.naive.armv8m.ntt_256._example import (
 from examples.naive.armv8m.crt._example import (
     example_instances as example_instances_armv8m_crt,
 )
+from examples.naive.armv8m.cmplx_mag_sqr._example import (
+    example_instances as example_instances_armv8m_cmplx_mag_sqr_fx,
+)
 
 from examples.naive.armv8m.keccak._example import (
     example_instances as example_instances_armv8m_keccak,
@@ -100,6 +103,7 @@ def main():
         + example_instances_armv8m_fx_r4_fft
         + example_instances_armv8m_ntt_256
         + example_instances_armv8m_keccak
+        + example_instances_armv8m_cmplx_mag_sqr_fx
     )
 
     all_example_names = [e.name for e in examples]

@@ -40,3 +40,23 @@ start4:
 
     subs count, count, #0x30
     b.hs start4
+
+start5:
+
+    add x5, x5, x4
+    add x7, x5, x1
+    ldr x5, [x0, #4]
+    add x5, x5, x7
+
+    subs count, count, #2
+    b.ne start5
+
+start6:
+
+    add x5, x5, x4
+    add x7, x5, x1
+    ldr x5, [x0, #4]
+    add x5, x5, x7
+
+    subs count, count, #2
+    bne start6

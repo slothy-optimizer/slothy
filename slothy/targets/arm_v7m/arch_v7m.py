@@ -1,5 +1,4 @@
 import logging
-import inspect
 import re
 import math
 import itertools
@@ -307,7 +306,7 @@ class VmovCmpLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*vmov(?:\.w)?\s+(?P<end>\w+),\s*(?P<endf>\w+)",
             r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
@@ -429,7 +428,7 @@ class BranchLoop(Loop):
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
         self.lbl = lbl
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         # Defines the end of the loop, boolean indicates whether the instruction
         # shall be considered part of the body or not.
         self.end_regex = ((rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}", True),)
@@ -557,7 +556,7 @@ class CmpLoop(Loop):
 
     def __init__(self, lbl="lbl", lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*cmp(?:\.w)?\s+(?P<cnt>\w+),\s*(?P<end>\w+)",
             rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl}",
@@ -659,7 +658,7 @@ class SubsLoop(Loop):
 
     def __init__(self, lbl_start="1", lbl_end="2", loop_init="lr") -> None:
         super().__init__(lbl_start=lbl_start, lbl_end=lbl_end, loop_init=loop_init)
-        self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
+        self.lbl_regex = r"^\s*(?P<label>[\w\.]+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
             r"^\s*sub[s]?(?:\.w)?\s+(?P<cnt>\w+),(?:\s*(?P<reg1>\w+),)?\s*(?P<imm>#1)",
             rf"^\s*(cbnz|cbz|bne)(?:\.w)?\s+{lbl_start}",
@@ -1079,7 +1078,11 @@ class Armv7mInstruction(Instruction):
         flag_pattern = "|".join(flaglist)
         # TODO: Notion of dt can be placed with notion for size in FP instructions
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
-        imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
+        imm_pattern = (
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=)+)"
+            "|"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
+        )
         index_pattern = "[0-9]+"
         width_pattern = r"(?:\.w|\.n|)"
         barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
@@ -1292,7 +1295,9 @@ class Armv7mInstruction(Instruction):
                 )
 
         group_to_attribute("datatype", "datatype", lambda x: x.lower())
-        group_to_attribute("imm", "immediate", lambda x: x[1:])  # Strip '#'
+        group_to_attribute(
+            "imm", "immediate", lambda x: x.replace("#", "")
+        )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
         group_to_attribute("width", "width")
@@ -2654,28 +2659,3 @@ def find_class(src):
     raise UnknownInstruction(
         f"Couldn't find instruction class for {src} (type {type(src)})"
     )
-
-
-def lookup_multidict(d, inst, default=None):
-    instclass = find_class(inst)
-    for ll, v in d.items():
-        # Multidict entries can be the following:
-        # - An instruction class. It matches any instruction of that class.
-        # - A callable. It matches any instruction returning `True` when passed
-        #   to the callable.
-        # - A tuple of instruction classes or callables. It matches any instruction
-        #   which matches at least one element in the tuple.
-        def match(x):
-            if inspect.isclass(x):
-                return isinstance(inst, x)
-            assert callable(x)
-            return x(inst)
-
-        if not isinstance(ll, tuple):
-            ll = [ll]
-        for lp in ll:
-            if match(lp):
-                return v
-    if default is None:
-        raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
-    return default

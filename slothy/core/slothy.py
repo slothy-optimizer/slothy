@@ -48,6 +48,7 @@ one-shot and heuristic optimizations using SLOTHY.
 """
 
 import logging
+import sys
 from types import SimpleNamespace
 
 from slothy.core.dataflow import DataFlowGraph as DFG
@@ -97,7 +98,15 @@ class Slothy:
 
     def __init__(self, arch, target, logger=None):
         self.config = Config(arch, target)
-        self.logger = logger if logger is not None else logging.getLogger("slothy")
+
+        # Configure default logging to stdout if no handlers are configured
+        if logger is None:
+            root_logger = logging.getLogger()
+            if not root_logger.handlers:
+                logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+            self.logger = logging.getLogger("slothy")
+        else:
+            self.logger = logger
 
         # The source, once loaded, is represented as a list of strings
         self._source = None
@@ -193,7 +202,7 @@ class Slothy:
         fun = logger.debug if not err else logger.error
         fun(f"Dump: {name}")
         for line in s:
-            fun(f"> {line}")
+            fun(f"> {line.to_string()}")
 
     def global_selftest(
         self, funcname: str, address_registers: any, iterations: int = 5
@@ -441,7 +450,7 @@ class Slothy:
         """
         logger = self.logger.getChild(loop_lbl)
         _, body, _, _, _ = self.arch.Loop.extract(
-            self.source, loop_lbl, forced_loop_type=forced_loop_type
+            self.arch, self.source, loop_lbl, forced_loop_type=forced_loop_type
         )
 
         c = self.config.copy()
@@ -542,7 +551,7 @@ class Slothy:
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 
         pre, body, post, _, other_data, loop = self.arch.Loop.extract(
-            self.source, loop_lbl, forced_loop_type=forced_loop_type
+            self.arch, self.source, loop_lbl, forced_loop_type=forced_loop_type
         )
 
         try:
@@ -579,7 +588,7 @@ class Slothy:
         logger = self.logger.getChild(loop_lbl)
 
         early, body, late, _, other_data, loop = self.arch.Loop.extract(
-            self.source, loop_lbl, forced_loop_type=forced_loop_type
+            self.arch, self.source, loop_lbl, forced_loop_type=forced_loop_type
         )
 
         try:

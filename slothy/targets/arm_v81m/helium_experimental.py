@@ -30,7 +30,7 @@
 #
 
 from enum import Enum
-
+from slothy.helper import lookup_multidict
 from slothy.targets.arm_v81m.arch_v81m import (
     Instruction,
     nop,
@@ -605,22 +605,11 @@ def find_class(src):
     raise Exception("Couldn't find instruction class")
 
 
-def lookup_multidict(d, k, default=None):
-    for ll, v in d.items():
-        if k == ll:
-            return v
-        if isinstance(ll, tuple) and k in ll:
-            return v
-    if default is None:
-        raise Exception(f"Couldn't find {k}")
-    return default
-
-
 def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    default_latency = lookup_multidict(default_latencies, instclass_src)
+    default_latency = lookup_multidict(default_latencies, src, instclass_src)
 
     #
     # Check for latency exceptions
@@ -748,4 +737,4 @@ def get_units(src):
 
 def get_inverse_throughput(src):
     instclass = find_class(src)
-    return lookup_multidict(inverse_throughput, instclass)
+    return lookup_multidict(inverse_throughput, src, instclass)

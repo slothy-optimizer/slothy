@@ -43,9 +43,10 @@ Some latency exceptions were manually identified through microbenchmarks.
 # ################################################################################## #
 
 from enum import Enum
+from slothy.helper import lookup_multidict
 from slothy.targets.aarch64.aarch64_neon import (
-    lookup_multidict,
     find_class,
+    AArch64ConditionalCompare,
     Ldp_X,
     Ldr_X,
     Str_X,
@@ -61,21 +62,25 @@ from slothy.targets.aarch64.aarch64_neon import (
     Instruction,
     fcsel_dform,
     Q_Ld2_Lane_Post_Inc,
+    vmla,
+    vmla_lane,
     vmls,
     vmls_lane,
     vmul_lane,
-    vmla,
-    vmla_lane,
     vqrdmulh,
     vqrdmulh_lane,
     vqdmulh_lane,
     vbic,
+    vbic_imm_shifted,
     q_ldr1_stack,
     q_ldr1_post_inc,
     Vmull,
     Vmlal,
     vushr,
     vsshr,
+    vuxtl,
+    vshl_d,
+    vshl,
     VShiftImmediateRounding,
     St4,
     Ld4,
@@ -96,14 +101,12 @@ from slothy.targets.aarch64.aarch64_neon import (
     is_dform_form_of,
     trn1,
     trn2,
-    cmge,
     vzip1,
     vzip2,
     vuzp1,
     vext,
     vuzp2,
     vsub,
-    vshl,
     w_stp_with_imm_sp,
     x_str_sp_imm,
     x_ldr_stack_imm,
@@ -114,17 +117,18 @@ from slothy.targets.aarch64.aarch64_neon import (
     umaddl_wform,
     lsr,
     bic,
+    bic_reg,
     eor,
+    eon,
     ror,
-    eor_ror,
-    bic_ror,
+    eor_shifted,
+    bic_shifted,
     bfi,
     add,
     add_imm,
     add_sp_imm,
     add2,
-    add_lsr,
-    add_lsl,
+    add_shifted,
     adcs_to_zero,
     adcs_zero_r_to_zero,
     adcs_zero2,
@@ -146,15 +150,20 @@ from slothy.targets.aarch64.aarch64_neon import (
     asr_wform,
     and_imm_wform,
     eor_wform,
+    eon_wform,
     lsr_wform,
     ASimdCompare,
     and_twoarg,
     VShiftImmediateBasic,
-    vmlal,
     ubfx,
     AESInstruction,
+    AArch64NeonCount,
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
+    vtbl,
+    sub_imm,
+    vuaddlv_sform,
+    fmov_s_form,  # from double/single to gen reg
 )
 
 issue_rate = 2
@@ -232,12 +241,10 @@ def get_min_max_objective(slothy):
 execution_units = {
     # q-form vector instructions
     (
-        vmls,
+        vmla_lane,
         vmls_lane,
         vmul,
         vmul_lane,
-        vmla,
-        vmla_lane,
         vqrdmulh,
         vqrdmulh_lane,
         vqdmulh_lane,
@@ -249,12 +256,12 @@ execution_units = {
         Vmull,
         Vmlal,
         vusra,
-        vushr,
-        vsshr,
         vshrn,
         vxtn,
+        vtbl,
         VShiftImmediateRounding,
         AArch64NeonLogical,
+        vuaddlv_sform,
     ): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
     ],  # these instructions use both VEC0 and VEC1
@@ -311,6 +318,7 @@ execution_units = {
         d_ldr_stack_with_inc,
         q_ldr1_stack,
         Q_Ld2_Lane_Post_Inc,
+        fmov_s_form,  # from double/single to gen reg
     ): [
         ExecutionUnit.VEC0,
         ExecutionUnit.VEC1,
@@ -320,11 +328,12 @@ execution_units = {
     is_qform_form_of(trn1): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(trn2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
-    is_qform_form_of(trn2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(trn2): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
-    is_qform_form_of(cmge): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
-    is_dform_form_of(cmge): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(ASimdCompare): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(ASimdCompare): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vzip1): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_qform_form_of(AArch64NeonCount): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(AArch64NeonCount): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_dform_form_of(vzip1): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vzip2): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vzip2): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
@@ -340,6 +349,18 @@ execution_units = {
     is_dform_form_of(vadd): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vshl): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vshl): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vshrn): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vshrn): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vushr): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vushr): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vsshr): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vsshr): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vmla): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vmla): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vmls): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    is_dform_form_of(vmls): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    vshl_d: [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    vuxtl: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_qform_form_of(AArch64NeonShiftInsert): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1]
     ],
@@ -356,6 +377,7 @@ execution_units = {
     (
         lsr,
         bic,
+        bic_reg,
         bfi,
         ubfx,
         add,
@@ -363,14 +385,14 @@ execution_units = {
         movw_imm,
         cmp_imm,
         eor,
-        eor_ror,
-        bic_ror,
+        eon,
+        eor_shifted,
+        bic_shifted,
         ror,
         add_imm,
         add_sp_imm,
         add2,
-        add_lsr,
-        add_lsl,
+        add_shifted,
         adcs_to_zero,
         adcs_zero_r_to_zero,
         adcs_zero2,
@@ -381,6 +403,7 @@ execution_units = {
         tst_wform,
         movk_imm,
         sub,
+        sub_imm,
         sbcs_zero_to_zero,
         cmp_xzr2,
         mov,
@@ -390,7 +413,9 @@ execution_units = {
         and_imm_wform,
         lsr_wform,
         eor_wform,
+        eon_wform,
     ): ExecutionUnit.SCALAR(),
+    AArch64ConditionalCompare: ExecutionUnit.SCALAR(),
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
@@ -403,17 +428,25 @@ inverse_throughput = {
         vmov,
         vmul,
         vmul_lane,
-        vmls,
-        vmls_lane,
         vqrdmulh,
         vqrdmulh_lane,
         vqdmulh_lane,
         Vmull,
         Vmlal,
         umov_d,
+        vuaddlv_sform,
     ): 1,
+    sub_imm: 1,
+    (
+        vmla,
+        vmla_lane,
+        vmls,
+        vmls_lane,
+    ): 1,
+    (vshl, vshl_d, vsshr, vushr, vuxtl): 1,
     (trn2, trn1, ASimdCompare): 1,
     (Ldr_Q): 2,
+    (AArch64NeonCount): 1,
     (Str_Q): 1,
     (tst_wform): 1,
     (nop, Vins, Ldr_X, Str_X): 1,
@@ -426,6 +459,7 @@ inverse_throughput = {
     Ld2: 4,
     vxtn: 1,
     vshrn: 2,
+    vtbl: 1,  # N cycles (N = number of registers in the table)
     (fcsel_dform): 1,
     (VecToGprMov, Mov_xtov_d): 1,
     (movk_imm, mov, mov_imm, movw_imm): 1,
@@ -440,8 +474,7 @@ inverse_throughput = {
         add,
         add_imm,
         add2,
-        add_lsr,
-        add_lsl,
+        add_shifted,
         add_sp_imm,
         adcs_to_zero,
         adcs_zero2,
@@ -451,7 +484,6 @@ inverse_throughput = {
     (cmp_xzr2, cmp_imm, sub, subs_wform, asr_wform, sbcs_zero_to_zero, ngc_zero): 1,
     (bfi, ubfx): 1,
     VShiftImmediateRounding: 1,
-    VShiftImmediateBasic: 1,
     AArch64NeonShiftInsert: 1,
     (vusra): 1,
     AArch64NeonLogical: 1,
@@ -461,9 +493,11 @@ inverse_throughput = {
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc): 1,
     (mov_d01, mov_b00): 1,
     (vzip1, vzip2): 1,
-    (eor_wform): 1,
-    (eor, bic, eor_ror, bic_ror): 1,
+    (eor_wform, eon_wform): 1,
+    (eon, eor, bic, bic_reg, eor_shifted, bic_shifted): 1,
+    AArch64ConditionalCompare: 1,
     AESInstruction: 1,
+    fmov_s_form: 1,  # from double/single to gen reg
 }
 
 default_latencies = {
@@ -471,18 +505,16 @@ default_latencies = {
     is_qform_form_of([vadd, vsub]): 3,
     is_dform_form_of([vadd, vsub]): 2,
     (trn1, trn2, ASimdCompare): 2,
+    (vmul, vmul_lane, vqrdmulh, vqrdmulh_lane, vqdmulh_lane, Vmull, Vmlal): 4,
     (
-        vmul,
-        vmul_lane,
+        vmla,
+        vmla_lane,
         vmls,
         vmls_lane,
-        vqrdmulh,
-        vqrdmulh_lane,
-        vqdmulh_lane,
-        Vmull,
-        Vmlal,
     ): 4,
     (Ldr_Q, Str_Q): 4,
+    sub_imm: 2,
+    AArch64NeonCount: 2,
     St4: 5,
     St3: 3,
     St2: 2,
@@ -492,6 +524,8 @@ default_latencies = {
     Ld4: 11,
     vxtn: 2,
     vshrn: 2,
+    vtbl: 2,  # 2+N-1 cycles (N = number of registers in the table)
+    (vuxtl): 2,
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,
     (Vins, umov_d): 2,
@@ -505,8 +539,9 @@ default_latencies = {
     (ldr_sxtw_wform): 5,
     (lsr, lsr_wform): 1,
     (umull_wform, mul_wform, umaddl_wform): 3,
+    (vuaddlv_sform): 3,
     (and_imm, and_imm_wform): 1,
-    (add2, add_lsr, add_lsl, add_sp_imm): 2,
+    (add2, add_shifted, add_sp_imm): 2,
     (
         add,
         add_imm,
@@ -534,15 +569,17 @@ default_latencies = {
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc): 3,
     (mov_d01, mov_b00): 2,
     (vzip1, vzip2): 2,
-    (eor_wform): 1,
+    (eor_wform, eon_wform): 1,
     # According to SWOG, this is 2 cycles, byt if the output is used as a
     # _non-shifted_ input to the next instruction, the effective latency
     # seems to be 1 cycle. See https://eprint.iacr.org/2022/1243.pdf
-    (eor_ror, bic_ror): 1,
-    (ror, eor, bic): 1,
+    (eor_shifted, bic_shifted): 1,
+    (eon, ror, eor, bic, bic_reg): 1,
+    AArch64ConditionalCompare: 1,
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: 2,
+    fmov_s_form: 1,  # from double/single to gen reg
 }
 
 
@@ -552,7 +589,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    latency = lookup_multidict(default_latencies, src)
+    latency = lookup_multidict(default_latencies, src, instclass_src)
 
     if (
         instclass_dst in [trn1, trn2, vzip1, vzip2, vuzp1, vuzp2, fcsel_dform]
@@ -564,12 +601,13 @@ def get_latency(src, out_idx, dst):
         [lsr, mul_wform],
         [lsr, umaddl_wform],
         [vbic, vusra],
+        [vbic_imm_shifted, vusra],
     ]:
         latency += 1
 
     if (
-        instclass_src == vmlal
-        and instclass_dst == vmlal
+        isinstance(src, Vmlal)
+        and isinstance(dst, Vmlal)
         and src.args_in_out[0] == dst.args_in_out[0]
     ):
         return (
@@ -591,11 +629,13 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     return [units]
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)

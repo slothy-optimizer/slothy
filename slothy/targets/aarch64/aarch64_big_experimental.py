@@ -30,9 +30,10 @@
 #
 
 from enum import Enum
+from slothy.helper import lookup_multidict
 from slothy.targets.aarch64.aarch64_neon import (
     is_neon_instruction,
-    lookup_multidict,
+    find_class,
     aese_x4,
     aesr_x4,
     Ldp_X,
@@ -60,8 +61,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     vshrn,
     vusra,
     vmul,
-    vmlal,
-    vmull,
+    vumlal,
+    vumull,
     vdup,
     AESInstruction,
     Transpose,
@@ -183,7 +184,7 @@ execution_units = {
     aesr_x2: ExecutionUnit.V(),
     aesr_x4: [ExecutionUnit.V()],  # Use all V-pipes
     aese_x4: [ExecutionUnit.V()],  # Use all V-pipes
-    (vmul, vmlal, vmull): ExecutionUnit.V0(),
+    (vmul, vumlal, vumull): ExecutionUnit.V0(),
     AArch64NeonLogical: ExecutionUnit.V(),
     (
         AArch64BasicArithmetic,
@@ -219,7 +220,7 @@ inverse_throughput = {
     (VShiftImmediateBasic, vshl_d, vsli, vshrn): 1,
     (vmul): 2,
     vusra: 1,
-    (vmlal, vmull): 1,
+    (vumlal, vumull): 1,
     (
         AArch64BasicArithmetic,
         AArch64ConditionalSelect,
@@ -253,7 +254,7 @@ default_latencies = {
     (vmovi): 2,
     (vmul): 5,
     vusra: 4,  # TODO: Add fwd path
-    (vmlal, vmull): 4,  # TODO: Add fwd path
+    (vumlal, vumull): 4,  # TODO: Add fwd path
     (VShiftImmediateBasic, vshl_d, vsli, vshrn): 2,
     (
         AArch64BasicArithmetic,
@@ -274,12 +275,14 @@ default_latencies = {
 
 
 def get_latency(src, out_idx, dst):
-    latency = lookup_multidict(default_latencies, src)
+    instclass_src = find_class(src)
+    latency = lookup_multidict(default_latencies, src, instclass_src)
     return latency
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     else:
@@ -287,4 +290,5 @@ def get_units(src):
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)

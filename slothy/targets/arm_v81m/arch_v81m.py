@@ -33,7 +33,6 @@
 #
 
 import logging
-import inspect
 import re
 import math
 
@@ -306,7 +305,7 @@ class Instruction:
 
     @staticmethod
     def unfold_abbrevs(mnemonic):
-        mnemonic = re.sub("<dt>", "(?P<datatype>(?:|i|u|s)(?:8|16|32|64))", mnemonic)
+        mnemonic = re.sub("<dt>", "(?P<datatype>(?:|i|u|s|p)(?:8|16|32|64))", mnemonic)
         mnemonic = re.sub("<fdt>", "(?P<datatype>(?:f)(?:8|16|32))", mnemonic)
         return mnemonic
 
@@ -323,6 +322,10 @@ class Instruction:
                 vldrb_no_imm,
                 vldrb_with_writeback,
                 vldrb_with_post,
+                ldrb,
+                ldrb_no_imm,
+                ldrb_with_writeback,
+                ldrb_with_post,
                 vldrh,
                 vldrh_no_imm,
                 vldrh_with_writeback,
@@ -337,6 +340,10 @@ class Instruction:
                 vstrw_with_post,
                 vstrw_scatter,
                 vstrw_scatter_uxtw,
+                vstrb,
+                vstrb_no_imm,
+                vstrb_with_writeback,
+                vstrb_with_post,
                 vld20,
                 vld21,
                 vld20_with_writeback,
@@ -435,6 +442,10 @@ class Instruction:
                 vstrw_with_post,
                 vstrw_scatter,
                 vstrw_scatter_uxtw,
+                vstrb,
+                vstrb_no_imm,
+                vstrb_with_writeback,
+                vstrb_with_post,
                 vst20,
                 vst21,
                 vst20_with_writeback,
@@ -617,9 +628,13 @@ class MVEInstruction(Instruction):
 
             return src
 
-        dt_pattern = "(?:|u|s|i|U|S|I)(?:8|16|32|64)"
+        dt_pattern = "(?:|u|s|i|p|U|S|I|P)(?:8|16|32|64)"
         fdt_pattern = "(?:|f|F)(?:16|32)"
-        imm_pattern = "#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|,)+"
+        imm_pattern = (
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=)+)"
+            "|"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
+        )
         index_pattern = "[0-9]+"
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
@@ -783,7 +798,9 @@ class MVEInstruction(Instruction):
                 )
 
         group_to_attribute("datatype", "datatype", lambda x: x.lower())
-        group_to_attribute("imm", "immediate", lambda x: x[1:])  # Strip '#'
+        group_to_attribute(
+            "imm", "immediate", lambda x: x.replace("#", "")
+        )  # Strip '#'
         group_to_attribute("index", "index", int)
 
         for s, ty in obj.pattern_inputs:
@@ -1300,8 +1317,20 @@ class add_imm(MVEInstruction):
     outputs = ["Rd"]
 
 
+class and_imm(MVEInstruction):
+    pattern = "and <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
 class sub_imm(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
+class rsb_imm(MVEInstruction):
+    pattern = "rsb <Rd>, <Rn>, <imm>"
     inputs = ["Rn"]
     outputs = ["Rd"]
 
@@ -1574,6 +1603,70 @@ class vstrw_scatter_uxtw(MVEInstruction):
         return obj
 
 
+class vstrb(MVEInstruction):
+    pattern = "vstrb.<dt> <Qd>, [<Rn>, <imm>]"
+    inputs = ["Qd", "Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[1]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class vstrb_no_imm(MVEInstruction):
+    pattern = "vstrb.<dt> <Qd>, [<Rn>]"
+    inputs = ["Qd", "Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.addr = obj.args_in[1]
+        obj.pre_index = 0
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        if int(self.immediate) != 0:
+            self.pattern = vstrb.pattern
+        return super().write()
+
+
+class vstrb_with_writeback(MVEInstruction):
+    pattern = "vstrb.<dt> <Qd>, [<Rn>, <imm>]!"
+    inputs = ["Qd"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class vstrb_with_post(MVEInstruction):
+    pattern = "vstrb.<dt> <Qd>, [<Rn>], <imm>"
+    inputs = ["Qd"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.addr = obj.args_in_out[0]
+        obj.pre_index = None
+        return obj
+
+
 class vldrb(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>, <imm>]"
     inputs = ["Rn"]
@@ -1629,6 +1722,72 @@ class vldrb_with_writeback(MVEInstruction):
 class vldrb_with_post(MVEInstruction):
     pattern = "vldrb.<dt> <Qd>, [<Rn>], <imm>"
     outputs = ["Qd"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class ldrb(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>, <imm>]"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class ldrb_no_imm(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>]"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.addr = obj.args_in[0]
+        obj.pre_index = 0
+        return obj
+
+    def write(self):
+        self.immediate = simplify(self.pre_index)
+        if int(self.immediate) != 0:
+            self.pattern = ldrb.pattern
+        return super().write()
+
+
+class ldrb_with_writeback(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>, <imm>]!"
+    outputs = ["Rd"]
+    in_outs = ["Rn"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class ldrb_with_post(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>], <imm>"
+    outputs = ["Rd"]
     in_outs = ["Rn"]
 
     @classmethod
@@ -2258,6 +2417,24 @@ class vcmla(MVEInstruction):
     in_outs = ["Qd"]
 
 
+class lsr(MVEInstruction):
+    pattern = "lsr <Rd>, <Rn>, <Rm>"
+    outputs = ["Rd"]
+    inputs = ["Rn", "Rm"]
+
+
+class lsr_imm(MVEInstruction):
+    pattern = "lsr <Rd>, <Rn>, <imm>"
+    outputs = ["Rd"]
+    inputs = ["Rn"]
+
+
+class lsl_imm(MVEInstruction):
+    pattern = "lsl <Rd>, <Rn>, <imm>"
+    outputs = ["Rd"]
+    inputs = ["Rn"]
+
+
 class vcmul(MVEInstruction):
     pattern = "vcmul.<fdt> <Qd>, <Qn>, <Qm>, <imm>"
     inputs = ["Qn", "Qm"]
@@ -2422,31 +2599,6 @@ Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 class UnknownInstruction(Exception):
     pass
-
-
-def lookup_multidict(d, inst, default=None):
-    instclass = find_class(inst)
-    for ll, v in d.items():
-        # Multidict entries can be the following:
-        # - An instruction class. It matches any instruction of that class.
-        # - A callable. It matches any instruction returning `True` when passed
-        #   to the callable.
-        # - A tuple of instruction classes or callables. It matches any instruction
-        #   which matches at least one element in the tuple.
-        def match(x):
-            if inspect.isclass(x):
-                return isinstance(inst, x)
-            assert callable(x)
-            return x(inst)
-
-        if not isinstance(ll, tuple):
-            ll = [ll]
-        for lp in ll:
-            if match(lp):
-                return v
-    if default is None:
-        raise UnknownInstruction(f"Couldn't find {instclass} for {inst}")
-    return default
 
 
 def iter_MVE_instructions():

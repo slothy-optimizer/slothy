@@ -37,9 +37,9 @@
 # ##################################################################################
 
 from enum import Enum
+from slothy.helper import lookup_multidict
 from slothy.targets.arm_v81m.arch_v81m import (
     find_class,
-    lookup_multidict,
     nop,
     ldr,
     ldr_with_writeback,
@@ -150,6 +150,10 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vstrw_with_post,
     vstrw_scatter,
     vstrw_scatter_uxtw,
+    vstrb,
+    vstrb_no_imm,
+    vstrb_with_writeback,
+    vstrb_with_post,
     vst20,
     vst21,
     vst20_with_writeback,
@@ -169,6 +173,17 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vsubf,
     vsubf_T2,
     vcaddf,
+    and_imm,
+    vmlaldava,
+    rsb_imm,
+    vaddva,
+    lsr,
+    lsr_imm,
+    lsl_imm,
+    ldrb,
+    ldrb_no_imm,
+    ldrb_with_writeback,
+    ldrb_with_post,
 )
 
 issue_rate = 1
@@ -281,8 +296,13 @@ execution_units = {
     add: ExecutionUnit.SCALAR,
     sub: ExecutionUnit.SCALAR,
     pkhbt: ExecutionUnit.SCALAR,
+    and_imm: ExecutionUnit.SCALAR,
     add_imm: ExecutionUnit.SCALAR,
+    rsb_imm: ExecutionUnit.SCALAR,
     sub_imm: ExecutionUnit.SCALAR,
+    lsr: ExecutionUnit.SCALAR,
+    lsr_imm: ExecutionUnit.SCALAR,
+    lsl_imm: ExecutionUnit.SCALAR,
     vshrnb: ExecutionUnit.VEC_SHFT,
     vshrnt: ExecutionUnit.VEC_SHFT,
     vrshr: ExecutionUnit.VEC_SHFT,
@@ -304,8 +324,10 @@ execution_units = {
     vmov_double_v2r: [ExecutionUnit.VEC_VMOVA, ExecutionUnit.VEC_VMOVB],
     vadd_sv: ExecutionUnit.VEC_INT,
     vadd_vv: ExecutionUnit.VEC_INT,
+    vcadd: ExecutionUnit.VEC_INT,
     vsub: ExecutionUnit.VEC_INT,
     vsub_T2: ExecutionUnit.VEC_INT,
+    vaddva: ExecutionUnit.VEC_MUL,
     vhadd: ExecutionUnit.VEC_INT,
     vhsub: ExecutionUnit.VEC_INT,
     vhcadd: ExecutionUnit.VEC_INT,
@@ -338,6 +360,10 @@ execution_units = {
     ldrd_no_imm: ExecutionUnit.LOAD,
     ldrd_with_writeback: ExecutionUnit.LOAD,
     ldrd_with_post: ExecutionUnit.LOAD,
+    ldrb: ExecutionUnit.LOAD,
+    ldrb_no_imm: ExecutionUnit.LOAD,
+    ldrb_with_writeback: ExecutionUnit.LOAD,
+    ldrb_with_post: ExecutionUnit.LOAD,
     strd: ExecutionUnit.STORE,
     strd_with_writeback: ExecutionUnit.STORE,
     strd_with_post: ExecutionUnit.STORE,
@@ -383,6 +409,10 @@ execution_units = {
     vstrw_with_post: ExecutionUnit.STORE,
     vstrw_scatter: ExecutionUnit.STORE,
     vstrw_scatter_uxtw: ExecutionUnit.STORE,
+    vstrb: ExecutionUnit.STORE,
+    vstrb_no_imm: ExecutionUnit.STORE,
+    vstrb_with_writeback: ExecutionUnit.STORE,
+    vstrb_with_post: ExecutionUnit.STORE,
     vst20: ExecutionUnit.STORE,
     vst21: ExecutionUnit.STORE,
     vst20_with_writeback: ExecutionUnit.STORE,
@@ -403,6 +433,7 @@ execution_units = {
     vsubf: ExecutionUnit.VEC_FPADD,
     vsubf_T2: ExecutionUnit.VEC_FPADD,
     vcaddf: ExecutionUnit.VEC_FPADD,
+    vmlaldava: ExecutionUnit.VEC_MUL,
 }
 
 inverse_throughput = {
@@ -425,13 +456,22 @@ inverse_throughput = {
         ldrd_no_imm,
         ldrd_with_writeback,
         ldrd_with_post,
+        ldrb,
+        ldrb_no_imm,
+        ldrb_with_writeback,
+        ldrb_with_post,
         strd,
         strd_with_writeback,
         strd_with_post,
         restored,
         restore,
+        and_imm,
         saved,
+        rsb_imm,
         save,
+        lsr,
+        lsr_imm,
+        lsl_imm,
     ): 1,
     (
         vrshr,
@@ -453,6 +493,7 @@ inverse_throughput = {
         vrev64,
         vadd_sv,
         vadd_vv,
+        vcadd,
         vsub,
         vsub_T2,
         vhadd,
@@ -478,12 +519,17 @@ inverse_throughput = {
         vqdmladhx,
         vqdmlsdh,
         vmla,
+        vmlaldava,
         vstrw,
         vstrw_no_imm,
         vstrw_with_writeback,
         vstrw_with_post,
         vstrw_scatter,
         vstrw_scatter_uxtw,
+        vstrb,
+        vstrb_no_imm,
+        vstrb_with_writeback,
+        vstrb_with_post,
         qsave,
         qrestore,
         vldrb,
@@ -529,12 +575,11 @@ inverse_throughput = {
         vst42_with_writeback,
         vst43_with_writeback,
         vcmul,
-        vcadd,
         vaddf,
         vcaddf,
         vsubf,
         vsubf_T2,
-        vhcadd,
+        vaddva,
     ): 2,
     (vmulf_T1, vmulf_T2): 2,
     # MACs
@@ -573,6 +618,7 @@ default_latencies = {
         vmov_double_v2r,
         vadd_vv,
         vadd_sv,
+        vcadd,
         vsub,
         vsub_T2,
         vhadd,
@@ -624,6 +670,15 @@ default_latencies = {
         vstrw_with_post,
         vstrw_scatter,
         vstrw_scatter_uxtw,
+        vstrb,
+        vstrb_no_imm,
+        vstrb_with_writeback,
+        vstrb_with_post,
+        lsr,
+        lsr_imm,
+        lsl_imm,
+        rsb_imm,
+        and_imm,
     ): 1,
     (
         vrshr,
@@ -649,14 +704,20 @@ default_latencies = {
         vqdmladhx,
         vqdmlsdh,
         vmla,
-        vcadd,
+        vmlaldava,
         vaddf,
         vcaddf,
         vsubf,
         vsubf_T2,
-        vhcadd,
+        vaddva,
     ): 2,
     (vmulf_T1, vmulf_T2, vcmul): 3,
+    (
+        ldrb,
+        ldrb_no_imm,
+        ldrb_with_writeback,
+        ldrb_with_post,
+    ): 3,
     (vld20, vld21): 4,
     (vld20_with_writeback, vld21_with_writeback): 4,
     (vld40, vld41, vld42, vld43): 4,
@@ -674,7 +735,7 @@ def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
 
-    default_latency = lookup_multidict(default_latencies, src)
+    default_latency = lookup_multidict(default_latencies, src, instclass_src)
 
     #
     # Check for latency exceptions
@@ -688,6 +749,10 @@ def get_latency(src, out_idx, dst):
         vstrw_with_post,
         vstrw_scatter,
         vstrw_scatter_uxtw,
+        vstrb,
+        vstrb_no_imm,
+        vstrb_with_writeback,
+        vstrb_with_post,
         qsave,
     ] and instclass_src in [
         vmul_T1,
@@ -721,6 +786,10 @@ def get_latency(src, out_idx, dst):
         vstrw_with_post,
         vstrw_scatter,
         vstrw_scatter_uxtw,
+        vstrb,
+        vstrb_no_imm,
+        vstrb_with_writeback,
+        vstrb_with_post,
         qsave,
     ] and instclass_src in [vcmul, vcmla, vfma]:
         return 2
@@ -770,7 +839,6 @@ def get_latency(src, out_idx, dst):
         vsub_T2,
         vhadd,
         vhsub,
-        vhcadd,
         vand,
         vbic,
         vbic_nodt,
@@ -817,7 +885,8 @@ def get_latency(src, out_idx, dst):
 
 
 def get_units(src):
-    units = lookup_multidict(execution_units, src)
+    instclass_src = find_class(src)
+    units = lookup_multidict(execution_units, src, instclass_src)
     if isinstance(units, list):
         return units
     else:
@@ -825,4 +894,5 @@ def get_units(src):
 
 
 def get_inverse_throughput(src):
-    return lookup_multidict(inverse_throughput, src)
+    instclass_src = find_class(src)
+    return lookup_multidict(inverse_throughput, src, instclass_src)
