@@ -231,18 +231,18 @@ qA20_l .req q2
     rot_str_o \state_nl, \state_nh, A_l, A_h, RCxy_\x\()\y, \x, \y
 .endm
 
-.macro ld_bic_str state, round, y
-    vldrw.u32 q<B0>, [\state, #A__0\y] // @slothy:reads=A\state\()__0\y
-    vldrw.u32 q<B1>, [\state, #A__1\y] // @slothy:reads=A\state\()__1\y
-    vldrw.u32 q<B2>, [\state, #A__2\y] // @slothy:reads=A\state\()__2\y
+.macro ld_bic_str state, state_n, round, y
+    vldrw.u32 q<B0>, [\state_n, #A__0\y] // @slothy:reads=A\state_n\()__0\y
+    vldrw.u32 q<B1>, [\state_n, #A__1\y] // @slothy:reads=A\state_n\()__1\y
+    vldrw.u32 q<B2>, [\state_n, #A__2\y] // @slothy:reads=A\state_n\()__2\y
     vbic q<T0>, q<B2>, q<B1>
     veor q<A0>, q<B0>, q<T0>
     vstrw.32 q<A0>, [\state, #A__0\y]  // @slothy:writes=A\state\()__0\y
-    vldrw.u32 q<B3>, [\state, #A__3\y] // @slothy:reads=A\state\()__3\y
+    vldrw.u32 q<B3>, [\state_n, #A__3\y] // @slothy:reads=A\state_n\()__3\y
     vbic q<T1>, q<B3>, q<B2>
     veor q<A1>, q<B1>, q<T1>
     vstrw.32 q<A1>, [\state, #A__1\y]  // @slothy:writes=A\state\()__1\y
-    vldrw.u32 q<B4>, [\state, #A__4\y] // @slothy:reads=A\state\()__4\y
+    vldrw.u32 q<B4>, [\state_n, #A__4\y] // @slothy:reads=A\state_n\()__4\y
     vbic q<T2>, q<B4>, q<B3>
     veor q<A2>, q<B2>, q<T2>
     vstrw.32 q<A2>, [\state, #A__2\y]  // @slothy:writes=A\state\()__2\y
@@ -254,18 +254,18 @@ qA20_l .req q2
     vstrw.32 q<A4>, [\state, #A__4\y]  // @slothy:writes=A\state\()__4\y
 .endm
 
-.macro ld_bic_str_0 state, round, y, A0
-    vldrw.u32 q<B1>, [\state, #A__1\y] // @slothy:reads=A\state\()__1\y
-    vldrw.u32 q<B2>, [\state, #A__2\y] // @slothy:reads=A\state\()__2\y
-    vldrw.u32 q<B3>, [\state, #A__3\y] // @slothy:reads=A\state\()__3\y
+.macro ld_bic_str_0 state, state_n round, y, A0
+    vldrw.u32 q<B1>, [\state_n, #A__1\y] // @slothy:reads=A\state_n\()__1\y
+    vldrw.u32 q<B2>, [\state_n, #A__2\y] // @slothy:reads=A\state_n\()__2\y
+    vldrw.u32 q<B3>, [\state_n, #A__3\y] // @slothy:reads=A\state_n\()__3\y
     vbic q<T1>, q<B3>, q<B2>
     veor q<A1>, q<B1>, q<T1>
     vstrw.32 q<A1>, [\state, #A__1\y]  // @slothy:writes=A\state\()__1\y
-    vldrw.u32 q<B4>, [\state, #A__4\y] // @slothy:reads=A\state\()__4\y
+    vldrw.u32 q<B4>, [\state_n, #A__4\y] // @slothy:reads=A\state_n\()__4\y
     vbic q<T2>, q<B4>, q<B3>
     veor q<A2>, q<B2>, q<T2>
     vstrw.32 q<A2>, [\state, #A__2\y]  // @slothy:writes=A\state\()__2\y
-    vldrw.u32 q<B0>, [\state, #A__0\y] // @slothy:reads=A\state\()__0\y
+    vldrw.u32 q<B0>, [\state_n, #A__0\y] // @slothy:reads=A\state_n\()__0\y
     vbic q<T3>, q<B0>, q<B4>
     veor q<A3>, q<B3>, q<T3>
     vstrw.32 q<A3>, [\state, #A__3\y]  // @slothy:writes=A\state\()__3\y
@@ -277,18 +277,18 @@ qA20_l .req q2
     // A0 is stored later after the round-constant is added
 .endm
 
-.macro ld_bic_str_1 state, round, y, A0, A2
-    vldrw.u32 q<B1>, [\state, #A__1\y] // @slothy:reads=A\state\()__1\y
-    vldrw.u32 q<B2>, [\state, #A__2\y] // @slothy:reads=A\state\()__2\y
-    vldrw.u32 q<B3>, [\state, #A__3\y] // @slothy:reads=A\state\()__3\y
+.macro ld_bic_str_1 state, state_n, round, y, A0, A2
+    vldrw.u32 q<B1>, [\state_n, #A__1\y] // @slothy:reads=A\state_n\()__1\y
+    vldrw.u32 q<B2>, [\state_n, #A__2\y] // @slothy:reads=A\state_n\()__2\y
+    vldrw.u32 q<B3>, [\state_n, #A__3\y] // @slothy:reads=A\state_n\()__3\y
     vbic q<T1>, q<B3>, q<B2>
     veor q<A1>, q<B1>, q<T1>
     vstrw.32 q<A1>, [\state, #A__1\y]  // @slothy:writes=A\state\()__1\y
-    vldrw.u32 q<B4>, [\state, #A__4\y] // @slothy:reads=A\state\()__4\y
+    vldrw.u32 q<B4>, [\state_n, #A__4\y] // @slothy:reads=A\state_n\()__4\y
     vbic q<T2>, q<B4>, q<B3>
     veor q<\A2>, q<B2>, q<T2>
     vstrw.32 q<\A2>, [\state, #A__2\y]  // @slothy:writes=A\state\()__2\y
-    vldrw.u32 q<B0>, [\state, #A__0\y] // @slothy:reads=A\state\()__0\y
+    vldrw.u32 q<B0>, [\state_n, #A__0\y] // @slothy:reads=A\state_n\()__0\y
     vbic q<T3>, q<B0>, q<B4>
     veor q<A3>, q<B3>, q<T3>
     vstrw.32 q<A3>, [\state, #A__3\y]  // @slothy:writes=A\state\()__3\y
@@ -300,18 +300,18 @@ qA20_l .req q2
     // A0 is stored later after the round-constant is added
 .endm
 
-.macro ld_1_bic_str state, round, y, B1
-    vldrw.u32 q<B0>, [\state, #A__0\y] // @slothy:reads=A\state\()__0\y
-    //vldrw.u32 q<B1>, [\state, #A__1\y] // @slothy:reads=A\state\()__1\y
-    vldrw.u32 q<B2>, [\state, #A__2\y] // @slothy:reads=A\state\()__2\y
+.macro ld_1_bic_str state, state_n, round, y, B1
+    vldrw.u32 q<B0>, [\state_n, #A__0\y] // @slothy:reads=A\state_n\()__0\y
+    //vldrw.u32 q<B1>, [\state_n, #A__1\y] // @slothy:reads=A\state_n\()__1\y
+    vldrw.u32 q<B2>, [\state_n, #A__2\y] // @slothy:reads=A\state_n\()__2\y
     vbic q<T0>, q<B2>, q<\B1>
     veor q<A0>, q<B0>, q<T0>
     vstrw.32 q<A0>, [\state, #A__0\y]  // @slothy:writes=A\state\()__0\y
-    vldrw.u32 q<B3>, [\state, #A__3\y] // @slothy:reads=A\state\()__3\y
+    vldrw.u32 q<B3>, [\state_n, #A__3\y] // @slothy:reads=A\state_n\()__3\y
     vbic q<T1>, q<B3>, q<B2>
     veor q<A1>, q<\B1>, q<T1>
     vstrw.32 q<A1>, [\state, #A__1\y]  // @slothy:writes=A\state\()__1\y
-    vldrw.u32 q<B4>, [\state, #A__4\y] // @slothy:reads=A\state\()__4\y
+    vldrw.u32 q<B4>, [\state_n, #A__4\y] // @slothy:reads=A\state_n\()__4\y
     vbic q<T2>, q<B4>, q<B3>
     veor q<A2>, q<B2>, q<T2>
     vstrw.32 q<A2>, [\state, #A__2\y]  // @slothy:writes=A\state\()__2\y
@@ -323,18 +323,18 @@ qA20_l .req q2
     vstrw.32 q<A4>, [\state, #A__4\y]  // @slothy:writes=A\state\()__4\y
 .endm
 
-.macro ld_3_bic_str state, round, y, B3
-    vldrw.u32 q<B0>, [\state, #A__0\y] // @slothy:reads=A\state\()__0\y
-    vldrw.u32 q<B1>, [\state, #A__1\y] // @slothy:reads=A\state\()__1\y
-    vldrw.u32 q<B2>, [\state, #A__2\y] // @slothy:reads=A\state\()__2\y
+.macro ld_3_bic_str state, state_n, round, y, B3
+    vldrw.u32 q<B0>, [\state_n, #A__0\y] // @slothy:reads=A\state_n\()__0\y
+    vldrw.u32 q<B1>, [\state_n, #A__1\y] // @slothy:reads=A\state_n\()__1\y
+    vldrw.u32 q<B2>, [\state_n, #A__2\y] // @slothy:reads=A\state_n\()__2\y
     vbic q<T0>, q<B2>, q<B1>
     veor q<A0>, q<B0>, q<T0>
     vstrw.32 q<A0>, [\state, #A__0\y]  // @slothy:writes=A\state\()__0\y
-    //vldrw.u32 q<B3>, [\state, #A__3\y] // @slothy:reads=A\state\()__3\y
+    //vldrw.u32 q<B3>, [\state_n, #A__3\y] // @slothy:reads=A\state_n\()__3\y
     vbic q<T1>, q<\B3>, q<B2>
     veor q<A1>, q<B1>, q<T1>
     vstrw.32 q<A1>, [\state, #A__1\y]  // @slothy:writes=A\state\()__1\y
-    vldrw.u32 q<B4>, [\state, #A__4\y] // @slothy:reads=A\state\()__4\y
+    vldrw.u32 q<B4>, [\state_n, #A__4\y] // @slothy:reads=A\state_n\()__4\y
     vbic q<T2>, q<B4>, q<\B3>
     veor q<A2>, q<B2>, q<T2>
     vstrw.32 q<A2>, [\state, #A__2\y]  // @slothy:writes=A\state\()__2\y
@@ -414,29 +414,29 @@ qA20_l .req q2
 
 .macro keccak_4fold_round_chi_iota state_l, state_h, state_nl, state_nh, rc    // now BIC
     // A11_l, A11_h, A32_l are held in registers from the previous step
-    ld_1_bic_str \state_nl, 0, 1, A11_l
-    ld_1_bic_str \state_nh, 0, 1, A11_h
+    ld_1_bic_str \state_l, \state_nl, 0, 1, A11_l
+    ld_1_bic_str \state_h, \state_nh, 0, 1, A11_h
 
-    ld_3_bic_str \state_nl, 0, 2, A32_l
-    ld_bic_str \state_nh, 0, 2
+    ld_3_bic_str \state_l, \state_nl, 0, 2, A32_l
+    ld_bic_str \state_h, \state_nh, 0, 2
 
-    ld_bic_str \state_nl, 0, 3
-    ld_bic_str \state_nh, 0, 3
+    ld_bic_str \state_l, \state_nl, 0, 3
+    ld_bic_str \state_h, \state_nh, 0, 3
 
-    ld_bic_str \state_nl, 0, 4
-    ld_bic_str \state_nh, 0, 4
+    ld_bic_str \state_l, \state_nl, 0, 4
+    ld_bic_str \state_h, \state_nh, 0, 4
 
-    ld_bic_str_1 \state_nl, 0, 0, A00_l, qA20_l
-    ld_bic_str_0 \state_nh, 0, 0, A00_h
+    ld_bic_str_1 \state_l, \state_nl, 0, 0, A00_l, qA20_l
+    ld_bic_str_0 \state_h, \state_nh, 0, 0, A00_h
     
 
     ldrd r<grc_l>, r<grc_h>, [\rc]
     vdup.32 q<vrc_l>, r<grc_l>
     veor qA00_l, q<A00_l>, q<vrc_l>
-    vstrw.32 qA00_l, [\state_nl, #A__00] // @slothy:writes=A\state_nl\()__00
+    vstrw.32 qA00_l, [\state_l, #A__00] // @slothy:writes=A\state_l\()__00
     vdup.32 q<vrc_h>, r<grc_h>
     veor qA00_h, q<A00_h>, q<vrc_h>
-    vstrw.32 qA00_h, [\state_nh, #A__00] // @slothy:writes=A\state_nh\()__00
+    vstrw.32 qA00_h, [\state_h, #A__00] // @slothy:writes=A\state_h\()__00
 .endm
 
 .text
@@ -505,10 +505,6 @@ roundstart:
     keccak_4fold_round_chi_iota r2, r3, r4, r5, r6
 
     add r6, r6, #8
-    add r3, r2, #0
-    add r2, r4, #0
-    add r4, r3, #0
-
 roundend_pre:
     le lr, roundstart
 roundend:
