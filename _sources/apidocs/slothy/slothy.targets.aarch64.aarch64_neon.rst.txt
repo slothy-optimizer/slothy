@@ -27,6 +27,9 @@ Classes
    * - :py:obj:`SubsLoop <slothy.targets.aarch64.aarch64_neon.SubsLoop>`
      - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.SubsLoop
           :summary:
+   * - :py:obj:`BranchLoop <slothy.targets.aarch64.aarch64_neon.BranchLoop>`
+     - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.BranchLoop
+          :summary:
    * - :py:obj:`Instruction <slothy.targets.aarch64.aarch64_neon.Instruction>`
      - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.Instruction
           :summary:
@@ -1060,6 +1063,27 @@ API
       :canonical: slothy.targets.aarch64.aarch64_neon.SubsLoop.end
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.SubsLoop.end
+
+.. py:class:: BranchLoop(lbl='lbl')
+   :canonical: slothy.targets.aarch64.aarch64_neon.BranchLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.BranchLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.BranchLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.aarch64.aarch64_neon.BranchLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.BranchLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.aarch64.aarch64_neon.BranchLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.BranchLoop.end
 
 .. py:class:: Instruction(*, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None)
    :canonical: slothy.targets.aarch64.aarch64_neon.Instruction
