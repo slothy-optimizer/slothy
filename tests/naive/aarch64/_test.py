@@ -287,6 +287,21 @@ class AArch64FusionVeor(OptimizationRunner):
         slothy.fusion_region(start="start", end="end", ssa=False)
 
 
+class AArch64CStyleComments(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_cstyle_comments"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.optimize(start="start", end="end")
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -309,4 +324,5 @@ test_instances = [
     AArch64LoopLabels(),
     AArch64LoopBranch(),
     AArch64FusionVeor(),
+    AArch64CStyleComments(),
 ]
