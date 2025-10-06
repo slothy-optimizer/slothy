@@ -72,8 +72,34 @@ Functions
      - .. autodoc2-docstring:: slothy.helper.lookup_multidict
           :summary:
 
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`_BLOCK_COMMENT_MARKER <slothy.helper._BLOCK_COMMENT_MARKER>`
+     - .. autodoc2-docstring:: slothy.helper._BLOCK_COMMENT_MARKER
+          :summary:
+   * - :py:obj:`_NEWLINE_MARKER <slothy.helper._NEWLINE_MARKER>`
+     - .. autodoc2-docstring:: slothy.helper._NEWLINE_MARKER
+          :summary:
+
 API
 ~~~
+
+.. py:data:: _BLOCK_COMMENT_MARKER
+   :canonical: slothy.helper._BLOCK_COMMENT_MARKER
+   :value: '__SLOTHY_BLOCK__'
+
+   .. autodoc2-docstring:: slothy.helper._BLOCK_COMMENT_MARKER
+
+.. py:data:: _NEWLINE_MARKER
+   :canonical: slothy.helper._NEWLINE_MARKER
+   :value: '__SLOTHY_NL__'
+
+   .. autodoc2-docstring:: slothy.helper._NEWLINE_MARKER
 
 .. py:class:: SourceLine(s, reduce=True)
    :canonical: slothy.helper.SourceLine
