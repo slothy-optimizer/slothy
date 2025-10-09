@@ -1442,6 +1442,28 @@ class vmov_gpr2(Armv7mFPInstruction):
     outputs = ["Sd"]
 
 
+class vmov_gpr_dual(Armv7mFPInstruction):
+    pattern = "vmov<width> <Ra>, <Rb>, <Sd1>, <Sd2>"
+    inputs = ["Sd1", "Sd2"]
+    outputs = ["Ra", "Rb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mInstruction.build(cls, src)
+        obj.args_in_combinations = [
+            (
+                [0, 1],
+                [
+                    [f"s{i}", f"s{i+1}"]
+                    for i in range(
+                        0, len(RegisterType.list_registers(RegisterType.FPR))
+                    )
+                ],
+            )
+        ]
+        return obj
+
+
 class vmov_gpr2_dual(Armv7mFPInstruction):
     pattern = "vmov<width> <Sd1>, <Sd2>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
