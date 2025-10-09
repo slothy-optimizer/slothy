@@ -2133,6 +2133,38 @@ class vldr_with_postinc(Armv7mLoadInstruction):
         return obj
 
 
+class vldm_interval(Armv7mLoadInstruction):
+    pattern = "vldm<width> <Ra>, <reg_list>"
+    inputs = ["Ra"]
+    outputs = []
+
+    def write(self):
+        regs = ",".join(self.args_out)
+        self.reg_list = f"{{{regs}}}"
+        return super().write()
+
+    @classmethod
+    def make(cls, src):
+        obj = Armv7mLoadInstruction.build(cls, src)
+        reg_list_type, reg_list = Armv7mInstruction._expand_reg_list(obj.reg_list)
+
+        obj.args_out = reg_list
+        obj.num_out = len(obj.args_out)
+        obj.arg_types_out = [RegisterType.FPR] * obj.num_out
+        available_regs = RegisterType.list_registers(RegisterType.FPR)
+        obj.args_out_combinations = [
+            (
+                list(range(0, obj.num_out)),
+                [
+                    [f"s{i+j}" for i in range(0, obj.num_out)]
+                    for j in range(0, len(available_regs) - obj.num_out)
+                ],
+            )
+        ]
+        obj.args_out_restrictions = [None for _ in range(obj.num_out)]
+        return obj
+
+
 class vldm_interval_inc_writeback(Armv7mLoadInstruction):
     pattern = "vldm<width> <Ra>!, <reg_list>"
     in_outs = ["Ra"]
