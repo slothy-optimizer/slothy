@@ -86,6 +86,7 @@ from slothy.targets.arm_v7m.arch_v7m import (
     bne,
     vmov_gpr,
     vmov_gpr2,
+    vmov_gpr_dual,
     vmov_gpr2_dual,
     pkhbt,
     pkhtb,
@@ -323,7 +324,7 @@ execution_units = {
         smuadx,
         smmulr,
     ): [ExecutionUnit.MAC],
-    (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
+    (vmov_gpr, vmov_gpr2, vmov_gpr_dual, vmov_gpr2_dual): [ExecutionUnit.FPU],
     (uadd16, sadd16, usub16, ssub16): list(
         map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))
     ),
@@ -409,6 +410,7 @@ inverse_throughput = {
         cmp_imm,
         vmov_gpr,
         vmov_gpr2,
+        vmov_gpr_dual,
         vmov_gpr2_dual,  # verify for dual
         pkhbt,
         pkhtb,
@@ -519,7 +521,7 @@ default_latencies = {
     ): 2,
     (Ldrd): 3,
     (vmov_gpr2, vmov_gpr2_dual): 3,
-    (vmov_gpr): 1,
+    (vmov_gpr, vmov_gpr_dual): 1,
 }
 
 
