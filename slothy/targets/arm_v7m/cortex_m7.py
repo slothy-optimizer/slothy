@@ -37,6 +37,7 @@ from slothy.targets.arm_v7m.arch_v7m import (
     ldm_interval,
     ldm_interval_inc_writeback,
     vldm_interval_inc_writeback,
+    vldm_interval,
     str_with_imm,
     str_with_imm_stack,
     str_with_postinc,
@@ -85,6 +86,7 @@ from slothy.targets.arm_v7m.arch_v7m import (
     bne,
     vmov_gpr,
     vmov_gpr2,
+    vmov_gpr_dual,
     vmov_gpr2_dual,
     pkhbt,
     pkhtb,
@@ -255,9 +257,13 @@ execution_units = {
         vldr_with_imm,
         vldr_with_postinc,  # TODO: also FPU?
     ): ExecutionUnit.LOAD(),
-    (Ldrd, ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback): [
-        ExecutionUnit.LOAD()
-    ],
+    (
+        Ldrd,
+        ldm_interval,
+        ldm_interval_inc_writeback,
+        vldm_interval_inc_writeback,
+        vldm_interval,
+    ): [ExecutionUnit.LOAD()],
     (
         str_with_imm,
         str_with_imm_stack,
@@ -318,7 +324,7 @@ execution_units = {
         smuadx,
         smmulr,
     ): [ExecutionUnit.MAC],
-    (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
+    (vmov_gpr, vmov_gpr2, vmov_gpr_dual, vmov_gpr2_dual): [ExecutionUnit.FPU],
     (uadd16, sadd16, usub16, ssub16): list(
         map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))
     ),
@@ -344,6 +350,7 @@ inverse_throughput = {
         ldm_interval,
         ldm_interval_inc_writeback,
         vldm_interval_inc_writeback,
+        vldm_interval,
         movw_imm,
         movt_imm,
         adds,
@@ -403,6 +410,7 @@ inverse_throughput = {
         cmp_imm,
         vmov_gpr,
         vmov_gpr2,
+        vmov_gpr_dual,
         vmov_gpr2_dual,  # verify for dual
         pkhbt,
         pkhtb,
@@ -467,6 +475,7 @@ default_latencies = {
         ldm_interval,
         ldm_interval_inc_writeback,
         vldm_interval_inc_writeback,
+        vldm_interval,
         str_with_imm,
         str_with_imm_stack,
         str_with_postinc,
@@ -512,7 +521,7 @@ default_latencies = {
     ): 2,
     (Ldrd): 3,
     (vmov_gpr2, vmov_gpr2_dual): 3,
-    (vmov_gpr): 1,
+    (vmov_gpr, vmov_gpr_dual): 1,
 }
 
 
@@ -593,6 +602,7 @@ def get_latency(src, out_idx, dst):
         ldm_interval_inc_writeback,
         stm_interval_inc_writeback,
         vldm_interval_inc_writeback,
+        vldm_interval,
     ]:
         latency = src.num_out
 
@@ -647,6 +657,7 @@ def get_inverse_throughput(src):
         ldm_interval_inc_writeback,
         stm_interval_inc_writeback,
         vldm_interval_inc_writeback,
+        vldm_interval,
     ]:
         itp = src.num_out
 
