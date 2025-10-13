@@ -28,7 +28,7 @@
 """
 SLOTHY configuration
 """
-
+import shutil
 
 from copy import deepcopy
 
@@ -143,7 +143,19 @@ class Config(NestedPrint, LockAttributes):
 
             This is so far implemented as a repeated randomized test -- nothing clever.
         """
-        return self._selftest
+        selftest_enabled = self._selftest
+        if None in [
+            shutil.which(tool) for tool in ["llvm-mc", "llvm-nm", "llvm-readobj"]
+        ]:
+            self.logger.warning(
+                (
+                    "LLVM (llvm-mc, llvm-nm, llvm-readobj) not found, "
+                    "disabling selftest. Consider installing LLVM."
+                )
+            )
+            selftest_enabled = False
+
+        return selftest_enabled
 
     @property
     def selftest_iterations(self):
@@ -1294,11 +1306,12 @@ class Config(NestedPrint, LockAttributes):
         def order_hint_orig_order(self, val):
             self._order_hint_orig_order = val
 
-    def __init__(self, Arch, Target):
+    def __init__(self, Arch, Target, logger):
         super().__init__()
 
         self._arch = Arch
         self._target = Target
+        self.logger = logger
 
         self._sw_pipelining = Config.SoftwarePipelining()
         self._constraints = Config.Constraints()

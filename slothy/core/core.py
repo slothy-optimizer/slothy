@@ -1606,8 +1606,10 @@ class SlothyBase(LockAttributes):
         self, Arch: any, Target: any, *, logger: any = None, config: any = None
     ):
         super().__init__()
-        self.config = config if config is not None else Config(Arch, Target)
         self.logger = logger if logger is not None else logging.getLogger("slothy")
+        self.config = (
+            config if config is not None else Config(Arch, Target, self.logger)
+        )
         self.logger.input = self.logger.getChild("input")
         self.logger.config = self.logger.getChild("config")
         self.logger.result = self.logger.getChild("result")
