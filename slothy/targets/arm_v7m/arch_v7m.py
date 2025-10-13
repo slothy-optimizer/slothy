@@ -1620,6 +1620,12 @@ class mls(Armv7mMultiplication):
     outputs = ["Rd"]
 
 
+class umull(Armv7mMultiplication):
+    pattern = "umull<width> <Ra>, <Rb>, <Rc>, <Rd>"
+    inputs = ["Rc", "Rd"]
+    outputs = ["Ra", "Rb"]
+
+
 class smulwb(Armv7mMultiplication):
     pattern = "smulwb<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
