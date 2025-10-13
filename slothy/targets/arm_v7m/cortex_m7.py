@@ -54,6 +54,7 @@ from slothy.targets.arm_v7m.arch_v7m import (
     add_imm_short,
     mul,
     mul_short,
+    umull,
     smull,
     smlal,
     mla,
@@ -171,6 +172,7 @@ def add_mac_slot_constraint(slothy):
         [
             mul,
             mul_short,
+            umull,
             smull,
             smlal,
             mla,
@@ -305,6 +307,7 @@ execution_units = {
     (
         mul,
         mul_short,
+        umull,
         smull,
         smlal,
         mla,
@@ -369,6 +372,7 @@ inverse_throughput = {
         ssub16,
         mul,
         mul_short,
+        umull,
         smull,
         smlal,
         mla,
@@ -487,6 +491,7 @@ default_latencies = {
     (
         mul,
         mul_short,
+        umull,
         smull,
         smlal,
         mla,
