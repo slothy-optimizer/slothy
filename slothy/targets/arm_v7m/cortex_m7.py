@@ -45,6 +45,7 @@ from slothy.targets.arm_v7m.arch_v7m import (
     strh_with_imm,
     strh_with_postinc,
     stm_interval_inc_writeback,
+    movs_imm,
     movw_imm,
     movt_imm,
     adds,
@@ -277,6 +278,7 @@ execution_units = {
         stm_interval_inc_writeback,
     ): [[ExecutionUnit.STORE, ExecutionUnit.MAC]],
     (
+        movs_imm,
         movw_imm,
         movt_imm,
         adds,
@@ -356,6 +358,7 @@ inverse_throughput = {
         ldm_interval_inc_writeback,
         vldm_interval_inc_writeback,
         vldm_interval,
+        movs_imm,
         movw_imm,
         movt_imm,
         adds,
@@ -436,6 +439,7 @@ inverse_throughput = {
 
 default_latencies = {
     (
+        movs_imm,
         movw_imm,
         movt_imm,
         adds,
