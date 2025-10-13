@@ -1487,6 +1487,12 @@ class vmov_gpr2_dual(Armv7mFPInstruction):
 
 
 # movs
+class movs_imm(Armv7mBasicArithmetic):
+    pattern = "movs <Rd>, <imm>"
+    outputs = ["Rd"]
+    modifiesFlags = True
+
+
 class movw_imm(Armv7mBasicArithmetic):
     pattern = "movw <Rd>, <imm>"
     outputs = ["Rd"]
