@@ -55,6 +55,7 @@ from slothy.targets.arm_v7m.arch_v7m import (
     mul,
     mul_short,
     umull,
+    umaal,
     smull,
     smlal,
     mla,
@@ -308,6 +309,7 @@ execution_units = {
         mul,
         mul_short,
         umull,
+        umaal,
         smull,
         smlal,
         mla,
@@ -373,6 +375,7 @@ inverse_throughput = {
         mul,
         mul_short,
         umull,
+        umaal,
         smull,
         smlal,
         mla,
@@ -492,6 +495,7 @@ default_latencies = {
         mul,
         mul_short,
         umull,
+        umaal,
         smull,
         smlal,
         mla,
@@ -559,9 +563,10 @@ def get_latency(src, out_idx, dst):
                 latency = latency - 1
 
     # Multiply accumulate chain latency is 1
+    # TODO: verify this for umaal
     if (
         instclass_src in [smlal]
-        and instclass_dst in [smlal]
+        and instclass_dst in [smlal, umaal]
         and src.args_in_out[0] == dst.args_in_out[0]
         and src.args_in_out[1] == dst.args_in_out[1]
     ):
