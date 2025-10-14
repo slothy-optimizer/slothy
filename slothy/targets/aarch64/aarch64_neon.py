@@ -3131,6 +3131,12 @@ class vqrdmulh_lane(Vqdmulh):
         return obj
 
 
+class vqdmulh_vector(Vqdmulh):
+    pattern = "sqdmulh <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class vqdmulh_lane(Vqdmulh):
     pattern = "sqdmulh <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
     inputs = ["Va", "Vb"]
