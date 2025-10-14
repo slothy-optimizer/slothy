@@ -132,6 +132,15 @@ def main():
                 This is mutually exclusive with -l/--loop.""",
     )
     parser.add_argument(
+        "--se",
+        default=[],
+        action="append",
+        nargs="*",
+        metavar="START,END",
+        help="""Specify start,end label pairs. Can be provided multiple times.
+                Mutually exclusive with -l/--loop, -s/--start, and -e/--end.""",
+    )
+    parser.add_argument(
         "-r",
         "--rename-function",
         default=None,
@@ -162,6 +171,11 @@ def main():
     )
 
     args = parser.parse_args()
+
+    if args.se and (args.loop or args.start or args.end):
+        raise CmdLineException(
+            "--se cannot be used together with -l/--loop, -s/--start, or -e/--end"
+        )
 
     handlers = []
 
@@ -381,6 +395,14 @@ def main():
         if len(args.loop) > 0:
             for lll in args.loop:
                 slothy.optimize_loop(lll)
+        elif args.se:
+            for pair in args.se:
+                parts = pair.split(",", 1)
+                if len(parts) != 2:
+                    raise CmdLineException(
+                        f"Invalid --se pair '{pair}', expected start,end"
+                    )
+                slothy.optimize(start=parts[0], end=parts[1])
         else:
             slothy.optimize(start=args.start, end=args.end)
 
