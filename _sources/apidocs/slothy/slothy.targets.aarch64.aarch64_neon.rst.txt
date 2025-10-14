@@ -442,6 +442,8 @@ Classes
      -
    * - :py:obj:`vqrdmulh_lane <slothy.targets.aarch64.aarch64_neon.vqrdmulh_lane>`
      -
+   * - :py:obj:`vqdmulh_vector <slothy.targets.aarch64.aarch64_neon.vqdmulh_vector>`
+     -
    * - :py:obj:`vqdmulh_lane <slothy.targets.aarch64.aarch64_neon.vqdmulh_lane>`
      -
    * - :py:obj:`fcsel_dform <slothy.targets.aarch64.aarch64_neon.fcsel_dform>`
@@ -5959,6 +5961,29 @@ API
    .. py:method:: make(src)
       :canonical: slothy.targets.aarch64.aarch64_neon.vqrdmulh_lane.make
       :classmethod:
+
+.. py:class:: vqdmulh_vector(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.vqdmulh_vector
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Vqdmulh`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.vqdmulh_vector.pattern
+      :value: 'sqdmulh <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vqdmulh_vector.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vqdmulh_vector.inputs
+      :value: ['Va', 'Vb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vqdmulh_vector.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vqdmulh_vector.outputs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vqdmulh_vector.outputs
 
 .. py:class:: vqdmulh_lane(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.vqdmulh_lane
