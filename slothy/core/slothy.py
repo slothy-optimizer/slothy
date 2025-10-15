@@ -97,8 +97,6 @@ class Slothy:
     target = property(_get_target)
 
     def __init__(self, arch, target, logger=None):
-        self.config = Config(arch, target)
-
         # Configure default logging to stdout if no handlers are configured
         if logger is None:
             root_logger = logging.getLogger()
@@ -107,6 +105,8 @@ class Slothy:
             self.logger = logging.getLogger("slothy")
         else:
             self.logger = logger
+
+        self.config = Config(arch, target, logger=logger)
 
         # The source, once loaded, is represented as a list of strings
         self._source = None
