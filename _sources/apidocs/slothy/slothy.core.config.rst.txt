@@ -34,7 +34,7 @@ API
 
    .. autodoc2-docstring:: slothy.core.config.InvalidConfig.__init__
 
-.. py:class:: Config(Arch, Target)
+.. py:class:: Config(Arch, Target, logger)
    :canonical: slothy.core.config.Config
 
    Bases: :py:obj:`slothy.helper.NestedPrint`, :py:obj:`slothy.helper.LockAttributes`
