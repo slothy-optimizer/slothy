@@ -6,6 +6,7 @@ add r0, r1, r2
 sub r0, r1, r2
 
 ldr r0, [sp, #4]
+ldr r0, [sp, #2<<1]
 ldr r1, [r13, #8]
 
 ldr r0, [sp, #4]
@@ -65,6 +66,7 @@ ldrd r0, r1, [r2]
 ldrd r0, r1, [r2, #16]
 ldrd r0, r1, [r2, #-16]
 ldrd r0, r1, [r2], #16
+ldrd r0, r1, [r2], #8<<1
 ldrd r0, r1, [r2], #-16
 ldrd r0, r1, [r2, #16]!
 ldrd r0, r1, [r2, #-16]!
@@ -149,6 +151,7 @@ sub r0, r1, #16
 
 vshr.u8 q0, q1, #8
 vshr.u16 q0, q1, #16
+vshr.u16 q0, q1, #8<<1
 vshr.u32 q0, q1, #16
 vshr.s8 q0, q1, #8
 vshr.s16 q0, q1, #16
@@ -386,6 +389,7 @@ vhcadd.s8 q2, q0, q1, #270
 vhcadd.s16 q2, q0, q1, #90
 vhcadd.s16 q2, q0, q1, #270
 vhcadd.s32 q2, q0, q1, #90
+vhcadd.s32 q2, q0, q1, #45<<1
 vhcadd.s32 q2, q0, q1, #270
 
 lsr r0, r0, #1
