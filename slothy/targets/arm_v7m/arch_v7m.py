@@ -1619,6 +1619,12 @@ class mul(Armv7mMultiplication):
     outputs = ["Rd"]
 
 
+class muls(Armv7mMultiplication):
+    pattern = "muls <Rd>, <Ra>, <Rb>"
+    inputs = ["Ra", "Rb"]
+    outputs = ["Rd"]
+
+
 class mul_short(Armv7mMultiplication):
     pattern = "mul<width> <Rd>, <Ra>"
     inputs = ["Ra"]
