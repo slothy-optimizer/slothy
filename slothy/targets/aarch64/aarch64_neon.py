@@ -1011,9 +1011,9 @@ class AArch64Instruction(Instruction):
         flag_pattern = "|".join(flaglist)
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = (
-            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=)+)"
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
             "|"
-            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=)+)"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
         )
         index_pattern = "[0-9]+"
         barrel_pattern = "(?i:lsl|ror|lsr|asr)\\\\s*"
