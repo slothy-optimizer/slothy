@@ -1492,6 +1492,11 @@ class mov(Armv7mBasicArithmetic):
     outputs = ["Rd"]
 
 
+class mov_imm(Armv7mBasicArithmetic):
+    pattern = "mov <Rd>, <imm>"
+    outputs = ["Rd"]
+
+
 # movs
 class movs_imm(Armv7mBasicArithmetic):
     pattern = "movs <Rd>, <imm>"
