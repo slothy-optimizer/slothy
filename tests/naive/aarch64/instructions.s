@@ -3,6 +3,7 @@ start:
 // TODO: this is currently incomplete. We should add all instructions
 
 add x2, x1, #64
+add x2, x1, #32<<1
 add x2, x1, 64
 
 eon x2, x2, x1
@@ -31,7 +32,7 @@ orn v27.16b, v28.16b, v29.16b
 eor v30.16b, v31.16b, v0.16b
 ext v0.16b, v1.16b, v2.16b, #8
 sli v3.16b, v4.16b, #2
-sri v1.16b, v2.16b, #4
+sri v1.16b, v2.16b, #2<<1
 trn1 v17.16b, v18.16b, v19.16b
 trn2 v20.16b, v21.16b, v22.16b
 aese v0.16b, v1.16b
