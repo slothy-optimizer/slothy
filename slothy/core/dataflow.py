@@ -110,6 +110,31 @@ class InstructionInOut(RegisterSource):
         return InstructionInOut(self.src.sibling, self.idx)
 
 
+class MaskingInfo:
+    """Masking information for an input register.
+
+    Represents whether an input is public or secret,
+    and if secret, which secret variable it belongs to and which share.
+    """
+
+    def __init__(self, is_public, secret_name=None, share_index=None):
+        assert isinstance(is_public, bool), "is_public must be True or False"
+        self.is_public = is_public  # True if public, False if secret
+        self.secret_name = secret_name  # Name of the secret variable (must be set if secret)
+        self.share_index = share_index  # Index of this share (must be set if secret)
+
+        # Validate: if secret, must have secret_name and share_index
+        if not is_public:
+            assert secret_name is not None, "Secret inputs must have secret_name"
+            assert share_index is not None, "Secret inputs must have share_index"
+
+    def __repr__(self):
+        if self.is_public:
+            return "public"
+        else:
+            return f"secret({self.secret_name},share{self.share_index})"
+
+
 class VirtualInstruction:
     """A 'virtual' instruction node for inputs and outputs."""
 
@@ -164,18 +189,24 @@ class VirtualOutputInstruction(VirtualInstruction):
 class VirtualInputInstruction(VirtualInstruction):
     """A virtual instruction node for inputs."""
 
-    def __init__(self, reg, reg_ty):
+    def __init__(self, reg, reg_ty, masking_info=None):
         super().__init__(reg, reg_ty)
         self.num_out = 1
         self.args_out = [reg]
         self.arg_types_out = [reg_ty]
         self.args_out_restrictions = [None]
 
+        # Masking annotations (None if no masking information)
+        self.masking_info = masking_info
+
     def write(self):
         return f"// input renaming: {self.orig_reg} -> {self.args_out[0]}"
 
     def __repr__(self):
-        return f"<input:{self.orig_reg}:{self.arg_types_out[0]}>"
+        masking_str = ""
+        if self.masking_info is not None:
+            masking_str = f":{self.masking_info}"
+        return f"<input:{self.orig_reg}:{self.arg_types_out[0]}{masking_str}>"
 
 
 class ComputationNode:
@@ -361,6 +392,16 @@ class Config:
         """
         return self._allow_useless_instructions
 
+    @property
+    def secret_inputs(self):
+        """Masking annotation: secret inputs"""
+        return self._secret_inputs
+
+    @property
+    def public_inputs(self):
+        """Masking annotation: public inputs"""
+        return self._public_inputs
+
     @outputs.setter
     def outputs(self, val):
         self._outputs = val
@@ -379,6 +420,8 @@ class Config:
         self._inputs_are_outputs = None
         self._allow_useless_instructions = None
         self._locked_registers = None
+        self._secret_inputs = {}
+        self._public_inputs = set()
         self._load_slothy_config(slothy_config)
 
         for k, v in kwargs.items():
@@ -399,6 +442,8 @@ class Config:
         self._unsafe_address_offset_fixup = (
             self._slothy_config.unsafe_address_offset_fixup
         )
+        self._secret_inputs = self._slothy_config.secret_inputs
+        self._public_inputs = self._slothy_config.public_inputs
 
 
 class DataFlowGraphException(Exception):
@@ -993,6 +1038,33 @@ class DataFlowGraph:
         # Add the single valid candidate parsing to the CFG
         self._add_node(valid_candidates[0])
 
+    def _get_masking_info(self, name):
+        """Determine masking information for an input register.
+
+        Args:
+            name: Register name
+
+        Returns:
+            MaskingInfo object if the register has masking annotations, None otherwise
+        """
+        # Check if this register is marked as public
+        if name in self.config.public_inputs:
+            self.logger.debug(f"-> {name} is marked as public input")
+            return MaskingInfo(is_public=True)
+
+        # Check if this register is part of a secret input
+        for secret, shares in self.config.secret_inputs.items():
+            for idx, share_regs in enumerate(shares):
+                if name in share_regs:
+                    self.logger.debug(
+                        f"-> {name} is share {idx} of secret '{secret}'"
+                    )
+                    return MaskingInfo(
+                        is_public=False, secret_name=secret, share_index=idx
+                    )
+
+        return None
+
     def _find_source_single(self, ty, name):
         self.logger.debug("Finding source of register %s of type %s", name, ty)
 
@@ -1000,10 +1072,14 @@ class DataFlowGraph:
         if name not in self.reg_state:
             # If not, treat them as a global input
             self.logger.debug("-> %s is a global input", name)
+
+            # Determine masking annotations for this input
+            masking_info = self._get_masking_info(name)
+
             # Create a virtual instruction producing the output add that first
             # Since the virtual instruction does not have any inputs, there is
             # no risk of infinite recursion here
-            self._add_node(VirtualInputInstruction(name, ty))
+            self._add_node(VirtualInputInstruction(name, ty, masking_info))
             # Fall through
 
         # At this point, the source _must_ be produced by an instruction in the graph

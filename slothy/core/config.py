@@ -407,6 +407,42 @@ class Config(NestedPrint, LockAttributes):
         return self._inputs_are_outputs
 
     @property
+    def secret_inputs(self):
+        """Dictionary mapping secret variable names to lists of shares.
+
+        This is used for masking annotations where multiple registers represent
+        shares of the same secret value. The dictionary maps a symbolic name for
+        the secret to a list of shares, where each share can consist of one or
+        more registers.
+
+        Example:
+            # Simple case: each share is a single register
+            config.secret_inputs = {
+                "a": [["x0"], ["x1"]],  # Two shares of secret 'a', each using one register
+                "b": [["x2"], ["x3"]]   # Two shares of secret 'b', each using one register
+            }
+
+            # Complex case: each share uses multiple registers
+            config.secret_inputs = {
+                "a": [["x0", "x1"], ["x2", "x3"]],  # Two shares of 'a', each share uses 2 registers
+                "b": [["x4"], ["x5"], ["x6"]]       # Three shares of 'b', each share uses 1 register
+            }
+        """
+        return self._secret_inputs
+
+    @property
+    def public_inputs(self):
+        """Set of registers that contain public (non-secret) inputs.
+
+        This is used for masking annotations to mark which inputs are public
+        and do not require protection via masking.
+
+        Example:
+            config.public_inputs = {"x5", "x6"}
+        """
+        return self._public_inputs
+
+    @property
     def locked_registers(self):
         """List of architectural registers that should not be renamed when they are
         used as output registers. Reserved registers are treated as locked if
@@ -1391,6 +1427,10 @@ class Config(NestedPrint, LockAttributes):
         self.log_model_log_results = True
         self.log_model_results_file = "results.txt"
 
+        # Masking annotations
+        self._secret_inputs = {}
+        self._public_inputs = set()
+
         self.lock()
 
     @arch.setter
@@ -1420,6 +1460,14 @@ class Config(NestedPrint, LockAttributes):
     @inputs_are_outputs.setter
     def inputs_are_outputs(self, val):
         self._inputs_are_outputs = val
+
+    @secret_inputs.setter
+    def secret_inputs(self, val):
+        self._secret_inputs = val
+
+    @public_inputs.setter
+    def public_inputs(self, val):
+        self._public_inputs = val
 
     @rename_inputs.setter
     def rename_inputs(self, val):

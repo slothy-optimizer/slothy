@@ -50,6 +50,9 @@ from examples.naive.aarch64.kyber._example import (
 from examples.naive.aarch64.keccak._example import (
     example_instances as example_instances_aarch64_keccak,
 )
+from examples.naive.aarch64.leakage._example import (
+    example_instances as example_instances_aarch64_leakage,
+)
 
 from examples.naive.armv7m.dilithium._example import (
     example_instances as example_instances_armv7m_dilithium,
@@ -93,6 +96,7 @@ def main():
         + example_instances_aarch64_dilithium
         + example_instances_aarch64_kyber
         + example_instances_aarch64_keccak
+        + example_instances_aarch64_leakage
         + example_instances_armv8m_kyber
         + example_instances_armv8m_dilithium
         + example_instances_armv8m_flt_r4_fft
