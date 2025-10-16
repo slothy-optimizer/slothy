@@ -1714,6 +1714,7 @@ class SlothyBase(LockAttributes):
         self._add_constraints_functional_units()
         self._add_constraints_loop_periodic()
         self._add_constraints_locked_ordering()
+        self._add_constraints_masking()
         self._add_constraints_misc()
 
         # - Objective
@@ -3627,10 +3628,21 @@ class SlothyBase(LockAttributes):
             self._AddNoOverlap(usage_intervals)
 
     # ================================================================#
-    #                     CONSTRAINT (Performance)                    #
+    #                     CONSTRAINT (Masking)                        #
     # -----------------------------------------------------------------#
-    # Further microarchitecture dependent positional constraints      #
+    # Prevent illegal sharing of registers between different shares  #
     # ================================================================#
+
+    def _add_constraints_masking(self):
+        """Add all masking-related constraints.
+
+        This is a wrapper that calls individual masking constraint functions.
+        More masking constraints can be added here in the future.
+        """
+        from slothy.core.masking import add_masking_constraints_no_share_overwrite
+
+        # Rule: Cannot overwrite a register containing share X with share Y (X ≠ Y)
+        add_masking_constraints_no_share_overwrite(self)
 
     def _add_constraints_misc(self):
         self.target.add_further_constraints(self)
