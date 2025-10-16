@@ -198,6 +198,39 @@ def propagate_masking_info(dfg):
                 logger.info(f"Output {reg}: public")
 
 
+def get_node_input_masking_infos(node):
+    """Get a list of all masking information from a node's inputs.
+
+    Args:
+        node: ComputationNode object
+
+    Returns:
+        List of MaskingInfo objects (or None values) from all inputs
+    """
+    input_masking_infos = []
+
+    # Import here to avoid circular dependency
+    from slothy.core.dataflow import InstructionOutput, InstructionInOut
+
+    # Collect from regular inputs
+    for src in node.src_in:
+        if isinstance(src, InstructionOutput):
+            print(src.src.masking_info_out[src.idx])
+            mask_info = src.src.masking_info_out[src.idx]
+            input_masking_infos.append(mask_info)
+        elif isinstance(src, InstructionInOut):
+            mask_info = src.src.masking_info_in_out[src.idx]
+            input_masking_infos.append(mask_info)
+
+    # Collect from in/out inputs
+    for src in node.src_in_out:
+        if isinstance(src, InstructionInOut):
+            mask_info = src.src.masking_info_in_out[src.idx]
+            input_masking_infos.append(mask_info)
+
+    return input_masking_infos
+
+
 def compute_node_masking_info(node, logger=None):
     """Compute masking information for a node's outputs based on its inputs.
 
@@ -217,25 +250,7 @@ def compute_node_masking_info(node, logger=None):
         return
 
     # For regular instructions, collect masking info from all inputs
-    input_masking_infos = []
-
-    # Import here to avoid circular dependency
-    from slothy.core.dataflow import InstructionOutput, InstructionInOut
-
-    # Collect from regular inputs
-    for src in node.src_in:
-        if isinstance(src, InstructionOutput):
-            mask_info = src.src.masking_info_out[src.idx]
-            input_masking_infos.append(mask_info)
-        elif isinstance(src, InstructionInOut):
-            mask_info = src.src.masking_info_in_out[src.idx]
-            input_masking_infos.append(mask_info)
-
-    # Collect from in/out inputs
-    for src in node.src_in_out:
-        if isinstance(src, InstructionInOut):
-            mask_info = src.src.masking_info_in_out[src.idx]
-            input_masking_infos.append(mask_info)
+    input_masking_infos = get_node_input_masking_infos(node)
 
     # Combine masking info for all outputs (for now, same for all outputs)
     try:
