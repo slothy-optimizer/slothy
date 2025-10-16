@@ -39,6 +39,8 @@ import slothy.targets.aarch64.aarch64_big_experimental as Target_AArch64Big
 import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
+import slothy.targets.otbn.otbn_uarch as Target_OTBN
+
 
 from tests.naive.armv7m._test import (
     test_instances as test_instances_armv7m,
@@ -52,9 +54,16 @@ from tests.naive.aarch64._test import (
     test_instances as test_instances_aarch64,
 )
 
+from tests.naive.otbn._test import test_instances as test_instances_otbn
+
 
 def main():
-    tests = test_instances_armv7m + test_instances_armv8m + test_instances_aarch64
+    tests = (
+        test_instances_armv7m
+        + test_instances_armv8m
+        + test_instances_aarch64
+        + test_instances_otbn
+    )
 
     all_test_names = [e.name for e in tests]
 
@@ -90,6 +99,7 @@ def main():
             Target_AppleM1_firestorm.__name__,
             Target_AppleM1_icestorm.__name__,
             Target_AArch64Big.__name__,
+            Target_OTBN.__name__,
         ],
     )
     args = parser.parse_args()
