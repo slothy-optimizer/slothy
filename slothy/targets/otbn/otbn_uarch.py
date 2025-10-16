@@ -37,6 +37,7 @@ from slothy.targets.otbn.otbn import (
     all_subclass_leaves,
     OTBNInstruction,
 )
+from slothy.core.masking import get_node_input_masking_infos
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
 # "The dispatch stage can process up to three µops per cycle"
@@ -59,7 +60,72 @@ class ExecutionUnit(Enum):
 # Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
-    _ = slothy
+    if slothy.config.constraints.functional_only:
+        return
+    add_non_consec_shares(slothy)
+
+
+def add_non_consec_shares(slothy):
+    """Add constraints to prevent consecutive execution on different shares of
+       the same secret variable.
+
+    This function adds microarchitectural constraints to ensure that instructions
+    operating on different shares of the same secret variable are not scheduled
+    in consecutive cycles. This helps prevent power side-channels in masked
+    cryptographic implementations.
+
+    Args:
+        slothy: The SLOTHY optimization object
+    """
+
+    def is_share_pair(inst_a, inst_b):
+        """Check if two instructions operate on different shares of the same secret.
+
+        Args:
+            inst_a: First ComputationNode to compare
+            inst_b: Second ComputationNode to compare
+
+        Returns:
+            True if the instructions operate on different shares of the same secret
+            variable (e.g., inst_a uses a[0] and inst_b uses a[1]), False otherwise
+        """
+        # Collect all masking info from both instructions
+        inst_a_masking = (
+            get_node_input_masking_infos(inst_a)
+            + inst_a.masking_info_out
+            + inst_a.masking_info_in_out
+        )
+        inst_b_masking = (
+            get_node_input_masking_infos(inst_b)
+            + inst_b.masking_info_out
+            + inst_b.masking_info_in_out
+        )
+
+        # Filter out None and public values, keep only secret shares
+        inst_a_secrets = [
+            m for m in inst_a_masking if m is not None and not m.is_public
+        ]
+        inst_b_secrets = [
+            m for m in inst_b_masking if m is not None and not m.is_public
+        ]
+
+        # Check if they operate on different shares of the same secret variable
+        for mask_a in inst_a_secrets:
+            for share_a in mask_a.shares:
+                for mask_b in inst_b_secrets:
+                    for share_b in mask_b.shares:
+                        if (
+                            share_a.secret_name == share_b.secret_name
+                            and share_a.share_index != share_b.share_index
+                        ):
+                            return True
+        return False
+
+    for t0, t1 in slothy.get_inst_pairs(cond=is_share_pair):
+        if t0.is_locked and t1.is_locked:
+            continue
+        slothy._Add(t0.cycle_start_var != t1.cycle_start_var + 1)
+        slothy._Add(t0.cycle_start_var != t1.cycle_start_var - 1)
 
 
 # Opaque function called by SLOTHY to add further microarchitecture-
