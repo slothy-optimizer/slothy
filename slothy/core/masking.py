@@ -251,3 +251,85 @@ def compute_node_masking_info(node, logger=None):
         if logger:
             logger.error(f"{node.id}: {str(e)}")
         raise
+
+
+def add_masking_constraints_no_share_overwrite(core):
+    """Add constraints to prevent overwriting a register with a different share.
+
+    Rule: A register containing share X of secret S cannot be overwritten
+    with share Y of secret S (where X ≠ Y).
+
+    Args:
+        core: The Core object with access to model, config, logger, and constraint methods
+    """
+    if not core.config.secret_inputs:
+        return
+
+    core.logger.info("Adding no-share-overwrite constraints...")
+
+    # Map: reg_name -> {(secret_name, share_idx): [intervals]}
+    register_share_intervals = {}
+    initial_register_set = set()
+
+    # Create mandatory intervals for initial register states
+    for secret_name, shares in core.config.secret_inputs.items():
+        for share_idx, share_regs in enumerate(shares):
+            for reg_name in share_regs:
+                interval = core._NewIntervalVar(0, core._model.program_horizon, core._model.program_horizon,
+                                                f"InitialMasking({reg_name})[{secret_name}_share{share_idx}]")
+                register_share_intervals.setdefault(reg_name, {}).setdefault((secret_name, share_idx), []).append(interval)
+                initial_register_set.add((reg_name, secret_name, share_idx))
+
+    # Create optional intervals for instruction outputs
+    for t in core._get_nodes(allnodes=True):
+        for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_out, t.alloc_out_var)):
+            if not mask_info or mask_info.is_public:
+                continue
+
+            for reg_name, alloc_bool in reg_var.items():
+                # Skip VirtualInputInstructions (already have mandatory intervals)
+                if len(reg_var) == 1 and all((reg_name, s.secret_name, s.share_index) in initial_register_set
+                                             for s in mask_info.shares):
+                    continue
+
+                interval = core._NewOptionalIntervalVar(
+                    t.program_start_var, core._model.program_horizon - t.program_start_var,
+                    core._model.program_horizon, alloc_bool,
+                    f"Masking({t.inst})({reg_name})[node{t.id}_out{idx}]")
+
+                for share in mask_info.shares:
+                    register_share_intervals.setdefault(reg_name, {}).setdefault(
+                        (share.secret_name, share.share_index), []).append(interval)
+
+        # Process in/out registers (same logic, no special cases)
+        for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_in_out, t.alloc_in_out_var)):
+            if not mask_info or mask_info.is_public:
+                continue
+
+            for reg_name, alloc_bool in reg_var.items():
+                interval = core._NewOptionalIntervalVar(
+                    t.program_start_var, core._model.program_horizon - t.program_start_var,
+                    core._model.program_horizon, alloc_bool,
+                    f"Masking({t.inst})({reg_name})[node{t.id}_inout{idx}]")
+
+                for share in mask_info.shares:
+                    register_share_intervals.setdefault(reg_name, {}).setdefault(
+                        (share.secret_name, share.share_index), []).append(interval)
+
+    # Add NoOverlap constraints: different shares of same secret cannot coexist on same register
+    for shares_dict in register_share_intervals.values():
+        # Group by secret name
+        by_secret = {}
+        for (secret_name, share_idx), intervals in shares_dict.items():
+            by_secret.setdefault(secret_name, {})[share_idx] = intervals
+
+        # Add pairwise NoOverlap between different shares
+        for shares in by_secret.values():
+            if len(shares) <= 1:
+                continue
+            share_indices = sorted(shares.keys())
+            for i, share_i in enumerate(share_indices):
+                for share_j in share_indices[i+1:]:
+                    for interval_i in shares[share_i]:
+                        for interval_j in shares[share_j]:
+                            core._AddNoOverlap([interval_i, interval_j])
