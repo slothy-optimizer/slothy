@@ -45,6 +45,9 @@ import slothy.targets.aarch64.aarch64_big_experimental as Target_AArch64Big
 import slothy.targets.aarch64.apple_m1_firestorm_experimental as Target_AppleM1_firestorm
 import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_icestorm
 
+import slothy.targets.otbn.otbn as Arch_OTBN
+import slothy.targets.otbn.otbn_uarch as Target_OTBN
+
 target_label_dict = {
     Target_CortexA55: "a55",
     Target_CortexA72: "a72",
@@ -55,12 +58,14 @@ target_label_dict = {
     Target_AppleM1_firestorm: "m1_firestorm",
     Target_AppleM1_icestorm: "m1_icestorm",
     Target_AArch64Big: "aarch64_big",
+    Target_OTBN: "otbn",
 }
 
 arch_label_dict = {
     Arch_Armv7M: "armv7m",
     Arch_Armv81M: "armv8m",
     AArch64_Neon: "aarch64",
+    Arch_OTBN: "otbn",
 }
 
 
