@@ -444,7 +444,7 @@ inverse_throughput = {
         strh_with_postinc,
         bne,
     ): 1,
-    (stm_interval_inc_writeback, vmov_gpr2_dual): 2,  # actually not, just placeholder
+    (stm_interval_inc_writeback): 2,  # actually not, just placeholder
 }
 
 default_latencies = {
