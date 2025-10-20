@@ -13,8 +13,8 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
-   slothy.core.dataflow
-   slothy.core.slothy
-   slothy.core.heuristics
    slothy.core.core
+   slothy.core.slothy
    slothy.core.config
+   slothy.core.heuristics
+   slothy.core.dataflow

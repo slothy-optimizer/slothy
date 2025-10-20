@@ -13,8 +13,8 @@ Subpackages
    :titlesonly:
    :maxdepth: 3
 
-   slothy.targets.arm_v81m
    slothy.targets.aarch64
+   slothy.targets.arm_v81m
    slothy.targets.arm_v7m
 
 Submodules
