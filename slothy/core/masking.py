@@ -271,6 +271,9 @@ def add_masking_constraints_no_share_overwrite(core):
     register_share_intervals = {}
     initial_register_set = set()
 
+    # Map: reg_name -> [(node, alloc_bool, is_out, idx)] for tracking all writers
+    register_writers = {}
+
     # Create mandatory intervals for initial register states
     for secret_name, shares in core.config.secret_inputs.items():
         for share_idx, share_regs in enumerate(shares):
@@ -280,7 +283,27 @@ def add_masking_constraints_no_share_overwrite(core):
                 register_share_intervals.setdefault(reg_name, {}).setdefault((secret_name, share_idx), []).append(interval)
                 initial_register_set.add((reg_name, secret_name, share_idx))
 
-    # Create optional intervals for instruction outputs
+    # First pass: collect all writers to each register
+    for t in core._get_nodes(allnodes=True):
+        # Collect output register writers
+        for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_out, t.alloc_out_var)):
+            if not mask_info or mask_info.is_public:
+                continue
+            for reg_name, alloc_bool in reg_var.items():
+                # Skip VirtualInputInstructions (they don't overwrite, they initialize)
+                if len(reg_var) == 1 and all((reg_name, s.secret_name, s.share_index) in initial_register_set
+                                             for s in mask_info.shares):
+                    continue
+                register_writers.setdefault(reg_name, []).append((t, alloc_bool, True, idx, mask_info))
+
+        # Collect in/out register writers
+        for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_in_out, t.alloc_in_out_var)):
+            if not mask_info or mask_info.is_public:
+                continue
+            for reg_name, alloc_bool in reg_var.items():
+                register_writers.setdefault(reg_name, []).append((t, alloc_bool, False, idx, mask_info))
+
+    # Second pass: create intervals with dynamic endpoints
     for t in core._get_nodes(allnodes=True):
         for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_out, t.alloc_out_var)):
             if not mask_info or mask_info.is_public:
@@ -292,24 +315,92 @@ def add_masking_constraints_no_share_overwrite(core):
                                              for s in mask_info.shares):
                     continue
 
+                # Compute dynamic endpoint
+                program_horizon = core._model.program_horizon
+                end_var = core._NewIntVar(0, program_horizon,
+                                         f"End({t.inst})({reg_name})[node{t.id}_out{idx}]")
+                potential_ends = [program_horizon]  # Fallback if no later writer
+
+                # Consider all other writers to this register
+                for t_next, alloc_next, _, _, _ in register_writers.get(reg_name, []):
+                    if t_next.id == t.id:
+                        continue  # Skip self
+
+                    # Create boolean for position check: is t_next after t?
+                    is_after = core._NewBoolVar(f"IsAfter(node{t.id},node{t_next.id})_reg{reg_name}")
+                    core._Add(t_next.program_start_var > t.program_start_var).OnlyEnforceIf(is_after)
+                    core._Add(t_next.program_start_var <= t.program_start_var).OnlyEnforceIf(is_after.Not())
+
+                    # Conditional end: use t_next.start if both conditions hold (allocated AND after)
+                    cond_end = core._NewIntVar(0, program_horizon,
+                                              f"CondEnd(node{t.id},node{t_next.id})_reg{reg_name}")
+                    core._Add(cond_end == t_next.program_start_var).OnlyEnforceIf([alloc_next, is_after])
+                    # If either condition is false, use horizon (won't be selected as minimum)
+                    core._Add(cond_end == program_horizon).OnlyEnforceIf(alloc_next.Not())
+                    core._Add(cond_end == program_horizon).OnlyEnforceIf(is_after.Not())
+
+                    potential_ends.append(cond_end)
+
+                # end_var is minimum of all potential ends
+                core._AddMinEquality(end_var, potential_ends)
+
+                # Duration is from start to end
+                duration_var = core._NewIntVar(0, program_horizon,
+                                              f"Duration({t.inst})({reg_name})[node{t.id}_out{idx}]")
+                core._Add(duration_var == end_var - t.program_start_var)
+
+                # Create interval with dynamic endpoint
                 interval = core._NewOptionalIntervalVar(
-                    t.program_start_var, core._model.program_horizon - t.program_start_var,
-                    core._model.program_horizon, alloc_bool,
+                    t.program_start_var, duration_var, end_var, alloc_bool,
                     f"Masking({t.inst})({reg_name})[node{t.id}_out{idx}]")
 
                 for share in mask_info.shares:
                     register_share_intervals.setdefault(reg_name, {}).setdefault(
                         (share.secret_name, share.share_index), []).append(interval)
 
-        # Process in/out registers (same logic, no special cases)
+        # Process in/out registers (same logic)
         for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_in_out, t.alloc_in_out_var)):
             if not mask_info or mask_info.is_public:
                 continue
 
             for reg_name, alloc_bool in reg_var.items():
+                # Compute dynamic endpoint
+                program_horizon = core._model.program_horizon
+                end_var = core._NewIntVar(0, program_horizon,
+                                         f"End({t.inst})({reg_name})[node{t.id}_inout{idx}]")
+                potential_ends = [program_horizon]  # Fallback if no later writer
+
+                # Consider all other writers to this register
+                for t_next, alloc_next, _, _, _ in register_writers.get(reg_name, []):
+                    if t_next.id == t.id:
+                        continue  # Skip self
+
+                    # Create boolean for position check: is t_next after t?
+                    is_after = core._NewBoolVar(f"IsAfter(node{t.id},node{t_next.id})_reg{reg_name}_inout")
+                    core._Add(t_next.program_start_var > t.program_start_var).OnlyEnforceIf(is_after)
+                    core._Add(t_next.program_start_var <= t.program_start_var).OnlyEnforceIf(is_after.Not())
+
+                    # Conditional end: use t_next.start if both conditions hold (allocated AND after)
+                    cond_end = core._NewIntVar(0, program_horizon,
+                                              f"CondEnd(node{t.id},node{t_next.id})_reg{reg_name}_inout")
+                    core._Add(cond_end == t_next.program_start_var).OnlyEnforceIf([alloc_next, is_after])
+                    # If either condition is false, use horizon (won't be selected as minimum)
+                    core._Add(cond_end == program_horizon).OnlyEnforceIf(alloc_next.Not())
+                    core._Add(cond_end == program_horizon).OnlyEnforceIf(is_after.Not())
+
+                    potential_ends.append(cond_end)
+
+                # end_var is minimum of all potential ends
+                core._AddMinEquality(end_var, potential_ends)
+
+                # Duration is from start to end
+                duration_var = core._NewIntVar(0, program_horizon,
+                                              f"Duration({t.inst})({reg_name})[node{t.id}_inout{idx}]")
+                core._Add(duration_var == end_var - t.program_start_var)
+
+                # Create interval with dynamic endpoint
                 interval = core._NewOptionalIntervalVar(
-                    t.program_start_var, core._model.program_horizon - t.program_start_var,
-                    core._model.program_horizon, alloc_bool,
+                    t.program_start_var, duration_var, end_var, alloc_bool,
                     f"Masking({t.inst})({reg_name})[node{t.id}_inout{idx}]")
 
                 for share in mask_info.shares:

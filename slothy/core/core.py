@@ -4055,6 +4055,9 @@ class SlothyBase(LockAttributes):
     def _AddMaxEquality(self, varlist, var):
         return self._model.cp_model.AddMaxEquality(varlist, var)
 
+    def _AddMinEquality(self, var, varlist):
+        return self._model.cp_model.AddMinEquality(var, varlist)
+
     def _export_model(self):
         if self.config.log_model is None:
             return
