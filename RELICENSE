@@ -1,0 +1,19 @@
+# Relicensing of assembly source code
+
+This document gathers consent by copyright holders of the MIT-licensed
+assembly in the SLOTHY repository to relicense it to `Apache-2.0 OR ISC OR MIT`.
+
+The relicensing itself is intended to be carried out once all copyright
+holders have given their consent.
+
+## Copyright holders agreeing to relicensing
+
+By adding my name to the list below, I agree to relicensing
+the assembly in SLOTHY to `Apache-2.0 OR ISC OR MIT`.
+
+- Hanno Becker <beckphan@amazon.co.uk>
+- Matthias Kannwischer <matthias@kannwischer.eu>
+- Hugo Vincent <hugo.vincent@arm.com> (on behalf of Arm Ltd, consents to 
+  relicensing files in SLOTHY that were derived from pqmx or pqax, for which
+  the upstream licensing has already been completed and is concordant with
+  this change)
