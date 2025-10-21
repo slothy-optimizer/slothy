@@ -13,8 +13,8 @@ Subpackages
    :titlesonly:
    :maxdepth: 3
 
-   slothy.core
    slothy.cli
+   slothy.core
    slothy.targets
 
 Submodules
