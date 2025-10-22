@@ -1854,7 +1854,6 @@ class ldr(Armv7mLoadInstruction):
         obj.increment = None
         obj.pre_index = 0
         obj.addr = obj.args_in[0]
-        obj.args_in_out_different = [(0, 0)]  # Can't have Rd==Ra
         return obj
 
     def write(self):
@@ -1875,7 +1874,6 @@ class ldr_with_imm(Armv7mLoadInstruction):
         obj.increment = None
         obj.pre_index = obj.immediate
         obj.addr = obj.args_in[0]
-        obj.args_in_out_different = [(0, 0)]  # Can't have Rd==Ra
         return obj
 
     def write(self):
@@ -1900,7 +1898,6 @@ class ldrb_with_imm(Armv7mLoadInstruction):
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
-        obj.args_in_out_different = [(0, 0)]  # Can't have Rd==Ra
         obj.addr = obj.args_in[0]
         return obj
 
@@ -1919,7 +1916,6 @@ class ldrh_with_imm(Armv7mLoadInstruction):
         obj = Armv7mInstruction.build(cls, src)
         obj.increment = None
         obj.pre_index = obj.immediate
-        obj.args_in_out_different = [(0, 0)]  # Can't have Rd==Ra
         obj.addr = obj.args_in[0]
         return obj
 
