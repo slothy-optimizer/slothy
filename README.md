@@ -52,6 +52,8 @@ the clean and optimized source code for those examples in [`paper/`](paper).
 
 Have a look at the [SLOTHY tutorial](docs/source/tutorial/README.md) for a hands-on and example-based introduction to SLOTHY.
 
+A more extensive tutorial including assignments was taught at CHES 2025 and can be found [here](https://github.com/dop-amin/ches2025-slothy-tutorial) with slides available [here](https://kannwischer.eu/talks/20250914_slothy.pdf).
+
 ## Real world uses
 
 * [AWS libcrypto (AWS-LC)](https://github.com/aws/aws-lc): SLOTHY-optimized X25519 code based on our un-interleaved form of the [original code by Emil
