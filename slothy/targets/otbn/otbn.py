@@ -881,7 +881,7 @@ class bn_mov(OTBNInstruction):
 
 
 class bn_sel(OTBNInstruction):
-    pattern = "bn.sel <Wd>, <Wa>, <Wb>, <FGa>"
+    pattern = "bn.sel <Wd>, <Wa>, <Wb>, <FGa>.<flag>"
     inputs = ["Wa", "Wb", "FGa"]
     outputs = ["Wd"]
 
