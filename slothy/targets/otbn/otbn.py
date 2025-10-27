@@ -898,8 +898,8 @@ class bn_mulqacc_wo(OTBNInstruction):
     inputs = ["Wa", "Wb"]
     outputs = ["Wd", "FGa"]
 
-    modifiesACC = True
-    # dependsOnACC = True
+    modifiesAcc = True
+    dependsOnAcc = True
 
 
 # TODO: generalize
@@ -907,7 +907,7 @@ class bn_wsrw_ACC(OTBNInstruction):
     pattern = "bn.wsrw ACC, <Wa>"
     inputs = ["Wa"]
     outputs = []
-    modifiesACC = True
+    modifiesAcc = True
 
 
 def iter_otbn_instructions():
