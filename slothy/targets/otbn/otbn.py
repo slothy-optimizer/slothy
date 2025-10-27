@@ -342,6 +342,22 @@ class Instruction:
         """Indicates if an instruction is a scalar or Neon load or store instruction"""
         return self.is_load() or self.is_store()
 
+    def declassifies_output(self, output_idx):
+        """Check if this instruction declassifies (produces public value) for a given output.
+
+        Returns True if the output at output_idx is guaranteed to be public,
+        regardless of input masking.
+
+        Architecture-specific implementations should override this.
+
+        Args:
+            output_idx: Index of the output to check
+
+        Returns:
+            bool: True if the output is declassified to public
+        """
+        return False
+
     @classmethod
     def make(cls, src):
         """Abstract factory method parsing a string into an instruction instance."""
@@ -821,6 +837,12 @@ class bn_sub(OTBNInstruction):
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
 
+    def declassifies_output(self, output_idx):
+        """SUB of a register from itself always produces 0 (public)"""
+        if output_idx == 0 and len(self.args_in) >= 2:
+            return self.args_in[0] == self.args_in[1]
+        return False
+
 
 class bn_add_imm(OTBNInstruction):
     pattern = "bn.addi <Wd>, <Wa>, <imm>"
@@ -838,6 +860,12 @@ class bn_xor(OTBNInstruction):
     pattern = "bn.xor <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
+
+    def declassifies_output(self, output_idx):
+        """XOR of a register with itself always produces 0 (public)"""
+        if output_idx == 0 and len(self.args_in) >= 2:
+            return self.args_in[0] == self.args_in[1]
+        return False
 
 
 class bn_rshi(OTBNInstruction):

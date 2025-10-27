@@ -240,6 +240,7 @@ def compute_node_masking_info(node, logger=None):
 
     For virtual input nodes, masking info is already set in the instruction.
     For other nodes, we combine the masking info from all inputs.
+    If an instruction declassifies an output, it becomes public regardless of inputs.
     """
     # Virtual input nodes have masking info already set
     if node.is_virtual_input:
@@ -255,10 +256,23 @@ def compute_node_masking_info(node, logger=None):
     # Combine masking info for all outputs (for now, same for all outputs)
     try:
         combined = MaskingInfo.combine(input_masking_infos, logger)
+
+        # Check each output to see if the instruction declassifies it
         for i in range(len(node.masking_info_out)):
-            node.masking_info_out[i] = combined
+            if node.inst.declassifies_output(i):
+                node.masking_info_out[i] = None  # Declassified to public
+                if logger:
+                    logger.debug(f"{node.id}: Output {i} declassified to public by {node.inst}")
+            else:
+                node.masking_info_out[i] = combined
+
         for i in range(len(node.masking_info_in_out)):
-            node.masking_info_in_out[i] = combined
+            if node.inst.declassifies_output(len(node.masking_info_out) + i):
+                node.masking_info_in_out[i] = None  # Declassified to public
+                if logger:
+                    logger.debug(f"{node.id}: In/out {i} declassified to public by {node.inst}")
+            else:
+                node.masking_info_in_out[i] = combined
 
         if logger and combined:
             logger.debug(f"{node.id}: Output masking computed as {combined}")

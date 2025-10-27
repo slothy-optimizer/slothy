@@ -182,6 +182,37 @@ class leakage_rule_3(OptimizationRunner):
             slothy.optimize(start="start2", end="end2")
         except SlothyException:
             slothy.logger.info("No solution found, but this is expected!")
+            
+class leakage_declassify(OptimizationRunner):
+    """Example that showcases automatic declassification."""
+
+    def __init__(self, var="", arch=Arch_OTBN, target=Target_OTBN, timeout=None):
+        name = "leakage_declassify"
+        infile = name
+
+        super().__init__(
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            timeout=timeout,
+            var=var,
+            base_dir="tests",
+        )
+
+    def core(self, slothy):
+        slothy.config.selftest = False
+        slothy.config.outputs = ["w3"]
+
+        slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
+        slothy.optimize(start="start", end="end")
+        slothy.optimize(start="start2", end="end2")
+        try:
+            slothy.optimize(start="start3", end="end3")
+        except Exception as e:
+            slothy.logger.info(f"No solution found, but this is expected!\n{e}")            
 
 
-test_instances = [Instructions(), leakage(), leakage_rule_1(), leakage_rule_2(), leakage_rule_3()]
+
+test_instances = [Instructions(), leakage(), leakage_rule_1(), leakage_rule_2(), leakage_rule_3(), leakage_declassify()]
