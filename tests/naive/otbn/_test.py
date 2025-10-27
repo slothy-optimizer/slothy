@@ -81,6 +81,43 @@ class leakage(OptimizationRunner):
 
         slothy.optimize()
 
+class leakage_rule_1(OptimizationRunner):
+    """Example that violates rule 1: overwriting shares of the same secret - should error"""
+
+    def __init__(self, var="", arch=Arch_OTBN, target=Target_OTBN, timeout=None):
+        name = "leakage_rule_1"
+        infile = name
+
+        super().__init__(
+            infile,
+            name,
+            rename=True,
+            arch=arch,
+            target=target,
+            timeout=timeout,
+            var=var,
+            base_dir="tests",
+        )
+
+    def core(self, slothy):
+        slothy.config.selftest = False
+        slothy.config.outputs = ["w3"]
+
+        # Case 1
+        # 
+        # This case is not allowed, the share gets copied to from w0 to w2 and
+        # then combined with w1.
+        # 
+        # Case 2
+        # This is allowed since w2 is reset inbewteen using public data.
+        slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
+        try:
+            slothy.optimize(start="start", end="end")
+        except Exception as e:
+            slothy.logger.info(f"No solution found, but this is expected!\n{e}")            
+        
+        slothy.optimize(start="start2", end="end2")
+
 
 class leakage_rule_2(OptimizationRunner):
     """Example that violates rule 2: mixing shares of the same secret - should error"""
@@ -147,4 +184,4 @@ class leakage_rule_3(OptimizationRunner):
             slothy.logger.info("No solution found, but this is expected!")
 
 
-test_instances = [Instructions(), leakage(), leakage_rule_2(), leakage_rule_3()]
+test_instances = [Instructions(), leakage(), leakage_rule_1(), leakage_rule_2(), leakage_rule_3()]
