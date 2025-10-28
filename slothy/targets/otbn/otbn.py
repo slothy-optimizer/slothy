@@ -1293,8 +1293,9 @@ class bn_wsrw_URND(OTBNInstruction):
 # Multiply-accumulate instructions
 class bn_mulqacc(OTBNInstruction):
     pattern = "bn.mulqacc <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
-    inputs = ["Wa", "Wb", "ACC"]
-    outputs = ["FGa", "ACC"]
+    inputs = ["Wa", "Wb"]
+    outputs = ["FGa"]
+    in_outs = ["ACC"]
 
 
 class bn_mulqacc_z(OTBNInstruction):
@@ -1305,15 +1306,16 @@ class bn_mulqacc_z(OTBNInstruction):
 
 class bn_mulqacc_so(OTBNInstruction):
     pattern = "bn.mulqacc.so <Wd>, <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
-    inputs = ["Wa", "Wb", "ACC"]
-    in_outs = ["Wd"]
-    outputs = ["FGa", "ACC"]
+    inputs = ["Wa", "Wb"]
+    in_outs = ["Wd", "ACC"]
+    outputs = ["FGa"]
 
 
 class bn_mulqacc_wo(OTBNInstruction):
     pattern = "bn.mulqacc.wo <Wd>, <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
-    inputs = ["Wa", "Wb", "ACC"]
-    outputs = ["Wd", "FGa", "ACC"]
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+    in_outs = ["ACC"]
 
 
 class bn_mulqacc_wo_z(OTBNInstruction):
