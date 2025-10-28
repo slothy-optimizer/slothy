@@ -132,16 +132,9 @@ class leakage_rule_1(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.selftest = False
-        slothy.config.outputs = ["w1", "w3"]
+        slothy.config.outputs = ["w1", "w2", "w3"]
         slothy.config.variable_size = True
 
-        # Case 1
-        # 
-        # This case is not allowed, the share gets copied to from w0 to w2 and
-        # then combined with w1.
-        # 
-        # Case 2
-        # This is allowed since w2 is reset inbewteen using public data.
         slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
         for start, end in [(f"start{i}", f"end{i}") for i in range(1, 6)]:
             expect_optimization_failure(slothy, start=start, end=end)
@@ -374,14 +367,11 @@ class leakage_rule_8(OptimizationRunner):
 
         slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
 
+        # TODO: 1. case should fail because of relation through FG (overwrite)
         for start_end in [("start", "end"), ("start2", "end2")]:
-            try:
-                expect_optimization_failure(
-                    slothy, start=start_end[0], end=start_end[1]
-                )
-            except UnexpectedTestResultException as err:
-                slothy.logger.error(f"Solution found although it should not: {err}")
-                # raise
+            expect_optimization_failure(
+                slothy, start=start_end[0], end=start_end[1]
+            )
 
         slothy.optimize(start="start3", end="end3")
 
