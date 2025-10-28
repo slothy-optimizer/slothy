@@ -744,9 +744,9 @@ class OTBNInstruction(Instruction):
 
         for s, ty in obj.pattern_in_outs:
             if ty == RegisterType.ACC:
-                obj.args_out.append("ACC")
+                obj.args_in_out.append("ACC")
             else:
-                obj.args_out.append(OTBNInstruction._to_reg(ty, res[s]))
+                obj.args_in_out.append(OTBNInstruction._to_reg(ty, res[s]))
 
     @staticmethod
     def build(c, src):
