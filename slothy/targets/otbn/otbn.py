@@ -1230,11 +1230,6 @@ class bn_sid_inc(OTBNInstruction):
 
 
 # Wide special register access
-class bn_wsrr(OTBNInstruction):
-    pattern = "bn.wsrr <Wd>, <imm>"
-    inputs = []
-    outputs = ["Wd"]
-
 
 class bn_wsrr_URND(OTBNInstruction):
     pattern = "bn.wsrr <Wd>, URND"
@@ -1258,12 +1253,6 @@ class bn_wsrr_MOD(OTBNInstruction):
     pattern = "bn.wsrr <Wd>, MOD"
     inputs = ["MOD"]
     outputs = ["Wd"]
-
-
-class bn_wsrw(OTBNInstruction):
-    pattern = "bn.wsrw <imm>, <Wa>"
-    inputs = ["Wa"]
-    outputs = []
 
 
 class bn_wsrw_MOD(OTBNInstruction):
