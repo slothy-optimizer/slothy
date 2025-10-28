@@ -53,7 +53,8 @@ class RegisterType(Enum):
     STACK_GPR = 4
     FLAGS = 5
     ACC = 6
-    HINT = 7
+    MOD = 7
+    HINT = 8
 
     def __str__(self):
         return self.name
@@ -97,6 +98,7 @@ class RegisterType(Enum):
 
         flags = ["FG0", "FG1"]
         acc = ["ACC"]
+        mod = ["MOD"]
         if not only_extra:
             gprs += gprs_normal
             vregs += wregs_normal
@@ -115,6 +117,7 @@ class RegisterType(Enum):
             RegisterType.HINT: hints,
             RegisterType.FLAGS: flags,
             RegisterType.ACC: acc,
+            RegisterType.MOD: mod,
         }[reg_type]
 
     # TODO: remove workaround (needed for Python 3.9)
@@ -136,7 +139,7 @@ class RegisterType(Enum):
     @staticmethod
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
-        if ty == RegisterType.HINT:
+        if ty in [RegisterType.HINT, RegisterType.ACC, RegisterType.MOD]:
             return False
         return True
 
@@ -156,7 +159,11 @@ class RegisterType(Enum):
     @staticmethod
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["flags", "sp"] + RegisterType.list_registers(RegisterType.HINT))
+        return set(
+            ["flags", "sp"]
+            + RegisterType.list_registers(RegisterType.HINT)
+            + RegisterType.list_registers(RegisterType.FLAGS)
+        )
 
     @staticmethod
     def default_aliases():
@@ -491,14 +498,17 @@ class OTBNInstruction(Instruction):
     def _unfold_pattern(src):
 
         # Those replacements may look pointless, but they replace
-        # actual whitespaces before/after '.,[]' in the instruction
+        # actual whitespaces before/after '.,[]()' in the instruction
         # pattern by regular expressions allowing flexible whitespacing.
         flexible_spacing = [
             (r"\s*,\s*", r"\\s*,\\s*"),
             (r"\s*<imm>\s*", r"\\s*<imm>\\s*"),
             (r"\s*\[\s*", r"\\s*\\[\\s*"),
             (r"\s*\]\s*", r"\\s*\\]\\s*"),
+            (r"\s*\(\s*", r"\\s*\\(\\s*"),  # Handle ( for load/store
+            (r"\s*\)\s*", r"\\s*\\)\\s*"),  # Handle ) for load/store
             (r"\s*\.\s*", r"\\s*\\.\\s*"),
+            (r"\s*\+\+\s*", r"\\s*\\+\\+\\s*"),  # Handle ++ for increment
             (r"\s+", r"\\s+"),
             (r"\\s\*\\s\\+", r"\\s+"),
             (r"\\s\+\\s\\*", r"\\s+"),
@@ -542,6 +552,7 @@ class OTBNInstruction(Instruction):
         ]
 
         flag_pattern = "|".join(flaglist)
+        barrel_pattern = "<<|>>"  # Barrel shift operators
         imm_pattern = (
             "((\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
             "|"
@@ -553,6 +564,7 @@ class OTBNInstruction(Instruction):
         src = OTBNInstruction._replace_duplicate_datatypes(src, "dt")
         src = replace_placeholders(src, "index", index_pattern, "index")
         src = replace_placeholders(src, "flag", flag_pattern, "flag")
+        src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -593,6 +605,12 @@ class OTBNInstruction(Instruction):
 
     @cache
     def __infer_register_type(ptrn):
+        # Check for special registers first
+        if ptrn == "ACC":
+            return RegisterType.ACC
+        if ptrn == "MOD":
+            return RegisterType.MOD
+        # Then check by prefix
         if ptrn[0].upper() in ["X"]:
             return RegisterType.GPR
         if ptrn[0].upper() in ["W"]:
@@ -613,8 +631,6 @@ class OTBNInstruction(Instruction):
         inputs=None,
         outputs=None,
         in_outs=None,
-        modifiesACC=False,
-        dependsOnACC=False,
     ):
 
         self.mnemonic = pattern.split(" ")[0]
@@ -625,17 +641,10 @@ class OTBNInstruction(Instruction):
             outputs = []
         if in_outs is None:
             in_outs = []
+
         arg_types_in = [OTBNInstruction._infer_register_type(r) for r in inputs]
         arg_types_out = [OTBNInstruction._infer_register_type(r) for r in outputs]
         arg_types_in_out = [OTBNInstruction._infer_register_type(r) for r in in_outs]
-
-        if modifiesACC:
-            arg_types_out += [RegisterType.ACC]
-            outputs += ["ACC"]
-
-        if dependsOnACC:
-            arg_types_in += [RegisterType.ACC]
-            inputs += ["ACC"]
 
         super().__init__(
             mnemonic=pattern,
@@ -689,11 +698,18 @@ class OTBNInstruction(Instruction):
             if arg[:2] != "FG":
                 return f"{s[0].upper()}<{arg}>"
             return s[0].upper() + arg[1:]
+        if ty in [RegisterType.ACC, RegisterType.MOD]:
+            # ACC and MOD are special registers - return as-is
+            return arg
         raise FatalParsingException(f"Unknown register type ({s}, {ty}, {arg})")
 
     @staticmethod
     def _instantiate_pattern(s, ty, arg, out):
-        if ty == RegisterType.ACC:
+        if ty in [RegisterType.ACC, RegisterType.MOD]:
+            # Special registers don't appear in the pattern - they're implicit
+            return out
+        if ty == RegisterType.FLAGS and s in ["FG0", "FG1"]:
+            # Implicit FLAGS registers don't appear in the pattern
             return out
         rep = OTBNInstruction._build_pattern_replacement(s, ty, arg)
         res = out.replace(f"<{s}>", rep)
@@ -730,21 +746,37 @@ class OTBNInstruction(Instruction):
         )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
+        group_to_attribute("barrel", "barrel")
 
         for s, ty in obj.pattern_inputs:
             if ty == RegisterType.ACC:
                 obj.args_in.append("ACC")
+            elif ty == RegisterType.MOD:
+                obj.args_in.append("MOD")
+            elif ty == RegisterType.FLAGS and s in ["FG0", "FG1"]:
+                # Implicit FLAGS registers (FG0, FG1) - not in pattern
+                obj.args_in.append(s)
             else:
                 obj.args_in.append(OTBNInstruction._to_reg(ty, res[s]))
         for s, ty in obj.pattern_outputs:
             if ty == RegisterType.ACC:
                 obj.args_out.append("ACC")
+            elif ty == RegisterType.MOD:
+                obj.args_out.append("MOD")
+            elif ty == RegisterType.FLAGS and s in ["FG0", "FG1"]:
+                # Implicit FLAGS registers (FG0, FG1) - not in pattern
+                obj.args_out.append(s)
             else:
                 obj.args_out.append(OTBNInstruction._to_reg(ty, res[s]))
 
         for s, ty in obj.pattern_in_outs:
             if ty == RegisterType.ACC:
                 obj.args_in_out.append("ACC")
+            elif ty == RegisterType.MOD:
+                obj.args_in_out.append("MOD")
+            elif ty == RegisterType.FLAGS and s in ["FG0", "FG1"]:
+                # Implicit FLAGS registers (FG0, FG1) - not in pattern
+                obj.args_in_out.append(s)
             else:
                 obj.args_in_out.append(OTBNInstruction._to_reg(ty, res[s]))
 
@@ -754,8 +786,6 @@ class OTBNInstruction(Instruction):
         inputs = getattr(c, "inputs", []).copy()
         outputs = getattr(c, "outputs", []).copy()
         in_outs = getattr(c, "in_outs", []).copy()
-        modifies_ACC = getattr(c, "modifiesAcc", False)
-        depends_on_ACC = getattr(c, "dependsOnAcc", False)
 
         if isinstance(src, str):
             if src.split(" ")[0] != pattern.split(" ")[0]:
@@ -770,8 +800,6 @@ class OTBNInstruction(Instruction):
             inputs=inputs,
             outputs=outputs,
             in_outs=in_outs,
-            modifiesACC=modifies_ACC,
-            dependsOnACC=depends_on_ACC,
         )
 
         OTBNInstruction.build_core(obj, res)
@@ -813,9 +841,12 @@ class OTBNInstruction(Instruction):
         out = OTBNInstruction._replace_duplicate_datatypes(out, "dt")
         out = replace_pattern(out, "flag", "flag")
         out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "barrel", "barrel")
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
+        out = out.replace("\\(", "(")
+        out = out.replace("\\)", ")")
         return out
 
 
@@ -826,16 +857,77 @@ class add_imm(OTBNInstruction):
     outputs = ["Xd"]
 
 
+# Arithmetic instructions
 class bn_add(OTBNInstruction):
     pattern = "bn.add <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_add_shift(OTBNInstruction):
+    pattern = "bn.add <Wd>, <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_add_fg(OTBNInstruction):
+    pattern = "bn.add <Wd>, <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_add_shift_fg(OTBNInstruction):
+    pattern = "bn.add <Wd>, <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_addc(OTBNInstruction):
+    pattern = "bn.addc <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_addc_shift(OTBNInstruction):
+    pattern = "bn.addc <Wd>, <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_addc_fg(OTBNInstruction):
+    pattern = "bn.addc <Wd>, <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_addc_shift_fg(OTBNInstruction):
+    pattern = "bn.addc <Wd>, <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_add_imm(OTBNInstruction):
+    pattern = "bn.addi <Wd>, <Wa>, <imm>"
+    inputs = ["Wa"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_add_imm_fg(OTBNInstruction):
+    pattern = "bn.addi <Wd>, <Wa>, <imm>, <FGa>"
+    inputs = ["Wa"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_addm(OTBNInstruction):
+    pattern = "bn.addm <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb", "MOD"]
     outputs = ["Wd"]
 
 
 class bn_sub(OTBNInstruction):
     pattern = "bn.sub <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
-    outputs = ["Wd"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
 
     def declassifies_output(self, output_idx):
         """SUB of a register from itself always produces 0 (public)"""
@@ -844,22 +936,143 @@ class bn_sub(OTBNInstruction):
         return False
 
 
-class bn_add_imm(OTBNInstruction):
-    pattern = "bn.addi <Wd>, <Wa>, <imm>"
+class bn_sub_shift(OTBNInstruction):
+    pattern = "bn.sub <Wd>, <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_sub_fg(OTBNInstruction):
+    pattern = "bn.sub <Wd>, <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_sub_shift_fg(OTBNInstruction):
+    pattern = "bn.sub <Wd>, <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_subb(OTBNInstruction):
+    pattern = "bn.subb <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_subb_shift(OTBNInstruction):
+    pattern = "bn.subb <Wd>, <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_subb_fg(OTBNInstruction):
+    pattern = "bn.subb <Wd>, <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_subb_shift_fg(OTBNInstruction):
+    pattern = "bn.subb <Wd>, <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_sub_imm(OTBNInstruction):
+    pattern = "bn.subi <Wd>, <Wa>, <imm>"
     inputs = ["Wa"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_sub_imm_fg(OTBNInstruction):
+    pattern = "bn.subi <Wd>, <Wa>, <imm>, <FGa>"
+    inputs = ["Wa"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_subm(OTBNInstruction):
+    pattern = "bn.subm <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb", "MOD"]
     outputs = ["Wd"]
 
 
+# Logical instructions
 class bn_and(OTBNInstruction):
     pattern = "bn.and <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
-    outputs = ["Wd"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_and_shift(OTBNInstruction):
+    pattern = "bn.and <Wd>, <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_and_fg(OTBNInstruction):
+    pattern = "bn.and <Wd>, <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_and_shift_fg(OTBNInstruction):
+    pattern = "bn.and <Wd>, <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_or(OTBNInstruction):
+    pattern = "bn.or <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_or_shift(OTBNInstruction):
+    pattern = "bn.or <Wd>, <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_or_fg(OTBNInstruction):
+    pattern = "bn.or <Wd>, <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_or_shift_fg(OTBNInstruction):
+    pattern = "bn.or <Wd>, <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_not(OTBNInstruction):
+    pattern = "bn.not <Wd>, <Wa>"
+    inputs = ["Wa"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_not_shift(OTBNInstruction):
+    pattern = "bn.not <Wd>, <Wa> <barrel> <imm>"
+    inputs = ["Wa"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_not_fg(OTBNInstruction):
+    pattern = "bn.not <Wd>, <Wa>, <FGa>"
+    inputs = ["Wa"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_not_shift_fg(OTBNInstruction):
+    pattern = "bn.not <Wd>, <Wa> <barrel> <imm>, <FGa>"
+    inputs = ["Wa"]
+    outputs = ["Wd", "FGa"]
 
 
 class bn_xor(OTBNInstruction):
     pattern = "bn.xor <Wd>, <Wa>, <Wb>"
     inputs = ["Wa", "Wb"]
-    outputs = ["Wd"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
 
     def declassifies_output(self, output_idx):
         """XOR of a register with itself always produces 0 (public)"""
@@ -868,46 +1081,245 @@ class bn_xor(OTBNInstruction):
         return False
 
 
+class bn_xor_shift(OTBNInstruction):
+    pattern = "bn.xor <Wd>, <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FG0"]  # Writes to FG0 by default
+
+
+class bn_xor_fg(OTBNInstruction):
+    pattern = "bn.xor <Wd>, <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+class bn_xor_shift_fg(OTBNInstruction):
+    pattern = "bn.xor <Wd>, <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa"]
+
+
+# Shift instructions
 class bn_rshi(OTBNInstruction):
     pattern = "bn.rshi <Wd>, <Wa>, <Wb> >> <imm>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd"]
 
 
+# Comparison instructions
+class bn_cmp(OTBNInstruction):
+    pattern = "bn.cmp <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FG0"]  # Writes to FG0 by default
+
+
+class bn_cmp_shift(OTBNInstruction):
+    pattern = "bn.cmp <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FG0"]  # Writes to FG0 by default
+
+
+class bn_cmp_fg(OTBNInstruction):
+    pattern = "bn.cmp <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FGa"]
+
+
+class bn_cmp_shift_fg(OTBNInstruction):
+    pattern = "bn.cmp <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FGa"]
+
+
+class bn_cmpb(OTBNInstruction):
+    pattern = "bn.cmpb <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FG0"]  # Writes to FG0 by default
+
+
+class bn_cmpb_shift(OTBNInstruction):
+    pattern = "bn.cmpb <Wa>, <Wb> <barrel> <imm>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FG0"]  # Writes to FG0 by default
+
+
+class bn_cmpb_fg(OTBNInstruction):
+    pattern = "bn.cmpb <Wa>, <Wb>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FGa"]
+
+
+class bn_cmpb_shift_fg(OTBNInstruction):
+    pattern = "bn.cmpb <Wa>, <Wb> <barrel> <imm>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FGa"]
+
+
+# Move instructions
 class bn_mov(OTBNInstruction):
     pattern = "bn.mov <Wd>, <Wa>"
     inputs = ["Wa"]
     outputs = ["Wd"]
 
 
+class bn_movr(OTBNInstruction):
+    pattern = "bn.movr <Xd>, <Xa>"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
+class bn_movr_inc_src(OTBNInstruction):
+    pattern = "bn.movr <Xd>, <Xa>++"
+    inputs = []
+    in_outs = ["Xa"]
+    outputs = ["Xd"]
+
+
+class bn_movr_inc_dst(OTBNInstruction):
+    pattern = "bn.movr <Xd>++, <Xa>"
+    inputs = ["Xa"]
+    in_outs = ["Xd"]
+    outputs = []
+
+
+class bn_movr_inc_both(OTBNInstruction):
+    pattern = "bn.movr <Xd>++, <Xa>++"
+    inputs = []
+    in_outs = ["Xd", "Xa"]
+    outputs = []
+
+
+# Conditional select
 class bn_sel(OTBNInstruction):
     pattern = "bn.sel <Wd>, <Wa>, <Wb>, <FGa>.<flag>"
     inputs = ["Wa", "Wb", "FGa"]
     outputs = ["Wd"]
 
 
-# TODO: generalize
+class bn_sel_no_fg(OTBNInstruction):
+    pattern = "bn.sel <Wd>, <Wa>, <Wb>, <flag>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+# Memory load/store instructions
+class bn_lid(OTBNInstruction):
+    pattern = "bn.lid <Xd>, <imm>(<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
+class bn_lid_inc(OTBNInstruction):
+    pattern = "bn.lid <Xd>, <imm>(<Xa>++)"
+    inputs = ["Xa"]
+    in_outs = ["Xa"]
+    outputs = ["Xd"]
+
+
+class bn_sid(OTBNInstruction):
+    pattern = "bn.sid <Xa>, <imm>(<Xb>)"
+    inputs = ["Xa", "Xb"]
+    outputs = []
+
+
+class bn_sid_inc(OTBNInstruction):
+    pattern = "bn.sid <Xa>, <imm>(<Xb>++)"
+    inputs = ["Xa", "Xb"]
+    in_outs = ["Xb"]
+    outputs = []
+
+
+# Wide special register access
+class bn_wsrr(OTBNInstruction):
+    pattern = "bn.wsrr <Wd>, <imm>"
+    inputs = []
+    outputs = ["Wd"]
+
+
 class bn_wsrr_URND(OTBNInstruction):
     pattern = "bn.wsrr <Wd>, URND"
     inputs = []
     outputs = ["Wd"]
 
 
-class bn_mulqacc_wo(OTBNInstruction):
-    pattern = "bn.mulqacc.wo <Wd>, <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
-    inputs = ["Wa", "Wb"]
-    outputs = ["Wd", "FGa"]
-
-    modifiesAcc = True
-    dependsOnAcc = True
+class bn_wsrr_RND(OTBNInstruction):
+    pattern = "bn.wsrr <Wd>, RND"
+    inputs = []
+    outputs = ["Wd"]
 
 
-# TODO: generalize
+class bn_wsrr_ACC(OTBNInstruction):
+    pattern = "bn.wsrr <Wd>, ACC"
+    inputs = ["ACC"]
+    outputs = ["Wd"]
+
+
+class bn_wsrr_MOD(OTBNInstruction):
+    pattern = "bn.wsrr <Wd>, MOD"
+    inputs = ["MOD"]
+    outputs = ["Wd"]
+
+
+class bn_wsrw(OTBNInstruction):
+    pattern = "bn.wsrw <imm>, <Wa>"
+    inputs = ["Wa"]
+    outputs = []
+
+
+class bn_wsrw_MOD(OTBNInstruction):
+    pattern = "bn.wsrw MOD, <Wa>"
+    inputs = ["Wa"]
+    outputs = ["MOD"]
+
+
+class bn_wsrw_RND(OTBNInstruction):
+    pattern = "bn.wsrw RND, <Wa>"
+    inputs = ["Wa"]
+    outputs = []
+
+
 class bn_wsrw_ACC(OTBNInstruction):
     pattern = "bn.wsrw ACC, <Wa>"
     inputs = ["Wa"]
+    outputs = ["ACC"]
+
+
+class bn_wsrw_URND(OTBNInstruction):
+    pattern = "bn.wsrw URND, <Wa>"
+    inputs = ["Wa"]
     outputs = []
-    modifiesAcc = True
+
+
+# Multiply-accumulate instructions
+class bn_mulqacc(OTBNInstruction):
+    pattern = "bn.mulqacc <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
+    inputs = ["Wa", "Wb", "ACC"]
+    outputs = ["FGa", "ACC"]
+
+
+class bn_mulqacc_z(OTBNInstruction):
+    pattern = "bn.mulqacc.z <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["FGa", "ACC"]  # .z zeros ACC first, so no dependency
+
+
+class bn_mulqacc_so(OTBNInstruction):
+    pattern = "bn.mulqacc.so <Wd>, <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
+    inputs = ["Wa", "Wb", "ACC"]
+    in_outs = ["Wd"]
+    outputs = ["FGa", "ACC"]
+
+
+class bn_mulqacc_wo(OTBNInstruction):
+    pattern = "bn.mulqacc.wo <Wd>, <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
+    inputs = ["Wa", "Wb", "ACC"]
+    outputs = ["Wd", "FGa", "ACC"]
+
+
+class bn_mulqacc_wo_z(OTBNInstruction):
+    pattern = "bn.mulqacc.wo.z <Wd>, <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd", "FGa", "ACC"]  # .z zeros ACC first, so no dependency
 
 
 def iter_otbn_instructions():
