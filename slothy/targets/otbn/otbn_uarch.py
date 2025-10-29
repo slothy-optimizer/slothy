@@ -78,6 +78,8 @@ def add_non_consec_shares(slothy):
         slothy: The SLOTHY optimization object
     """
 
+    constraint_count = 0
+
     def is_share_pair(inst_a, inst_b):
         """Check if two instructions operate on different shares of the same secret.
 
@@ -124,8 +126,15 @@ def add_non_consec_shares(slothy):
     for t0, t1 in slothy.get_inst_pairs(cond=is_share_pair):
         if t0.is_locked and t1.is_locked:
             continue
-        slothy._Add(t0.cycle_start_var != t1.cycle_start_var + 1)
-        slothy._Add(t0.cycle_start_var != t1.cycle_start_var - 1)
+        # Use program_start_var to prevent consecutive program positions
+        slothy._Add(t0.program_start_var != t1.program_start_var + 1)
+        slothy._Add(t0.program_start_var != t1.program_start_var - 1)
+        constraint_count += 1
+
+    if constraint_count > 0:
+        slothy.logger.debug(
+            f"Added {constraint_count} share separation constraint(s) for leakage rule 3."
+        )
 
 
 # Opaque function called by SLOTHY to add further microarchitecture-
