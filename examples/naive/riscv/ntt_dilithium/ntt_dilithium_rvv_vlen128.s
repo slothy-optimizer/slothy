@@ -163,7 +163,7 @@
         xzeta6, xzetaqinv6, xzeta7, xzetaqinv7, xq, \
         vt0_0, vt0_1, vt1_0, vt1_1, vt2_0, vt2_1, vt3_0, vt3_1, \
         vt4_0, vt4_1, vt5_0, vt5_1, vt6_0, vt6_1, vt7_0, vt7_1
-    vmul.vx  \vt0_0, \va0_1, \xzetaqinv0
+    vmul.vx  \vt0_0, \va0_1, \xzetaqinv0  // step 1
     vmul.vx  \vt1_0, \va1_1, \xzetaqinv1
     vmul.vx  \vt2_0, \va2_1, \xzetaqinv2
     vmul.vx  \vt3_0, \va3_1, \xzetaqinv3
@@ -171,7 +171,7 @@
     vmul.vx  \vt5_0, \va5_1, \xzetaqinv5
     vmul.vx  \vt6_0, \va6_1, \xzetaqinv6
     vmul.vx  \vt7_0, \va7_1, \xzetaqinv7
-    vmulh.vx \vt0_1, \va0_1, \xzeta0
+    vmulh.vx \vt0_1, \va0_1, \xzeta0  // step 4
     vmulh.vx \vt1_1, \va1_1, \xzeta1
     vmulh.vx \vt2_1, \va2_1, \xzeta2
     vmulh.vx \vt3_1, \va3_1, \xzeta3
@@ -179,7 +179,7 @@
     vmulh.vx \vt5_1, \va5_1, \xzeta5
     vmulh.vx \vt6_1, \va6_1, \xzeta6
     vmulh.vx \vt7_1, \va7_1, \xzeta7
-    vmulh.vx \vt0_0, \vt0_0, \xq
+    vmulh.vx \vt0_0, \vt0_0, \xq  // step 3
     vmulh.vx \vt1_0, \vt1_0, \xq
     vmulh.vx \vt2_0, \vt2_0, \xq
     vmulh.vx \vt3_0, \vt3_0, \xq
@@ -187,7 +187,7 @@
     vmulh.vx \vt5_0, \vt5_0, \xq
     vmulh.vx \vt6_0, \vt6_0, \xq
     vmulh.vx \vt7_0, \vt7_0, \xq
-    vsub.vv  \vt0_0, \vt0_1, \vt0_0
+    vsub.vv  \vt0_0, \vt0_1, \vt0_0  // step 5
     vsub.vv  \vt1_0, \vt1_1, \vt1_0
     vsub.vv  \vt2_0, \vt2_1, \vt2_0
     vsub.vv  \vt3_0, \vt3_1, \vt3_0

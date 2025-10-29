@@ -537,6 +537,7 @@ default_latencies = {
     instrs["vmv.v.v"]: 3,  # TODO: estimated
     instrs["vnot.v"]: 4,
     instrs["la"]: 4,  # TODO: estimated (pseudo instruction)
+    instrs["vnmsac.vx"]: 4,  # TODO: estimated
 }
 
 rv32_latencies = {

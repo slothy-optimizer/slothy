@@ -437,3 +437,12 @@ class RISCVBranch(RISCVInstruction):
         if not hasattr(obj, "label"):
             obj.label = None
         return obj
+
+
+# Vector Integer Multiply-Add
+
+
+class RISCVVectorScalarVector(RISCVInstruction):
+    pattern = "mnemonic <Vd>, <Xa>, <Va>"
+    inputs = ["Xa", "Va"]
+    in_outs = ["Vd"]
