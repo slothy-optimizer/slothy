@@ -472,6 +472,25 @@ class Instruction:
         logging.debug("Parsing result for '%s': %s", src, instnames)
         return insts
 
+    @staticmethod
+    def create_nop_source_line(indentation=0):
+        """Create a SourceLine for a NOP instruction.
+
+        This method provides an architecture-specific way to create NOP instructions
+        for use in automatic NOP injection when optimization fails due to constraints.
+
+        Args:
+            indentation: Indentation level for the NOP instruction (default: 0)
+
+        Returns:
+            SourceLine object representing a NOP instruction for this architecture
+        """
+        from slothy.helper import SourceLine
+        nop_line = SourceLine("nop")
+        if indentation > 0:
+            nop_line = nop_line.set_indentation(indentation)
+        return nop_line
+
     def __repr__(self):
         return self.write()
 
@@ -1311,6 +1330,13 @@ class bn_mulqacc_wo_z(OTBNInstruction):
     pattern = "bn.mulqacc.wo.z <Wd>, <Wa>.<imm0>, <Wb>.<imm1>, <imm2>, <FGa>"
     inputs = ["Wa", "Wb"]
     outputs = ["Wd", "FGa", "ACC"]  # .z zeros ACC first, so no dependency
+
+
+# NOP instruction (no operation)
+class nop(OTBNInstruction):
+    pattern = "nop"
+    inputs = []
+    outputs = []
 
 
 def iter_otbn_instructions():

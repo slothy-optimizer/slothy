@@ -191,16 +191,19 @@ class leakage_rule_3(OptimizationRunner):
         slothy.config.selftest = False
         slothy.config.variable_size = True
         slothy.config.outputs = ["w4", "w7", "x1"]
-        # Disallow any stalls such that "waiting" a cycle does not make
-        # forbidden back-to-back instructions pass optimization.
-        # Eventually, NOPs should be inserted to automatically "heal"
+        # Disallow stalls so that only actual NOP instructions can satisfy
+        # the share separation constraint
         slothy.config.constraints.stalls_maximum_attempt = 0
 
-        # This violates rule 2: mixing share0 (w0) and share1 (w1) of the same secret
+        # This violates rule 3: mixing share0 (w0) and share1 (w1) of the same secret
         slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
 
         slothy.optimize(start="start", end="end")
-        expect_optimization_failure(slothy, start="start2", end="end2")
+
+        # start2 will fail initially, but automatic NOP injection will make it succeed
+        slothy.config.constraints.automatic_nop_injection = True
+        slothy.config.constraints.automatic_nop_max_injections = 1
+        slothy.optimize(start="start2", end="end2")
             
 class leakage_declassify(OptimizationRunner):
     """Example that showcases automatic declassification."""

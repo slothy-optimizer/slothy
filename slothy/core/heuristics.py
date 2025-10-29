@@ -208,6 +208,12 @@ class Heuristics:
         """
 
         if not flexible:
+            # Try with automatic NOP injection if enabled
+            if conf.constraints.automatic_nop_injection:
+                return Heuristics._optimize_with_automatic_nop_injection(
+                    source, logger, conf, **kwargs
+                )
+
             core = SlothyBase(conf.arch, conf.target, logger=logger, config=conf)
             if not core.optimize(source):
                 raise SlothyException("Optimization failed")
@@ -273,6 +279,12 @@ class Heuristics:
         """
 
         if not flexible:
+            # Try with automatic NOP injection if enabled
+            if conf.constraints.automatic_nop_injection:
+                return Heuristics._optimize_with_automatic_nop_injection(
+                    source, logger, conf, **kwargs
+                )
+
             core = SlothyBase(conf.arch, conf.target, logger=logger, config=conf)
             if not core.optimize(source):
                 raise SlothyException("Optimization failed")
@@ -299,6 +311,15 @@ class Heuristics:
 
             cur_attempt = max(1, cur_attempt * 2)
             if cur_attempt > conf.constraints.stalls_maximum_attempt:
+                # Try automatic NOP injection if enabled
+                if conf.constraints.automatic_nop_injection:
+                    logger.info(
+                        "Exceeded stall limit. Attempting automatic NOP injection..."
+                    )
+                    return Heuristics._optimize_with_automatic_nop_injection(
+                        source, logger, conf, **kwargs
+                    )
+
                 logger.error("Exceeded stall limit without finding a working solution")
                 raise SlothyException("No solution found")
 
@@ -320,6 +341,106 @@ class Heuristics:
             return first_result
 
         return core.result
+
+    @staticmethod
+    def _optimize_with_automatic_nop_injection(
+        source, logger, conf, core=None, **kwargs
+    ):
+        """Attempt optimization with automatic NOP injection on failure.
+
+        This function tries to optimize the source code. If optimization fails,
+        it automatically injects NOP instructions and retries, up to a maximum
+        number of attempts specified in the configuration.
+
+        Args:
+            source: Source code to optimize (list of SourceLine objects)
+            logger: Logger instance for output
+            conf: Configuration object with constraints.automatic_nop_injection enabled
+            core: Optional pre-created SlothyBase instance (for reuse)
+            **kwargs: Additional arguments passed to optimize()
+
+        Returns:
+            Result object from successful optimization
+
+        Raises:
+            SlothyException: If optimization fails even after max NOPs injected
+        """
+        from slothy.core.core import SlothyBase, SlothyException
+
+        max_nops = conf.constraints.automatic_nop_max_injections
+
+        # Get NOP creation function from architecture
+        if hasattr(conf.arch, 'create_nop_source_line'):
+            create_nop = conf.arch.create_nop_source_line
+        else:
+            # Fallback if architecture doesn't provide the method
+            logger.warning(
+                "Architecture does not provide create_nop_source_line(), "
+                "using default NOP creation"
+            )
+            from slothy.helper import SourceLine
+
+            def create_nop(indentation=0):
+                nop = SourceLine("nop")
+                return nop.set_indentation(indentation) if indentation > 0 else nop
+
+        current_source = source.copy()
+
+        for nop_count in range(max_nops + 1):
+            if core is None:
+                core = SlothyBase(conf.arch, conf.target, logger=logger, config=conf)
+
+            try:
+                if core.optimize(current_source, **kwargs):
+                    if nop_count > 0:
+                        logger.info(
+                            f"Optimization succeeded after automatically injecting "
+                            f"{nop_count} NOP(s)"
+                        )
+                    return core.result
+                else:
+                    # Optimization returned False (infeasible)
+                    if nop_count >= max_nops:
+                        logger.error(
+                            f"Optimization failed even after automatically injecting "
+                            f"{max_nops} NOPs"
+                        )
+                        raise SlothyException("Optimization failed")
+
+                    logger.info(
+                        f"Optimization failed, automatically injecting NOP #{nop_count + 1} "
+                        f"and retrying..."
+                    )
+
+            except SlothyException:
+                if nop_count >= max_nops:
+                    logger.error(
+                        f"Optimization failed even after automatically injecting "
+                        f"{max_nops} NOPs"
+                    )
+                    raise
+
+                logger.info(
+                    f"Optimization failed, automatically injecting NOP #{nop_count + 1} "
+                    f"and retrying..."
+                )
+
+            # Inject NOP at end of source
+            # Preserve indentation from last non-empty line
+            indentation = 0
+            for line in reversed(current_source):
+                if hasattr(line, 'indentation') and line.indentation > 0:
+                    indentation = line.indentation
+                    break
+
+            nop_line = create_nop(indentation)
+            current_source.append(nop_line)
+
+            # Create new core for retry
+            core = None
+
+        # Should never reach here
+        raise SlothyException("Optimization failed after maximum NOP injections")
 
     @staticmethod
     def periodic(body: list, logger: any, conf: any) -> any:

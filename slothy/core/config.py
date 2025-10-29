@@ -1203,6 +1203,35 @@ class Config(NestedPrint, LockAttributes):
             """
             return self._max_displacement
 
+        @property
+        def automatic_nop_injection(self):
+            """Enable automatic NOP injection when optimization fails.
+
+            When enabled, SLOTHY will automatically retry optimization by injecting NOPs
+            into the source code if it fails, particularly useful for satisfying masking
+            separation constraints where different shares must be separated by independent
+            instructions.
+
+            This feature is especially helpful for security-sensitive code with secret
+            sharing where OTBN leakage rule 3 requires instructions operating on different
+            shares not to be adjacent.
+
+            Default: False
+            """
+            return self._automatic_nop_injection
+
+        @property
+        def automatic_nop_max_injections(self):
+            """Maximum number of NOPs to automatically inject.
+
+            When automatic NOP injection is enabled, this limits how many NOPs
+            will be injected before giving up. Each injection attempt adds one NOP
+            and retries the optimization.
+
+            Default: 3
+            """
+            return self._automatic_nop_max_injections
+
         def __init__(self):
             super().__init__()
 
@@ -1235,6 +1264,9 @@ class Config(NestedPrint, LockAttributes):
             self._allow_renaming = True
             self._allow_spills = False
             self._spill_type = None
+
+            self._automatic_nop_injection = False
+            self._automatic_nop_max_injections = 3
 
             self.lock()
 
@@ -1293,6 +1325,14 @@ class Config(NestedPrint, LockAttributes):
         @minimize_spills.setter
         def minimize_spills(self, val):
             self._minimize_spills = val
+
+        @automatic_nop_injection.setter
+        def automatic_nop_injection(self, val):
+            self._automatic_nop_injection = val
+
+        @automatic_nop_max_injections.setter
+        def automatic_nop_max_injections(self, val):
+            self._automatic_nop_max_injections = val
 
         @functional_only.setter
         def functional_only(self, val):
