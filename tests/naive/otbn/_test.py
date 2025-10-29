@@ -135,6 +135,8 @@ class leakage_rule_1(OptimizationRunner):
         slothy.config.outputs = ["w1", "w2", "w3"]
         slothy.config.variable_size = True
 
+        slothy.config.constraints.track_share_taint = True
+
         slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
         for start, end in [(f"start{i}", f"end{i}") for i in range(1, 6)]:
             expect_optimization_failure(slothy, start=start, end=end)

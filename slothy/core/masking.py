@@ -36,11 +36,19 @@ class MaskingInfo:
     - Public (is_public=True, shares=[])
     - A single share of a secret (is_public=False, shares=[one ShareInfo])
     - Dependent on multiple shares (is_public=False, shares=[multiple ShareInfo])
+
+    The source field tracks provenance:
+    - "input": Direct share from secret_inputs config
+    - "computed": Derived through computation
+    - "public": Public value (no secret dependency)
     """
 
-    def __init__(self, is_public, shares=None):
+    def __init__(self, is_public, shares=None, source="computed"):
         assert isinstance(is_public, bool), "is_public must be True or False"
+        assert source in ["input", "computed", "public"], f"Invalid source: {source}"
+
         self.is_public = is_public
+        self.source = source
 
         if shares is None:
             shares = []
@@ -53,25 +61,35 @@ class MaskingInfo:
         if not is_public:
             assert len(self.shares) > 0, "Secret values must have at least one share"
 
+        # Auto-set source for public values if not explicitly set
+        if is_public and source == "computed":
+            self.source = "public"
+
     @staticmethod
-    def from_single_share(secret_name, share_index):
-        """Create MaskingInfo for a single share of a secret."""
-        return MaskingInfo(is_public=False, shares=ShareInfo(secret_name, share_index))
+    def from_single_share(secret_name, share_index, source="input"):
+        """Create MaskingInfo for a single share of a secret.
+
+        Args:
+            secret_name: Name of the secret variable
+            share_index: Index of the share
+            source: Provenance ("input" for initial shares, "computed" for derived)
+        """
+        return MaskingInfo(is_public=False, shares=ShareInfo(secret_name, share_index), source=source)
 
     @staticmethod
     def public():
         """Create MaskingInfo for a public value."""
-        return MaskingInfo(is_public=True)
+        return MaskingInfo(is_public=True, source="public")
 
     def __repr__(self):
         if self.is_public:
-            return "public"
+            return f"public[{self.source}]"
         elif len(self.shares) == 1:
             s = self.shares[0]
-            return f"secret({s.secret_name},share{s.share_index})"
+            return f"secret({s.secret_name},share{s.share_index})[{self.source}]"
         else:
             share_strs = [str(s) for s in sorted(self.shares, key=lambda x: (x.secret_name, x.share_index))]
-            return f"secret({','.join(share_strs)})"
+            return f"secret({','.join(share_strs)})[{self.source}]"
 
     @staticmethod
     def combine(masking_infos, logger=None):
@@ -126,7 +144,8 @@ class MaskingInfo:
                 )
 
         # All validation passed - create combined masking info
-        result = MaskingInfo(is_public=False, shares=list(all_shares))
+        # Source is "computed" since this is derived from inputs
+        result = MaskingInfo(is_public=False, shares=list(all_shares), source="computed")
 
         if logger:
             logger.debug(f"Output inherits masking: {result}")
@@ -288,13 +307,20 @@ def add_masking_constraints_no_share_overwrite(core):
     Rule: A register containing share X of secret S cannot be overwritten
     with share Y of secret S (where X ≠ Y).
 
+    When track_share_taint is enabled, this also prevents overwriting registers
+    that are "tainted" (computed from a share) with other shares of the same secret.
+
     Args:
         core: The Core object with access to model, config, logger, and constraint methods
     """
     if not core.config.secret_inputs:
         return
 
-    core.logger.info("Adding no-share-overwrite constraints...")
+    track_taint = core.config.constraints.track_share_taint
+    if track_taint:
+        core.logger.info("Adding no-share-overwrite constraints (with taint tracking)...")
+    else:
+        core.logger.info("Adding no-share-overwrite constraints (direct shares only)...")
 
     # Map: reg_name -> {(secret_name, share_idx): [intervals]}
     register_share_intervals = {}
@@ -312,23 +338,23 @@ def add_masking_constraints_no_share_overwrite(core):
                 register_share_intervals.setdefault(reg_name, {}).setdefault((secret_name, share_idx), []).append(interval)
                 initial_register_set.add((reg_name, secret_name, share_idx))
 
-    # First pass: collect all writers to each register
+    # First pass: collect ALL writers to each register (including public writes)
+    # This is needed so that public writes can properly terminate tainted register intervals
     for t in core._get_nodes(allnodes=True):
         # Collect output register writers
         for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_out, t.alloc_out_var)):
-            if not mask_info or mask_info.is_public:
-                continue
+            # Track ALL writes, not just secret ones, so public writes can terminate intervals
             for reg_name, alloc_bool in reg_var.items():
                 # Skip VirtualInputInstructions (they don't overwrite, they initialize)
-                if len(reg_var) == 1 and all((reg_name, s.secret_name, s.share_index) in initial_register_set
-                                             for s in mask_info.shares):
-                    continue
+                if mask_info and not mask_info.is_public:
+                    if len(reg_var) == 1 and all((reg_name, s.secret_name, s.share_index) in initial_register_set
+                                                 for s in mask_info.shares):
+                        continue
                 register_writers.setdefault(reg_name, []).append((t, alloc_bool, True, idx, mask_info))
 
         # Collect in/out register writers
         for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_in_out, t.alloc_in_out_var)):
-            if not mask_info or mask_info.is_public:
-                continue
+            # Track ALL writes, not just secret ones
             for reg_name, alloc_bool in reg_var.items():
                 register_writers.setdefault(reg_name, []).append((t, alloc_bool, False, idx, mask_info))
 
@@ -336,6 +362,10 @@ def add_masking_constraints_no_share_overwrite(core):
     for t in core._get_nodes(allnodes=True):
         for idx, (mask_info, reg_var) in enumerate(zip(t.masking_info_out, t.alloc_out_var)):
             if not mask_info or mask_info.is_public:
+                continue
+
+            # Skip tainted/computed shares if taint tracking is disabled
+            if not track_taint and mask_info.source == "computed":
                 continue
 
             for reg_name, alloc_bool in reg_var.items():
@@ -360,10 +390,11 @@ def add_masking_constraints_no_share_overwrite(core):
                     core._Add(t_next.program_start_var > t.program_start_var).OnlyEnforceIf(is_after)
                     core._Add(t_next.program_start_var <= t.program_start_var).OnlyEnforceIf(is_after.Not())
 
-                    # Conditional end: use t_next.start if both conditions hold (allocated AND after)
+                    # Conditional end: extend interval to overlap at write position
+                    # This ensures NoOverlap catches tainted register overwrites with different shares
                     cond_end = core._NewIntVar(0, program_horizon,
                                               f"CondEnd(node{t.id},node{t_next.id})_reg{reg_name}")
-                    core._Add(cond_end == t_next.program_start_var).OnlyEnforceIf([alloc_next, is_after])
+                    core._Add(cond_end == t_next.program_start_var + 1).OnlyEnforceIf([alloc_next, is_after])
                     # If either condition is false, use horizon (won't be selected as minimum)
                     core._Add(cond_end == program_horizon).OnlyEnforceIf(alloc_next.Not())
                     core._Add(cond_end == program_horizon).OnlyEnforceIf(is_after.Not())
@@ -392,6 +423,10 @@ def add_masking_constraints_no_share_overwrite(core):
             if not mask_info or mask_info.is_public:
                 continue
 
+            # Skip tainted/computed shares if taint tracking is disabled
+            if not track_taint and mask_info.source == "computed":
+                continue
+
             for reg_name, alloc_bool in reg_var.items():
                 # Compute dynamic endpoint
                 program_horizon = core._model.program_horizon
@@ -409,10 +444,11 @@ def add_masking_constraints_no_share_overwrite(core):
                     core._Add(t_next.program_start_var > t.program_start_var).OnlyEnforceIf(is_after)
                     core._Add(t_next.program_start_var <= t.program_start_var).OnlyEnforceIf(is_after.Not())
 
-                    # Conditional end: use t_next.start if both conditions hold (allocated AND after)
+                    # Conditional end: extend interval to overlap at write position
+                    # This ensures NoOverlap catches tainted register overwrites with different shares
                     cond_end = core._NewIntVar(0, program_horizon,
                                               f"CondEnd(node{t.id},node{t_next.id})_reg{reg_name}_inout")
-                    core._Add(cond_end == t_next.program_start_var).OnlyEnforceIf([alloc_next, is_after])
+                    core._Add(cond_end == t_next.program_start_var + 1).OnlyEnforceIf([alloc_next, is_after])
                     # If either condition is false, use horizon (won't be selected as minimum)
                     core._Add(cond_end == program_horizon).OnlyEnforceIf(alloc_next.Not())
                     core._Add(cond_end == program_horizon).OnlyEnforceIf(is_after.Not())

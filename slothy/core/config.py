@@ -1232,6 +1232,26 @@ class Config(NestedPrint, LockAttributes):
             """
             return self._automatic_nop_max_injections
 
+        @property
+        def track_share_taint(self):
+            """Enable taint tracking for masking constraints.
+
+            When enabled, the share overwrite constraint will track not only direct
+            share assignments but also registers that become "tainted" through
+            computation. A register tainted with share X of secret S cannot be
+            overwritten by share Y of secret S (where X != Y).
+
+            Example:
+                w2 = w0 + 5  # w2 becomes tainted with share 0
+                w2 = w5 + w1 # ERROR: overwriting share 0 taint with share 1
+
+            This is more conservative than checking only direct overwrites, but
+            prevents subtle leakage through intermediate computations.
+
+            Default: False
+            """
+            return self._track_share_taint
+
         def __init__(self):
             super().__init__()
 
@@ -1267,6 +1287,7 @@ class Config(NestedPrint, LockAttributes):
 
             self._automatic_nop_injection = False
             self._automatic_nop_max_injections = 3
+            self._track_share_taint = False
 
             self.lock()
 
@@ -1333,6 +1354,10 @@ class Config(NestedPrint, LockAttributes):
         @automatic_nop_max_injections.setter
         def automatic_nop_max_injections(self, val):
             self._automatic_nop_max_injections = val
+
+        @track_share_taint.setter
+        def track_share_taint(self, val):
+            self._track_share_taint = val
 
         @functional_only.setter
         def functional_only(self, val):
