@@ -2005,6 +2005,24 @@ class x_ldr_with_imm_shifted(Ldr_X):
         return super().write()
 
 
+class x_ldr_regidx(Ldr_X):
+    pattern = "ldr <Xa>, [<Xb>, <Xc>]"
+    inputs = ["Xb", "Xc"]
+    outputs = ["Xa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        assert self.pre_index is None
+        return super().write()
+
+
 class x_ldr_with_postinc(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>], <imm>"
     in_outs = ["Xc"]
