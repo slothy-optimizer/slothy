@@ -2911,6 +2911,18 @@ class AArch64Move(AArch64Instruction):
     pass
 
 
+class movz_imm(AArch64Move):
+    pattern = "movz <Xd>, <imm>"
+    inputs = []
+    outputs = ["Xd"]
+
+
+class movz_imm_lsl(AArch64Move):
+    pattern = "movz <Xd>, <imm0>, <barrel> <imm1>"
+    inputs = []
+    outputs = ["Xd"]
+
+
 class mov_imm(AArch64Move):
     pattern = "mov <Xd>, <imm>"
     inputs = []
