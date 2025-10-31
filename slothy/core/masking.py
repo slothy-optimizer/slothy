@@ -234,7 +234,6 @@ def get_node_input_masking_infos(node):
     # Collect from regular inputs
     for src in node.src_in:
         if isinstance(src, InstructionOutput):
-            print(src.src.masking_info_out[src.idx])
             mask_info = src.src.masking_info_out[src.idx]
             input_masking_infos.append(mask_info)
         elif isinstance(src, InstructionInOut):
