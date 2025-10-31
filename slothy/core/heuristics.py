@@ -34,6 +34,7 @@ smaller-sizes problems amenable to one-shot SLOTHY.
 """
 
 import math
+from pathlib import Path
 
 from slothy.core.dataflow import DataFlowGraph as DFG
 from slothy.core.dataflow import Config as DFGConfig, ComputationNode
@@ -108,11 +109,14 @@ class Heuristics:
             conf.log(logger.error)
 
             err_file = conf.log_dir + f"/{logger_name}_ERROR.s"
+
+            Path(conf.log_dir).mkdir(parents=True, exist_ok=True)
             with open(err_file, "w", encoding="utf-8") as f:
                 conf.log(lambda line: f.write("// " + line + "\n"))
-                f.write("\n".join(source))
+                f.write("\n".join([line.to_string() for line in source]))
 
             logger.error(f"Stored this information in {err_file}")
+            raise SlothyException("No solution found.")
 
     @staticmethod
     def optimize_binsearch(source: list, logger: any, conf: any, **kwargs: any) -> any:
