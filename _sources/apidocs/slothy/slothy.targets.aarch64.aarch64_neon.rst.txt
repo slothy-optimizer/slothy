@@ -140,6 +140,8 @@ Classes
      -
    * - :py:obj:`x_ldr_with_imm_shifted <slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_shifted>`
      -
+   * - :py:obj:`x_ldr_regidx <slothy.targets.aarch64.aarch64_neon.x_ldr_regidx>`
+     -
    * - :py:obj:`x_ldr_with_postinc <slothy.targets.aarch64.aarch64_neon.x_ldr_with_postinc>`
      -
    * - :py:obj:`x_ldr_stack <slothy.targets.aarch64.aarch64_neon.x_ldr_stack>`
@@ -363,6 +365,10 @@ Classes
    * - :py:obj:`mov <slothy.targets.aarch64.aarch64_neon.mov>`
      -
    * - :py:obj:`AArch64Move <slothy.targets.aarch64.aarch64_neon.AArch64Move>`
+     -
+   * - :py:obj:`movz_imm <slothy.targets.aarch64.aarch64_neon.movz_imm>`
+     -
+   * - :py:obj:`movz_imm_lsl <slothy.targets.aarch64.aarch64_neon.movz_imm_lsl>`
      -
    * - :py:obj:`mov_imm <slothy.targets.aarch64.aarch64_neon.mov_imm>`
      -
@@ -2411,6 +2417,36 @@ API
 
    .. py:method:: write()
       :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_imm_shifted.write
+
+.. py:class:: x_ldr_regidx(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Ldr_X`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx.pattern
+      :value: 'ldr <Xa>, [<Xb>, <Xc>]'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx.inputs
+      :value: ['Xb', 'Xc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx.outputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx.make
+      :classmethod:
+
+   .. py:method:: write()
+      :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_regidx.write
 
 .. py:class:: x_ldr_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.x_ldr_with_postinc
@@ -5174,6 +5210,52 @@ API
    :canonical: slothy.targets.aarch64.aarch64_neon.AArch64Move
 
    Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+.. py:class:: movz_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.movz_imm
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Move`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.movz_imm.pattern
+      :value: 'movz <Xd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.movz_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.movz_imm.inputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.movz_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.movz_imm.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.movz_imm.outputs
+
+.. py:class:: movz_imm_lsl(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.movz_imm_lsl
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Move`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.movz_imm_lsl.pattern
+      :value: 'movz <Xd>, <imm0>, <barrel> <imm1>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.movz_imm_lsl.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.movz_imm_lsl.inputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.movz_imm_lsl.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.movz_imm_lsl.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.movz_imm_lsl.outputs
 
 .. py:class:: mov_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.mov_imm
