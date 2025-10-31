@@ -34,7 +34,6 @@ from enum import Enum, auto
 from slothy.helper import lookup_multidict
 from slothy.targets.otbn.otbn import (
     find_class,
-    all_subclass_leaves,
     OTBNInstruction,
 )
 from slothy.core.masking import get_node_input_masking_infos
@@ -80,7 +79,7 @@ def is_secret_tainted(masking_info):
 
 
 def add_bn_sel_secret_flag_constraint(slothy):
-    """Add constraints to prevent bn.sel from using source as destination with secret flag.
+    """Add constraints to prevent bn.sel from using src as dst with secret flag.
 
     Rule 6: When bn.sel's flag input is secret-tainted, the destination register
     must not be the same as either source register. This prevents Hamming distance 0
@@ -129,15 +128,15 @@ def add_bn_sel_secret_flag_constraint(slothy):
         # Uses same constraint mechanism as args_in_out_different
         slothy._forbid_renaming_collision_single(
             node.alloc_out_var[0],  # Wd allocations
-            node.alloc_in_var[0],   # Wa allocations
-            condition=None
+            node.alloc_in_var[0],  # Wa allocations
+            condition=None,
         )
 
         # Prevent Wd from using same register as Wb
         slothy._forbid_renaming_collision_single(
             node.alloc_out_var[0],  # Wd allocations
-            node.alloc_in_var[1],   # Wb allocations
-            condition=None
+            node.alloc_in_var[1],  # Wb allocations
+            condition=None,
         )
 
         constraint_count += 2
@@ -148,7 +147,8 @@ def add_bn_sel_secret_flag_constraint(slothy):
 
     if constraint_count > 0:
         slothy.logger.info(
-            f"Added {constraint_count} constraint(s) for leakage rule 6 (bn.sel secret flag)."
+            f"Added {constraint_count} constraint(s) for leakage rule 6"
+            "(bn.sel secret flag)."
         )
 
 
@@ -253,7 +253,7 @@ def get_latency(src, out_idx, dst):
     _ = out_idx  # out_idx unused
 
     instclass_src = find_class(src)
-    instclass_dst = find_class(dst)
+    # instclass_dst = find_class(dst)
 
     latency = lookup_multidict(default_latencies, src, instclass_src)
 

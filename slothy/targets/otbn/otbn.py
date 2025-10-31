@@ -31,14 +31,12 @@ Partial SLOTHY architecture model for OTBN
 
 import logging
 import re
-import math
 from enum import Enum
 from functools import cache
-from sympy import simplify
 
 
 from slothy.targets.common import FatalParsingException, UnknownInstruction
-from slothy.helper import Loop, SourceLine
+from slothy.helper import SourceLine
 
 arch_name = "OTBN"
 
@@ -350,7 +348,8 @@ class Instruction:
         return self.is_load() or self.is_store()
 
     def declassifies_output(self, output_idx):
-        """Check if this instruction declassifies (produces public value) for a given output.
+        """Check if this instruction declassifies (produces public value)
+        for a given output.
 
         Returns True if the output at output_idx is guaranteed to be public,
         regardless of input masking.
@@ -485,7 +484,6 @@ class Instruction:
         Returns:
             SourceLine object representing a NOP instruction for this architecture
         """
-        from slothy.helper import SourceLine
         nop_line = SourceLine("nop")
         if indentation > 0:
             nop_line = nop_line.set_indentation(indentation)
@@ -1249,6 +1247,7 @@ class bn_sid_inc(OTBNInstruction):
 
 
 # Wide special register access
+
 
 class bn_wsrr_URND(OTBNInstruction):
     pattern = "bn.wsrr <Wd>, URND"

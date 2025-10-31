@@ -28,7 +28,6 @@
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.otbn.otbn as Arch_OTBN
 import slothy.targets.otbn.otbn_uarch as Target_OTBN
-from slothy.core.core import SlothyException
 
 
 class UnexpectedTestResultException(Exception):
@@ -59,8 +58,8 @@ def expect_optimization_failure(slothy, *, start=None, end=None, label=None):
             return
         else:
             raise UnexpectedTestResultException(
-        f"Optimization failed for wrong reason {context}: {exc}"
-    )
+                f"Optimization failed for wrong reason {context}: {exc}"
+            )
 
     raise UnexpectedTestResultException(
         f"Optimization unexpectedly succeeded for {context}"
@@ -117,8 +116,9 @@ class leakage(OptimizationRunner):
 
         slothy.optimize()
 
+
 class leakage_rule_1(OptimizationRunner):
-    """Example that violates rule 1: overwriting shares of the same secret - should error"""
+    """Example that violates rule 1: overwriting shares of same secret - should error"""
 
     def __init__(self, var="", arch=Arch_OTBN, target=Target_OTBN, timeout=None):
         name = "leakage_rule_1"
@@ -177,7 +177,7 @@ class leakage_rule_2(OptimizationRunner):
 
 
 class leakage_rule_3(OptimizationRunner):
-    """Example that violates rule 3: Using shares of the same secret in consecutive instructions"""
+    """Example violating rule 3: Shares of same secret in consecutive instructions"""
 
     def __init__(self, var="", arch=Arch_OTBN, target=Target_OTBN, timeout=None):
         name = "leakage_rule_3"
@@ -211,7 +211,8 @@ class leakage_rule_3(OptimizationRunner):
         slothy.config.constraints.automatic_nop_injection = True
         slothy.config.constraints.automatic_nop_max_injections = 1
         slothy.optimize(start="start2", end="end2")
-            
+
+
 class leakage_declassify(OptimizationRunner):
     """Example that showcases automatic declassification."""
 
@@ -319,14 +320,18 @@ class leakage_rule_6(OptimizationRunner):
         slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
 
         # Test case 1: Wd==Wa with secret flag (should fail)
-        expect_optimization_failure(slothy, start="start", end="end", label="Test 1: Wd==Wa with secret flag")
+        expect_optimization_failure(
+            slothy, start="start", end="end", label="Test 1: Wd==Wa with secret flag"
+        )
 
         # Test case 2: Wd==Wb with secret flag (should fail)
-        expect_optimization_failure(slothy, start="start2", end="end2", label="Test 2: Wd==Wb with secret flag")
+        expect_optimization_failure(
+            slothy, start="start2", end="end2", label="Test 2: Wd==Wb with secret flag"
+        )
 
         # Test case 3: Wd==Wa but public flag (should succeed)
         slothy.optimize(start="start3", end="end3")
-        
+
         # Test case 4: Healable (should succeed)
         slothy.config.outputs = ["w9", "w10"]
         slothy.optimize(start="start4", end="end4")
@@ -379,27 +384,25 @@ class leakage_rule_8(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.selftest = False
-        
+
         # Forbid overwriting FG1 to force use of FG0
         r = slothy.config.reserved_regs
         r = r.union(["FG1"])
         slothy.config.reserved_regs = r
-        
+
         slothy.config.outputs = ["w6", "w7", "FG0"]
 
         slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
 
         # TODO: 1. case should fail because of relation through FG (overwrite)
         for start_end in [("start", "end"), ("start2", "end2")]:
-            expect_optimization_failure(
-                slothy, start=start_end[0], end=start_end[1]
-            )
+            expect_optimization_failure(slothy, start=start_end[0], end=start_end[1])
 
         slothy.optimize(start="start3", end="end3")
 
 
 class leakage_rule_9(OptimizationRunner):
-    """Example that violates rule 9: not clearing flags after secret-dependent operations"""
+    """Example violating rule 9: not clearing flags after secret-dependent operations"""
 
     def __init__(self, var="", arch=Arch_OTBN, target=Target_OTBN, timeout=None):
         name = "leakage_rule_9"
