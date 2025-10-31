@@ -63,6 +63,93 @@ def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
     add_non_consec_shares(slothy)
+    add_bn_sel_secret_flag_constraint(slothy)
+
+
+def is_secret_tainted(masking_info):
+    """Check if masking info represents a secret-tainted value.
+
+    Args:
+        masking_info: MaskingInfo object or None
+
+    Returns:
+        True if the value is tainted with secret information (not public),
+        False otherwise
+    """
+    return masking_info is not None and not masking_info.is_public
+
+
+def add_bn_sel_secret_flag_constraint(slothy):
+    """Add constraints to prevent bn.sel from using source as destination with secret flag.
+
+    Rule 6: When bn.sel's flag input is secret-tainted, the destination register
+    must not be the same as either source register. This prevents Hamming distance 0
+    transitions that leak information in power traces.
+
+    Args:
+        slothy: The SLOTHY optimization object
+    """
+    # Import here to avoid circular dependency and get access to instruction classes
+    from slothy.targets.otbn.otbn import bn_sel
+    from slothy.core.dataflow import InstructionOutput, InstructionInOut
+
+    constraint_count = 0
+
+    # Iterate through all instructions in the data flow graph
+    for node in slothy._get_nodes(allnodes=True):
+        # Only process bn.sel instructions (not bn_sel_no_fg)
+        if not isinstance(node.inst, bn_sel):
+            continue
+
+        # bn.sel has inputs ["Wa", "Wb", "FGa"] and outputs ["Wd"]
+        # Get masking info for the FG input (index 2 in inputs)
+        fg_masking_info = None
+
+        # The FG input is the third input (index 2)
+        if len(node.src_in) >= 3:
+            src = node.src_in[2]
+            if isinstance(src, InstructionOutput):
+                fg_masking_info = src.src.masking_info_out[src.idx]
+            elif isinstance(src, InstructionInOut):
+                fg_masking_info = src.src.masking_info_in_out[src.idx]
+
+        # Check if FG is secret-tainted
+        if not is_secret_tainted(fg_masking_info):
+            continue
+
+        # FG is secret-tainted - add constraints to prevent Wd from using
+        # the same register as Wa or Wb (regardless of input code)
+
+        # bn.sel has: outputs=["Wd"], inputs=["Wa", "Wb", "FGa"]
+        # Ensure we have the expected structure
+        if len(node.alloc_out_var) < 1 or len(node.alloc_in_var) < 2:
+            continue
+
+        # Prevent Wd from using same register as Wa
+        # Uses same constraint mechanism as args_in_out_different
+        slothy._forbid_renaming_collision_single(
+            node.alloc_out_var[0],  # Wd allocations
+            node.alloc_in_var[0],   # Wa allocations
+            condition=None
+        )
+
+        # Prevent Wd from using same register as Wb
+        slothy._forbid_renaming_collision_single(
+            node.alloc_out_var[0],  # Wd allocations
+            node.alloc_in_var[1],   # Wb allocations
+            condition=None
+        )
+
+        constraint_count += 2
+        slothy.logger.info(
+            f"Rule 6: Added constraints preventing {node.inst} from "
+            f"allocating destination to same register as sources (secret flag)"
+        )
+
+    if constraint_count > 0:
+        slothy.logger.info(
+            f"Added {constraint_count} constraint(s) for leakage rule 6 (bn.sel secret flag)."
+        )
 
 
 def add_non_consec_shares(slothy):

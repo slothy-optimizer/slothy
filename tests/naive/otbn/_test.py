@@ -54,8 +54,13 @@ def expect_optimization_failure(slothy, *, start=None, end=None, label=None):
         else:
             slothy.optimize(start=start, end=end)
     except Exception as exc:
-        slothy.logger.info(f"No solution found for {context}, as expected: {exc}")
-        return
+        if "No solution found" in str(exc):
+            slothy.logger.info(f"No solution found for {context}, as expected: {exc}")
+            return
+        else:
+            raise UnexpectedTestResultException(
+        f"Optimization failed for wrong reason {context}: {exc}"
+    )
 
     raise UnexpectedTestResultException(
         f"Optimization unexpectedly succeeded for {context}"
@@ -308,11 +313,23 @@ class leakage_rule_6(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.selftest = False
-        slothy.config.outputs = ["w5", "w9"]
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["w5", "w9", "w4"]
 
         slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
-        # TODO: Should fail!
-        slothy.optimize()
+
+        # Test case 1: Wd==Wa with secret flag (should fail)
+        expect_optimization_failure(slothy, start="start", end="end", label="Test 1: Wd==Wa with secret flag")
+
+        # Test case 2: Wd==Wb with secret flag (should fail)
+        expect_optimization_failure(slothy, start="start2", end="end2", label="Test 2: Wd==Wb with secret flag")
+
+        # Test case 3: Wd==Wa but public flag (should succeed)
+        slothy.optimize(start="start3", end="end3")
+        
+        # Test case 4: Healable (should succeed)
+        slothy.config.outputs = ["w9", "w10"]
+        slothy.optimize(start="start4", end="end4")
 
 
 class leakage_rule_7(OptimizationRunner):
