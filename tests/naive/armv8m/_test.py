@@ -92,6 +92,20 @@ class LoopLe(OptimizationRunner):
         slothy.optimize_loop("start")
 
 
+class LoopLetp(OptimizationRunner):
+    def __init__(self, var="", arch=Arch_Armv81M, target=Target_CortexM85r1):
+        name = "loop_letp"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.optimize_loop("1")
+
+
 class HintTest(OptimizationRunner):
     def __init__(self):
         super().__init__(
@@ -124,6 +138,7 @@ test_instances = [
     Example2(),
     Example3(),
     LoopLe(),
+    LoopLetp(),
     HintTest(),
     TagTest(),
 ]
