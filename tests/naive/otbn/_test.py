@@ -34,7 +34,9 @@ class UnexpectedTestResultException(Exception):
     pass
 
 
-def expect_optimization_failure(slothy, *, start=None, end=None, label=None):
+def expect_optimization_failure(
+    slothy, *, start=None, end=None, label=None, reason="No solution found"
+):
     """Run optimize and ensure it fails; raise if it succeeds."""
     context = label
     if context is None:
@@ -53,8 +55,10 @@ def expect_optimization_failure(slothy, *, start=None, end=None, label=None):
         else:
             slothy.optimize(start=start, end=end)
     except Exception as exc:
-        if "No solution found" in str(exc):
-            slothy.logger.info(f"No solution found for {context}, as expected: {exc}")
+        if reason in str(exc):
+            slothy.logger.info(
+                f"As expected, optimization failed with {reason} for {context}: {exc}"
+            )
             return
         else:
             raise UnexpectedTestResultException(
@@ -392,13 +396,17 @@ class leakage_rule_8(OptimizationRunner):
 
         slothy.config.outputs = ["w6", "w7", "FG0"]
 
+        slothy.config.constraints.track_share_taint = True
         slothy.config.secret_inputs = {"a": [["w0"], ["w1"]]}
 
         # TODO: 1. case should fail because of relation through FG (overwrite)
-        for start_end in [("start", "end"), ("start2", "end2")]:
-            expect_optimization_failure(slothy, start=start_end[0], end=start_end[1])
+        expect_optimization_failure(slothy, start="start", end="end")
+        expect_optimization_failure(
+            slothy, start="start2", end="end2", reason="Cannot mix different shares"
+        )
 
         slothy.optimize(start="start3", end="end3")
+        slothy.optimize(start="start4", end="end4")
 
 
 class leakage_rule_9(OptimizationRunner):
