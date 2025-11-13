@@ -495,7 +495,7 @@ API
    .. py:method:: start(reg, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
       :canonical: slothy.targets.arm_v81m.arch_v81m.LeLoop.start
 
-   .. py:method:: end(unused, indentation=0)
+   .. py:method:: end(other, indentation=0)
       :canonical: slothy.targets.arm_v81m.arch_v81m.LeLoop.end
 
 .. py:exception:: FatalParsingException()
