@@ -124,11 +124,13 @@ class neon_keccak_x4_hybrid_no_symbolic(OptimizationRunner):
             infile,
             name,
             outfile=outfile,
-            rename=f"keccak_f1600_x4_{var}_hybrid_no_symbolic",
+            rename=True,
+            funcname="keccak_f1600_x4_v8a_hybrid_slothy_symbolic",
             arch=arch,
             target=target,
             outfile_full=True,
             subfolder=SUBFOLDER,
+            suffix="clean",
         )
 
     def core(self, slothy):
@@ -137,7 +139,7 @@ class neon_keccak_x4_hybrid_no_symbolic(OptimizationRunner):
         slothy.config.inputs_are_outputs = True
         slothy.config.variable_size = True
         slothy.config.visualize_expected_performance = False
-        slothy.config.timeout = 10800
+        slothy.config.timeout = 600
 
         slothy.config.selfcheck_failure_logfile = "selfcheck_fail.log"
 
@@ -147,6 +149,7 @@ class neon_keccak_x4_hybrid_no_symbolic(OptimizationRunner):
         slothy.config.constraints.functional_only = True
         slothy.config.constraints.allow_reordering = False
         slothy.config.constraints.allow_spills = True
+        slothy.config.constraints.minimize_spills = True
         slothy.config.visualize_expected_performance = True
 
         slothy.optimize(start="loop", end="loop_end")
@@ -167,11 +170,13 @@ class neon_keccak_x4_hybrid_interleave(OptimizationRunner):
             infile,
             name,
             outfile=outfile,
-            rename=f"keccak_f1600_x4_{var}_hybrid_slothy_interleaved",
+            funcname=f"keccak_f1600_x4_{var}_hybrid_slothy_symbolic_clean",
+            rename=True,
             arch=arch,
             target=target,
             outfile_full=True,
             subfolder=SUBFOLDER,
+            suffix="interleaved",
         )
 
     def core(self, slothy):
@@ -205,6 +210,46 @@ class neon_keccak_x4_hybrid_interleave(OptimizationRunner):
         slothy.optimize(start="initial", end="loop")
 
 
+class neon_keccak_x4_hybrid(OptimizationRunner):
+    def __init__(self, var="v84a", arch=AArch64_Neon, target=Target_CortexA55):
+        name = f"keccak_f1600_x4_{var}_hybrid"
+        infile = f"keccak_f1600_x4_{var}_hybrid_slothy_interleaved"
+        self.var = var
+        super().__init__(
+            infile,
+            name,
+            rename=True,
+            funcname=f"keccak_f1600_x4_{var}_hybrid_slothy_symbolic_clean_interleaved",
+            arch=arch,
+            target=target,
+            subfolder=SUBFOLDER,
+        )
+
+    def core(self, slothy):
+        slothy.config.reserved_regs = ["x18", "sp"]
+
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.timeout = 30
+
+        slothy.config.outputs = ["flags", "hint_STACK_OFFSET_COUNT"]
+        slothy.config.constraints.stalls_first_attempt = 32
+
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 10
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_stepsize = 0.2
+
+        slothy.config.absorb_spills = False
+
+        slothy.config.unsafe_address_offset_fixup = False
+        slothy.config.with_preprocessor = True
+        slothy.config.selftest = False
+
+        slothy.optimize(start="loop", end="loop_end")
+        slothy.optimize(start="initial", end="loop")
+
+
 example_instances = [
     neon_keccak_x1_no_symbolic(),
     neon_keccak_x1_scalar_opt(),
@@ -214,4 +259,6 @@ example_instances = [
     neon_keccak_x4_hybrid_interleave(var="v8a"),
     neon_keccak_x4_hybrid_no_symbolic(var="v8a_v84a"),
     neon_keccak_x4_hybrid_interleave(var="v8a_v84a"),
+    neon_keccak_x4_hybrid(var="v84a"),
+    neon_keccak_x4_hybrid(var="v8a"),
 ]
