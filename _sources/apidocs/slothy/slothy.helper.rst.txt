@@ -196,6 +196,12 @@ API
 
       .. autodoc2-docstring:: slothy.helper.SourceLine.has_text
 
+   .. py:method:: instruction_count(lines)
+      :canonical: slothy.helper.SourceLine.instruction_count
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.SourceLine.instruction_count
+
    .. py:property:: indentation
       :canonical: slothy.helper.SourceLine.indentation
 
