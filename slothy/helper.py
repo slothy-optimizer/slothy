@@ -205,6 +205,11 @@ class SourceLine:
         """Indicates if the source line constaints some text"""
         return self._raw.strip() != ""
 
+    @staticmethod
+    def instruction_count(lines):
+        """Count the number of instructions in a list of source lines"""
+        return len([line for line in lines if line.has_text()])
+
     @property
     def indentation(self):
         """Returns the current level of indentation for the source line"""
