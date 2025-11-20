@@ -387,9 +387,7 @@ class Slothy:
         body = AsmIfElse.process_instructions(body)
         body = SourceLine.apply_indentation(body, indentation)
         logger.info("SLOTHY version: %s", self._get_version())
-        self.logger.info(
-            "Instructions in body: %d", len([line for line in body if line.has_text()])
-        )
+        self.logger.info("Instructions in body: %d", SourceLine.instruction_count(body))
 
         if self.config.with_llvm_mca_before is True:
             orig_stats = self._make_llvm_mca_stats(
@@ -623,7 +621,7 @@ class Slothy:
         self.logger.info(
             "Optimizing loop %s (%d instructions) ...",
             loop_lbl,
-            len([line for line in body if line.has_text()]),
+            SourceLine.instruction_count(body),
         )
 
         if self.config.with_llvm_mca_before is True:
