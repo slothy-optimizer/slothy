@@ -52,6 +52,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Str_X,
     Stp_X,
     Ldr_Q,
+    Ldr_D,
     Str_Q,
     vmov,
     vadd,
@@ -311,6 +312,7 @@ execution_units = {
     ],
     # non-q-form vector instructions
     (
+        Ldr_D,
         umov_d,
         mov_d01,
         mov_b00,
@@ -454,6 +456,7 @@ inverse_throughput = {
     ): 1,
     (vshl, vshl_d, vsshr, vushr, vuxtl): 1,
     (trn2, trn1, ASimdCompare): 1,
+    (Ldr_D): 1,
     (Ldr_Q): 2,
     (AArch64NeonCount): 1,
     (Str_Q): 1,
@@ -530,6 +533,7 @@ default_latencies = {
         vmls,
         vmls_lane,
     ): 4,
+    (Ldr_D): 3,
     (Ldr_Q, Str_Q): 4,
     (sub_imm, cmp): 2,
     AArch64NeonCount: 2,
