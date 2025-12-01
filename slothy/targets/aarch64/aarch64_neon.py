@@ -1374,6 +1374,52 @@ class vsub(AArch64Instruction):
 ############################
 
 
+class Ldr_D(AArch64Instruction):
+    pass
+
+
+class d_ldr(Ldr_D):
+    pattern = "ldr <Da>, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Da"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
+
+class d_ldr_with_postinc(Ldr_D):
+    pattern = "ldr <Da>, [<Xc>], <imm>"
+    in_outs = ["Xc"]
+    outputs = ["Da"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class d_ldr_with_inc_writeback(Ldr_D):
+    pattern = "ldr <Da>, [<Xc>, <imm>]!"
+    in_outs = ["Xc"]
+    outputs = ["Da"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
 class Ldr_Q(AArch64Instruction):
     pass
 

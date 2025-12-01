@@ -63,6 +63,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ldr_X,
     Str_X,
     Ldr_Q,
+    Ldr_D,
     Str_Q,
     vadd,
     vmul,
@@ -210,7 +211,7 @@ execution_units = {
     vuaddlv_sform: [[ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]],
     Vins: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     umov_d: ExecutionUnit.LOAD(),  # ???
-    (Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
+    (Ldr_D, Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
     (Str_Q, Str_X): ExecutionUnit.STORE(),
     AArch64Move: ExecutionUnit.SCALAR(),
     (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
@@ -252,7 +253,7 @@ inverse_throughput = {
     Vins: 1,
     umov_d: 1,
     (add, add_imm, add_shifted): 1,
-    (Ldr_Q, Str_Q, Ldr_X, Str_X): 1,
+    (Ldr_D, Ldr_Q, Str_Q, Ldr_X, Str_X): 1,
     (VShiftImmediateRounding, VShiftImmediateBasic): 1,
     # TODO: this seems in accurate; revisiting may improve performance
     St2: 4,
@@ -298,7 +299,7 @@ default_latencies = {
     AArch64NeonShiftInsert: 3,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
-    (Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
+    (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
     (add, add_imm, add_shifted): 2,
