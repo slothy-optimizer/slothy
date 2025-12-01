@@ -54,6 +54,14 @@ Classes
      -
    * - :py:obj:`vsub <slothy.targets.aarch64.aarch64_neon.vsub>`
      -
+   * - :py:obj:`Ldr_D <slothy.targets.aarch64.aarch64_neon.Ldr_D>`
+     -
+   * - :py:obj:`d_ldr <slothy.targets.aarch64.aarch64_neon.d_ldr>`
+     -
+   * - :py:obj:`d_ldr_with_postinc <slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc>`
+     -
+   * - :py:obj:`d_ldr_with_inc_writeback <slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback>`
+     -
    * - :py:obj:`Ldr_Q <slothy.targets.aarch64.aarch64_neon.Ldr_Q>`
      -
    * - :py:obj:`Ldp_Q <slothy.targets.aarch64.aarch64_neon.Ldp_Q>`
@@ -1403,6 +1411,92 @@ API
       :value: ['Va']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vsub.outputs
+
+.. py:class:: Ldr_D(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.Ldr_D
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+.. py:class:: d_ldr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Ldr_D`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr.pattern
+      :value: 'ldr <Da>, [<Xc>]'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr.inputs
+      :value: ['Xc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr.outputs
+      :value: ['Da']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr.make
+      :classmethod:
+
+.. py:class:: d_ldr_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Ldr_D`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.pattern
+      :value: 'ldr <Da>, [<Xc>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.in_outs
+      :value: ['Xc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.outputs
+      :value: ['Da']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.make
+      :classmethod:
+
+.. py:class:: d_ldr_with_inc_writeback(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Ldr_D`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.pattern
+      :value: 'ldr <Da>, [<Xc>, <imm>]!'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.in_outs
+      :value: ['Xc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.in_outs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.outputs
+      :value: ['Da']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.make
+      :classmethod:
 
 .. py:class:: Ldr_Q(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.Ldr_Q

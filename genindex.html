@@ -1105,7 +1105,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldp_sp_imm">d_ldp_sp_imm (class in slothy.targets.aarch64.aarch64_neon)</a>
 </li>
+      <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr">d_ldr (class in slothy.targets.aarch64.aarch64_neon)</a>
+</li>
       <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_stack_with_inc">d_ldr_stack_with_inc (class in slothy.targets.aarch64.aarch64_neon)</a>
+</li>
+      <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback">d_ldr_with_inc_writeback (class in slothy.targets.aarch64.aarch64_neon)</a>
+</li>
+      <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc">d_ldr_with_postinc (class in slothy.targets.aarch64.aarch64_neon)</a>
 </li>
       <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_stp_stack_with_inc">d_stp_stack_with_inc (class in slothy.targets.aarch64.aarch64_neon)</a>
 </li>
@@ -1750,6 +1756,10 @@
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.bfi.in_outs">(slothy.targets.aarch64.aarch64_neon.bfi attribute)</a>
 </li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.in_outs">(slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback attribute)</a>
+</li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.in_outs">(slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc attribute)</a>
+</li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.fmov_0.in_outs">(slothy.targets.aarch64.aarch64_neon.fmov_0 attribute)</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.fmov_1.in_outs">(slothy.targets.aarch64.aarch64_neon.fmov_1 attribute)</a>
@@ -2169,6 +2179,8 @@
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.csel_xzr2_ne.inputs">(slothy.targets.aarch64.aarch64_neon.csel_xzr2_ne attribute)</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.csel_xzr_ne.inputs">(slothy.targets.aarch64.aarch64_neon.csel_xzr_ne attribute)</a>
+</li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr.inputs">(slothy.targets.aarch64.aarch64_neon.d_ldr attribute)</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_stp_stack_with_inc.inputs">(slothy.targets.aarch64.aarch64_neon.d_stp_stack_with_inc attribute)</a>
 </li>
@@ -3209,6 +3221,8 @@
       </ul></li>
       <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.ldr_const">ldr_const (class in slothy.targets.aarch64.aarch64_neon)</a>
 </li>
+      <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.Ldr_D">Ldr_D (class in slothy.targets.aarch64.aarch64_neon)</a>
+</li>
       <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.Ldr_Q">Ldr_Q (class in slothy.targets.aarch64.aarch64_neon)</a>
 </li>
       <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.ldr_sxtw_wform">ldr_sxtw_wform (class in slothy.targets.aarch64.aarch64_neon)</a>
@@ -3297,10 +3311,10 @@
       </ul></li>
       <li><a href="apidocs/slothy/slothy.helper.html#slothy.helper.LLVM_Mc_Error">LLVM_Mc_Error</a>
 </li>
-      <li><a href="apidocs/slothy/slothy.helper.html#slothy.helper.LLVM_Mc.llvm_mc_output_extract_symbol">llvm_mc_output_extract_symbol() (slothy.helper.LLVM_Mc static method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidocs/slothy/slothy.helper.html#slothy.helper.LLVM_Mc.llvm_mc_output_extract_symbol">llvm_mc_output_extract_symbol() (slothy.helper.LLVM_Mc static method)</a>
+</li>
       <li><a href="apidocs/slothy/slothy.helper.html#slothy.helper.LLVM_Mc.llvm_mc_output_extract_text_section">llvm_mc_output_extract_text_section() (slothy.helper.LLVM_Mc static method)</a>
 </li>
       <li><a href="apidocs/slothy/slothy.helper.html#slothy.helper.LLVM_Mca">LLVM_Mca (class in slothy.helper)</a>
@@ -3480,7 +3494,13 @@
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldp_sp_imm.make">(slothy.targets.aarch64.aarch64_neon.d_ldp_sp_imm class method)</a>
 </li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr.make">(slothy.targets.aarch64.aarch64_neon.d_ldr class method)</a>
+</li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_stack_with_inc.make">(slothy.targets.aarch64.aarch64_neon.d_ldr_stack_with_inc class method)</a>
+</li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.make">(slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback class method)</a>
+</li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.make">(slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc class method)</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_stp_stack_with_inc.make">(slothy.targets.aarch64.aarch64_neon.d_stp_stack_with_inc class method)</a>
 </li>
@@ -4391,7 +4411,13 @@
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldp_sp_imm.outputs">(slothy.targets.aarch64.aarch64_neon.d_ldp_sp_imm attribute)</a>
 </li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr.outputs">(slothy.targets.aarch64.aarch64_neon.d_ldr attribute)</a>
+</li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_stack_with_inc.outputs">(slothy.targets.aarch64.aarch64_neon.d_ldr_stack_with_inc attribute)</a>
+</li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.outputs">(slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback attribute)</a>
+</li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.outputs">(slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc attribute)</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.eon.outputs">(slothy.targets.aarch64.aarch64_neon.eon attribute)</a>
 </li>
@@ -5213,7 +5239,13 @@
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldp_sp_imm.pattern">(slothy.targets.aarch64.aarch64_neon.d_ldp_sp_imm attribute)</a>
 </li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr.pattern">(slothy.targets.aarch64.aarch64_neon.d_ldr attribute)</a>
+</li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_stack_with_inc.pattern">(slothy.targets.aarch64.aarch64_neon.d_ldr_stack_with_inc attribute)</a>
+</li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback.pattern">(slothy.targets.aarch64.aarch64_neon.d_ldr_with_inc_writeback attribute)</a>
+</li>
+        <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc.pattern">(slothy.targets.aarch64.aarch64_neon.d_ldr_with_postinc attribute)</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.d_stp_stack_with_inc.pattern">(slothy.targets.aarch64.aarch64_neon.d_stp_stack_with_inc attribute)</a>
 </li>
