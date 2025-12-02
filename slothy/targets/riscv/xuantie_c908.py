@@ -234,3 +234,4 @@ def get_units(src):
 def get_inverse_throughput(src):
     return lookup_multidict(
         inverse_throughput, src)
+from slothy.targets.riscv.rv32_64_pseudo_instructions import *  # noqa: F403

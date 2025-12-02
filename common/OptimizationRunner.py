@@ -96,6 +96,7 @@ class OptimizationRunner:
         if name is None:
             name = infile
 
+        self.var = var
         if var != "":
             name += f"_{var}"
             infile += f"_{var}"

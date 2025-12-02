@@ -105,6 +105,10 @@ from examples.naive.riscv.kyber_basemul._example import (
     example_instances as example_instances_riscv_kyber_basemul,
 )
 
+from examples.naive.riscv.keccak._example import (
+    example_instances as example_instances_riscv_keccak,
+)
+
 
 def main():
     examples = (
@@ -126,6 +130,7 @@ def main():
         + example_instances_riscv_poly_basemul
         + example_instances_riscv_ntt_kyber
         + example_instances_riscv_kyber_basemul
+        + example_instances_riscv_keccak
     )
 
     all_example_names = [e.name for e in examples]
@@ -162,6 +167,7 @@ def main():
             Target_AppleM1_firestorm.__name__,
             Target_AppleM1_icestorm.__name__,
             Target_AArch64Big.__name__,
+            Target_C908.__name__,
         ],
     )
     args = parser.parse_args()
