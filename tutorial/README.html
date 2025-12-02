@@ -175,7 +175,7 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 </pre></div>
 </div>
 <p>You can try to run SLOTHY on one of the examples that come with SLOTHY to make sure it runs without errors:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">example</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">examples</span> <span class="n">simple0</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">test</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">tests</span> <span class="n">simple0_a55</span>
 </pre></div>
 </div>
 <p>We will look into more examples shortly and discuss input, output, and available flags.</p>
@@ -184,9 +184,9 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 <h2>2. Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <p>The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
 Once you work on your own code, you will likely be using the <code class="docutils literal notranslate"><span class="pre">slothy-cli</span></code> command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has.
-However, for now we will be using the <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.py">example.py</a> script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
-You can run <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">example.py</span> <span class="pre">--help</span></code> to see all examples available.</p>
-<p>Let’s look at a very simple example from the previous section called <code class="docutils literal notranslate"><span class="pre">aarch64_simple0</span></code>.
+However, for now we will be using the <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/test.py">test.py</a> script and containing a number of simple test cases. The examples targetedfor optimization in the SLOTHY paper can be accessed through a similarly structured <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.py">example.py</a>.
+You can run <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">test.py</span> <span class="pre">--help</span></code> to see all examples available.</p>
+<p>Let’s look at a very simple case from the previous section called <code class="docutils literal notranslate"><span class="pre">aarch64_simple0</span></code>.
 You can find the corresponding code in <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/tests/naive/aarch64/aarch64_simple0.s">tests/naive/aarch64/aarch64_simple0.s</a>:</p>
 <div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nf">ldr</span><span class="w"> </span><span class="no">q0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x1</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
 <span class="nf">ldr</span><span class="w"> </span><span class="no">q1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x2</span><span class="p">,</span><span class="w"> </span><span class="mi">#0</span><span class="p">]</span>
@@ -223,8 +223,8 @@ For the in-order cores, the instruction scheduling plays the most essential role
 Note, however, that SLOTHY has been used to also obtain significant speed-ups for out-of-order cores.</p>
 <p>SLOTHY comes with models for various Arm architectures, including the power-efficient, in-order
 <a class="reference external" href="https://developer.arm.com/Processors/Cortex-A55">Cortex-A55</a>, so we can now optimize this piece of code for that
-microarchitecture. <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.py">example.py</a> contains the needed SLOTHY incarnations for convenience, so we can simply run <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">example.py</span> <span class="pre">--examples</span> <span class="pre">aarch64_simple0_a55</span></code> which will optimize for the Cortex-A55 microarchitecture. You can check
-<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/example.py">example.py</a> for the details. This will optimize the piece of code above and write the output code to <code class="docutils literal notranslate"><span class="pre">examples/opt/aarch64/aarch64_simple0_opt_a55.s</span></code>.
+microarchitecture. <a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/test.py">test.py</a> contains the needed SLOTHY incarnations for convenience, so we can simply run <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">test.py</span> <span class="pre">--tests</span> <span class="pre">aarch64_simple0_a55</span></code> which will optimize for the Cortex-A55 microarchitecture. You can check
+<a class="reference external" href="https://github.com/slothy-optimizer/slothy/blob/main/test.py">test.py</a> for the details. This will optimize the piece of code above and write the output code to <code class="docutils literal notranslate"><span class="pre">test/opt/aarch64/aarch64_simple0_opt_a55.s</span></code>.
 SLOTHY should print something similar to this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>INFO:aarch64_simple0_a55:Instructions in body: 20
 INFO:aarch64_simple0_a55.slothy:Perform internal binary search for minimal number of stalls...
@@ -356,7 +356,7 @@ To reproduce the example above, you can place the following code into your own P
 <span class="n">slothy</span> <span class="o">=</span> <span class="n">Slothy</span><span class="p">(</span><span class="n">arch</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
 
 <span class="c1"># example</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;examples/naive/aarch64/aarch64_simple0.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;tests/naive/aarch64/aarch64_simple0.s&quot;</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
 
@@ -499,7 +499,7 @@ Consider the simple case of performing the code from the previous example within
 </pre></div>
 </div>
 <p>Let’s use SLOTHY to superoptimize this loop:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;examples/naive/aarch64/aarch64_simple0_loop.s&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;tests/naive/aarch64/aarch64_simple0_loop.s&quot;</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
 

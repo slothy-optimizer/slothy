@@ -82,7 +82,7 @@ pip install -r requirements.txt
 
 You can try to run SLOTHY on one of the examples that come with SLOTHY to make sure it runs without errors:
 ```
-python3 example.py --examples simple0
+python3 test.py --tests simple0_a55
 ```
 
 We will look into more examples shortly and discuss input, output, and available flags.
@@ -91,10 +91,10 @@ We will look into more examples shortly and discuss input, output, and available
 
 The simplest way to get started using SLOTHY is by trying out some of the examples that come with SLOTHY.
 Once you work on your own code, you will likely be using the `slothy-cli` command or calling the SLOTHY module from your own Python script for invoking SLOTHY allowing you to control all the different options SLOTHY has.
-However, for now we will be using the [example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.py) script and containing a number of examples including the ones we have optimized in the SLOTHY paper.
-You can run `python3 example.py --help` to see all examples available.
+However, for now we will be using the [test.py](https://github.com/slothy-optimizer/slothy/blob/main/test.py) script and containing a number of simple test cases. The examples targetedfor optimization in the SLOTHY paper can be accessed through a similarly structured [example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.py).
+You can run `python3 test.py --help` to see all examples available.
 
-Let's look at a very simple example from the previous section called `aarch64_simple0`.
+Let's look at a very simple case from the previous section called `aarch64_simple0`.
 You can find the corresponding code in [tests/naive/aarch64/aarch64_simple0.s](https://github.com/slothy-optimizer/slothy/blob/main/tests/naive/aarch64/aarch64_simple0.s):
 ```asm
 ldr q0, [x1, #0]
@@ -133,9 +133,9 @@ Note, however, that SLOTHY has been used to also obtain significant speed-ups fo
 
 SLOTHY comes with models for various Arm architectures, including the power-efficient, in-order
 [Cortex-A55](https://developer.arm.com/Processors/Cortex-A55), so we can now optimize this piece of code for that
-microarchitecture. [example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.py) contains the needed SLOTHY incarnations for convenience, so we can simply run `python3
-example.py --examples aarch64_simple0_a55` which will optimize for the Cortex-A55 microarchitecture. You can check
-[example.py](https://github.com/slothy-optimizer/slothy/blob/main/example.py) for the details. This will optimize the piece of code above and write the output code to `examples/opt/aarch64/aarch64_simple0_opt_a55.s`.
+microarchitecture. [test.py](https://github.com/slothy-optimizer/slothy/blob/main/test.py) contains the needed SLOTHY incarnations for convenience, so we can simply run `python3
+test.py --tests aarch64_simple0_a55` which will optimize for the Cortex-A55 microarchitecture. You can check
+[test.py](https://github.com/slothy-optimizer/slothy/blob/main/test.py) for the details. This will optimize the piece of code above and write the output code to `test/opt/aarch64/aarch64_simple0_opt_a55.s`.
 SLOTHY should print something similar to this:
 ```
 INFO:aarch64_simple0_a55:Instructions in body: 20
@@ -275,7 +275,7 @@ target = Target_CortexA55
 slothy = Slothy(arch, target)
 
 # example
-slothy.load_source_from_file("examples/naive/aarch64/aarch64_simple0.s")
+slothy.load_source_from_file("tests/naive/aarch64/aarch64_simple0.s")
 slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
 
@@ -428,7 +428,7 @@ start:
 
 Let's use SLOTHY to superoptimize this loop:
 ```python
-slothy.load_source_from_file("examples/naive/aarch64/aarch64_simple0_loop.s")
+slothy.load_source_from_file("tests/naive/aarch64/aarch64_simple0_loop.s")
 slothy.config.variable_size=True
 slothy.config.constraints.stalls_first_attempt=32
 
