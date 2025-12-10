@@ -525,7 +525,7 @@ def lookup_multidict(d: any, inst: any, default: any = None) -> any:
     :raises UnknownInstruction: Couldn't find instruction class for instruction
     """
     instclass = find_class(inst)
-    for l, v in d.items():
+    for key, v in d.items():
 
         def match(x):
             if inspect.isclass(x):
@@ -533,9 +533,9 @@ def lookup_multidict(d: any, inst: any, default: any = None) -> any:
             # assert callable(x)
             return x(inst)
 
-        if not isinstance(l, tuple):
-            l = [l]
-        for lp in l:
+        if not isinstance(key, tuple):
+            key = [key]
+        for lp in key:
             if match(lp):
                 return v
     if default is None:

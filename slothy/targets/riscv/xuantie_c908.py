@@ -1,3 +1,4 @@
+# flake8: noqa: F405
 #
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
@@ -34,19 +35,19 @@ Some latency exceptions were manually identified through microbenchmarks.
 WARNING: The data in this module is approximate and may contain errors.
 """
 
-################################### NOTE ###############################################
-###                                                                                  ###
-### WARNING: The data in this module is approximate and may contain errors.          ###
-###          They are _NOT_ an official software optimization guide for Cortex-A55.  ###
-###                                                                                  ###
-########################################################################################
+################################### NOTE ###############################################  # noqa: E266
+###                                                                                  ###  # noqa: E266
+### WARNING: The data in this module is approximate and may contain errors.          ###  # noqa: E266
+###          They are _NOT_ an official software optimization guide for Cortex-A55.  ###  # noqa: E266
+###                                                                                  ###  # noqa: E266
+########################################################################################  # noqa: E266
 
 from enum import Enum
-from slothy.targets.riscv.riscv import *
-from slothy.targets.riscv.rv32_64_i_instructions import *
-from slothy.targets.riscv.rv32_64_m_instructions import *
-from slothy.targets.riscv.rv32_64_b_instructions import *
-from slothy.targets.riscv.rv32_64_pseudo_instructions import *
+from slothy.targets.riscv.riscv import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_i_instructions import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_m_instructions import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_b_instructions import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_pseudo_instructions import *  # noqa: F403
 
 issue_rate = 2
 llvm_mca_target = "cortex-a55"

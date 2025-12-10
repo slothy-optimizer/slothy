@@ -25,7 +25,11 @@
 
 """This module creates the RV3264-B extension set (bit manipulation instructions)"""
 
-from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
+from slothy.targets.riscv.riscv_super_instructions import (
+    RISCVIntegerRegister,
+    RISCVIntegerRegisterImmediate,
+    RISCVIntegerRegisterRegister,
+)
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 Zbkb_instrs = [  # Zbkb: Bit-manipulation for Cryptography extension

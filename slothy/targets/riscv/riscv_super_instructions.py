@@ -138,13 +138,13 @@ class RISCVVectorLoadIndexed(RISCVInstruction):
 class RISCVVectorLoadWholeRegister(RISCVInstruction):
     def write(self):
         out = self.pattern
-        l = (
+        arg_patterns = (
             list(zip(self.args_in, self.pattern_inputs))
             + list(zip(self.args_out, self.pattern_outputs))
             + list(zip(self.args_in_out, self.pattern_in_outs))
         )
 
-        for arg, (s, ty) in l[:2]:
+        for arg, (s, ty) in arg_patterns[:2]:
             out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
 
         def replace_pattern(txt, attr_name, mnemonic_key, t=None):
@@ -266,13 +266,13 @@ class RISCVVectorStoreIndexed(RISCVInstruction):
 class RISCVVectorStoreWholeRegister(RISCVInstruction):
     def write(self):
         out = self.pattern
-        l = (
+        arg_patterns = (
             list(zip(self.args_in, self.pattern_inputs))
             + list(zip(self.args_out, self.pattern_outputs))
             + list(zip(self.args_in_out, self.pattern_in_outs))
         )
 
-        for arg, (s, ty) in [l[-1], l[0]]:
+        for arg, (s, ty) in [arg_patterns[-1], arg_patterns[0]]:
             out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
 
         def replace_pattern(txt, attr_name, mnemonic_key, t=None):

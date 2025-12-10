@@ -25,7 +25,9 @@
 
 """This module creates the RV3264-M extension set instructions"""
 
-from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
+from slothy.targets.riscv.riscv_super_instructions import (
+    RISCVIntegerRegisterRegisterMul,
+)
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 m_instrs = [

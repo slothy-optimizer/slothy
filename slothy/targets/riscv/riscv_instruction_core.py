@@ -155,12 +155,12 @@ class RISCVInstruction(Instruction):
             res = regexp.match(line).groupdict()
             items = list(res.items())
             for k, v in items:
-                for l in ["symbol_", "raw_"]:
-                    if k.startswith(l):
+                for prefix in ["symbol_", "raw_"]:
+                    if k.startswith(prefix):
                         del res[k]
                         if v is None:
                             continue
-                        k = k[len(l) :]
+                        k = k[len(prefix) :]
                         res[k] = v
             return res
 
@@ -380,13 +380,13 @@ class RISCVInstruction(Instruction):
 
     def write(self):
         out = self.pattern
-        l = (
+        arg_patterns = (
             list(zip(self.args_in, self.pattern_inputs))
             + list(zip(self.args_out, self.pattern_outputs))
             + list(zip(self.args_in_out, self.pattern_in_outs))
         )
 
-        for arg, (s, ty) in l:
+        for arg, (s, ty) in arg_patterns:
             out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
 
         def replace_pattern(txt, attr_name, mnemonic_key, t=None):

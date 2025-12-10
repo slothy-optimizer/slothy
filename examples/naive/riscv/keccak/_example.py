@@ -3,7 +3,6 @@ import os
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.riscv.riscv as RISC_V
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
-from slothy.targets.riscv.riscv import AddiStashLoop
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 

@@ -25,7 +25,7 @@
 
 """This module creates the RV3264 pseudo instructions"""
 from slothy.helper import SourceLine
-from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
+from slothy.targets.riscv.riscv_super_instructions import RISCVIntegerRegister
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 
