@@ -323,7 +323,6 @@ execution_units = {
         d_str_stack_with_inc,
         b_ldr_stack_with_inc,
         d_ldr_stack_with_inc,
-        q_ldr1_stack,
         Q_Ld2_Lane_Post_Inc,
         fmov_s_form,  # from double/single to gen reg
     ): [
