@@ -44,6 +44,7 @@ ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                          \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
     -c split_heuristic -c split_heuristic_repeat=0                           \
+    -c split_heuristic_estimate_performance=False                            \
     -c split_heuristic_preprocess_naive_interleaving                         \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
