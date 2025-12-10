@@ -50,7 +50,7 @@ from slothy.targets.riscv.rv32_64_b_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_pseudo_instructions import *  # noqa: F403
 
 issue_rate = 2
-llvm_mca_target = "cortex-a55"
+llvm_mca_target = ""
 
 
 class ExecutionUnit(Enum):
