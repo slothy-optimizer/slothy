@@ -3852,7 +3852,7 @@ class vsri(AArch64NeonShiftInsert):
 
 
 class vusra(AArch64Instruction):
-    pattern = "usra <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    pattern = "usra <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
