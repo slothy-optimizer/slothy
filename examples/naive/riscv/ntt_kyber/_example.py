@@ -178,13 +178,6 @@ class RISC_V_intt_dualissue_plant_rv64im(OptimizationRunner):
         slothy.optimize_loop("intt_rv64im_loop2")
 
 
-
-
-
-
-
-
-
 example_instances = [
     RISC_V_ntt_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
     RISC_V_ntt_dualissue_plant_rv64im(timeout=300),

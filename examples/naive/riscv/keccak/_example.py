@@ -43,7 +43,6 @@ class RISC_V_fips202_rv32im(OptimizationRunner):
         slothy.optimize_loop("loop_start")
 
 
-
 example_instances = [
     RISC_V_fips202_rv32im(),
 ]

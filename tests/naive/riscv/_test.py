@@ -1,24 +1,54 @@
-import os
+#
+# Copyright (c) 2022 Arm Limited
+# Copyright (c) 2022 Hanno Becker
+# Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# Author: Amin Abdulrahman <amin@abdulrahman.de>
+#
 
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.riscv.riscv as RISC_V
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
 
-SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
+
+class Instructions(OptimizationRunner):
+    def __init__(self, arch=RISC_V, target=Target_XuanTieC908):
+        super().__init__("instructions", base_dir="tests", arch=arch, target=target)
+
+    def core(self, slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.config.constraints.allow_reordering = False
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 256
+        slothy.optimize(start="start", end="end")
 
 
-class RISC_VExample0(OptimizationRunner):
+class RISC_VSimple0(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
         name = "riscv_simple0"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
         super().__init__(
-            infile, name, subfolder=SUBFOLDER, rename=True, arch=arch, target=target
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
         )
 
     def core(self, slothy):
@@ -42,54 +72,41 @@ class RISC_VExample0(OptimizationRunner):
             "x2",
             "x3",
         ]
-        # slothy.fusion_region(start="start", end="end")
         slothy.optimize(start="start", end="end")
 
 
-class RISC_VExampleLoop0(OptimizationRunner):
+class RISC_VSimpleLoop0(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908):
         name = "riscv_simple_loop0"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
         super().__init__(
-            infile, name, subfolder=SUBFOLDER, rename=True, arch=arch, target=target
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
         )
 
     def core(self, slothy):
         slothy.config.variable_size = True
         slothy.config.inputs_are_outputs = True
-
         slothy.config.sw_pipelining.enabled = True
-
         slothy.optimize_loop("my_loop")
         slothy.optimize_loop("my_loop2")
         slothy.optimize_loop("my_loop3")
 
 
-class RISC_V_test(OptimizationRunner):
+class RISC_VTest(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "riscv_test"
         infile = name
 
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
         super().__init__(
             infile,
             name,
-            subfolder=SUBFOLDER,
             rename=True,
             arch=arch,
             target=target,
             funcname="test",
             timeout=timeout,
+            base_dir="tests",
         )
 
     def core(self, slothy):
@@ -136,8 +153,9 @@ class RISC_V_test(OptimizationRunner):
         slothy.optimize(start="start_label", end="end_label")
 
 
-example_instances = [
-    RISC_VExample0(target=Target_XuanTieC908),
-    RISC_VExampleLoop0(),
-    RISC_V_test(target=Target_XuanTieC908),
+test_instances = [
+    Instructions(),
+    RISC_VSimple0(),
+    RISC_VSimpleLoop0(),
+    RISC_VTest(),
 ]

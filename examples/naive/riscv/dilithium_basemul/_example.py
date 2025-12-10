@@ -154,9 +154,6 @@ class RISC_V_poly_reduce_rv64im(OptimizationRunner):
         slothy.optimize_loop("poly_reduce_rv64im_loop")
 
 
-
-
-
 example_instances = [
     RISC_V_poly_basemul_8l_init_rv64im(),
     RISC_V_poly_basemul_8l_rv64im(),

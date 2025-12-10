@@ -45,26 +45,33 @@ from enum import Enum
 from slothy.targets.riscv.riscv import *
 from slothy.targets.riscv.rv32_64_i_instructions import *
 from slothy.targets.riscv.rv32_64_m_instructions import *
+from slothy.targets.riscv.rv32_64_b_instructions import *
+from slothy.targets.riscv.rv32_64_pseudo_instructions import *
 
 issue_rate = 2
 llvm_mca_target = "cortex-a55"
 
+
 class ExecutionUnit(Enum):
     """Enumeration of execution units in C908 model"""
+
     SCALAR_ALU0 = 1
     SCALAR_ALU1 = 2
     SCALAR_MUL = 3
-    LSU =4
-    VEC0=5
-    VEC1=6
+    LSU = 4
+    VEC0 = 5
+    VEC1 = 6
+
     def __repr__(self):
         return self.name
+
     @classmethod
-    def SCALAR(cls): # pylint: disable=invalid-name
+    def SCALAR(cls):  # pylint: disable=invalid-name
         """All scalar execution units"""
         return [ExecutionUnit.SCALAR_ALU0, ExecutionUnit.SCALAR_ALU1]
 
-# Opaque function called by SLOTHY to add further microarchitecture-
+
+# Opaque function called by SLOTHY to add further microarchitecture-
 # specific constraints which are not encapsulated by the general framework.
 def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
@@ -72,14 +79,16 @@ def add_further_constraints(slothy):
     add_slot_constraints(slothy)
     add_st_hazard(slothy)
 
+
 def add_slot_constraints(slothy):
     pass
     # Q-Form vector instructions are on slot 0 only
-    #slothy.restrict_slots_for_instructions_by_property()
-        #Instruction.is_q_form_vector_instruction, [0])
+    # slothy.restrict_slots_for_instructions_by_property()
+    # Instruction.is_q_form_vector_instruction, [0])
     # fcsel and vld2 on slot 0 only
-    #slothy.restrict_slots_for_instructions_by_class(
+    # slothy.restrict_slots_for_instructions_by_class(
     #   [fcsel_dform, Q_Ld2_Lane_Post_Inc], [0])
+
 
 def add_st_hazard(slothy):
     def is_vec_st_st_pair(inst_a, inst_b):
@@ -88,20 +97,24 @@ def add_st_hazard(slothy):
     for t0, t1 in slothy.get_inst_pairs(cond=is_vec_st_st_pair):
         if t0.is_locked and t1.is_locked:
             continue
-        slothy._Add( t0.cycle_start_var != t1.cycle_start_var + 1 )
+        slothy._Add(t0.cycle_start_var != t1.cycle_start_var + 1)
 
-# Opaque function called by SLOTHY to add further microarchitecture-
+
+# Opaque function called by SLOTHY to add further microarchitecture-
 # specific objectives.
 def has_min_max_objective(config):
     """Adds Cortex-"""
     _ = config
     return False
+
+
 def get_min_max_objective(slothy):
     _ = slothy
     return
 
+
 execution_units = {
-    (  # this could be more convenient, maybe use existing instructions list or superclass?
+    (  # TODO: use existing instructions list or superclass
         RISCVInstruction.classes_by_names["addi"],
         RISCVInstruction.classes_by_names["slti"],
         RISCVInstruction.classes_by_names["sltiu"],
@@ -123,9 +136,27 @@ execution_units = {
         RISCVInstruction.classes_by_names["sra"],
         RISCVInstruction.classes_by_names["lui"],
         RISCVInstruction.classes_by_names["auipc"],
-
-    ) : ExecutionUnit.SCALAR(),
-
+        # Zbkb extension - Bit manipulation for cryptography
+        # TODO: Verify performance characteristics for C908
+        RISCVInstruction.classes_by_names["rol"],
+        RISCVInstruction.classes_by_names["ror"],
+        RISCVInstruction.classes_by_names["rori"],
+        RISCVInstruction.classes_by_names["andn"],
+        RISCVInstruction.classes_by_names["orn"],
+        RISCVInstruction.classes_by_names["xnor"],
+        RISCVInstruction.classes_by_names["pack"],
+        RISCVInstruction.classes_by_names["packh"],
+        RISCVInstruction.classes_by_names["brev8"],
+        RISCVInstruction.classes_by_names["rev8"],
+        RISCVInstruction.classes_by_names["zip"],
+        RISCVInstruction.classes_by_names["unzip"],
+        # Pseudo-instructions
+        RISCVInstruction.classes_by_names["li"],
+        RISCVInstruction.classes_by_names["mv"],
+        RISCVInstruction.classes_by_names["neg"],
+        RISCVInstruction.classes_by_names["not"],
+        RISCVInstruction.classes_by_names["la"],
+    ): ExecutionUnit.SCALAR(),
     (
         RISCVInstruction.classes_by_names["lb"],
         RISCVInstruction.classes_by_names["lbu"],
@@ -138,8 +169,7 @@ execution_units = {
         RISCVInstruction.classes_by_names["sh"],
         RISCVInstruction.classes_by_names["sw"],
         RISCVInstruction.classes_by_names["sd"],
-    ) : ExecutionUnit.LSU,
-
+    ): ExecutionUnit.LSU,
     (
         RISCVInstruction.classes_by_names["mul"],
         RISCVInstruction.classes_by_names["mulh"],
@@ -148,8 +178,8 @@ execution_units = {
         RISCVInstruction.classes_by_names["div"],
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
-        RISCVInstruction.classes_by_names["remu"]
-    ) : ExecutionUnit.SCALAR_MUL
+        RISCVInstruction.classes_by_names["remu"],
+    ): ExecutionUnit.SCALAR_MUL,
 }
 
 inverse_throughput = {
@@ -175,6 +205,26 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["sra"],
         RISCVInstruction.classes_by_names["lui"],
         RISCVInstruction.classes_by_names["auipc"],
+        # Zbkb extension - Bit manipulation for cryptography
+        # TODO: Verify performance characteristics for C908
+        RISCVInstruction.classes_by_names["rol"],
+        RISCVInstruction.classes_by_names["ror"],
+        RISCVInstruction.classes_by_names["rori"],
+        RISCVInstruction.classes_by_names["andn"],
+        RISCVInstruction.classes_by_names["orn"],
+        RISCVInstruction.classes_by_names["xnor"],
+        RISCVInstruction.classes_by_names["pack"],
+        RISCVInstruction.classes_by_names["packh"],
+        RISCVInstruction.classes_by_names["brev8"],
+        RISCVInstruction.classes_by_names["rev8"],
+        RISCVInstruction.classes_by_names["zip"],
+        RISCVInstruction.classes_by_names["unzip"],
+        # Pseudo-instructions
+        RISCVInstruction.classes_by_names["li"],
+        RISCVInstruction.classes_by_names["mv"],
+        RISCVInstruction.classes_by_names["neg"],
+        RISCVInstruction.classes_by_names["not"],
+        RISCVInstruction.classes_by_names["la"],
     ): 1,
     (
         RISCVInstruction.classes_by_names["lb"],
@@ -188,8 +238,7 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["sh"],
         RISCVInstruction.classes_by_names["sw"],
         RISCVInstruction.classes_by_names["sd"],
-    ) : 1,
-
+    ): 1,
     (
         RISCVInstruction.classes_by_names["mul"],
         RISCVInstruction.classes_by_names["mulh"],
@@ -198,40 +247,38 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["div"],
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
-        RISCVInstruction.classes_by_names["remu"]
-    ) : 2
-
-
+        RISCVInstruction.classes_by_names["remu"],
+    ): 2,
 }
 
 default_latencies = {
-    RISCVIntegerRegisterRegister : 1,
+    RISCVIntegerRegisterRegister: 1,
     RISCVIntegerRegisterImmediate: 1,
-    RISCVUType : 1,
-    RISCVLoad : 3,
-    RISCVStore : 1,
-    RISCVIntegerRegisterRegisterMul : 4 # not correct for div, rem
+    RISCVIntegerRegister: 1,  # For Zbkb and pseudo-instructions
+    RISCVUType: 1,
+    RISCVLoad: 3,
+    RISCVStore: 1,
+    RISCVIntegerRegisterRegisterMul: 4,  # not correct for div, rem
+    RISCVLiPseudo: 1,  # Pseudo-instruction
+    RISCVULaPseudo: 1,  # Pseudo-instruction
 }
 
+
 def get_latency(src, out_idx, dst):
-    _ = out_idx # out_idx unused
+    _ = out_idx  # out_idx unused
+    _ = dst  # dst unused
 
-    instclass_src = find_class(src)
-    instclass_dst = find_class(dst)
-
-    latency = lookup_multidict(
-        default_latencies, src)
-
+    latency = lookup_multidict(default_latencies, src)
 
     return latency
 
+
 def get_units(src):
     units = lookup_multidict(execution_units, src)
-    if isinstance(units,list):
+    if isinstance(units, list):
         return units
     return [units]
 
+
 def get_inverse_throughput(src):
-    return lookup_multidict(
-        inverse_throughput, src)
-from slothy.targets.riscv.rv32_64_pseudo_instructions import *  # noqa: F403
+    return lookup_multidict(inverse_throughput, src)

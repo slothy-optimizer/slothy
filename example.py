@@ -85,10 +85,6 @@ from examples.naive.armv8m.cmplx_mag_sqr._example import (
     example_instances as example_instances_armv8m_cmplx_mag_sqr_fx,
 )
 
-from examples.naive.riscv.simple._example import (
-    example_instances as example_instances_riscv_simple,
-)
-
 from examples.naive.riscv.ntt_dilithium._example import (
     example_instances as example_instances_riscv_ntt_dilithium,
 )
@@ -125,7 +121,6 @@ def main():
         + example_instances_armv8m_fx_r4_fft
         + example_instances_armv8m_ntt_256
         + example_instances_armv8m_cmplx_mag_sqr_fx
-        + example_instances_riscv_simple
         + example_instances_riscv_ntt_dilithium
         + example_instances_riscv_poly_basemul
         + example_instances_riscv_ntt_kyber
