@@ -105,3 +105,11 @@ jobs:
     - name: Run examples
       run: |
         (cd paper/scripts && NO_LOG=Y ./slothy_fft.sh)
+  x25519:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup-ubuntu
+    - name: Run examples
+      run: |
+        (cd paper/scripts && NO_LOG=Y ./slothy_x25519.sh)
