@@ -616,6 +616,7 @@ class Slothy:
             early, body, inherit_comments=c.inherit_macro_comments
         )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        body = AsmIfElse.process_instructions(body)
         body = SourceLine.apply_indentation(body, indentation)
         logger.info("SLOTHY version: %s", self._get_version())
         self.logger.info(

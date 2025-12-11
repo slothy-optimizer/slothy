@@ -220,7 +220,9 @@ class AArch64IfElse(OptimizationRunner):
         )
 
     def core(self, slothy):
-        slothy.optimize()
+        slothy.optimize("start", "end")
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize_loop("loop_start")
 
 
 class AArch64Ubfx(OptimizationRunner):
