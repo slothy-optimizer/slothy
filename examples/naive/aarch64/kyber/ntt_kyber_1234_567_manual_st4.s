@@ -35,12 +35,6 @@
 // Eventually, NeLight should include a proper parser for AArch64,
 // but for initial investigations, the below is enough.
 
-.macro trn1_s d,a,b
-        trn1 \d\().4s, \a\().4s, \b\().4s
-.endm
-.macro trn2_s d,a,b
-        trn2 \d\().4s, \a\().4s, \b\().4s
-.endm
 
 .macro ldr_vo vec, base, offset
         ldr qform_\vec, [\base, #\offset]
@@ -53,9 +47,6 @@
 .endm
 .macro str_vi vec, base, inc
         str qform_\vec, [\base], #\inc
-.endm
-.macro vqrdmulh d,a,b
-        sqrdmulh \d\().8h, \a\().8h, \b\().8h
 .endm
 .macro vmla d,a,b
         mla \d\().8h, \a\().8h, \b\().8h
@@ -80,7 +71,7 @@
 .endm
 
 .macro mulmod dst, src, const, const_twisted
-        vqrdmulh   t2,  \src, \const_twisted
+        sqrdmulh t2.8h,  \src.8h, \const_twisted.8h
         mul        \dst\().8h,  \src\().8h, \const\().8h
         vmlaq       \dst,  t2, consts, 0
 .endm
@@ -444,14 +435,14 @@ layer567_start:
         ld4 {data8.4S, data9.4S, data10.4S, data11.4S}, [src0]
         ld4 {data12.4S, data13.4S, data14.4S, data15.4S}, [src1]
 
-        trn1_s data0, data8, data12
-        trn2_s data4, data8, data12
-        trn1_s data1, data9, data13
-        trn2_s data5, data9, data13
-        trn1_s data2, data10, data14
-        trn2_s data6, data10, data14
-        trn1_s data3, data11, data15
-        trn2_s data7, data11, data15
+        trn1 data0.4s, data8.4s, data12.4s
+        trn2 data4.4s, data8.4s, data12.4s
+        trn1 data1.4s, data9.4s, data13.4s
+        trn2 data5.4s, data9.4s, data13.4s
+        trn1 data2.4s, data10.4s, data14.4s
+        trn2 data6.4s, data10.4s, data14.4s
+        trn1 data3.4s, data11.4s, data15.4s
+        trn2 data7.4s, data11.4s, data15.4s
 
         // load twiddle factors
         ldr_vi root0,    r_ptr1, 16*14
@@ -497,14 +488,14 @@ layer567_start:
         barrett_reduce data7
 
         // transpose back
-        trn1_s  data8, data0, data4
-        trn2_s data12, data0, data4
-        trn1_s  data9, data1, data5
-        trn2_s data13, data1, data5
-        trn1_s data10, data2, data6
-        trn2_s data14, data2, data6
-        trn1_s data11, data3, data7
-        trn2_s data15, data3, data7
+        trn1 data8.4s, data0.4s, data4.4s
+        trn2 data12.4s, data0.4s, data4.4s
+        trn1 data9.4s, data1.4s, data5.4s
+        trn2 data13.4s, data1.4s, data5.4s
+        trn1 data10.4s, data2.4s, data6.4s
+        trn2 data14.4s, data2.4s, data6.4s
+        trn1 data11.4s, data3.4s, data7.4s
+        trn2 data15.4s, data3.4s, data7.4s
 
         // manual_st4
         transpose4 data8, data9, data10, data11
