@@ -1267,6 +1267,12 @@ class vmov_imm(MVEInstruction):
     outputs = ["Qd"]
 
 
+class vmov_vector(MVEInstruction):
+    pattern = "vmov.<dt> <Qd>, <Qm>"
+    outputs = ["Qd"]
+    inputs = ["Qm"]
+
+
 class vmullb(MVEInstruction):
     pattern = "vmullb.<dt> <Qd>, <Qn>, <Qm>"
     inputs = ["Qn", "Qm"]

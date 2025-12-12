@@ -70,6 +70,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vrev64,
     vdup,
     vmov_imm,
+    vmov_vector,
     vmov_double_v2r,
     vadd_sv,
     vadd_vv,
@@ -326,6 +327,7 @@ execution_units = {
     vrev64: ExecutionUnit.VEC_INT,
     vdup: ExecutionUnit.VEC_INT,
     vmov_imm: [ExecutionUnit.VEC_INT, ExecutionUnit.VEC_MUL],
+    vmov_vector: [ExecutionUnit.VEC_INT, ExecutionUnit.VEC_MUL],
     vmov_double_v2r: [ExecutionUnit.VEC_INT, ExecutionUnit.VEC_MUL],
     vadd_sv: ExecutionUnit.VEC_INT,
     vadd_vv: ExecutionUnit.VEC_INT,
@@ -585,6 +587,7 @@ inverse_throughput = {
         vmulf_T1,
         vmulf_T2,
         vfma,
+        vmov_vector,
     ): 2,
 }
 
@@ -623,6 +626,7 @@ default_latencies = {
         vrev64,
         vdup,
         vmov_imm,
+        vmov_vector,
         vmov_double_v2r,
         vadd_vv,
         vadd_sv,
