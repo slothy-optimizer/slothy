@@ -44,6 +44,7 @@ ${SLOTHY_DIR}/slothy-cli Arm_AArch64 Arm_Cortex_A55                          \
     -c inputs_are_outputs -c outputs="[x0]"                                  \
     -s mainloop -e end_label                                                 \
     -c split_heuristic -c split_heuristic_repeat=0                           \
+    -c split_heuristic_estimate_performance=False                            \
     -c split_heuristic_preprocess_naive_interleaving                         \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
@@ -71,6 +72,7 @@ i=0
     -c split_heuristic_stepsize=0.1                                          \
     -c split_heuristic_factor=6                                              \
     -c constraints.model_latencies=False                                     \
+    -c selftest=False                                                        \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "*** Step 3"
@@ -92,6 +94,7 @@ i=1
     -c split_heuristic_stepsize=0.1                                          \
     -c split_heuristic_factor=4                                              \
     -c constraints.model_latencies=False                                     \
+    -c selftest=False                                                        \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "*** Step 4"
@@ -115,6 +118,7 @@ i=2
     -c split_heuristic_factor=6                                              \
     -c split_heuristic_repeat=1                                              \
     -c constraints.model_latencies=False                                     \
+    -c selftest=False                                                        \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "*** Step 5"
@@ -137,6 +141,7 @@ i=3
     -c split_heuristic_factor=6                                              \
     -c split_heuristic_repeat=1                                              \
     -c constraints.model_latencies=False                                     \
+    -c selftest=False                                                        \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 # Finally, also consider latencies
@@ -160,6 +165,7 @@ i=4
     -c split_heuristic_optimize_seam=10                                      \
     -c split_heuristic_factor=8                                              \
     -c split_heuristic_repeat=1                                              \
+    -c selftest=False                                                        \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "*** Step 7"
@@ -182,7 +188,8 @@ i=5
     -c split_heuristic_optimize_seam=10                                      \
     -c constraints.move_stalls_to_top                                        \
     -c split_heuristic_factor=8                                              \
-    -c split_heuristic_repeat=2                                             \
+    -c split_heuristic_repeat=2                                              \
+    -c selftest=False                                                        \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 echo "*** Step 8"
@@ -204,6 +211,7 @@ i=6
     -c split_heuristic_optimize_seam=10                                      \
     -c constraints.move_stalls_to_top                                        \
     -c split_heuristic_factor=8                                              \
+    -c selftest=False                                                        \
     $SLOTHY_FLAGS $REDIRECT_OUTPUT
 
 cd "${0%/*}"
