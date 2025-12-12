@@ -113,6 +113,8 @@ vmov.i16 q0, #16
 vmov.i32 q0, #16
 vmov.i64 q0, #0xFF
 
+vmov.u8 q7, q6
+
 vmullt.u8 q2, q0, q1
 vmullt.u16 q2, q0, q1
 vmullt.u32 q2, q0, q1
