@@ -107,6 +107,9 @@ from slothy.targets.aarch64.aarch64_neon import (
     fmov_s_form,  # from vec to gen reg
     eor_shifted,
     bic_shifted,
+    vusra,
+    q_ldr1_stack,
+    Q_Ld2_Lane_Post_Inc,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -204,7 +207,7 @@ execution_units = {
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
-    AArch64NeonShiftInsert: [ExecutionUnit.ASIMD1],
+    (AArch64NeonShiftInsert, vusra): [ExecutionUnit.ASIMD1],
     AArch64ConditionalCompare: ExecutionUnit.INT(),
     AArch64Logical: [ExecutionUnit.INT()],
     # 8B/8H occupies both F0, F1
@@ -217,7 +220,7 @@ execution_units = {
     (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
-    (Ld3, Ld4): [
+    (Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc): [
         [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
         [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
     ],
@@ -247,7 +250,7 @@ inverse_throughput = {
     ASimdCompare: 1,
     (vadd, vsub, trn1, trn2, vext): 1,
     AArch64NeonLogical: 1,
-    AArch64NeonShiftInsert: 1,
+    (AArch64NeonShiftInsert, vusra): 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
     Vins: 1,
@@ -261,6 +264,8 @@ inverse_throughput = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
+    q_ldr1_stack: 1,
+    Q_Ld2_Lane_Post_Inc: 2,
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
     sub_imm: 1,
@@ -297,6 +302,7 @@ default_latencies = {
     ): 3,  # Approximation -- not necessary to get it exactly right, as mentioned above
     AArch64NeonLogical: 3,
     AArch64NeonShiftInsert: 3,
+    vusra: 4,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
     (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
@@ -312,6 +318,8 @@ default_latencies = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
+    q_ldr1_stack: 8,
+    Q_Ld2_Lane_Post_Inc: 9,
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
     sub_imm: 3,
