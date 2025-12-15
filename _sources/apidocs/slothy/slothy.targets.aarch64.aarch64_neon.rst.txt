@@ -7797,7 +7797,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.vusra.pattern
-      :value: 'usra <Vd>.<dt0>, <Va>.<dt1>, <imm>'
+      :value: 'usra <Vd>.<dt>, <Va>.<dt>, <imm>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vusra.pattern
 
