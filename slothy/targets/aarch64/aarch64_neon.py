@@ -2934,6 +2934,21 @@ class cset(AArch64ConditionalSelect):
     dependsOnFlags = True
 
 
+class fcsel(AArch64ConditionalSelect):
+    """FCSEL - Floating-point Conditional Select (D-form scalar)
+
+    Syntax: FCSEL <Dd>, <Dn>, <Dm>, <cond>
+
+    Selects between two double-precision floating-point values based on
+    condition flags. Executes on SIMD/FP units.
+    """
+
+    pattern = "fcsel <Dd>, <Dn>, <Dm>, <flag>"
+    inputs = ["Dn", "Dm"]
+    outputs = ["Dd"]
+    dependsOnFlags = True
+
+
 class cmn(AArch64ConditionalSelect):
     pattern = "cmn <Xd>, <Xe>"
     inputs = ["Xd", "Xe"]
@@ -3239,38 +3254,6 @@ class vqdmulh_lane(Vqdmulh):
             ]
 
         return obj
-
-
-class fcsel_dform(Instruction):
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(
-            cls,
-            src,
-            mnemonic="fcsel_dform",
-            arg_types_in=[RegisterType.NEON, RegisterType.NEON, RegisterType.FLAGS],
-            arg_types_out=[RegisterType.NEON],
-        )
-
-        regexp_txt = (
-            r"fcsel_dform\s+(?P<dst>\w+)\s*,\s*(?P<src1>\w+)\s*,"
-            r"\s*(?P<src2>\w+)\s*,\s*eq"
-        )
-        regexp_txt = Instruction.unfold_abbrevs(regexp_txt)
-        regexp = re.compile(regexp_txt)
-        p = regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        obj.args_in = [p.group("src1"), p.group("src2"), "flags"]
-        obj.args_out = [p.group("dst")]
-        obj.args_in_out = []
-
-        return obj
-
-    def write(self):
-        return (
-            f"fcsel_dform {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, eq"
-        )
 
 
 class Vins(AArch64Instruction):
