@@ -29,9 +29,6 @@
 #include <hal_env.h>
 #include "instruction_wrappers.i"
 
-.macro fcsel_dform out, in0, in1, cond // @slothy:no-unfold
-  fcsel dform_\out, dform_\in0, dform_\in1, \cond
-.endm
 
 #define STACK_MASK1     0
 #define STACK_MASK2     8
@@ -325,6 +322,43 @@ sZ45 .req x6
 sZ46 .req x24
 sZ48 .req x22
 
+// D-form aliases for fcsel with named vector registers
+dform_vA0 .req d0
+dform_vA2 .req d2
+dform_vA4 .req d4
+dform_vA6 .req d6
+dform_vA8 .req d8
+
+dform_vB0 .req d20
+dform_vB2 .req d21
+dform_vB4 .req d22
+dform_vB6 .req d23
+dform_vB8 .req d24
+
+dform_vC0 .req d10
+dform_vC2 .req d12
+dform_vC4 .req d14
+dform_vC6 .req d16
+dform_vC8 .req d18
+
+dform_vD0 .req d25
+dform_vD2 .req d26
+dform_vD4 .req d27
+dform_vD6 .req d28
+dform_vD8 .req d29
+
+dform_vF0 .req d1
+dform_vF2 .req d3
+dform_vF4 .req d5
+dform_vF6 .req d7
+dform_vF8 .req d9
+
+dform_vG0 .req d20
+dform_vG2 .req d21
+dform_vG4 .req d22
+dform_vG6 .req d23
+dform_vG8 .req d24
+
 START:
 
 
@@ -395,11 +429,11 @@ START:
 .endm
 
 .macro vector_cmov_inner vA0, vA2, vA4, vA6, vA8,  vB0, vB2, vB4, vB6, vB8,  vC0, vC2, vC4, vC6, vC8
-    fcsel_dform    \vA0, \vB0, \vC0, eq
-    fcsel_dform    \vA2, \vB2, \vC2, eq
-    fcsel_dform    \vA4, \vB4, \vC4, eq
-    fcsel_dform    \vA6, \vB6, \vC6, eq
-    fcsel_dform    \vA8, \vB8, \vC8, eq
+    fcsel    dform_\vA0, dform_\vB0, dform_\vC0, eq
+    fcsel    dform_\vA2, dform_\vB2, dform_\vC2, eq
+    fcsel    dform_\vA4, dform_\vB4, dform_\vC4, eq
+    fcsel    dform_\vA6, dform_\vB6, dform_\vC6, eq
+    fcsel    dform_\vA8, dform_\vB8, dform_\vC8, eq
 .endm
 
 .macro vector_cmov vA, vB, vC
