@@ -103,6 +103,8 @@ Classes
      -
    * - :py:obj:`vmov_imm <slothy.targets.arm_v81m.arch_v81m.vmov_imm>`
      -
+   * - :py:obj:`vmov_vector <slothy.targets.arm_v81m.arch_v81m.vmov_vector>`
+     -
    * - :py:obj:`vmullb <slothy.targets.arm_v81m.arch_v81m.vmullb>`
      -
    * - :py:obj:`vmullt <slothy.targets.arm_v81m.arch_v81m.vmullt>`
@@ -1484,6 +1486,29 @@ API
       :value: ['Qd']
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_imm.outputs
+
+.. py:class:: vmov_vector(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_vector
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_vector.pattern
+      :value: 'vmov.<dt> <Qd>, <Qm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_vector.pattern
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_vector.outputs
+      :value: ['Qd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_vector.outputs
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_vector.inputs
+      :value: ['Qm']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_vector.inputs
 
 .. py:class:: vmullb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.vmullb
