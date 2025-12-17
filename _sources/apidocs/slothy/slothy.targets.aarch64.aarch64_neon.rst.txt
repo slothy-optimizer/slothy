@@ -3010,6 +3010,10 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ldr_sxtw_wform.outputs
 
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.ldr_sxtw_wform.make
+      :classmethod:
+
 .. py:class:: lsr_wform(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.lsr_wform
 
