@@ -457,7 +457,7 @@ API
 
    .. py:attribute:: _REGEXP_EQU_TXT
       :canonical: slothy.helper.AsmAllocation._REGEXP_EQU_TXT
-      :value: '\\s*\\.equ\\s+(?P<key>[A-Za-z0-9\\_]+)\\s*,\\s*(?P<val>[A-Za-z0-9()*/+-]+)'
+      :value: '\\s*\\.equ\\s+(?P<key>[_a-zA-Z][_a-zA-Z0-9]*)\\s*,\\s*(?P<val>[A-Za-z0-9()*/+\\-\\_\\s]+)'
 
       .. autodoc2-docstring:: slothy.helper.AsmAllocation._REGEXP_EQU_TXT
 
