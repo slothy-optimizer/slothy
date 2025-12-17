@@ -61,7 +61,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vusra,
     vmul,
     Instruction,
-    fcsel_dform,
+    fcsel,
     Q_Ld2_Lane_Post_Inc,
     vmla,
     vmla_lane,
@@ -213,9 +213,7 @@ def add_slot_constraints(slothy):
         Instruction.is_q_form_vector_instruction, [0]
     )
     # fcsel and vld2 on slot 0 only
-    slothy.restrict_slots_for_instructions_by_class(
-        [fcsel_dform, Q_Ld2_Lane_Post_Inc], [0]
-    )
+    slothy.restrict_slots_for_instructions_by_class([fcsel, Q_Ld2_Lane_Post_Inc], [0])
 
 
 def add_st_hazard(slothy):
@@ -314,7 +312,7 @@ execution_units = {
         umov_d,
         mov_d01,
         mov_b00,
-        fcsel_dform,
+        fcsel,
         VecToGprMov,
         Mov_xtov_d,
         d_stp_stack_with_inc,
@@ -467,7 +465,7 @@ inverse_throughput = {
     vxtn: 1,
     vshrn: 2,
     vtbl: 1,  # N cycles (N = number of registers in the table)
-    (fcsel_dform): 1,
+    (fcsel): 1,
     (VecToGprMov, Mov_xtov_d): 1,
     (movk_imm, movz_imm, movz_imm_lsl, mov, mov_imm, movw_imm): 1,
     (d_stp_stack_with_inc, d_str_stack_with_inc): 1,
@@ -547,7 +545,7 @@ default_latencies = {
     Ldp_X: 4,
     (Vins, umov_d): 2,
     (tst_wform): 1,
-    (fcsel_dform): 2,
+    (fcsel): 2,
     (VecToGprMov, Mov_xtov_d): 2,
     (movk_imm, movz_imm, movz_imm_lsl, mov, mov_imm, movw_imm): 1,
     (d_stp_stack_with_inc, d_str_stack_with_inc): 1,
@@ -608,10 +606,7 @@ def get_latency(src, out_idx, dst):
 
     latency = lookup_multidict(default_latencies, src, instclass_src)
 
-    if (
-        instclass_dst in [trn1, trn2, vzip1, vzip2, vuzp1, vuzp2, fcsel_dform]
-        and latency < 3
-    ):
+    if instclass_dst in [trn1, trn2, vzip1, vzip2, vuzp1, vuzp2, fcsel] and latency < 3:
         latency += 1
 
     if [instclass_src, instclass_dst] in [
