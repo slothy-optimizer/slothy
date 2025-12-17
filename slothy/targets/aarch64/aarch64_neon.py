@@ -1559,6 +1559,7 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
         obj.detected_q_ld2_lane_post_inc_pair = False
+        obj.addr = obj.args_in_out[2]
         obj.args_in_out_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
         ]
@@ -1570,7 +1571,6 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
 
 class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
     pattern = "ld2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>"
-    # TODO: Model sp dependency
     in_outs = ["Xa"]
     outputs = ["Va", "Vb"]
 
@@ -1580,6 +1580,7 @@ class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
             raise Instruction.ParsingException("Instruction ignored")
 
         obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in_out[0]
         obj.args_out_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
         ]
@@ -1616,6 +1617,7 @@ class q_ldr1_post_inc(AArch64Instruction):
         obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
         return obj
 
     def write(self):
@@ -2364,6 +2366,12 @@ class ldr_sxtw_wform(AArch64Instruction):
     pattern = "ldr <Wd>, [<Xa>, <Wb>, SXTW <imm>]"
     inputs = ["Xa", "Wb"]
     outputs = ["Wd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in[0]
+        return obj
 
 
 ############################

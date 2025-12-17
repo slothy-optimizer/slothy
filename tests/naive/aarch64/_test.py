@@ -304,6 +304,38 @@ class AArch64CStyleComments(OptimizationRunner):
         slothy.optimize(start="start", end="end")
 
 
+class AArch64SelftestAddr(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_selftest_addr"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 64
+        # Mark all vector and GPR outputs from loads
+        slothy.config.outputs = [
+            "v0",
+            "v1",
+            "v2",
+            "v3",
+            "v4",
+            "v5",  # vector loads
+            "x21",
+            "x22",
+            "x23",
+            "x24",
+            "x25",
+            "x26",
+            "x27",
+            "x28",  # GPR loads
+        ]
+        slothy.optimize(start="start", end="end")
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -327,4 +359,5 @@ test_instances = [
     AArch64LoopBranch(),
     AArch64FusionVeor(),
     AArch64CStyleComments(),
+    AArch64SelftestAddr(),
 ]
