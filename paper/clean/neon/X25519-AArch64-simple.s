@@ -30,27 +30,27 @@
 #include "instruction_wrappers.i"
 
 
-#define STACK_MASK1     0
-#define STACK_MASK2     8
-#define STACK_A_0      16
-#define STACK_A_8      (STACK_A_0+ 8)
-#define STACK_A_16     (STACK_A_0+16)
-#define STACK_A_24     (STACK_A_0+24)
-#define STACK_A_32     (STACK_A_0+32)
-#define STACK_B_0      64
-#define STACK_B_8      (STACK_B_0+ 8)
-#define STACK_B_16     (STACK_B_0+16)
-#define STACK_B_24     (STACK_B_0+24)
-#define STACK_B_32     (STACK_B_0+32)
-#define STACK_CTR      104
-#define STACK_LASTBIT  108
-#define STACK_SCALAR  112
-#define STACK_X_0     168
-#define STACK_X_8     (STACK_X_0+ 8)
-#define STACK_X_16    (STACK_X_0+16)
-#define STACK_X_24    (STACK_X_0+24)
-#define STACK_X_32    (STACK_X_0+32)
-#define STACK_OUT_PTR (STACK_X_0+48)
+.equ STACK_MASK1  ,   0
+.equ STACK_MASK2  ,   8
+.equ STACK_A_0    ,  16
+.equ STACK_A_8    ,  (STACK_A_0+ 8)
+.equ STACK_A_16   ,  (STACK_A_0+16)
+.equ STACK_A_24   ,  (STACK_A_0+24)
+.equ STACK_A_32   ,  (STACK_A_0+32)
+.equ STACK_B_0    ,  64
+.equ STACK_B_8    ,  (STACK_B_0+ 8)
+.equ STACK_B_16   ,  (STACK_B_0+16)
+.equ STACK_B_24   ,  (STACK_B_0+24)
+.equ STACK_B_32   ,  (STACK_B_0+32)
+.equ STACK_CTR    ,  104
+.equ STACK_LASTBIT,  108
+.equ STACK_SCALAR , 112
+.equ STACK_X_0    , 168
+.equ STACK_X_8    , (STACK_X_0+ 8)
+.equ STACK_X_16   , (STACK_X_0+16)
+.equ STACK_X_24   , (STACK_X_0+24)
+.equ STACK_X_32   , (STACK_X_0+32)
+.equ STACK_OUT_PTR, (STACK_X_0+48)
 
     .cpu generic+fp+simd
     .text
