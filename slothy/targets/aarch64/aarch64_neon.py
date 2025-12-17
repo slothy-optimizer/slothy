@@ -951,6 +951,7 @@ class AArch64Instruction(Instruction):
         flexible_spacing = [
             (r"\s*,\s*", r"\\s*,\\s*"),
             (r"\s*<imm>\s*", r"\\s*<imm>\\s*"),
+            (r"\s*<literal>\s*", r"\\s*<literal>\\s*"),
             (r"\s*\[\s*", r"\\s*\\[\\s*"),
             (r"\s*\]\s*", r"\\s*\\]\\s*"),
             (r"\s*\.\s*", r"\\s*\\.\\s*"),
@@ -1011,14 +1012,20 @@ class AArch64Instruction(Instruction):
         flag_pattern = "|".join(flaglist)
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = (
-            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|<<|>>)+)"
             "|"
-            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|<<|>>)+)"
+        )
+        literal_pattern = (
+            "(#=(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|<<|>>)+)"
+            "|"
+            "(=((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
         )
         index_pattern = "[0-9]+"
         barrel_pattern = "(?i:lsl|ror|lsr|asr)\\\\s*"
 
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
+        src = replace_placeholders(src, "literal", literal_pattern, "literal")
         src = AArch64Instruction._replace_duplicate_datatypes(src, "dt")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
@@ -1192,6 +1199,9 @@ class AArch64Instruction(Instruction):
         group_to_attribute(
             "imm", "immediate", lambda x: x.replace("#", "")
         )  # Strip '#'
+        group_to_attribute(
+            "literal", "immediate", lambda x: x.replace("#", "")
+        )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
         group_to_attribute("barrel", "barrel")
@@ -1273,6 +1283,7 @@ class AArch64Instruction(Instruction):
             return txt
 
         out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
+        out = replace_pattern(out, "immediate", "literal", lambda x: f"{x}")
         out = AArch64Instruction._replace_duplicate_datatypes(out, "dt")
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
@@ -1548,6 +1559,7 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
     def make(cls, src):
         obj = AArch64Instruction.build(cls, src)
         obj.detected_q_ld2_lane_post_inc_pair = False
+        obj.addr = obj.args_in_out[2]
         obj.args_in_out_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
         ]
@@ -1559,7 +1571,6 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
 
 class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
     pattern = "ld2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>"
-    # TODO: Model sp dependency
     in_outs = ["Xa"]
     outputs = ["Va", "Vb"]
 
@@ -1569,6 +1580,7 @@ class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
             raise Instruction.ParsingException("Instruction ignored")
 
         obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in_out[0]
         obj.args_out_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
         ]
@@ -1605,6 +1617,7 @@ class q_ldr1_post_inc(AArch64Instruction):
         obj = AArch64Instruction.build(cls, src)
         obj.increment = obj.immediate
         obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
         return obj
 
     def write(self):
@@ -2354,6 +2367,12 @@ class ldr_sxtw_wform(AArch64Instruction):
     inputs = ["Xa", "Wb"]
     outputs = ["Wd"]
 
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in[0]
+        return obj
+
 
 ############################
 #                          #
@@ -2923,6 +2942,21 @@ class cset(AArch64ConditionalSelect):
     dependsOnFlags = True
 
 
+class fcsel(AArch64ConditionalSelect):
+    """FCSEL - Floating-point Conditional Select (D-form scalar)
+
+    Syntax: FCSEL <Dd>, <Dn>, <Dm>, <cond>
+
+    Selects between two double-precision floating-point values based on
+    condition flags. Executes on SIMD/FP units.
+    """
+
+    pattern = "fcsel <Dd>, <Dn>, <Dm>, <flag>"
+    inputs = ["Dn", "Dm"]
+    outputs = ["Dd"]
+    dependsOnFlags = True
+
+
 class cmn(AArch64ConditionalSelect):
     pattern = "cmn <Xd>, <Xe>"
     inputs = ["Xd", "Xe"]
@@ -2936,7 +2970,7 @@ class cmn_imm(AArch64ConditionalSelect):
 
 
 class ldr_const(AArch64Instruction):
-    pattern = "ldr <Xd>, <imm>"
+    pattern = "ldr <Xd>, <literal>"
     inputs = []
     outputs = ["Xd"]
 
@@ -3228,38 +3262,6 @@ class vqdmulh_lane(Vqdmulh):
             ]
 
         return obj
-
-
-class fcsel_dform(Instruction):
-    @classmethod
-    def make(cls, src):
-        obj = Instruction.build(
-            cls,
-            src,
-            mnemonic="fcsel_dform",
-            arg_types_in=[RegisterType.NEON, RegisterType.NEON, RegisterType.FLAGS],
-            arg_types_out=[RegisterType.NEON],
-        )
-
-        regexp_txt = (
-            r"fcsel_dform\s+(?P<dst>\w+)\s*,\s*(?P<src1>\w+)\s*,"
-            r"\s*(?P<src2>\w+)\s*,\s*eq"
-        )
-        regexp_txt = Instruction.unfold_abbrevs(regexp_txt)
-        regexp = re.compile(regexp_txt)
-        p = regexp.match(src)
-        if p is None:
-            raise Instruction.ParsingException("Does not match pattern")
-        obj.args_in = [p.group("src1"), p.group("src2"), "flags"]
-        obj.args_out = [p.group("dst")]
-        obj.args_in_out = []
-
-        return obj
-
-    def write(self):
-        return (
-            f"fcsel_dform {self.args_out[0]}, {self.args_in[0]}, {self.args_in[1]}, eq"
-        )
 
 
 class Vins(AArch64Instruction):

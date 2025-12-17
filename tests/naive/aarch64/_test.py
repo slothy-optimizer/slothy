@@ -134,6 +134,34 @@ class AArch64Example0Equ(OptimizationRunner):
         slothy.optimize(start="start", end="end")
 
 
+class AArch64Equ(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_equ"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.outputs = [
+            "v0",
+            "v1",
+            "v2",
+            "v3",
+            "v4",
+            "v5",
+            "v6",
+            "v7",
+            "v8",
+            "v9",
+            "v10",
+        ]
+        slothy.optimize(start="start", end="end")
+
+
 class AArch64Example1(OptimizationRunner):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_simple0_macros"
@@ -304,6 +332,38 @@ class AArch64CStyleComments(OptimizationRunner):
         slothy.optimize(start="start", end="end")
 
 
+class AArch64SelftestAddr(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_selftest_addr"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 64
+        # Mark all vector and GPR outputs from loads
+        slothy.config.outputs = [
+            "v0",
+            "v1",
+            "v2",
+            "v3",
+            "v4",
+            "v5",  # vector loads
+            "x21",
+            "x22",
+            "x23",
+            "x24",
+            "x25",
+            "x26",
+            "x27",
+            "x28",  # GPR loads
+        ]
+        slothy.optimize(start="start", end="end")
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -311,6 +371,7 @@ test_instances = [
     AArch64Example0(),
     AArch64Example0(target=Target_CortexA72),
     AArch64Example0Equ(),
+    AArch64Equ(),
     AArch64Example1(),
     AArch64Example1(target=Target_CortexA72),
     AArch64Example2(),
@@ -327,4 +388,5 @@ test_instances = [
     AArch64LoopBranch(),
     AArch64FusionVeor(),
     AArch64CStyleComments(),
+    AArch64SelftestAddr(),
 ]

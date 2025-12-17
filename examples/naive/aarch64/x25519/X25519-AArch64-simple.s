@@ -29,31 +29,27 @@
 #include <hal_env.h>
 #include "instruction_wrappers.i"
 
-.macro fcsel_dform out, in0, in1, cond // @slothy:no-unfold
-  fcsel dform_\out, dform_\in0, dform_\in1, \cond
-.endm
-
-#define STACK_MASK1     0
-#define STACK_MASK2     8
-#define STACK_A_0      16
-#define STACK_A_8      (STACK_A_0+ 8)
-#define STACK_A_16     (STACK_A_0+16)
-#define STACK_A_24     (STACK_A_0+24)
-#define STACK_A_32     (STACK_A_0+32)
-#define STACK_B_0      64
-#define STACK_B_8      (STACK_B_0+ 8)
-#define STACK_B_16     (STACK_B_0+16)
-#define STACK_B_24     (STACK_B_0+24)
-#define STACK_B_32     (STACK_B_0+32)
-#define STACK_CTR      104
-#define STACK_LASTBIT  108
-#define STACK_SCALAR  112
-#define STACK_X_0     168
-#define STACK_X_8     (STACK_X_0+ 8)
-#define STACK_X_16    (STACK_X_0+16)
-#define STACK_X_24    (STACK_X_0+24)
-#define STACK_X_32    (STACK_X_0+32)
-#define STACK_OUT_PTR (STACK_X_0+48)
+.equ STACK_MASK1  ,   0
+.equ STACK_MASK2  ,   8
+.equ STACK_A_0    ,  16
+.equ STACK_A_8    ,  (STACK_A_0+ 8)
+.equ STACK_A_16   ,  (STACK_A_0+16)
+.equ STACK_A_24   ,  (STACK_A_0+24)
+.equ STACK_A_32   ,  (STACK_A_0+32)
+.equ STACK_B_0    ,  64
+.equ STACK_B_8    ,  (STACK_B_0+ 8)
+.equ STACK_B_16   ,  (STACK_B_0+16)
+.equ STACK_B_24   ,  (STACK_B_0+24)
+.equ STACK_B_32   ,  (STACK_B_0+32)
+.equ STACK_CTR    ,  104
+.equ STACK_LASTBIT,  108
+.equ STACK_SCALAR , 112
+.equ STACK_X_0    , 168
+.equ STACK_X_8    , (STACK_X_0+ 8)
+.equ STACK_X_16   , (STACK_X_0+16)
+.equ STACK_X_24   , (STACK_X_0+24)
+.equ STACK_X_32   , (STACK_X_0+32)
+.equ STACK_OUT_PTR, (STACK_X_0+48)
 
     .cpu generic+fp+simd
     .text
@@ -325,6 +321,43 @@ sZ45 .req x6
 sZ46 .req x24
 sZ48 .req x22
 
+// D-form aliases for fcsel with named vector registers
+dform_vA0 .req d0
+dform_vA2 .req d2
+dform_vA4 .req d4
+dform_vA6 .req d6
+dform_vA8 .req d8
+
+dform_vB0 .req d20
+dform_vB2 .req d21
+dform_vB4 .req d22
+dform_vB6 .req d23
+dform_vB8 .req d24
+
+dform_vC0 .req d10
+dform_vC2 .req d12
+dform_vC4 .req d14
+dform_vC6 .req d16
+dform_vC8 .req d18
+
+dform_vD0 .req d25
+dform_vD2 .req d26
+dform_vD4 .req d27
+dform_vD6 .req d28
+dform_vD8 .req d29
+
+dform_vF0 .req d1
+dform_vF2 .req d3
+dform_vF4 .req d5
+dform_vF6 .req d7
+dform_vF8 .req d9
+
+dform_vG0 .req d20
+dform_vG2 .req d21
+dform_vG4 .req d22
+dform_vG6 .req d23
+dform_vG8 .req d24
+
 START:
 
 
@@ -395,11 +428,11 @@ START:
 .endm
 
 .macro vector_cmov_inner vA0, vA2, vA4, vA6, vA8,  vB0, vB2, vB4, vB6, vB8,  vC0, vC2, vC4, vC6, vC8
-    fcsel_dform    \vA0, \vB0, \vC0, eq
-    fcsel_dform    \vA2, \vB2, \vC2, eq
-    fcsel_dform    \vA4, \vB4, \vC4, eq
-    fcsel_dform    \vA6, \vB6, \vC6, eq
-    fcsel_dform    \vA8, \vB8, \vC8, eq
+    fcsel    dform_\vA0, dform_\vB0, dform_\vC0, eq
+    fcsel    dform_\vA2, dform_\vB2, dform_\vC2, eq
+    fcsel    dform_\vA4, dform_\vB4, dform_\vC4, eq
+    fcsel    dform_\vA6, dform_\vB6, dform_\vC6, eq
+    fcsel    dform_\vA8, dform_\vB8, dform_\vC8, eq
 .endm
 
 .macro vector_cmov vA, vB, vC
@@ -852,7 +885,7 @@ xtmp_scalar_sub_0 .req x21
 // sB0 .. sB4   second operand B
 .macro scalar_sub_inner  sC0, sC1, sC2, sC3, sC4,  sA0, sA1, sA2, sA3, sA4,  sB0, sB1, sB2, sB3, sB4
 
-  ldr    xtmp_scalar_sub_0, #=0x07fffffe07fffffc
+  ldr    xtmp_scalar_sub_0, =0x07fffffe07fffffc
   add    \sC1, \sA1, xtmp_scalar_sub_0
   add    \sC2, \sA2, xtmp_scalar_sub_0
   add    \sC3, \sA3, xtmp_scalar_sub_0
@@ -873,7 +906,7 @@ scalar_sub_inner \sC\()0, \sC\()2, \sC\()4, \sC\()6, \sC\()8,  \sA\()0, \sA\()2,
 
 .macro scalar_addm_inner   sC0, sC1, sC2, sC3, sC4, sC5, sC6, sC7, sC8, sC9,  sA0, sA1, sA2, sA3, sA4, sA5, sA6, sA7, sA8, sA9,  sB0, sB1, sB2, sB3, sB4, sB5, sB6, sB7, sB8, sB9,  multconst
 
-  ldr    X<tmp_scalar_addm_0>, #=\multconst
+  ldr    X<tmp_scalar_addm_0>, =\multconst
   umaddl \sC9, W<\sB9>, W<tmp_scalar_addm_0>, \sA9
   umaddl \sC0, W<\sB0>, W<tmp_scalar_addm_0>, \sA0
   umaddl \sC1, W<\sB1>, W<tmp_scalar_addm_0>, \sA1
@@ -1274,7 +1307,7 @@ _x25519_scalarmult_alt_orig:
     dup    vconst19.2s, w30
     mov    x0, #(1<<26)-1
     dup    v30.2d, x0
-    ldr    x0, #=0x07fffffe07fffffc
+    ldr    x0, =0x07fffffe07fffffc
     // TODO: I do not quite understand what the two stps are doing
     // First seems to write bytes 0-15 (mask1+mask2); second seems to write bytes 16-31 (mask2+A)
     // stp x0, x0, [sp, #STACK_MASK1] // @slothy:writes=mask1
