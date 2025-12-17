@@ -362,6 +362,8 @@ Classes
      -
    * - :py:obj:`cset <slothy.targets.aarch64.aarch64_neon.cset>`
      -
+   * - :py:obj:`fcsel <slothy.targets.aarch64.aarch64_neon.fcsel>`
+     -
    * - :py:obj:`cmn <slothy.targets.aarch64.aarch64_neon.cmn>`
      -
    * - :py:obj:`cmn_imm <slothy.targets.aarch64.aarch64_neon.cmn_imm>`
@@ -460,9 +462,6 @@ Classes
      -
    * - :py:obj:`vqdmulh_lane <slothy.targets.aarch64.aarch64_neon.vqdmulh_lane>`
      -
-   * - :py:obj:`fcsel_dform <slothy.targets.aarch64.aarch64_neon.fcsel_dform>`
-     - .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fcsel_dform
-          :summary:
    * - :py:obj:`Vins <slothy.targets.aarch64.aarch64_neon.Vins>`
      -
    * - :py:obj:`vins_d <slothy.targets.aarch64.aarch64_neon.vins_d>`
@@ -5185,6 +5184,35 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.cset.dependsOnFlags
 
+.. py:class:: fcsel(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.fcsel
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.fcsel.pattern
+      :value: 'fcsel <Dd>, <Dn>, <Dm>, <flag>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fcsel.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.fcsel.inputs
+      :value: ['Dn', 'Dm']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fcsel.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.fcsel.outputs
+      :value: ['Dd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fcsel.outputs
+
+   .. py:attribute:: dependsOnFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.fcsel.dependsOnFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fcsel.dependsOnFlags
+
 .. py:class:: cmn(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.cmn
 
@@ -6187,24 +6215,6 @@ API
    .. py:method:: make(src)
       :canonical: slothy.targets.aarch64.aarch64_neon.vqdmulh_lane.make
       :classmethod:
-
-.. py:class:: fcsel_dform(*, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None)
-   :canonical: slothy.targets.aarch64.aarch64_neon.fcsel_dform
-
-   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Instruction`
-
-   .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fcsel_dform
-
-   .. rubric:: Initialization
-
-   .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fcsel_dform.__init__
-
-   .. py:method:: make(src)
-      :canonical: slothy.targets.aarch64.aarch64_neon.fcsel_dform.make
-      :classmethod:
-
-   .. py:method:: write()
-      :canonical: slothy.targets.aarch64.aarch64_neon.fcsel_dform.write
 
 .. py:class:: Vins(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.Vins
