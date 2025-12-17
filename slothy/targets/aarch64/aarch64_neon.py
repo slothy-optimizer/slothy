@@ -951,6 +951,7 @@ class AArch64Instruction(Instruction):
         flexible_spacing = [
             (r"\s*,\s*", r"\\s*,\\s*"),
             (r"\s*<imm>\s*", r"\\s*<imm>\\s*"),
+            (r"\s*<literal>\s*", r"\\s*<literal>\\s*"),
             (r"\s*\[\s*", r"\\s*\\[\\s*"),
             (r"\s*\]\s*", r"\\s*\\]\\s*"),
             (r"\s*\.\s*", r"\\s*\\.\\s*"),
@@ -1011,14 +1012,20 @@ class AArch64Instruction(Instruction):
         flag_pattern = "|".join(flaglist)
         dt_pattern = "(?:|2|4|8|16)(?:B|H|S|D|b|h|s|d)"
         imm_pattern = (
-            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
+            "(#(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|<<|>>)+)"
             "|"
-            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
+            "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|<<|>>)+)"
+        )
+        literal_pattern = (
+            "(#=(\\\\w|\\\\s|/| |-|\\*|\\+|\\(|\\)|<<|>>)+)"
+            "|"
+            "(=((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
         )
         index_pattern = "[0-9]+"
         barrel_pattern = "(?i:lsl|ror|lsr|asr)\\\\s*"
 
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
+        src = replace_placeholders(src, "literal", literal_pattern, "literal")
         src = AArch64Instruction._replace_duplicate_datatypes(src, "dt")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
@@ -1192,6 +1199,9 @@ class AArch64Instruction(Instruction):
         group_to_attribute(
             "imm", "immediate", lambda x: x.replace("#", "")
         )  # Strip '#'
+        group_to_attribute(
+            "literal", "immediate", lambda x: x.replace("#", "")
+        )  # Strip '#'
         group_to_attribute("index", "index", int)
         group_to_attribute("flag", "flag")
         group_to_attribute("barrel", "barrel")
@@ -1273,6 +1283,7 @@ class AArch64Instruction(Instruction):
             return txt
 
         out = replace_pattern(out, "immediate", "imm", lambda x: f"#{x}")
+        out = replace_pattern(out, "immediate", "literal", lambda x: f"{x}")
         out = AArch64Instruction._replace_duplicate_datatypes(out, "dt")
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "flag", "flag")
@@ -2936,7 +2947,7 @@ class cmn_imm(AArch64ConditionalSelect):
 
 
 class ldr_const(AArch64Instruction):
-    pattern = "ldr <Xd>, <imm>"
+    pattern = "ldr <Xd>, <literal>"
     inputs = []
     outputs = ["Xd"]
 
