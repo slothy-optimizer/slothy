@@ -886,7 +886,7 @@ xtmp_scalar_sub_0 .req x21
 // sB0 .. sB4   second operand B
 .macro scalar_sub_inner  sC0, sC1, sC2, sC3, sC4,  sA0, sA1, sA2, sA3, sA4,  sB0, sB1, sB2, sB3, sB4
 
-  ldr    xtmp_scalar_sub_0, #=0x07fffffe07fffffc
+  ldr    xtmp_scalar_sub_0, =0x07fffffe07fffffc
   add    \sC1, \sA1, xtmp_scalar_sub_0
   add    \sC2, \sA2, xtmp_scalar_sub_0
   add    \sC3, \sA3, xtmp_scalar_sub_0
@@ -907,7 +907,7 @@ scalar_sub_inner \sC\()0, \sC\()2, \sC\()4, \sC\()6, \sC\()8,  \sA\()0, \sA\()2,
 
 .macro scalar_addm_inner   sC0, sC1, sC2, sC3, sC4, sC5, sC6, sC7, sC8, sC9,  sA0, sA1, sA2, sA3, sA4, sA5, sA6, sA7, sA8, sA9,  sB0, sB1, sB2, sB3, sB4, sB5, sB6, sB7, sB8, sB9,  multconst
 
-  ldr    X<tmp_scalar_addm_0>, #=\multconst
+  ldr    X<tmp_scalar_addm_0>, =\multconst
   umaddl \sC9, W<\sB9>, W<tmp_scalar_addm_0>, \sA9
   umaddl \sC0, W<\sB0>, W<tmp_scalar_addm_0>, \sA0
   umaddl \sC1, W<\sB1>, W<tmp_scalar_addm_0>, \sA1
@@ -1308,7 +1308,7 @@ _x25519_scalarmult_alt_orig:
     dup    vconst19.2s, w30
     mov    x0, #(1<<26)-1
     dup    v30.2d, x0
-    ldr    x0, #=0x07fffffe07fffffc
+    ldr    x0, =0x07fffffe07fffffc
     // TODO: I do not quite understand what the two stps are doing
     // First seems to write bytes 0-15 (mask1+mask2); second seems to write bytes 16-31 (mask2+A)
     // stp x0, x0, [sp, #STACK_MASK1] // @slothy:writes=mask1
