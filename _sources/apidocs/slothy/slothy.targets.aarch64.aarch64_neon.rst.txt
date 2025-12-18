@@ -5270,7 +5270,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.aarch64.aarch64_neon.ldr_const.pattern
-      :value: 'ldr <Xd>, <imm>'
+      :value: 'ldr <Xd>, <literal>'
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ldr_const.pattern
 
