@@ -120,35 +120,74 @@ start_label:
 end_label:
 ```
 
-### Option 2: Development Installation
+### Option 2: Development Installation with Nix (Recommended)
 
-For development or to run the examples in this repository, first clone the SLOTHY development repository:
+For a fully reproducible development environment with all dependencies (Python, LLVM, build tools) pre-configured:
 
 ```bash
 git clone https://github.com/slothy-optimizer/slothy.git
+cd slothy
+nix develop
+```
+
+This will:
+- Set up Python 3.12 with all dependencies from `pyproject.toml`
+- Install LLVM toolchain (including `llvm-mca`)
+- Configure C/C++ build tools (gcc, make)
+- Create and activate a virtual environment using `uv`
+
+**Requirements:**
+- [Nix package manager](https://nixos.org/download.html) with flakes enabled
+
+### Option 3: Development Installation with uv
+
+Using [uv](https://docs.astral.sh/uv/) for fast, reliable Python dependency management:
+
+```bash
+git clone https://github.com/slothy-optimizer/slothy.git
+cd slothy
+
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create virtual environment and install all dependencies
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv sync --all-extras
+```
+
+**Note:** You'll also need to install LLVM separately:
+- macOS: `brew install llvm`
+- Ubuntu: `apt install llvm`
+
+### Option 4: Development Installation with pip
+
+For development or to run the examples in this repository:
+
+```bash
+git clone https://github.com/slothy-optimizer/slothy.git
+cd slothy
 ```
 
 #### Requirements
 
-SLOTHY has been successfully used on
+SLOTHY has been successfully used on:
+- Ubuntu 21.10 and up (64-bit)
+- macOS Monterey 12.6 and up
 
-- Ubuntu-21.10 and up (64-bit),
-- macOS Monterey 12.6 and up.
+SLOTHY supports Python 3.9 up to 3.13. All dependencies are specified in `pyproject.toml`.
 
-SLOTHY supports Python 3.9 up to 3.13. For development Python >= 3.10 is required.
-See [requirements.txt](requirements.txt) for package requirements, and install via `pip install -r requirements.txt`.
-
-**Note:** `requirements.txt` pins versions for reproducibility. If you already have newer versions of some dependencies
-installed and don't want them downgraded, consider using a virtual environment:
+Install dependencies using pip:
 
 ```bash
 python3 -m venv venv
-./venv/bin/python3 -m pip install -r requirements.txt
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -e ".[dev,docs]"
 ```
 
-Then, enter the virtual environment via `source venv/bin/activate` prior to running SLOTHY.
-Finally, adjust your PATH environment variable to include the directories containining
-the `slothy-cli` script and the LLVM `llvm-mca` tool.
+**Note:** You'll also need to install LLVM separately:
+- macOS: `brew install llvm`
+- Ubuntu: `apt install llvm`
 
 #### Verify Development Installation
 
@@ -176,7 +215,7 @@ INFO:aarch64_simple0_a55.slothy.selfcheck:OK!
 INFO:aarch64_simple0_a55.slothy:Minimum number of stalls: 18
 ```
 
-### Option 3: Docker
+### Option 5: Docker
 
 A dockerfile for an Ubuntu-22.04 based Docker image with all dependencies of SLOTHY and the PQMX+PQAX test
 environments setup can be found in [paper/artifact/slothy.dockerfile](paper/artifact/slothy.Dockerfile). See
