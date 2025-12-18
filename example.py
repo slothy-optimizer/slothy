@@ -152,6 +152,8 @@ def main():
                 break
         if ex is None:
             raise OptimizationRunnerException(f"Could not find example {name}")
+        if ex.write_config:
+            ex._write_config()
         ex.run(**kwargs)
 
     for e in todo:
