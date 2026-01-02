@@ -1101,12 +1101,28 @@ class Config(NestedPrint, LockAttributes):
             """Allow Slothy to introduce stack spills
 
             When this option is enabled, Slothy will consider the introduction
-            of stack spills to reduce register pressure.
+            of stack spills to reduce register pressure. The naming of stack
+            locations can be customized using spill_stack_loc_prefix.
 
             This option should only be disabled if it is known that the input
             assembly suffers from high register pressure. For example, this can
             be the case for symbolic input assembly."""
             return self._allow_spills
+
+        @property
+        def spill_stack_loc_prefix(self):
+            """
+            Prefix for stack location names in generated assembly when spills
+            are enabled.
+
+            When allow_spills is True, this prefix is used to generate unique stack
+            location names in the format "{prefix}_{index}" (e.g., "STACK_LOC_0",
+            "STACK_LOC_1", etc.). This allows customization of naming conventions
+            to match project requirements.
+
+            Default: "STACK_LOC"
+            """
+            return self._spill_stack_loc_prefix
 
         @property
         def spill_type(self):
@@ -1190,6 +1206,7 @@ class Config(NestedPrint, LockAttributes):
             self._allow_reordering = True
             self._allow_renaming = True
             self._allow_spills = False
+            self._spill_stack_loc_prefix = "STACK_LOC"
             self._spill_type = None
 
             self.lock()
@@ -1241,6 +1258,10 @@ class Config(NestedPrint, LockAttributes):
         @allow_spills.setter
         def allow_spills(self, val):
             self._allow_spills = val
+
+        @spill_stack_loc_prefix.setter
+        def spill_stack_loc_prefix(self, val):
+            self._spill_stack_loc_prefix = val
 
         @spill_type.setter
         def spill_type(self, val):
