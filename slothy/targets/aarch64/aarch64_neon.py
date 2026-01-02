@@ -4621,11 +4621,13 @@ class vuaddlv_sform(AArch64Instruction):
 
 
 class Spill:
-    def spill(reg, loc):
-        return f"str {reg}, [sp, #STACK_LOC_{loc}]"
+    def spill(reg, loc, config=None):
+        prefix = config.stack_loc_prefix if config else "STACK_LOC"
+        return f"str {reg}, [sp, #{prefix}_{loc}]"
 
-    def restore(reg, loc):
-        return f"ldr {reg}, [sp, #STACK_LOC_{loc}]"
+    def restore(reg, loc, config=None):
+        prefix = config.stack_loc_prefix if config else "STACK_LOC"
+        return f"ldr {reg}, [sp, #{prefix}_{loc}]"
 
 
 # In a pair of vins writing both 64-bit lanes of a vector, mark the

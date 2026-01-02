@@ -97,6 +97,11 @@ def main():
     parser.add_argument("--fusion", default=False, action="store_true")
     parser.add_argument("--fusion-only", default=False, action="store_true")
     parser.add_argument(
+        "--stack-loc-prefix",
+        default="STACK_LOC",
+        help="Prefix for stack location names in generated assembly (default: STACK_LOC)",
+    )
+    parser.add_argument(
         "--unfold",
         default=False,
         action="store_true",
@@ -224,6 +229,9 @@ def main():
     arch = Archery.get_arch(args.arch)
     target = Archery.get_target(args.target)
     slothy = Slothy(arch, target, logger=logger)
+
+    # Set stack location prefix from CLI argument
+    slothy.config.stack_loc_prefix = args.stack_loc_prefix
 
     def parse_config_value_as(val, ty):
         def parse_as_float(val):

@@ -607,6 +607,11 @@ class Config(NestedPrint, LockAttributes):
         return self._absorb_spills
 
     @property
+    def stack_loc_prefix(self):
+        """Prefix for stack location names in generated assembly"""
+        return self._stack_loc_prefix
+
+    @property
     def split_heuristic(self):
         """Trade-off between runtime and optimality: Split each code block
         to be optimized into a fixed number of subchunks and optimize them
@@ -1348,6 +1353,8 @@ class Config(NestedPrint, LockAttributes):
         self._split_heuristic = False
         self._split_heuristic_region = [0.0, 1.0]
         self._split_heuristic_chunks = False
+
+        self._stack_loc_prefix = "STACK_LOC"
         self._split_heuristic_optimize_seam = 0
         self._split_heuristic_bottom_to_top = False
         self._split_heuristic_factor = 2
@@ -1571,6 +1578,10 @@ class Config(NestedPrint, LockAttributes):
     @absorb_spills.setter
     def absorb_spills(self, val):
         self._absorb_spills = val
+
+    @stack_loc_prefix.setter
+    def stack_loc_prefix(self, val):
+        self._stack_loc_prefix = val
 
     @split_heuristic.setter
     def split_heuristic(self, val):
