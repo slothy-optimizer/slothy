@@ -19,6 +19,8 @@ ld1r {v11.2D}, [sp]
 ldr x16, [sp, #4]
 str x16, [sp, #4]
 ld2 { v0.S, v1.S }[1], [x1], #8
+st2 { v0.S, v1.S }[1], [x1], #8
+st2 { v0.S, v1.S }[1], [x1]
 
 zip1 v5.16b, v6.16b, v7.16b
 zip2 v8.16b, v9.16b, v10.16b

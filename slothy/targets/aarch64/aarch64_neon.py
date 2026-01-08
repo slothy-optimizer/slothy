@@ -754,7 +754,7 @@ class Instruction:
             return self._is_instance_of([Str_Q, Ldr_Q])
 
         # Operations on specific lanes are not counted as Q-form instructions
-        if self._is_instance_of([Q_Ld2_Lane_Post_Inc]):
+        if self._is_instance_of([Q_Ld2_Lane_Post_Inc, st2_lane, st2_lane_post_inc]):
             return False
 
         dt = self.datatype
@@ -4447,6 +4447,37 @@ class st2_with_inc(St2):
         obj.pre_index = None
         obj.args_in_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
+        return obj
+
+
+class st2_lane(St2):
+    pattern = "st2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>]"
+    inputs = ["Va", "Vb", "Xa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in[2]
+        obj.args_in_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
+        ]
+        return obj
+
+
+class st2_lane_post_inc(St2):
+    pattern = "st2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Xa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in_out[0]
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.args_in_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
         ]
         return obj
 
