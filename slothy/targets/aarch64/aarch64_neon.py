@@ -954,6 +954,8 @@ class AArch64Instruction(Instruction):
             (r"\s*<literal>\s*", r"\\s*<literal>\\s*"),
             (r"\s*\[\s*", r"\\s*\\[\\s*"),
             (r"\s*\]\s*", r"\\s*\\]\\s*"),
+            (r"\s*\{\s*", r"\\s*\\{\\s*"),
+            (r"\s*\}\s*", r"\\s*\\}\\s*"),
             (r"\s*\.\s*", r"\\s*\\.\\s*"),
             (r"\s+", r"\\s+"),
             (r"\\s\*\\s\\+", r"\\s+"),
