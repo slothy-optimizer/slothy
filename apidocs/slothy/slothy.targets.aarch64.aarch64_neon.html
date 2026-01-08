@@ -1166,6 +1166,12 @@ handling the loop can be considered by SLOTHY as well.</p></td>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.st2_with_inc" title="slothy.targets.aarch64.aarch64_neon.st2_with_inc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">st2_with_inc</span></code></a></p></td>
 <td></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.st2_lane" title="slothy.targets.aarch64.aarch64_neon.st2_lane"><code class="xref py py-obj docutils literal notranslate"><span class="pre">st2_lane</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc" title="slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">st2_lane_post_inc</span></code></a></p></td>
+<td></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.Ld4" title="slothy.targets.aarch64.aarch64_neon.Ld4"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ld4</span></code></a></p></td>
 <td></td>
 </tr>
@@ -9130,6 +9136,53 @@ of a subclass of Instruction.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_with_inc.make">
 <em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_with_inc.make" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">st2_lane</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.St2" title="slothy.targets.aarch64.aarch64_neon.St2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.St2</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st2</span> <span class="pre">{</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;</span> <span class="pre">}[&lt;index&gt;],</span> <span class="pre">[&lt;Xa&gt;]'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Va',</span> <span class="pre">'Vb',</span> <span class="pre">'Xa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane.make">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane.make" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">st2_lane_post_inc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.St2" title="slothy.targets.aarch64.aarch64_neon.St2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.St2</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'st2</span> <span class="pre">{</span> <span class="pre">&lt;Va&gt;.&lt;dt&gt;,</span> <span class="pre">&lt;Vb&gt;.&lt;dt&gt;</span> <span class="pre">}[&lt;index&gt;],</span> <span class="pre">[&lt;Xa&gt;],</span> <span class="pre">&lt;imm&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Va',</span> <span class="pre">'Vb']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.in_outs">
+<span class="sig-name descname"><span class="pre">in_outs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.in_outs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.make">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.make" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

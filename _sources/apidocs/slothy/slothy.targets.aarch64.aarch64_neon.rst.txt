@@ -724,6 +724,10 @@ Classes
      -
    * - :py:obj:`st2_with_inc <slothy.targets.aarch64.aarch64_neon.st2_with_inc>`
      -
+   * - :py:obj:`st2_lane <slothy.targets.aarch64.aarch64_neon.st2_lane>`
+     -
+   * - :py:obj:`st2_lane_post_inc <slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc>`
+     -
    * - :py:obj:`Ld4 <slothy.targets.aarch64.aarch64_neon.Ld4>`
      -
    * - :py:obj:`ld4_base <slothy.targets.aarch64.aarch64_neon.ld4_base>`
@@ -8980,6 +8984,54 @@ API
 
    .. py:method:: make(src)
       :canonical: slothy.targets.aarch64.aarch64_neon.st2_with_inc.make
+      :classmethod:
+
+.. py:class:: st2_lane(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.St2`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane.pattern
+      :value: 'st2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>]'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st2_lane.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane.inputs
+      :value: ['Va', 'Vb', 'Xa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st2_lane.inputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane.make
+      :classmethod:
+
+.. py:class:: st2_lane_post_inc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.St2`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.pattern
+      :value: 'st2 { <Va>.<dt>, <Vb>.<dt> }[<index>], [<Xa>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.inputs
+      :value: ['Va', 'Vb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.in_outs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.in_outs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.st2_lane_post_inc.make
       :classmethod:
 
 .. py:class:: Ld4(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
