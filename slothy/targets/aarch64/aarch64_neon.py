@@ -1563,6 +1563,7 @@ class q_ld2_lane_post_inc(Q_Ld2_Lane_Post_Inc):
         obj.args_in_out_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
         ]
+        obj.addr = obj.args_in_out[2]
         return obj
 
     def write(self):
@@ -1584,6 +1585,7 @@ class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
         obj.args_out_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
         ]
+        obj.addr = obj.args_in_out[0]
         return obj
 
     def write(self):
