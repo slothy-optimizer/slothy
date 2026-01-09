@@ -2331,7 +2331,7 @@ class bne(Armv7mBranch):
 
 
 class Spill:
-    def spill(reg, loc, spill_to_vreg=None):
+    def spill(reg, loc, spill_to_vreg=None, prefix="STACK_LOC"):
         """Generates the instruction text for a spill to either
         the stack or the FPR. If spill_to_vreg is None (default),
         the spill goes to the stack. Otherwise, spill_to_vreg must
@@ -2339,12 +2339,12 @@ class Spill:
         which should be used as a stack. For example, passing 8 would
         spill to s8,s9,.. ."""
         if spill_to_vreg is None:
-            return f"str {reg}, [sp, #STACK_LOC_{loc}]"
+            return f"str {reg}, [sp, #{prefix}_{loc}]"
         else:
             vreg_base = int(spill_to_vreg)
             return f"vmov s{vreg_base+int(loc)}, {reg}"
 
-    def restore(reg, loc, spill_to_vreg=None):
+    def restore(reg, loc, spill_to_vreg=None, prefix="STACK_LOC"):
         """Generates the instruction text for a spill restore from either
         the stack or the FPR. If spill_to_vreg is None (default),
         the spill goes to the stack. Otherwise, spill_to_vreg must
@@ -2352,7 +2352,7 @@ class Spill:
         which should be used as a stack. For example, passing 8 would
         spill to s8,s9,.. ."""
         if spill_to_vreg is None:
-            return f"ldr {reg}, [sp, #STACK_LOC_{loc}]"
+            return f"ldr {reg}, [sp, #{prefix}_{loc}]"
         else:
             vreg_base = int(spill_to_vreg)
             return f"vmov {reg}, s{vreg_base+int(loc)}"

@@ -635,7 +635,12 @@ class Result(LockAttributes):
         def gen_restore(reg, loc, vis):
             args = self.config.constraints.spill_type
             yield SourceLine(
-                self.config.arch.Spill.restore(reg, loc, **args)
+                self.config.arch.Spill.restore(
+                    reg,
+                    loc,
+                    prefix=self.config.constraints.spill_stack_loc_prefix,
+                    **args,
+                )
             ).set_length(self.fixlen).set_comment(vis).add_tag(
                 "is_restore", True
             ).add_tag(
@@ -644,9 +649,16 @@ class Result(LockAttributes):
 
         def gen_spill(reg, loc, vis):
             args = self.config.constraints.spill_type
-            yield SourceLine(self.config.arch.Spill.spill(reg, loc, **args)).set_length(
-                self.fixlen
-            ).set_comment(vis).add_tag("is_spill", True).add_tag(
+            yield SourceLine(
+                self.config.arch.Spill.spill(
+                    reg,
+                    loc,
+                    prefix=self.config.constraints.spill_stack_loc_prefix,
+                    **args,
+                )
+            ).set_length(self.fixlen).set_comment(vis).add_tag(
+                "is_spill", True
+            ).add_tag(
                 "writes", f"stack_{loc}"
             )
 
