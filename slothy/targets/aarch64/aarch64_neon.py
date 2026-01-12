@@ -3331,6 +3331,12 @@ class mov_d01(AArch64Instruction):
     in_outs = ["Vd"]
 
 
+class mov_vtov_d(AArch64Instruction):
+    pattern = "mov <Vd>.d[<index0>], <Va>.d[<index1>]"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
 class SHA3Instruction(
     AArch64Instruction
 ):  # pylint: disable=missing-docstring,invalid-name
