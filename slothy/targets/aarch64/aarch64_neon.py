@@ -3505,6 +3505,12 @@ class vdup(AArch64Instruction):
     outputs = ["Vd"]
 
 
+class vdup_w(AArch64Instruction):
+    pattern = "dup <Vd>.<dt>, <Wa>"
+    inputs = ["Wa"]
+    outputs = ["Vd"]
+
+
 class Vmull(AArch64Instruction):
     pass
 

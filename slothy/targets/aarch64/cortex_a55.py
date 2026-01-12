@@ -167,6 +167,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vuaddlv_sform,
     fmov_s_form,  # from double/single to gen reg
     cmp,
+    vdup_w,
 )
 
 issue_rate = 2
@@ -320,6 +321,7 @@ execution_units = {
         b_ldr_stack_with_inc,
         d_ldr_stack_with_inc,
         fmov_s_form,  # from double/single to gen reg
+        vdup_w,
     ): [
         ExecutionUnit.VEC0,
         ExecutionUnit.VEC1,
@@ -503,9 +505,11 @@ inverse_throughput = {
     AArch64ConditionalCompare: 1,
     AESInstruction: 1,
     fmov_s_form: 1,  # from double/single to gen reg
+    vdup_w: 1,
 }
 
 default_latencies = {
+    vdup_w: 3,
     vmov: 2,
     is_qform_form_of([vadd, vsub]): 3,
     is_dform_form_of([vadd, vsub]): 2,

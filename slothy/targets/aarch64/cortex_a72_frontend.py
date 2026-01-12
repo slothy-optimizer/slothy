@@ -111,6 +111,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vusra,
     q_ldr1_stack,
     Q_Ld2_Lane_Post_Inc,
+    vdup_w,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -208,6 +209,10 @@ execution_units = {
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
+    vdup_w: [
+        ExecutionUnit.ASIMD0,
+        ExecutionUnit.ASIMD1,
+    ],
     (AArch64NeonShiftInsert, vusra): [ExecutionUnit.ASIMD1],
     fcsel: ExecutionUnit.ASIMD(),
     AArch64ConditionalCompare: ExecutionUnit.INT(),
@@ -276,6 +281,7 @@ inverse_throughput = {
     fmov_s_form: 1,  # from vec to gen reg
     eor_shifted: 1,
     bic_shifted: 1,
+    vdup_w: 1,
 }
 
 # REVISIT
@@ -331,6 +337,7 @@ default_latencies = {
     fmov_s_form: 5,  # from vec to gen reg
     eor_shifted: 2,
     bic_shifted: 2,
+    vdup_w: 8,
 }
 
 
