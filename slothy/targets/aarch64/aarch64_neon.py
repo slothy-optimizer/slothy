@@ -3298,6 +3298,12 @@ class vclz(AArch64NeonCount):
     outputs = ["Vd"]
 
 
+class mov_wtov_s(AArch64Instruction):
+    pattern = "mov <Vd>.s[<index>], <Wa>"
+    inputs = ["Wa"]
+    in_outs = ["Vd"]
+
+
 class Mov_xtov_d(AArch64Instruction):
     pass
 
