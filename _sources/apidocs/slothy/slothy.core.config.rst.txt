@@ -492,6 +492,11 @@ API
 
          .. autodoc2-docstring:: slothy.core.config.Config.Constraints.allow_spills
 
+      .. py:property:: spill_stack_loc_prefix
+         :canonical: slothy.core.config.Config.Constraints.spill_stack_loc_prefix
+
+         .. autodoc2-docstring:: slothy.core.config.Config.Constraints.spill_stack_loc_prefix
+
       .. py:property:: spill_type
          :canonical: slothy.core.config.Config.Constraints.spill_type
 

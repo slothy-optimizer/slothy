@@ -3048,12 +3048,12 @@ API
 
    .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Spill
 
-   .. py:method:: spill(loc, spill_to_vreg=None)
+   .. py:method:: spill(loc, spill_to_vreg=None, prefix='STACK_LOC')
       :canonical: slothy.targets.arm_v7m.arch_v7m.Spill.spill
 
       .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Spill.spill
 
-   .. py:method:: restore(loc, spill_to_vreg=None)
+   .. py:method:: restore(loc, spill_to_vreg=None, prefix='STACK_LOC')
       :canonical: slothy.targets.arm_v7m.arch_v7m.Spill.restore
 
       .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.Spill.restore

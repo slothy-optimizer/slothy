@@ -3201,7 +3201,7 @@ r1-r3,r14</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v7m.arch_v7m.</span></span><span class="sig-name descname"><span class="pre">Spill</span></span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Spill" title="Link to this definition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.Spill.spill">
-<span class="sig-name descname"><span class="pre">spill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spill_to_vreg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Spill.spill" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">spill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spill_to_vreg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'STACK_LOC'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Spill.spill" title="Link to this definition"></a></dt>
 <dd><p>Generates the instruction text for a spill to either
 the stack or the FPR. If spill_to_vreg is None (default),
 the spill goes to the stack. Otherwise, spill_to_vreg must
@@ -3212,7 +3212,7 @@ spill to s8,s9,.. .</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.Spill.restore">
-<span class="sig-name descname"><span class="pre">restore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spill_to_vreg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Spill.restore" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">restore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spill_to_vreg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'STACK_LOC'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Spill.restore" title="Link to this definition"></a></dt>
 <dd><p>Generates the instruction text for a spill restore from either
 the stack or the FPR. If spill_to_vreg is None (default),
 the spill goes to the stack. Otherwise, spill_to_vreg must

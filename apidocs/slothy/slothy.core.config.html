@@ -990,10 +990,23 @@ in order to find the number of model violations in a piece of code.</p>
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allow_spills</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.allow_spills" title="Link to this definition"></a></dt>
 <dd><p>Allow Slothy to introduce stack spills</p>
 <p>When this option is enabled, Slothy will consider the introduction
-of stack spills to reduce register pressure.</p>
+of stack spills to reduce register pressure. The naming of stack
+locations can be customized using spill_stack_loc_prefix.</p>
 <p>This option should only be disabled if it is known that the input
 assembly suffers from high register pressure. For example, this can
 be the case for symbolic input assembly.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.Constraints.spill_stack_loc_prefix">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spill_stack_loc_prefix</span></span><a class="headerlink" href="#slothy.core.config.Config.Constraints.spill_stack_loc_prefix" title="Link to this definition"></a></dt>
+<dd><p>Prefix for stack location names in generated assembly when spills
+are enabled.</p>
+<p>When allow_spills is True, this prefix is used to generate unique stack
+location names in the format “{prefix}_{index}” (e.g., “STACK_LOC_0”,
+“STACK_LOC_1”, etc.). This allows customization of naming conventions
+to match project requirements.</p>
+<p>Default: “STACK_LOC”</p>
 </dd></dl>
 
 <dl class="py property">
