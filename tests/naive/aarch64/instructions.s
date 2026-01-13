@@ -173,8 +173,10 @@ add x2, x30,  x3, asr #39
 
 ldrb w29, [x26,#4]
 ldp w10, w11, [x28, #4]
+stp w10, w11, [x27, #4]
 ldrb w29, [x26]
 ldp w10, w11, [x28]
+stp w10, w11, [x27]
 
 sqdmulh v5.4s, v1.4s, v23.4s
 

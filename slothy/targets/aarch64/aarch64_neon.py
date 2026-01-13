@@ -4246,6 +4246,42 @@ class x_str_imm_hint(Str_X):
         return super().write()
 
 
+class Stp_W(AArch64Instruction):
+    pass
+
+
+class w_stp_imm(Stp_W):
+    pattern = "stp <Wa>, <Wb>, [<Xc>, <imm>]"
+    inputs = ["Wa", "Wb", "Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[2]
+        return obj
+
+
+class w_stp(Stp_W):
+    pattern = "stp <Wa>, <Wb>, [<Xc>]"
+    inputs = ["Wa", "Wb", "Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[2]
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = w_stp_imm.pattern
+        return super().write()
+
+
 class Stp_X(AArch64Instruction):
     pass
 

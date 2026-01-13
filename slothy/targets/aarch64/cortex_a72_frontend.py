@@ -65,6 +65,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ldr_Q,
     Ldr_D,
     Str_Q,
+    Stp_W,
     vadd,
     vmul,
     St4,
@@ -253,6 +254,7 @@ execution_units = {
     lsr: ExecutionUnit.INT(),
     movk_imm_lsl: ExecutionUnit.INT(),
     Ldp_W: ExecutionUnit.LOAD(),
+    Stp_W: ExecutionUnit.STORE(),
 }
 
 inverse_throughput = {
@@ -306,6 +308,7 @@ inverse_throughput = {
     lsr: 1,
     movk_imm_lsl: 1,
     Ldp_W: 1,
+    Stp_W: 1,
 }
 
 # REVISIT
@@ -368,6 +371,7 @@ default_latencies = {
     lsr: 1,
     movk_imm_lsl: 1,
     Ldp_W: 4,
+    Stp_W: 1,
 }
 
 
