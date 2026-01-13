@@ -1985,6 +1985,40 @@ class Ldr_X(AArch64Instruction):
     pass
 
 
+class w_ldrb_imm(Ldr_X):
+    pattern = "ldrb <Wa>, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Wa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
+
+class w_ldrb(Ldr_X):
+    pattern = "ldrb <Wa>, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Wa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = w_ldrb_imm.pattern
+        return super().write()
+
+
 class x_ldr(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>]"
     inputs = ["Xc"]
