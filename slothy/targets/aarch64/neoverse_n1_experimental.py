@@ -102,6 +102,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     fmov_1_force_output,
     q_ldr1_stack,
     Q_Ld2_Lane_Post_Inc,
+    q_ld2_lane_s,
     St2,
     mov_wtov_s,
     mov_vtov_d,
@@ -253,6 +254,7 @@ execution_units = {
     mov_vtov_d: ExecutionUnit.V(),
     lsr: ExecutionUnit.I(),
     movk_imm_lsl: ExecutionUnit.I(),
+    q_ld2_lane_s: ExecutionUnit.V(),
 }
 
 inverse_throughput = {
@@ -306,6 +308,7 @@ inverse_throughput = {
     vuaddlv_sform: 1,  # 8B/8H
     q_ldr1_stack: 1,
     Q_Ld2_Lane_Post_Inc: 2,
+    q_ld2_lane_s: 2,
     St2: 2,
     mov_wtov_s: 1,
     mov_vtov_d: 1,
@@ -365,6 +368,7 @@ default_latencies = {
     vuaddlv_sform: 5,  # 8B/8H
     q_ldr1_stack: 7,
     Q_Ld2_Lane_Post_Inc: 7,
+    q_ld2_lane_s: 7,
     St2: 4,
     mov_wtov_s: 5,
     mov_vtov_d: 2,

@@ -177,6 +177,7 @@ stp w10, w11, [x27, #4]
 ldrb w29, [x26]
 ldp w10, w11, [x28]
 stp w10, w11, [x27]
+ld2 {v12.s, v13.s}[0], [x25]
 
 sqdmulh v5.4s, v1.4s, v23.4s
 

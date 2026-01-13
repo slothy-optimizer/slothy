@@ -1541,6 +1541,21 @@ class d_ldr_stack_with_inc(AArch64Instruction):
         return super().write()
 
 
+class q_ld2_lane_s(AArch64Instruction):
+    pattern = "ld2 { <Va>.s, <Vb>.s }[<index>], [<Xa>]"
+    inputs = ["Xa"]
+    outputs = ["Va", "Vb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
+        ]
+        return obj
+
+
 class Q_Ld2_Lane_Post_Inc(AArch64Instruction):
     pass
 

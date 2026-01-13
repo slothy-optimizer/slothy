@@ -118,6 +118,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     lsr_imm,
     lsr,
     movk_imm_lsl,
+    q_ld2_lane_s,
     Ldp_W,
 )
 
@@ -242,7 +243,7 @@ execution_units = {
     (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
-    (Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc): [
+    (Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ld2_lane_s): [
         [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
         [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
     ],
@@ -294,6 +295,7 @@ inverse_throughput = {
     Ld4: 4,
     q_ldr1_stack: 1,
     Q_Ld2_Lane_Post_Inc: 2,
+    q_ld2_lane_s: 1,
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
     sub_imm: 1,
@@ -357,6 +359,7 @@ default_latencies = {
     Ld4: 4,
     q_ldr1_stack: 8,
     Q_Ld2_Lane_Post_Inc: 9,
+    q_ld2_lane_s: 8,
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
     sub_imm: 3,
