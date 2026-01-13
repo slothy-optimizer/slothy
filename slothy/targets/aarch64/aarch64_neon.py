@@ -2199,6 +2199,44 @@ class x_ldr_imm_with_hint(Ldr_X):
         return super().write()
 
 
+class Ldp_W(AArch64Instruction):
+    pass
+
+
+class w_ldp_imm(Ldp_W):
+    pattern = "ldp <Wa>, <Wb>, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Wa", "Wb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
+
+class w_ldp(Ldp_W):
+    pattern = "ldp <Wa>, <Wb>, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Wa", "Wb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = w_ldp_imm.pattern
+        return super().write()
+
+
 class Ldp_X(AArch64Instruction):
     pass
 
