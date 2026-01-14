@@ -2811,6 +2811,18 @@ class ubfx(AArch64Logical):
     outputs = ["Xd"]
 
 
+class sxtb(AArch64Logical):
+    pattern = "sxtb <Xd>, <Wa>"
+    inputs = ["Wa"]
+    outputs = ["Xd"]
+
+
+class uxtb(AArch64Logical):
+    pattern = "uxtb <Wd>, <Wa>"
+    inputs = ["Wa"]
+    outputs = ["Wd"]
+
+
 class extr(AArch64Logical):  # TODO! Review this...
     pattern = "extr <Xd>, <Xa>, <Xb>, <imm>"
     inputs = ["Xa", "Xb"]
