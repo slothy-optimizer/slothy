@@ -474,6 +474,8 @@ Classes
      -
    * - :py:obj:`vclz <slothy.targets.aarch64.aarch64_neon.vclz>`
      -
+   * - :py:obj:`mov_wtov_s <slothy.targets.aarch64.aarch64_neon.mov_wtov_s>`
+     -
    * - :py:obj:`Mov_xtov_d <slothy.targets.aarch64.aarch64_neon.Mov_xtov_d>`
      -
    * - :py:obj:`mov_xtov_d <slothy.targets.aarch64.aarch64_neon.mov_xtov_d>`
@@ -483,6 +485,8 @@ Classes
    * - :py:obj:`mov_b00 <slothy.targets.aarch64.aarch64_neon.mov_b00>`
      -
    * - :py:obj:`mov_d01 <slothy.targets.aarch64.aarch64_neon.mov_d01>`
+     -
+   * - :py:obj:`mov_vtov_d <slothy.targets.aarch64.aarch64_neon.mov_vtov_d>`
      -
    * - :py:obj:`SHA3Instruction <slothy.targets.aarch64.aarch64_neon.SHA3Instruction>`
      -
@@ -535,6 +539,8 @@ Classes
    * - :py:obj:`vmls_lane <slothy.targets.aarch64.aarch64_neon.vmls_lane>`
      -
    * - :py:obj:`vdup <slothy.targets.aarch64.aarch64_neon.vdup>`
+     -
+   * - :py:obj:`vdup_w <slothy.targets.aarch64.aarch64_neon.vdup_w>`
      -
    * - :py:obj:`Vmull <slothy.targets.aarch64.aarch64_neon.Vmull>`
      -
@@ -6330,6 +6336,29 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vclz.outputs
 
+.. py:class:: mov_wtov_s(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.mov_wtov_s
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.mov_wtov_s.pattern
+      :value: 'mov <Vd>.s[<index>], <Wa>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.mov_wtov_s.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.mov_wtov_s.inputs
+      :value: ['Wa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.mov_wtov_s.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.mov_wtov_s.in_outs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.mov_wtov_s.in_outs
+
 .. py:class:: Mov_xtov_d(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.Mov_xtov_d
 
@@ -6420,6 +6449,29 @@ API
       :value: ['Vd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.mov_d01.in_outs
+
+.. py:class:: mov_vtov_d(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.mov_vtov_d
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.mov_vtov_d.pattern
+      :value: 'mov <Vd>.d[<index0>], <Va>.d[<index1>]'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.mov_vtov_d.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.mov_vtov_d.inputs
+      :value: ['Va']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.mov_vtov_d.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.mov_vtov_d.in_outs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.mov_vtov_d.in_outs
 
 .. py:class:: SHA3Instruction(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.SHA3Instruction
@@ -6952,6 +7004,29 @@ API
       :value: ['Vd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vdup.outputs
+
+.. py:class:: vdup_w(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.vdup_w
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.vdup_w.pattern
+      :value: 'dup <Vd>.<dt>, <Wa>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vdup_w.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vdup_w.inputs
+      :value: ['Wa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vdup_w.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vdup_w.outputs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vdup_w.outputs
 
 .. py:class:: Vmull(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.Vmull
