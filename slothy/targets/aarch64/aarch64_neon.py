@@ -3298,6 +3298,12 @@ class vclz(AArch64NeonCount):
     outputs = ["Vd"]
 
 
+class mov_wtov_s(AArch64Instruction):
+    pattern = "mov <Vd>.s[<index>], <Wa>"
+    inputs = ["Wa"]
+    in_outs = ["Vd"]
+
+
 class Mov_xtov_d(AArch64Instruction):
     pass
 
@@ -3321,6 +3327,12 @@ class mov_b00(AArch64Instruction):
 
 class mov_d01(AArch64Instruction):
     pattern = "mov <Vd>.d[0], <Va>.d[1]"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
+class mov_vtov_d(AArch64Instruction):
+    pattern = "mov <Vd>.d[<index0>], <Va>.d[<index1>]"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
@@ -3502,6 +3514,12 @@ class vmls_lane(Vmla):
 class vdup(AArch64Instruction):
     pattern = "dup <Vd>.<dt>, <Xa>"
     inputs = ["Xa"]
+    outputs = ["Vd"]
+
+
+class vdup_w(AArch64Instruction):
+    pattern = "dup <Vd>.<dt>, <Wa>"
+    inputs = ["Wa"]
     outputs = ["Vd"]
 
 

@@ -93,8 +93,10 @@ from slothy.targets.aarch64.aarch64_neon import (
     umov_d,
     mov_d01,
     mov_b00,
+    mov_vtov_d,
     VecToGprMov,
     Mov_xtov_d,
+    mov_wtov_s,
     d_stp_stack_with_inc,
     d_str_stack_with_inc,
     b_ldr_stack_with_inc,
@@ -167,6 +169,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vuaddlv_sform,
     fmov_s_form,  # from double/single to gen reg
     cmp,
+    vdup_w,
 )
 
 issue_rate = 2
@@ -312,14 +315,17 @@ execution_units = {
         umov_d,
         mov_d01,
         mov_b00,
+        mov_vtov_d,
         fcsel,
         VecToGprMov,
         Mov_xtov_d,
+        mov_wtov_s,
         d_stp_stack_with_inc,
         d_str_stack_with_inc,
         b_ldr_stack_with_inc,
         d_ldr_stack_with_inc,
         fmov_s_form,  # from double/single to gen reg
+        vdup_w,
     ): [
         ExecutionUnit.VEC0,
         ExecutionUnit.VEC1,
@@ -466,7 +472,7 @@ inverse_throughput = {
     vshrn: 2,
     vtbl: 1,  # N cycles (N = number of registers in the table)
     (fcsel): 1,
-    (VecToGprMov, Mov_xtov_d): 1,
+    (VecToGprMov, Mov_xtov_d, mov_wtov_s): 1,
     (movk_imm, movz_imm, movz_imm_lsl, mov, mov_imm, movw_imm): 1,
     (d_stp_stack_with_inc, d_str_stack_with_inc): 1,
     (Stp_X, w_stp_with_imm_sp): 1,
@@ -496,16 +502,18 @@ inverse_throughput = {
     (vuzp1, vuzp2): 1,
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ldr1_post_inc): 1,
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc): 1,
-    (mov_d01, mov_b00): 1,
+    (mov_d01, mov_b00, mov_vtov_d): 1,
     (vzip1, vzip2): 1,
     (eor_wform, eon_wform): 1,
     (eon, eor, bic, bic_reg, eor_shifted, bic_shifted): 1,
     AArch64ConditionalCompare: 1,
     AESInstruction: 1,
     fmov_s_form: 1,  # from double/single to gen reg
+    vdup_w: 1,
 }
 
 default_latencies = {
+    vdup_w: 3,
     vmov: 2,
     is_qform_form_of([vadd, vsub]): 3,
     is_dform_form_of([vadd, vsub]): 2,
@@ -546,7 +554,7 @@ default_latencies = {
     (Vins, umov_d): 2,
     (tst_wform): 1,
     (fcsel): 2,
-    (VecToGprMov, Mov_xtov_d): 2,
+    (VecToGprMov, Mov_xtov_d, mov_wtov_s): 2,
     (movk_imm, movz_imm, movz_imm_lsl, mov, mov_imm, movw_imm): 1,
     (d_stp_stack_with_inc, d_str_stack_with_inc): 1,
     (Stp_X, w_stp_with_imm_sp): 1,
@@ -582,7 +590,7 @@ default_latencies = {
     (vuzp1, vuzp2): 2,
     (q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ldr1_post_inc): 3,
     (b_ldr_stack_with_inc, d_ldr_stack_with_inc): 3,
-    (mov_d01, mov_b00): 2,
+    (mov_d01, mov_b00, mov_vtov_d): 2,
     (vzip1, vzip2): 2,
     (eor_wform, eon_wform): 1,
     # According to SWOG, this is 2 cycles, byt if the output is used as a

@@ -173,4 +173,9 @@ add x2, x30,  x3, asr #39
 
 sqdmulh v5.4s, v1.4s, v23.4s
 
+dup v30.2s, w30
+mov v30.s[0], w30
+mov v8.d[0], v5.d[0]
+mov v8.d[1], v5.d[1] 
+
 end:
