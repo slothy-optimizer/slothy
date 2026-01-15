@@ -103,6 +103,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     St2,
     mov_wtov_s,
     mov_vtov_d,
+    lsr,
 )
 
 issue_rate = 4
@@ -245,6 +246,7 @@ execution_units = {
     Q_Ld2_Lane_Post_Inc: ExecutionUnit.V(),
     mov_wtov_s: ExecutionUnit.V(),
     mov_vtov_d: ExecutionUnit.V(),
+    lsr: ExecutionUnit.I(),
 }
 
 inverse_throughput = {
@@ -299,6 +301,7 @@ inverse_throughput = {
     St2: 2,
     mov_wtov_s: 1,
     mov_vtov_d: 1,
+    lsr: 1,
 }
 
 default_latencies = {
@@ -355,6 +358,7 @@ default_latencies = {
     St2: 4,
     mov_wtov_s: 5,
     mov_vtov_d: 2,
+    lsr: 1,
 }
 
 
