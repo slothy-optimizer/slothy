@@ -680,16 +680,14 @@ class MVEInstruction(Instruction):
         MVEInstruction.PARSERS[pattern] = parser
         return parser
 
+    @staticmethod
     @cache
-    def __infer_register_type(ptrn):
+    def _infer_register_type(ptrn):
         if ptrn[0].upper() in ["R"]:
             return RegisterType.GPR
         if ptrn[0].upper() in ["Q"]:
             return RegisterType.MVE
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
-
-    # TODO: remove workaround (needed for Python 3.9)
-    _infer_register_type = staticmethod(__infer_register_type)
 
     def __init__(
         self,
