@@ -2674,7 +2674,7 @@ class AArch64Shift(AArch64Instruction):
     pass
 
 
-class lsr(AArch64Shift):
+class lsr_imm(AArch64Shift):
     pattern = "lsr <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]

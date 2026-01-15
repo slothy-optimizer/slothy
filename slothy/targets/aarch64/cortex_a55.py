@@ -118,7 +118,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     umull_wform,
     mul_wform,
     umaddl_wform,
-    lsr,
+    lsr_imm,
     bic,
     bic_reg,
     eor,
@@ -382,7 +382,7 @@ execution_units = {
     ): ExecutionUnit.SCALAR_LOAD,
     (umull_wform, mul_wform, umaddl_wform): ExecutionUnit.SCALAR_MUL(),
     (
-        lsr,
+        lsr_imm,
         bic,
         bic_reg,
         bfi,
@@ -479,7 +479,7 @@ inverse_throughput = {
     (Stp_X, w_stp_with_imm_sp): 1,
     (ldr_const): 1,
     (ldr_sxtw_wform): 3,
-    (lsr, lsr_wform, ror): 1,
+    (lsr_imm, lsr_wform, ror): 1,
     (umull_wform, mul_wform, umaddl_wform): 1,
     (and_twoarg, and_imm, and_imm_wform): 1,
     (
@@ -561,7 +561,8 @@ default_latencies = {
     (Stp_X, w_stp_with_imm_sp): 1,
     (ldr_const): 3,
     (ldr_sxtw_wform): 5,
-    (lsr, lsr_wform): 1,
+    (lsr_wform): 1,
+    lsr_imm: 2,
     (umull_wform, mul_wform, umaddl_wform): 3,
     (vuaddlv_sform): 3,
     (and_imm, and_imm_wform): 1,
@@ -619,8 +620,8 @@ def get_latency(src, out_idx, dst):
         latency += 1
 
     if [instclass_src, instclass_dst] in [
-        [lsr, mul_wform],
-        [lsr, umaddl_wform],
+        [lsr_imm, mul_wform],
+        [lsr_imm, umaddl_wform],
         [vbic, vusra],
         [vbic_imm_shifted, vusra],
     ]:
