@@ -2968,6 +2968,12 @@ class movk_imm(AArch64Instruction):
     in_outs = ["Xd"]
 
 
+class movk_imm_lsl(AArch64Instruction):
+    pattern = "movk <Xd>, <imm0>, <barrel> <imm1>"
+    inputs = []
+    in_outs = ["Xd"]
+
+
 class mov(AArch64Instruction):
     pattern = "mov <Wd>, <Wa>"
     inputs = ["Wa"]
