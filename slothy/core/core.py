@@ -4006,6 +4006,8 @@ class SlothyBase(LockAttributes):
         self._model.cp_model = cp_model.CpModel()
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
+        # feasibility_jump (default-on since 9.8) hurts performance on SLOTHY models.
+        self._model.cp_solver.parameters.use_feasibility_jump = False
 
     def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval, maxval, name)
