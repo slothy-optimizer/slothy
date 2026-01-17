@@ -38,6 +38,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Compilers",
     "Topic :: System :: Hardware",
@@ -48,8 +49,8 @@ dependencies = [
     # ortools depends on pandas, but 9.7 does not specify it as dependency
     "pandas>=2.0.3; python_version < '3.12'",
     # ortools 9.7 requires protobuf<=6.31.1
-    "protobuf<=6.31.1 ; python_version < '3.12'",
-    "ortools==9.12.4544; python_version >= '3.12'",
+    "protobuf<=6.31.1; python_version < '3.12'",
+    "ortools==9.15.6755; python_version >= '3.12'",
     "sympy==1.14.0",
     "unicorn==2.1.4",
 ]
