@@ -571,13 +571,8 @@ what happens inside the loop boundary! Use with caution.</p></td>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType._spillable">
-<span class="sig-name descname"><span class="pre">_spillable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType._spillable" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType.spillable">
-<span class="sig-name descname"><span class="pre">spillable</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'staticmethod(...)'</span></em><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType.spillable" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spillable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType.spillable" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -601,27 +596,17 @@ what happens inside the loop boundary! Use with caution.</p></td>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType._unicorn_reg_by_name">
-<span class="sig-name descname"><span class="pre">_unicorn_reg_by_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType._unicorn_reg_by_name" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_reg_by_name">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unicorn_reg_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_reg_by_name" title="Link to this definition"></a></dt>
 <dd><p>Converts string name of register into numerical identifiers used
 within the unicorn engine</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_reg_by_name">
-<span class="sig-name descname"><span class="pre">unicorn_reg_by_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'staticmethod(...)'</span></em><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType.unicorn_reg_by_name" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType._list_registers">
-<span class="sig-name descname"><span class="pre">_list_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_normal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_variants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType._list_registers" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType.list_registers">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">list_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_normal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_variants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType.list_registers" title="Link to this definition"></a></dt>
 <dd><p>Return the list of all registers of a given type</p>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType.list_registers">
-<span class="sig-name descname"><span class="pre">list_registers</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'staticmethod(...)'</span></em><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.RegisterType.list_registers" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.RegisterType.find_type">
@@ -985,13 +970,8 @@ of a subclass of Instruction.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.__infer_register_type">
-<span class="sig-name descname"><span class="pre">__infer_register_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction.__infer_register_type" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._infer_register_type">
-<span class="sig-name descname"><span class="pre">_infer_register_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'staticmethod(...)'</span></em><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._infer_register_type" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_infer_register_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ptrn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Armv7mInstruction._infer_register_type" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

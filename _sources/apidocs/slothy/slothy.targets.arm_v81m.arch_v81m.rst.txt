@@ -642,14 +642,9 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.MVEInstruction.get_parser
 
-   .. py:method:: __infer_register_type()
-      :canonical: slothy.targets.arm_v81m.arch_v81m.MVEInstruction.__infer_register_type
-
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.MVEInstruction.__infer_register_type
-
-   .. py:attribute:: _infer_register_type
+   .. py:method:: _infer_register_type(ptrn)
       :canonical: slothy.targets.arm_v81m.arch_v81m.MVEInstruction._infer_register_type
-      :value: 'staticmethod(...)'
+      :staticmethod:
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.MVEInstruction._infer_register_type
 
