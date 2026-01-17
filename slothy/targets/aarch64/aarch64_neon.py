@@ -146,12 +146,10 @@ class RegisterType(Enum):
     def __repr__(self):
         return self.name
 
+    @staticmethod
     @cache
-    def _spillable(reg_type):
+    def spillable(reg_type):
         return reg_type in [RegisterType.GPR]  # For now, only GPRs
-
-    # TODO: remove workaround (needed for Python 3.9)
-    spillable = staticmethod(_spillable)
 
     @staticmethod
     def callee_saved_registers():
@@ -169,8 +167,9 @@ class RegisterType(Enum):
     def unicorn_program_counter():
         return UC_ARM64_REG_PC
 
+    @staticmethod
     @cache
-    def _unicorn_reg_by_name(reg):
+    def unicorn_reg_by_name(reg):
         """Converts string name of register into numerical identifiers used
         within the unicorn engine"""
 
@@ -241,11 +240,9 @@ class RegisterType(Enum):
         }
         return d.get(reg, None)
 
-    # TODO: remove workaround (needed for Python 3.9)
-    unicorn_reg_by_name = staticmethod(_unicorn_reg_by_name)
-
+    @staticmethod
     @cache
-    def _list_registers(
+    def list_registers(
         reg_type, only_extra=False, only_normal=False, with_variants=False
     ):
         """Return the list of all registers of a given type"""
@@ -289,9 +286,6 @@ class RegisterType(Enum):
             RegisterType.HINT: hints,
             RegisterType.FLAGS: flags,
         }[reg_type]
-
-    # TODO: remove workaround (needed for Python 3.9)
-    list_registers = staticmethod(_list_registers)
 
     @staticmethod
     def find_type(r):
@@ -1071,8 +1065,9 @@ class AArch64Instruction(Instruction):
         AArch64Instruction.PARSERS[pattern] = parser
         return parser
 
+    @staticmethod
     @cache
-    def __infer_register_type(ptrn):
+    def _infer_register_type(ptrn):
         if ptrn[0].upper() in ["X", "W"]:
             return RegisterType.GPR
         if ptrn[0].upper() in ["V", "Q", "D", "S", "B"]:
@@ -1080,9 +1075,6 @@ class AArch64Instruction(Instruction):
         if ptrn[0].upper() in ["T"]:
             return RegisterType.HINT
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
-
-    # TODO: remove workaround (needed for Python 3.9)
-    _infer_register_type = staticmethod(__infer_register_type)
 
     def __init__(
         self,
