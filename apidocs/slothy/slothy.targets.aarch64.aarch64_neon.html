@@ -563,6 +563,12 @@ handling the loop can be considered by SLOTHY as well.</p></td>
 <tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.ubfx" title="slothy.targets.aarch64.aarch64_neon.ubfx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ubfx</span></code></a></p></td>
 <td></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.sxtb" title="slothy.targets.aarch64.aarch64_neon.sxtb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sxtb</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.uxtb" title="slothy.targets.aarch64.aarch64_neon.uxtb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uxtb</span></code></a></p></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.extr" title="slothy.targets.aarch64.aarch64_neon.extr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extr</span></code></a></p></td>
 <td></td>
 </tr>
@@ -5082,6 +5088,48 @@ of a subclass of Instruction.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.ubfx.outputs">
 <span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xd']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.ubfx.outputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.sxtb">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">sxtb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.sxtb" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64Logical" title="slothy.targets.aarch64.aarch64_neon.AArch64Logical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64Logical</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.sxtb.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sxtb</span> <span class="pre">&lt;Xd&gt;,</span> <span class="pre">&lt;Wa&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.sxtb.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.sxtb.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Wa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.sxtb.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.sxtb.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xd']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.sxtb.outputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.uxtb">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">uxtb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.uxtb" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64Logical" title="slothy.targets.aarch64.aarch64_neon.AArch64Logical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64Logical</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.uxtb.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uxtb</span> <span class="pre">&lt;Wd&gt;,</span> <span class="pre">&lt;Wa&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.uxtb.pattern" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.uxtb.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Wa']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.uxtb.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.uxtb.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Wd']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.uxtb.outputs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

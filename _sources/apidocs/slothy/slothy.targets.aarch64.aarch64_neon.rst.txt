@@ -322,6 +322,10 @@ Classes
      -
    * - :py:obj:`ubfx <slothy.targets.aarch64.aarch64_neon.ubfx>`
      -
+   * - :py:obj:`sxtb <slothy.targets.aarch64.aarch64_neon.sxtb>`
+     -
+   * - :py:obj:`uxtb <slothy.targets.aarch64.aarch64_neon.uxtb>`
+     -
    * - :py:obj:`extr <slothy.targets.aarch64.aarch64_neon.extr>`
      -
    * - :py:obj:`AArch64LogicalShifted <slothy.targets.aarch64.aarch64_neon.AArch64LogicalShifted>`
@@ -4701,6 +4705,52 @@ API
       :value: ['Xd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.ubfx.outputs
+
+.. py:class:: sxtb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.sxtb
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Logical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.sxtb.pattern
+      :value: 'sxtb <Xd>, <Wa>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.sxtb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.sxtb.inputs
+      :value: ['Wa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.sxtb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.sxtb.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.sxtb.outputs
+
+.. py:class:: uxtb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.uxtb
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Logical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.uxtb.pattern
+      :value: 'uxtb <Wd>, <Wa>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.uxtb.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.uxtb.inputs
+      :value: ['Wa']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.uxtb.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.uxtb.outputs
+      :value: ['Wd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.uxtb.outputs
 
 .. py:class:: extr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.extr
