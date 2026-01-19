@@ -84,7 +84,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     umull_wform,
     mul_wform,
     umaddl_wform,
-    lsr,
+    lsr_imm,
     bic,
     bic_reg,
     add_sp_imm,
@@ -238,7 +238,7 @@ execution_units = {
     (umull_wform, mul_wform): ExecutionUnit.M(),
     (umaddl_wform): ExecutionUnit.M(),
     (
-        lsr,
+        lsr_imm,
         bic,
         bic_reg,
         ubfx,
@@ -308,7 +308,7 @@ inverse_throughput = {
     (umull_wform, mul_wform): 1,
     (umaddl_wform): 1,
     (
-        lsr,
+        lsr_imm,
         bic,
         bic_reg,
         ubfx,
@@ -377,7 +377,7 @@ default_latencies = {
     (umull_wform, mul_wform): 3,
     (umaddl_wform): 3,  # TODO: Add exception with 1 cycle
     (
-        lsr,
+        lsr_imm,
         bic,
         bic_reg,
         ubfx,

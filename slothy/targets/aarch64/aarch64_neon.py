@@ -2383,6 +2383,12 @@ class lsr_wform(AArch64Instruction):
     outputs = ["Wd"]
 
 
+class lsr(AArch64Instruction):
+    pattern = "lsr <Xd>, <Xa>, <Xc>"
+    inputs = ["Xa", "Xc"]
+    outputs = ["Xd"]
+
+
 class asr_wform(AArch64Instruction):
     pattern = "asr <Wd>, <Wa>, <imm>"
     inputs = ["Wa"]
@@ -2674,16 +2680,9 @@ class AArch64Shift(AArch64Instruction):
     pass
 
 
-class lsr(AArch64Shift):
+class lsr_imm(AArch64Shift):
     pattern = "lsr <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
-    outputs = ["Xd"]
-
-
-# TODO: This likely has different perf characteristics!
-class lsr_variable(AArch64Shift):
-    pattern = "lsr <Xd>, <Xa>, <Xc>"
-    inputs = ["Xa", "Xc"]
     outputs = ["Xd"]
 
 
@@ -2965,6 +2964,12 @@ class ldr_const(AArch64Instruction):
 
 class movk_imm(AArch64Instruction):
     pattern = "movk <Xd>, <imm>"
+    inputs = []
+    in_outs = ["Xd"]
+
+
+class movk_imm_lsl(AArch64Instruction):
+    pattern = "movk <Xd>, <imm0>, <barrel> <imm1>"
     inputs = []
     in_outs = ["Xd"]
 

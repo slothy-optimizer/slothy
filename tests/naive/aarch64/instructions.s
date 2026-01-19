@@ -178,4 +178,9 @@ mov v30.s[0], w30
 mov v8.d[0], v5.d[0]
 mov v8.d[1], v5.d[1] 
 
+lsr x2, x2, x3
+movk x1, #0x3fff, lsl 16
+movk x1, #0xfffe, lsl 32
+movk x1, #0x3fff, lsl 48
+
 end:
