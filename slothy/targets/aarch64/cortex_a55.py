@@ -91,6 +91,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ld3,
     St2,
     Ld2,
+    sxtb,
+    uxtb,
     umov_d,
     mov_d01,
     mov_b00,
@@ -428,6 +430,8 @@ execution_units = {
         lsr,
         eor_wform,
         eon_wform,
+        sxtb,
+        uxtb,
     ): ExecutionUnit.SCALAR(),
     AArch64ConditionalCompare: ExecutionUnit.SCALAR(),
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
@@ -516,6 +520,7 @@ inverse_throughput = {
     AESInstruction: 1,
     fmov_s_form: 1,  # from double/single to gen reg
     vdup_w: 1,
+    (sxtb, uxtb): 1,
 }
 
 default_latencies = {
@@ -610,6 +615,7 @@ default_latencies = {
     # is not modeled
     AESInstruction: 2,
     fmov_s_form: 1,  # from double/single to gen reg
+    (sxtb, uxtb): 1,
 }
 
 
