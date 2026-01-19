@@ -28,6 +28,7 @@
 """
 SLOTHY configuration
 """
+
 import shutil
 
 from copy import deepcopy

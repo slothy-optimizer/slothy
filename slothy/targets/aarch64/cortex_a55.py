@@ -35,6 +35,7 @@ Some latency exceptions were manually identified through microbenchmarks.
 
     The data in this module is approximate and may contain errors.
 """
+
 # ################################ NOTE ############################################ #
 #                                                                                    #
 #  WARNING: The data in this module is approximate and may contain errors.           #
