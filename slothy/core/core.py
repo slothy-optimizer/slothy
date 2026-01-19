@@ -2385,12 +2385,12 @@ class SlothyBase(LockAttributes):
             s = spills.get(i, [])
             r = restores.get(i, [])
             for j in range(len(r)):
-                (reg, spill_id) = r[j]
+                reg, spill_id = r[j]
                 loc = spill_id_to_loc[spill_id]
                 free_locs.add(loc)
                 r[j] = (reg, loc)
             for j in range(len(s)):
-                (reg, spill_id) = s[j]
+                reg, spill_id = s[j]
                 loc = min(free_locs)
                 free_locs.remove(loc)
                 spill_id_to_loc[spill_id] = loc
@@ -2969,7 +2969,7 @@ class SlothyBase(LockAttributes):
 
     def _iter_dependencies(self, with_virt=True, with_duals=True):
         def check_dep(t):
-            (consumer, producer, _, _) = t
+            consumer, producer, _, _ = t
             if with_virt:
                 yield t
             elif consumer in self._get_nodes() and producer.src in self._get_nodes():
@@ -2986,7 +2986,7 @@ class SlothyBase(LockAttributes):
             if with_duals is False:
                 continue
 
-            (consumer, producer, a, b) = t
+            consumer, producer, a, b = t
             if is_cross_iteration_dependency(producer, consumer):
                 yield from check_dep((consumer.sibling, producer.sibling(), a, b))
 
@@ -3021,7 +3021,7 @@ class SlothyBase(LockAttributes):
 
     def _iter_cross_iteration_dependencies(self):
         def is_cross_iteration_dependency(dep):
-            (consumer, producer, _, _, _, _, _) = dep
+            consumer, producer, _, _, _, _, _ = dep
             return self._is_low(producer.src) and self._is_high(consumer)
 
         yield from filter(
@@ -3886,7 +3886,7 @@ class SlothyBase(LockAttributes):
         r = self._stalls_to_stats(stalls)
         if r is None:
             return " (?)"
-        (cycles, ipc) = r
+        cycles, ipc = r
         return f" (Cycles ~ {cycles}, IPC ~ {ipc:.2f})"
 
     def _print_stalls_and_spills(self, bound, variables):
@@ -3903,7 +3903,7 @@ class SlothyBase(LockAttributes):
         r = self._stalls_to_stats(stalls)
         if r is None:
             return " (?)"
-        (cycles, ipc) = r
+        cycles, ipc = r
 
         if spills is not None:
             return f" (Cycles ~ {cycles}, IPC ~ {ipc:.2f}, Spills {spills})"
