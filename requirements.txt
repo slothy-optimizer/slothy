@@ -6,7 +6,7 @@ protobuf<=6.31.1 ; python_version < "3.12"
 pandas>=2.0.3 ; python_version < "3.12"
 sympy==1.14.0
 unicorn==2.1.4
-black
+black==26.1.0
 pydoclint==0.7.3
 flake8==7.3.0
 
