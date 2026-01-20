@@ -171,6 +171,14 @@ add x2, x30,  x3, lsl #39
 add x2, x30,  x3, ASR #39
 add x2, x30,  x3, asr #39
 
+ldrb w29, [x26,#4]
+ldp w10, w11, [x28, #4]
+stp w10, w11, [x27, #4]
+ldrb w29, [x26]
+ldp w10, w11, [x28]
+stp w10, w11, [x27]
+ld2 {v12.s, v13.s}[0], [x25]
+
 sqdmulh v5.4s, v1.4s, v23.4s
 
 dup v30.2s, w30

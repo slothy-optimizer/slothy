@@ -37,9 +37,11 @@ from slothy.targets.aarch64.aarch64_neon import (
     find_class,
     all_subclass_leaves,
     Ldp_X,
+    Ldp_W,
     Ldr_X,
     Str_X,
     Stp_X,
+    Stp_W,
     Ldr_D,
     Ldr_Q,
     Str_Q,
@@ -100,6 +102,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     fmov_1_force_output,
     q_ldr1_stack,
     Q_Ld2_Lane_Post_Inc,
+    q_ld2_lane_s,
     St2,
     mov_wtov_s,
     mov_vtov_d,
@@ -178,9 +181,11 @@ def get_min_max_objective(slothy):
 execution_units = {
     (
         Ldp_X,
+        Ldp_W,
         Ldr_X,
         Str_X,
         Stp_X,
+        Stp_W,
         Ldr_D,
         Ldr_Q,
         Str_Q,
@@ -249,11 +254,14 @@ execution_units = {
     mov_vtov_d: ExecutionUnit.V(),
     lsr: ExecutionUnit.I(),
     movk_imm_lsl: ExecutionUnit.I(),
+    q_ld2_lane_s: ExecutionUnit.V(),
 }
 
 inverse_throughput = {
     (Ldr_X, Str_X, Ldr_D, Ldr_Q, Str_Q, Ldp_Q): 1,
     (Ldp_X, Stp_X): 2,
+    Stp_W: 1,
+    Ldp_W: 1,
     AArch64NeonCount: 1,
     Stp_Q: 2,
     St3: 3,  # Multiple structures, Q form, storing bytes
@@ -300,6 +308,7 @@ inverse_throughput = {
     vuaddlv_sform: 1,  # 8B/8H
     q_ldr1_stack: 1,
     Q_Ld2_Lane_Post_Inc: 2,
+    q_ld2_lane_s: 2,
     St2: 2,
     mov_wtov_s: 1,
     mov_vtov_d: 1,
@@ -310,8 +319,9 @@ inverse_throughput = {
 default_latencies = {
     # For OOO uArch we use relaxed latency modeling for load instructions
     # since the uArch will heavily front-load them anyway
-    (Ldp_X, Ldr_X, Ldr_D, Ldr_Q, Stp_Q, Ldp_Q): 4,
+    (Ldp_X, Ldp_W, Ldr_X, Ldr_D, Ldr_Q, Stp_Q, Ldp_Q): 4,
     (Stp_X, Str_X, Str_Q): 2,
+    Stp_W: 1,
     St3: 6,  # Multiple structures, Q form, storing bytes
     St4: 4,
     (Vzip, Vrev, uaddlp): 2,
@@ -358,6 +368,7 @@ default_latencies = {
     vuaddlv_sform: 5,  # 8B/8H
     q_ldr1_stack: 7,
     Q_Ld2_Lane_Post_Inc: 7,
+    q_ld2_lane_s: 7,
     St2: 4,
     mov_wtov_s: 5,
     mov_vtov_d: 2,

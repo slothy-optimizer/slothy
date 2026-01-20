@@ -1541,6 +1541,21 @@ class d_ldr_stack_with_inc(AArch64Instruction):
         return super().write()
 
 
+class q_ld2_lane_s(AArch64Instruction):
+    pattern = "ld2 { <Va>.s, <Vb>.s }[<index>], [<Xa>]"
+    inputs = ["Xa"]
+    outputs = ["Va", "Vb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 30)])
+        ]
+        return obj
+
+
 class Q_Ld2_Lane_Post_Inc(AArch64Instruction):
     pass
 
@@ -1985,6 +2000,40 @@ class Ldr_X(AArch64Instruction):
     pass
 
 
+class w_ldrb_imm(Ldr_X):
+    pattern = "ldrb <Wa>, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Wa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
+
+class w_ldrb(Ldr_X):
+    pattern = "ldrb <Wa>, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Wa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = w_ldrb_imm.pattern
+        return super().write()
+
+
 class x_ldr(Ldr_X):
     pattern = "ldr <Xa>, [<Xc>]"
     inputs = ["Xc"]
@@ -2162,6 +2211,44 @@ class x_ldr_imm_with_hint(Ldr_X):
 
     def write(self):
         self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class Ldp_W(AArch64Instruction):
+    pass
+
+
+class w_ldp_imm(Ldp_W):
+    pattern = "ldp <Wa>, <Wb>, [<Xc>, <imm>]"
+    inputs = ["Xc"]
+    outputs = ["Wa", "Wb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
+
+
+class w_ldp(Ldp_W):
+    pattern = "ldp <Wa>, <Wb>, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Wa", "Wb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[0]
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = w_ldp_imm.pattern
         return super().write()
 
 
@@ -4171,6 +4258,42 @@ class x_str_imm_hint(Str_X):
 
     def write(self):
         self.immediate = simplify(self.pre_index)
+        return super().write()
+
+
+class Stp_W(AArch64Instruction):
+    pass
+
+
+class w_stp_imm(Stp_W):
+    pattern = "stp <Wa>, <Wb>, [<Xc>, <imm>]"
+    inputs = ["Wa", "Wb", "Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[2]
+        return obj
+
+
+class w_stp(Stp_W):
+    pattern = "stp <Wa>, <Wb>, [<Xc>]"
+    inputs = ["Wa", "Wb", "Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = 0
+        obj.addr = obj.args_in[2]
+        return obj
+
+    def write(self):
+        if int(self.pre_index) != 0:
+            self.immediate = simplify(self.pre_index)
+            self.pattern = w_stp_imm.pattern
         return super().write()
 
 
