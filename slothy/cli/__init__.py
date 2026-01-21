@@ -236,6 +236,9 @@ def main():
         def check_ty(ty_real):
             if ty is None or ty is type(None) or ty == ty_real:
                 return
+            # Allow lists to be converted to sets
+            if ty == set and ty_real == list:
+                return
             raise CmdLineException(
                 f"Configuration value {val} isn't correctly typed -- "
                 f"expected {ty}, but got {ty_real}"
@@ -256,11 +259,6 @@ def main():
             check_ty(bool)
             logger.debug("Value %s parsed as Boolean", val)
             return False
-        # Try to parse as RegisterType
-        ty = arch.RegisterType.from_string(val)
-        if ty is not None:
-            logger.debug("Value %s parsed as RegisterType", val)
-            return ty
         f = parse_as_float(val)
         if f is not None:
             check_ty(float)
