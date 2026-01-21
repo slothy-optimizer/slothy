@@ -27,12 +27,6 @@ xtmp1 .req x11
 .macro str_vi vec, base, inc
         str qform_\vec, [\base], #\inc
 .endm
-.macro vqrdmulh d,a,b
-        sqrdmulh \d\().4s, \a\().4s, \b\().4s
-.endm
-.macro vmls d,a,b
-        mls \d\().4s, \a\().4s, \b\().4s
-.endm
 .macro vqrdmulhq d,a,b,i
         sqrdmulh \d\().4s, \a\().4s, \b\().s[\i]
 .endm
@@ -53,21 +47,21 @@ xtmp1 .req x11
 .endm
 
 .macro mulmod dst, src, const, const_twisted
-        vqrdmulh   t2,  \src, \const_twisted
+        sqrdmulh t2.4s,  \src.4s, \const_twisted.4s
         mul        \dst\().4s,  \src\().4s, \const\().4s
         vmlsq      \dst,  t2, consts, 0
 .endm
 
 .macro barrett_reduce_single a
         srshr tmp.4S,  \a\().4S, #23
-        vmls   \a, tmp, consts
+        mls \a.4s, tmp.4s, consts.4s
 .endm
 
 .macro canonical_reduce a, modulus_half, neg_modulus_half, tmp1, tmp2
         cmge \tmp1\().4s, \neg_modulus_half\().4s, \a\().4s
         cmge \tmp2\().4s, \a\().4s, \modulus_half\().4s
         sub \tmp2\().4s, \tmp1\().4s, \tmp2\().4s
-        vmls \a, \tmp2, consts
+        mls \a.4s, \tmp2.4s, consts.4s
 .endm
 
 .macro gs_butterfly a, b, root, idx0, idx1
