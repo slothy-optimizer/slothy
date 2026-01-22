@@ -1169,6 +1169,182 @@ class AsmIfElse:
         return output_lines
 
 
+def _unfold_directive(source, start_regexp, make_directive, unfold_func):
+    """Shared parser for .rept and .irp directives.
+
+    Args:
+        source: List of SourceLine objects
+        start_regexp: Compiled regex to match directive start
+        make_directive: Function(match, body) -> directive object with expand() method
+        unfold_func: The unfold_all function to call recursively
+
+    Returns:
+        List of SourceLine objects with directives expanded
+    """
+    assert SourceLine.is_source(source)
+
+    end_regexp = re.compile(r"^\s*\.endr\s*$")
+    nested_start = re.compile(r"^\s*\.(rept|irp)\s+")
+
+    output = []
+    state = 0  # 0: Not in directive, 1: In directive
+    current_match = None
+    current_body = None
+    nesting_level = 0
+
+    for line in source:
+        text = line.text if line.has_text() else ""
+
+        if state == 0:
+            match = start_regexp.match(text)
+            if match is None:
+                output.append(line)
+                continue
+            current_match = match
+            current_body = []
+            state = 1
+            nesting_level = 1
+            continue
+
+        if state == 1:
+            # Check for nested .rept/.irp
+            if nested_start.match(text):
+                nesting_level += 1
+                current_body.append(line)
+                continue
+
+            if end_regexp.match(text):
+                nesting_level -= 1
+                if nesting_level == 0:
+                    directive = make_directive(current_match, current_body)
+                    expanded = directive.expand()
+                    # Recursively process expanded content
+                    expanded = unfold_func(expanded)
+                    output.extend(expanded)
+                    state = 0
+                    current_match = None
+                    current_body = None
+                else:
+                    current_body.append(line)
+                continue
+
+            current_body.append(line)
+
+    return output
+
+
+class AsmRept:
+    """Helper class for parsing and expanding .rept directives"""
+
+    _START_REGEXP = re.compile(r"^\s*\.rept\s+(?P<count>\d+)\s*$")
+
+    def __init__(self, count, body):
+        self.count = count
+        self.body = body
+
+    def expand(self):
+        """Expand .rept directive into repeated lines"""
+        output = []
+        for i in range(self.count):
+            for line in self.body:
+                t = line.copy()
+
+                # Handle \+ substitution for iteration count
+                def apply_iteration(ll, iteration=i):
+                    if isinstance(ll, str):
+                        return ll.replace("\\+", str(iteration))
+                    return ll
+
+                t.transform_text(apply_iteration)
+                t.tags = {k: apply_iteration(v) for (k, v) in t.tags.items()}
+                output.append(t)
+        return output
+
+    @staticmethod
+    def _make_directive(match, body):
+        return AsmRept(int(match.group("count")), body)
+
+    @staticmethod
+    def unfold_all(source):
+        """Expand all .rept directives in assembly source"""
+        return _unfold_directive(
+            source, AsmRept._START_REGEXP, AsmRept._make_directive, AsmRept.unfold_all
+        )
+
+
+class AsmIrp:
+    """Helper class for parsing and expanding .irp directives"""
+
+    _START_REGEXP = re.compile(r"^\s*\.irp\s+(?P<symbol>\w+)\s*,\s*(?P<values>.+)$")
+
+    def __init__(self, symbol, values, body):
+        self.symbol = symbol
+        self.values = values
+        self.body = body
+
+    def expand(self):
+        """Expand .irp directive by substituting symbol with each value"""
+        output = []
+        for value in self.values:
+            for line in self.body:
+                t = line.copy()
+
+                def apply_value(ll, val=value, sym=self.symbol):
+                    if isinstance(ll, str):
+                        # Match \symbol followed by word boundary or end
+                        ll = re.sub(rf"\\{sym}(?=\W|$)", val, ll)
+                        return ll
+                    return ll
+
+                t.transform_text(apply_value)
+                t.tags = {k: apply_value(v) for (k, v) in t.tags.items()}
+                output.append(t)
+        return output
+
+    @staticmethod
+    def _make_directive(match, body):
+        symbol = match.group("symbol")
+        values = [v.strip() for v in match.group("values").split(",")]
+        return AsmIrp(symbol, values, body)
+
+    @staticmethod
+    def unfold_all(source):
+        """Expand all .irp directives in assembly source"""
+        return _unfold_directive(
+            source, AsmIrp._START_REGEXP, AsmIrp._make_directive, AsmIrp.unfold_all
+        )
+
+
+def unfold_all_directives(pre, body, inherit_comments=False):
+    """Unfold all macros, .rept, and .irp directives iteratively until stable.
+
+    This handles nested cases like macros inside .irp or .irp inside macros
+    by running all expansions in a loop until no more changes occur.
+
+    The order of expansion matters:
+    - .rept and .irp are expanded first so that macro arguments don't contain
+      backslash-prefixed symbols (like \\param) which would confuse macro expansion.
+    - Then macros are expanded on the clean output.
+    """
+    assert SourceLine.is_source(body)
+
+    while True:
+        # Capture text representation before expansion
+        old_text = [line.text if line.has_text() else "" for line in body]
+
+        # Run all expansions: directives first, then macros
+        body = AsmRept.unfold_all(body)
+        body = AsmIrp.unfold_all(body)
+        body = AsmMacro.unfold_all_macros(pre, body, inherit_comments=inherit_comments)
+
+        # Check if anything changed
+        new_text = [line.text if line.has_text() else "" for line in body]
+        if old_text == new_text:
+            break
+
+    return body
+
+
 class CPreprocessor:
     """Helper class for the application of the C preprocessor"""
 
