@@ -364,6 +364,60 @@ class AArch64SelftestAddr(OptimizationRunner):
         slothy.optimize(start="start", end="end")
 
 
+class AArch64Directives(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_directives"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.constraints.stalls_first_attempt = 32
+
+        # Basic tests
+        slothy.optimize(start="start_rept", end="end_rept")  # 5 instructions
+        slothy.optimize(start="start_irp", end="end_irp")  # 3 instructions
+
+        # Macro/directive interaction
+        slothy.optimize(
+            start="start_irp_in_macro", end="end_irp_in_macro"
+        )  # 2 instructions
+        slothy.optimize(
+            start="start_macro_in_irp", end="end_macro_in_irp"
+        )  # 3 instructions
+
+        # .rept with \+ counter
+        slothy.optimize(
+            start="start_rept_counter", end="end_rept_counter"
+        )  # 3 instructions
+
+        # Nested directives
+        slothy.optimize(
+            start="start_nested_rept", end="end_nested_rept"
+        )  # 4 instructions
+        slothy.optimize(
+            start="start_rept_in_irp", end="end_rept_in_irp"
+        )  # 4 instructions
+        slothy.optimize(
+            start="start_irp_in_rept", end="end_irp_in_rept"
+        )  # 4 instructions
+
+        # Combined .rept counter and macro
+        slothy.optimize(
+            start="start_rept_macro_counter", end="end_rept_macro_counter"
+        )  # 3 instructions
+
+        # Edge cases
+        slothy.optimize(
+            start="start_rept_zero", end="end_rept_zero"
+        )  # 2 instructions (no .rept output)
+        slothy.optimize(start="start_irp_single", end="end_irp_single")  # 1 instruction
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -389,4 +443,5 @@ test_instances = [
     AArch64FusionVeor(),
     AArch64CStyleComments(),
     AArch64SelftestAddr(),
+    AArch64Directives(),
 ]
