@@ -405,4 +405,6 @@ ldrb r0, [r0, #16]
 ldrb r0, [r0], #16
 ldrb r0, [r0, #16]!
 
+sbfx r6, r5, #0, #1
+
 end:

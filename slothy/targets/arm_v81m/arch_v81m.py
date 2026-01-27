@@ -1329,6 +1329,12 @@ class and_imm(MVEInstruction):
     outputs = ["Rd"]
 
 
+class sbfx(MVEInstruction):
+    pattern = "sbfx <Rd>, <Rn>, <imm0>, <imm1>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
 class sub_imm(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <imm>"
     inputs = ["Rn"]
