@@ -125,6 +125,8 @@ Classes
      -
    * - :py:obj:`and_imm <slothy.targets.arm_v81m.arch_v81m.and_imm>`
      -
+   * - :py:obj:`sbfx <slothy.targets.arm_v81m.arch_v81m.sbfx>`
+     -
    * - :py:obj:`sub_imm <slothy.targets.arm_v81m.arch_v81m.sub_imm>`
      -
    * - :py:obj:`rsb_imm <slothy.targets.arm_v81m.arch_v81m.rsb_imm>`
@@ -1722,6 +1724,29 @@ API
       :value: ['Rd']
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.and_imm.outputs
+
+.. py:class:: sbfx(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.sbfx
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.sbfx.pattern
+      :value: 'sbfx <Rd>, <Rn>, <imm0>, <imm1>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sbfx.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.sbfx.inputs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sbfx.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.sbfx.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.sbfx.outputs
 
 .. py:class:: sub_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.sub_imm
