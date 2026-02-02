@@ -57,7 +57,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "black",
-    "pydoclint==0.7.3",
+    "pydoclint==0.8.3",
     "flake8==7.3.0",
 ]
 docs = [

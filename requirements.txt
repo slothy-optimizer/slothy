@@ -7,7 +7,7 @@ pandas>=2.0.3 ; python_version < "3.12"
 sympy==1.14.0
 unicorn==2.1.4
 black==26.1.0
-pydoclint==0.7.3
+pydoclint==0.8.3
 flake8==7.3.0
 
 # Optional dependencies for documentation (only for Python >= 3.11)
