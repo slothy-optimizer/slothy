@@ -345,6 +345,9 @@ Functions
    * - :py:obj:`find_class <slothy.targets.arm_v81m.arch_v81m.find_class>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.find_class
           :summary:
+   * - :py:obj:`is_dt_form_of <slothy.targets.arm_v81m.arch_v81m.is_dt_form_of>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.is_dt_form_of
+          :summary:
 
 Data
 ~~~~
@@ -4223,3 +4226,8 @@ API
    :canonical: slothy.targets.arm_v81m.arch_v81m.find_class
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.find_class
+
+.. py:function:: is_dt_form_of(instr_class, dts=None)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.is_dt_form_of
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.is_dt_form_of
