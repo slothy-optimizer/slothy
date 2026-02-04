@@ -186,6 +186,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     ldrb_no_imm,
     ldrb_with_writeback,
     ldrb_with_post,
+    is_dt_form_of,
 )
 
 issue_rate = 1
@@ -251,18 +252,16 @@ def add_further_constraints(slothy):
             )
 
     for t0, t1 in slothy.get_inst_pairs():
-        c0 = find_class(t0.inst)
-        c1 = find_class(t1.inst)
+        c0_units = get_units(t0.inst)
+        c1_units = get_units(t1.inst)
         # The intent is to have the 1st line capture VFMA-like instructions
         # blocking the MAC pipe, while the second should capture instructions of
         # different kind using this pipe, too.
-        if execution_units[c0] == [
-            [ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]
-        ] and (
-            execution_units[c1] != [[ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]]
+        if c0_units == [[ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]] and (
+            c1_units != [[ExecutionUnit.VEC_FPMUL, ExecutionUnit.VEC_FPADD]]
             and (
-                execution_units[c1] == ExecutionUnit.VEC_FPMUL
-                or execution_units[c1] == ExecutionUnit.VEC_FPADD
+                c1_units == ExecutionUnit.VEC_FPMUL
+                or c1_units == ExecutionUnit.VEC_FPADD
             )
         ):
             b0 = slothy._NewBoolVar("")
@@ -344,8 +343,14 @@ execution_units = {
     vmulh: ExecutionUnit.VEC_MUL,
     vmul_T1: ExecutionUnit.VEC_MUL,
     vmul_T2: ExecutionUnit.VEC_MUL,
-    vmullb: ExecutionUnit.VEC_MUL,
-    vmullt: ExecutionUnit.VEC_MUL,
+    is_dt_form_of(vmullb, ["p8", "p16"]): ExecutionUnit.VEC_INT,
+    is_dt_form_of(vmullt, ["p8", "p16"]): ExecutionUnit.VEC_INT,
+    is_dt_form_of(
+        vmullb, ["s8", "s16", "s32", "u8", "u16", "u32"]
+    ): ExecutionUnit.VEC_MUL,
+    is_dt_form_of(
+        vmullt, ["s8", "s16", "s32", "u8", "u16", "u32"]
+    ): ExecutionUnit.VEC_MUL,
     vqrdmulh_T1: ExecutionUnit.VEC_MUL,
     vqrdmulh_T2: ExecutionUnit.VEC_MUL,
     vqdmlah: ExecutionUnit.VEC_MUL,
@@ -688,6 +693,10 @@ default_latencies = {
         and_imm,
         sbfx,
     ): 1,
+    is_dt_form_of(vmullb, ["p8", "p16"]): 1,
+    is_dt_form_of(vmullt, ["p8", "p16"]): 1,
+    is_dt_form_of(vmullb, ["s8", "s16", "s32", "u8", "u16", "u32"]): 2,
+    is_dt_form_of(vmullt, ["s8", "s16", "s32", "u8", "u16", "u32"]): 2,
     (
         vrshr,
         vrshl,
@@ -701,8 +710,6 @@ default_latencies = {
         vmulh,
         vmul_T1,
         vmul_T2,
-        vmullb,
-        vmullt,
         vqrdmulh_T1,
         vqrdmulh_T2,
         vqdmlah,

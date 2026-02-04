@@ -132,6 +132,9 @@ vmullb.s32 q2, q0, q1
 vmullb.p8 q5, q4, q0
 vmullt.p8 q4, q4, q0
 
+vmullb.p16 q5, q4, q0
+vmullt.p16 q4, q4, q0
+
 vdup.u8 q0, r0
 vdup.u16 q0, r0
 vdup.u32 q0, r0

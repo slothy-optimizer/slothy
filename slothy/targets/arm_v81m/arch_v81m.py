@@ -2622,3 +2622,24 @@ def find_class(src):
         if isinstance(src, inst_class):
             return inst_class
     raise Exception("Couldn't find instruction class")
+
+
+def is_dt_form_of(instr_class, dts=None):
+    if not isinstance(instr_class, list):
+        instr_class = [instr_class]
+
+    def _intersects(ls_a, ls_b):
+        if not isinstance(ls_a, list):
+            ls_a = [ls_a]
+        return len([a for a in ls_a if a in ls_b]) > 0
+
+    def _check_instr_dt(src):
+        # Check if src is an instance of any of the instruction classes
+        # (supports inheritance)
+        for cls in instr_class:
+            if isinstance(src, cls):
+                if dts is None or _intersects(src.datatype, dts):
+                    return True
+        return False
+
+    return _check_instr_dt
