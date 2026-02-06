@@ -409,5 +409,6 @@ ldrb r0, [r0], #16
 ldrb r0, [r0, #16]!
 
 sbfx r6, r5, #0, #1
+ubfx r9, r9, #8, #4
 
 end:
