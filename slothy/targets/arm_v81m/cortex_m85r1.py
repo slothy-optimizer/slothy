@@ -49,9 +49,12 @@ from slothy.targets.arm_v81m.arch_v81m import (
     mov,
     add,
     add_lsl,
+    orr,
+    orr_lsl,
     sub,
     pkhbt,
     add_imm,
+    orr_imm,
     sub_imm,
     vshrnb,
     vshrnt,
@@ -299,12 +302,15 @@ execution_units = {
     mov: ExecutionUnit.SCALAR,
     add: ExecutionUnit.SCALAR,
     add_lsl: ExecutionUnit.SCALAR,
+    orr: ExecutionUnit.SCALAR,
+    orr_lsl: ExecutionUnit.SCALAR,
     sub: ExecutionUnit.SCALAR,
     pkhbt: ExecutionUnit.SCALAR,
     and_imm: ExecutionUnit.SCALAR,
     sbfx: ExecutionUnit.SCALAR,
     ubfx: ExecutionUnit.SCALAR,
     add_imm: ExecutionUnit.SCALAR,
+    orr_imm: ExecutionUnit.SCALAR,
     rsb_imm: ExecutionUnit.SCALAR,
     sub_imm: ExecutionUnit.SCALAR,
     lsr: ExecutionUnit.SCALAR,
@@ -459,9 +465,12 @@ inverse_throughput = {
         mov,
         add,
         add_lsl,
+        orr,
+        orr_lsl,
         sub,
         pkhbt,
         add_imm,
+        orr_imm,
         sub_imm,
         vmov_imm,
         vmov_vector,
@@ -623,9 +632,12 @@ default_latencies = {
         mov,
         add,
         add_lsl,
+        orr,
+        orr_lsl,
         sub,
         pkhbt,
         add_imm,
+        orr_imm,
         sub_imm,
         vshr,
         vshl,
@@ -768,8 +780,15 @@ def get_latency(src, out_idx, dst):
     # Check for latency exceptions
     #
 
-    # if inst_src -> add_lsl, the latency from the shifter source operand is 2.
-    if instclass_dst in [add_lsl] and dst.args_in[1] in src.args_out:
+    # if inst_src -> inst_dst, the latency from the shifter source operand is 2.
+    if (
+        instclass_dst
+        in [
+            add_lsl,
+            orr_lsl,
+        ]
+        and dst.args_in[1] in src.args_out
+    ):
         return default_latency + 1
 
     # VMULx -> VSTR has single cycle latency

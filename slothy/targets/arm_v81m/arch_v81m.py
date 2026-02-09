@@ -995,6 +995,18 @@ class add_lsl(MVEInstruction):
     outputs = ["Rd"]
 
 
+class orr(MVEInstruction):
+    pattern = "orr <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class orr_lsl(MVEInstruction):
+    pattern = "orr <Rd>, <Rn>, <Rm>, lsl <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
 class sub(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <Rm>"
     inputs = ["Rn", "Rm"]
@@ -1325,6 +1337,12 @@ class pkhbt(MVEInstruction):
 
 class add_imm(MVEInstruction):
     pattern = "add <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
+class orr_imm(MVEInstruction):
+    pattern = "orr <Rd>, <Rn>, <imm>"
     inputs = ["Rn"]
     outputs = ["Rd"]
 

@@ -6,6 +6,11 @@ add r5, r13, r5, lsl#5
 add r0, r5, r2 
 add r0, r1, #16
 
+orr r0, r1, r2 
+orr r5, r3, r5, lsl#4
+orr r0, r5, r2
+orr r0, r1, #16
+
 sub r0, r1, r2
 
 ldr r0, [sp, #4]
