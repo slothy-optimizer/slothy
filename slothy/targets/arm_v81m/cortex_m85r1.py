@@ -48,6 +48,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     mvn_imm,
     mov,
     add,
+    add_lsl,
     sub,
     pkhbt,
     add_imm,
@@ -296,6 +297,7 @@ execution_units = {
     mvn_imm: ExecutionUnit.SCALAR,
     mov: ExecutionUnit.SCALAR,
     add: ExecutionUnit.SCALAR,
+    add_lsl: ExecutionUnit.SCALAR,
     sub: ExecutionUnit.SCALAR,
     pkhbt: ExecutionUnit.SCALAR,
     and_imm: ExecutionUnit.SCALAR,
@@ -454,6 +456,7 @@ inverse_throughput = {
         mvn_imm,
         mov,
         add,
+        add_lsl,
         sub,
         pkhbt,
         add_imm,
@@ -616,6 +619,7 @@ default_latencies = {
         mvn_imm,
         mov,
         add,
+        add_lsl,
         sub,
         pkhbt,
         add_imm,
@@ -759,6 +763,10 @@ def get_latency(src, out_idx, dst):
     #
     # Check for latency exceptions
     #
+
+    # if inst_src -> add_lsl, the latency from the shifter source operand is 2.
+    if instclass_dst in [add_lsl] and dst.args_in[1] in src.args_out:
+        return default_latency + 1
 
     # VMULx -> VSTR has single cycle latency
     if instclass_dst in [
