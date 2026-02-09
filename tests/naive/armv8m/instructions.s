@@ -409,6 +409,7 @@ lsl r5, r5, #2
 ldrb r0, [r0, #16]
 ldrb r0, [r0], #16
 ldrb r0, [r0, #16]!
+ldrb r5, [r12, r5]
 
 sbfx r6, r5, #0, #1
 ubfx r9, r9, #8, #4

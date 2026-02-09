@@ -1775,6 +1775,20 @@ class ldrb(MVEInstruction):
         return super().write()
 
 
+class ldrb_regidx(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>, <Rm>]"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
+
+
 class ldrb_no_imm(MVEInstruction):
     pattern = "ldrb <Rd>, [<Rn>]"
     inputs = ["Rn"]
