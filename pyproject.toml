@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "slothy"
-version = "0.1.10"
+version = "0.1.11"
 description = "SLOTHY: Assembly superoptimization via constraint solving"
 readme = "README.md"
 license = "MIT"
@@ -56,13 +56,13 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
+    "black==26.1.0",
     "pydoclint==0.8.3",
     "flake8==7.3.0",
 ]
 docs = [
     "sphinx==8.2.3; python_version >= '3.11'",
-    "sphinx_rtd_theme==3.1.0; python_version >= '3.11'",
+    "sphinx_rtd_theme==3.0.2; python_version >= '3.11'",
     "sphinx_autoapi; python_version >= '3.11'",
     "sphinx_mdinclude; python_version >= '3.11'",
     "myst_parser; python_version >= '3.11'",
