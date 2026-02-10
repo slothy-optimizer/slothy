@@ -57,9 +57,9 @@ from slothy.core.core import Config
 from slothy.core.heuristics import Heuristics
 from slothy.helper import (
     AsmAllocation,
-    AsmMacro,
     AsmHelper,
     AsmIfElse,
+    unfold_all_directives,
     CPreprocessor,
     SourceLine,
     LLVM_Mca,
@@ -272,9 +272,9 @@ class Slothy:
 
         body = SourceLine.split_semicolons(body)
 
-        # Unfold macros
+        # Unfold macros and directives
         if macros is True:
-            body = AsmMacro.unfold_all_macros(
+            body = unfold_all_directives(
                 pre, body, inherit_comments=c.inherit_macro_comments
             )
 
@@ -380,7 +380,7 @@ class Slothy:
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
         body = SourceLine.split_semicolons(body)
-        body = AsmMacro.unfold_all_macros(
+        body = unfold_all_directives(
             pre, body, inherit_comments=c.inherit_macro_comments
         )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
@@ -471,7 +471,7 @@ class Slothy:
         c.add_aliases(aliases)
         c.outputs = outputs
 
-        body = AsmMacro.unfold_all_macros(
+        body = unfold_all_directives(
             pre, body, inherit_comments=c.inherit_macro_comments
         )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
@@ -493,7 +493,7 @@ class Slothy:
         aliases = AsmAllocation.parse_allocs(pre)
         c.add_aliases(aliases)
 
-        body = AsmMacro.unfold_all_macros(
+        body = unfold_all_directives(
             pre, body, inherit_comments=c.inherit_macro_comments
         )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
@@ -612,7 +612,7 @@ class Slothy:
             Slothy._dump("preprocessed", body, self.logger, err=False)
 
         body = SourceLine.split_semicolons(body)
-        body = AsmMacro.unfold_all_macros(
+        body = unfold_all_directives(
             early, body, inherit_comments=c.inherit_macro_comments
         )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
