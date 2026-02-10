@@ -209,6 +209,26 @@ class AArch64ExampleLdSt(OptimizationRunner):
         slothy.optimize()
 
 
+class AArch64ExampleImpossible(OptimizationRunner):
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_impossible"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.constraints.stalls_maximum_attempt = 4
+        # slothy.config.variable_size = True
+
+        try:
+            slothy.optimize()
+        except Exception as exc:
+            if "No solution found" not in str(exc):
+                raise Exception("Test failed for wrong reason.")
+
+
 class AArch64Split0(OptimizationRunner):
     def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
         name = "aarch64_split0"
@@ -377,6 +397,7 @@ test_instances = [
     AArch64Example2(),
     AArch64Example2(target=Target_CortexA72),
     AArch64ExampleLdSt(),
+    AArch64ExampleImpossible(),
     AArch64IfElse(),
     AArch64Split0(),
     AArch64Aese(),
