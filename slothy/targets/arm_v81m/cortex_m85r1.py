@@ -48,9 +48,13 @@ from slothy.targets.arm_v81m.arch_v81m import (
     mvn_imm,
     mov,
     add,
+    add_lsl,
+    orr,
+    orr_lsl,
     sub,
     pkhbt,
     add_imm,
+    orr_imm,
     sub_imm,
     vshrnb,
     vshrnt,
@@ -176,6 +180,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     vcaddf,
     and_imm,
     sbfx,
+    ubfx,
     vmlaldava,
     rsb_imm,
     vaddva,
@@ -186,6 +191,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     ldrb_no_imm,
     ldrb_with_writeback,
     ldrb_with_post,
+    ldrb_regidx,
     is_dt_form_of,
 )
 
@@ -295,11 +301,16 @@ execution_units = {
     mvn_imm: ExecutionUnit.SCALAR,
     mov: ExecutionUnit.SCALAR,
     add: ExecutionUnit.SCALAR,
+    add_lsl: ExecutionUnit.SCALAR,
+    orr: ExecutionUnit.SCALAR,
+    orr_lsl: ExecutionUnit.SCALAR,
     sub: ExecutionUnit.SCALAR,
     pkhbt: ExecutionUnit.SCALAR,
     and_imm: ExecutionUnit.SCALAR,
     sbfx: ExecutionUnit.SCALAR,
+    ubfx: ExecutionUnit.SCALAR,
     add_imm: ExecutionUnit.SCALAR,
+    orr_imm: ExecutionUnit.SCALAR,
     rsb_imm: ExecutionUnit.SCALAR,
     sub_imm: ExecutionUnit.SCALAR,
     lsr: ExecutionUnit.SCALAR,
@@ -373,6 +384,7 @@ execution_units = {
     ldrb_no_imm: ExecutionUnit.LOAD,
     ldrb_with_writeback: ExecutionUnit.LOAD,
     ldrb_with_post: ExecutionUnit.LOAD,
+    ldrb_regidx: ExecutionUnit.LOAD,
     strd: ExecutionUnit.STORE,
     strd_with_writeback: ExecutionUnit.STORE,
     strd_with_post: ExecutionUnit.STORE,
@@ -452,9 +464,13 @@ inverse_throughput = {
         mvn_imm,
         mov,
         add,
+        add_lsl,
+        orr,
+        orr_lsl,
         sub,
         pkhbt,
         add_imm,
+        orr_imm,
         sub_imm,
         vmov_imm,
         vmov_vector,
@@ -470,6 +486,7 @@ inverse_throughput = {
         ldrb_no_imm,
         ldrb_with_writeback,
         ldrb_with_post,
+        ldrb_regidx,
         strd,
         strd_with_writeback,
         strd_with_post,
@@ -477,6 +494,7 @@ inverse_throughput = {
         restore,
         and_imm,
         sbfx,
+        ubfx,
         saved,
         rsb_imm,
         save,
@@ -613,9 +631,13 @@ default_latencies = {
         mvn_imm,
         mov,
         add,
+        add_lsl,
+        orr,
+        orr_lsl,
         sub,
         pkhbt,
         add_imm,
+        orr_imm,
         sub_imm,
         vshr,
         vshl,
@@ -692,6 +714,7 @@ default_latencies = {
         rsb_imm,
         and_imm,
         sbfx,
+        ubfx,
     ): 1,
     is_dt_form_of(vmullb, ["p8", "p16"]): 1,
     is_dt_form_of(vmullt, ["p8", "p16"]): 1,
@@ -732,6 +755,7 @@ default_latencies = {
         ldrb_no_imm,
         ldrb_with_writeback,
         ldrb_with_post,
+        ldrb_regidx,
     ): 3,
     (vld20, vld21): 4,
     (vld20_with_writeback, vld21_with_writeback): 4,
@@ -755,6 +779,17 @@ def get_latency(src, out_idx, dst):
     #
     # Check for latency exceptions
     #
+
+    # if inst_src -> inst_dst, the latency from the shifter source operand is 2.
+    if (
+        instclass_dst
+        in [
+            add_lsl,
+            orr_lsl,
+        ]
+        and dst.args_in[1] in src.args_out
+    ):
+        return default_latency + 1
 
     # VMULx -> VSTR has single cycle latency
     if instclass_dst in [

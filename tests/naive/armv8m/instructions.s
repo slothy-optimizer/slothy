@@ -2,6 +2,14 @@
 start:
 
 add r0, r1, r2 
+add r5, r13, r5, lsl#5
+add r0, r5, r2 
+add r0, r1, #16
+
+orr r0, r1, r2 
+orr r5, r3, r5, lsl#4
+orr r0, r5, r2
+orr r0, r1, #16
 
 sub r0, r1, r2
 
@@ -150,7 +158,6 @@ pkhbt r2, r1, r0, lsl #16
 
 mov r1, r0
 
-add r0, r1, #16
 
 sub r0, r1, #16
 
@@ -407,7 +414,9 @@ lsl r5, r5, #2
 ldrb r0, [r0, #16]
 ldrb r0, [r0], #16
 ldrb r0, [r0, #16]!
+ldrb r5, [r12, r5]
 
 sbfx r6, r5, #0, #1
+ubfx r9, r9, #8, #4
 
 end:

@@ -989,6 +989,24 @@ class add(MVEInstruction):
     outputs = ["Rd"]
 
 
+class add_lsl(MVEInstruction):
+    pattern = "add <Rd>, <Rn>, <Rm>, lsl <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class orr(MVEInstruction):
+    pattern = "orr <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class orr_lsl(MVEInstruction):
+    pattern = "orr <Rd>, <Rn>, <Rm>, lsl <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
 class sub(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <Rm>"
     inputs = ["Rn", "Rm"]
@@ -1323,6 +1341,12 @@ class add_imm(MVEInstruction):
     outputs = ["Rd"]
 
 
+class orr_imm(MVEInstruction):
+    pattern = "orr <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
 class and_imm(MVEInstruction):
     pattern = "and <Rd>, <Rn>, <imm>"
     inputs = ["Rn"]
@@ -1331,6 +1355,12 @@ class and_imm(MVEInstruction):
 
 class sbfx(MVEInstruction):
     pattern = "sbfx <Rd>, <Rn>, <imm0>, <imm1>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
+class ubfx(MVEInstruction):
+    pattern = "ubfx <Rd>, <Rn>, <imm0>, <imm1>"
     inputs = ["Rn"]
     outputs = ["Rd"]
 
@@ -1761,6 +1791,20 @@ class ldrb(MVEInstruction):
     def write(self):
         self.immediate = simplify(self.pre_index)
         return super().write()
+
+
+class ldrb_regidx(MVEInstruction):
+    pattern = "ldrb <Rd>, [<Rn>, <Rm>]"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[1]
+        return obj
 
 
 class ldrb_no_imm(MVEInstruction):
