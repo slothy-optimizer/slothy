@@ -305,21 +305,23 @@ class ntt_kyber_l345_symbolic(OptimizationRunner):
 
 
 class intt_kyber_1_23_45_67(OptimizationRunner):
-    def __init__(self, var=""):
+    def __init__(self, var="", target=Target_CortexM55r1):
         super().__init__(
-            "intt_kyber_1_23_45_67", rename=True, subfolder=SUBFOLDER, var=var
+            "intt_kyber_1_23_45_67",
+            rename=True,
+            subfolder=SUBFOLDER,
+            var=var,
+            target=target,
         )
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.timeout = 600
         slothy.optimize_loop("layer1_loop")
         slothy.optimize_loop("layer23_loop")
         slothy.optimize_loop("layer45_loop")
         slothy.optimize_loop("layer67_loop")
 
-
-# example_instances = [obj() for _, obj in globals().items()
-#            if inspect.isclass(obj) and obj.__module__ == __name__]
 
 example_instances = [
     ntt_kyber_1_23_45_67(),
@@ -336,4 +338,5 @@ example_instances = [
     # Kyber InvNTT
     # Cortex-M55
     intt_kyber_1_23_45_67(),
+    intt_kyber_1_23_45_67(target=Target_CortexM85r1),
 ]
