@@ -49,8 +49,11 @@ from slothy.targets.arm_v81m.arch_v81m import (
     mov,
     add,
     add_lsl,
+    and_lsr,
+    mul,
     orr,
     orr_lsl,
+    eor_lsl,
     sub,
     pkhbt,
     add_imm,
@@ -302,8 +305,11 @@ execution_units = {
     mov: ExecutionUnit.SCALAR,
     add: ExecutionUnit.SCALAR,
     add_lsl: ExecutionUnit.SCALAR,
+    and_lsr: ExecutionUnit.SCALAR,
+    mul: ExecutionUnit.SCALAR,
     orr: ExecutionUnit.SCALAR,
     orr_lsl: ExecutionUnit.SCALAR,
+    eor_lsl: ExecutionUnit.SCALAR,
     sub: ExecutionUnit.SCALAR,
     pkhbt: ExecutionUnit.SCALAR,
     and_imm: ExecutionUnit.SCALAR,
@@ -465,8 +471,10 @@ inverse_throughput = {
         mov,
         add,
         add_lsl,
+        and_lsr,
         orr,
         orr_lsl,
+        eor_lsl,
         sub,
         pkhbt,
         add_imm,
@@ -501,6 +509,7 @@ inverse_throughput = {
         lsr,
         lsr_imm,
         lsl_imm,
+        mul,
     ): 1,
     (
         vrshr,
@@ -632,8 +641,10 @@ default_latencies = {
         mov,
         add,
         add_lsl,
+        and_lsr,
         orr,
         orr_lsl,
+        eor_lsl,
         sub,
         pkhbt,
         add_imm,
@@ -748,6 +759,7 @@ default_latencies = {
         vsubf,
         vsubf_T2,
         vaddva,
+        mul,
     ): 2,
     (vmulf_T1, vmulf_T2, vcmul): 3,
     (
@@ -785,7 +797,9 @@ def get_latency(src, out_idx, dst):
         instclass_dst
         in [
             add_lsl,
+            eor_lsl,
             orr_lsl,
+            and_lsr,
         ]
         and dst.args_in[1] in src.args_out
     ):

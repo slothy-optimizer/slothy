@@ -6,6 +6,8 @@ add r5, r13, r5, lsl#5
 add r0, r5, r2 
 add r0, r1, #16
 
+mul  r6, r5, r8
+
 orr r0, r1, r2 
 orr r5, r3, r5, lsl#4
 orr r0, r5, r2
@@ -408,8 +410,12 @@ lsr r0, r0, #1
 vstrb.u8 q0, [r2], #16
 rsb r0, r0, #0
 and r1, r0, #1
+and r8, r9, r5, lsr #7
 lsr r4, r4, r5
 lsl r5, r5, #2
+
+eor r5, r5, r8, lsl #7
+
 
 ldrb r0, [r0, #16]
 ldrb r0, [r0], #16
