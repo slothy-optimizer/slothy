@@ -49,6 +49,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     mov,
     add,
     add_lsl,
+    and_lsr,
     mul,
     orr,
     orr_lsl,
@@ -310,6 +311,7 @@ execution_units = {
     add: ExecutionUnit.SCALAR,
     mul: ExecutionUnit.SCALAR,
     add_lsl: ExecutionUnit.SCALAR,
+    and_lsr: ExecutionUnit.SCALAR,
     orr: ExecutionUnit.SCALAR,
     orr_lsl: ExecutionUnit.SCALAR,
     sub: ExecutionUnit.SCALAR,
@@ -463,6 +465,7 @@ inverse_throughput = {
         mov,
         add,
         add_lsl,
+        and_lsr,
         orr,
         orr_lsl,
         sub,
@@ -721,7 +724,7 @@ default_latencies = {
         sbfx,
         ubfx,
     ): 1,
-    (add_lsl, orr_lsl): 2,  # NOTE: latency would be 1 if shift amount is 0 in m55
+    (add_lsl, orr_lsl, and_lsr,): 2,  # NOTE: latency would be 1 if shift amount is 0 in m55
     (vld20, vld21): 2,
     (vld20_with_writeback, vld21_with_writeback): 2,
     (vld40, vld41, vld42, vld43): 2,

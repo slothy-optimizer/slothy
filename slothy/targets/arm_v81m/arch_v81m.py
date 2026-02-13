@@ -995,6 +995,12 @@ class add_lsl(MVEInstruction):
     outputs = ["Rd"]
 
 
+class and_lsr(MVEInstruction):
+    pattern = "and <Rd>, <Rn>, <Rm>, lsr <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
 class mul(MVEInstruction):
     pattern = "mul <Rd>, <Rn>, <Rm>"
     inputs = ["Rn", "Rm"]

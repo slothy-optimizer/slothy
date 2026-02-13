@@ -49,6 +49,7 @@ from slothy.targets.arm_v81m.arch_v81m import (
     mov,
     add,
     add_lsl,
+    and_lsr,
     mul,
     orr,
     orr_lsl,
@@ -303,6 +304,7 @@ execution_units = {
     mov: ExecutionUnit.SCALAR,
     add: ExecutionUnit.SCALAR,
     add_lsl: ExecutionUnit.SCALAR,
+    and_lsr: ExecutionUnit.SCALAR,
     mul: ExecutionUnit.SCALAR,
     orr: ExecutionUnit.SCALAR,
     orr_lsl: ExecutionUnit.SCALAR,
@@ -467,6 +469,7 @@ inverse_throughput = {
         mov,
         add,
         add_lsl,
+        and_lsr,
         orr,
         orr_lsl,
         sub,
@@ -635,6 +638,7 @@ default_latencies = {
         mov,
         add,
         add_lsl,
+        and_lsr,
         orr,
         orr_lsl,
         sub,
@@ -790,6 +794,7 @@ def get_latency(src, out_idx, dst):
         in [
             add_lsl,
             orr_lsl,
+            and_lsr,
         ]
         and dst.args_in[1] in src.args_out
     ):
