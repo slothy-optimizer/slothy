@@ -6,6 +6,8 @@ add r5, r13, r5, lsl#5
 add r0, r5, r2 
 add r0, r1, #16
 
+mul  r6, r5, r8
+
 orr r0, r1, r2 
 orr r5, r3, r5, lsl#4
 orr r0, r5, r2
