@@ -414,6 +414,9 @@ and r8, r9, r5, lsr #7
 lsr r4, r4, r5
 lsl r5, r5, #2
 
+eor r5, r5, r8, lsl #7
+
+
 ldrb r0, [r0, #16]
 ldrb r0, [r0], #16
 ldrb r0, [r0, #16]!

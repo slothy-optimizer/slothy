@@ -1019,6 +1019,12 @@ class orr_lsl(MVEInstruction):
     outputs = ["Rd"]
 
 
+class eor_lsl(MVEInstruction):
+    pattern = "eor <Rd>, <Rn>, <Rm>, lsl <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
 class sub(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <Rm>"
     inputs = ["Rn", "Rm"]
