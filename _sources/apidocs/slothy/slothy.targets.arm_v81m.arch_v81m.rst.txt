@@ -47,21 +47,21 @@ Classes
           :summary:
    * - :py:obj:`add <slothy.targets.arm_v81m.arch_v81m.add>`
      -
-   * - :py:obj:`add_lsl <slothy.targets.arm_v81m.arch_v81m.add_lsl>`
+   * - :py:obj:`add_shifted <slothy.targets.arm_v81m.arch_v81m.add_shifted>`
      -
    * - :py:obj:`log_and <slothy.targets.arm_v81m.arch_v81m.log_and>`
      -
-   * - :py:obj:`and_lsr <slothy.targets.arm_v81m.arch_v81m.and_lsr>`
+   * - :py:obj:`log_and_shifted <slothy.targets.arm_v81m.arch_v81m.log_and_shifted>`
      -
    * - :py:obj:`mul <slothy.targets.arm_v81m.arch_v81m.mul>`
      -
    * - :py:obj:`orr <slothy.targets.arm_v81m.arch_v81m.orr>`
      -
-   * - :py:obj:`orr_lsl <slothy.targets.arm_v81m.arch_v81m.orr_lsl>`
+   * - :py:obj:`orr_shifted <slothy.targets.arm_v81m.arch_v81m.orr_shifted>`
      -
    * - :py:obj:`eor <slothy.targets.arm_v81m.arch_v81m.eor>`
      -
-   * - :py:obj:`eor_lsl <slothy.targets.arm_v81m.arch_v81m.eor_lsl>`
+   * - :py:obj:`eor_shifted <slothy.targets.arm_v81m.arch_v81m.eor_shifted>`
      -
    * - :py:obj:`sub <slothy.targets.arm_v81m.arch_v81m.sub>`
      -
@@ -135,7 +135,7 @@ Classes
      -
    * - :py:obj:`mvn_imm <slothy.targets.arm_v81m.arch_v81m.mvn_imm>`
      -
-   * - :py:obj:`pkhbt <slothy.targets.arm_v81m.arch_v81m.pkhbt>`
+   * - :py:obj:`pkhbt_shifted <slothy.targets.arm_v81m.arch_v81m.pkhbt_shifted>`
      -
    * - :py:obj:`add_imm <slothy.targets.arm_v81m.arch_v81m.add_imm>`
      -
@@ -823,28 +823,28 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add.outputs
 
-.. py:class:: add_lsl(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
-   :canonical: slothy.targets.arm_v81m.arch_v81m.add_lsl
+.. py:class:: add_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.add_shifted
 
    Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
 
    .. py:attribute:: pattern
-      :canonical: slothy.targets.arm_v81m.arch_v81m.add_lsl.pattern
-      :value: 'add <Rd>, <Rn>, <Rm>, lsl <imm>'
+      :canonical: slothy.targets.arm_v81m.arch_v81m.add_shifted.pattern
+      :value: 'add <Rd>, <Rn>, <Rm>, <barrel> <imm>'
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_lsl.pattern
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_shifted.pattern
 
    .. py:attribute:: inputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.add_lsl.inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.add_shifted.inputs
       :value: ['Rn', 'Rm']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_lsl.inputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_shifted.inputs
 
    .. py:attribute:: outputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.add_lsl.outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.add_shifted.outputs
       :value: ['Rd']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_lsl.outputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.add_shifted.outputs
 
 .. py:class:: log_and(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.log_and
@@ -869,28 +869,28 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.log_and.outputs
 
-.. py:class:: and_lsr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
-   :canonical: slothy.targets.arm_v81m.arch_v81m.and_lsr
+.. py:class:: log_and_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.log_and_shifted
 
    Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
 
    .. py:attribute:: pattern
-      :canonical: slothy.targets.arm_v81m.arch_v81m.and_lsr.pattern
-      :value: 'and <Rd>, <Rn>, <Rm>, lsr <imm>'
+      :canonical: slothy.targets.arm_v81m.arch_v81m.log_and_shifted.pattern
+      :value: 'and <Rd>, <Rn>, <Rm>, <barrel> <imm>'
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.and_lsr.pattern
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.log_and_shifted.pattern
 
    .. py:attribute:: inputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.and_lsr.inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.log_and_shifted.inputs
       :value: ['Rn', 'Rm']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.and_lsr.inputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.log_and_shifted.inputs
 
    .. py:attribute:: outputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.and_lsr.outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.log_and_shifted.outputs
       :value: ['Rd']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.and_lsr.outputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.log_and_shifted.outputs
 
 .. py:class:: mul(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.mul
@@ -938,28 +938,28 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.orr.outputs
 
-.. py:class:: orr_lsl(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
-   :canonical: slothy.targets.arm_v81m.arch_v81m.orr_lsl
+.. py:class:: orr_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.orr_shifted
 
    Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
 
    .. py:attribute:: pattern
-      :canonical: slothy.targets.arm_v81m.arch_v81m.orr_lsl.pattern
-      :value: 'orr <Rd>, <Rn>, <Rm>, lsl <imm>'
+      :canonical: slothy.targets.arm_v81m.arch_v81m.orr_shifted.pattern
+      :value: 'orr <Rd>, <Rn>, <Rm>, <barrel> <imm>'
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.orr_lsl.pattern
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.orr_shifted.pattern
 
    .. py:attribute:: inputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.orr_lsl.inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.orr_shifted.inputs
       :value: ['Rn', 'Rm']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.orr_lsl.inputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.orr_shifted.inputs
 
    .. py:attribute:: outputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.orr_lsl.outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.orr_shifted.outputs
       :value: ['Rd']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.orr_lsl.outputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.orr_shifted.outputs
 
 .. py:class:: eor(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.eor
@@ -984,28 +984,28 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor.outputs
 
-.. py:class:: eor_lsl(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
-   :canonical: slothy.targets.arm_v81m.arch_v81m.eor_lsl
+.. py:class:: eor_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.eor_shifted
 
    Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
 
    .. py:attribute:: pattern
-      :canonical: slothy.targets.arm_v81m.arch_v81m.eor_lsl.pattern
-      :value: 'eor <Rd>, <Rn>, <Rm>, lsl <imm>'
+      :canonical: slothy.targets.arm_v81m.arch_v81m.eor_shifted.pattern
+      :value: 'eor <Rd>, <Rn>, <Rm>, <barrel> <imm>'
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor_lsl.pattern
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor_shifted.pattern
 
    .. py:attribute:: inputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.eor_lsl.inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.eor_shifted.inputs
       :value: ['Rn', 'Rm']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor_lsl.inputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor_shifted.inputs
 
    .. py:attribute:: outputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.eor_lsl.outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.eor_shifted.outputs
       :value: ['Rd']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor_lsl.outputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor_shifted.outputs
 
 .. py:class:: sub(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.sub
@@ -1865,28 +1865,28 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.mvn_imm.outputs
 
-.. py:class:: pkhbt(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
-   :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt
+.. py:class:: pkhbt_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt_shifted
 
    Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
 
    .. py:attribute:: pattern
-      :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt.pattern
-      :value: 'pkhbt <Rd>, <Rn>, <Rm>, lsl <imm>'
+      :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt_shifted.pattern
+      :value: 'pkhbt <Rd>, <Rn>, <Rm>, <barrel> <imm>'
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt.pattern
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt_shifted.pattern
 
    .. py:attribute:: inputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt.inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt_shifted.inputs
       :value: ['Rn', 'Rm']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt.inputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt_shifted.inputs
 
    .. py:attribute:: outputs
-      :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt.outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.pkhbt_shifted.outputs
       :value: ['Rd']
 
-      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt.outputs
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.pkhbt_shifted.outputs
 
 .. py:class:: add_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.add_imm
