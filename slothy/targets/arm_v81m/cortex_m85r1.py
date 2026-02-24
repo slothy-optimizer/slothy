@@ -960,7 +960,7 @@ def get_latency(src, out_idx, dst):
         vshllb,
         vshllt,
         vsli,
-        vsri
+        vsri,
         vmovlb,
         vmovlt,
         vmulh,
