@@ -1075,7 +1075,7 @@ class cmp_reg(MVEInstruction):
 
 class cmp_imm(MVEInstruction):
     pattern = "cmp <Rn>, <imm>"
-    inputs = ["Rn", "Rm"]
+    inputs = ["Rn"]
     modifiesFlags = True
 
 
