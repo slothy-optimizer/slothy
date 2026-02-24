@@ -243,6 +243,7 @@ class Instruction:
         self.datatype = None
         self.index = None
         self.flag = None
+        self.barrel = None
 
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
@@ -638,10 +639,13 @@ class MVEInstruction(Instruction):
             "(((0[xb])?[0-9a-fA-F]+|/| |-|\\*|\\+|\\(|\\)|=|<<|>>)+)"
         )
         index_pattern = "[0-9]+"
+        barrel_pattern = "(?:lsl|ror|lsr|asr)\\\\s*"
+
         src = replace_placeholders(src, "imm", imm_pattern, "imm")
         src = replace_placeholders(src, "dt", dt_pattern, "datatype")
         src = replace_placeholders(src, "fdt", fdt_pattern, "datatype")
         src = replace_placeholders(src, "index", index_pattern, "index")
+        src = replace_placeholders(src, "barrel", barrel_pattern, "barrel")
 
         src = r"\s*" + src + r"\s*(//.*)?\Z"
         return src
@@ -802,6 +806,7 @@ class MVEInstruction(Instruction):
             "imm", "immediate", lambda x: x.replace("#", "")
         )  # Strip '#'
         group_to_attribute("index", "index", int)
+        group_to_attribute("barrel", "barrel")
 
         for s, ty in obj.pattern_inputs:
             # if ty == RegisterType.FLAGS:
@@ -883,6 +888,7 @@ class MVEInstruction(Instruction):
         out = replace_pattern(out, "datatype", "dt", lambda x: x.upper())
         out = replace_pattern(out, "datatype", "fdt", lambda x: x.upper())
         out = replace_pattern(out, "index", "index", str)
+        out = replace_pattern(out, "barrel", "barrel", lambda x: x.lower())
 
         out = out.replace("\\[", "[")
         out = out.replace("\\]", "]")
@@ -989,8 +995,8 @@ class add(MVEInstruction):
     outputs = ["Rd"]
 
 
-class add_lsl(MVEInstruction):
-    pattern = "add <Rd>, <Rn>, <Rm>, lsl <imm>"
+class add_shifted(MVEInstruction):
+    pattern = "add <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
@@ -1001,8 +1007,8 @@ class log_and(MVEInstruction):
     outputs = ["Rd"]
 
 
-class and_lsr(MVEInstruction):
-    pattern = "and <Rd>, <Rn>, <Rm>, lsr <imm>"
+class log_and_shifted(MVEInstruction):
+    pattern = "and <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
@@ -1019,8 +1025,8 @@ class orr(MVEInstruction):
     outputs = ["Rd"]
 
 
-class orr_lsl(MVEInstruction):
-    pattern = "orr <Rd>, <Rn>, <Rm>, lsl <imm>"
+class orr_shifted(MVEInstruction):
+    pattern = "orr <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
@@ -1031,8 +1037,8 @@ class eor(MVEInstruction):
     outputs = ["Rd"]
 
 
-class eor_lsl(MVEInstruction):
-    pattern = "eor <Rd>, <Rn>, <Rm>, lsl <imm>"
+class eor_shifted(MVEInstruction):
+    pattern = "eor <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
@@ -1359,8 +1365,8 @@ class mvn_imm(MVEInstruction):
     outputs = ["Rd"]
 
 
-class pkhbt(MVEInstruction):
-    pattern = "pkhbt <Rd>, <Rn>, <Rm>, lsl <imm>"
+class pkhbt_shifted(MVEInstruction):
+    pattern = "pkhbt <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
