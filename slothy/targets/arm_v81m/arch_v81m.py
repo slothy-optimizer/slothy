@@ -995,6 +995,24 @@ class add_lsl(MVEInstruction):
     outputs = ["Rd"]
 
 
+class log_and(MVEInstruction):
+    pattern = "and <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class and_lsr(MVEInstruction):
+    pattern = "and <Rd>, <Rn>, <Rm>, lsr <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class mul(MVEInstruction):
+    pattern = "mul <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
 class orr(MVEInstruction):
     pattern = "orr <Rd>, <Rn>, <Rm>"
     inputs = ["Rn", "Rm"]
@@ -1003,6 +1021,18 @@ class orr(MVEInstruction):
 
 class orr_lsl(MVEInstruction):
     pattern = "orr <Rd>, <Rn>, <Rm>, lsl <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class eor(MVEInstruction):
+    pattern = "eor <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class eor_lsl(MVEInstruction):
+    pattern = "eor <Rd>, <Rn>, <Rm>, lsl <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
