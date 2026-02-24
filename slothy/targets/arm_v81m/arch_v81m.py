@@ -1046,8 +1046,8 @@ class bic(MVEInstruction):
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
-class bic_ror(MVEInstruction):
-    pattern = "bic <Rd>, <Rn>, <Rm>, ror <imm>"
+class bic_shifted(MVEInstruction):
+    pattern = "bic <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
