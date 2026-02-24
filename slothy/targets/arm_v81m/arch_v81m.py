@@ -1041,6 +1041,35 @@ class eor_shifted(MVEInstruction):
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
+class bic(MVEInstruction):
+    pattern = "bic <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+class bic_ror(MVEInstruction):
+    pattern = "bic <Rd>, <Rn>, <Rm>, ror <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+class ror(MVEInstruction):
+    pattern = "ror <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+class ror_imm(MVEInstruction):
+    pattern = "ror <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+class cmp_reg(MVEInstruction):
+    pattern = "cmp <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    modifiesFlags = True
+
+class cmp_imm(MVEInstruction):
+    pattern = "cmp <Rn>, <imm>"
+    inputs = ["Rn", "Rm"]
+    modifiesFlags = True
 
 class sub(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <Rm>"
@@ -1295,6 +1324,17 @@ class strd_with_post(MVEInstruction):
         obj.addr = obj.args_in_out[0]
         return obj
 
+class str_reg(MVEInstruction):
+    pattern = "str <Rt>, [<Rn>, <imm>]"
+    inputs = ["Rn", "Rt"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
 
 class vrshr(MVEInstruction):
     pattern = "vrshr.<dt> <Qd>, <Qm>, <imm>"
@@ -1346,6 +1386,12 @@ class vmov_double_v2r(MVEInstruction):
     pattern = "vmov <Rt0>, <Rt1>, <Qd>[<index0>], <Qa>[<index1>]"
     inputs = ["Qd", "Qa"]
     outputs = ["Rt0", "Rt1"]
+
+
+class vmov_double_r2v(MVEInstruction):
+    pattern = "vmov <Qd>[<index0>], <Qa>[<index1>], <Rt0>, <Rt1>"
+    inputs = ["Rt0", "Rt1"]
+    inouts = ["Qd", "Qa"]
 
 
 class mov(MVEInstruction):
@@ -1447,6 +1493,10 @@ class vsli(MVEInstruction):
     inputs = ["Qm"]
     in_outs = ["Qd"]
 
+class vsri(MVEInstruction):
+    pattern = "vsri.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
+    in_outs = ["Qd"]
 
 class vmovlb(MVEInstruction):
     pattern = "vmovlb.<dt> <Qd>, <Qm>"
