@@ -1402,6 +1402,12 @@ class vmov_double_r2v(MVEInstruction):
     inputs = ["Rt0", "Rt1"]
     in_outs = ["Qd", "Qa"]
 
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.detected_vmov_double_r2v_pair = False
+        return obj
+
 
 class mov(MVEInstruction):
     pattern = "mov <Rd>, <Rm>"
@@ -2721,6 +2727,48 @@ def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
 vqdmlsdh.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmlsdh, vqdmladhx)
 vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 
+def vmov_double_r2v_parsing_cb(this_class):
+    def core(inst, t, log=None):
+        assert isinstance(inst, this_class)
+        succ = None
+        if inst.detected_vmov_double_r2v_pair:
+            return False
+        # Check if this is the first in a pair of vmov_double_r2v
+        if len(t.dst_in_out[0]) == 1:
+            r = t.dst_in_out[0][0]
+            if isinstance(r.inst, this_class):
+                if (
+                    r.inst.args_in_out == inst.args_in_out
+                    and r.inst.args_in == inst.args_in
+                ):
+                    succ = r
+
+        if succ is None:
+            return False
+        
+        # If so, mark in/out as output only, and signal the need for re-building
+        # the dataflow graph
+        inst.num_out = 1
+        inst.args_out = [inst.args_in_out[0]]
+        inst.arg_types_out = [RegisterType.MVE]
+        inst.args_out_restrictions = inst.args_in_out_restrictions
+        inst.outputs = inst.in_outs
+        inst.pattern_outputs = inst.pattern_in_outs
+
+        inst.num_in_out = 0
+        inst.args_in_out = []
+        inst.in_outs = []
+        inst.pattern_in_outs = []
+        inst.arg_types_in_out = []
+        inst.args_in_out_restrictions = []
+
+        inst.detected_vmov_double_r2v_pair = True
+        return True
+
+    return core
+
+
+vmov_double_r2v.global_parsing_cb = vmov_double_r2v_parsing_cb(vmov_double_r2v)
 
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
