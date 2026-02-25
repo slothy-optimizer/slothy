@@ -1043,6 +1043,42 @@ class eor_shifted(MVEInstruction):
     outputs = ["Rd"]
 
 
+class bic(MVEInstruction):
+    pattern = "bic <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class bic_shifted(MVEInstruction):
+    pattern = "bic <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class ror(MVEInstruction):
+    pattern = "ror <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class ror_imm(MVEInstruction):
+    pattern = "ror <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
+class cmp_reg(MVEInstruction):
+    pattern = "cmp <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    modifiesFlags = True
+
+
+class cmp_imm(MVEInstruction):
+    pattern = "cmp <Rn>, <imm>"
+    inputs = ["Rn"]
+    modifiesFlags = True
+
+
 class sub(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <Rm>"
     inputs = ["Rn", "Rm"]
@@ -1297,6 +1333,19 @@ class strd_with_post(MVEInstruction):
         return obj
 
 
+class str_reg(MVEInstruction):
+    pattern = "str <Rt>, [<Rn>, <imm>]"
+    inputs = ["Rn", "Rt"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+
 class vrshr(MVEInstruction):
     pattern = "vrshr.<dt> <Qd>, <Qm>, <imm>"
     inputs = ["Qm"]
@@ -1347,6 +1396,18 @@ class vmov_double_v2r(MVEInstruction):
     pattern = "vmov <Rt0>, <Rt1>, <Qd>[<index0>], <Qa>[<index1>]"
     inputs = ["Qd", "Qa"]
     outputs = ["Rt0", "Rt1"]
+
+
+class vmov_double_r2v(MVEInstruction):
+    pattern = "vmov <Qd>[<index0>], <Qa>[<index1>], <Rt0>, <Rt1>"
+    inputs = ["Rt0", "Rt1"]
+    in_outs = ["Qd", "Qa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.detected_vmov_double_r2v_pair = False
+        return obj
 
 
 class mov(MVEInstruction):
@@ -1445,6 +1506,12 @@ class vshllt(MVEInstruction):
 
 class vsli(MVEInstruction):
     pattern = "vsli.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
+    in_outs = ["Qd"]
+
+
+class vsri(MVEInstruction):
+    pattern = "vsri.<dt> <Qd>, <Qm>, <imm>"
     inputs = ["Qm"]
     in_outs = ["Qd"]
 
@@ -2661,6 +2728,48 @@ def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
 vqdmlsdh.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmlsdh, vqdmladhx)
 vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 
+def vmov_double_r2v_parsing_cb(this_class):
+    def core(inst, t, log=None):
+        assert isinstance(inst, this_class)
+        succ = None
+        if inst.detected_vmov_double_r2v_pair:
+            return False
+        # Check if this is the first in a pair of vmov_double_r2v
+        if len(t.dst_in_out[0]) == 1:
+            r = t.dst_in_out[0][0]
+            if isinstance(r.inst, this_class):
+                if (
+                    r.inst.args_in_out == inst.args_in_out
+                    and r.inst.args_in == inst.args_in
+                ):
+                    succ = r
+
+        if succ is None:
+            return False
+        
+        # If so, mark in/out as output only, and signal the need for re-building
+        # the dataflow graph
+        inst.num_out = 1
+        inst.args_out = [inst.args_in_out[0]]
+        inst.arg_types_out = [RegisterType.MVE]
+        inst.args_out_restrictions = inst.args_in_out_restrictions
+        inst.outputs = inst.in_outs
+        inst.pattern_outputs = inst.pattern_in_outs
+
+        inst.num_in_out = 0
+        inst.args_in_out = []
+        inst.in_outs = []
+        inst.pattern_in_outs = []
+        inst.arg_types_in_out = []
+        inst.args_in_out_restrictions = []
+
+        inst.detected_vmov_double_r2v_pair = True
+        return True
+
+    return core
+
+
+vmov_double_r2v.global_parsing_cb = vmov_double_r2v_parsing_cb(vmov_double_r2v)
 
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
