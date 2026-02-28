@@ -66,9 +66,6 @@ xtmp1 .req x11
         str qform_\vec, [\base], #\inc
 .endm
 
-.macro vqrdmulh d,a,b
-        sqrdmulh \d\().8h, \a\().8h, \b\().8h
-.endm
 .macro vmlsq d,a,b,i
         mls \d\().8h, \a\().8h, \b\().h[\i]
 .endm
@@ -89,7 +86,7 @@ xtmp1 .req x11
 .endm
 
 .macro mulmod dst, src, const, const_twisted
-        vqrdmulh   t2,  \src, \const_twisted
+        sqrdmulh t2.8h,  \src.8h, \const_twisted.8h
         mul        \dst\().8h,  \src\().8h, \const\().8h
         vmlsq      \dst,  t2, consts, 0
 .endm
