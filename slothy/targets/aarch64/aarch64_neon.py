@@ -1991,7 +1991,7 @@ class q_st1_2_with_postinc(Stp_Q):
         obj.addr = obj.args_in_out[0]
 
         obj.args_in_combinations = [
-            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+            ([0, 1], [[f"v{i}", f"v{(i+1)%32}"] for i in range(0, 32)])
         ]
         return obj
 
@@ -4507,7 +4507,10 @@ class st4_base(St4):
         obj.args_in_combinations = [
             (
                 [1, 2, 3, 4],
-                [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)],
+                [
+                    [f"v{i}", f"v{(i+1) % 32}", f"v{(i+2) % 32}", f"v{(i+3)%32}"]
+                    for i in range(0, 32)
+                ],
             )
         ]
         return obj
@@ -4527,7 +4530,10 @@ class st4_with_inc(St4):
         obj.args_in_combinations = [
             (
                 [0, 1, 2, 3],
-                [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)],
+                [
+                    [f"v{i}", f"v{(i+1) % 32}", f"v{(i+2) % 32}", f"v{(i+3)%32}"]
+                    for i in range(0, 32)
+                ],
             )
         ]
         return obj
@@ -4547,7 +4553,10 @@ class st3_base(St3):
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-            ([1, 2, 3], [[f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0, 30)])
+            (
+                [1, 2, 3],
+                [[f"v{i}", f"v{(i+1)%32}", f"v{(i+2)%32}"] for i in range(0, 32)],
+            )
         ]
         return obj
 
@@ -4564,7 +4573,10 @@ class st3_with_inc(St3):
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-            ([0, 1, 2], [[f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0, 30)])
+            (
+                [1, 2, 3],
+                [[f"v{i}", f"v{(i+1)%32}", f"v{(i+2)%32}"] for i in range(0, 32)],
+            )
         ]
         return obj
 
@@ -4583,7 +4595,7 @@ class st2_base(St2):
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_in_combinations = [
-            ([1, 2], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+            ([1, 2], [[f"v{i}", f"v{(i+1)%32}"] for i in range(0, 32)])
         ]
         return obj
 
@@ -4600,7 +4612,7 @@ class st2_with_inc(St2):
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_in_combinations = [
-            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+            ([1, 2], [[f"v{i}", f"v{(i+1)%32}"] for i in range(0, 32)])
         ]
         return obj
 
@@ -4653,7 +4665,10 @@ class ld4_base(Ld4):
         obj.args_out_combinations = [
             (
                 [0, 1, 2, 3],
-                [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)],
+                [
+                    [f"v{i}", f"v{(i+1) % 32}", f"v{(i+2) % 32}", f"v{(i+3)%32}"]
+                    for i in range(0, 32)
+                ],
             )
         ]
         return obj
@@ -4673,7 +4688,10 @@ class ld4_with_inc(Ld4):
         obj.args_out_combinations = [
             (
                 [0, 1, 2, 3],
-                [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)],
+                [
+                    [f"v{i}", f"v{(i+1) % 32}", f"v{(i+2) % 32}", f"v{(i+3)%32}"]
+                    for i in range(0, 32)
+                ],
             )
         ]
         return obj
@@ -4694,7 +4712,10 @@ class ld3_base(Ld3):
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-            ([0, 1, 2], [[f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0, 30)])
+            (
+                [0, 1, 2],
+                [[f"v{i}", f"v{(i+1)%32}", f"v{(i+2)%32}"] for i in range(0, 32)],
+            )
         ]
         return obj
 
@@ -4711,7 +4732,10 @@ class ld3_with_inc(Ld3):
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-            ([0, 1, 2], [[f"v{i}", f"v{i+1}", f"v{i+2}"] for i in range(0, 30)])
+            (
+                [0, 1, 2],
+                [[f"v{i}", f"v{(i+1)%32}", f"v{(i+2)%32}"] for i in range(0, 32)],
+            )
         ]
         return obj
 
@@ -4731,7 +4755,7 @@ class ld2_base(Ld2):
         obj.offset_adjustable = False
         obj.addr = obj.args_in[0]
         obj.args_out_combinations = [
-            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+            ([0, 1], [[f"v{i}", f"v{(i+1)%32}"] for i in range(0, 32)])
         ]
         return obj
 
@@ -4748,7 +4772,7 @@ class ld2_with_inc(Ld2):
         obj.increment = obj.immediate
         obj.pre_index = None
         obj.args_out_combinations = [
-            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+            ([0, 1], [[f"v{i}", f"v{(i+1)%32}"] for i in range(0, 32)])
         ]
         return obj
 
