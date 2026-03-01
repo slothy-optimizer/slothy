@@ -62,7 +62,7 @@ dev = [
 ]
 docs = [
     "sphinx==8.2.3; python_version >= '3.11'",
-    "sphinx_rtd_theme==3.0.2; python_version >= '3.11'",
+    "sphinx_rtd_theme==3.1.0; python_version >= '3.11'",
     "sphinx_autoapi; python_version >= '3.11'",
     "sphinx_mdinclude; python_version >= '3.11'",
     "myst_parser; python_version >= '3.11'",
