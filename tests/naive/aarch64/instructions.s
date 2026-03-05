@@ -72,6 +72,9 @@ cnt v0.16b, v0.16b
 tbl v16.16b, {v16.16b}, v24.16b
 fmov w12, s20
 fcsel d0, d1, d2, eq
+cmp    x2, x3
+cmp x2, #7 
+
 
 // Conditional Compare
 ccmp x0,  x1, #0, eq
