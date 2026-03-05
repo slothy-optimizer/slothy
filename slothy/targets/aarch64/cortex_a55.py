@@ -64,6 +64,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vusra,
     vmul,
     Instruction,
+    csel_ne,
     fcsel,
     Q_Ld2_Lane_Post_Inc,
     q_ld2_lane_s,
@@ -444,6 +445,7 @@ execution_units = {
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    csel_ne: ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
@@ -489,6 +491,7 @@ inverse_throughput = {
     vshrn: 2,
     vtbl: 1,  # N cycles (N = number of registers in the table)
     (fcsel): 1,
+    csel_ne: 1,
     (VecToGprMov, Mov_xtov_d, mov_wtov_s): 1,
     (
         movk_imm,
@@ -583,6 +586,7 @@ default_latencies = {
     (Vins, umov_d): 2,
     (tst_wform): 1,
     (fcsel): 2,
+    csel_ne: 1,
     (VecToGprMov, Mov_xtov_d, mov_wtov_s): 2,
     (
         movk_imm,
