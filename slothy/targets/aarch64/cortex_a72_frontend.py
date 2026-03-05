@@ -120,6 +120,9 @@ from slothy.targets.aarch64.aarch64_neon import (
     movk_imm_lsl,
     q_ld2_lane_s,
     Ldp_W,
+    cmp,
+    cmp_imm,
+    csel_ne,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -205,7 +208,7 @@ execution_units = {
         Vmlal,
         Vmull,
     ): [ExecutionUnit.ASIMD0],
-    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, vtbl, sub_imm): [
+    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, vtbl, sub_imm, cmp, cmp_imm): [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
@@ -231,6 +234,7 @@ execution_units = {
     ],
     (AArch64NeonShiftInsert, vusra): [ExecutionUnit.ASIMD1],
     fcsel: ExecutionUnit.ASIMD(),
+    csel_ne: ExecutionUnit.INT(),
     AArch64ConditionalCompare: ExecutionUnit.INT(),
     AArch64Logical: [ExecutionUnit.INT()],
     # 8B/8H occupies both F0, F1
@@ -280,6 +284,7 @@ inverse_throughput = {
     AArch64NeonLogical: 1,
     (AArch64NeonShiftInsert, vusra): 1,
     fcsel: 1,
+    csel_ne: 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
     Vins: 1,
@@ -298,7 +303,7 @@ inverse_throughput = {
     q_ld2_lane_s: 1,
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
-    sub_imm: 1,
+    (sub_imm, cmp, cmp_imm): 1,
     vuaddlv_sform: 1,
     fmov_s_form: 1,  # from vec to gen reg
     eor_shifted: 1,
@@ -342,6 +347,7 @@ default_latencies = {
     AArch64NeonShiftInsert: 3,
     vusra: 4,
     fcsel: 3,
+    csel_ne: 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
     (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
@@ -362,7 +368,7 @@ default_latencies = {
     q_ld2_lane_s: 8,
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
-    sub_imm: 3,
+    (sub_imm, cmp, cmp_imm): 3,
     vuaddlv_sform: 6,  # 8B/8H
     fmov_s_form: 5,  # from vec to gen reg
     eor_shifted: 2,

@@ -64,6 +64,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vusra,
     vmul,
     Instruction,
+    csel_ne,
     fcsel,
     Q_Ld2_Lane_Post_Inc,
     q_ld2_lane_s,
@@ -151,6 +152,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     movz_imm_lsl,
     movw_imm,
     mov_imm,
+    mov_xform,
     sub,
     sbcs_zero_to_zero,
     cmp_xzr2,
@@ -398,6 +400,7 @@ execution_units = {
         ubfx,
         add,
         mov_imm,
+        mov_xform,
         movw_imm,
         cmp_imm,
         eor,
@@ -442,6 +445,7 @@ execution_units = {
     # NOTE: AESE/AESMC and AESD/AESIMC pairs can be dual-issued on A55 but this
     # is not modeled
     AESInstruction: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    csel_ne: ExecutionUnit.SCALAR(),
 }
 
 inverse_throughput = {
@@ -487,8 +491,18 @@ inverse_throughput = {
     vshrn: 2,
     vtbl: 1,  # N cycles (N = number of registers in the table)
     (fcsel): 1,
+    csel_ne: 1,
     (VecToGprMov, Mov_xtov_d, mov_wtov_s): 1,
-    (movk_imm, movk_imm_lsl, movz_imm, movz_imm_lsl, mov, mov_imm, movw_imm): 1,
+    (
+        movk_imm,
+        movk_imm_lsl,
+        movz_imm,
+        movz_imm_lsl,
+        mov,
+        mov_imm,
+        mov_xform,
+        movw_imm,
+    ): 1,
     (d_stp_stack_with_inc, d_str_stack_with_inc): 1,
     (Stp_X, Stp_W, w_stp_with_imm_sp): 1,
     (ldr_const): 1,
@@ -572,8 +586,18 @@ default_latencies = {
     (Vins, umov_d): 2,
     (tst_wform): 1,
     (fcsel): 2,
+    csel_ne: 1,
     (VecToGprMov, Mov_xtov_d, mov_wtov_s): 2,
-    (movk_imm, movk_imm_lsl, movz_imm, movz_imm_lsl, mov, mov_imm, movw_imm): 1,
+    (
+        movk_imm,
+        movk_imm_lsl,
+        movz_imm,
+        movz_imm_lsl,
+        mov,
+        mov_imm,
+        mov_xform,
+        movw_imm,
+    ): 1,
     (d_stp_stack_with_inc, d_str_stack_with_inc): 1,
     (Stp_X, Stp_W, w_stp_with_imm_sp): 1,
     (ldr_const): 3,

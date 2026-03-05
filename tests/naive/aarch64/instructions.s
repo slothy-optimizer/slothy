@@ -60,6 +60,7 @@ cmgt v4.8h, v30.8h, v16.8h
 cmeq v4.8h, v30.8h, v16.8h
 cmge v4.8h, v30.8h, v16.8h
 cmhi v4.8h, v30.8h, v16.8h
+mov    x1, x2
 mov x12, #0
 movz x13, #0x1234
 movz x14, #0x5678, lsl #16
@@ -71,6 +72,13 @@ cnt v0.16b, v0.16b
 tbl v16.16b, {v16.16b}, v24.16b
 fmov w12, s20
 fcsel d0, d1, d2, eq
+csel    x3, x13, x3, eq
+csel    x3, x13, x3, ne
+csel    x3, x13, x3, gt
+csel    x3, x13, x3, lt
+cmp    x2, x3
+cmp x2, #7 
+
 
 // Conditional Compare
 ccmp x0,  x1, #0, eq
