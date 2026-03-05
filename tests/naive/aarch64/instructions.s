@@ -60,6 +60,7 @@ cmgt v4.8h, v30.8h, v16.8h
 cmeq v4.8h, v30.8h, v16.8h
 cmge v4.8h, v30.8h, v16.8h
 cmhi v4.8h, v30.8h, v16.8h
+mov    x1, x2
 mov x12, #0
 movz x13, #0x1234
 movz x14, #0x5678, lsl #16
