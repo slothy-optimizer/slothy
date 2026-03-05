@@ -72,6 +72,10 @@ cnt v0.16b, v0.16b
 tbl v16.16b, {v16.16b}, v24.16b
 fmov w12, s20
 fcsel d0, d1, d2, eq
+csel    x3, x13, x3, eq
+csel    x3, x13, x3, ne
+csel    x3, x13, x3, gt
+csel    x3, x13, x3, lt
 cmp    x2, x3
 cmp x2, #7 
 

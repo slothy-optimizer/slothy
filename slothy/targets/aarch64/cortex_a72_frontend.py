@@ -122,6 +122,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ldp_W,
     cmp,
     cmp_imm,
+    csel,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -233,6 +234,7 @@ execution_units = {
     ],
     (AArch64NeonShiftInsert, vusra): [ExecutionUnit.ASIMD1],
     fcsel: ExecutionUnit.ASIMD(),
+    csel: ExecutionUnit.INT(),
     AArch64ConditionalCompare: ExecutionUnit.INT(),
     AArch64Logical: [ExecutionUnit.INT()],
     # 8B/8H occupies both F0, F1
@@ -283,6 +285,7 @@ inverse_throughput = {
     AArch64NeonLogical: 1,
     (AArch64NeonShiftInsert, vusra): 1,
     fcsel: 1,
+    csel: 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
     Vins: 1,
@@ -345,6 +348,7 @@ default_latencies = {
     AArch64NeonShiftInsert: 3,
     vusra: 4,
     fcsel: 3,
+    csel: 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
     (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx

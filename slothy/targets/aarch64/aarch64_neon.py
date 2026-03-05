@@ -3003,7 +3003,7 @@ class csel_xzr2_ne(AArch64ConditionalSelect):
     dependsOnFlags = True
 
 
-class csel_ne(AArch64ConditionalSelect):
+class csel(AArch64ConditionalSelect):
     pattern = "csel <Xd>, <Xe>, <Xf>, <flag>"
     inputs = ["Xe", "Xf"]
     outputs = ["Xd"]
