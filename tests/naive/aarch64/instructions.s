@@ -200,5 +200,6 @@ movk x1, #0xfffe, lsl 32
 movk x1, #0x3fff, lsl 48
 sxtb x2, w28
 uxtb w28, w29
+ldp q22, q23, [x26, #32]
 
 end:

@@ -123,6 +123,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     cmp,
     cmp_imm,
     csel,
+    q_ldp_with_inc,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -260,6 +261,7 @@ execution_units = {
     movk_imm_lsl: ExecutionUnit.INT(),
     (sub_imm, cmp, cmp_imm): ExecutionUnit.INT(),
     Ldp_W: ExecutionUnit.LOAD(),
+    q_ldp_with_inc: ExecutionUnit.LOAD(),
     Stp_W: ExecutionUnit.STORE(),
 }
 
@@ -299,6 +301,7 @@ inverse_throughput = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
+    q_ldp_with_inc: 4,
     q_ldr1_stack: 1,
     Q_Ld2_Lane_Post_Inc: 2,
     q_ld2_lane_s: 1,
@@ -364,6 +367,7 @@ default_latencies = {
     St4: 8,
     Ld3: 3,
     Ld4: 4,
+    q_ldp_with_inc: 6,
     q_ldr1_stack: 8,
     Q_Ld2_Lane_Post_Inc: 9,
     q_ld2_lane_s: 8,
