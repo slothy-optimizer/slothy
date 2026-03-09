@@ -103,6 +103,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     q_ldr1_stack,
     Q_Ld2_Lane_Post_Inc,
     q_ld2_lane_s,
+    Ld4,
     St2,
     mov_wtov_s,
     mov_vtov_d,
@@ -191,6 +192,7 @@ execution_units = {
         Str_Q,
         Stp_Q,
         Ldp_Q,
+        Ld4,
     ): ExecutionUnit.LSU(),
     # TODO: The following would be more accurate, but does not
     #       necessarily lead to better results, while making the
@@ -309,6 +311,7 @@ inverse_throughput = {
     q_ldr1_stack: 1,
     Q_Ld2_Lane_Post_Inc: 2,
     q_ld2_lane_s: 2,
+    Ld4: 10,
     St2: 2,
     mov_wtov_s: 1,
     mov_vtov_d: 1,
@@ -324,6 +327,7 @@ default_latencies = {
     Stp_W: 1,
     St3: 6,  # Multiple structures, Q form, storing bytes
     St4: 4,
+    Ld4: 10,
     (Vzip, Vrev, uaddlp): 2,
     VecToGprMov: 2,
     ASimdCompare: 2,
