@@ -822,6 +822,24 @@ class Config(NestedPrint, LockAttributes):
         """
         return self._split_heuristic_preprocess_naive_interleaving_strategy
 
+    @property
+    def log_dir(self):
+        """The directory where log files should be written.
+
+        This is used for various logging outputs during optimization.
+        """
+        return self._log_dir
+
+    @property
+    def log_model(self):
+        """Whether and where to export the constraint solver model.
+
+        If None (default), the model is not exported. If True, the model
+        is exported to a file named ``slothy_model_<timestamp>.txt`` in
+        :attr:`log_model_dir`. If a string, it is used as the base filename.
+        """
+        return self._log_model
+
     def copy(self):
         """Make a deep copy of the configuration"""
         # Temporarily unset references to Arch and Target for deepcopy
@@ -1443,8 +1461,8 @@ class Config(NestedPrint, LockAttributes):
 
         self.solver_random_seed = 42
 
-        # TODO: Document log_dir and log_model
-        self.log_model = None
+        self._log_dir = "."
+        self._log_model = None
         self.log_model_only_on_success = True
         self.log_model_dir = "models"
 
@@ -1678,3 +1696,11 @@ class Config(NestedPrint, LockAttributes):
     @split_heuristic_repeat.setter
     def split_heuristic_repeat(self, val):
         self._split_heuristic_repeat = val
+
+    @log_dir.setter
+    def log_dir(self, val):
+        self._log_dir = val
+
+    @log_model.setter
+    def log_model(self, val):
+        self._log_model = val
