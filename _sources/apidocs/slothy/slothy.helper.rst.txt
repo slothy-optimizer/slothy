@@ -37,6 +37,12 @@ Classes
    * - :py:obj:`AsmIfElse <slothy.helper.AsmIfElse>`
      - .. autodoc2-docstring:: slothy.helper.AsmIfElse
           :summary:
+   * - :py:obj:`AsmRept <slothy.helper.AsmRept>`
+     - .. autodoc2-docstring:: slothy.helper.AsmRept
+          :summary:
+   * - :py:obj:`AsmIrp <slothy.helper.AsmIrp>`
+     - .. autodoc2-docstring:: slothy.helper.AsmIrp
+          :summary:
    * - :py:obj:`CPreprocessor <slothy.helper.CPreprocessor>`
      - .. autodoc2-docstring:: slothy.helper.CPreprocessor
           :summary:
@@ -67,6 +73,12 @@ Functions
 
    * - :py:obj:`binary_search <slothy.helper.binary_search>`
      - .. autodoc2-docstring:: slothy.helper.binary_search
+          :summary:
+   * - :py:obj:`_unfold_directive <slothy.helper._unfold_directive>`
+     - .. autodoc2-docstring:: slothy.helper._unfold_directive
+          :summary:
+   * - :py:obj:`unfold_all_directives <slothy.helper.unfold_all_directives>`
+     - .. autodoc2-docstring:: slothy.helper.unfold_all_directives
           :summary:
    * - :py:obj:`lookup_multidict <slothy.helper.lookup_multidict>`
      - .. autodoc2-docstring:: slothy.helper.lookup_multidict
@@ -691,6 +703,80 @@ API
       :staticmethod:
 
       .. autodoc2-docstring:: slothy.helper.AsmIfElse.process_instructions
+
+.. py:function:: _unfold_directive(source, start_regexp, make_directive, unfold_func)
+   :canonical: slothy.helper._unfold_directive
+
+   .. autodoc2-docstring:: slothy.helper._unfold_directive
+
+.. py:class:: AsmRept(count, body)
+   :canonical: slothy.helper.AsmRept
+
+   .. autodoc2-docstring:: slothy.helper.AsmRept
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.AsmRept.__init__
+
+   .. py:attribute:: _START_REGEXP
+      :canonical: slothy.helper.AsmRept._START_REGEXP
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmRept._START_REGEXP
+
+   .. py:method:: expand()
+      :canonical: slothy.helper.AsmRept.expand
+
+      .. autodoc2-docstring:: slothy.helper.AsmRept.expand
+
+   .. py:method:: _make_directive(match, body)
+      :canonical: slothy.helper.AsmRept._make_directive
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmRept._make_directive
+
+   .. py:method:: unfold_all(source)
+      :canonical: slothy.helper.AsmRept.unfold_all
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmRept.unfold_all
+
+.. py:class:: AsmIrp(symbol, values, body)
+   :canonical: slothy.helper.AsmIrp
+
+   .. autodoc2-docstring:: slothy.helper.AsmIrp
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.helper.AsmIrp.__init__
+
+   .. py:attribute:: _START_REGEXP
+      :canonical: slothy.helper.AsmIrp._START_REGEXP
+      :value: 'compile(...)'
+
+      .. autodoc2-docstring:: slothy.helper.AsmIrp._START_REGEXP
+
+   .. py:method:: expand()
+      :canonical: slothy.helper.AsmIrp.expand
+
+      .. autodoc2-docstring:: slothy.helper.AsmIrp.expand
+
+   .. py:method:: _make_directive(match, body)
+      :canonical: slothy.helper.AsmIrp._make_directive
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIrp._make_directive
+
+   .. py:method:: unfold_all(source)
+      :canonical: slothy.helper.AsmIrp.unfold_all
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.helper.AsmIrp.unfold_all
+
+.. py:function:: unfold_all_directives(pre, body, inherit_comments=False)
+   :canonical: slothy.helper.unfold_all_directives
+
+   .. autodoc2-docstring:: slothy.helper.unfold_all_directives
 
 .. py:class:: CPreprocessor
    :canonical: slothy.helper.CPreprocessor

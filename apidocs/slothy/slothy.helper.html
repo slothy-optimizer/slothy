@@ -127,6 +127,12 @@ of already existing attributes remains possible.</p></td>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.helper.AsmIfElse" title="slothy.helper.AsmIfElse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsmIfElse</span></code></a></p></td>
 <td></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.helper.AsmRept" title="slothy.helper.AsmRept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsmRept</span></code></a></p></td>
+<td><p>Helper class for parsing and expanding .rept directives</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.helper.AsmIrp" title="slothy.helper.AsmIrp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsmIrp</span></code></a></p></td>
+<td><p>Helper class for parsing and expanding .irp directives</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#slothy.helper.CPreprocessor" title="slothy.helper.CPreprocessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CPreprocessor</span></code></a></p></td>
 <td><p>Helper class for the application of the C preprocessor</p></td>
 </tr>
@@ -158,6 +164,12 @@ them to the same or different logger later.</p></td>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.helper.binary_search" title="slothy.helper.binary_search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">binary_search</span></code></a></p></td>
 <td><p>Conduct a binary search</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.helper._unfold_directive" title="slothy.helper._unfold_directive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_unfold_directive</span></code></a></p></td>
+<td><p>Shared parser for .rept and .irp directives.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.helper.unfold_all_directives" title="slothy.helper.unfold_all_directives"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unfold_all_directives</span></code></a></p></td>
+<td><p>Unfold all macros, .rept, and .irp directives iteratively until stable.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#slothy.helper.lookup_multidict" title="slothy.helper.lookup_multidict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lookup_multidict</span></code></a></p></td>
 <td><p>Lookup a value in a multidict based on an instruction instance.</p></td>
@@ -818,6 +830,95 @@ of alias and register, if so. Otherwise, return None.</p>
 <dd><p>Processes a list of instructions with conditional statements.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.helper._unfold_directive">
+<span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">_unfold_directive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_regexp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_directive</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unfold_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper._unfold_directive" title="Link to this definition"></a></dt>
+<dd><p>Shared parser for .rept and .irp directives.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source: List of SourceLine objects
+start_regexp: Compiled regex to match directive start
+make_directive: Function(match, body) -&gt; directive object with expand() method
+unfold_func: The unfold_all function to call recursively</p>
+</dd>
+<dt>Returns:</dt><dd><p>List of SourceLine objects with directives expanded</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.helper.AsmRept">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmRept</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmRept" title="Link to this definition"></a></dt>
+<dd><p>Helper class for parsing and expanding .rept directives</p>
+<p class="rubric">Initialization</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.helper.AsmRept._START_REGEXP">
+<span class="sig-name descname"><span class="pre">_START_REGEXP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'compile(...)'</span></em><a class="headerlink" href="#slothy.helper.AsmRept._START_REGEXP" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.helper.AsmRept.expand">
+<span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmRept.expand" title="Link to this definition"></a></dt>
+<dd><p>Expand .rept directive into repeated lines</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.helper.AsmRept._make_directive">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_make_directive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">match</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmRept._make_directive" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.helper.AsmRept.unfold_all">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unfold_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmRept.unfold_all" title="Link to this definition"></a></dt>
+<dd><p>Expand all .rept directives in assembly source</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.helper.AsmIrp">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">AsmIrp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIrp" title="Link to this definition"></a></dt>
+<dd><p>Helper class for parsing and expanding .irp directives</p>
+<p class="rubric">Initialization</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.helper.AsmIrp._START_REGEXP">
+<span class="sig-name descname"><span class="pre">_START_REGEXP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'compile(...)'</span></em><a class="headerlink" href="#slothy.helper.AsmIrp._START_REGEXP" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.helper.AsmIrp.expand">
+<span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIrp.expand" title="Link to this definition"></a></dt>
+<dd><p>Expand .irp directive by substituting symbol with each value</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.helper.AsmIrp._make_directive">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_make_directive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">match</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIrp._make_directive" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.helper.AsmIrp.unfold_all">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unfold_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.AsmIrp.unfold_all" title="Link to this definition"></a></dt>
+<dd><p>Expand all .irp directives in assembly source</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.helper.unfold_all_directives">
+<span class="sig-prename descclassname"><span class="pre">slothy.helper.</span></span><span class="sig-name descname"><span class="pre">unfold_all_directives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inherit_comments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.helper.unfold_all_directives" title="Link to this definition"></a></dt>
+<dd><p>Unfold all macros, .rept, and .irp directives iteratively until stable.</p>
+<p>This handles nested cases like macros inside .irp or .irp inside macros
+by running all expansions in a loop until no more changes occur.</p>
+<p>The order of expansion matters:
+- .rept and .irp are expanded first so that macro arguments don’t contain</p>
+<blockquote>
+<div><p>backslash-prefixed symbols (like param) which would confuse macro expansion.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Then macros are expanded on the clean output.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py class">
