@@ -364,6 +364,32 @@ class AArch64SelftestAddr(OptimizationRunner):
         slothy.optimize(start="start", end="end")
 
 
+class AArch64SelftestInitialRegs(OptimizationRunner):
+    """Tests selftest_initial_register_values.
+
+    The loop uses x2 as a stride that is added to the address registers x0/x1.
+    The selftest auto-detects x0/x1 as addresses but not x2, so without
+    pinning x2 to a small known value the derived addresses would quickly
+    leave the mapped RAM region.
+    """
+
+    def __init__(self, var="", arch=AArch64_Neon, target=Target_CortexA55):
+        name = "aarch64_selftest_initial_regs"
+        super().__init__(
+            name, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.inputs_are_outputs = True
+        slothy.config.variable_size = True
+        slothy.config.reserved_regs = ["x3", "x30", "sp"]
+        # x0/x1 are address registers; x2 is a stride offset (not an address).
+        # Pin x2 to 8 so add x0,x0,x2 stays within the mapped RAM window.
+        slothy.config.selftest_initial_register_values = {"x2": 8}
+        slothy.optimize_loop("start")
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -389,4 +415,5 @@ test_instances = [
     AArch64FusionVeor(),
     AArch64CStyleComments(),
     AArch64SelftestAddr(),
+    AArch64SelftestInitialRegs(),
 ]

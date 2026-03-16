@@ -171,6 +171,30 @@ class Config(NestedPrint, LockAttributes):
         return self._selftest_address_registers
 
     @property
+    def selftest_initial_register_values(self):
+        """Dictionary of register names to fixed initial values for the selftest.
+
+        By default, registers that are not address registers are initialised to
+        random values before each selftest iteration.  Use this option to pin
+        specific registers to a known value instead.
+
+        This is useful when addresses are derived from other registers
+        (e.g. a stride or offset added to a pointer).  The selftest
+        automatically detects address registers, but not registers that
+        contribute to address computation.  A random value in such a
+        register would cause the emulated access to land outside the
+        mapped RAM region and crash the emulator.
+
+        Example::
+
+            slothy.config.selftest_initial_register_values = {"x2": 16}
+
+        sets register x2 to 16 for every selftest iteration instead of a
+        random value.
+        """
+        return self._selftest_initial_register_values
+
+    @property
     def selftest_default_memory_size(self):
         """Default buffer size to use for registers which are automatically inferred to be
         used as pointers and for which no memory size has been configured via
@@ -1356,6 +1380,7 @@ class Config(NestedPrint, LockAttributes):
         self._selftest_iterations = 10
         self._selftest_address_registers = None
         self._selftest_default_memory_size = 1024
+        self._selftest_initial_register_values = {}
         self._selfcheck = True
         self._selfcheck_failure_logfile = None
         self._allow_useless_instructions = False
@@ -1496,6 +1521,10 @@ class Config(NestedPrint, LockAttributes):
     @selftest_default_memory_size.setter
     def selftest_default_memory_size(self, val):
         self._selftest_default_memory_size = val
+
+    @selftest_initial_register_values.setter
+    def selftest_initial_register_values(self, val):
+        self._selftest_initial_register_values = val
 
     @selfcheck.setter
     def selfcheck(self, val):

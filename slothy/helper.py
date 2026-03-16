@@ -1583,6 +1583,12 @@ class SelfTest:
                 initial_register_contents[r] = int.from_bytes(
                     os.urandom(16), byteorder="little"
                 )
+            # Apply user-specified fixed initial values (overrides random).
+            # Useful for registers that contribute to address computation
+            # (e.g. strides/offsets) but are not themselves address registers.
+            for reg, val in config.selftest_initial_register_values.items():
+                if reg in initial_register_contents:
+                    initial_register_contents[reg] = val
             for reg, sz in address_registers.items():
                 # allocate 2*sz and place pointer in the middle
                 # this makes sure that memory can be accessed at negative offsets
