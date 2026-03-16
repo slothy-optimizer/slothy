@@ -237,6 +237,27 @@ pointers to memory, and if so, of what size.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="slothy.core.config.Config.selftest_initial_register_values">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selftest_initial_register_values</span></span><a class="headerlink" href="#slothy.core.config.Config.selftest_initial_register_values" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of register names to fixed initial values for the selftest.</p>
+<p>By default, registers that are not address registers are initialised to
+random values before each selftest iteration.  Use this option to pin
+specific registers to a known value instead.</p>
+<p>This is useful when addresses are derived from other registers
+(e.g. a stride or offset added to a pointer).  The selftest
+automatically detects address registers, but not registers that
+contribute to address computation.  A random value in such a
+register would cause the emulated access to land outside the
+mapped RAM region and crash the emulator.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">selftest_initial_register_values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x2&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>sets register x2 to 16 for every selftest iteration instead of a
+random value.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="slothy.core.config.Config.selftest_default_memory_size">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selftest_default_memory_size</span></span><a class="headerlink" href="#slothy.core.config.Config.selftest_default_memory_size" title="Link to this definition"></a></dt>
 <dd><p>Default buffer size to use for registers which are automatically inferred to be

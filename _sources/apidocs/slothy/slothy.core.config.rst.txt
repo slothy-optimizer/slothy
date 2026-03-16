@@ -85,6 +85,11 @@ API
 
       .. autodoc2-docstring:: slothy.core.config.Config.selftest_address_registers
 
+   .. py:property:: selftest_initial_register_values
+      :canonical: slothy.core.config.Config.selftest_initial_register_values
+
+      .. autodoc2-docstring:: slothy.core.config.Config.selftest_initial_register_values
+
    .. py:property:: selftest_default_memory_size
       :canonical: slothy.core.config.Config.selftest_default_memory_size
 
