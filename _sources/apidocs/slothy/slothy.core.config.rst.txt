@@ -335,6 +335,16 @@ API
 
       .. autodoc2-docstring:: slothy.core.config.Config.split_heuristic_preprocess_naive_interleaving_strategy
 
+   .. py:property:: log_dir
+      :canonical: slothy.core.config.Config.log_dir
+
+      .. autodoc2-docstring:: slothy.core.config.Config.log_dir
+
+   .. py:property:: log_model
+      :canonical: slothy.core.config.Config.log_model
+
+      .. autodoc2-docstring:: slothy.core.config.Config.log_model
+
    .. py:method:: copy()
       :canonical: slothy.core.config.Config.copy
 
