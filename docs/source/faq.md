@@ -24,7 +24,11 @@ there is no model of the x86 architecture. Feel free to build one!
 
 ## Does SLOTHY support RISC-V?
 
-As for x86.
+Yes! SLOTHY currently supports the RV{32,64}IMB ISA and includes a partial uArch model for XuanTie C908.
+
+## Does SLOTHY support the RISC-V vector extension (RVV) ?
+
+Not yet, but work is in progress.
 
 ## Is SLOTHY formally verified?
 
