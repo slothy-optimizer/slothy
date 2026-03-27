@@ -1,0 +1,104 @@
+:py:mod:`slothy.targets.riscv.rv32_64_pseudo_instructions`
+==========================================================
+
+.. py:module:: slothy.targets.riscv.rv32_64_pseudo_instructions
+
+.. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`RISCVLiPseudo <slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo
+          :summary:
+   * - :py:obj:`RISCVULaPseudo <slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`generate_rv32_64_pseudo_instructions <slothy.targets.riscv.rv32_64_pseudo_instructions.generate_rv32_64_pseudo_instructions>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.generate_rv32_64_pseudo_instructions
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`pseudo_instrs <slothy.targets.riscv.rv32_64_pseudo_instructions.pseudo_instrs>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.pseudo_instrs
+          :summary:
+
+API
+~~~
+
+.. py:class:: RISCVLiPseudo
+   :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo.pattern
+      :value: 'li <Xd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo.inputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo.outputs
+
+.. py:class:: RISCVULaPseudo
+   :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo.pattern
+      :value: 'mnemonic <Xd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo.pattern
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo.outputs
+
+.. py:data:: pseudo_instrs
+   :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.pseudo_instrs
+   :value: [(['li'],), (['neg', 'not', 'mv'],), (['la'],)]
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.pseudo_instrs
+
+.. py:function:: generate_rv32_64_pseudo_instructions()
+   :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.generate_rv32_64_pseudo_instructions
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.generate_rv32_64_pseudo_instructions

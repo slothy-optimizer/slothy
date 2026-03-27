@@ -1,0 +1,25 @@
+:py:mod:`slothy.targets.riscv`
+==============================
+
+.. py:module:: slothy.targets.riscv
+
+.. autodoc2-docstring:: slothy.targets.riscv
+   :allowtitles:
+
+Submodules
+----------
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   slothy.targets.riscv.instruction_core
+   slothy.targets.riscv.rv32_64_pseudo_instructions
+   slothy.targets.riscv.rv32_64_b_instructions
+   slothy.targets.riscv.riscv_super_instructions
+   slothy.targets.riscv.rv32_64_i_instructions
+   slothy.targets.riscv.xuantie_c908
+   slothy.targets.riscv.riscv
+   slothy.targets.riscv.exceptions
+   slothy.targets.riscv.rv32_64_m_instructions
+   slothy.targets.riscv.riscv_instruction_core

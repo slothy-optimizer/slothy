@@ -1,0 +1,471 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>slothy.targets.riscv.riscv &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="slothy.targets.riscv.exceptions" href="slothy.targets.riscv.exceptions.html" />
+    <link rel="prev" title="slothy.targets.riscv.xuantie_c908" href="slothy.targets.riscv.xuantie_c908.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html">About SLOTHY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#installation">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/README.html">SLOTHY Tutorial</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="slothy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="slothy.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.cli</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a></li>
+          <li class="breadcrumb-item"><a href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
+          <li class="breadcrumb-item"><a href="slothy.targets.riscv.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets.riscv</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets.riscv.riscv</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/apidocs/slothy/slothy.targets.riscv.riscv.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-slothy.targets.riscv.riscv">
+<span id="slothy-targets-riscv-riscv"></span><h1><a class="reference internal" href="#module-slothy.targets.riscv.riscv" title="slothy.targets.riscv.riscv"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets.riscv.riscv</span></code></a><a class="headerlink" href="#module-slothy.targets.riscv.riscv" title="Link to this heading"></a></h1>
+<p>Partial SLOTHY architecture model for RISCV</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.RegisterType" title="slothy.targets.riscv.riscv.RegisterType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RegisterType</span></code></a></p></td>
+<td><p>Enum of all register types</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.AddiLoop" title="slothy.targets.riscv.riscv.AddiLoop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddiLoop</span></code></a></p></td>
+<td><p>Loop ending in an addition and a branch.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.AddiStashLoop" title="slothy.targets.riscv.riscv.AddiStashLoop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddiStashLoop</span></code></a></p></td>
+<td><p>Loop ending in an addition and a branch.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.BranchLoop" title="slothy.targets.riscv.riscv.BranchLoop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BranchLoop</span></code></a></p></td>
+<td><p>More general loop type that just considers the branch instruction as part
+of the boundary.
+This can help to improve performance as the instructions that belong to
+handling the loop can be considered by SLOTHY as well.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.iter_riscv_instructions" title="slothy.targets.riscv.riscv.iter_riscv_instructions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iter_riscv_instructions</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.find_class" title="slothy.targets.riscv.riscv.find_class"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_class</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.lookup_multidict" title="slothy.targets.riscv.riscv.lookup_multidict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lookup_multidict</span></code></a></p></td>
+<td><p>Multidict lookup</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.arch_name" title="slothy.targets.riscv.riscv.arch_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arch_name</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.llvm_mca_arch" title="slothy.targets.riscv.riscv.llvm_mca_arch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">llvm_mca_arch</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.llvm_mc_arch" title="slothy.targets.riscv.riscv.llvm_mc_arch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">llvm_mc_arch</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.llvm_mc_attr" title="slothy.targets.riscv.riscv.llvm_mc_attr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">llvm_mc_attr</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.unicorn_arch" title="slothy.targets.riscv.riscv.unicorn_arch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unicorn_arch</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.unicorn_mode" title="slothy.targets.riscv.riscv.unicorn_mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unicorn_mode</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.arch_name">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">arch_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RISCV'</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.arch_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.llvm_mca_arch">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">llvm_mca_arch</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'aarch64'</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.llvm_mca_arch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.llvm_mc_arch">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">llvm_mc_arch</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.llvm_mc_arch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.llvm_mc_attr">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">llvm_mc_attr</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.llvm_mc_attr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.unicorn_arch">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">unicorn_arch</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.unicorn_arch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.unicorn_mode">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">unicorn_mode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.unicorn_mode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">RegisterType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Enum of all register types</p>
+<p class="rubric">Initialization</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.BASE_INT">
+<span class="sig-name descname"><span class="pre">BASE_INT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.BASE_INT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.VECT">
+<span class="sig-name descname"><span class="pre">VECT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.VECT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.CSR">
+<span class="sig-name descname"><span class="pre">CSR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.CSR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.__str__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.__repr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType._spillable">
+<span class="sig-name descname"><span class="pre">_spillable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType._spillable" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.spillable">
+<span class="sig-name descname"><span class="pre">spillable</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'staticmethod(...)'</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.spillable" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType._list_registers">
+<span class="sig-name descname"><span class="pre">_list_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">only_extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_normal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_variants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType._list_registers" title="Link to this definition"></a></dt>
+<dd><p>Return the list of all registers of a given type</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.list_registers">
+<span class="sig-name descname"><span class="pre">list_registers</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'staticmethod(...)'</span></em><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.list_registers" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.find_type">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.find_type" title="Link to this definition"></a></dt>
+<dd><p>Find type of architectural register</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.is_renamed">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_renamed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ty</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.is_renamed" title="Link to this definition"></a></dt>
+<dd><p>Indicate if register type should be subject to renaming</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.from_string">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.from_string" title="Link to this definition"></a></dt>
+<dd><p>Find register type from string</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.default_reserved">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_reserved</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.default_reserved" title="Link to this definition"></a></dt>
+<dd><p>Return the list of registers that should be reserved by default</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.RegisterType.default_aliases">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_aliases</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.RegisterType.default_aliases" title="Link to this definition"></a></dt>
+<dd><p>Register aliases used by the architecture</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.AddiLoop">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">AddiLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.AddiLoop" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.Loop" title="slothy.helper.Loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.Loop</span></code></a></p>
+<p>Loop ending in an addition and a branch.</p>
+<p>Example:
+<a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a></p>
+<blockquote>
+<div><dl class="simple">
+<dt>loop_lbl:</dt><dd><p>{code}
+addi &lt;cnt&gt;, &lt;cnt&gt;, -&lt;imm&gt;
+(beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu) &lt;cnt&gt;, &lt;end&gt;, loop_lbl</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.AddiLoop.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_cnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unroll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_if_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preamble_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postamble_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_aliases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.AddiLoop.start" title="Link to this definition"></a></dt>
+<dd><p>Emit starting instruction(s) and jump label for loop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.AddiLoop.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.AddiLoop.end" title="Link to this definition"></a></dt>
+<dd><p>Emit compare-and-branch at the end of the loop</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.AddiStashLoop">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">AddiStashLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.AddiStashLoop" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.Loop" title="slothy.helper.Loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.Loop</span></code></a></p>
+<p>Loop ending in an addition and a branch.</p>
+<p>Example:
+<a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a></p>
+<blockquote>
+<div><dl class="simple">
+<dt>loop_lbl:</dt><dd><p>{code}
+ld &lt;cnt&gt;, &lt;offset&gt;(&lt;ptr&gt;)
+addi &lt;cnt&gt;, &lt;cnt&gt;, -&lt;imm&gt;
+sd &lt;cnt&gt;, &lt;offset&gt;(&lt;ptr&gt;)
+(bne|bge) &lt;cnt&gt;, &lt;end&gt;, loop_lbl</p>
+</dd>
+</dl>
+</div></blockquote>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.AddiStashLoop.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_cnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unroll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_if_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preamble_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postamble_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_aliases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.AddiStashLoop.start" title="Link to this definition"></a></dt>
+<dd><p>Emit starting instruction(s) and jump label for loop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.AddiStashLoop.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.AddiStashLoop.end" title="Link to this definition"></a></dt>
+<dd><p>Emit compare-and-branch at the end of the loop</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.BranchLoop">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">BranchLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lbl'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lr'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.BranchLoop" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.Loop" title="slothy.helper.Loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.Loop</span></code></a></p>
+<p>More general loop type that just considers the branch instruction as part
+of the boundary.
+This can help to improve performance as the instructions that belong to
+handling the loop can be considered by SLOTHY as well.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This loop type is still rather experimental. It has a lot of logic
+inside as it needs to be able to “understand” a variety of different
+ways to express loops, e.g., how counters get incremented, how
+registers marking the end of the loop need to be modified in case of
+software pipelining etc.</p>
+</div>
+<p>Example:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nl">loop_lbl:</span>
+<span class="w">   </span><span class="err">{</span><span class="nf">code</span><span class="p">}</span>
+<span class="w">   </span><span class="nf">bltu</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">end</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="no">loop_lbl</span>
+</pre></div>
+</div>
+<p>where cnt is the loop counter that gets incremented within the loop body.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.BranchLoop.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_cnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unroll</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jump_if_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preamble_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postamble_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register_aliases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.BranchLoop.start" title="Link to this definition"></a></dt>
+<dd><p>Emit starting instruction(s) and jump label for loop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.BranchLoop.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indentation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.BranchLoop.end" title="Link to this definition"></a></dt>
+<dd><p>Nothing to do here - the branch instruction is already part of the body</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.iter_riscv_instructions">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">iter_riscv_instructions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.iter_riscv_instructions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.find_class">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">find_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.find_class" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.riscv.riscv.lookup_multidict">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">lookup_multidict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">any</span></span></span><a class="headerlink" href="#slothy.targets.riscv.riscv.lookup_multidict" title="Link to this definition"></a></dt>
+<dd><p>Multidict lookup</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Multidict entries can be the following:</dt><dd><ul class="simple">
+<li><p>An instruction class. It matches any instruction of that class.</p></li>
+<li><p>A callable. It matches any instruction returning <cite>True</cite> when passed
+to the callable.</p></li>
+<li><p>A tuple of instruction classes or callables. It matches any instruction
+which matches at least one element in the tuple.</p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>any</em>) – dictionary</p></li>
+<li><p><strong>inst</strong> (<em>any</em>)</p></li>
+<li><p><strong>default</strong> (<em>any</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>any</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.UnknownInstruction" title="slothy.targets.arm_v7m.arch_v7m.UnknownInstruction"><strong>UnknownInstruction</strong></a> – Couldn’t find instruction class for instruction</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="slothy.targets.riscv.xuantie_c908.html" class="btn btn-neutral float-left" title="slothy.targets.riscv.xuantie_c908" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="slothy.targets.riscv.exceptions.html" class="btn btn-neutral float-right" title="slothy.targets.riscv.exceptions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

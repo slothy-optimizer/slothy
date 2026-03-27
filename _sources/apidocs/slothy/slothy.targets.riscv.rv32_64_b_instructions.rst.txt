@@ -1,0 +1,46 @@
+:py:mod:`slothy.targets.riscv.rv32_64_b_instructions`
+=====================================================
+
+.. py:module:: slothy.targets.riscv.rv32_64_b_instructions
+
+.. autodoc2-docstring:: slothy.targets.riscv.rv32_64_b_instructions
+   :allowtitles:
+
+Module Contents
+---------------
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`generate_rv32_64_b_instructions <slothy.targets.riscv.rv32_64_b_instructions.generate_rv32_64_b_instructions>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_b_instructions.generate_rv32_64_b_instructions
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`Zbkb_instrs <slothy.targets.riscv.rv32_64_b_instructions.Zbkb_instrs>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_b_instructions.Zbkb_instrs
+          :summary:
+
+API
+~~~
+
+.. py:data:: Zbkb_instrs
+   :canonical: slothy.targets.riscv.rv32_64_b_instructions.Zbkb_instrs
+   :value: [(['rol<w>', 'ror<w>', 'andn', 'orn', 'xnor', 'pack<w>', 'packh'],), (['rori<w>'],), (['brev8', 'rev...
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_b_instructions.Zbkb_instrs
+
+.. py:function:: generate_rv32_64_b_instructions()
+   :canonical: slothy.targets.riscv.rv32_64_b_instructions.generate_rv32_64_b_instructions
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_b_instructions.generate_rv32_64_b_instructions

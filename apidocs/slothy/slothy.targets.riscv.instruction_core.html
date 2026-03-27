@@ -1,0 +1,304 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>slothy.targets.riscv.instruction_core &mdash; SLOTHY  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=96fe82d1" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="slothy.targets.riscv.rv32_64_pseudo_instructions" href="slothy.targets.riscv.rv32_64_pseudo_instructions.html" />
+    <link rel="prev" title="slothy.targets.riscv" href="slothy.targets.riscv.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/slothy_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html">About SLOTHY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#real-world-uses">Real world uses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../general.html#installation">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/README.html">SLOTHY Tutorial</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="slothy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="slothy.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.cli</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slothy.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SLOTHY</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a></li>
+          <li class="breadcrumb-item"><a href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
+          <li class="breadcrumb-item"><a href="slothy.targets.riscv.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets.riscv</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets.riscv.instruction_core</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/apidocs/slothy/slothy.targets.riscv.instruction_core.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-slothy.targets.riscv.instruction_core">
+<span id="slothy-targets-riscv-instruction-core"></span><h1><a class="reference internal" href="#module-slothy.targets.riscv.instruction_core" title="slothy.targets.riscv.instruction_core"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets.riscv.instruction_core</span></code></a><a class="headerlink" href="#module-slothy.targets.riscv.instruction_core" title="Link to this heading"></a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.instruction_core.Instruction" title="slothy.targets.riscv.instruction_core.Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Instruction</span></code></a></p></td>
+<td><p>Represents an abstract instruction</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.instruction_core.</span></span><span class="sig-name descname"><span class="pre">Instruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_types_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_types_in_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_types_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction" title="Link to this definition"></a></dt>
+<dd><p>Represents an abstract instruction</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.extract_read_writes">
+<span class="sig-name descname"><span class="pre">extract_read_writes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.extract_read_writes" title="Link to this definition"></a></dt>
+<dd><p>Extracts ‘reads’/’writes’ clauses from the source line of the instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.global_parsing_cb">
+<span class="sig-name descname"><span class="pre">global_parsing_cb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.global_parsing_cb" title="Link to this definition"></a></dt>
+<dd><p>Parsing callback triggered after DataFlowGraph parsing which allows
+modification of the instruction in the context of the overall
+computation.</p>
+<p>This is primarily used to remodel input-outputs as outputs in jointly
+destructive instruction patterns
+(See Section 4.4, <a class="reference external" href="https://eprint.iacr.org/2022/1303.pdf">https://eprint.iacr.org/2022/1303.pdf</a>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.global_fusion_cb">
+<span class="sig-name descname"><span class="pre">global_fusion_cb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.global_fusion_cb" title="Link to this definition"></a></dt>
+<dd><p>Fusion callback triggered after DataFlowGraph parsing which
+allows fusing of the instruction in the context of the overall
+computation.</p>
+<p>This can be used e.g. to detect eor-eor pairs and replace them
+by eor3.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.write" title="Link to this definition"></a></dt>
+<dd><p>Write the instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction._is_instance_of">
+<span class="sig-name descname"><span class="pre">_is_instance_of</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction._is_instance_of" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.is_vector_load">
+<span class="sig-name descname"><span class="pre">is_vector_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.is_vector_load" title="Link to this definition"></a></dt>
+<dd><p>Indicates if an instruction is a RISC-V load instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.is_vector_store">
+<span class="sig-name descname"><span class="pre">is_vector_store</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.is_vector_store" title="Link to this definition"></a></dt>
+<dd><p>Indicates if an instruction is a RISC-V store instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.is_scalar_load">
+<span class="sig-name descname"><span class="pre">is_scalar_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.is_scalar_load" title="Link to this definition"></a></dt>
+<dd><p>Indicates if an instruction is a scalar load instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.is_scalar_store">
+<span class="sig-name descname"><span class="pre">is_scalar_store</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.is_scalar_store" title="Link to this definition"></a></dt>
+<dd><p>Indicates if an instruction is a scalar store instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.is_load">
+<span class="sig-name descname"><span class="pre">is_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.is_load" title="Link to this definition"></a></dt>
+<dd><p>Indicates if an instruction is a scalar or Neon load instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.is_store">
+<span class="sig-name descname"><span class="pre">is_store</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.is_store" title="Link to this definition"></a></dt>
+<dd><p>Indicates if an instruction is a scalar or Neon store instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.is_load_store_instruction">
+<span class="sig-name descname"><span class="pre">is_load_store_instruction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.is_load_store_instruction" title="Link to this definition"></a></dt>
+<dd><p>Indicates if an instruction is a scalar or Neon load or store instruction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.is_32_bit">
+<span class="sig-name descname"><span class="pre">is_32_bit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.is_32_bit" title="Link to this definition"></a></dt>
+<dd><p>Indicates if an instruction operates on 32 bit</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.make">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.make" title="Link to this definition"></a></dt>
+<dd><p>Abstract factory method parsing a string into an instruction instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.build">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#slothy.targets.riscv.instruction_core.Instruction" title="slothy.targets.riscv.instruction_core.Instruction"><span class="pre">slothy.targets.riscv.instruction_core.Instruction</span></a></span></span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.build" title="Link to this definition"></a></dt>
+<dd><p>Attempt to parse a string as an instance of an instruction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> (<em>any</em>) – The target instruction the string should be attempted to be parsed as.</p></li>
+<li><p><strong>src</strong> (<em>str</em>) – The string to parse.</p></li>
+<li><p><strong>mnemonic</strong> (<em>str</em>) – The mnemonic of instruction c</p></li>
+<li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the constructor of c.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Upon success, the result of parsing src as an instance of c.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#slothy.targets.riscv.instruction_core.Instruction" title="slothy.targets.riscv.instruction_core.Instruction">Instruction</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="slothy.targets.riscv.exceptions.html#slothy.targets.riscv.exceptions.ParsingException" title="slothy.targets.riscv.exceptions.ParsingException"><strong>ParsingException</strong></a> – The str argument cannot be parsed as an
+instance of c.</p></li>
+<li><p><a class="reference internal" href="slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.FatalParsingException" title="slothy.targets.arm_v7m.arch_v7m.FatalParsingException"><strong>FatalParsingException</strong></a> – A fatal error during parsing happened
+that’s likely a bug in the model.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.parser">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.parser" title="Link to this definition"></a></dt>
+<dd><p>Global factory method parsing an assembly line into an instance
+of a subclass of Instruction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.__repr__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="slothy.targets.riscv.instruction_core.Instruction.all_subclass_leaves">
+<span class="sig-name descname"><span class="pre">all_subclass_leaves</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.instruction_core.Instruction.all_subclass_leaves" title="Link to this definition"></a></dt>
+<dd><p>Returns the list of all subclasses of a class which don’t have subclasses
+themselves</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="slothy.targets.riscv.html" class="btn btn-neutral float-left" title="slothy.targets.riscv" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="slothy.targets.riscv.rv32_64_pseudo_instructions.html" class="btn btn-neutral float-right" title="slothy.targets.riscv.rv32_64_pseudo_instructions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Hanno Becker, Amin Abdulrahman, Matthias Kannwischer, Justus Bergermann.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

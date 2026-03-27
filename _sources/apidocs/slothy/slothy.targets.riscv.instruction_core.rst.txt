@@ -1,0 +1,124 @@
+:py:mod:`slothy.targets.riscv.instruction_core`
+===============================================
+
+.. py:module:: slothy.targets.riscv.instruction_core
+
+.. autodoc2-docstring:: slothy.targets.riscv.instruction_core
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`Instruction <slothy.targets.riscv.instruction_core.Instruction>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction
+          :summary:
+
+API
+~~~
+
+.. py:class:: Instruction(*, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None)
+   :canonical: slothy.targets.riscv.instruction_core.Instruction
+
+   .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.__init__
+
+   .. py:method:: extract_read_writes()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.extract_read_writes
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.extract_read_writes
+
+   .. py:method:: global_parsing_cb(a, log=None)
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.global_parsing_cb
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.global_parsing_cb
+
+   .. py:method:: global_fusion_cb(a, log=None)
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.global_fusion_cb
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.global_fusion_cb
+
+   .. py:method:: write()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.write
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.write
+
+   .. py:method:: _is_instance_of(inst_list)
+      :canonical: slothy.targets.riscv.instruction_core.Instruction._is_instance_of
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction._is_instance_of
+
+   .. py:method:: is_vector_load()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.is_vector_load
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.is_vector_load
+
+   .. py:method:: is_vector_store()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.is_vector_store
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.is_vector_store
+
+   .. py:method:: is_scalar_load()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.is_scalar_load
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.is_scalar_load
+
+   .. py:method:: is_scalar_store()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.is_scalar_store
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.is_scalar_store
+
+   .. py:method:: is_load()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.is_load
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.is_load
+
+   .. py:method:: is_store()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.is_store
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.is_store
+
+   .. py:method:: is_load_store_instruction()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.is_load_store_instruction
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.is_load_store_instruction
+
+   .. py:method:: is_32_bit()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.is_32_bit
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.is_32_bit
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.make
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.make
+
+   .. py:method:: build(c: any, src: str, mnemonic: str, **kwargs: list) -> slothy.targets.riscv.instruction_core.Instruction
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.build
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.build
+
+   .. py:method:: parser(src_line)
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.parser
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.parser
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.__repr__
+
+   .. py:method:: all_subclass_leaves()
+      :canonical: slothy.targets.riscv.instruction_core.Instruction.all_subclass_leaves
+
+      .. autodoc2-docstring:: slothy.targets.riscv.instruction_core.Instruction.all_subclass_leaves

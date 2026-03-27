@@ -1,0 +1,277 @@
+:py:mod:`slothy.targets.riscv.riscv`
+====================================
+
+.. py:module:: slothy.targets.riscv.riscv
+
+.. autodoc2-docstring:: slothy.targets.riscv.riscv
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`RegisterType <slothy.targets.riscv.riscv.RegisterType>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType
+          :summary:
+   * - :py:obj:`AddiLoop <slothy.targets.riscv.riscv.AddiLoop>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiLoop
+          :summary:
+   * - :py:obj:`AddiStashLoop <slothy.targets.riscv.riscv.AddiStashLoop>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiStashLoop
+          :summary:
+   * - :py:obj:`BranchLoop <slothy.targets.riscv.riscv.BranchLoop>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.BranchLoop
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`iter_riscv_instructions <slothy.targets.riscv.riscv.iter_riscv_instructions>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.iter_riscv_instructions
+          :summary:
+   * - :py:obj:`find_class <slothy.targets.riscv.riscv.find_class>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.find_class
+          :summary:
+   * - :py:obj:`lookup_multidict <slothy.targets.riscv.riscv.lookup_multidict>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.lookup_multidict
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`arch_name <slothy.targets.riscv.riscv.arch_name>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.arch_name
+          :summary:
+   * - :py:obj:`llvm_mca_arch <slothy.targets.riscv.riscv.llvm_mca_arch>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.llvm_mca_arch
+          :summary:
+   * - :py:obj:`llvm_mc_arch <slothy.targets.riscv.riscv.llvm_mc_arch>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.llvm_mc_arch
+          :summary:
+   * - :py:obj:`llvm_mc_attr <slothy.targets.riscv.riscv.llvm_mc_attr>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.llvm_mc_attr
+          :summary:
+   * - :py:obj:`unicorn_arch <slothy.targets.riscv.riscv.unicorn_arch>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.unicorn_arch
+          :summary:
+   * - :py:obj:`unicorn_mode <slothy.targets.riscv.riscv.unicorn_mode>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv.unicorn_mode
+          :summary:
+
+API
+~~~
+
+.. py:data:: arch_name
+   :canonical: slothy.targets.riscv.riscv.arch_name
+   :value: 'RISCV'
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.arch_name
+
+.. py:data:: llvm_mca_arch
+   :canonical: slothy.targets.riscv.riscv.llvm_mca_arch
+   :value: 'aarch64'
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.llvm_mca_arch
+
+.. py:data:: llvm_mc_arch
+   :canonical: slothy.targets.riscv.riscv.llvm_mc_arch
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.llvm_mc_arch
+
+.. py:data:: llvm_mc_attr
+   :canonical: slothy.targets.riscv.riscv.llvm_mc_attr
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.llvm_mc_attr
+
+.. py:data:: unicorn_arch
+   :canonical: slothy.targets.riscv.riscv.unicorn_arch
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.unicorn_arch
+
+.. py:data:: unicorn_mode
+   :canonical: slothy.targets.riscv.riscv.unicorn_mode
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.unicorn_mode
+
+.. py:class:: RegisterType(*args, **kwds)
+   :canonical: slothy.targets.riscv.riscv.RegisterType
+
+   Bases: :py:obj:`enum.Enum`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.__init__
+
+   .. py:attribute:: BASE_INT
+      :canonical: slothy.targets.riscv.riscv.RegisterType.BASE_INT
+      :value: 1
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.BASE_INT
+
+   .. py:attribute:: VECT
+      :canonical: slothy.targets.riscv.riscv.RegisterType.VECT
+      :value: 2
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.VECT
+
+   .. py:attribute:: CSR
+      :canonical: slothy.targets.riscv.riscv.RegisterType.CSR
+      :value: 3
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.CSR
+
+   .. py:method:: __str__()
+      :canonical: slothy.targets.riscv.riscv.RegisterType.__str__
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.riscv.riscv.RegisterType.__repr__
+
+   .. py:method:: _spillable()
+      :canonical: slothy.targets.riscv.riscv.RegisterType._spillable
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType._spillable
+
+   .. py:attribute:: spillable
+      :canonical: slothy.targets.riscv.riscv.RegisterType.spillable
+      :value: 'staticmethod(...)'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.spillable
+
+   .. py:method:: _list_registers(only_extra=False, only_normal=False, with_variants=False)
+      :canonical: slothy.targets.riscv.riscv.RegisterType._list_registers
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType._list_registers
+
+   .. py:attribute:: list_registers
+      :canonical: slothy.targets.riscv.riscv.RegisterType.list_registers
+      :value: 'staticmethod(...)'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.list_registers
+
+   .. py:method:: find_type(r)
+      :canonical: slothy.targets.riscv.riscv.RegisterType.find_type
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.find_type
+
+   .. py:method:: is_renamed(ty)
+      :canonical: slothy.targets.riscv.riscv.RegisterType.is_renamed
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.is_renamed
+
+   .. py:method:: from_string(string)
+      :canonical: slothy.targets.riscv.riscv.RegisterType.from_string
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.from_string
+
+   .. py:method:: default_reserved()
+      :canonical: slothy.targets.riscv.riscv.RegisterType.default_reserved
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.default_reserved
+
+   .. py:method:: default_aliases()
+      :canonical: slothy.targets.riscv.riscv.RegisterType.default_aliases
+      :staticmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.RegisterType.default_aliases
+
+.. py:class:: AddiLoop(lbl=None, lbl_start=None, lbl_end=None, loop_init=None)
+   :canonical: slothy.targets.riscv.riscv.AddiLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.riscv.riscv.AddiLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.riscv.riscv.AddiLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiLoop.end
+
+.. py:class:: AddiStashLoop(lbl=None, lbl_start=None, lbl_end=None, loop_init=None)
+   :canonical: slothy.targets.riscv.riscv.AddiStashLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiStashLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiStashLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.riscv.riscv.AddiStashLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiStashLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.riscv.riscv.AddiStashLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.AddiStashLoop.end
+
+.. py:class:: BranchLoop(lbl='lbl', lbl_start='1', lbl_end='2', loop_init='lr')
+   :canonical: slothy.targets.riscv.riscv.BranchLoop
+
+   Bases: :py:obj:`slothy.helper.Loop`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.BranchLoop
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.BranchLoop.__init__
+
+   .. py:method:: start(loop_cnt, indentation=0, fixup=0, unroll=1, jump_if_empty=None, preamble_code=None, body_code=None, postamble_code=None, register_aliases=None)
+      :canonical: slothy.targets.riscv.riscv.BranchLoop.start
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.BranchLoop.start
+
+   .. py:method:: end(other, indentation=0)
+      :canonical: slothy.targets.riscv.riscv.BranchLoop.end
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv.BranchLoop.end
+
+.. py:function:: iter_riscv_instructions()
+   :canonical: slothy.targets.riscv.riscv.iter_riscv_instructions
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.iter_riscv_instructions
+
+.. py:function:: find_class(src)
+   :canonical: slothy.targets.riscv.riscv.find_class
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.find_class
+
+.. py:function:: lookup_multidict(d: any, inst: any, default: any = None) -> any
+   :canonical: slothy.targets.riscv.riscv.lookup_multidict
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv.lookup_multidict

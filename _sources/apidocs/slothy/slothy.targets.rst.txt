@@ -14,6 +14,7 @@ Subpackages
    :maxdepth: 3
 
    slothy.targets.arm_v81m
+   slothy.targets.riscv
    slothy.targets.arm_v7m
    slothy.targets.aarch64
 

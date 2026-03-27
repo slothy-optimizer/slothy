@@ -1,0 +1,57 @@
+:py:mod:`slothy.targets.riscv.exceptions`
+=========================================
+
+.. py:module:: slothy.targets.riscv.exceptions
+
+.. autodoc2-docstring:: slothy.targets.riscv.exceptions
+   :allowtitles:
+
+Module Contents
+---------------
+
+API
+~~~
+
+.. py:exception:: FatalParsingException()
+   :canonical: slothy.targets.riscv.exceptions.FatalParsingException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.exceptions.FatalParsingException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.exceptions.FatalParsingException.__init__
+
+.. py:exception:: UnknownInstruction()
+   :canonical: slothy.targets.riscv.exceptions.UnknownInstruction
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.exceptions.UnknownInstruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.exceptions.UnknownInstruction.__init__
+
+.. py:exception:: UnknownRegister()
+   :canonical: slothy.targets.riscv.exceptions.UnknownRegister
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.exceptions.UnknownRegister
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.exceptions.UnknownRegister.__init__
+
+.. py:exception:: ParsingException(err=None)
+   :canonical: slothy.targets.riscv.exceptions.ParsingException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.exceptions.ParsingException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.exceptions.ParsingException.__init__

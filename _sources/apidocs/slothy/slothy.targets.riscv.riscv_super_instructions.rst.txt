@@ -1,0 +1,251 @@
+:py:mod:`slothy.targets.riscv.riscv_super_instructions`
+=======================================================
+
+.. py:module:: slothy.targets.riscv.riscv_super_instructions
+
+.. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`RISCVStore <slothy.targets.riscv.riscv_super_instructions.RISCVStore>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore
+          :summary:
+   * - :py:obj:`RISCVIntegerRegister <slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister
+          :summary:
+   * - :py:obj:`RISCVIntegerRegisterImmediate <slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate
+          :summary:
+   * - :py:obj:`RISCVIntegerRegisterRegister <slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister
+          :summary:
+   * - :py:obj:`RISCVLoad <slothy.targets.riscv.riscv_super_instructions.RISCVLoad>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad
+          :summary:
+   * - :py:obj:`RISCVUType <slothy.targets.riscv.riscv_super_instructions.RISCVUType>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVUType
+          :summary:
+   * - :py:obj:`RISCVIntegerRegisterRegisterMul <slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul
+          :summary:
+   * - :py:obj:`RISCVBranch <slothy.targets.riscv.riscv_super_instructions.RISCVBranch>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch
+          :summary:
+
+API
+~~~
+
+.. py:class:: RISCVStore
+   :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVStore
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVStore.make
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore.make
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVStore.pattern
+      :value: 'mnemonic <Xb>, <imm>(<Xa>)'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVStore.inputs
+      :value: ['Xb', 'Xa']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore.inputs
+
+.. py:class:: RISCVIntegerRegister
+   :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister.pattern
+      :value: 'mnemonic <Xd>, <Xa>'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister.inputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister.outputs
+
+.. py:class:: RISCVIntegerRegisterImmediate
+   :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate.pattern
+      :value: 'mnemonic <Xd>, <Xa>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate.inputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate.outputs
+
+.. py:class:: RISCVIntegerRegisterRegister
+   :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister.pattern
+      :value: 'mnemonic <Xd>, <Xa>, <Xb>'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister.inputs
+      :value: ['Xa', 'Xb']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister.outputs
+
+.. py:class:: RISCVLoad
+   :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVLoad
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.make
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.make
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.pattern
+      :value: 'mnemonic <Xd>, <imm>(<Xa>)'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.inputs
+      :value: ['Xa']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.outputs
+
+.. py:class:: RISCVUType
+   :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVUType
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVUType
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVUType.pattern
+      :value: 'mnemonic <Xd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVUType.pattern
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVUType.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVUType.outputs
+
+.. py:class:: RISCVIntegerRegisterRegisterMul
+   :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul.pattern
+      :value: 'mnemonic <Xd>, <Xa>, <Xb>'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul.inputs
+      :value: ['Xa', 'Xb']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul.outputs
+
+.. py:class:: RISCVBranch
+   :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVBranch
+
+   Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.pattern
+      :value: 'mnemonic <Xa>, <Xb>, <label>'
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.inputs
+      :value: ['Xa', 'Xb']
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.outputs
+      :value: []
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.make
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.make

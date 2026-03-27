@@ -1,0 +1,207 @@
+:py:mod:`slothy.targets.riscv.xuantie_c908`
+===========================================
+
+.. py:module:: slothy.targets.riscv.xuantie_c908
+
+.. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908
+   :allowtitles:
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`ExecutionUnit <slothy.targets.riscv.xuantie_c908.ExecutionUnit>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit
+          :summary:
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`add_further_constraints <slothy.targets.riscv.xuantie_c908.add_further_constraints>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.add_further_constraints
+          :summary:
+   * - :py:obj:`has_min_max_objective <slothy.targets.riscv.xuantie_c908.has_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.has_min_max_objective
+          :summary:
+   * - :py:obj:`get_min_max_objective <slothy.targets.riscv.xuantie_c908.get_min_max_objective>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.get_min_max_objective
+          :summary:
+   * - :py:obj:`get_latency <slothy.targets.riscv.xuantie_c908.get_latency>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.get_latency
+          :summary:
+   * - :py:obj:`get_units <slothy.targets.riscv.xuantie_c908.get_units>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.get_units
+          :summary:
+   * - :py:obj:`get_inverse_throughput <slothy.targets.riscv.xuantie_c908.get_inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.get_inverse_throughput
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`issue_rate <slothy.targets.riscv.xuantie_c908.issue_rate>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.issue_rate
+          :summary:
+   * - :py:obj:`llvm_mca_target <slothy.targets.riscv.xuantie_c908.llvm_mca_target>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.llvm_mca_target
+          :summary:
+   * - :py:obj:`execution_units <slothy.targets.riscv.xuantie_c908.execution_units>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.execution_units
+          :summary:
+   * - :py:obj:`inverse_throughput <slothy.targets.riscv.xuantie_c908.inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.inverse_throughput
+          :summary:
+   * - :py:obj:`rv32_inverse_throughput <slothy.targets.riscv.xuantie_c908.rv32_inverse_throughput>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.rv32_inverse_throughput
+          :summary:
+   * - :py:obj:`default_latencies <slothy.targets.riscv.xuantie_c908.default_latencies>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.default_latencies
+          :summary:
+   * - :py:obj:`rv32_latencies <slothy.targets.riscv.xuantie_c908.rv32_latencies>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.rv32_latencies
+          :summary:
+
+API
+~~~
+
+.. py:data:: issue_rate
+   :canonical: slothy.targets.riscv.xuantie_c908.issue_rate
+   :value: 2
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.issue_rate
+
+.. py:data:: llvm_mca_target
+   :canonical: slothy.targets.riscv.xuantie_c908.llvm_mca_target
+   :value: <Multiline-String>
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.llvm_mca_target
+
+.. py:class:: ExecutionUnit(*args, **kwds)
+   :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit
+
+   Bases: :py:obj:`enum.Enum`
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit.__init__
+
+   .. py:attribute:: SCALAR_ALU0
+      :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit.SCALAR_ALU0
+      :value: 1
+
+      .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit.SCALAR_ALU0
+
+   .. py:attribute:: SCALAR_ALU1
+      :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit.SCALAR_ALU1
+      :value: 2
+
+      .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit.SCALAR_ALU1
+
+   .. py:attribute:: SCALAR_MUL
+      :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit.SCALAR_MUL
+      :value: 3
+
+      .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit.SCALAR_MUL
+
+   .. py:attribute:: LSU
+      :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit.LSU
+      :value: 4
+
+      .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit.LSU
+
+   .. py:attribute:: VEC0
+      :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit.VEC0
+      :value: 5
+
+      .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit.VEC0
+
+   .. py:attribute:: VEC1
+      :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit.VEC1
+      :value: 6
+
+      .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit.VEC1
+
+   .. py:method:: __repr__()
+      :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit.__repr__
+
+   .. py:method:: SCALAR()
+      :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit.SCALAR
+      :classmethod:
+
+      .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit.SCALAR
+
+.. py:function:: add_further_constraints(slothy)
+   :canonical: slothy.targets.riscv.xuantie_c908.add_further_constraints
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.add_further_constraints
+
+.. py:function:: has_min_max_objective(config)
+   :canonical: slothy.targets.riscv.xuantie_c908.has_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.has_min_max_objective
+
+.. py:function:: get_min_max_objective(slothy)
+   :canonical: slothy.targets.riscv.xuantie_c908.get_min_max_objective
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.get_min_max_objective
+
+.. py:data:: execution_units
+   :canonical: slothy.targets.riscv.xuantie_c908.execution_units
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.execution_units
+
+.. py:data:: inverse_throughput
+   :canonical: slothy.targets.riscv.xuantie_c908.inverse_throughput
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.inverse_throughput
+
+.. py:data:: rv32_inverse_throughput
+   :canonical: slothy.targets.riscv.xuantie_c908.rv32_inverse_throughput
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.rv32_inverse_throughput
+
+.. py:data:: default_latencies
+   :canonical: slothy.targets.riscv.xuantie_c908.default_latencies
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.default_latencies
+
+.. py:data:: rv32_latencies
+   :canonical: slothy.targets.riscv.xuantie_c908.rv32_latencies
+   :value: None
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.rv32_latencies
+
+.. py:function:: get_latency(src, out_idx: int, dst) -> int
+   :canonical: slothy.targets.riscv.xuantie_c908.get_latency
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.get_latency
+
+.. py:function:: get_units(src) -> list
+   :canonical: slothy.targets.riscv.xuantie_c908.get_units
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.get_units
+
+.. py:function:: get_inverse_throughput(src) -> int
+   :canonical: slothy.targets.riscv.xuantie_c908.get_inverse_throughput
+
+   .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.get_inverse_throughput

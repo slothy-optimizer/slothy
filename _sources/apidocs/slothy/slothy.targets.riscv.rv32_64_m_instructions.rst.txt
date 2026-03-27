@@ -1,0 +1,46 @@
+:py:mod:`slothy.targets.riscv.rv32_64_m_instructions`
+=====================================================
+
+.. py:module:: slothy.targets.riscv.rv32_64_m_instructions
+
+.. autodoc2-docstring:: slothy.targets.riscv.rv32_64_m_instructions
+   :allowtitles:
+
+Module Contents
+---------------
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`generate_rv32_64_m_instructions <slothy.targets.riscv.rv32_64_m_instructions.generate_rv32_64_m_instructions>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_m_instructions.generate_rv32_64_m_instructions
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`m_instrs <slothy.targets.riscv.rv32_64_m_instructions.m_instrs>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_m_instructions.m_instrs
+          :summary:
+
+API
+~~~
+
+.. py:data:: m_instrs
+   :canonical: slothy.targets.riscv.rv32_64_m_instructions.m_instrs
+   :value: [(['mul<w>', 'mulh', 'mulhsu', 'mulhu', 'div<w>', 'divu<w>', 'rem<w>', 'remu<w>'],)]
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_m_instructions.m_instrs
+
+.. py:function:: generate_rv32_64_m_instructions()
+   :canonical: slothy.targets.riscv.rv32_64_m_instructions.generate_rv32_64_m_instructions
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_m_instructions.generate_rv32_64_m_instructions

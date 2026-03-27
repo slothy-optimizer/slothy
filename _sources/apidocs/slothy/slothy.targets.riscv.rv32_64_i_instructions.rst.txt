@@ -1,0 +1,46 @@
+:py:mod:`slothy.targets.riscv.rv32_64_i_instructions`
+=====================================================
+
+.. py:module:: slothy.targets.riscv.rv32_64_i_instructions
+
+.. autodoc2-docstring:: slothy.targets.riscv.rv32_64_i_instructions
+   :allowtitles:
+
+Module Contents
+---------------
+
+Functions
+~~~~~~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`generate_rv32_64_i_instructions <slothy.targets.riscv.rv32_64_i_instructions.generate_rv32_64_i_instructions>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_i_instructions.generate_rv32_64_i_instructions
+          :summary:
+
+Data
+~~~~
+
+.. list-table::
+   :class: autosummary longtable
+   :align: left
+
+   * - :py:obj:`i_instrs <slothy.targets.riscv.rv32_64_i_instructions.i_instrs>`
+     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_i_instructions.i_instrs
+          :summary:
+
+API
+~~~
+
+.. py:data:: i_instrs
+   :canonical: slothy.targets.riscv.rv32_64_i_instructions.i_instrs
+   :value: [(['addi<w>', 'slti', 'sltiu', 'andi', 'ori', 'xori', 'slli<w>', 'srli<w>', 'srai<w>'],), (['and', '...
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_i_instructions.i_instrs
+
+.. py:function:: generate_rv32_64_i_instructions()
+   :canonical: slothy.targets.riscv.rv32_64_i_instructions.generate_rv32_64_i_instructions
+
+   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_i_instructions.generate_rv32_64_i_instructions
