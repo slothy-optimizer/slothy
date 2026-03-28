@@ -17,11 +17,9 @@ Classes
    :align: left
 
    * - :py:obj:`RISCVLiPseudo <slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo
-          :summary:
+     -
    * - :py:obj:`RISCVULaPseudo <slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo
-          :summary:
+     -
 
 Functions
 ~~~~~~~~~
@@ -48,12 +46,10 @@ Data
 API
 ~~~
 
-.. py:class:: RISCVLiPseudo
+.. py:class:: RISCVLiPseudo(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
-
-   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo.pattern
@@ -73,12 +69,10 @@ API
 
       .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVLiPseudo.outputs
 
-.. py:class:: RISCVULaPseudo
+.. py:class:: RISCVULaPseudo(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
-
-   .. autodoc2-docstring:: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.rv32_64_pseudo_instructions.RISCVULaPseudo.pattern

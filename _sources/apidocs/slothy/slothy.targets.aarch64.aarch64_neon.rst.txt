@@ -368,7 +368,7 @@ Classes
      -
    * - :py:obj:`csel_xzr2_ne <slothy.targets.aarch64.aarch64_neon.csel_xzr2_ne>`
      -
-   * - :py:obj:`csel_ne <slothy.targets.aarch64.aarch64_neon.csel_ne>`
+   * - :py:obj:`csel <slothy.targets.aarch64.aarch64_neon.csel>`
      -
    * - :py:obj:`cinv <slothy.targets.aarch64.aarch64_neon.cinv>`
      -
@@ -5261,34 +5261,34 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel_xzr2_ne.dependsOnFlags
 
-.. py:class:: csel_ne(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
-   :canonical: slothy.targets.aarch64.aarch64_neon.csel_ne
+.. py:class:: csel(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.csel
 
    Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect`
 
    .. py:attribute:: pattern
-      :canonical: slothy.targets.aarch64.aarch64_neon.csel_ne.pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.csel.pattern
       :value: 'csel <Xd>, <Xe>, <Xf>, <flag>'
 
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel_ne.pattern
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel.pattern
 
    .. py:attribute:: inputs
-      :canonical: slothy.targets.aarch64.aarch64_neon.csel_ne.inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.csel.inputs
       :value: ['Xe', 'Xf']
 
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel_ne.inputs
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel.inputs
 
    .. py:attribute:: outputs
-      :canonical: slothy.targets.aarch64.aarch64_neon.csel_ne.outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.csel.outputs
       :value: ['Xd']
 
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel_ne.outputs
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel.outputs
 
    .. py:attribute:: dependsOnFlags
-      :canonical: slothy.targets.aarch64.aarch64_neon.csel_ne.dependsOnFlags
+      :canonical: slothy.targets.aarch64.aarch64_neon.csel.dependsOnFlags
       :value: True
 
-      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel_ne.dependsOnFlags
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.csel.dependsOnFlags
 
 .. py:class:: cinv(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.cinv

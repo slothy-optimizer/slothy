@@ -169,12 +169,18 @@ API
       :canonical: slothy.targets.riscv.riscv_instruction_core.RISCVInstruction.build
       :staticmethod:
 
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_instruction_core.RISCVInstruction.build
+
    .. py:method:: make(src)
       :canonical: slothy.targets.riscv.riscv_instruction_core.RISCVInstruction.make
       :classmethod:
 
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_instruction_core.RISCVInstruction.make
+
    .. py:method:: write()
       :canonical: slothy.targets.riscv.riscv_instruction_core.RISCVInstruction.write
+
+      .. autodoc2-docstring:: slothy.targets.riscv.riscv_instruction_core.RISCVInstruction.write
 
    .. py:method:: instr_factory(instr_list: list, baseclass: any) -> list
       :canonical: slothy.targets.riscv.riscv_instruction_core.RISCVInstruction.instr_factory

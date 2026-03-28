@@ -17,26 +17,19 @@ Classes
    :align: left
 
    * - :py:obj:`RISCVStore <slothy.targets.riscv.riscv_super_instructions.RISCVStore>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore
-          :summary:
+     -
    * - :py:obj:`RISCVIntegerRegister <slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister
-          :summary:
+     -
    * - :py:obj:`RISCVIntegerRegisterImmediate <slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate
-          :summary:
+     -
    * - :py:obj:`RISCVIntegerRegisterRegister <slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister
-          :summary:
+     -
    * - :py:obj:`RISCVLoad <slothy.targets.riscv.riscv_super_instructions.RISCVLoad>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad
-          :summary:
+     -
    * - :py:obj:`RISCVUType <slothy.targets.riscv.riscv_super_instructions.RISCVUType>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVUType
-          :summary:
+     -
    * - :py:obj:`RISCVIntegerRegisterRegisterMul <slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul>`
-     - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul
-          :summary:
+     -
    * - :py:obj:`RISCVBranch <slothy.targets.riscv.riscv_super_instructions.RISCVBranch>`
      - .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch
           :summary:
@@ -44,18 +37,14 @@ Classes
 API
 ~~~
 
-.. py:class:: RISCVStore
+.. py:class:: RISCVStore(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVStore
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
 
-   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore
-
    .. py:method:: make(src)
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVStore.make
       :classmethod:
-
-      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore.make
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVStore.pattern
@@ -69,12 +58,10 @@ API
 
       .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVStore.inputs
 
-.. py:class:: RISCVIntegerRegister
+.. py:class:: RISCVIntegerRegister(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
-
-   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister.pattern
@@ -94,12 +81,10 @@ API
 
       .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegister.outputs
 
-.. py:class:: RISCVIntegerRegisterImmediate
+.. py:class:: RISCVIntegerRegisterImmediate(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
-
-   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate.pattern
@@ -119,12 +104,10 @@ API
 
       .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterImmediate.outputs
 
-.. py:class:: RISCVIntegerRegisterRegister
+.. py:class:: RISCVIntegerRegisterRegister(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
-
-   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister.pattern
@@ -144,18 +127,14 @@ API
 
       .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegister.outputs
 
-.. py:class:: RISCVLoad
+.. py:class:: RISCVLoad(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVLoad
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
 
-   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad
-
    .. py:method:: make(src)
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.make
       :classmethod:
-
-      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.make
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.pattern
@@ -175,12 +154,10 @@ API
 
       .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVLoad.outputs
 
-.. py:class:: RISCVUType
+.. py:class:: RISCVUType(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVUType
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
-
-   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVUType
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVUType.pattern
@@ -194,12 +171,10 @@ API
 
       .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVUType.outputs
 
-.. py:class:: RISCVIntegerRegisterRegisterMul
+.. py:class:: RISCVIntegerRegisterRegisterMul(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
-
-   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul.pattern
@@ -219,12 +194,16 @@ API
 
       .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVIntegerRegisterRegisterMul.outputs
 
-.. py:class:: RISCVBranch
+.. py:class:: RISCVBranch(pattern, *, inputs=None, outputs=None, in_outs=None)
    :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVBranch
 
    Bases: :py:obj:`slothy.targets.riscv.riscv_instruction_core.RISCVInstruction`
 
    .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.__init__
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.pattern
@@ -247,5 +226,3 @@ API
    .. py:method:: make(src)
       :canonical: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.make
       :classmethod:
-
-      .. autodoc2-docstring:: slothy.targets.riscv.riscv_super_instructions.RISCVBranch.make

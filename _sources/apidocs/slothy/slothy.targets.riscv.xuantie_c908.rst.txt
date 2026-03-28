@@ -93,7 +93,7 @@ API
 .. py:class:: ExecutionUnit(*args, **kwds)
    :canonical: slothy.targets.riscv.xuantie_c908.ExecutionUnit
 
-   Bases: :py:obj:`enum.Enum`
+   Bases: :py:obj:`slothy.targets.riscv.riscv.Enum`
 
    .. autodoc2-docstring:: slothy.targets.riscv.xuantie_c908.ExecutionUnit
 

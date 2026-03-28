@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="slothy.targets.aarch64.cortex_a72_frontend" href="slothy.targets.aarch64.cortex_a72_frontend.html" />
-    <link rel="prev" title="slothy.targets.aarch64.apple_m1_firestorm_experimental" href="slothy.targets.aarch64.apple_m1_firestorm_experimental.html" /> 
+    <link rel="next" title="slothy.targets.aarch64.aarch64_big_experimental" href="slothy.targets.aarch64.aarch64_big_experimental.html" />
+    <link rel="prev" title="slothy.targets.aarch64" href="slothy.targets.aarch64.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -60,9 +60,9 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="slothy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy</span></code></a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="slothy.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="slothy.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.cli</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="slothy.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.core</span></code></a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="slothy.targets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slothy.targets</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="slothy.html#submodules">Submodules</a></li>
@@ -632,7 +632,7 @@ handling the loop can be considered by SLOTHY as well.</p></td>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.csel_xzr2_ne" title="slothy.targets.aarch64.aarch64_neon.csel_xzr2_ne"><code class="xref py py-obj docutils literal notranslate"><span class="pre">csel_xzr2_ne</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.csel_ne" title="slothy.targets.aarch64.aarch64_neon.csel_ne"><code class="xref py py-obj docutils literal notranslate"><span class="pre">csel_ne</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.csel" title="slothy.targets.aarch64.aarch64_neon.csel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">csel</span></code></a></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.cinv" title="slothy.targets.aarch64.aarch64_neon.cinv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cinv</span></code></a></p></td>
@@ -5623,27 +5623,27 @@ of a subclass of Instruction.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel_ne">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">csel_ne</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel_ne" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.aarch64.aarch64_neon.</span></span><span class="sig-name descname"><span class="pre">csel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiesFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependsOnFlags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect" title="slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.targets.aarch64.aarch64_neon.AArch64ConditionalSelect</span></code></a></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel_ne.pattern">
-<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csel</span> <span class="pre">&lt;Xd&gt;,</span> <span class="pre">&lt;Xe&gt;,</span> <span class="pre">&lt;Xf&gt;,</span> <span class="pre">&lt;flag&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel_ne.pattern" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel.pattern">
+<span class="sig-name descname"><span class="pre">pattern</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'csel</span> <span class="pre">&lt;Xd&gt;,</span> <span class="pre">&lt;Xe&gt;,</span> <span class="pre">&lt;Xf&gt;,</span> <span class="pre">&lt;flag&gt;'</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel.pattern" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel_ne.inputs">
-<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xe',</span> <span class="pre">'Xf']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel_ne.inputs" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xe',</span> <span class="pre">'Xf']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel.inputs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel_ne.outputs">
-<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xd']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel_ne.outputs" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['Xd']</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel.outputs" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel_ne.dependsOnFlags">
-<span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel_ne.dependsOnFlags" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="slothy.targets.aarch64.aarch64_neon.csel.dependsOnFlags">
+<span class="sig-name descname"><span class="pre">dependsOnFlags</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#slothy.targets.aarch64.aarch64_neon.csel.dependsOnFlags" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -9994,8 +9994,8 @@ transformations in case of differences between uArchs.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="slothy.targets.aarch64.apple_m1_firestorm_experimental.html" class="btn btn-neutral float-left" title="slothy.targets.aarch64.apple_m1_firestorm_experimental" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="slothy.targets.aarch64.cortex_a72_frontend.html" class="btn btn-neutral float-right" title="slothy.targets.aarch64.cortex_a72_frontend" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="slothy.targets.aarch64.html" class="btn btn-neutral float-left" title="slothy.targets.aarch64" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="slothy.targets.aarch64.aarch64_big_experimental.html" class="btn btn-neutral float-right" title="slothy.targets.aarch64.aarch64_big_experimental" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
