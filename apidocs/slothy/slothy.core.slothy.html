@@ -242,9 +242,12 @@ get_original_source_as_string().</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.core.slothy.Slothy.global_selftest">
 <span class="sig-name descname"><span class="pre">global_selftest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">funcname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address_registers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#slothy.core.slothy.Slothy.global_selftest" title="Link to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>Conduct a function-level selftest</dt><dd><p>To run this, you need <cite>llvm-nm</cite>, <cite>llvm-readobj</cite>, <cite>llvm-mc</cite>
+<dd><dl>
+<dt>Conduct a function-level selftest</dt><dd><div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To run this, you need <cite>llvm-nm</cite>, <cite>llvm-readobj</cite>, <cite>llvm-mc</cite>
 in your PATH. Those are part of a standard LLVM setup.</p>
+</div>
 </dd>
 </dl>
 <dl class="field-list simple">
@@ -354,8 +357,7 @@ global_fusion_cb.</p>
 apply fusion to.</p></li>
 <li><p><strong>end</strong> (<em>str</em>) – The label marking the end of the part of the code to apply
 fusion to.</p></li>
-<li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the fusion callbacks.</p>
-</p></li>
+<li><p><strong>**kwargs</strong> (<em>any</em>) – Additional arguments to pass to the fusion callbacks.</p></li>
 </ul>
 </dd>
 </dl>
@@ -372,8 +374,7 @@ architectural model by setting an instruction class’ global_fusion_cb.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>loop_lbl</strong> (<em>str</em>) – Label of loop to which the fusions are applied to.</p></li>
 <li><p><strong>forced_loop_type</strong> (<em>any</em>) – Forces the loop to be parsed as a certain type.</p></li>
-<li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the fusion callbacks.</p>
-</p></li>
+<li><p><strong>**kwargs</strong> (<em>any</em>) – Additional arguments to pass to the fusion callbacks.</p></li>
 </ul>
 </dd>
 </dl>

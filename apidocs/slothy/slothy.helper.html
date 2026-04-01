@@ -912,13 +912,9 @@ unfold_func: The unfold_all function to call recursively</p>
 <p>This handles nested cases like macros inside .irp or .irp inside macros
 by running all expansions in a loop until no more changes occur.</p>
 <p>The order of expansion matters:
-- .rept and .irp are expanded first so that macro arguments don’t contain</p>
-<blockquote>
-<div><p>backslash-prefixed symbols (like param) which would confuse macro expansion.</p>
-</div></blockquote>
-<ul class="simple">
-<li><p>Then macros are expanded on the clean output.</p></li>
-</ul>
+- .rept and .irp are expanded first so that macro arguments don’t contain
+backslash-prefixed symbols (like param) which would confuse macro expansion.
+- Then macros are expanded on the clean output.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1132,7 +1128,8 @@ with its type.</p>
 <dd class="field-odd"><p>any</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.FatalParsingException" title="slothy.targets.arm_v7m.arch_v7m.FatalParsingException"><strong>FatalParsingException</strong></a> – If loop with label lbl cannot be found.</p>
+<dd class="field-even"><p><a class="reference internal" href="slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.FatalParsingException" title="slothy.targets.arm_v7m.arch_v7m.FatalParsingException"><strong>FatalParsingException</strong></a> – If loop with label lbl
+cannot be found.</p>
 </dd>
 </dl>
 </dd></dl>

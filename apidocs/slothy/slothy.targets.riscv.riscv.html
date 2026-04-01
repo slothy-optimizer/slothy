@@ -139,7 +139,7 @@ handling the loop can be considered by SLOTHY as well.</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.riscv.riscv.lookup_multidict" title="slothy.targets.riscv.riscv.lookup_multidict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lookup_multidict</span></code></a></p></td>
-<td><p>Multidict lookup</p></td>
+<td><p>Multidict lookup.</p></td>
 </tr>
 </tbody>
 </table>
@@ -290,17 +290,13 @@ handling the loop can be considered by SLOTHY as well.</p></td>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">AddiLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.AddiLoop" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.Loop" title="slothy.helper.Loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.Loop</span></code></a></p>
 <p>Loop ending in an addition and a branch.</p>
-<p>Example:
-<a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a></p>
-<blockquote>
-<div><dl class="simple">
-<dt>loop_lbl:</dt><dd><p>{code}
-addi &lt;cnt&gt;, &lt;cnt&gt;, -&lt;imm&gt;
-(beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu) &lt;cnt&gt;, &lt;end&gt;, loop_lbl</p>
-</dd>
-</dl>
-</div></blockquote>
-<p><a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<p>Example:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nl">loop_lbl:</span>
+<span class="w">    </span><span class="err">{</span><span class="nf">code</span><span class="p">}</span>
+<span class="w">    </span><span class="nf">addi</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="p">-</span><span class="err">&lt;</span><span class="no">imm</span><span class="err">&gt;</span>
+<span class="w">    </span><span class="err">(</span><span class="nf">beq</span><span class="err">|</span><span class="no">bne</span><span class="err">|</span><span class="no">bge</span><span class="err">|</span><span class="no">blt</span><span class="err">|</span><span class="no">bgt</span><span class="err">|</span><span class="no">ble</span><span class="err">|</span><span class="no">bltu</span><span class="err">|</span><span class="no">bgtu</span><span class="err">|</span><span class="no">bleu</span><span class="err">|</span><span class="no">bgeu</span><span class="p">)</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">end</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="no">loop_lbl</span>
+</pre></div>
+</div>
 <p class="rubric">Initialization</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.riscv.riscv.AddiLoop.start">
@@ -321,19 +317,15 @@ addi &lt;cnt&gt;, &lt;cnt&gt;, -&lt;imm&gt;
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">AddiStashLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lbl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbl_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.riscv.riscv.AddiStashLoop" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="slothy.helper.html#slothy.helper.Loop" title="slothy.helper.Loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slothy.helper.Loop</span></code></a></p>
 <p>Loop ending in an addition and a branch.</p>
-<p>Example:
-<a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a></p>
-<blockquote>
-<div><dl class="simple">
-<dt>loop_lbl:</dt><dd><p>{code}
-ld &lt;cnt&gt;, &lt;offset&gt;(&lt;ptr&gt;)
-addi &lt;cnt&gt;, &lt;cnt&gt;, -&lt;imm&gt;
-sd &lt;cnt&gt;, &lt;offset&gt;(&lt;ptr&gt;)
-(bne|bge) &lt;cnt&gt;, &lt;end&gt;, loop_lbl</p>
-</dd>
-</dl>
-</div></blockquote>
-<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
+<p>Example:</p>
+<div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nl">loop_lbl:</span>
+<span class="w">    </span><span class="err">{</span><span class="nf">code</span><span class="p">}</span>
+<span class="w">    </span><span class="nf">ld</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">offset</span><span class="err">&gt;</span><span class="p">(</span><span class="err">&lt;</span><span class="no">ptr</span><span class="err">&gt;</span><span class="p">)</span>
+<span class="w">    </span><span class="nf">addi</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="p">-</span><span class="err">&lt;</span><span class="no">imm</span><span class="err">&gt;</span>
+<span class="w">    </span><span class="nf">sd</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">offset</span><span class="err">&gt;</span><span class="p">(</span><span class="err">&lt;</span><span class="no">ptr</span><span class="err">&gt;</span><span class="p">)</span>
+<span class="w">    </span><span class="err">(</span><span class="nf">bne</span><span class="err">|</span><span class="no">bge</span><span class="p">)</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">end</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="no">loop_lbl</span>
+</pre></div>
+</div>
 <p class="rubric">Initialization</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="slothy.targets.riscv.riscv.AddiStashLoop.start">
@@ -367,8 +359,8 @@ software pipelining etc.</p>
 </div>
 <p>Example:</p>
 <div class="highlight-asm notranslate"><div class="highlight"><pre><span></span><span class="nl">loop_lbl:</span>
-<span class="w">   </span><span class="err">{</span><span class="nf">code</span><span class="p">}</span>
-<span class="w">   </span><span class="nf">bltu</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">end</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="no">loop_lbl</span>
+<span class="w">    </span><span class="err">{</span><span class="nf">code</span><span class="p">}</span>
+<span class="w">    </span><span class="nf">bltu</span><span class="w"> </span><span class="err">&lt;</span><span class="no">cnt</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="err">&lt;</span><span class="no">end</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="no">loop_lbl</span>
 </pre></div>
 </div>
 <p>where cnt is the loop counter that gets incremented within the loop body.</p>
@@ -400,19 +392,15 @@ software pipelining etc.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="slothy.targets.riscv.riscv.lookup_multidict">
 <span class="sig-prename descclassname"><span class="pre">slothy.targets.riscv.riscv.</span></span><span class="sig-name descname"><span class="pre">lookup_multidict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">any</span></span></span><a class="headerlink" href="#slothy.targets.riscv.riscv.lookup_multidict" title="Link to this definition"></a></dt>
-<dd><p>Multidict lookup</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Multidict entries can be the following:</dt><dd><ul class="simple">
+<dd><p>Multidict lookup.</p>
+<p>Multidict entries can be the following:</p>
+<ul class="simple">
 <li><p>An instruction class. It matches any instruction of that class.</p></li>
-<li><p>A callable. It matches any instruction returning <cite>True</cite> when passed
+<li><p>A callable. It matches any instruction returning <code class="docutils literal notranslate"><span class="pre">True</span></code> when passed
 to the callable.</p></li>
 <li><p>A tuple of instruction classes or callables. It matches any instruction
 which matches at least one element in the tuple.</p></li>
 </ul>
-</dd>
-</dl>
-</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
