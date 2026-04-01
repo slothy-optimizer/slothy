@@ -25,7 +25,10 @@
 
 """This module creates the RV3264 pseudo instructions"""
 
-from slothy.targets.riscv.riscv_super_instructions import RISCVIntegerRegister, RISCVectorVectorMasked
+from slothy.targets.riscv.riscv_super_instructions import (
+    RISCVIntegerRegister,
+    RISCVectorVectorMasked,
+)
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 

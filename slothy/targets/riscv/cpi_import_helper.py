@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 
-
 script_dir = os.path.dirname(os.path.abspath(__file__))
 ods_path = os.path.join(script_dir, "riscv_v_instr_benchmarks.ods")
 table = pd.read_excel(ods_path, sheet_name="vl=VMAX tu mu", engine="odf")

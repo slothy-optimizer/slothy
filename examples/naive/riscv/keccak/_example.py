@@ -41,6 +41,7 @@ class RISC_V_fips202_rv32im(OptimizationRunner):
         # slothy.optimize("start", "end")
         slothy.optimize_loop("loop_start")
 
+
 class RISC_V_fips202_rv32imbv_hybrid_x3(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "fips202_rv32imbv_hybrid_x3"
@@ -73,7 +74,7 @@ class RISC_V_fips202_rv32imbv_hybrid_x3(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         # slothy.optimize("start", "end")
-        slothy.optimize_loop("loop_start", forced_loop_type=AddiStashLoop)
+        slothy.optimize_loop("loop_start", forced_loop_type=RISC_V.AddiStashLoop)
 
 
 example_instances = [
