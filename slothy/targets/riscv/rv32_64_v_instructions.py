@@ -24,7 +24,27 @@
 #
 
 """This module creates the RV3264-V extension set instructions"""
-from slothy.targets.riscv.riscv_super_instructions import *  # noqa: F403
+
+from slothy.targets.riscv.riscv_super_instructions import (
+    RISCVVectorLoadUnitStride,
+    RISCVVectorLoadStrided,
+    RISCVVectorLoadIndexed,
+    RISCVVectorLoadWholeRegister,
+    RISCVVectorStoreUnitStride,
+    RISCVVectorStoreStrided,
+    RISCVVectorStoreIndexed,
+    RISCVVectorStoreWholeRegister,
+    RISCVVectorIntegerVectorVector,
+    RISCVVectorIntegerVectorScalar,
+    RISCVVectorIntegerVectorImmediate,
+    RISCVVectorIntegerVectorVectorMasked,
+    RISCVVectorIntegerVectorScalarMasked,
+    RISCVVectorIntegerVectorImmediateMasked,
+    RISCVScalarVector,
+    RISCVVectorScalar,
+    RISCVVectorVector,
+    RISCVVectorScalarVector,
+)
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 

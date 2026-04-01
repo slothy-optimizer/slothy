@@ -296,6 +296,8 @@ class RISC_V_poly_reduce_rvv_vlen128(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_reduce_rvv_vlen128_loop")
+
+
 example_instances = [
     RISC_V_ntt8l_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
     RISC_V_ntt8l_dualissue_plant_rv64im(timeout=300),

@@ -363,7 +363,7 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["bnez"],  # guessed but also not important
         RISCVInstruction.classes_by_names["beqz"],  # guessed but also not important
     ): 2,
-(
+    (
         RISCVInstruction.classes_by_names["vle"],
         RISCVInstruction.classes_by_names["vlse"],
         RISCVInstruction.classes_by_names["vluxei"],
@@ -371,7 +371,9 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["vse"],
         RISCVInstruction.classes_by_names["vsse"],
         RISCVInstruction.classes_by_names["vsuxei"],
-        RISCVInstruction.classes_by_names["vsoxei"],  # TODO: some of the above values are estimated
+        RISCVInstruction.classes_by_names[
+            "vsoxei"
+        ],  # TODO: some of the above values are estimated
         RISCVInstruction.classes_by_names["vadd.vv"],
         RISCVInstruction.classes_by_names["vsub.vv"],
         RISCVInstruction.classes_by_names["vrsub.vv"],
