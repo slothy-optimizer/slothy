@@ -381,19 +381,21 @@ class RISCVInstruction(Instruction):
 
     @classmethod
     def instr_factory(self, instr_list: list, baseclass: any) -> list:
-        """
-        Dynamically creates instruction classes from a list, inheriting from a given
-        super class. This method allows to create classes for instructions with common
-        pattern, inputs and outputs at one go. Usually, a lot of instructions
-        share the same structure. Auto updates RISCVInstruction.dynamic_instr_classes.
+        """Dynamically creates instruction classes from a list, inheriting from a given
+        super class.
+
+        This method allows to create classes for instructions with common pattern,
+        inputs and outputs at one go. Usually, a lot of instructions share the same
+        structure. Auto updates RISCVInstruction.dynamic_instr_classes.
 
         :param instr_list: List of instructions with a common pattern etc. to create
-        classes of
+            classes of.
         :type instr_list: list
         :param baseclass: Baseclass which describes the common pattern and other
-        properties of the instruction type
+            properties of the instruction type.
         :type baseclass: any
-        :return: A list with the dynamically created classes
+
+        :return: A list with the dynamically created classes.
         :rtype: list
         """
 
@@ -417,19 +419,19 @@ class RISCVInstruction(Instruction):
 
     @staticmethod
     def _expand_reg(reg: str, cnt: str, mode: str) -> list:
-        """
+        """Expand a base vector register into a consecutive register list.
 
-        :param reg: the base register
-        :param cnt: number of registers to expand
-        :param mode: indicates if the expansion is for a
-        mode="load" or mode="store" instruction
+        :param reg: The base register.
         :type reg: str
+        :param cnt: Number of registers to expand.
         :type cnt: str
+        :param mode: Indicates if the expansion is for a load or store instruction.
+            Must be either ``"load"`` or ``"store"``.
         :type mode: str
-        :return: list of cnt registers, starting from reg
+
+        :return: List of cnt registers, starting from reg.
         :rtype: list
-        :raise FatalParsingException: Raises a parsing exception in case
-        the register can not be extended
+        :raises FatalParsingException: If the register cannot be extended.
         """
 
         vregs = RegisterType.list_registers(RegisterType.VECT)

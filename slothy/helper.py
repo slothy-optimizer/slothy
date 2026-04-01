@@ -1323,7 +1323,7 @@ def unfold_all_directives(pre, body, inherit_comments=False):
 
     The order of expansion matters:
     - .rept and .irp are expanded first so that macro arguments don't contain
-      backslash-prefixed symbols (like \\param) which would confuse macro expansion.
+    backslash-prefixed symbols (like \\param) which would confuse macro expansion.
     - Then macros are expanded on the clean output.
     """
     assert SourceLine.is_source(body)
@@ -2008,7 +2008,8 @@ class Loop(ABC):
         :type forced_loop_type: any
         :return: The extracted loop.
         :rtype: any
-        :raises FatalParsingException: If loop with label lbl cannot be found.
+        :raises FatalParsingException: If loop with label lbl
+                cannot be found.
         """
         if forced_loop_type is not None:
             loop_types = [forced_loop_type]

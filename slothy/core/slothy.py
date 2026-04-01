@@ -210,8 +210,8 @@ class Slothy:
         """Conduct a function-level selftest
             .. important::
 
-            To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
-            in your PATH. Those are part of a standard LLVM setup.
+                To run this, you need `llvm-nm`, `llvm-readobj`, `llvm-mc`
+                in your PATH. Those are part of a standard LLVM setup.
 
         :param funcname: Name of function to be called. Must be exposed as a symbol
         :type funcname: str
@@ -510,7 +510,7 @@ class Slothy:
 
         return body
 
-    def fusion_region(self, start: str, end: str, **kwargs: any):
+    def fusion_region(self, start: str, end: str, **kwargs: any):  # noqa: DOC103
         """Run fusion callbacks on straightline code replacing certain
         instruction (sequences) with an alternative. These replacements are
         defined in the architectural model by setting an instruction class'
@@ -522,8 +522,8 @@ class Slothy:
         :param end: The label marking the end of the part of the code to apply
               fusion to.
         :type end: str
-        :param **kwargs: Additional arguments to pass to the fusion callbacks.
-        :type **kwargs: any
+        :param ``**kwargs``: Additional arguments to pass to the fusion callbacks.
+        :type ``**kwargs``: any
         """
         logger = self.logger.getChild(f"ssa_{start}_{end}")
         pre, body, post = AsmHelper.extract(self.source, start, end)
@@ -536,7 +536,9 @@ class Slothy:
         self.source = pre + body_ssa + post
         assert SourceLine.is_source(self.source)
 
-    def fusion_loop(self, loop_lbl: str, forced_loop_type: any = None, **kwargs: any):
+    def fusion_loop(  # noqa: DOC103
+        self, loop_lbl: str, forced_loop_type: any = None, **kwargs: any
+    ):
         """Run fusion callbacks on loop body replacing certain instruction
         (sequences) with an alternative. These replacements are defined in the
         architectural model by setting an instruction class' global_fusion_cb.
@@ -545,8 +547,8 @@ class Slothy:
         :type loop_lbl: str
         :param forced_loop_type: Forces the loop to be parsed as a certain type.
         :type forced_loop_type: any
-        :param **kwargs: Additional arguments to pass to the fusion callbacks.
-        :type **kwargs: any
+        :param ``**kwargs``: Additional arguments to pass to the fusion callbacks.
+        :type ``**kwargs``: any
         """
         logger = self.logger.getChild(f"ssa_loop_{loop_lbl}")
 

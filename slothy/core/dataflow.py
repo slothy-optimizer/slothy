@@ -312,13 +312,13 @@ class ComputationNode:
         ret.append(f"* Pos: {self.orig_pos}")
         ret.append(f"* ASM: {self.inst}")
         ret.append(
-            f"  + Outputs: {list(zip(self.inst.args_out,self.inst.arg_types_out))}"
+            f"  + Outputs: {list(zip(self.inst.args_out, self.inst.arg_types_out))}"
         )
         ret.append(
-            f"  + Inputs:  {list(zip(self.inst.args_in,self.inst.arg_types_in))}"
+            f"  + Inputs:  {list(zip(self.inst.args_in, self.inst.arg_types_in))}"
         )
         ret.append(
-            f"  + In/Outs: {list(zip(self.inst.args_in_out,self.inst.arg_types_in_out))}"
+            f"  + In/Outs: {list(zip(self.inst.args_in_out, self.inst.arg_types_in_out))}"
         )
         ret.append(f"* TYPE: {self.inst.__class__.__name__}")
         _append_src("Input sources", self.src_in)
@@ -333,8 +333,8 @@ class Config:
 
     :param slothy_config: The Slothy configuration to reference.
     :type slothy_config: any
-    :param **kwargs: An optional list of modifications of the Slothy config
-    :type **kwargs: any
+    :param ``**kwargs``: An optional list of modifications of the Slothy config
+    :type ``**kwargs``: any
     """
 
     @property
@@ -373,7 +373,7 @@ class Config:
     def allow_useless_instructions(self, val):
         self._allow_useless_instructions = val
 
-    def __init__(self, slothy_config: any = None, **kwargs: any):
+    def __init__(self, slothy_config: any = None, **kwargs: any):  # noqa: DOC103
         self._arch = None
         self._outputs = None
         self._inputs_are_outputs = None

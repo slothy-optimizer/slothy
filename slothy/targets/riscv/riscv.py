@@ -127,7 +127,7 @@ class RegisterType(Enum):
 
     @staticmethod
     def default_aliases():
-        "Register aliases used by the architecture"
+        """Register aliases used by the architecture"""
 
         return {
             # RISC-V ABI default aliases
@@ -172,12 +172,13 @@ class AddiLoop(Loop):
     Loop ending in an addition and a branch.
 
     Example:
-    ```
-           loop_lbl:
-               {code}
-               addi <cnt>, <cnt>, -<imm>
-               (beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu) <cnt>, <end>, loop_lbl
-    ```
+
+    .. code-block:: asm
+
+       loop_lbl:
+           {code}
+           addi <cnt>, <cnt>, -<imm>
+           (beq|bne|bge|blt|bgt|ble|bltu|bgtu|bleu|bgeu) <cnt>, <end>, loop_lbl
     """
 
     def __init__(self, lbl=None, lbl_start=None, lbl_end=None, loop_init=None) -> None:
@@ -291,14 +292,15 @@ class AddiStashLoop(Loop):
     Loop ending in an addition and a branch.
 
     Example:
-    ```
-           loop_lbl:
-               {code}
-               ld <cnt>, <offset>(<ptr>)
-               addi <cnt>, <cnt>, -<imm>
-               sd <cnt>, <offset>(<ptr>)
-               (bne|bge) <cnt>, <end>, loop_lbl
-    ```
+
+    .. code-block:: asm
+
+       loop_lbl:
+           {code}
+           ld <cnt>, <offset>(<ptr>)
+           addi <cnt>, <cnt>, -<imm>
+           sd <cnt>, <offset>(<ptr>)
+           (bne|bge) <cnt>, <end>, loop_lbl
     """
 
     def __init__(self, lbl=None, lbl_start=None, lbl_end=None, loop_init=None) -> None:
@@ -368,17 +370,17 @@ class BranchLoop(Loop):
 
     .. note::
 
-        This loop type is still rather experimental. It has a lot of logic
-        inside as it needs to be able to "understand" a variety of different
-        ways to express loops, e.g., how counters get incremented, how
-        registers marking the end of the loop need to be modified in case of
-        software pipelining etc.
+       This loop type is still rather experimental. It has a lot of logic
+       inside as it needs to be able to "understand" a variety of different
+       ways to express loops, e.g., how counters get incremented, how
+       registers marking the end of the loop need to be modified in case of
+       software pipelining etc.
 
     Example:
 
     .. code-block:: asm
 
-        loop_lbl:
+       loop_lbl:
            {code}
            bltu <cnt>, <end>, loop_lbl
 
@@ -503,14 +505,15 @@ def find_class(src):
 
 
 def lookup_multidict(d: any, inst: any, default: any = None) -> any:
-    """Multidict lookup
+    """Multidict lookup.
 
-     Multidict entries can be the following:
-       - An instruction class. It matches any instruction of that class.
-       - A callable. It matches any instruction returning `True` when passed
-         to the callable.
-       - A tuple of instruction classes or callables. It matches any instruction
-         which matches at least one element in the tuple.
+    Multidict entries can be the following:
+
+    - An instruction class. It matches any instruction of that class.
+    - A callable. It matches any instruction returning ``True`` when passed
+      to the callable.
+    - A tuple of instruction classes or callables. It matches any instruction
+      which matches at least one element in the tuple.
 
     :param d: dictionary
     :type d: any
@@ -518,10 +521,8 @@ def lookup_multidict(d: any, inst: any, default: any = None) -> any:
     :type inst: any
     :param default:
     :type default: any
-
     :return:
     :rtype: any
-
     :raises UnknownInstruction: Couldn't find instruction class for instruction
     """
     instclass = find_class(inst)

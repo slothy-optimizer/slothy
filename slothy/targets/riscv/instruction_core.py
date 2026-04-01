@@ -213,7 +213,9 @@ class Instruction:
         """Abstract factory method parsing a string into an instruction instance."""
 
     @staticmethod
-    def build(c: any, src: str, mnemonic: str, **kwargs: list) -> "Instruction":
+    def build(  # noqa: DOC103
+        c: any, src: str, mnemonic: str, **kwargs: list
+    ) -> "Instruction":
         r"""Attempt to parse a string as an instance of an instruction.
 
         :param c: The target instruction the string should be attempted to be parsed as.
@@ -222,8 +224,8 @@ class Instruction:
         :type src: str
         :param mnemonic: The mnemonic of instruction c
         :type mnemonic: str
-        :param **kwargs: Additional arguments to pass to the constructor of c.
-        :type **kwargs: list
+        :param ``**kwargs``: Additional arguments to pass to the constructor of c.
+        :type ``**kwargs``: list
 
         :return: Upon success, the result of parsing src as an instance of c.
         :rtype: Instruction
