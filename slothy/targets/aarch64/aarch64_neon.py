@@ -117,7 +117,11 @@ from unicorn.arm64_const import (
 )
 
 
-from slothy.targets.common import FatalParsingException, UnknownInstruction
+from slothy.targets.exceptions import (
+    FatalParsingException,
+    UnknownInstruction,
+    ParsingException,
+)
 from slothy.helper import Loop, SourceLine
 
 arch_name = "Arm_AArch64"
@@ -599,16 +603,6 @@ class BranchLoop(Loop):
 
 
 class Instruction:
-
-    class ParsingException(Exception):
-        """An attempt to parse an assembly line as a specific instruction failed
-
-        This is a frequently encountered exception since assembly lines are parsed by
-        trial and error, iterating over all instruction parsers."""
-
-        def __init__(self, err=None):
-            super().__init__(err)
-
     def __init__(
         self, *, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None
     ):
@@ -815,14 +809,14 @@ class Instruction:
         :return: Upon success, the result of parsing src as an instance of c.
         :rtype: Instruction
 
-        :raises Instruction.ParsingException: The str argument cannot be parsed as an
+        :raises ParsingException: The str argument cannot be parsed as an
                 instance of c.
         :raises FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
         """
 
         if src.split(" ")[0] != mnemonic:
-            raise Instruction.ParsingException("Mnemonic does not match")
+            raise ParsingException("Mnemonic does not match")
 
         obj = c(mnemonic=mnemonic, **kwargs)
 
@@ -838,7 +832,7 @@ class Instruction:
 
         p = regexp.match(src)
         if p is None:
-            raise Instruction.ParsingException(
+            raise ParsingException(
                 f"Doesn't match basic instruction template {regexp_txt}"
             )
 
@@ -881,7 +875,7 @@ class Instruction:
                 instnames = [inst_class.__name__]
                 insts = [inst]
                 break
-            except Instruction.ParsingException as e:
+            except ParsingException as e:
                 exceptions[inst_class.__name__] = e
 
         for i in insts:
@@ -894,7 +888,7 @@ class Instruction:
             for i, e in exceptions.items():
                 msg = f"* {i + ':':20s} {e}"
                 logging.error(msg)
-            raise Instruction.ParsingException(
+            raise ParsingException(
                 f"Couldn't parse {src}\nYou may need to add support "
                 "for a new instruction (variant)?"
             )
@@ -1041,7 +1035,7 @@ class AArch64Instruction(Instruction):
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result is None:
-                raise Instruction.ParsingException(
+                raise ParsingException(
                     f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
                 )
             res = regexp.match(line).groupdict()
@@ -1227,7 +1221,7 @@ class AArch64Instruction(Instruction):
 
         if isinstance(src, str):
             if src.split(" ")[0] != pattern.split(" ")[0]:
-                raise Instruction.ParsingException("Mnemonic does not match")
+                raise ParsingException("Mnemonic does not match")
             res = AArch64Instruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
@@ -1589,7 +1583,7 @@ class q_ld2_lane_post_inc_force_output(Q_Ld2_Lane_Post_Inc):
     @classmethod
     def make(cls, src, force=False):
         if force is False:
-            raise Instruction.ParsingException("Instruction ignored")
+            raise ParsingException("Instruction ignored")
 
         obj = AArch64Instruction.build(cls, src)
         obj.addr = obj.args_in_out[0]
@@ -3376,7 +3370,7 @@ class vins_d_force_output(Vins):
     @classmethod
     def make(cls, src, force=False):
         if force is False:
-            raise Instruction.ParsingException("Instruction ignored")
+            raise ParsingException("Instruction ignored")
         return AArch64Instruction.build(cls, src)
 
 
@@ -4011,7 +4005,7 @@ class fmov_0_force_output(Fmov):
     @classmethod
     def make(cls, src, force=False):
         if force is False:
-            raise Instruction.ParsingException("Instruction ignored")
+            raise ParsingException("Instruction ignored")
         return AArch64Instruction.build(cls, src)
 
 
@@ -4029,7 +4023,7 @@ class fmov_1_force_output(Fmov):
     @classmethod
     def make(cls, src, force=False):
         if force is False:
-            raise Instruction.ParsingException("Instruction ignored")
+            raise ParsingException("Instruction ignored")
         return AArch64Instruction.build(cls, src)
 
 

@@ -41,6 +41,11 @@ from enum import Enum
 from sympy import simplify
 
 from slothy.helper import Loop
+from slothy.targets.exceptions import (
+    FatalParsingException,
+    UnknownInstruction,
+    ParsingException,
+)
 
 arch_name = "Arm_v81M"
 llvm_mca_arch = "arm"
@@ -191,15 +196,7 @@ class LeLoop(Loop):
         yield f"{indent}{other['instr']} lr, {lbl_start}"
 
 
-class FatalParsingException(Exception):
-    """A fatal error happened during instruction parsing"""
-
-
 class Instruction:
-    class ParsingException(Exception):
-        def __init__(self, err=None):
-            super().__init__(err)
-
     def __init__(
         self, *, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None
     ):
@@ -493,14 +490,14 @@ class Instruction:
         :return: Upon success, the result of parsing src as an instance of c.
         :rtype: Instruction
 
-        :raises Instruction.ParsingException: The str argument cannot be parsed as an
+        :raises ParsingException: The str argument cannot be parsed as an
                 instance of c.
         :raises FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
         """
 
         if src.split(" ")[0] != mnemonic:
-            raise Instruction.ParsingException("Mnemonic does not match")
+            raise ParsingException("Mnemonic does not match")
 
         obj = c(mnemonic=mnemonic, **kwargs)
 
@@ -516,7 +513,7 @@ class Instruction:
 
         p = regexp.match(src)
         if p is None:
-            raise Instruction.ParsingException(
+            raise ParsingException(
                 f"Doesn't match basic instruction template {regexp_txt}"
             )
 
@@ -559,7 +556,7 @@ class Instruction:
                 instnames = [inst_class.__name__]
                 insts = [inst]
                 break
-            except Instruction.ParsingException as e:
+            except ParsingException as e:
                 exceptions[inst_class.__name__] = e
         for i in insts:
             i.source_line = src_line
@@ -570,7 +567,7 @@ class Instruction:
             for i, e in exceptions.items():
                 msg = f"* {i + ':':20s} {e}"
                 logging.error(msg)
-            raise Instruction.ParsingException(
+            raise ParsingException(
                 f"Couldn't parse {src}\nYou may need to add support "
                 "for a new instruction (variant)?"
             )
@@ -660,7 +657,7 @@ class MVEInstruction(Instruction):
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result is None:
-                raise Instruction.ParsingException(
+                raise ParsingException(
                     f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
                 )
             res = regexp.match(line).groupdict()
@@ -837,7 +834,7 @@ class MVEInstruction(Instruction):
                 src.split(".")[0] != pattern.split(".")[0]
                 and src.split(" ")[0] != pattern.split(" ")[0]
             ):
-                raise Instruction.ParsingException("Mnemonic does not match")
+                raise ParsingException("Mnemonic does not match")
             res = MVEInstruction.get_parser(pattern)(src)
         else:
             assert isinstance(src, dict)
@@ -2691,10 +2688,6 @@ def all_subclass_leaves(c):
 Instruction.all_subclass_leaves = all_subclass_leaves(Instruction)
 
 
-class UnknownInstruction(Exception):
-    pass
-
-
 def iter_MVE_instructions():
     yield from all_subclass_leaves(Instruction)
 
@@ -2703,7 +2696,7 @@ def find_class(src):
     for inst_class in iter_MVE_instructions():
         if isinstance(src, inst_class):
             return inst_class
-    raise Exception("Couldn't find instruction class")
+    raise UnknownInstruction("Couldn't find instruction class")
 
 
 def is_dt_form_of(instr_class, dts=None):

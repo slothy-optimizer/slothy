@@ -30,7 +30,7 @@ from slothy.targets.riscv import xuantie_c908
 from slothy.targets.riscv.instruction_core import Instruction
 import re as re
 from slothy.targets.riscv.riscv import RegisterType
-from slothy.targets.riscv.exceptions import FatalParsingException, ParsingException
+from slothy.targets.exceptions import FatalParsingException, ParsingException
 from functools import cache
 
 
