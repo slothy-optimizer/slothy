@@ -371,7 +371,15 @@ class AArch64SelftestAddr(OptimizationRunner):
             "v2",
             "v3",
             "v4",
-            "v5",  # vector loads
+            "v8",
+            "v9",
+            "v24",
+            "v25",
+            "v26",
+            "v27",
+            "v28",
+            "v29",  # vector loads
+            "x1",
             "x21",
             "x22",
             "x23",

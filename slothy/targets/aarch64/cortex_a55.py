@@ -50,6 +50,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64ConditionalCompare,
     Ldp_W,
     Ldp_X,
+    q_ldp_with_inc,
     Ldr_X,
     Str_X,
     Stp_X,
@@ -390,6 +391,7 @@ execution_units = {
         Ldr_X,
         Ldp_W,
         Ldp_X,
+        q_ldp_with_inc,
     ): ExecutionUnit.SCALAR_LOAD,
     (umull_wform, mul_wform, umaddl_wform): ExecutionUnit.SCALAR_MUL(),
     (
@@ -487,6 +489,7 @@ inverse_throughput = {
     Ld4: 9,
     Ld3: 6,
     Ld2: 4,
+    q_ldp_with_inc: 4,
     vxtn: 1,
     vshrn: 2,
     vtbl: 1,  # N cycles (N = number of registers in the table)
@@ -583,6 +586,7 @@ default_latencies = {
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,
     Ldp_W: 3,
+    q_ldp_with_inc: 6,
     (Vins, umov_d): 2,
     (tst_wform): 1,
     (fcsel): 2,

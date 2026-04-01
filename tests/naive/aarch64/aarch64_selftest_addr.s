@@ -14,13 +14,11 @@ str q7, [x10], #16
 str x26, [x11, #8]
 stp x27, x12, [x18, #16]
 str x28, [x13], #8
-
-// TODO: Instructions not supported on Cortex-A55
-// ldp q24, q25, [x14, #32]
-// ld4 {v26.4s, v27.4s, v28.4s, v29.4s}, [x15], #64
-// st4 {v30.4s, v31.4s, v0.4s, v1.4s}, [x16], #64
-// ld3 {v2.4s, v3.4s, v4.4s}, [x17], #48
-// st3 {v5.4s, v6.4s, v7.4s}, [x18], #48
-// ld2 {v8.4s, v9.4s}, [x19], #32
-// st2 {v10.4s, v11.4s}, [x20], #32
+ldp q24, q25, [x14, #32]
+ld4 {v26.4s, v27.4s, v28.4s, v29.4s}, [x15], #64
+st4 {v28.4s, v29.4s, v30.4s, v31.4s}, [x16], #64
+ld3 {v6.4s, v7.4s, v8.4s}, [x17], #48
+st3 {v5.4s, v6.4s, v7.4s}, [x18], #48
+ld2 {v8.4s, v9.4s}, [x19], #32
+st2 {v10.4s, v11.4s}, [x20], #32
 end:
