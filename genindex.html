@@ -1470,7 +1470,7 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidocs/slothy/slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.FatalParsingException">FatalParsingException</a>, <a href="apidocs/slothy/slothy.targets.arm_v81m.arch_v81m.html#slothy.targets.arm_v81m.arch_v81m.FatalParsingException">[1]</a>, <a href="apidocs/slothy/slothy.targets.common.html#slothy.targets.common.FatalParsingException">[2]</a>, <a href="apidocs/slothy/slothy.targets.riscv.exceptions.html#slothy.targets.riscv.exceptions.FatalParsingException">[3]</a>
+      <li><a href="apidocs/slothy/slothy.targets.exceptions.html#slothy.targets.exceptions.FatalParsingException">FatalParsingException</a>
 </li>
       <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.fcsel">fcsel (class in slothy.targets.aarch64.aarch64_neon)</a>
 </li>
@@ -4424,13 +4424,11 @@
 </li>
         <li><a href="apidocs/slothy/slothy.targets.arm_v81m.helium_experimental.html#module-slothy.targets.arm_v81m.helium_experimental">slothy.targets.arm_v81m.helium_experimental</a>
 </li>
-        <li><a href="apidocs/slothy/slothy.targets.common.html#module-slothy.targets.common">slothy.targets.common</a>
+        <li><a href="apidocs/slothy/slothy.targets.exceptions.html#module-slothy.targets.exceptions">slothy.targets.exceptions</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.query.html#module-slothy.targets.query">slothy.targets.query</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.riscv.html#module-slothy.targets.riscv">slothy.targets.riscv</a>
-</li>
-        <li><a href="apidocs/slothy/slothy.targets.riscv.exceptions.html#module-slothy.targets.riscv.exceptions">slothy.targets.riscv.exceptions</a>
 </li>
         <li><a href="apidocs/slothy/slothy.targets.riscv.instruction_core.html#module-slothy.targets.riscv.instruction_core">slothy.targets.riscv.instruction_core</a>
 </li>
@@ -5513,7 +5511,7 @@
         <li><a href="apidocs/slothy/slothy.targets.riscv.riscv_instruction_core.html#slothy.targets.riscv.riscv_instruction_core.RISCVInstruction.PARSERS">(slothy.targets.riscv.riscv_instruction_core.RISCVInstruction attribute)</a>
 </li>
       </ul></li>
-      <li><a href="apidocs/slothy/slothy.targets.riscv.exceptions.html#slothy.targets.riscv.exceptions.ParsingException">ParsingException</a>
+      <li><a href="apidocs/slothy/slothy.targets.exceptions.html#slothy.targets.exceptions.ParsingException">ParsingException</a>
 </li>
       <li><a href="apidocs/slothy/slothy.targets.aarch64.aarch64_neon.html#slothy.targets.aarch64.aarch64_neon.adc.pattern">pattern (slothy.targets.aarch64.aarch64_neon.adc attribute)</a>
 
@@ -7315,10 +7313,10 @@
 </li>
       </ul></li>
       <li>
-    slothy.targets.common
+    slothy.targets.exceptions
 
       <ul>
-        <li><a href="apidocs/slothy/slothy.targets.common.html#module-slothy.targets.common">module</a>
+        <li><a href="apidocs/slothy/slothy.targets.exceptions.html#module-slothy.targets.exceptions">module</a>
 </li>
       </ul></li>
       <li>
@@ -7333,13 +7331,6 @@
 
       <ul>
         <li><a href="apidocs/slothy/slothy.targets.riscv.html#module-slothy.targets.riscv">module</a>
-</li>
-      </ul></li>
-      <li>
-    slothy.targets.riscv.exceptions
-
-      <ul>
-        <li><a href="apidocs/slothy/slothy.targets.riscv.exceptions.html#module-slothy.targets.riscv.exceptions">module</a>
 </li>
       </ul></li>
       <li>
@@ -7370,8 +7361,6 @@
         <li><a href="apidocs/slothy/slothy.targets.riscv.riscv_super_instructions.html#module-slothy.targets.riscv.riscv_super_instructions">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     slothy.targets.riscv.rv32_64_b_instructions
 
@@ -7379,6 +7368,8 @@
         <li><a href="apidocs/slothy/slothy.targets.riscv.rv32_64_b_instructions.html#module-slothy.targets.riscv.rv32_64_b_instructions">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     slothy.targets.riscv.rv32_64_i_instructions
 
@@ -7861,9 +7852,9 @@
 </li>
       <li><a href="apidocs/slothy/slothy.core.config.html#slothy.core.config.Config.SoftwarePipelining.unknown_iteration_count">unknown_iteration_count (slothy.core.config.Config.SoftwarePipelining property)</a>
 </li>
-      <li><a href="apidocs/slothy/slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.UnknownInstruction">UnknownInstruction</a>, <a href="apidocs/slothy/slothy.targets.arm_v81m.arch_v81m.html#slothy.targets.arm_v81m.arch_v81m.UnknownInstruction">[1]</a>, <a href="apidocs/slothy/slothy.targets.common.html#slothy.targets.common.UnknownInstruction">[2]</a>, <a href="apidocs/slothy/slothy.targets.riscv.exceptions.html#slothy.targets.riscv.exceptions.UnknownInstruction">[3]</a>
+      <li><a href="apidocs/slothy/slothy.targets.exceptions.html#slothy.targets.exceptions.UnknownInstruction">UnknownInstruction</a>
 </li>
-      <li><a href="apidocs/slothy/slothy.targets.arm_v7m.arch_v7m.html#slothy.targets.arm_v7m.arch_v7m.UnknownRegister">UnknownRegister</a>, <a href="apidocs/slothy/slothy.targets.common.html#slothy.targets.common.UnknownRegister">[1]</a>, <a href="apidocs/slothy/slothy.targets.riscv.exceptions.html#slothy.targets.riscv.exceptions.UnknownRegister">[2]</a>
+      <li><a href="apidocs/slothy/slothy.targets.exceptions.html#slothy.targets.exceptions.UnknownRegister">UnknownRegister</a>
 </li>
       <li><a href="apidocs/slothy/slothy.targets.query.html#slothy.targets.query.UnknownTarget">UnknownTarget</a>
 </li>

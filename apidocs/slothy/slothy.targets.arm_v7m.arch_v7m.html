@@ -798,33 +798,6 @@ what happens inside the loop boundary! Use with caution.</p>
 
 </dd></dl>
 
-<dl class="py exception">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.FatalParsingException">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v7m.arch_v7m.</span></span><span class="sig-name descname"><span class="pre">FatalParsingException</span></span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.FatalParsingException" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>A fatal error happened during instruction parsing</p>
-<p class="rubric">Initialization</p>
-<p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.UnknownInstruction">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v7m.arch_v7m.</span></span><span class="sig-name descname"><span class="pre">UnknownInstruction</span></span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.UnknownInstruction" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>The parent instruction class for the given object could not be found</p>
-<p class="rubric">Initialization</p>
-<p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.UnknownRegister">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v7m.arch_v7m.</span></span><span class="sig-name descname"><span class="pre">UnknownRegister</span></span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.UnknownRegister" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>The register could not be found</p>
-<p class="rubric">Initialization</p>
-<p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="slothy.targets.arm_v7m.arch_v7m.Instruction">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v7m.arch_v7m.</span></span><span class="sig-name descname"><span class="pre">Instruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_types_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_types_in_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_types_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v7m.arch_v7m.Instruction" title="Link to this definition"></a></dt>
@@ -918,9 +891,9 @@ of the instruction in the context of the overall computation.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>Instruction.ParsingException</strong> – The str argument cannot be parsed as an
+<li><p><a class="reference internal" href="slothy.targets.exceptions.html#slothy.targets.exceptions.ParsingException" title="slothy.targets.exceptions.ParsingException"><strong>ParsingException</strong></a> – The str argument cannot be parsed as an
 instance of c.</p></li>
-<li><p><a class="reference internal" href="#slothy.targets.arm_v7m.arch_v7m.FatalParsingException" title="slothy.targets.arm_v7m.arch_v7m.FatalParsingException"><strong>FatalParsingException</strong></a> – A fatal error during parsing happened
+<li><p><a class="reference internal" href="slothy.targets.exceptions.html#slothy.targets.exceptions.FatalParsingException" title="slothy.targets.exceptions.FatalParsingException"><strong>FatalParsingException</strong></a> – A fatal error during parsing happened
 that’s likely a bug in the model.</p></li>
 </ul>
 </dd>

@@ -16,7 +16,6 @@ Submodules
    slothy.targets.riscv.riscv_instruction_core
    slothy.targets.riscv.rv32_64_pseudo_instructions
    slothy.targets.riscv.riscv
-   slothy.targets.riscv.exceptions
    slothy.targets.riscv.instruction_core
    slothy.targets.riscv.rv32_64_m_instructions
    slothy.targets.riscv.xuantie_c908

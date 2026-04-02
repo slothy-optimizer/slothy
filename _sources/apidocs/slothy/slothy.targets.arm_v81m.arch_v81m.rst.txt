@@ -527,17 +527,6 @@ API
    .. py:method:: end(other, indentation=0)
       :canonical: slothy.targets.arm_v81m.arch_v81m.LeLoop.end
 
-.. py:exception:: FatalParsingException()
-   :canonical: slothy.targets.arm_v81m.arch_v81m.FatalParsingException
-
-   Bases: :py:obj:`Exception`
-
-   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.FatalParsingException
-
-   .. rubric:: Initialization
-
-   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.FatalParsingException.__init__
-
 .. py:class:: Instruction(*, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None)
    :canonical: slothy.targets.arm_v81m.arch_v81m.Instruction
 
@@ -4490,11 +4479,6 @@ API
    :canonical: slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves
-
-.. py:exception:: UnknownInstruction()
-   :canonical: slothy.targets.arm_v81m.arch_v81m.UnknownInstruction
-
-   Bases: :py:obj:`Exception`
 
 .. py:function:: iter_MVE_instructions()
    :canonical: slothy.targets.arm_v81m.arch_v81m.iter_MVE_instructions

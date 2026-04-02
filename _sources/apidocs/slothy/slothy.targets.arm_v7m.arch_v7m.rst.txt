@@ -557,39 +557,6 @@ API
 
       .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.SubsLoop.end
 
-.. py:exception:: FatalParsingException()
-   :canonical: slothy.targets.arm_v7m.arch_v7m.FatalParsingException
-
-   Bases: :py:obj:`Exception`
-
-   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.FatalParsingException
-
-   .. rubric:: Initialization
-
-   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.FatalParsingException.__init__
-
-.. py:exception:: UnknownInstruction()
-   :canonical: slothy.targets.arm_v7m.arch_v7m.UnknownInstruction
-
-   Bases: :py:obj:`Exception`
-
-   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.UnknownInstruction
-
-   .. rubric:: Initialization
-
-   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.UnknownInstruction.__init__
-
-.. py:exception:: UnknownRegister()
-   :canonical: slothy.targets.arm_v7m.arch_v7m.UnknownRegister
-
-   Bases: :py:obj:`Exception`
-
-   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.UnknownRegister
-
-   .. rubric:: Initialization
-
-   .. autodoc2-docstring:: slothy.targets.arm_v7m.arch_v7m.UnknownRegister.__init__
-
 .. py:class:: Instruction(*, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None)
    :canonical: slothy.targets.arm_v7m.arch_v7m.Instruction
 

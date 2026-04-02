@@ -1,0 +1,57 @@
+:py:mod:`slothy.targets.exceptions`
+===================================
+
+.. py:module:: slothy.targets.exceptions
+
+.. autodoc2-docstring:: slothy.targets.exceptions
+   :allowtitles:
+
+Module Contents
+---------------
+
+API
+~~~
+
+.. py:exception:: FatalParsingException()
+   :canonical: slothy.targets.exceptions.FatalParsingException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.exceptions.FatalParsingException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.exceptions.FatalParsingException.__init__
+
+.. py:exception:: UnknownInstruction()
+   :canonical: slothy.targets.exceptions.UnknownInstruction
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.exceptions.UnknownInstruction
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.exceptions.UnknownInstruction.__init__
+
+.. py:exception:: UnknownRegister()
+   :canonical: slothy.targets.exceptions.UnknownRegister
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.exceptions.UnknownRegister
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.exceptions.UnknownRegister.__init__
+
+.. py:exception:: ParsingException()
+   :canonical: slothy.targets.exceptions.ParsingException
+
+   Bases: :py:obj:`Exception`
+
+   .. autodoc2-docstring:: slothy.targets.exceptions.ParsingException
+
+   .. rubric:: Initialization
+
+   .. autodoc2-docstring:: slothy.targets.exceptions.ParsingException.__init__
