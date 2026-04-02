@@ -542,6 +542,8 @@ class BranchLoop(Loop):
         # Identify the register that is used as a loop counter
         body_code = [line for line in body_code if line.text != ""]
         loop_cnt_reg = None
+        loop_end_reg = None
+        subs_imm = None
         for idx, line in enumerate(body_code):
             inst = Instruction.parser(line)
             # Flags are set through cmp
@@ -558,16 +560,41 @@ class BranchLoop(Loop):
                 )
                 break
         if loop_cnt_reg is None:
+            # Try to find a subs instruction in the body (countdown loop)
+            for idx, line in enumerate(body_code):
+                inst = Instruction.parser(line)
+                if (
+                    isinstance(inst[0], AArch64BasicArithmetic)
+                    and inst[0].mnemonic.startswith("subs")
+                    and inst[0].immediate is not None
+                    and len(inst[0].args_out) > 0
+                ):
+                    loop_cnt_reg = inst[0].args_out[0]
+                    subs_imm = inst[0].immediate
+                    body_code[idx].add_tag("id", "cmp")
+                    logging.debug(
+                        f"Assuming {loop_cnt_reg} as countdown counter register "
+                        f"(subs immediate={subs_imm})."
+                    )
+                    break
+        if loop_cnt_reg is None:
             raise FatalParsingException("No flag-setting instruction found!")
 
         if unroll > 1:
             assert unroll in [1, 2, 4, 8, 16, 32]
-            yield f"{indent}lsr {loop_end_reg}, {loop_end_reg}, #{int(math.log2(unroll))}"
+            if loop_end_reg is not None:
+                yield (
+                    f"{indent}lsr {loop_end_reg}, {loop_end_reg},"
+                    f"#{int(math.log2(unroll))}"
+                )
 
         inc_per_iter = 0
         for idx, line in enumerate(body_code):
             inst = Instruction.parser(line)
             modifies_counter = False
+            # Skip the subs instruction itself - it is already tagged as the flag-setter
+            if subs_imm is not None and body_code[idx].tags.get("id") == "cmp":
+                continue
             # Increment happens through pointer modification
             if loop_cnt_reg.lower() == inst[0].addr and inst[0].increment is not None:
                 inc_per_iter = inc_per_iter + simplify(inst[0].increment)
@@ -587,7 +614,12 @@ class BranchLoop(Loop):
         )
 
         if fixup != 0:
-            yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
+            if loop_end_reg is not None:
+                yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, #{fixup*inc_per_iter}"
+            else:
+                # subs countdown loop: subtract fixup * subs_imm from the counter
+                fixup_val = simplify(f"{fixup} * ({subs_imm})")
+                yield f"{indent}sub {loop_cnt_reg}, {loop_cnt_reg}, #{fixup_val}"
 
         if jump_if_empty is not None:
             yield f"cbz {loop_cnt}, {jump_if_empty}"
@@ -748,7 +780,15 @@ class Instruction:
             return self._is_instance_of([Str_Q, Ldr_Q])
 
         # Operations on specific lanes are not counted as Q-form instructions
-        if self._is_instance_of([Q_Ld2_Lane_Post_Inc, st2_lane, st2_lane_post_inc]):
+        if self._is_instance_of(
+            [
+                Q_Ld2_Lane_Post_Inc,
+                st2_lane,
+                st2_lane_post_inc,
+                q_ld1_lane_with_reg_postinc,
+                q_st1_lane_with_reg_postinc,
+            ]
+        ):
             return False
 
         dt = self.datatype
@@ -763,12 +803,39 @@ class Instruction:
 
     def is_vector_load(self):
         """Indicates if an instruction is a Neon load instruction"""
-        return self._is_instance_of([Ldr_Q, Ldp_Q, Ld2, Ld3, Ld4, Q_Ld2_Lane_Post_Inc])
+        return self._is_instance_of(
+            [
+                Ldr_Q,
+                Ldp_Q,
+                Ld2,
+                Ld3,
+                Ld4,
+                Q_Ld2_Lane_Post_Inc,
+                q_ld1_lane_with_reg_postinc,
+                q_ld1_1_with_reg_postinc,
+                q_ld1_2,
+                q_ld1_2_with_postinc,
+                q_ld1_2_with_reg_postinc,
+                q_ld1_4,
+                q_ld1_4_with_postinc,
+            ]
+        )
 
     def is_vector_store(self):
         """Indicates if an instruction is a Neon store instruction"""
         return self._is_instance_of(
-            [Str_Q, Stp_Q, St2, St3, St4, d_stp_stack_with_inc, d_str_stack_with_inc]
+            [
+                Str_Q,
+                Stp_Q,
+                St2,
+                St3,
+                St4,
+                d_stp_stack_with_inc,
+                d_str_stack_with_inc,
+                q_st1_lane_with_reg_postinc,
+                q_st1_1_with_reg_postinc,
+                q_st1_4_with_postinc,
+            ]
         )
 
     # scalar
@@ -932,8 +999,6 @@ class AArch64Instruction(Instruction):
                 raise FatalParsingException(
                     f"Inconsistent data type: {datatypes[dt]} vs {val}"
                 )
-            elif dt not in datatypes and val in datatypes.values():
-                raise FatalParsingException(f"Inconsistent dt: {dt}")
             datatypes[dt] = val
 
     @staticmethod
@@ -1474,6 +1539,43 @@ class q_ld1(Ldr_Q):
         return obj
 
 
+class q_ld1_2(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Va", "Vb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
+        return obj
+
+
+class q_ld1_4(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xe>]"
+    inputs = ["Xe"]
+    outputs = ["Va", "Vb", "Vc", "Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+            (
+                [0, 1, 2, 3],
+                [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)],
+            )
+        ]
+        return obj
+
+
 class prefetch(Ldr_Q):
     pattern = "prfm pld1lkeep, [<Xc>, <imm>]"
     inputs = ["Xc"]
@@ -1767,6 +1869,91 @@ class q_ld1_with_postinc(Ldr_Q):
         return obj
 
 
+class q_ld1_2_with_postinc(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>"
+    in_outs = ["Xc"]
+    outputs = ["Va", "Vb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+
+        obj.args_out_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
+        return obj
+
+
+class q_ld1_4_with_postinc(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xe>], <imm>"
+    in_outs = ["Xe"]
+    outputs = ["Va", "Vb", "Vc", "Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        obj.args_out_combinations = [
+            (
+                [0, 1, 2, 3],
+                [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)],
+            )
+        ]
+        return obj
+
+
+class q_ld1_2_with_reg_postinc(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <Xd>"
+    inputs = ["Xd"]
+    in_outs = ["Xc"]
+    outputs = ["Va", "Vb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None  # register-determined at runtime
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        obj.args_out_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
+        return obj
+
+
+class q_ld1_1_with_reg_postinc(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>}, [<Xb>], <Xc>"
+    inputs = ["Xc"]
+    in_outs = ["Xb"]
+    outputs = ["Va"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class q_ld1_lane_with_reg_postinc(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>}[<index>], [<Xb>], <Xc>"
+    inputs = ["Xc"]
+    in_outs = ["Xb", "Va"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
 class q_ldp_with_postinc(Ldp_Q):
     pattern = "ldp <Qa>, <Qb>, [<Xc>], <imm>"
     in_outs = ["Xc"]
@@ -1964,6 +2151,34 @@ class q_st1_with_postinc(Str_Q):
         return obj
 
 
+class q_st1_1_with_reg_postinc(AArch64Instruction):
+    pattern = "st1 {<Va>.<dt>}, [<Xb>], <Xc>"
+    inputs = ["Va", "Xc"]
+    in_outs = ["Xb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
+class q_st1_lane_with_reg_postinc(AArch64Instruction):
+    pattern = "st1 {<Va>.<dt>}[<index>], [<Xb>], <Xc>"
+    inputs = ["Va", "Xc"]
+    in_outs = ["Xb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        return obj
+
+
 class q_stp_with_postinc(Stp_Q):
     pattern = "stp <Qa>, <Qb>, [<Xc>], <imm>"
     inputs = ["Qa", "Qb"]
@@ -1979,7 +2194,7 @@ class q_stp_with_postinc(Stp_Q):
 
 
 class q_st1_2_with_postinc(Stp_Q):
-    pattern = "st1 {<Va>.<dt0>, <Vb>.<dt1>}, [<Xc>], <imm>"
+    pattern = "st1 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb"]
     in_outs = ["Xc"]
 
@@ -1992,6 +2207,26 @@ class q_st1_2_with_postinc(Stp_Q):
 
         obj.args_in_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
+        return obj
+
+
+class q_st1_4_with_postinc(AArch64Instruction):
+    pattern = "st1 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xe>], <imm>"
+    inputs = ["Va", "Vb", "Vc", "Vd"]
+    in_outs = ["Xe"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        obj.args_in_combinations = [
+            (
+                [0, 1, 2, 3],
+                [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)],
+            )
         ]
         return obj
 
@@ -2728,6 +2963,12 @@ class sub(AArch64BasicArithmetic):
     outputs = ["Xd"]
 
 
+class sub_wform(AArch64BasicArithmetic):
+    pattern = "sub <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
 class AArch64ShiftedArithmetic(AArch64Instruction):
     pass
 
@@ -2746,6 +2987,12 @@ class bic_shifted(AArch64ShiftedArithmetic):
 
 class add_shifted(AArch64ShiftedArithmetic):
     pattern = "add <Xd>, <Xa>, <Xb>, <barrel> <imm>"
+    inputs = ["Xa", "Xb"]
+    outputs = ["Xd"]
+
+
+class sub_shifted(AArch64ShiftedArithmetic):
+    pattern = "sub <Xd>, <Xa>, <Xb>, <barrel> <imm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
@@ -2777,6 +3024,12 @@ class lsl(AArch64Shift):
     pattern = "lsl <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
     outputs = ["Xd"]
+
+
+class lsl_wform(AArch64Shift):
+    pattern = "lsl <Wd>, <Wa>, <imm>"
+    inputs = ["Wa"]
+    outputs = ["Wd"]
 
 
 class ror(AArch64Shift):
@@ -2900,6 +3153,12 @@ class ubfx(AArch64Logical):
 
 class sxtb(AArch64Logical):
     pattern = "sxtb <Xd>, <Wa>"
+    inputs = ["Wa"]
+    outputs = ["Xd"]
+
+
+class sxtw(AArch64Logical):
+    pattern = "sxtw <Xd>, <Wa>"
     inputs = ["Wa"]
     outputs = ["Xd"]
 
@@ -3279,6 +3538,73 @@ class uaddlp(AArch64Instruction):
     outputs = ["Vd"]
 
 
+class uaddl(AArch64Instruction):
+    pattern = "uaddl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class uaddl2(AArch64Instruction):
+    pattern = "uaddl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class uaddw(AArch64Instruction):
+    pattern = "uaddw <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class uaddw2(AArch64Instruction):
+    pattern = "uaddw2 <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class saddl(AArch64Instruction):
+    pattern = "saddl <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class saddl2(AArch64Instruction):
+    pattern = "saddl2 <Vd>.<dt0>, <Va>.<dt1>, <Vb>.<dt1>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class rshrn(AArch64Instruction):
+    pattern = "rshrn <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class rshrn2(AArch64Instruction):
+    # rshrn2 writes the upper half of Vd, lower half is retained
+    pattern = "rshrn2 <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
+class sqxtun(AArch64Instruction):
+    pattern = "sqxtun <Vd>.<dt0>, <Va>.<dt1>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class sqrshrun(AArch64Instruction):
+    pattern = "sqrshrun <Vd>.<dt0>, <Va>.<dt1>, <imm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class urhadd(AArch64Instruction):
+    pattern = "urhadd <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class Vzip(AArch64Instruction):
     pass
 
@@ -3366,6 +3692,12 @@ class vins_d(Vins):
     in_outs = ["Vd"]
 
 
+class vins_d_from_v(AArch64Instruction):
+    pattern = "ins <Vd>.d[<index0>], <Va>.d[<index1>]"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
 class vins_d_force_output(Vins):
     pattern = "ins <Vd>.d[<index>], <Xa>"
     inputs = ["Xa"]
@@ -3429,6 +3761,12 @@ class mov_d01(AArch64Instruction):
 
 class mov_vtov_d(AArch64Instruction):
     pattern = "mov <Vd>.d[<index0>], <Va>.d[<index1>]"
+    inputs = ["Va"]
+    in_outs = ["Vd"]
+
+
+class mov_vtov_s(AArch64Instruction):
+    pattern = "mov <Vd>.s[<index0>], <Va>.s[<index1>]"
     inputs = ["Va"]
     in_outs = ["Vd"]
 
@@ -3607,9 +3945,69 @@ class vmls_lane(Vmla):
         return obj
 
 
+class fmla(AArch64Instruction):
+    pattern = "fmla <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class faddp_vec(AArch64Instruction):
+    pattern = "faddp <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class faddp_scalar(AArch64Instruction):
+    pattern = "faddp <Sd>, <Va>.<dt>"
+    inputs = ["Va"]
+    outputs = ["Sd"]
+
+
+class fadd_vec(AArch64Instruction):
+    pattern = "fadd <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class fsub_vec(AArch64Instruction):
+    pattern = "fsub <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class fmul_vec(AArch64Instruction):
+    pattern = "fmul <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
+class fmla_lane(AArch64Instruction):
+    pattern = "fmla <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class fmls_vec(AArch64Instruction):
+    pattern = "fmls <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    in_outs = ["Vd"]
+
+
+class fmul_lane(AArch64Instruction):
+    pattern = "fmul <Vd>.<dt0>, <Va>.<dt0>, <Vb>.<dt1>[<index>]"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
+
+
 class vdup(AArch64Instruction):
     pattern = "dup <Vd>.<dt>, <Xa>"
     inputs = ["Xa"]
+    outputs = ["Vd"]
+
+
+class vdup_lane(AArch64Instruction):
+    pattern = "dup <Vd>.<dt0>, <Va>.<dt1>[<index>]"
+    inputs = ["Va"]
     outputs = ["Vd"]
 
 

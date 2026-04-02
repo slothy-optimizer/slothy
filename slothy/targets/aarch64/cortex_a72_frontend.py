@@ -125,6 +125,45 @@ from slothy.targets.aarch64.aarch64_neon import (
     cmp_imm,
     csel,
     q_ldp_with_inc,
+    uaddl,
+    uaddl2,
+    uaddw,
+    uaddw2,
+    saddl,
+    saddl2,
+    urhadd,
+    rshrn,
+    rshrn2,
+    sqxtun,
+    sqrshrun,
+    q_ld1_2,
+    q_ld1_4,
+    q_ld1_2_with_postinc,
+    q_ld1_4_with_postinc,
+    q_ld1_2_with_reg_postinc,
+    q_ld1_1_with_reg_postinc,
+    q_ld1_lane_with_reg_postinc,
+    q_st1_1_with_reg_postinc,
+    q_st1_lane_with_reg_postinc,
+    q_st1_4_with_postinc,
+    q_stp_with_inc,
+    sub_shifted,
+    subs_imm,
+    subs_wform,
+    fadd_vec,
+    fsub_vec,
+    fmul_vec,
+    faddp_vec,
+    faddp_scalar,
+    fmla,
+    fmls_vec,
+    fmla_lane,
+    fmul_lane,
+    vmovi,
+    vdup_lane,
+    rev64,
+    mov_vtov_s,
+    vins_d_from_v,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -257,6 +296,8 @@ execution_units = {
     fmov_s_form: ExecutionUnit.LOAD(),  # from vec to gen reg
     eor_shifted: ExecutionUnit.SCALAR(),
     bic_shifted: ExecutionUnit.SCALAR(),
+    sub_shifted: ExecutionUnit.SCALAR(),
+    (subs_wform, subs_imm): ExecutionUnit.INT(),
     lsr_imm: ExecutionUnit.INT(),
     lsr: ExecutionUnit.INT(),
     movk_imm_lsl: ExecutionUnit.INT(),
@@ -264,6 +305,43 @@ execution_units = {
     Ldp_W: ExecutionUnit.LOAD(),
     q_ldp_with_inc: ExecutionUnit.LOAD(),
     Stp_W: ExecutionUnit.STORE(),
+    q_stp_with_inc: [
+        ExecutionUnit.STORE() + [ExecutionUnit.INT0],
+        ExecutionUnit.STORE() + [ExecutionUnit.INT1],
+    ],
+    (uaddl, uaddl2, uaddw, uaddw2, saddl, saddl2, urhadd): [
+        ExecutionUnit.ASIMD0,
+        ExecutionUnit.ASIMD1,
+    ],
+    (rshrn, rshrn2, sqxtun, sqrshrun): [ExecutionUnit.ASIMD1],
+    (fadd_vec, fsub_vec, fmul_vec, faddp_vec, fmla, fmls_vec): [
+        ExecutionUnit.ASIMD0,
+        ExecutionUnit.ASIMD1,
+    ],
+    faddp_scalar: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    (fmla_lane, fmul_lane): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    vmovi: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    vdup_lane: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    rev64: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    mov_vtov_s: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    vins_d_from_v: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    (
+        q_ld1_2,
+        q_ld1_2_with_postinc,
+        q_ld1_2_with_reg_postinc,
+        q_ld1_4,
+        q_ld1_4_with_postinc,
+        q_ld1_1_with_reg_postinc,
+    ): ExecutionUnit.LOAD(),
+    q_ld1_lane_with_reg_postinc: [
+        [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
+        [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
+    ],
+    q_st1_lane_with_reg_postinc: [
+        [ExecutionUnit.ASIMD0, ExecutionUnit.STORE0, ExecutionUnit.STORE1],
+        [ExecutionUnit.ASIMD1, ExecutionUnit.STORE0, ExecutionUnit.STORE1],
+    ],
+    (q_st1_1_with_reg_postinc, q_st1_4_with_postinc): [ExecutionUnit.STORE()],
 }
 
 inverse_throughput = {
@@ -295,6 +373,7 @@ inverse_throughput = {
     umov_d: 1,
     (add, add_imm, add_shifted): 1,
     (Ldr_D, Ldr_Q, Str_Q, Ldr_X, Str_X): 1,
+    q_stp_with_inc: 4,
     (VShiftImmediateRounding, VShiftImmediateBasic): 1,
     # TODO: this seems in accurate; revisiting may improve performance
     St2: 4,
@@ -314,6 +393,15 @@ inverse_throughput = {
     fmov_s_form: 1,  # from vec to gen reg
     eor_shifted: 1,
     bic_shifted: 1,
+    sub_shifted: 1,
+    (subs_wform, subs_imm): 1,
+    (fadd_vec, fsub_vec, fmul_vec, faddp_vec, faddp_scalar, fmla, fmls_vec): 1,
+    (fmla_lane, fmul_lane): 1,
+    vmovi: 1,
+    vdup_lane: 1,
+    rev64: 1,
+    mov_vtov_s: 1,
+    vins_d_from_v: 1,
     vdup_w: 1,
     mov_wtov_s: 1,
     mov_vtov_d: 1,
@@ -322,6 +410,14 @@ inverse_throughput = {
     movk_imm_lsl: 1,
     Ldp_W: 1,
     Stp_W: 1,
+    (uaddl, uaddl2, uaddw, uaddw2, saddl, saddl2, urhadd): 1,
+    (rshrn, rshrn2, sqxtun, sqrshrun): 1,
+    (q_ld1_2, q_ld1_2_with_postinc, q_ld1_2_with_reg_postinc): 2,
+    (q_ld1_4, q_ld1_4_with_postinc): 4,
+    (q_ld1_1_with_reg_postinc, q_ld1_lane_with_reg_postinc): 1,
+    q_st1_1_with_reg_postinc: 2,
+    q_st1_lane_with_reg_postinc: 1,
+    q_st1_4_with_postinc: 8,
 }
 
 # REVISIT
@@ -356,7 +452,7 @@ default_latencies = {
     csel: 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
-    (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
+    (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X, q_stp_with_inc): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
     (add, add_imm, add_shifted): 2,
@@ -381,6 +477,17 @@ default_latencies = {
     fmov_s_form: 5,  # from vec to gen reg
     eor_shifted: 2,
     bic_shifted: 2,
+    sub_shifted: 2,
+    (subs_wform, subs_imm): 1,
+    (fadd_vec, fsub_vec, faddp_vec, faddp_scalar): 4,
+    fmul_vec: 4,
+    (fmla, fmls_vec, fmla_lane): 7,
+    fmul_lane: 5,
+    vmovi: 3,
+    vdup_lane: 3,
+    rev64: 3,
+    mov_vtov_s: 3,
+    vins_d_from_v: 3,
     vdup_w: 8,
     mov_wtov_s: 8,
     mov_vtov_d: 3,
@@ -389,6 +496,18 @@ default_latencies = {
     movk_imm_lsl: 1,
     Ldp_W: 4,
     Stp_W: 1,
+    (uaddl, uaddl2, uaddw, uaddw2, saddl, saddl2, urhadd): 3,
+    (rshrn, rshrn2, sqrshrun, sqxtun): 4,
+    # Multi-register ld1 (SWOG: Q-form latencies)
+    q_ld1_1_with_reg_postinc: 5,
+    (q_ld1_2, q_ld1_2_with_postinc, q_ld1_2_with_reg_postinc): 6,
+    (q_ld1_4, q_ld1_4_with_postinc): 8,
+    # Single-lane ld1 B/H/S (SWOG: 8 cycles)
+    q_ld1_lane_with_reg_postinc: 8,
+    # Single-lane st1 B/H/S (SWOG: 3 cycles)
+    q_st1_lane_with_reg_postinc: 3,
+    q_st1_1_with_reg_postinc: 2,
+    q_st1_4_with_postinc: 8,
 }
 
 
@@ -428,6 +547,20 @@ def get_latency(src, out_idx, dst):
         and src.args_in_out[0] == dst.args_in_out[0]
     ):
         return 1
+    # Fast fmul->fmla forwarding (accumulate_latency=3)
+    if (
+        instclass_src in [fmul_vec, fmul_lane]
+        and instclass_dst in [fmla, fmls_vec, fmla_lane]
+        and src.args_out[0] == dst.args_in_out[0]
+    ):
+        return 3
+    # Fast fmla->fmla forwarding (accumulate_latency=3)
+    if (
+        instclass_src in [fmla, fmls_vec, fmla_lane]
+        and instclass_dst in [fmla, fmls_vec, fmla_lane]
+        and src.args_in_out[0] == dst.args_in_out[0]
+    ):
+        return 3
 
     return latency
 
