@@ -40,7 +40,7 @@ from enum import Enum
 from functools import cache
 from slothy.helper import Loop
 from slothy.targets.riscv.instruction_core import Instruction
-from slothy.targets.riscv.exceptions import UnknownInstruction
+from slothy.targets.exceptions import UnknownInstruction
 
 arch_name = "RISCV"
 llvm_mca_arch = "aarch64"

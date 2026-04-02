@@ -27,7 +27,7 @@
 #          Justus Bergermann <mail@justus-bergermann.de>
 
 import re
-from slothy.targets.riscv.exceptions import FatalParsingException, ParsingException
+from slothy.targets.exceptions import FatalParsingException, ParsingException
 import logging
 
 # from slothy.targets.riscv.riscv_super_instructions import RISCVStore, RISCVLoad

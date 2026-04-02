@@ -33,7 +33,7 @@ import logging
 import inspect
 from abc import ABC, abstractmethod
 from sympy import simplify
-from slothy.targets.common import FatalParsingException, UnknownInstruction
+from slothy.targets.exceptions import FatalParsingException, UnknownInstruction
 
 from unicorn import Uc, UcError
 

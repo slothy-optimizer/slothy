@@ -4,6 +4,11 @@ import math
 import itertools
 from enum import Enum
 from functools import cache
+from slothy.targets.exceptions import (
+    FatalParsingException,
+    UnknownInstruction,
+    ParsingException,
+)
 
 from unicorn import (
     UC_ARCH_ARM,
@@ -695,29 +700,7 @@ class SubsLoop(Loop):
         yield f"{indent}bne {lbl_start}"
 
 
-class FatalParsingException(Exception):
-    """A fatal error happened during instruction parsing"""
-
-
-class UnknownInstruction(Exception):
-    """The parent instruction class for the given object could not be found"""
-
-
-class UnknownRegister(Exception):
-    """The register could not be found"""
-
-
 class Instruction:
-
-    class ParsingException(Exception):
-        """An attempt to parse an assembly line as a specific instruction failed
-
-        This is a frequently encountered exception since assembly lines are parsed by
-        trial and error, iterating over all instruction parsers."""
-
-        def __init__(self, err=None):
-            super().__init__(err)
-
     def __init__(
         self, *, mnemonic, arg_types_in=None, arg_types_in_out=None, arg_types_out=None
     ):
@@ -915,14 +898,14 @@ class Instruction:
         :return: Upon success, the result of parsing src as an instance of c.
         :rtype: Instruction
 
-        :raises Instruction.ParsingException: The str argument cannot be parsed as an
+        :raises ParsingException: The str argument cannot be parsed as an
                 instance of c.
         :raises FatalParsingException: A fatal error during parsing happened
                 that's likely a bug in the model.
         """
 
         if src.split(" ")[0] != mnemonic:
-            raise Instruction.ParsingException(
+            raise ParsingException(
                 f"Mnemonic does not match: {src.split(' ')[0]} vs. {mnemonic}"
             )
 
@@ -940,7 +923,7 @@ class Instruction:
 
         p = regexp.match(src)
         if p is None:
-            raise Instruction.ParsingException(
+            raise ParsingException(
                 f"Doesn't match basic instruction template {regexp_txt}"
             )
 
@@ -983,7 +966,7 @@ class Instruction:
                 instnames = [inst_class.__name__]
                 insts = [inst]
                 break
-            except Instruction.ParsingException as e:
+            except ParsingException as e:
                 exceptions[inst_class.__name__] = e
 
         for i in insts:
@@ -1001,7 +984,7 @@ class Instruction:
             for i, e in exceptions.items():
                 msg = f"* {i + ':':20s} {e}"
                 logging.error(msg)
-            raise Instruction.ParsingException(
+            raise ParsingException(
                 f"Couldn't parse {src}\nYou may need to add support "
                 "for a new instruction (variant)?"
             )
@@ -1114,7 +1097,7 @@ class Armv7mInstruction(Instruction):
         def _parse(line):
             regexp_result = regexp.match(line)
             if regexp_result is None:
-                raise Instruction.ParsingException(
+                raise ParsingException(
                     f"Does not match instruction pattern {src}" f"[regex: {regexp_txt}]"
                 )
             res = regexp.match(line).groupdict()

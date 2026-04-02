@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Arm Limited
 # Copyright (c) 2022 Hanno Becker
 # Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
+# Copyright (c) 2026: Justus Bergermann
 # SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,10 +23,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Author: Hanno Becker <hannobecker@posteo.de>
-#
-
-"""This module defines a bunch of custom slothy exceptions."""
+# Authors: Hanno Becker <hannobecker@posteo.de>
+#          Justus Bergermann <mail@justus-bergermann.de>
 
 
 class FatalParsingException(Exception):
@@ -45,6 +44,3 @@ class ParsingException(Exception):
 
     This is a frequently encountered exception since assembly lines are parsed by
     trial and error, iterating over all instruction parsers."""
-
-    def __init__(self, err=None):
-        super().__init__(err)
