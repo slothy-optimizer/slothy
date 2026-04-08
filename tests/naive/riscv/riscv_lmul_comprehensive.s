@@ -21,7 +21,7 @@ vmv.s.x  v8, x6
 vmv.v.v  v16, v8
 
 // Masked operations (mask register v0 not expanded)
-vmerge.vvm  v8, v4, v12, v0
-vmerge.vxm  v8, v8, x1, v0
-vmerge.vim  v8, v8, 7, v0
+vmerge.vvm  v16, v8, v12, v0
+vmerge.vxm  v20, v16, x1, v0
+vmerge.vim  v24, v20, 7, v0
 end:
