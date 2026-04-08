@@ -107,8 +107,10 @@ v_instrs = [
             "vnmsac.vv",
             "vmadd.vv",
             "vnmsub.vv",
-            "vrgather.vv",
-            "vrgatherei16.vv",
+            "vrgather.vv",      # is this right?
+            "vrgatherei16.vv",  # is this right?
+            "vssrl.vv",
+            "vssra.vv",
         ],
         RISCVVectorIntegerVectorVector,
     ),
@@ -169,6 +171,8 @@ v_instrs = [
             "vmsgtu.vi",
             "vmsgt.vi",
             "vrgather.vi",
+            "vssrl.vi",
+            "vssra.vi"
         ],
         RISCVVectorIntegerVectorImmediate,
     ),
