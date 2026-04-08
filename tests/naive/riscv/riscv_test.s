@@ -69,7 +69,7 @@ test:
     nop
     .rept 100
         start_label:
-        add x0, x0, x0
+        vmerge.vvm v8, v16, v24, v0
         end_label:
     .endr
     nop

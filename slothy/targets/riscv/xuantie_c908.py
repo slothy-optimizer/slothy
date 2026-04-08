@@ -284,6 +284,10 @@ execution_units = {
         RISCVInstruction.classes_by_names["vs<nf>re<ew>.v"],
         RISCVInstruction.classes_by_names["vs<nf>r.v"],
         RISCVInstruction.classes_by_names["vnot.v"],
+        RISCVInstruction.classes_by_names["vssrl.vv"],  # guessed
+        RISCVInstruction.classes_by_names["vssra.vv"],  # guessed
+        RISCVInstruction.classes_by_names["vssrl.vi"],  # guessed
+        RISCVInstruction.classes_by_names["vssra.vi"],  # guessed
     ): [ExecutionUnit.VEC0],
 }
 
@@ -457,6 +461,11 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["vrgather.vi"],
         RISCVInstruction.classes_by_names["vmv.x.s"],
         RISCVInstruction.classes_by_names["vnot.v"],
+        RISCVInstruction.classes_by_names["vssrl.vv"],  # guessed
+        RISCVInstruction.classes_by_names["vssra.vv"],  # guessed
+        RISCVInstruction.classes_by_names["vssrl.vi"],  # guessed
+        RISCVInstruction.classes_by_names["vssra.vi"],  # guessed
+
     ): 1,
     RISCVInstruction.classes_by_names["vdivu.vv"]: 21,
     RISCVInstruction.classes_by_names["vdiv.vv"]: 23,
