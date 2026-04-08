@@ -2544,7 +2544,7 @@ class SlothyBase(LockAttributes):
                 cb().OnlyEnforceIf(bvar)
             return
 
-        assert len(cb_lst) == len(vars)
+        assert len(cb_lst) == len(bvars)
         for cb, bvar in zip(cb_lst, bvars):
             constraints = [bvar]
             if self._is_low(producer):
