@@ -181,7 +181,7 @@ class RISC_V_intt_dualissue_plant_rv64im(OptimizationRunner):
 class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "ntt_kyber_rvv_vlen128"
-        infile = name
+        infile = name + "_unfolded"
 
         if var != "":
             name += f"_{var}"
@@ -204,7 +204,7 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
-        # slothy.config.allow_useless_instructions = True
+        slothy.config.allow_useless_instructions = True
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
@@ -215,8 +215,14 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
 
         r = slothy.config.reserved_regs
         r += ["x3"]
+        slothy.config.outputs = ["x17"]
         slothy.config.reserved_regs = r
-        slothy.optimize("start", "end")
+        slothy.optimize("start_1", "end_1")
+        slothy.optimize("start_2", "end_2")
+        slothy.optimize("start_3", "end_3")
+        slothy.optimize("start_4", "end_4")
+        slothy.optimize("start_5", "end_5")
+        slothy.optimize("start_6", "end_6")
 
 
 class RISC_V_intt_rvv_vlen128(OptimizationRunner):
