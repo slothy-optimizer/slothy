@@ -71,9 +71,11 @@ def _expand_vector_registers_generic(
     :type obj: any
     :param expansion_factor: Expansion value (LMUL or NF value)
     :type expansion_factor: int
-    :param expand_output_indices: Indices of outputs to expand (None = expand all vector outputs)
+    :param expand_output_indices: Indices of outputs to expand
+        (None = expand all vector outputs)
     :type expand_output_indices: list
-    :param expand_input_indices: Indices of inputs to expand (None = expand all vector inputs)
+    :param expand_input_indices: Indices of inputs to expand
+        (None = expand all vector inputs)
     :type expand_input_indices: list
     :return: modified obj
     :rtype: any
@@ -104,10 +106,21 @@ def _expand_vector_registers_generic(
 
         return [available_regs[start_idx + i] for i in range(expansion_factor)]
 
-    def expand_register_list(orig_args, orig_arg_types, expand_indices):
+    def expand_register_list(
+        orig_args: any, orig_arg_types: any, expand_indices: any
+    ) -> any:
         """Expand a list of registers, tracking expansion info for constraints.
 
+        TODO: add proper documentation
+        :param orig_args:
+        :type orig_args: any
+        :param orig_arg_types:
+        :type orig_arg_types: any
         :param expand_indices: Indices to expand (None = expand all vectors)
+        :type expand_indices: any
+
+        :returns:
+        :rtype: any
         """
         expanded_args = []
         new_arg_types = []
@@ -264,13 +277,13 @@ def _write_expanded_instruction(
             num_expandable_vector_inputs,
         )
 
-        l = (
+        list_zipped = (
             list(zip(display_args_in, self.pattern_inputs))
             + list(zip(display_args_out, self.pattern_outputs))
             + list(zip(self.args_in_out, self.pattern_in_outs))
         )
 
-        for arg, (s, ty) in l:
+        for arg, (s, ty) in list_zipped:
             out = RISCVInstruction._instantiate_pattern(s, ty, arg, out)
 
         # Handle other pattern replacements

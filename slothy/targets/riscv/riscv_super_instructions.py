@@ -29,7 +29,6 @@
 """This module contains abstract RISC-V instruction types to represent
 instructions which share the same pattern"""
 
-from slothy.targets.riscv.riscv import RegisterType
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 from slothy.targets.riscv.helpers.lmul_helper import (
     _get_lmul_value,
