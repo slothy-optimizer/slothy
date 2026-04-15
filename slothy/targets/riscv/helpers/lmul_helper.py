@@ -94,7 +94,12 @@ def _expand_vector_registers_generic(
 
         start_idx = available_regs.index(reg)
         if start_idx + expansion_factor > len(available_regs):
-            return [reg]  # Not enough consecutive registers, keep original
+            raise ValueError(
+                f"Register {reg} cannot be used as a base for a group of "
+                f"{expansion_factor} consecutive registers (only "
+                f"{len(available_regs) - start_idx} available from {reg}). "
+                f"This is invalid for expansion factor {expansion_factor}."
+            )
 
         return [available_regs[start_idx + i] for i in range(expansion_factor)]
 
