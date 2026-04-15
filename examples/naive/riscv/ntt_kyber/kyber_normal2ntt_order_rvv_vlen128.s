@@ -7,7 +7,7 @@ normal2ntt_order_rvv_vlen128_loop:
     vsetivli a7, 8, e16, m1, tu, mu
     vl8re16.v v16, (a0)
     vl8re16.v v24, (a5)
-    # shuffle4
+    // shuffle4
     addi t2, a1, _MASK_01230123*2
     addi t3, a1, _MASK_45674567*2
     li t6, 0x0f
@@ -18,7 +18,7 @@ normal2ntt_order_rvv_vlen128_loop:
     shuffle_x2 v18, v26, v19, v27, v8, v9, v10, v11, v1, v2
     shuffle_x2 v20, v28, v21, v29, v8, v9, v10, v11, v1, v2
     shuffle_x2 v22, v30, v23, v31, v8, v9, v10, v11, v1, v2
-    # shuffle2
+    // shuffle2
     addi t2, a1, _MASK_01014545*2
     addi t3, a1, _MASK_23236767*2
     li t6, 0x33
@@ -29,7 +29,7 @@ normal2ntt_order_rvv_vlen128_loop:
     shuffle_x2 v17, v21, v25, v29, v8, v9, v10, v11, v1, v2
     shuffle_x2 v18, v22, v26, v30, v8, v9, v10, v11, v1, v2
     shuffle_x2 v19, v23, v27, v31, v8, v9, v10, v11, v1, v2
-    # shuffle1
+    // shuffle1
     addi t2, a1, _MASK_10325476*2
     li t6, 0x55
     vle16.v v1, (t2)
