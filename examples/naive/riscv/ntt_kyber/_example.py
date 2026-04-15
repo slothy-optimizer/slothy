@@ -313,6 +313,8 @@ class RISC_V_kyber_normal2ntt_order_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
+        slothy.config.allow_useless_instructions = True
+        slothy.config.outputs = ["x17"]
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
@@ -346,6 +348,9 @@ class RISC_V_kyber_ntt2normal_order_rvv_vlen128(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+
+        slothy.config.allow_useless_instructions = True
+        slothy.config.outputs = ["x17"]
 
         r = slothy.config.reserved_regs
         r += ["x3"]
