@@ -197,7 +197,10 @@ def _expand_vector_registers_generic(
 
 
 def _extract_base_registers(
-    args_list: list, expansion_factor: int, num_expandable: int
+    args_list: list,
+    expansion_factor: int,
+    num_expandable: int,
+    arg_types: list = None,
 ) -> list:
     """Extract base registers from expanded register groups.
 
@@ -207,22 +210,45 @@ def _extract_base_registers(
     :type expansion_factor: int
     :param num_expandable: Number of expandable register groups
     :type num_expandable: int
+    :param arg_types: Register types corresponding to args_list, used to
+        skip non-vector registers (e.g. scalar address registers) that
+        appear before expandable vector groups
+    :type arg_types: list, optional
     :returns: List of base registers for display
     :rtype: list
     """
     if not args_list or expansion_factor == 1:
         return args_list.copy()
 
+    # When type information is available, walk the list and use types to
+    # identify the start of each expanded vector group.  This handles
+    # instructions like stores where a scalar address register precedes
+    # the expanded vector operand(s) in args_in.
+    if arg_types is not None:
+        available_regs = RegisterType.list_registers(RegisterType.VECT)
+        display_args = []
+        idx = 0
+        groups_found = 0
+        while idx < len(args_list):
+            is_vector = (
+                idx < len(arg_types) and args_list[idx] in available_regs
+            )
+            if is_vector and groups_found < num_expandable:
+                display_args.append(args_list[idx])
+                idx += expansion_factor
+                groups_found += 1
+            else:
+                display_args.append(args_list[idx])
+                idx += 1
+        return display_args
+
+    # Fallback (no type info): assume expandable groups are at the front
     display_args = []
     idx = 0
-
-    # Extract first register from each expandable group
     for _ in range(num_expandable):
         if idx < len(args_list):
             display_args.append(args_list[idx])
             idx += expansion_factor
-
-    # Add remaining non-expandable registers
     display_args.extend(args_list[idx:])
     return display_args
 
@@ -267,14 +293,21 @@ def _write_expanded_instruction(
     if has_expanded_inputs or has_expanded_outputs:
         out = self.pattern
 
-        # Extract base registers for display
+        # Extract base registers for display.  Pass arg_types so that
+        # scalar registers appearing before vector groups (e.g. the
+        # address register in store instructions) are not mistaken for
+        # the base of an expanded group.
         display_args_out = _extract_base_registers(
-            self.args_out, expansion_factor if has_expanded_outputs else 1, 1
+            self.args_out,
+            expansion_factor if has_expanded_outputs else 1,
+            1,
+            getattr(self, "arg_types_out", None),
         )
         display_args_in = _extract_base_registers(
             self.args_in,
             expansion_factor if has_expanded_inputs else 1,
             num_expandable_vector_inputs,
+            getattr(self, "arg_types_in", None),
         )
 
         list_zipped = (

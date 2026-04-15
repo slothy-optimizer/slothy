@@ -220,7 +220,7 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         slothy.config.outputs = ["x17"]
         slothy.config.reserved_regs = r
         target_module.lmul = 8
-        # slothy.optimize("start_1", "end_1")
+        slothy.optimize("start_1", "end_1")
         target_module.lmul = 8
         slothy.optimize("start_2", "end_2")
         target_module.lmul = 4
