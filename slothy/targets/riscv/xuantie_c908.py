@@ -465,7 +465,6 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["vssra.vv"],  # guessed
         RISCVInstruction.classes_by_names["vssrl.vi"],  # guessed
         RISCVInstruction.classes_by_names["vssra.vi"],  # guessed
-
     ): 1,
     RISCVInstruction.classes_by_names["vdivu.vv"]: 21,
     RISCVInstruction.classes_by_names["vdiv.vv"]: 23,

@@ -4,6 +4,7 @@ import itertools
 from slothy.targets.riscv.riscv import RegisterType
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
+
 def _get_lmul_value(obj=None):
     """Get LMUL value from instruction object or any loaded RISC-V target module"""
     import sys
@@ -115,9 +116,8 @@ def _expand_vector_registers_generic(
         expanded_idx = 0
 
         for i, reg in enumerate(orig_args):
-            should_expand = (
-                is_vector_register(reg) and
-                (expand_indices is None or i in expand_indices)
+            should_expand = is_vector_register(reg) and (
+                expand_indices is None or i in expand_indices
             )
 
             if should_expand:
@@ -314,4 +314,3 @@ def _write_expanded_instruction(
 
     # Should not reach here, but fallback to default behavior
     return RISCVInstruction.write(self)
-

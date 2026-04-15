@@ -75,6 +75,7 @@ class RISC_VSimple0(OptimizationRunner):
 
         # Set LMUL in target module
         import slothy.targets.riscv.xuantie_c908 as target_module
+
         target_module.lmul = 8
         slothy.optimize(start="start", end="end")
 
@@ -98,7 +99,9 @@ class RISC_VSimpleLoop0(OptimizationRunner):
 
 
 class RISC_VTest(OptimizationRunner):
-    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, lmul=1, timeout=None):
+    def __init__(
+        self, var="", arch=RISC_V, target=Target_XuanTieC908, lmul=1, timeout=None
+    ):
         name = "riscv_test"
         infile = name
 
@@ -113,26 +116,27 @@ class RISC_VTest(OptimizationRunner):
             base_dir="tests",
         )
         self.lmul = lmul
+
     def core(self, slothy):
         import slothy.targets.riscv.xuantie_c908 as target_module
+
         target_module.lmul = self.lmul
         print(target_module.lmul)
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
-
-
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        #slothy.config.outputs = [
+        # slothy.config.outputs = [
         #    "v8"
-        #]
+        # ]
         outputs = [f"v{i}" for i in range(32)]
         outputs.extend([f"x{i}" for i in range(1, 32)])
         slothy.config.outputs = outputs
         slothy.optimize(start="start_label", end="end_label")
+
 
 class RISC_V_lmul_test(OptimizationRunner):
     def __init__(
@@ -152,7 +156,7 @@ class RISC_V_lmul_test(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            base_dir="tests"
+            base_dir="tests",
         )
         self.lmul = lmul
 
@@ -199,12 +203,13 @@ class RISC_V_lmul_comprehensive_test(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            base_dir="tests"
+            base_dir="tests",
         )
         self.lmul = lmul
 
     def core(self, slothy):
         import slothy.targets.riscv.xuantie_c908 as target_module
+
         target_module.lmul = self.lmul
 
         slothy.config.variable_size = True
@@ -227,7 +232,9 @@ class RISC_V_lmul_comprehensive_test(OptimizationRunner):
 
 
 class RISC_V_nf_load_store_whole_reg_test(OptimizationRunner):
-    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, lmul=1, timeout=None):
+    def __init__(
+        self, var="", arch=RISC_V, target=Target_XuanTieC908, lmul=1, timeout=None
+    ):
         name = "riscv_nf_load_store_whole_reg"
         infile = name  # Uses assembly with various NF values (1, 2, 4, 8)
 
@@ -241,12 +248,13 @@ class RISC_V_nf_load_store_whole_reg_test(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            base_dir="tests"
+            base_dir="tests",
         )
         self.lmul = lmul
 
     def core(self, slothy):
         import slothy.targets.riscv.xuantie_c908 as target_module
+
         target_module.lmul = self.lmul
 
         slothy.config.variable_size = True
