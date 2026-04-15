@@ -148,7 +148,7 @@ class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
         # Fix Vg to v0 manually
 
         if lmul > 1:
-            obj.args_in_combinations[0][0].append(obj.args_in_combinations[0][0][-1] + 1)  # extend indice by one for v0
+            obj.args_in_combinations[0][0].append(len(obj.args_in)-1)  # extend indice by one for v0
             for comb in obj.args_in_combinations[0][1]:
                 comb.append("v0")  # add fixed v0 to all combinations at the very end
         else:
