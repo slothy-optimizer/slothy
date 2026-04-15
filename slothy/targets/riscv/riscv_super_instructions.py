@@ -31,10 +31,16 @@ instructions which share the same pattern"""
 
 from slothy.targets.riscv.riscv import RegisterType
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
-from slothy.targets.riscv.helpers.lmul_helper import _get_lmul_value, _write_expanded_instruction, _expand_vector_registers_generic
+from slothy.targets.riscv.helpers.lmul_helper import (
+    _get_lmul_value,
+    _write_expanded_instruction,
+    _expand_vector_registers_generic,
+)
+
 
 class RISCVScalarInstruction(RISCVInstruction):
     pass
+
 
 class RISCVStore(RISCVScalarInstruction):
     @classmethod
@@ -50,6 +56,7 @@ class RISCVStore(RISCVScalarInstruction):
 
 
 # Scalar instructions
+
 
 class RISCVIntegerRegister(RISCVScalarInstruction):
     pattern = "mnemonic <Xd>, <Xa>"
@@ -111,11 +118,13 @@ class RISCVBranch(RISCVScalarInstruction):
             obj.label = None
         return obj
 
+
 # =============================================================================
 # Vector instructions ####
 # =============================================================================
 
 # Load Instructions ##
+
 
 class RISCVVectorInstruction(RISCVInstruction):
     def write(self, nf=False, _num_expandable_vector_inputs=0):
@@ -123,7 +132,9 @@ class RISCVVectorInstruction(RISCVInstruction):
             expansion_factor = int(self.nf)
         else:
             expansion_factor = _get_lmul_value(self)
-        return _write_expanded_instruction(self, expansion_factor, _num_expandable_vector_inputs)
+        return _write_expanded_instruction(
+            self, expansion_factor, _num_expandable_vector_inputs
+        )
 
     @classmethod
     def make(cls, src, nf=False):
@@ -137,6 +148,7 @@ class RISCVVectorInstruction(RISCVInstruction):
 
         return _expand_vector_registers_generic(obj, expansion_factor)
 
+
 class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
     @classmethod
     def make(cls, src):
@@ -144,11 +156,15 @@ class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
         lmul = _get_lmul_value(obj)
 
         # Note: mask register (Vg) is not expanded, only vector operands
-        obj = _expand_vector_registers_generic(obj, lmul, expand_input_indices=[i for i in range(len(obj.args_in) - 1)])
+        obj = _expand_vector_registers_generic(
+            obj, lmul, expand_input_indices=[i for i in range(len(obj.args_in) - 1)]
+        )
         # Fix Vg to v0 manually
 
         if lmul > 1:
-            obj.args_in_combinations[0][0].append(len(obj.args_in)-1)  # extend indice by one for v0
+            obj.args_in_combinations[0][0].append(
+                len(obj.args_in) - 1
+            )  # extend indice by one for v0
             for comb in obj.args_in_combinations[0][1]:
                 comb.append("v0")  # add fixed v0 to all combinations at the very end
         else:
@@ -158,17 +174,20 @@ class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
             # filter here.
         return obj
 
-class RISCVVectorLoadUnitStride(RISCVVectorInstruction): # done
+
+class RISCVVectorLoadUnitStride(RISCVVectorInstruction):  # done
     pattern = "mnemonic <Vd>, (<Xa>)<vm>"
     inputs = ["Xa"]
     outputs = ["Vd"]
     # TODO: declare input register if vm (mask) is used
 
-class RISCVVectorLoadStrided(RISCVVectorInstruction): # done
+
+class RISCVVectorLoadStrided(RISCVVectorInstruction):  # done
     pattern = "mnemonic <Vd>, (<Xa>), <Xb><vm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Vd"]
     # TODO: declare input register if vm (mask) is used
+
 
 class RISCVVectorLoadIndexed(RISCVVectorInstruction):  # done
     def write(self):
@@ -178,6 +197,7 @@ class RISCVVectorLoadIndexed(RISCVVectorInstruction):  # done
     inputs = ["Xa", "Ve"]
     outputs = ["Vd"]
     # TODO: declare input register if vm (mask) is used
+
 
 class RISCVVectorLoadWholeRegister(RISCVVectorInstruction):  # done
     def write(self):
@@ -190,6 +210,7 @@ class RISCVVectorLoadWholeRegister(RISCVVectorInstruction):  # done
     pattern = "mnemonic <Vd>, (<Xa>)"
     inputs = ["Xa"]
     outputs = ["Vd"]
+
 
 # Store Instructions ##
 
@@ -261,8 +282,6 @@ class RISCVVectorIntegerVectorVectorMasked(RISCVVectorFixedMaskedIstruction):  #
     outputs = ["Vd"]
 
 
-
-
 class RISCVVectorIntegerVectorScalar(RISCVVectorInstruction):  # maybe done
     def write(self):
         return super().write(_num_expandable_vector_inputs=1)
@@ -275,7 +294,9 @@ class RISCVVectorIntegerVectorScalar(RISCVVectorInstruction):  # maybe done
 
 
 # mask is fixed to v0
-class RISCVVectorIntegerVectorScalarMasked(RISCVVectorFixedMaskedIstruction):  # maybe done
+class RISCVVectorIntegerVectorScalarMasked(
+    RISCVVectorFixedMaskedIstruction
+):  # maybe done
     def write(self):
         return super().write(_num_expandable_vector_inputs=1)
 
@@ -294,7 +315,9 @@ class RISCVVectorIntegerVectorImmediate(RISCVVectorInstruction):  # maybe done
 
 
 # mask is fixed to v0
-class RISCVVectorIntegerVectorImmediateMasked(RISCVVectorFixedMaskedIstruction):  # maybe done
+class RISCVVectorIntegerVectorImmediateMasked(
+    RISCVVectorFixedMaskedIstruction
+):  # maybe done
     def write(self):
         return super().write(_num_expandable_vector_inputs=1)
 
@@ -345,6 +368,7 @@ class RISCVectorVectorMasked(RISCVVectorInstruction):
 class RISCVVectorScalarVector(RISCVVectorInstruction):
     def write(self):
         return super().write(_num_expandable_vector_inputs=1)
+
     pattern = "mnemonic <Vd>, <Xa>, <Va>"
     inputs = ["Xa", "Va"]
     in_outs = ["Vd"]
