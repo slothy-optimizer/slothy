@@ -1,81 +1,28 @@
-/// Copyright (c) 2026 Amin Abdulrahman (amin@abdulrahman.de)
-/// Copyright (c) 2026 Justus Bergermann (mail@justus-bergermann.de)
-///
-/// SPDX-License-Identifier: MIT
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to deal
-/// in the Software without restriction, including without limitation the rights
-/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-/// copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in all
-/// copies or substantial portions of the Software.
-///
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-/// SOFTWARE.
-
-.macro save_regs
-  sd s0,  0*8(sp)
-  sd s1,  1*8(sp)
-  sd s2,  2*8(sp)
-  sd s3,  3*8(sp)
-  sd s4,  4*8(sp)
-  sd s5,  5*8(sp)
-  sd s6,  6*8(sp)
-  sd s7,  7*8(sp)
-  sd s8,  8*8(sp)
-  sd s9,  9*8(sp)
-  sd s10, 10*8(sp)
-  sd s11, 11*8(sp)
-  sd gp,  12*8(sp)
-  sd tp,  13*8(sp)
-  sd ra,  14*8(sp)
-.endm
-
-.macro restore_regs
-  ld s0,  0*8(sp)
-  ld s1,  1*8(sp)
-  ld s2,  2*8(sp)
-  ld s3,  3*8(sp)
-  ld s4,  4*8(sp)
-  ld s5,  5*8(sp)
-  ld s6,  6*8(sp)
-  ld s7,  7*8(sp)
-  ld s8,  8*8(sp)
-  ld s9,  9*8(sp)
-  ld s10, 10*8(sp)
-  ld s11, 11*8(sp)
-  ld gp,  12*8(sp)
-  ld tp,  13*8(sp)
-  ld ra,  14*8(sp)
-.endm
-
-.globl test
-.align 2
-test:
-    // raw boilerplate code: 38 cycles
-    addi sp, sp, -8*15
-    save_regs
-    nop
-    nop
-    nop
-    nop
-    .rept 100
-        start_label:
-        vmerge.vvm v8, v16, v24, v0
-        end_label:
-    .endr
-    nop
-    nop
-    nop
-    nop
-    restore_regs
-    addi sp, sp, 8*15
-    ret
+start_label:
+    //lh t3, 0*2(a6)
+    //lh t2, 1*2(a6)
+    //addi a5, a0, 128*2
+    //vle16.v v16, (a0)
+    //vle16.v v24, (a5)
+    //vmul.vx  v0, v24, t3
+    //vmulh.vx v8, v24, t2
+    //vmulh.vx v0, v0, t0
+    //vsub.vv  v0, v8, v0
+    //vsub.vv  v24, v16, v0
+    //vadd.vv  v16, v16, v0
+    //vse16.v v16, (a0)
+    //vse16.v v24, (a5)
+    //addi a4, a0, 64*2
+    //addi a5, a5, 64*2
+    //vle16.v v16, (a4)
+    //vle16.v v24, (a5)
+    //vmul.vx  v0, v24, t3
+    //vmulh.vx v8, v24, t2
+    //vmulh.vx v0, v0, t0
+    //vsub.vv  v0, v8, v0
+    //vsub.vv  v24, v16, v0
+    //vadd.vv  v16, v16, v0
+    //vse16.v v16, (a4)
+    vse16.v v24, (a5)
+    li a7, 8*8
+end_label:

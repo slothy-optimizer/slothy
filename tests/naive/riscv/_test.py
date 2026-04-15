@@ -274,7 +274,7 @@ test_instances = [
     Instructions(),
     RISC_VSimple0(),
     RISC_VSimpleLoop0(),
-    RISC_VTest(lmul=4),
+    RISC_VTest(lmul=8),
     RISC_V_lmul_test(target=Target_XuanTieC908, lmul=2),
     RISC_V_lmul_test(var="lmul4", target=Target_XuanTieC908, lmul=4),
     RISC_V_lmul_test(var="lmul8", target=Target_XuanTieC908, lmul=8),
