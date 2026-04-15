@@ -1,3 +1,34 @@
+/ shuffle4
+// [a0~a3, a4~a7],[a8~a11, a12~a15] ->
+// [a0~a3, a8~a11],[a4~a7,  a12~a15]
+// shuffle2
+// [a0~a1,a2~a3,a8~a9,a10~a11],[a4~a5,a6~a7,a12~a13,a14~a15] ->
+// [a0~a1,a4~a5,a8~a9,a12~a13],[a2~a3,a6~a7,a10~a11,a14~a15]
+// shuffle1
+// [a0~a1,a4~a5,a8~a9,a12~a13],[a2~a3,a6~a7,a10~a11,a14~a15] ->
+// [a0,a2,a4,a6,a8,a10,a12,a14],[a1,a3,a5,a7,a9,a11,a13,a15]
+.macro shuffle_x2 in0_0, in0_1, in1_0, in1_1,  tm0_0, tm0_1, tm1_0, tm1_1, vm0, vm1
+    vrgather.vv \tm0_0, \in0_1, \vm0
+    vrgather.vv \tm0_1, \in0_0, \vm1
+    vrgather.vv \tm1_0, \in1_1, \vm0
+    vrgather.vv \tm1_1, \in1_0, \vm1
+    vmerge.vvm  \in0_0, \tm0_0, \in0_0, v0
+    vmerge.vvm  \in0_1, \in0_1, \tm0_1, v0
+    vmerge.vvm  \in1_0, \tm1_0, \in1_0, v0
+    vmerge.vvm  \in1_1, \in1_1, \tm1_1, v0
+.endm
+
+.macro shuffle_o_x2 ou0_0, ou0_1, ou1_0, ou1_1,  in0_0, in0_1, in1_0, in1_1, vm0, vm1
+    vrgather.vv \ou0_0, \in0_1, \vm0
+    vrgather.vv \ou1_0, \in1_1, \vm0
+    vrgather.vv \ou0_1, \in0_0, \vm1
+    vrgather.vv \ou1_1, \in1_0, \vm1
+    vmerge.vvm  \ou0_0, \ou0_0, \in0_0, v0
+    vmerge.vvm  \ou1_0, \ou1_0, \in1_0, v0
+    vmerge.vvm  \ou0_1, \in0_1, \ou0_1, v0
+    vmerge.vvm  \ou1_1, \in1_1, \ou1_1, v0
+.endm
+
 .globl normal2ntt_order_rvv_vlen128
 .align 2
 normal2ntt_order_rvv_vlen128:
