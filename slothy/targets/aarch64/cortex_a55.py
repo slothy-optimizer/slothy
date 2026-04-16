@@ -694,6 +694,28 @@ def get_latency(src, out_idx, dst):
             lambda t_src, t_dst: t_dst.program_start_var == t_src.program_start_var + 1,
         )
 
+    # Fast mul->mla forwarding (accumulate_latency=1)
+    if (
+        instclass_src in [vmul, vmul_lane]
+        and instclass_dst in [vmla, vmla_lane, vmls, vmls_lane]
+        and src.args_out[0] == dst.args_in_out[0]
+    ):
+        return 1
+    # Fast mla->mla forwarding (accumulate_latency=1)
+    if (
+        instclass_src in [vmla, vmla_lane, vmls, vmls_lane]
+        and instclass_dst in [vmla, vmla_lane, vmls, vmls_lane]
+        and src.args_in_out[0] == dst.args_in_out[0]
+    ):
+        return 1
+    # Fast mull->mlal forwarding (accumulate_latency=1)
+    if (
+        isinstance(src, Vmull)
+        and isinstance(dst, Vmlal)
+        and src.args_out[0] == dst.args_in_out[0]
+    ):
+        return 1
+
     return latency
 
 
