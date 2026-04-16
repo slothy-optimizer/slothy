@@ -25,5 +25,5 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
-   slothy.targets.exceptions
    slothy.targets.query
+   slothy.targets.exceptions
