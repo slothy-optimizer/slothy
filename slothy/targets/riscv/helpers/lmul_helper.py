@@ -230,9 +230,7 @@ def _extract_base_registers(
         idx = 0
         groups_found = 0
         while idx < len(args_list):
-            is_vector = (
-                idx < len(arg_types) and args_list[idx] in available_regs
-            )
+            is_vector = idx < len(arg_types) and args_list[idx] in available_regs
             if is_vector and groups_found < num_expandable:
                 display_args.append(args_list[idx])
                 idx += expansion_factor
