@@ -54,7 +54,7 @@ poly_tomont_rvv_vlen128:
     li t2, 20553
     slli t3, a7, 2
     slli a7, a7, 1
-    add  t4, a0, 256*2
+    addi  t4, a0, 256*2
 poly_tomont_rvv_vlen128_loop:
     add a1, a0, a7
     vle16.v v0,  (a0)
