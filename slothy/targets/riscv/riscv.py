@@ -92,6 +92,11 @@ class RegisterType(Enum):
     list_registers = staticmethod(_list_registers)
 
     @staticmethod
+    def callee_saved_registers():
+        # RISC-V calling convention: s0-s11 = x8, x9, x18-x27
+        return ["x8", "x9"] + [f"x{i}" for i in range(18, 28)]
+
+    @staticmethod
     def find_type(r):
         """Find type of architectural register"""
 
