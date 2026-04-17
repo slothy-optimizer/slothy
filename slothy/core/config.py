@@ -530,6 +530,23 @@ class Config(NestedPrint, LockAttributes):
         return self._with_llvm_mca_after
 
     @property
+    def emit_clobbered_callee_saves_comment(self):
+        """If True, prepend a comment to the output listing callee-saved registers
+        (per the ISA calling convention) that are clobbered by the optimized code.
+
+        This is useful for understanding the ABI cost of a snippet and for
+        constructing correct save/restore sequences around it.
+
+        Requires the ISA model to define callee_saved_registers(). When the ISA
+        model does not provide this method the option has no effect.
+        """
+        return self._emit_clobbered_callee_saves_comment
+
+    @emit_clobbered_callee_saves_comment.setter
+    def emit_clobbered_callee_saves_comment(self, val):
+        self._emit_clobbered_callee_saves_comment = val
+
+    @property
     def compiler_binary(self):
         """The compiler binary to be used.
 
@@ -619,6 +636,7 @@ class Config(NestedPrint, LockAttributes):
                 self.constraints.move_stalls_to_bottom is True,
                 self.constraints.minimize_register_usage is not None,
                 self.constraints.minimize_use_of_extra_registers is not None,
+                self.constraints.prefer_caller_save_registers is True,
                 self.target.has_min_max_objective(self),
             ]
         )
@@ -1198,6 +1216,35 @@ class Config(NestedPrint, LockAttributes):
             return self._minimize_spills
 
         @property
+        def prefer_caller_save_registers(self):
+            """Bias register allocation toward caller-save registers.
+
+            Adds solver hints preferring registers that already appear in the
+            input code (regardless of whether they are caller- or callee-saved),
+            and discouraging callee-saved registers when new registers must be
+            introduced.  Additionally, a secondary solver objective minimises the
+            number of distinct callee-saved registers used, applied after the
+            primary stall-minimisation objective.
+
+            Because the preference is expressed through hints and a secondary
+            objective, optimal scheduling is never sacrificed: if callee-saved
+            registers are the only way to achieve minimum stalls, they will still
+            be used.
+
+            This option subsumes hints.rename_hint_orig_rename: when both are
+            enabled the orig-rename hint is already covered, so enabling
+            rename_hint_orig_rename on top is harmless but redundant.
+
+            Requires the ISA model to define callee_saved_registers(). When the
+            ISA model does not provide this method the option has no effect.
+            """
+            return self._prefer_caller_save_registers
+
+        @prefer_caller_save_registers.setter
+        def prefer_caller_save_registers(self, val):
+            self._prefer_caller_save_registers = val
+
+        @property
         def max_displacement(self):
             """The maximum relative displacement of an instruction.
 
@@ -1236,6 +1283,7 @@ class Config(NestedPrint, LockAttributes):
             self.minimize_register_usage = None
             self.minimize_use_of_extra_registers = None
             self.allow_extra_registers = {}
+            self._prefer_caller_save_registers = False
 
             self._stalls_allowed = 0
             self._stalls_maximum_attempt = 512
@@ -1336,8 +1384,16 @@ class Config(NestedPrint, LockAttributes):
 
         @property
         def rename_hint_orig_rename(self):
-            """Hint at using the initial program order for the
-            program order variables."""
+            """Hint the solver to keep each instruction's original output register.
+
+            For each instruction, adds a solver hint favouring the register that
+            was used in the input code.
+
+            Note: when constraints.prefer_caller_save_registers is also enabled,
+            that option already covers this hint (it biases all original registers,
+            not just each instruction's own output). Enabling both is harmless
+            but redundant for the hint on the exact original register.
+            """
             return self._rename_hint_orig_rename
 
         @property
@@ -1439,6 +1495,7 @@ class Config(NestedPrint, LockAttributes):
         self._llvm_mca_issue_width_overwrite = False
         self._with_llvm_mca_before = False
         self._with_llvm_mca_after = False
+        self._emit_clobbered_callee_saves_comment = True
         self._max_solutions = 64
         self._timeout = None
         self._retry_timeout = None

@@ -70,6 +70,11 @@ class RegisterType(Enum):
         return self.name
 
     @staticmethod
+    def callee_saved_registers():
+        # AAPCS32 / Helium calling convention: r4-r11 GPR, q4-q7 MVE
+        return [f"r{i}" for i in range(4, 12)] + [f"q{i}" for i in range(4, 8)]
+
+    @staticmethod
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
         if ty == RegisterType.HINT:

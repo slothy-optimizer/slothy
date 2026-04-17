@@ -1170,6 +1170,17 @@ class Result(LockAttributes):
         self._output_renamings = v
 
     @property
+    def clobbered_callee_saved(self):
+        """Set of callee-saved registers (per the ISA calling convention) that
+        are clobbered by the optimized code.  Empty when the ISA model does not
+        define callee_saved_registers()."""
+        return self._clobbered_callee_saved
+
+    @clobbered_callee_saved.setter
+    def clobbered_callee_saved(self, val):
+        self._clobbered_callee_saved = val
+
+    @property
     def stalls(self):
         """The number of stalls in the optimization result.
 
@@ -1561,6 +1572,7 @@ class Result(LockAttributes):
         self._optimization_user_time = None
         self._spills = {}
         self._restores = {}
+        self._clobbered_callee_saved = set()
 
         self.lock()
 
@@ -2204,6 +2216,7 @@ class SlothyBase(LockAttributes):
 
         self._extract_spills()
         self._extract_code()
+        self._result.clobbered_callee_saved = self._compute_clobbered_callee_saved()
         self._result.selfcheck_with_fixup(self.logger.getChild("selfcheck"))
         self._result.offset_fixup(self.logger.getChild("fixup"))
 
@@ -2474,6 +2487,17 @@ class SlothyBase(LockAttributes):
             for s in self._result.code:
                 self.logger.result.debug("> " + s.to_string())
 
+    def _compute_clobbered_callee_saved(self):
+        if not hasattr(self.arch.RegisterType, "callee_saved_registers"):
+            return set()
+        callee_saved = set(self.arch.RegisterType.callee_saved_registers())
+        used = set()
+        for t in self._get_nodes():
+            used.update(t.inst.args_out)
+            used.update(t.inst.args_in)
+            used.update(t.inst.args_in_out)
+        return callee_saved & used
+
     def _add_path_constraint(self, consumer, producer, cb):
         """Add model constraint cb() relating to the pair of producer-consumer
         instructions
@@ -2735,12 +2759,37 @@ class SlothyBase(LockAttributes):
 
         self.logger.debug("Adding variables for register allocation...")
 
+        # One Boolean per callee-saved register: True iff that register is used
+        # anywhere in the optimized output.  Linked to register_usage_vars via
+        # MaxEquality in _add_constraints_register_renaming and minimized as a
+        # secondary objective in _add_objective, so the solver prefers
+        # caller-save registers without ever sacrificing stall minimization.
+        callee_saved = set()
+        self._model._callee_saved_used = {}
+        if self.config.constraints.prefer_caller_save_registers and hasattr(
+            self.arch.RegisterType, "callee_saved_registers"
+        ):
+            callee_saved = set(self.arch.RegisterType.callee_saved_registers())
+            self._model._callee_saved_used = {
+                reg: self._NewBoolVar(f"callee_saved_used[{reg}]")
+                for reg in self.arch.RegisterType.callee_saved_registers()
+            }
+
         if self.config.constraints.minimize_register_usage is not None:
             ty = self.config.constraints.minimize_register_usage
             regs = self.arch.RegisterType.list_registers(ty)
             self._model._register_used = {
                 reg: self._NewBoolVar(f"reg_used[{reg}]") for reg in regs
             }
+
+        # Collect registers appearing in the original (pre-renaming) code so
+        # that hints can prefer them.  Input/output pseudo-nodes are excluded
+        # because their registers are fixed by the interface, not by the code.
+        orig_regs = set()
+        for t in self._get_nodes():
+            orig_regs.update(t.inst.args_out)
+            orig_regs.update(t.inst.args_in)
+            orig_regs.update(t.inst.args_in_out)
 
         # Create variables for register renaming
 
@@ -2821,6 +2870,13 @@ class SlothyBase(LockAttributes):
                 if self.config.hints.rename_hint_orig_rename:
                     if arg_out in candidates_restricted:
                         self._AddHint(var_dict[arg_out], True)
+
+                if self.config.constraints.prefer_caller_save_registers:
+                    for out_reg, var in var_dict.items():
+                        if out_reg in orig_regs:
+                            self._AddHint(var, True)
+                        elif out_reg in callee_saved:
+                            self._AddHint(var, False)
 
         # For convenience, also add references to the variables governing the
         # register renaming for input and input/output arguments.
@@ -3139,6 +3195,13 @@ class SlothyBase(LockAttributes):
                     self._AddMaxEquality(self._model._register_used[reg], arr)
                 else:
                     self._Add(self._model._register_used[reg] == False)  # noqa: E712
+
+        for reg, used_var in self._model._callee_saved_used.items():
+            arr = self._model.register_usage_vars.get(reg, [])
+            if len(arr) > 0:
+                self._AddMaxEquality(used_var, arr)
+            else:
+                self._Add(used_var == False)  # noqa: E712
 
         for t in self._get_nodes(allnodes=True):
             can_spill = True
@@ -3974,6 +4037,15 @@ class SlothyBase(LockAttributes):
                     minlist = lst
                 else:
                     maxlist = lst
+
+        # Secondary objective: prefer caller-save registers.
+        # This runs only in the force_objective (step-2 re-optimization) path,
+        # where stalls are already fixed via a hard constraint.
+        if force_objective and self._model._callee_saved_used and len(maxlist) == 0:
+            callee_vars = list(self._model._callee_saved_used.values())
+            if len(minlist) == 0:
+                minlist = callee_vars
+                name = "minimize callee-saved register usage"
 
         self._model.objective_printer = printer
         self._model.objective_vars = objective_vars
