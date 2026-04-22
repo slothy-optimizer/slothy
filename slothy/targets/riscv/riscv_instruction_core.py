@@ -208,6 +208,8 @@ class RISCVInstruction(Instruction):
             c = "x"
         elif ty == RegisterType.VECT:
             c = "v"
+        #elif ty == RegisterType.CSR:
+        #    c = "c"
         else:
             assert False
         if s.replace("_", "").isdigit():

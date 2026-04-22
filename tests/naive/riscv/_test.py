@@ -134,6 +134,7 @@ class RISC_VTest(OptimizationRunner):
         # ]
         outputs = [f"v{i}" for i in range(32)]
         outputs.extend([f"x{i}" for i in range(1, 32)])
+        outputs.extend(["vtype"])
         slothy.config.outputs = outputs
         slothy.optimize(start="start_label", end="end_label")
 
@@ -274,7 +275,7 @@ test_instances = [
     Instructions(),
     RISC_VSimple0(),
     RISC_VSimpleLoop0(),
-    RISC_VTest(lmul=8),
+    RISC_VTest(),
     RISC_V_lmul_test(target=Target_XuanTieC908, lmul=2),
     RISC_V_lmul_test(var="lmul4", target=Target_XuanTieC908, lmul=4),
     RISC_V_lmul_test(var="lmul8", target=Target_XuanTieC908, lmul=8),

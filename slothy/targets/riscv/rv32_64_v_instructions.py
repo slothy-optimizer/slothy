@@ -48,10 +48,23 @@ from slothy.targets.riscv.riscv_super_instructions import (
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 
+def _add_vtype_output(obj):
+    """Append an implicit vtype CSR output to a vset* instruction."""
+    obj.args_out.append("vtype")
+    obj.arg_types_out.append(RISCVInstruction._infer_register_type("Cvtype"))
+    obj.num_out += 1
+    obj.args_out_restrictions.append(None)
+    return obj
+
+
 class RISCVvsetvli(RISCVInstruction):
     pattern = "vsetvli <Xd>, <Xa>, <vtype>"
     inputs = ["Xa"]
     outputs = ["Xd"]
+
+    @classmethod
+    def make(cls, src):
+        return _add_vtype_output(RISCVInstruction.build(cls, src))
 
 
 class RISCVvsetivli(RISCVInstruction):
@@ -59,11 +72,19 @@ class RISCVvsetivli(RISCVInstruction):
     inputs = []
     outputs = ["Xd"]
 
+    @classmethod
+    def make(cls, src):
+        return _add_vtype_output(RISCVInstruction.build(cls, src))
+
 
 class RISCVvsetvl(RISCVInstruction):
     pattern = "vsetvl <Xd>, <Xa>, <Xb>"
     inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
+
+    @classmethod
+    def make(cls, src):
+        return _add_vtype_output(RISCVInstruction.build(cls, src))
 
 
 v_instrs = [

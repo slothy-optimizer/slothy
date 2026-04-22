@@ -37,6 +37,15 @@ from slothy.targets.riscv.helpers.lmul_helper import (
 )
 
 
+def _add_vtype_input(obj):
+    """Append an implicit vtype CSR input dependency to a vector instruction."""
+    #obj.args_in.append("vtype")
+    #obj.arg_types_in.append(RISCVInstruction._infer_register_type("Cvtype"))
+    #obj.num_in += 1
+    #obj.args_in_restrictions.append(None)
+    return obj
+
+
 class RISCVScalarInstruction(RISCVInstruction):
     pass
 
@@ -130,7 +139,10 @@ class RISCVVectorInstruction(RISCVInstruction):
         if nf:
             expansion_factor = int(self.nf)
         else:
-            expansion_factor = _get_lmul_value(self)
+            # Use the factor stored at parse/expand time; fall back to global if missing.
+            expansion_factor = getattr(self, "_expansion_factor", None)
+            if expansion_factor is None:
+                expansion_factor = _get_lmul_value(self)
         return _write_expanded_instruction(
             self, expansion_factor, _num_expandable_vector_inputs
         )
@@ -145,7 +157,7 @@ class RISCVVectorInstruction(RISCVInstruction):
         else:
             expansion_factor = _get_lmul_value(obj)
 
-        return _expand_vector_registers_generic(obj, expansion_factor)
+        return _add_vtype_input(_expand_vector_registers_generic(obj, expansion_factor))
 
 
 class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
@@ -171,7 +183,7 @@ class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
             obj.args_in_restrictions[len(obj.args_in) - 1] = ["v0"]
             # TODO: May v0 be used in the other input/output registers? Potentially
             # filter here.
-        return obj
+        return _add_vtype_input(obj)
 
 
 class RISCVVectorLoadUnitStride(RISCVVectorInstruction):  # done
@@ -264,7 +276,7 @@ class RISCVVectorIntegerVectorVector(RISCVVectorInstruction):  # done
         if "gather" in src:
             obj.args_in_out_different = [(0, 0), (0, 1)]  # Can't have Rd==Ra
         lmul = _get_lmul_value(obj)
-        return _expand_vector_registers_generic(obj, lmul)
+        return _add_vtype_input(_expand_vector_registers_generic(obj, lmul))
 
     pattern = "mnemonic <Vd>, <Ve>, <Vf><vm>"
     inputs = ["Ve", "Vf"]
