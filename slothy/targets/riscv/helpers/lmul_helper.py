@@ -81,6 +81,8 @@ def _expand_vector_registers_generic(
     :rtype: any
     """
 
+    obj._expansion_factor = expansion_factor
+
     if expansion_factor <= 1:
         return obj
 
