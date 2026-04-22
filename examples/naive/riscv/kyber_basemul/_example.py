@@ -3,6 +3,7 @@ import os
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.riscv.riscv as RISC_V
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
+from slothy.targets.riscv.riscv import BranchLoop
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 
@@ -302,6 +303,9 @@ class RISC_V_poly_basemul_acc_cache_init_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
+        import slothy.targets.riscv.xuantie_c908 as target_module
+        target_module.lmul = 1
+
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
@@ -338,6 +342,9 @@ class RISC_V_poly_basemul_cache_init_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
+        import slothy.targets.riscv.xuantie_c908 as target_module
+        target_module.lmul = 1
+
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
@@ -368,6 +375,9 @@ class RISC_V_poly_basemul_acc_cached_rvv_vlen128(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
+
+        import slothy.targets.riscv.xuantie_c908 as target_module
+        target_module.lmul = 1
 
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -400,6 +410,9 @@ class RISC_V_poly_basemul_cached_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
+        import slothy.targets.riscv.xuantie_c908 as target_module
+        target_module.lmul = 1
+
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
@@ -409,6 +422,7 @@ class RISC_V_poly_basemul_cached_rvv_vlen128(OptimizationRunner):
 
 
 class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
+    # TODO: needs to be unrolled due to dynamic vset
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "kyber_poly_basemul_acc_rvv_vlen128"
         infile = name
@@ -460,6 +474,9 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
+        import slothy.targets.riscv.xuantie_c908 as target_module
+        target_module.lmul = 1
+
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
@@ -490,6 +507,9 @@ class RISC_V_poly_reduce_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
+        import slothy.targets.riscv.xuantie_c908 as target_module
+        target_module.lmul = 8
+
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
@@ -517,11 +537,13 @@ class RISC_V_poly_tomont_rvv_vlen128(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
-
+        import slothy.targets.riscv.xuantie_c908 as target_module
+        target_module.lmul = 8
         r = slothy.config.reserved_regs
         r += ["x3"]
+        slothy.config.sw_pipelining.enabled = True
         slothy.config.reserved_regs = r
-        slothy.optimize_loop("poly_tomont_rvv_vlen128")
+        slothy.optimize_loop("poly_tomont_rvv_vlen128_loop", forced_loop_type=BranchLoop)
 
 
 example_instances = [
