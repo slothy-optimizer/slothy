@@ -213,7 +213,7 @@ def _extract_base_registers(
     :param arg_types: Register types corresponding to args_list, used to
         skip non-vector registers (e.g. scalar address registers) that
         appear before expandable vector groups
-    :type arg_types: list, optional
+    :type arg_types: list
     :returns: List of base registers for display
     :rtype: list
     """
