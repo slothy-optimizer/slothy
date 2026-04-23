@@ -386,7 +386,7 @@ class Heuristics:
         # the heuristics for linear optimization.
         if not conf.sw_pipelining.enabled:
             res = Heuristics.linear(body, logger=logger, conf=conf)
-            return [], res.code, [], 0
+            return [], res.code, [], 0, res.clobbered_callee_saved
 
         if conf.sw_pipelining.halving_heuristic:
             return Heuristics._periodic_halving(body, logger, conf)
@@ -413,6 +413,8 @@ class Heuristics:
 
         # Second step: Separately optimize preamble and postamble
 
+        clobbered = result.clobbered_callee_saved
+
         preamble = result.preamble
         if conf.sw_pipelining.optimize_preamble:
             logger.debug("Optimize preamble...")
@@ -425,6 +427,7 @@ class Heuristics:
                 preamble, conf=c, logger=logger.getChild("preamble")
             )
             preamble = res_preamble.code
+            clobbered |= res_preamble.clobbered_callee_saved
 
         postamble = result.postamble
         if conf.sw_pipelining.optimize_postamble:
@@ -436,8 +439,9 @@ class Heuristics:
                 postamble, conf=c, logger=logger.getChild("postamble")
             )
             postamble = res_postamble.code
+            clobbered |= res_postamble.clobbered_callee_saved
 
-        return preamble, kernel, postamble, num_exceptional_iterations
+        return preamble, kernel, postamble, num_exceptional_iterations, clobbered
 
     @staticmethod
     def linear(body: list, logger: any, conf: any) -> any:
@@ -1184,6 +1188,10 @@ class Heuristics:
         # consider [B;A] as a non-periodic snippet, which may still lead to stalls at the
         # loop boundary.
 
+        clobbered = set()
+        if not conf.sw_pipelining.halving_heuristic_split_only:
+            clobbered = res_halving_0.clobbered_callee_saved
+
         if conf.sw_pipelining.halving_heuristic_periodic:
             c = conf.copy()
             c.inputs_are_outputs = True
@@ -1192,9 +1200,11 @@ class Heuristics:
             c.sw_pipelining.allow_pre = False  # - no early instructions
             c.sw_pipelining.allow_post = False  # - no late instructions
             # Just make sure to consider loop boundary
-            kernel = Heuristics.optimize_binsearch(
+            res_periodic = Heuristics.optimize_binsearch(
                 kernel, logger.getChild("periodic heuristic"), conf=c
-            ).code
+            )
+            kernel = res_periodic.code
+            clobbered |= res_periodic.clobbered_callee_saved
         elif not conf.sw_pipelining.halving_heuristic_split_only:
             c = conf.copy()
             c.outputs = new_kernel_deps
@@ -1205,6 +1215,7 @@ class Heuristics:
                 kernel, logger.getChild("heuristic"), conf=c
             )
             final_kernel = res_halving_1.code
+            clobbered |= res_halving_1.clobbered_callee_saved
 
             reordering2 = res_halving_1.reordering_with_bubbles
 
@@ -1252,4 +1263,4 @@ class Heuristics:
             kernel = final_kernel
 
         num_exceptional_iterations = 1
-        return preamble, kernel, postamble, num_exceptional_iterations
+        return preamble, kernel, postamble, num_exceptional_iterations, clobbered
