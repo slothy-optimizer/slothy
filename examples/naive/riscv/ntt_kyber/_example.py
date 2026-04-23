@@ -178,9 +178,196 @@ class RISC_V_intt_dualissue_plant_rv64im(OptimizationRunner):
         slothy.optimize_loop("intt_rv64im_loop2")
 
 
+class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "ntt_kyber_rvv_vlen128"
+        infile = name + "_unfolded"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        # name += f"_{target_label_dict[target]}"
+
+        super().__init__(
+            infile,
+            name,
+            subfolder=SUBFOLDER,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="ntt_rvv_vlen128",
+            timeout=timeout,
+        )
+
+    def core(self, slothy):
+        import slothy.targets.riscv.xuantie_c908 as target_module
+
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.allow_useless_instructions = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
+
+        r = slothy.config.reserved_regs
+        r += ["x3"]
+        slothy.config.outputs = ["x17"]
+        slothy.config.reserved_regs = r
+        target_module.lmul = 8
+        slothy.optimize("start_1", "end_1")
+        target_module.lmul = 8
+        slothy.optimize("start_2", "end_2")
+        target_module.lmul = 4
+        slothy.optimize("start_3", "end_3")
+        target_module.lmul = 1
+        slothy.optimize("start_4", "end_4")
+        target_module.lmul = 8
+        slothy.optimize("start_5", "end_5")
+        target_module.lmul = 4
+        slothy.optimize("start_6", "end_6")
+        target_module.lmul = 1
+        slothy.optimize("start_7", "end_7")
+
+
+class RISC_V_intt_rvv_vlen128(OptimizationRunner):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "intt_kyber_rvv_vlen128"
+        infile = name + "_unfolded"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+        # name += f"_{target_label_dict[target]}"
+
+        super().__init__(
+            infile,
+            name,
+            subfolder=SUBFOLDER,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="intt_rvv_vlen128",
+            timeout=timeout,
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.allow_useless_instructions = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
+        import slothy.targets.riscv.xuantie_c908 as target_module
+
+        slothy.config.outputs = ["x17"]  # TODO: this does not do anything
+        r = slothy.config.reserved_regs
+        r += ["x3"]
+
+        slothy.config.reserved_regs = r
+        target_module.lmul = 8
+        slothy.optimize("start_1", "end_1")
+        target_module.lmul = 1
+        slothy.optimize("start_2", "end_2")
+        target_module.lmul = 8
+        slothy.optimize("start_3", "end_3")
+        target_module.lmul = 1
+        slothy.optimize("start_4", "end_4")
+        target_module.lmul = 8
+        slothy.optimize("start_5", "end_5")
+
+
+class RISC_V_kyber_normal2ntt_order_rvv_vlen128(OptimizationRunner):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "kyber_normal2ntt_order_rvv_vlen128"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+
+        super().__init__(
+            infile,
+            name,
+            subfolder=SUBFOLDER,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="normal2ntt_order_rvv_vlen128",
+            timeout=timeout,
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.allow_useless_instructions = True
+        slothy.config.outputs = ["x17"]
+        r = slothy.config.reserved_regs
+        r += ["x3"]
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+
+        slothy.optimize_loop("normal2ntt_order_rvv_vlen128_loop")
+
+
+class RISC_V_kyber_ntt2normal_order_rvv_vlen128(OptimizationRunner):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "kyber_ntt2normal_order_rvv_vlen128"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+
+        super().__init__(
+            infile,
+            name,
+            subfolder=SUBFOLDER,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="ntt2normal_order_rvv_vlen128",
+            timeout=timeout,
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.allow_useless_instructions = True
+        slothy.config.outputs = ["x17"]
+
+        r = slothy.config.reserved_regs
+        r += ["x3"]
+        slothy.config.reserved_regs = r
+
+        slothy.config.sw_pipelining.enabled = True
+
+        slothy.optimize_loop("ntt2normal_order_rvv_vlen128_loop")
+
+
 example_instances = [
     RISC_V_ntt_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
     RISC_V_ntt_dualissue_plant_rv64im(timeout=300),
     RISC_V_intt_dualissue_plant_rv64im(),
     RISC_V_intt_singleissue_plant_rv64im(),
+    RISC_V_ntt_rvv_vlen128(target=Target_XuanTieC908),
+    RISC_V_intt_rvv_vlen128(),
+    RISC_V_kyber_normal2ntt_order_rvv_vlen128(),
+    RISC_V_kyber_ntt2normal_order_rvv_vlen128(),
 ]

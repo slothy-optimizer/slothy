@@ -159,6 +159,8 @@ class RISCVInstruction(Instruction):
             return RegisterType.BASE_INT
         if ptrn[0].upper() in ["V"]:
             return RegisterType.VECT
+        if ptrn[0].upper() in ["C"]:
+            return RegisterType.CSR
         raise FatalParsingException(f"Unknown pattern: {ptrn}")
 
     _infer_register_type = staticmethod(infer_register_type)
@@ -206,6 +208,8 @@ class RISCVInstruction(Instruction):
             c = "x"
         elif ty == RegisterType.VECT:
             c = "v"
+        #elif ty == RegisterType.CSR:
+        #    c = "c"
         else:
             assert False
         if s.replace("_", "").isdigit():
@@ -275,7 +279,6 @@ class RISCVInstruction(Instruction):
             obj.args_in.append(RISCVInstruction._to_reg(ty, res[s]))
         for s, ty in obj.pattern_outputs:
             obj.args_out.append(RISCVInstruction._to_reg(ty, res[s]))
-
         for s, ty in obj.pattern_in_outs:
             obj.args_in_out.append(RISCVInstruction._to_reg(ty, res[s]))
 

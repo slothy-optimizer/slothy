@@ -48,11 +48,17 @@ from slothy.targets.riscv.riscv import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_i_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_m_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_b_instructions import *  # noqa: F403
+from slothy.targets.riscv.rv32_64_v_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_pseudo_instructions import *  # noqa: F403
 
 # XuanTie C908 can issue up to 2 instructions per cycle (dual-issue)
 issue_rate = 2
 llvm_mca_target = ""
+instrs = RISCVInstruction.classes_by_names
+lmul = None
+sew = None
+tpol = None
+mpol = None
 
 
 class ExecutionUnit(Enum):
@@ -131,6 +137,15 @@ execution_units = {
         RISCVInstruction.classes_by_names["rev8"],
         RISCVInstruction.classes_by_names["zip"],
         RISCVInstruction.classes_by_names["unzip"],
+        # Branch-instructions
+        RISCVInstruction.classes_by_names["beq"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bne"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["blt"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bge"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bltu"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bgeu"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bnez"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["beqz"],  # guessed but also not important
         # Pseudo-instructions
         RISCVInstruction.classes_by_names["li"],
         RISCVInstruction.classes_by_names["mv"],
@@ -161,6 +176,119 @@ execution_units = {
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"],
     ): ExecutionUnit.SCALAR_MUL,
+    (
+        RISCVInstruction.classes_by_names["vadd.vv"],
+        RISCVInstruction.classes_by_names["vsub.vv"],
+        RISCVInstruction.classes_by_names["vrsub.vv"],
+        RISCVInstruction.classes_by_names["vminu.vv"],
+        RISCVInstruction.classes_by_names["vmin.vv"],
+        RISCVInstruction.classes_by_names["vmaxu.vv"],
+        RISCVInstruction.classes_by_names["vmax.vv"],
+        RISCVInstruction.classes_by_names["vmul.vv"],
+        RISCVInstruction.classes_by_names["vmulh.vv"],
+        RISCVInstruction.classes_by_names["vmulhu.vv"],
+        RISCVInstruction.classes_by_names["vmulhsu.vv"],
+        RISCVInstruction.classes_by_names["vmacc.vv"],
+        RISCVInstruction.classes_by_names["vnmsac.vv"],
+        RISCVInstruction.classes_by_names["vmadd.vv"],
+        RISCVInstruction.classes_by_names["vnmsub.vv"],
+        RISCVInstruction.classes_by_names["vadd.vx"],
+        RISCVInstruction.classes_by_names["vsub.vx"],
+        RISCVInstruction.classes_by_names["vrsub.vx"],
+        RISCVInstruction.classes_by_names["vmsgeu.vx"],
+        RISCVInstruction.classes_by_names["vmsge.vx"],
+        RISCVInstruction.classes_by_names["vminu.vx"],
+        RISCVInstruction.classes_by_names["vmin.vx"],
+        RISCVInstruction.classes_by_names["vmaxu.vx"],
+        RISCVInstruction.classes_by_names["vmax.vx"],
+        RISCVInstruction.classes_by_names["vmul.vx"],
+        RISCVInstruction.classes_by_names["vmulh.vx"],
+        RISCVInstruction.classes_by_names["vmulhu.vx"],
+        RISCVInstruction.classes_by_names["vmulhsu.vx"],
+        RISCVInstruction.classes_by_names["vmacc.vx"],
+        RISCVInstruction.classes_by_names["vnmsac.vx"],
+        RISCVInstruction.classes_by_names["vmadd.vx"],
+        RISCVInstruction.classes_by_names["vnmsub.vx"],
+        RISCVInstruction.classes_by_names["vadd.vi"],
+        RISCVInstruction.classes_by_names["vrsub.vi"],
+        RISCVInstruction.classes_by_names["vsetvli"],
+        RISCVInstruction.classes_by_names["vsetivli"],
+        RISCVInstruction.classes_by_names["vsetvl"],
+        RISCVInstruction.classes_by_names["vmv.s.x"],
+        RISCVInstruction.classes_by_names["vmv.x.s"],
+        RISCVInstruction.classes_by_names["vmv.v.v"],
+    ): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    (
+        RISCVInstruction.classes_by_names["vle"],
+        RISCVInstruction.classes_by_names["vlse"],
+        RISCVInstruction.classes_by_names["vluxei"],
+        RISCVInstruction.classes_by_names["vloxei"],
+        RISCVInstruction.classes_by_names["vse"],
+        RISCVInstruction.classes_by_names["vsse"],
+        RISCVInstruction.classes_by_names["vsuxei"],
+        RISCVInstruction.classes_by_names["vsoxei"],
+        RISCVInstruction.classes_by_names["vrgatherei16.vv"],
+        RISCVInstruction.classes_by_names["vrgather.vv"],
+        RISCVInstruction.classes_by_names["vrem.vx"],
+        RISCVInstruction.classes_by_names["vremu.vx"],
+        RISCVInstruction.classes_by_names["vdiv.vx"],
+        RISCVInstruction.classes_by_names["vdivu.vx"],
+        RISCVInstruction.classes_by_names["vrem.vv"],
+        RISCVInstruction.classes_by_names["vremu.vv"],
+        RISCVInstruction.classes_by_names["vdiv.vv"],
+        RISCVInstruction.classes_by_names["vdivu.vv"],
+        RISCVInstruction.classes_by_names["vand.vv"],
+        RISCVInstruction.classes_by_names["vor.vv"],
+        RISCVInstruction.classes_by_names["vxor.vv"],
+        RISCVInstruction.classes_by_names["vsll.vv"],
+        RISCVInstruction.classes_by_names["vsrl.vv"],
+        RISCVInstruction.classes_by_names["vmseq.vv"],
+        RISCVInstruction.classes_by_names["vmsne.vv"],
+        RISCVInstruction.classes_by_names["vmsltu.vv"],
+        RISCVInstruction.classes_by_names["vmslt.vv"],
+        RISCVInstruction.classes_by_names["vmsleu.vv"],
+        RISCVInstruction.classes_by_names["vmsle.vv"],
+        RISCVInstruction.classes_by_names["vand.vx"],
+        RISCVInstruction.classes_by_names["vor.vx"],
+        RISCVInstruction.classes_by_names["vxor.vx"],
+        RISCVInstruction.classes_by_names["vsll.vx"],
+        RISCVInstruction.classes_by_names["vsrl.vx"],
+        RISCVInstruction.classes_by_names["vmseq.vx"],
+        RISCVInstruction.classes_by_names["vmsne.vx"],
+        RISCVInstruction.classes_by_names["vmsltu.vx"],
+        RISCVInstruction.classes_by_names["vmslt.vx"],
+        RISCVInstruction.classes_by_names["vmsleu.vx"],
+        RISCVInstruction.classes_by_names["vmsle.vx"],
+        RISCVInstruction.classes_by_names["vmsgtu.vx"],
+        RISCVInstruction.classes_by_names["vmsgt.vx"],
+        RISCVInstruction.classes_by_names["vand.vi"],
+        RISCVInstruction.classes_by_names["vor.vi"],
+        RISCVInstruction.classes_by_names["vxor.vi"],
+        RISCVInstruction.classes_by_names["vsll.vi"],
+        RISCVInstruction.classes_by_names["vsrl.vi"],
+        RISCVInstruction.classes_by_names["vsra.vi"],
+        RISCVInstruction.classes_by_names["vmseq.vi"],
+        RISCVInstruction.classes_by_names["vmsne.vi"],
+        RISCVInstruction.classes_by_names["vmsleu.vi"],
+        RISCVInstruction.classes_by_names["vmsle.vi"],
+        RISCVInstruction.classes_by_names["vmsgtu.vi"],
+        RISCVInstruction.classes_by_names["vmsgt.vi"],
+        RISCVInstruction.classes_by_names["vmerge.vvm"],
+        RISCVInstruction.classes_by_names["vmerge.vxm"],
+        RISCVInstruction.classes_by_names["vmerge.vim"],
+        RISCVInstruction.classes_by_names["vrgather.vx"],
+        RISCVInstruction.classes_by_names["vrgather.vi"],
+        RISCVInstruction.classes_by_names["vmv.s.x"],
+        RISCVInstruction.classes_by_names["vl<nf>re<ew>.v"],
+        RISCVInstruction.classes_by_names["vl<nf>r.v"],
+        RISCVInstruction.classes_by_names["vs<nf>re<ew>.v"],
+        RISCVInstruction.classes_by_names["vs<nf>r.v"],
+        RISCVInstruction.classes_by_names["vnot.v"],
+        RISCVInstruction.classes_by_names["vssrl.vv"],  # guessed
+        RISCVInstruction.classes_by_names["vssra.vv"],  # guessed
+        RISCVInstruction.classes_by_names["vssrl.vi"],  # guessed
+        RISCVInstruction.classes_by_names["vssra.vi"],  # guessed
+    ): [ExecutionUnit.VEC0],
 }
 
 inverse_throughput = {
@@ -229,7 +357,134 @@ inverse_throughput = {
         RISCVInstruction.classes_by_names["divu"],
         RISCVInstruction.classes_by_names["rem"],
         RISCVInstruction.classes_by_names["remu"],
+        # branch instructions
+        RISCVInstruction.classes_by_names["beq"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bne"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["blt"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bge"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bltu"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bgeu"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["bnez"],  # guessed but also not important
+        RISCVInstruction.classes_by_names["beqz"],  # guessed but also not important
     ): 2,
+    (
+        RISCVInstruction.classes_by_names["vle"],
+        RISCVInstruction.classes_by_names["vlse"],
+        RISCVInstruction.classes_by_names["vluxei"],
+        RISCVInstruction.classes_by_names["vloxei"],
+        RISCVInstruction.classes_by_names["vse"],
+        RISCVInstruction.classes_by_names["vsse"],
+        RISCVInstruction.classes_by_names["vsuxei"],
+        RISCVInstruction.classes_by_names[
+            "vsoxei"
+        ],  # TODO: some of the above values are estimated
+        RISCVInstruction.classes_by_names["vadd.vv"],
+        RISCVInstruction.classes_by_names["vsub.vv"],
+        RISCVInstruction.classes_by_names["vrsub.vv"],
+        RISCVInstruction.classes_by_names["vminu.vv"],
+        RISCVInstruction.classes_by_names["vmin.vv"],
+        RISCVInstruction.classes_by_names["vmaxu.vv"],
+        RISCVInstruction.classes_by_names["vmax.vv"],
+        RISCVInstruction.classes_by_names["vmul.vv"],
+        RISCVInstruction.classes_by_names["vmulh.vv"],
+        RISCVInstruction.classes_by_names["vmulhu.vv"],
+        RISCVInstruction.classes_by_names["vmulhsu.vv"],
+        RISCVInstruction.classes_by_names["vmacc.vv"],
+        RISCVInstruction.classes_by_names["vnmsac.vv"],
+        RISCVInstruction.classes_by_names["vmadd.vv"],
+        RISCVInstruction.classes_by_names["vnmsub.vv"],
+        RISCVInstruction.classes_by_names["vadd.vx"],
+        RISCVInstruction.classes_by_names["vsub.vx"],
+        RISCVInstruction.classes_by_names["vrsub.vx"],
+        RISCVInstruction.classes_by_names["vmsgeu.vx"],
+        RISCVInstruction.classes_by_names["vmsge.vx"],
+        RISCVInstruction.classes_by_names["vminu.vx"],
+        RISCVInstruction.classes_by_names["vmin.vx"],
+        RISCVInstruction.classes_by_names["vmaxu.vx"],
+        RISCVInstruction.classes_by_names["vmax.vx"],
+        RISCVInstruction.classes_by_names["vmul.vx"],
+        RISCVInstruction.classes_by_names["vmulh.vx"],
+        RISCVInstruction.classes_by_names["vmulhu.vx"],
+        RISCVInstruction.classes_by_names["vmulhsu.vx"],
+        RISCVInstruction.classes_by_names["vmacc.vx"],
+        RISCVInstruction.classes_by_names["vnmsac.vx"],
+        RISCVInstruction.classes_by_names["vmadd.vx"],
+        RISCVInstruction.classes_by_names["vnmsub.vx"],
+        RISCVInstruction.classes_by_names["vadd.vi"],
+        RISCVInstruction.classes_by_names["vrsub.vi"],
+        RISCVInstruction.classes_by_names["vs<nf>re<ew>.v"],
+        RISCVInstruction.classes_by_names["vs<nf>r.v"],
+        RISCVInstruction.classes_by_names["vl<nf>re<ew>.v"],
+        RISCVInstruction.classes_by_names["vl<nf>r.v"],
+    ): 2,
+    (
+        RISCVInstruction.classes_by_names["vand.vv"],
+        RISCVInstruction.classes_by_names["vor.vv"],
+        RISCVInstruction.classes_by_names["vxor.vv"],
+        RISCVInstruction.classes_by_names["vsll.vv"],
+        RISCVInstruction.classes_by_names["vsrl.vv"],
+        RISCVInstruction.classes_by_names["vmseq.vv"],
+        RISCVInstruction.classes_by_names["vmsne.vv"],
+        RISCVInstruction.classes_by_names["vmsltu.vv"],
+        RISCVInstruction.classes_by_names["vmslt.vv"],
+        RISCVInstruction.classes_by_names["vmsleu.vv"],
+        RISCVInstruction.classes_by_names["vmsle.vv"],
+        RISCVInstruction.classes_by_names["vand.vx"],
+        RISCVInstruction.classes_by_names["vor.vx"],
+        RISCVInstruction.classes_by_names["vxor.vx"],
+        RISCVInstruction.classes_by_names["vsll.vx"],
+        RISCVInstruction.classes_by_names["vsrl.vx"],
+        RISCVInstruction.classes_by_names["vmseq.vx"],
+        RISCVInstruction.classes_by_names["vmsne.vx"],
+        RISCVInstruction.classes_by_names["vmsltu.vx"],
+        RISCVInstruction.classes_by_names["vmslt.vx"],
+        RISCVInstruction.classes_by_names["vmsleu.vx"],
+        RISCVInstruction.classes_by_names["vmsle.vx"],
+        RISCVInstruction.classes_by_names["vmsgtu.vx"],
+        RISCVInstruction.classes_by_names["vmsgt.vx"],
+        RISCVInstruction.classes_by_names["vand.vi"],
+        RISCVInstruction.classes_by_names["vor.vi"],
+        RISCVInstruction.classes_by_names["vxor.vi"],
+        RISCVInstruction.classes_by_names["vsll.vi"],
+        RISCVInstruction.classes_by_names["vsrl.vi"],
+        RISCVInstruction.classes_by_names["vsra.vi"],
+        RISCVInstruction.classes_by_names["vmseq.vi"],
+        RISCVInstruction.classes_by_names["vmsne.vi"],
+        RISCVInstruction.classes_by_names["vmsleu.vi"],
+        RISCVInstruction.classes_by_names["vmsle.vi"],
+        RISCVInstruction.classes_by_names["vmsgtu.vi"],
+        RISCVInstruction.classes_by_names["vmsgt.vi"],
+        RISCVInstruction.classes_by_names["vmerge.vvm"],
+        RISCVInstruction.classes_by_names["vmerge.vxm"],
+        RISCVInstruction.classes_by_names["vmerge.vim"],
+        RISCVInstruction.classes_by_names["vrgather.vx"],
+        RISCVInstruction.classes_by_names["vrgather.vi"],
+        RISCVInstruction.classes_by_names["vmv.x.s"],
+        RISCVInstruction.classes_by_names["vnot.v"],
+        RISCVInstruction.classes_by_names["vssrl.vv"],  # guessed
+        RISCVInstruction.classes_by_names["vssra.vv"],  # guessed
+        RISCVInstruction.classes_by_names["vssrl.vi"],  # guessed
+        RISCVInstruction.classes_by_names["vssra.vi"],  # guessed
+    ): 1,
+    RISCVInstruction.classes_by_names["vdivu.vv"]: 21,
+    RISCVInstruction.classes_by_names["vdiv.vv"]: 23,
+    RISCVInstruction.classes_by_names["vremu.vv"]: 23,
+    RISCVInstruction.classes_by_names["vrem.vv"]: 25,
+    RISCVInstruction.classes_by_names["vdivu.vx"]: 21,
+    RISCVInstruction.classes_by_names["vdiv.vx"]: 23,
+    RISCVInstruction.classes_by_names["vremu.vx"]: 23,
+    RISCVInstruction.classes_by_names["vrem.vx"]: 25,
+    RISCVInstruction.classes_by_names["vrgather.vv"]: 4,
+    RISCVInstruction.classes_by_names["vrgatherei16.vv"]: 4,
+    RISCVInstruction.classes_by_names["vsetvli"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsetivli"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsetvl"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vmv.s.x"]: 6,
+    RISCVInstruction.classes_by_names["vmv.v.v"]: 2,
+    RISCVInstruction.classes_by_names["vl<nf>re<ew>.v"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vl<nf>r.v"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vs<nf>re<ew>.v"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vs<nf>r.v"]: 2,  # TODO: estimated
 }
 
 rv32_inverse_throughput = {
@@ -266,6 +521,31 @@ default_latencies = {
     RISCVIntegerRegisterRegisterMul: 4,
     RISCVLiPseudo: 1,  # Pseudo-instruction
     RISCVULaPseudo: 1,  # Pseudo-instruction
+    RISCVBranch: 3,  # guessed but also not important
+    RISCVVectorIntegerVectorImmediate: 4,
+    RISCVVectorIntegerVectorScalar: 4,
+    RISCVVectorIntegerVectorVector: 4,
+    RISCVVectorIntegerVectorScalarMasked: 4,
+    RISCVVectorIntegerVectorVectorMasked: 4,
+    RISCVVectorIntegerVectorImmediateMasked: 4,
+    RISCVVectorLoadUnitStride: 3,  # TODO: estimated
+    RISCVVectorLoadStrided: 3,  # TODO: estimated
+    RISCVVectorLoadIndexed: 3,  # TODO: estimated
+    RISCVVectorLoadWholeRegister: 3,  # TODO: estimated
+    RISCVVectorStoreUnitStride: 1,  # TODO: estimated
+    RISCVVectorStoreStrided: 1,  # TODO: estimated
+    RISCVVectorStoreIndexed: 1,  # TODO: estimated
+    RISCVVectorStoreWholeRegister: 1,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsetvli"]: 4,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsetivli"]: 4,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsetvl"]: 4,  # TODO: estimated
+    RISCVScalarVector: 4,  # TODO: estimated
+    RISCVVectorScalar: 4,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vmv.s.x"]: 3,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vmv.x.s"]: 3,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vmv.v.v"]: 3,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vnot.v"]: 4,
+    RISCVInstruction.classes_by_names["vnmsac.vx"]: 4,  # TODO: estimated
 }
 
 rv32_latencies = {

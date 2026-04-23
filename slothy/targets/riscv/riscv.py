@@ -188,7 +188,7 @@ class AddiLoop(Loop):
         # names to the same registers
         self.lbl_regex = r"^\s*(?P<label>\w+)\s*:(?P<remainder>.*)$"
         self.end_regex = (
-            r"^\s*addi?\s+(?P<cnt>\w+),\s*(\w+),"
+            r"^\s*addi\s+(?P<cnt>\w+),\s*(\w+),"
             r"\s*(?P<imm>[\s|\d|/| |\-|\\*|\\+|\\(|\\)|=|,]+)",
             (
                 r"^\s*(?P<branch_type>"
@@ -401,6 +401,7 @@ class BranchLoop(Loop):
                 ),
                 True,
             ),
+
         )
 
     def start(
@@ -439,6 +440,7 @@ class BranchLoop(Loop):
         # Calculate total increment per iteration by analyzing all instructions
         # that modify the loop counter register
         inc_per_iter = 0
+        stride_reg = None  # set when counter is incremented via a register (add cnt, cnt, reg)
         body_code = [line for line in body_code if line.text != ""]
 
         try:
@@ -451,35 +453,46 @@ class BranchLoop(Loop):
         for line in body_code:
             try:
                 inst = Instruction.parser(line)
-                # Check for direct register modifications (addi instructions)
-                if (
-                    hasattr(inst[0], "args_out")
-                    and loop_cnt_alias in inst[0].args_out
-                    and hasattr(inst[0], "immediate")
-                    and inst[0].immediate is not None
-                ):
-                    inc_per_iter += simplify(inst[0].immediate)
-                # Check for in-out register modifications
-                elif (
+                # check if instruction writes to loop_cnt_reg at all
+                writes_cnt = (
+                    hasattr(inst[0], "args_out") and loop_cnt_alias in inst[0].args_out
+                ) or (
                     hasattr(inst[0], "args_in_out")
                     and loop_cnt_alias in inst[0].args_in_out
-                    and hasattr(inst[0], "immediate")
-                    and inst[0].immediate is not None
-                ):
+                )
+                if not writes_cnt:
+                    continue
+                # if it does, check if immediate is used to increment counter
+                if hasattr(inst[0], "immediate") and inst[0].immediate is not None:
                     inc_per_iter += simplify(inst[0].immediate)
+                elif (  # elif check if loop_cnt is an input register of the instruction
+                    hasattr(inst[0], "args_in")
+                    and loop_cnt_alias in inst[0].args_in
+                ):
+                    # register-register add: add cnt, cnt, stride_reg; extract stride_reg that holds the increment val
+                    # args_in uses aliased (physical) names; reverse-map to match loop_end_reg's original names
+                    reverse_aliases = {v: k for k, v in register_aliases.items()} if register_aliases else {}
+                    others = [r for r in inst[0].args_in if r != loop_cnt_alias]
+                    if others:
+                        stride_reg = reverse_aliases.get(others[0], others[0])
             except Exception as e:
                 logging.debug(f"Could not parse instruction {line}: {e}")
                 continue
 
         logging.debug(
-            f"Loop counter {loop_cnt_reg} is incremented by {inc_per_iter} per iteration."
+            f"Loop counter {loop_cnt_reg} is incremented by "
+            f"{stride_reg if stride_reg else inc_per_iter} per iteration."
         )
 
         # Apply fixup for software pipelining
         if fixup != 0:
-            # For RISC-V, we typically adjust the end register rather than the counter
-            # to avoid affecting address calculations
-            yield f"{indent}addi {loop_end_reg}, {loop_end_reg}, {-fixup * inc_per_iter}"
+            if stride_reg is not None:
+                # register-based stride: subtract stride_reg from end bound once per
+                # pipelined iteration stolen into the preamble
+                for _ in range(fixup):
+                    yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, {stride_reg}"
+            else:
+                yield f"{indent}addi {loop_end_reg}, {loop_end_reg}, {-fixup * inc_per_iter}"
 
         if jump_if_empty is not None:
             yield f"beq {loop_cnt_reg}, {loop_end_reg}, {jump_if_empty}"
