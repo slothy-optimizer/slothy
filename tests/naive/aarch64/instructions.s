@@ -28,6 +28,32 @@ st2 { v0.s, v1.s}[0], [x11], #8
 st2 {v0.s, v1.s}[0], [x11], #8
 st2 { v0.S, v1.S }[1], [x1]
 
+// ld1 multi-register (no post-increment)
+ld1 {v0.4s, v1.4s}, [x1]
+ld1 {v2.4s, v3.4s, v4.4s, v5.4s}, [x1]
+
+// ld1 multi-register with immediate post-increment
+ld1 {v0.4s, v1.4s}, [x1], #32
+ld1 {v2.4s, v3.4s, v4.4s, v5.4s}, [x1], #64
+
+// ld1 multi-register and single-register with register post-increment
+mov x12, #16
+ld1 {v0.4s, v1.4s}, [x1], x12
+ld1 {v2.4s}, [x1], x12
+ld1 {v3.s}[0], [x1], x12
+ld1 {v3.s}[1], [x1], x12
+
+// st1 with register post-increment
+st1 {v0.4s}, [x1], x12
+st1 {v1.s}[0], [x1], x12
+st1 {v1.s}[1], [x1], x12
+
+// st1 4-register with immediate post-increment
+st1 {v0.4s, v1.4s, v2.4s, v3.4s}, [x1], #64
+
+// Store vector pair Q-form
+stp q0, q1, [x0, #32]
+
 zip1 v5.16b, v6.16b, v7.16b
 zip2 v8.16b, v9.16b, v10.16b
 uzp1 v11.16b, v12.16b, v13.16b
@@ -207,4 +233,59 @@ ld3 {v2.4s, v3.4s, v4.4s}, [x17], #48
 st3 {v5.4s, v6.4s, v7.4s}, [x18], #48
 ld2 {v8.4s, v9.4s}, [x19], #32
 st2 {v10.4s, v11.4s}, [x20], #32
+
+// ASIMD widening / narrowing arithmetic
+uaddl  v0.8h,  v1.8b,  v2.8b
+uaddl2 v3.8h,  v4.16b, v5.16b
+uaddw  v6.8h,  v7.8h,  v8.8b
+uaddw2 v9.8h,  v10.8h, v11.16b
+saddl  v12.8h, v13.8b, v14.8b
+saddl2 v15.8h, v16.16b, v17.16b
+rshrn  v18.8b, v19.8h, #2
+rshrn2 v20.16b, v21.8h, #3
+sqxtun  v22.8b, v23.8h
+sqrshrun v24.8b, v25.8h, #4
+urhadd v26.8b, v27.8b, v28.8b
+
+// sub with shifted register operand
+sub x0, x1, x2, lsl #3
+sub x3, x4, x5, lsr #2
+
+// sign-extend word
+sxtw x6, w7
+
+// ASIMD FP arithmetic (vector)
+fadd v0.4s, v1.4s, v2.4s
+fsub v0.4s, v1.4s, v2.4s
+fmul v0.4s, v1.4s, v2.4s
+faddp v0.4s, v1.4s, v2.4s
+faddp s0, v1.2s
+
+// ASIMD FP multiply accumulate / subtract
+fmla v0.4s, v1.4s, v2.4s
+fmls v0.4s, v1.4s, v2.4s
+
+// ASIMD FP by-element
+fmla v0.4s, v1.4s, v2.s[0]
+fmul v0.4s, v1.4s, v2.s[1]
+
+// ASIMD move immediate
+movi v0.16b, #0
+movi v1.4s, #0
+
+// SUBS immediate
+subs x0, x1, #4
+
+// ASIMD duplicate element
+dup v0.4s, v1.s[0]
+dup v2.2s, v3.s[1]
+
+// ASIMD reverse
+rev64 v0.16b, v1.16b
+rev64 v2.4s, v3.4s
+
+// ASIMD element move / insert
+mov v0.s[0], v1.s[1]
+ins v0.d[0], v1.d[1]
+
 end:
