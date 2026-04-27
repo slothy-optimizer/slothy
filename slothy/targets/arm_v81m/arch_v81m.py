@@ -2730,30 +2730,45 @@ vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 def vmov_double_r2v_parsing_cb(this_class):
     def core(inst, t, log=None):
         assert isinstance(inst, this_class)
-        succ = None
         if inst.detected_vmov_double_r2v_pair:
             return False
-        # Check if this is the first in a pair of vmov_double_r2v
-        if len(t.dst_in_out[0]) == 1:
-            r = t.dst_in_out[0][0]
-            if isinstance(r.inst, this_class):
-                if (
-                    r.inst.args_in_out == inst.args_in_out
-                    and r.inst.args_in == inst.args_in
-                ):
-                    succ = r
 
+        # Find the earliest successor (by original program order) that is another
+        # vmov_double_r2v with identical in/outs. Here we allow
+        # multiple dependants and select the nearest matching successor.
+
+        def _is_match(node):
+            return (
+                isinstance(node.inst, this_class)
+                and node.inst.args_in_out == inst.args_in_out
+                # Note: inputs need not match; we only care that the pair
+                # jointly overwrites the same Q register(s).
+            )
+
+        # Consider dependants from any in/out operand
+        deps = [d for dep_list in t.dst_in_out for d in dep_list]
+
+        # Prefer successors that come later in source order
+        later_matches = [
+            d for d in deps if _is_match(d) and isinstance(d.id, int) and isinstance(t.id, int) and d.id > t.id
+        ]
+        succ = min(later_matches, key=lambda n: n.id) if later_matches else None
+
+        # Fallback for unusual cases where ids aren't integers
         if succ is None:
+            any_matches = [d for d in deps if _is_match(d)]
+            succ = any_matches[0] if any_matches else None
+
+        if succ is None and False:
             return False
-        
-        # If so, mark in/out as output only, and signal the need for re-building
-        # the dataflow graph
-        inst.num_out = 1
-        inst.args_out = [inst.args_in_out[0]]
-        inst.arg_types_out = [RegisterType.MVE]
-        inst.args_out_restrictions = inst.args_in_out_restrictions
-        inst.outputs = inst.in_outs
-        inst.pattern_outputs = inst.pattern_in_outs
+
+        # Mark both in/out operands as outputs-only and trigger a dataflow rebuild
+        inst.num_out = len(inst.args_in_out)
+        inst.args_out = list(inst.args_in_out)
+        inst.arg_types_out = [RegisterType.MVE for _ in inst.args_in_out]
+        inst.args_out_restrictions = list(inst.args_in_out_restrictions)
+        inst.outputs = list(inst.in_outs)
+        inst.pattern_outputs = list(inst.pattern_in_outs)
 
         inst.num_in_out = 0
         inst.args_in_out = []
