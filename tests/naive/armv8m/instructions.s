@@ -154,8 +154,8 @@ vdup.u32 q0, r0
 
 vmov r0, r1, q0[2], q0[0]
 vmov r0, r1, q0[3], q0[1]
-vmov q0[2], q0[0], r0, r1
-vmov q0[3], q0[1], r0, r1
+vmov q1[2], q1[0], r0, r1
+vmov q1[3], q1[1], r2, r3
 
 mov r0, #16
 
