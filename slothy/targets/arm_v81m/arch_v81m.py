@@ -2727,6 +2727,7 @@ def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
 vqdmlsdh.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmlsdh, vqdmladhx)
 vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 
+
 def vmov_double_r2v_parsing_cb(this_class):
     def mark_outputs_only(inst):
         inst.num_out = len(inst.args_in_out)
@@ -2816,6 +2817,7 @@ def vmov_double_r2v_parsing_cb(this_class):
 
 
 vmov_double_r2v.global_parsing_cb = vmov_double_r2v_parsing_cb(vmov_double_r2v)
+
 
 # Returns the list of all subclasses of a class which don't have
 # subclasses themselves
