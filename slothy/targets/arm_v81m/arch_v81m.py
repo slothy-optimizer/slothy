@@ -2728,41 +2728,7 @@ vqdmlsdh.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmlsdh, vqdmladhx)
 vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
 
 def vmov_double_r2v_parsing_cb(this_class):
-    def core(inst, t, log=None):
-        assert isinstance(inst, this_class)
-        if inst.detected_vmov_double_r2v_pair:
-            return False
-
-        # Find the earliest successor (by original program order) that is another
-        # vmov_double_r2v with identical in/outs. Here we allow
-        # multiple dependants and select the nearest matching successor.
-
-        def _is_match(node):
-            return (
-                isinstance(node.inst, this_class)
-                and node.inst.args_in_out == inst.args_in_out
-                # Note: inputs need not match; we only care that the pair
-                # jointly overwrites the same Q register(s).
-            )
-
-        # Consider dependants from any in/out operand
-        deps = [d for dep_list in t.dst_in_out for d in dep_list]
-
-        # Prefer successors that come later in source order
-        later_matches = [
-            d for d in deps if _is_match(d) and isinstance(d.id, int) and isinstance(t.id, int) and d.id > t.id
-        ]
-        succ = min(later_matches, key=lambda n: n.id) if later_matches else None
-
-        # Fallback for unusual cases where ids aren't integers
-        if succ is None:
-            any_matches = [d for d in deps if _is_match(d)]
-            succ = any_matches[0] if any_matches else None
-
-        if succ is None and False:
-            return False
-
-        # Mark both in/out operands as outputs-only and trigger a dataflow rebuild
+    def mark_outputs_only(inst):
         inst.num_out = len(inst.args_in_out)
         inst.args_out = list(inst.args_in_out)
         inst.arg_types_out = [RegisterType.MVE for _ in inst.args_in_out]
@@ -2778,6 +2744,72 @@ def vmov_double_r2v_parsing_cb(this_class):
         inst.args_in_out_restrictions = []
 
         inst.detected_vmov_double_r2v_pair = True
+
+    def core(inst, t, log=None):
+        # Special-case two back-to-back vmov r2v that jointly overwrite q*.
+        # Conditions:
+        #  - Both vmovs target the same vector register
+        #       (Qd==Qa, and equal across the pair)
+        #  - The two vmovs jointly cover all lanes {0,1,2,3}
+
+        assert isinstance(inst, this_class)
+        if getattr(inst, "detected_vmov_double_r2v_pair", False):
+            return False
+
+        def _is_match(node):
+            return isinstance(node.inst, this_class) and getattr(
+                node.inst, "args_in_out", None
+            ) == getattr(inst, "args_in_out", None)
+
+        deps = [d for dep_list in getattr(t, "dst_in_out", []) for d in dep_list]
+        later_matches = [
+            d
+            for d in deps
+            if _is_match(d)
+            and isinstance(getattr(d, "id", None), int)
+            and isinstance(getattr(t, "id", None), int)
+            and d.id > t.id
+        ]
+        succ = min(later_matches, key=lambda n: n.id) if later_matches else None
+        if succ is None:
+            any_matches = [d for d in deps if _is_match(d)]
+            succ = any_matches[0] if any_matches else None
+        if succ is None:
+            if isinstance(getattr(inst, "index", None), list) and len(inst.index) == 2:
+                mark_outputs_only(inst)
+                return True
+            return False
+
+        same_q_this = (
+            hasattr(inst, "args_in_out")
+            and len(inst.args_in_out) == 2
+            and inst.args_in_out[0] == inst.args_in_out[1]
+        )
+        same_q_next = (
+            hasattr(succ.inst, "args_in_out")
+            and len(succ.inst.args_in_out) == 2
+            and succ.inst.args_in_out[0] == succ.inst.args_in_out[1]
+        )
+        same_q_across = (
+            same_q_this
+            and same_q_next
+            and (inst.args_in_out[0] == succ.inst.args_in_out[0])
+        )
+
+        idx_this = getattr(inst, "index", None)
+        idx_next = getattr(succ.inst, "index", None)
+        full_cover = (
+            isinstance(idx_this, list)
+            and isinstance(idx_next, list)
+            and len(idx_this) == 2
+            and len(idx_next) == 2
+            and set(idx_this + idx_next) == {0, 1, 2, 3}
+        )
+
+        if not (same_q_across and full_cover):
+            return False
+
+        mark_outputs_only(inst)
         return True
 
     return core
