@@ -42,6 +42,8 @@ class Instructions(OptimizationRunner):
         slothy.config.constraints.allow_reordering = False
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 256
+        slothy.config.reserved_regs.add("x12")
+        slothy.config.selftest_initial_register_values = {"x12": 16}
         slothy.optimize(start="start", end="end")
 
 
