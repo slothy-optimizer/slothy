@@ -309,6 +309,9 @@ class RISC_V_kyber_normal2ntt_order_rvv_vlen128(OptimizationRunner):
         )
 
     def core(self, slothy):
+        import slothy.targets.riscv.xuantie_c908 as target_module
+        target_module.lmul = 1
+
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
