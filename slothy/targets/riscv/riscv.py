@@ -82,7 +82,7 @@ class RegisterType(Enum):
         base_int = [f"x{i}" for i in range(32)]
         # TODO: check for reserved regs
         vector_regs = [f"v{i}" for i in range(32)]
-        csr = ["vstart", "vxsat", "vxrm", "vcsr", "vtype", "vl", "vlenb"]
+        csr = ["vstart", "vxsat", "vxrm", "vcsr", "vtype_csr", "vl", "vlenb"]
         return {
             RegisterType.BASE_INT: base_int,
             RegisterType.VECT: vector_regs,
@@ -116,6 +116,7 @@ class RegisterType(Enum):
         """Find register type from string"""
 
         string = string.lower()
+        # TODO: add vector and csr regs here
         return {"base_int": RegisterType.BASE_INT}.get(string, None)
 
     @staticmethod
@@ -401,7 +402,6 @@ class BranchLoop(Loop):
                 ),
                 True,
             ),
-
         )
 
     def start(
@@ -440,7 +440,9 @@ class BranchLoop(Loop):
         # Calculate total increment per iteration by analyzing all instructions
         # that modify the loop counter register
         inc_per_iter = 0
-        stride_reg = None  # set when counter is incremented via a register (add cnt, cnt, reg)
+        stride_reg = (
+            None  # set when counter is incremented via a register (add cnt, cnt, reg)
+        )
         body_code = [line for line in body_code if line.text != ""]
 
         try:
@@ -466,12 +468,17 @@ class BranchLoop(Loop):
                 if hasattr(inst[0], "immediate") and inst[0].immediate is not None:
                     inc_per_iter += simplify(inst[0].immediate)
                 elif (  # elif check if loop_cnt is an input register of the instruction
-                    hasattr(inst[0], "args_in")
-                    and loop_cnt_alias in inst[0].args_in
+                    hasattr(inst[0], "args_in") and loop_cnt_alias in inst[0].args_in
                 ):
-                    # register-register add: add cnt, cnt, stride_reg; extract stride_reg that holds the increment val
-                    # args_in uses aliased (physical) names; reverse-map to match loop_end_reg's original names
-                    reverse_aliases = {v: k for k, v in register_aliases.items()} if register_aliases else {}
+                    # register-register add: add cnt, cnt, stride_reg; extract stride_reg
+                    # that holds the increment val
+                    # args_in uses aliased (physical) names; reverse-map to match l
+                    # oop_end_reg's original names
+                    reverse_aliases = (
+                        {v: k for k, v in register_aliases.items()}
+                        if register_aliases
+                        else {}
+                    )
                     others = [r for r in inst[0].args_in if r != loop_cnt_alias]
                     if others:
                         stride_reg = reverse_aliases.get(others[0], others[0])
@@ -492,7 +499,10 @@ class BranchLoop(Loop):
                 for _ in range(fixup):
                     yield f"{indent}sub {loop_end_reg}, {loop_end_reg}, {stride_reg}"
             else:
-                yield f"{indent}addi {loop_end_reg}, {loop_end_reg}, {-fixup * inc_per_iter}"
+                yield (
+                    f"{indent}addi {loop_end_reg}, {loop_end_reg}, "
+                    f"{-fixup * inc_per_iter}"
+                )
 
         if jump_if_empty is not None:
             yield f"beq {loop_cnt_reg}, {loop_end_reg}, {jump_if_empty}"

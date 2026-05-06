@@ -39,10 +39,10 @@ from slothy.targets.riscv.helpers.lmul_helper import (
 
 def _add_vtype_input(obj):
     """Append an implicit vtype CSR input dependency to a vector instruction."""
-    #obj.args_in.append("vtype")
-    #obj.arg_types_in.append(RISCVInstruction._infer_register_type("Cvtype"))
-    #obj.num_in += 1
-    #obj.args_in_restrictions.append(None)
+    obj.args_in.append("vtype_csr")
+    obj.arg_types_in.append(RISCVInstruction._infer_register_type("Cvtype"))
+    obj.num_in += 1
+    obj.args_in_restrictions.append(["vtype_csr"])
     return obj
 
 

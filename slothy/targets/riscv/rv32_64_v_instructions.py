@@ -50,10 +50,10 @@ from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 def _add_vtype_output(obj):
     """Append an implicit vtype CSR output to a vset* instruction."""
-    obj.args_out.append("vtype")
+    obj.args_out.append("vtype_csr")
     obj.arg_types_out.append(RISCVInstruction._infer_register_type("Cvtype"))
     obj.num_out += 1
-    obj.args_out_restrictions.append(None)
+    obj.args_out_restrictions.append(["vtype_csr"])
     return obj
 
 

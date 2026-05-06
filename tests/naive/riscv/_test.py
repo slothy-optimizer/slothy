@@ -134,7 +134,7 @@ class RISC_VTest(OptimizationRunner):
         # ]
         outputs = [f"v{i}" for i in range(32)]
         outputs.extend([f"x{i}" for i in range(1, 32)])
-        outputs.extend(["vtype"])
+        outputs.extend(["vtype_csr"])
         slothy.config.outputs = outputs
         slothy.optimize(start="start_label", end="end_label")
 
