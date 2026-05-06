@@ -11,9 +11,9 @@ def _get_lmul_value(obj=None):
     Lookup order:
     1. obj.lmul   – the lmul field parsed from the instruction's own text (vsetvli).
     2. obj._lmul  – lmul cached on the object from a previous call to this function.
-                    Using a dedicated attribute (not _expansion_factor) avoids confusion
-                    with whole-register instructions where _expansion_factor equals NF,
-                    not lmul.
+    Using a dedicated attribute (not _expansion_factor) avoids confusion
+    with whole-register instructions where _expansion_factor equals NF,
+    not lmul.
     3. Module-level global set by the most recently parsed vsetvli – last resort only.
 
     The computed value is stored as obj._lmul so subsequent calls skip the global
