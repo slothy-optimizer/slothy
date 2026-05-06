@@ -207,4 +207,12 @@ ld3 {v2.4s, v3.4s, v4.4s}, [x17], #48
 st3 {v5.4s, v6.4s, v7.4s}, [x18], #48
 ld2 {v8.4s, v9.4s}, [x19], #32
 st2 {v10.4s, v11.4s}, [x20], #32
+crc32b w5, w5, w7
+crc32h w5, w5, w7
+crc32w w5, w5, w7
+crc32x w5, w5, x8
+crc32cb w6, w6, w7
+crc32ch w6, w6, w7
+crc32cw w6, w6, w7
+crc32cx w6, w6, x8
 end:
