@@ -309,9 +309,7 @@ class Instruction:
                 exceptions[inst_class.__name__] = e
 
         # On the first parse, cache the lmul on the SourceLine so future re-parses
-        # use the correct value regardless of global state.  Use _lmul (not
-        # _expansion_factor) because whole-register instructions set _expansion_factor
-        # to NF, not lmul.
+        # use the correct value regardless of global state
         if insts and "lmul" not in src_line._tags:
             lmul = getattr(insts[0], "_lmul", None)
             if lmul is not None:
