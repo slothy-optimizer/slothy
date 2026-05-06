@@ -119,6 +119,7 @@ class RISC_VTest(OptimizationRunner):
 
     def core(self, slothy):
         import slothy.targets.riscv.xuantie_c908 as target_module
+
         target_module.lmul = self.lmul
 
         print(target_module.lmul)

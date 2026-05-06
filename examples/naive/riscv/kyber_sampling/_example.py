@@ -29,6 +29,7 @@ class RISC_V_cbd2_rvv_vlen128(OptimizationRunner):
 
     def core(self, slothy):
         import slothy.targets.riscv.xuantie_c908 as target_module
+
         target_module.lmul = self.lmul
 
         slothy.config.variable_size = True
