@@ -125,6 +125,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     cmp_imm,
     csel,
     q_ldp_with_inc,
+    AArch64CRC32,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -145,8 +146,7 @@ class ExecutionUnit(Enum):
     STORE1 = auto()
     INT0 = auto()
     INT1 = auto()
-    MINT0 = auto()
-    MINT1 = auto()
+    SCALAR_MINT = auto()
     ASIMD0 = auto()
     ASIMD1 = auto()
 
@@ -171,7 +171,7 @@ class ExecutionUnit(Enum):
 
     @classmethod
     def MINT(cls):
-        return [ExecutionUnit.MINT0, ExecutionUnit.MINT1]
+        return [ExecutionUnit.SCALAR_MINT]
 
     @classmethod
     def SCALAR(cls):
@@ -264,6 +264,7 @@ execution_units = {
     Ldp_W: ExecutionUnit.LOAD(),
     q_ldp_with_inc: ExecutionUnit.LOAD(),
     Stp_W: ExecutionUnit.STORE(),
+    AArch64CRC32: ExecutionUnit.MINT(),
 }
 
 inverse_throughput = {
@@ -322,6 +323,7 @@ inverse_throughput = {
     movk_imm_lsl: 1,
     Ldp_W: 1,
     Stp_W: 1,
+    AArch64CRC32: 1,
 }
 
 # REVISIT
@@ -389,6 +391,7 @@ default_latencies = {
     movk_imm_lsl: 1,
     Ldp_W: 4,
     Stp_W: 1,
+    AArch64CRC32: 2,
 }
 
 
@@ -426,6 +429,13 @@ def get_latency(src, out_idx, dst):
         instclass_src in all_subclass_leaves(Vmlal)
         and instclass_dst in all_subclass_leaves(Vmlal)
         and src.args_in_out[0] == dst.args_in_out[0]
+    ):
+        return 1
+    # Fast CRC32 chain forwarding (A72 SWOG)
+    if (
+        instclass_src in all_subclass_leaves(AArch64CRC32)
+        and instclass_dst in all_subclass_leaves(AArch64CRC32)
+        and src.args_out[0] == dst.args_in[0]
     ):
         return 1
 
