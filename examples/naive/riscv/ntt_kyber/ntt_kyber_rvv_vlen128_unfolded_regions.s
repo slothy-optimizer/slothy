@@ -852,13 +852,12 @@
 .globl ntt_rvv_vlen128
 .align 2
 ntt_rvv_vlen128:
-start:
     li t0, 3329
     li t1, -3327
     li a7, 8*8
     addi a6, a1, _ZETAS_EXP*2
-
     vsetvli a7, a7, e16, m8, tu, mu
+start_1:
     lh t3, 0*2(a6)
     lh t2, 1*2(a6)
     // a[0-63] & a[128-191]
@@ -887,8 +886,9 @@ start:
     vse16.v v24, (a5)
     li a7, 8*8
     addi a6, a1, _ZETAS_EXP_1TO6_P0_L1*2
-
+end_1:
     vsetvli a7, a7, e16, m8, tu, mu
+start_2:
     addi a4, a0, (0*128)*2
     addi a5, a0, (64+0*128)*2
     lh t3, 0*2(a6)
@@ -907,8 +907,9 @@ start:
     li a7, 8*4
     lh t3, 2*2(a6)
     lh t2, 3*2(a6)
-
+end_2:
     vsetvli a7, a7, e16, m4, tu, mu
+start_3:
     lh t5, 4*2(a6)
     lh t4, 5*2(a6)
     vmul.vx  v0, v20, t3
@@ -923,8 +924,9 @@ start:
     vsub.vv  v28, v24, v8
     vadd.vv  v16, v16, v0
     vadd.vv  v24, v24, v8
-
+end_3:
     vsetivli a7, 8, e16, m1, tu, mu
+start_4:
     // shuffle4
     addi t2, a1, _MASK_01230123*2
     addi t3, a1, _MASK_45674567*2
@@ -1259,8 +1261,9 @@ start:
     vs8r.v v8, (a5)
     li a7, 8*8
     addi a6, a1, _ZETAS_EXP_1TO6_P1_L1*2
-
+end_4:
     vsetvli a7, a7, e16, m8, tu, mu
+start_5:
     addi a4, a0, (1*128)*2
     addi a5, a0, (64+1*128)*2
     lh t3, 0*2(a6)
@@ -1279,8 +1282,9 @@ start:
     li a7, 8*4
     lh t3, 2*2(a6)
     lh t2, 3*2(a6)
-
+end_5:
     vsetvli a7, a7, e16, m4, tu, mu
+start_6:
     lh t5, 4*2(a6)
     lh t4, 5*2(a6)
     vmul.vx  v0, v20, t3
@@ -1295,7 +1299,9 @@ start:
     vsub.vv  v28, v24, v8
     vadd.vv  v16, v16, v0
     vadd.vv  v24, v24, v8
+end_6:
     vsetivli a7, 8, e16, m1, tu, mu
+start_7:
     // shuffle4
     addi t2, a1, _MASK_01230123*2
     addi t3, a1, _MASK_45674567*2
@@ -1628,6 +1634,6 @@ start:
     vadd.vv  v12, v25, v12
     vadd.vv  v13, v27, v13
     vs8r.v v8, (a5)
-end:
+end_7:
 
 ret

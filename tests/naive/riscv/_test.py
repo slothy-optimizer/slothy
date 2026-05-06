@@ -118,21 +118,32 @@ class RISC_VTest(OptimizationRunner):
         self.lmul = lmul
 
     def core(self, slothy):
-        import slothy.targets.riscv.xuantie_c908 as target_module
+        # import slothy.targets.riscv.xuantie_c908 as target_module
 
-        target_module.lmul = self.lmul
+        # target_module.lmul = None
+        # slothy.config.variable_size = True
+        # slothy.config.constraints.stalls_first_attempt = 32
+        # slothy.config.inputs_are_outputs = True
 
-        print(target_module.lmul)
+        # r = slothy.config.reserved_regs
+        # r += ["x3"]
+        # slothy.config.reserved_regs = r
+        # slothy.config.outputs = [
+        #    "v8"
+        # ]
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
 
-        r = slothy.config.reserved_regs
-        r += ["x3"]
-        slothy.config.reserved_regs = r
-        # slothy.config.outputs = [
-        #    "v8"
-        # ]
+        slothy.config.allow_useless_instructions = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 10
+        slothy.config.split_heuristic_repeat = 1
+        slothy.config.split_heuristic_stepsize = 0.2
+
         outputs = [f"v{i}" for i in range(32)]
         outputs.extend([f"x{i}" for i in range(1, 32)])
         outputs.extend(["vtype_csr"])

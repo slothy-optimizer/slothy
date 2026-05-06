@@ -6,23 +6,45 @@ from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 
 def _get_lmul_value(obj=None):
-    """Get LMUL value from instruction object or any loaded RISC-V target module"""
+    """Get LMUL value from instruction object or any loaded RISC-V target module.
+
+    Lookup order:
+    1. obj.lmul   – the lmul field parsed from the instruction's own text (vsetvli).
+    2. obj._lmul  – lmul cached on the object from a previous call to this function.
+                    Using a dedicated attribute (not _expansion_factor) avoids confusion
+                    with whole-register instructions where _expansion_factor equals NF,
+                    not lmul.
+    3. Module-level global set by the most recently parsed vsetvli – last resort only.
+
+    The computed value is stored as obj._lmul so subsequent calls skip the global
+    entirely, making re-parses independent of stale global state.
+    """
     import sys
 
-    # Try to get from instruction object first
     if obj is not None:
+        # 1. lmul from the instruction's own parsed text (e.g. vsetvli "m8" field).
         lmul = getattr(obj, "lmul", None)
         if lmul is not None:
-            return _parse_lmul_string(lmul)
+            result = _parse_lmul_string(lmul)
+            obj._lmul = result
+            return result
 
-    # Try to get from any loaded RISC-V target module
+        # 2. Previously cached lmul (set by an earlier call on this object).
+        cached = getattr(obj, "_lmul", None)
+        if cached is not None:
+            return cached
+
+    # 3. Fall back to the module-level global.
     for module_name, module in sys.modules.items():
         if (
             module_name.startswith("slothy.targets.riscv.")
             and hasattr(module, "lmul")
             and module.lmul is not None
         ):
-            return _parse_lmul_string(module.lmul)
+            result = _parse_lmul_string(module.lmul)
+            if obj is not None:
+                obj._lmul = result  # cache so next call doesn't need the global
+            return result
 
     return 1  # Default
 

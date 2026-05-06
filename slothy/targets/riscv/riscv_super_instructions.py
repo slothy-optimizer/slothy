@@ -135,6 +135,17 @@ class RISCVBranch(RISCVScalarInstruction):
 
 
 class RISCVVectorInstruction(RISCVInstruction):
+    def global_parsing_cb(self, t, log=None):
+        from slothy.targets.riscv import xuantie_c908
+
+        if xuantie_c908.lmul is None:
+            raise ValueError(
+                "Vector instruction encountered but LMUL is not set. "
+                "Either include a vsetvl* instruction in the optimized region "
+                "or set target_module.lmul before optimizing."
+            )
+        return False
+
     def write(self, nf=False, _num_expandable_vector_inputs=0):
         if nf:
             expansion_factor = int(self.nf)
