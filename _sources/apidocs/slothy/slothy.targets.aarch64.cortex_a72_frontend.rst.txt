@@ -131,17 +131,11 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.INT1
 
-   .. py:attribute:: MINT0
-      :canonical: slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.MINT0
+   .. py:attribute:: SCALAR_MINT
+      :canonical: slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.SCALAR_MINT
       :value: 'auto(...)'
 
-      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.MINT0
-
-   .. py:attribute:: MINT1
-      :canonical: slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.MINT1
-      :value: 'auto(...)'
-
-      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.MINT1
+      .. autodoc2-docstring:: slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.SCALAR_MINT
 
    .. py:attribute:: ASIMD0
       :canonical: slothy.targets.aarch64.cortex_a72_frontend.ExecutionUnit.ASIMD0
