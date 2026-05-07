@@ -128,9 +128,9 @@ arch_name = "Arm_AArch64"
 
 llvm_mca_arch = "aarch64"
 llvm_mc_arch = "aarch64"
-# Always add aes flag for llvm-mc assembly -- assuming that the user will not
-# use aes instructions on CPUs that do not support it
-llvm_mc_attr = "aes"
+# Enable llvm-mc feature flags for instruction extensions used in the model.
+# Add flags here as new instruction families are added.
+llvm_mc_attr = "aes,crc"
 
 unicorn_arch = UC_ARCH_ARM64
 unicorn_mode = UC_MODE_ARM
@@ -3175,6 +3175,58 @@ class msub_xform(AArch64Multiply):
     pattern = "msub <Xd>, <Xacc>, <Xa>, <Xb>"
     inputs = ["Xacc", "Xa", "Xb"]
     outputs = ["Xd"]
+
+
+class AArch64CRC32(AArch64Instruction):
+    pass
+
+
+class crc32b(AArch64CRC32):
+    pattern = "crc32b <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class crc32h(AArch64CRC32):
+    pattern = "crc32h <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class crc32w(AArch64CRC32):
+    pattern = "crc32w <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class crc32x(AArch64CRC32):
+    pattern = "crc32x <Wd>, <Wa>, <Xb>"
+    inputs = ["Wa", "Xb"]
+    outputs = ["Wd"]
+
+
+class crc32cb(AArch64CRC32):
+    pattern = "crc32cb <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class crc32ch(AArch64CRC32):
+    pattern = "crc32ch <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class crc32cw(AArch64CRC32):
+    pattern = "crc32cw <Wd>, <Wa>, <Wb>"
+    inputs = ["Wa", "Wb"]
+    outputs = ["Wd"]
+
+
+class crc32cx(AArch64CRC32):
+    pattern = "crc32cx <Wd>, <Wa>, <Xb>"
+    inputs = ["Wa", "Xb"]
+    outputs = ["Wd"]
 
 
 class and_imm_wform(AArch64Instruction):

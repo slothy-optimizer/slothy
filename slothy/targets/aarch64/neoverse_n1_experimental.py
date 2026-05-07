@@ -72,6 +72,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64ShiftedArithmetic,
     AArch64HighMultiply,
     AArch64Multiply,
+    AArch64CRC32,
     VecToGprMov,
     St3,
     St4,
@@ -251,6 +252,7 @@ execution_units = {
     fmov_s_form: ExecutionUnit.V1(),  # from vec to gen reg
     umull_wform: ExecutionUnit.M(),
     (AArch64HighMultiply, AArch64Multiply): ExecutionUnit.M(),
+    AArch64CRC32: ExecutionUnit.M(),
     (vdup, vdup_w): ExecutionUnit.M(),
     # 8B/8H occupies both V0, V1
     vuaddlv_sform: [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
@@ -309,6 +311,7 @@ inverse_throughput = {
     fmov_s_form: 1,  # from vec to gen reg
     (AArch64HighMultiply): 4,
     (AArch64Multiply): 3,
+    AArch64CRC32: 1,
     (vdup, vdup_w): 1,
     umull_wform: 1,
     vuaddlv_sform: 1,  # 8B/8H
@@ -374,6 +377,7 @@ default_latencies = {
     fmov_s_form: 2,  # from vec to gen reg
     AArch64HighMultiply: 5,
     AArch64Multiply: 4,
+    AArch64CRC32: 2,
     (vdup, vdup_w): 3,
     umull_wform: 2,
     vtbl: 2,
@@ -423,6 +427,13 @@ def get_latency(src, out_idx, dst):
         instclass_src in all_subclass_leaves(Vmlal)
         and instclass_dst in all_subclass_leaves(Vmlal)
         and src.args_in_out[0] == dst.args_in_out[0]
+    ):
+        return 1
+    # Fast CRC32 chain forwarding (SWOG, section 3.21 CRC note 1)
+    if (
+        instclass_src in all_subclass_leaves(AArch64CRC32)
+        and instclass_dst in all_subclass_leaves(AArch64CRC32)
+        and src.args_out[0] == dst.args_in[0]
     ):
         return 1
 
