@@ -215,4 +215,5 @@ crc32cb w6, w6, w7
 crc32ch w6, w6, w7
 crc32cw w6, w6, w7
 crc32cx w6, w6, x8
+fmov x5, d7
 end:

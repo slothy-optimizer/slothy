@@ -4043,6 +4043,12 @@ class fmov_s_form(Fmov):
     outputs = ["Wd"]
 
 
+class fmov_d_form(Fmov):
+    pattern = "fmov <Xd>, <Da>"
+    inputs = ["Da"]
+    outputs = ["Xd"]
+
+
 class fmov_0(Fmov):
     pattern = "fmov <Dd>, <Xa>"
     inputs = ["Xa"]
