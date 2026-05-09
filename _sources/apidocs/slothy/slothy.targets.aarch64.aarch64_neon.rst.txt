@@ -668,6 +668,8 @@ Classes
      -
    * - :py:obj:`fmov_s_form <slothy.targets.aarch64.aarch64_neon.fmov_s_form>`
      -
+   * - :py:obj:`fmov_d_form <slothy.targets.aarch64.aarch64_neon.fmov_d_form>`
+     -
    * - :py:obj:`fmov_0 <slothy.targets.aarch64.aarch64_neon.fmov_0>`
      -
    * - :py:obj:`fmov_0_force_output <slothy.targets.aarch64.aarch64_neon.fmov_0_force_output>`
@@ -8410,6 +8412,29 @@ API
       :value: ['Wd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fmov_s_form.outputs
+
+.. py:class:: fmov_d_form(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.fmov_d_form
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.Fmov`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.fmov_d_form.pattern
+      :value: 'fmov <Xd>, <Da>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fmov_d_form.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.fmov_d_form.inputs
+      :value: ['Da']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fmov_d_form.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.fmov_d_form.outputs
+      :value: ['Xd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.fmov_d_form.outputs
 
 .. py:class:: fmov_0(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.fmov_0
