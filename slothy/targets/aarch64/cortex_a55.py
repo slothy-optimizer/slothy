@@ -179,6 +179,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     sub_imm,
     vuaddlv_sform,
     fmov_s_form,  # from double/single to gen reg
+    fmov_d_form,  # from double/single to gen reg (64-bit)
     cmp,
     vdup_w,
     crc32b,
@@ -345,6 +346,7 @@ execution_units = {
         b_ldr_stack_with_inc,
         d_ldr_stack_with_inc,
         fmov_s_form,  # from double/single to gen reg
+        fmov_d_form,  # from double/single to gen reg (64-bit)
         vdup_w,
     ): [
         ExecutionUnit.VEC0,
@@ -560,6 +562,7 @@ inverse_throughput = {
     AArch64ConditionalCompare: 1,
     AESInstruction: 1,
     fmov_s_form: 1,  # from double/single to gen reg
+    fmov_d_form: 1,  # from double/single to gen reg (64-bit)
     vdup_w: 1,
     (sxtb, uxtb): 1,
     (crc32b, crc32h, crc32w, crc32x, crc32cb, crc32ch, crc32cw, crc32cx): 1,
@@ -670,6 +673,7 @@ default_latencies = {
     # is not modeled
     AESInstruction: 2,
     fmov_s_form: 1,  # from double/single to gen reg
+    fmov_d_form: 1,  # from double/single to gen reg (64-bit)
     (sxtb, uxtb): 1,
     (crc32b, crc32h, crc32x, crc32cb, crc32ch, crc32cx): 2,
     (crc32w, crc32cw): 1,

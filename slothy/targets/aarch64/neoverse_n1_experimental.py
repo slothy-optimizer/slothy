@@ -97,6 +97,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vtbl,
     vuaddlv_sform,
     fmov_s_form,  # from vec to gen reg
+    fmov_d_form,  # from vec to gen reg (64-bit)
     fmov_0,
     fmov_0_force_output,
     fmov_1,
@@ -250,6 +251,7 @@ execution_units = {
         fmov_1_force_output,
     ): ExecutionUnit.M(),
     fmov_s_form: ExecutionUnit.V1(),  # from vec to gen reg
+    fmov_d_form: ExecutionUnit.V1(),  # from vec to gen reg (64-bit)
     umull_wform: ExecutionUnit.M(),
     (AArch64HighMultiply, AArch64Multiply): ExecutionUnit.M(),
     AArch64CRC32: ExecutionUnit.M(),
@@ -309,6 +311,7 @@ inverse_throughput = {
         fmov_1_force_output,
     ): 1,
     fmov_s_form: 1,  # from vec to gen reg
+    fmov_d_form: 1,  # from vec to gen reg (64-bit)
     (AArch64HighMultiply): 4,
     (AArch64Multiply): 3,
     AArch64CRC32: 1,
@@ -375,6 +378,7 @@ default_latencies = {
         fmov_1_force_output,
     ): 3,
     fmov_s_form: 2,  # from vec to gen reg
+    fmov_d_form: 2,  # from vec to gen reg (64-bit)
     AArch64HighMultiply: 5,
     AArch64Multiply: 4,
     AArch64CRC32: 2,
