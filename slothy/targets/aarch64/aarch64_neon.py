@@ -2781,9 +2781,15 @@ class ror(AArch64Shift):
     outputs = ["Xd"]
 
 
-class asr(AArch64Shift):
+class asr_imm(AArch64Shift):
     pattern = "asr <Xd>, <Xa>, <imm>"
     inputs = ["Xa"]
+    outputs = ["Xd"]
+
+
+class asr(AArch64Shift):
+    pattern = "asr <Xd>, <Xa>, <Xb>"
+    inputs = ["Xa", "Xb"]
     outputs = ["Xd"]
 
 
