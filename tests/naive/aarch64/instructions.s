@@ -219,5 +219,9 @@ fmov x5, d7
 
 asr x11, x12, x7
 asr x11, x12, #7
+csel x11, x10, xzr, eq
+csel x11, x10, xzr, ne
+csel x11, x10, xzr, lt
+csel x11, x10, xzr, gt
 
 end:
