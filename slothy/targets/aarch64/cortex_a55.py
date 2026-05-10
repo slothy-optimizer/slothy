@@ -184,6 +184,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     fmov_s_form,  # from double/single to gen reg
     fmov_d_form,  # from double/single to gen reg (64-bit)
     cmp,
+    cmp_xzr,
     vdup_w,
     crc32b,
     crc32h,
@@ -442,6 +443,7 @@ execution_units = {
         sub,
         sub_imm,
         cmp,
+        cmp_xzr,
         sbcs_zero_to_zero,
         cmp_xzr2,
         mov,
@@ -491,7 +493,7 @@ inverse_throughput = {
         umov_d,
         vuaddlv_sform,
     ): 1,
-    (sub_imm, cmp): 1,
+    (sub_imm, cmp, cmp_xzr): 1,
     (
         vmla,
         vmla_lane,
@@ -607,7 +609,7 @@ default_latencies = {
     ): 4,
     (Ldr_D): 3,
     (Ldr_Q, Str_Q): 4,
-    (sub_imm, cmp): 2,
+    (sub_imm, cmp, cmp_xzr): 2,
     AArch64NeonCount: 2,
     St4: 5,
     St3: 3,

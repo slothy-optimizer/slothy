@@ -123,6 +123,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     q_ld2_lane_s,
     Ldp_W,
     cmp,
+    cmp_xzr,
     cmp_imm,
     csel,
     csel_xzr_ne,
@@ -265,7 +266,8 @@ execution_units = {
     lsr_imm: ExecutionUnit.INT(),
     lsr: ExecutionUnit.INT(),
     movk_imm_lsl: ExecutionUnit.INT(),
-    (sub_imm, cmp, cmp_imm): ExecutionUnit.INT(),
+    (sub_imm, cmp_imm): ExecutionUnit.INT(),
+    (cmp, cmp_xzr): ExecutionUnit.MINT(),
     Ldp_W: ExecutionUnit.LOAD(),
     q_ldp_with_inc: ExecutionUnit.LOAD(),
     Stp_W: ExecutionUnit.STORE(),
@@ -316,7 +318,7 @@ inverse_throughput = {
     q_ld2_lane_s: 1,
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
-    (sub_imm, cmp, cmp_imm): 1,
+    (sub_imm, cmp, cmp_xzr, cmp_imm): 1,
     vuaddlv_sform: 1,
     fmov_s_form: 1,  # from vec to gen reg
     fmov_d_form: 1,  # from vec to gen reg (64-bit)
@@ -387,7 +389,8 @@ default_latencies = {
     q_ld2_lane_s: 8,
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
-    (sub_imm, cmp, cmp_imm): 1,
+    (sub_imm, cmp_imm): 1,
+    (cmp, cmp_xzr): 2,
     vuaddlv_sform: 6,  # 8B/8H
     fmov_s_form: 5,  # from vec to gen reg
     fmov_d_form: 5,  # from vec to gen reg (64-bit)

@@ -223,5 +223,6 @@ csel x11, x10, xzr, eq
 csel x11, x10, xzr, ne
 csel x11, x10, xzr, lt
 csel x11, x10, xzr, gt
+cmp x3, xzr
 
 end:
