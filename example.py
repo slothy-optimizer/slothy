@@ -150,6 +150,20 @@ def main():
     parser.add_argument("--debug-logfile", type=str, default=None)
     parser.add_argument("--log-model", default=False, action="store_true")
     parser.add_argument("--log-model-dir", type=str, default="models")
+    dynamic_precedence = parser.add_mutually_exclusive_group()
+    dynamic_precedence.add_argument(
+        "--dynamic-precedence",
+        dest="solver_use_dynamic_precedence_in_disjunctive",
+        action="store_true",
+        default=None,
+        help="Force OR-Tools use_dynamic_precedence_in_disjunctive=true when supported.",
+    )
+    dynamic_precedence.add_argument(
+        "--no-dynamic-precedence",
+        dest="solver_use_dynamic_precedence_in_disjunctive",
+        action="store_false",
+        help="Force OR-Tools use_dynamic_precedence_in_disjunctive=false when supported.",
+    )
     parser.add_argument(
         "--only-target",
         type=str,
@@ -194,6 +208,9 @@ def main():
                 log_model_dir=args.log_model_dir,
                 timeout=args.timeout,
                 only_target=args.only_target,
+                solver_use_dynamic_precedence_in_disjunctive=(
+                    args.solver_use_dynamic_precedence_in_disjunctive
+                ),
             )
 
 

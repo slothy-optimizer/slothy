@@ -4006,6 +4006,31 @@ class SlothyBase(LockAttributes):
         self._model.cp_model = cp_model.CpModel()
         self._model.cp_solver = cp_model.CpSolver()
         self._model.cp_solver.random_seed = self.config.solver_random_seed
+        configured_params = []
+        dynamic_precedence = (
+            self.config.solver_use_dynamic_precedence_in_disjunctive
+        )
+        if dynamic_precedence is not None:
+            param_name = "use_dynamic_precedence_in_disjunctive"
+            if hasattr(self._model.cp_solver.parameters, param_name):
+                setattr(
+                    self._model.cp_solver.parameters,
+                    param_name,
+                    dynamic_precedence,
+                )
+                configured_params.append(
+                    f"{param_name}="
+                    f"{getattr(self._model.cp_solver.parameters, param_name)}"
+                )
+            else:
+                configured_params.append(
+                    f"{param_name}=unsupported"
+                )
+        if configured_params:
+            self.logger.info(
+                "Configured CP-SAT solver parameters: %s",
+                ", ".join(configured_params),
+            )
 
     def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval, maxval, name)

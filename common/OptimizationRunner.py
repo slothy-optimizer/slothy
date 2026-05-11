@@ -147,6 +147,7 @@ class OptimizationRunner:
         timeout=0,
         debug_logfile=None,
         only_target=None,
+        solver_use_dynamic_precedence_in_disjunctive=None,
     ):
 
         if dry_run is True:
@@ -201,6 +202,10 @@ class OptimizationRunner:
             slothy.config.timeout = timeout
         elif self.timeout is not None:
             slothy.config.timeout = self.timeout
+        if solver_use_dynamic_precedence_in_disjunctive is not None:
+            slothy.config.solver_use_dynamic_precedence_in_disjunctive = (
+                solver_use_dynamic_precedence_in_disjunctive
+            )
 
         if dry_run is True:
             slothy.config.constraints.functional_only = True

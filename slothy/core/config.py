@@ -559,6 +559,15 @@ class Config(NestedPrint, LockAttributes):
         return self._retry_timeout
 
     @property
+    def solver_use_dynamic_precedence_in_disjunctive(self):
+        """Override OR-Tools' use_dynamic_precedence_in_disjunctive parameter.
+
+        If None, SLOTHY leaves the OR-Tools default unchanged. If True or False,
+        the parameter is set when supported by the installed OR-Tools version.
+        """
+        return self._solver_use_dynamic_precedence_in_disjunctive
+
+    @property
     def do_address_fixup(self):
         """Indicates whether post-optimization address fixup should be conducted.
 
@@ -1442,6 +1451,7 @@ class Config(NestedPrint, LockAttributes):
         self._max_solutions = 64
         self._timeout = None
         self._retry_timeout = None
+        self._solver_use_dynamic_precedence_in_disjunctive = None
         self._ignore_objective = False
         self._objective_precision = 0
         self._objective_lower_bound = None
@@ -1608,6 +1618,10 @@ class Config(NestedPrint, LockAttributes):
     @retry_timeout.setter
     def retry_timeout(self, val):
         self._retry_timeout = val
+
+    @solver_use_dynamic_precedence_in_disjunctive.setter
+    def solver_use_dynamic_precedence_in_disjunctive(self, val):
+        self._solver_use_dynamic_precedence_in_disjunctive = val
 
     @keep_tags.setter
     def keep_tags(self, val):
