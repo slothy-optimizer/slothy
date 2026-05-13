@@ -208,8 +208,24 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
 
         slothy.config.allow_useless_instructions = True
 
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # NOTE: software pipelining is intentionally disabled here.
+        # The source region (start..end) is straight-line code: it covers
+        # the entire Kyber NTT body and is *not* wrapped in a loop. With
+        # sw_pipelining.enabled + halving_heuristic, slothy lays the
+        # output out as preamble | kernel | postamble and expects the
+        # caller to wrap the kernel in a runtime loop. Because no loop
+        # branch is emitted, the kernel runs exactly once instead of the
+        # intended (N-1) times, so the total work becomes
+        #   preamble + 1*kernel + postamble = N+1 iterations
+        # rather than the N iterations the source represents. For the
+        # Kyber NTT (N = 2: P0 and P1 halves of levels 1..6) this
+        # produces an extra full NTT pass on top of the correct result.
+        # See docs/SLOTHY_KYBER_NTT_BUG.md for the full write-up.
+        # The matching dilithium RVV NTT config (ntt_dilithium/_example.py
+        # :: RISC_V_ntt_rvv_vlen128) keeps these two lines commented out
+        # for the same reason.
+        # slothy.config.sw_pipelining.enabled = True
+        # slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 20
         slothy.config.split_heuristic_repeat = 1
@@ -265,6 +281,13 @@ class RISC_V_intt_rvv_vlen128(OptimizationRunner):
 
         slothy.config.allow_useless_instructions = True
 
+        # WARNING: same caveat as RISC_V_ntt_rvv_vlen128.core() above.
+        # Each start_N/end_N region is straight-line (no loop branch),
+        # so software pipelining on each of them produces preamble |
+        # kernel | postamble code that the asm file does not wrap in a
+        # runtime loop. If you observe correctness issues in the
+        # generated intt asm, disable these two lines and re-run.
+        # See docs/SLOTHY_KYBER_NTT_BUG.md for details.
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
