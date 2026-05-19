@@ -16,6 +16,7 @@ ushr v6.16b, v7.16b, #3
 usra v4.2d, v5.2d, #3
 uxtl v8.8h, v9.8b
 ld1r {v11.2D}, [sp]
+ld1 {v0.16b, v1.16b}, [x1]
 ldr x16, [sp, #4]
 str x16, [sp, #4]
 ld2 { v0.S, v1.S }[1], [x1], #8

@@ -1469,6 +1469,18 @@ class q_ld1(Ldr_Q):
         obj.addr = obj.args_in[0]
         return obj
 
+class q_ld1_2(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Va", "Vb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        return obj
 
 class prefetch(Ldr_Q):
     pattern = "prfm pld1lkeep, [<Xc>, <imm>]"

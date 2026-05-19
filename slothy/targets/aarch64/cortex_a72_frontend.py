@@ -95,6 +95,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     VShiftImmediateBasic,
     St3,
     St2,
+    q_ld1_2,
     Ld2,
     Ld3,
     Ld4,
@@ -254,7 +255,7 @@ execution_units = {
     (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
     (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
-    (Ld2, Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ld2_lane_s): [
+    (q_ld1_2, Ld2, Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ld2_lane_s): [
         [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
         [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
     ],
@@ -309,6 +310,7 @@ inverse_throughput = {
     St2: 4,
     St3: 6,
     St4: 8,
+    q_ld1_2: 2,
     Ld2: 2,
     Ld3: 3,
     Ld4: 4,
@@ -380,6 +382,7 @@ default_latencies = {
     St2: 4,
     St3: 6,
     St4: 8,
+    q_ld1_2: 6,
     Ld2: 9,
     Ld3: 3,
     Ld4: 4,
