@@ -2003,6 +2003,22 @@ class q_st1_2_with_postinc(Stp_Q):
         ]
         return obj
 
+class q_st1_4_with_postinc(AArch64Instruction):
+    pattern = "st1 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>"
+    inputs = ["Va", "Vb", "Vc", "Vd"]
+    in_outs = ["Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        obj.args_in_combinations = [
+            ([0, 1, 2, 3], [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)])
+        ]
+        return obj
+
 
 class Ldr_X(AArch64Instruction):
     pass

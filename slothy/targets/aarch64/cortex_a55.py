@@ -97,6 +97,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ld3,
     St2,
     Ld2,
+    q_st1_4_with_postinc,
     q_ld1_2,
     sxtb,
     uxtb,
@@ -331,6 +332,15 @@ execution_units = {
         ]
         + ExecutionUnit.SCALAR()
     ],
+    q_st1_4_with_postinc: [
+        [
+            ExecutionUnit.VEC0,
+            ExecutionUnit.VEC1,
+            ExecutionUnit.SCALAR_LOAD,
+            ExecutionUnit.SCALAR_STORE,
+        ]
+        + ExecutionUnit.SCALAR()
+    ],
     Ld2: [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD]
         + ExecutionUnit.SCALAR()
@@ -518,6 +528,7 @@ inverse_throughput = {
     St4: 5,
     St3: 3,
     St2: 2,
+    q_st1_4_with_postinc: 4,
     Ld4: 9,
     Ld3: 6,
     Ld2: 4,
@@ -620,6 +631,7 @@ default_latencies = {
     St4: 5,
     St3: 3,
     St2: 2,
+    q_st1_4_with_postinc: 4,
     # TODO: Add distinction between Q/D and B/H vs. D/S
     q_ld1_2: 6,
     Ld2: 6,
