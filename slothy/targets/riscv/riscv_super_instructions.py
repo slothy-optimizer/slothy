@@ -32,6 +32,7 @@ instructions which share the same pattern"""
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 from slothy.targets.riscv.helpers.lmul_helper import (
     _get_lmul_value,
+    _get_sew_value,
     _write_expanded_instruction,
     _expand_vector_registers_generic,
 )
@@ -167,6 +168,7 @@ class RISCVVectorInstruction(RISCVInstruction):
             expansion_factor = int(obj.nf)
         else:
             expansion_factor = _get_lmul_value(obj)
+        _get_sew_value(obj)
 
         return _add_vtype_input(_expand_vector_registers_generic(obj, expansion_factor))
 
@@ -176,6 +178,7 @@ class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
         lmul = _get_lmul_value(obj)
+        _get_sew_value(obj)
 
         # Note: mask register (Vg) is not expanded, only vector operands
         obj = _expand_vector_registers_generic(
@@ -287,6 +290,7 @@ class RISCVVectorIntegerVectorVector(RISCVVectorInstruction):  # done
         if "gather" in src:
             obj.args_in_out_different = [(0, 0), (0, 1)]  # Can't have Rd==Ra
         lmul = _get_lmul_value(obj)
+        _get_sew_value(obj)
         return _add_vtype_input(_expand_vector_registers_generic(obj, lmul))
 
     pattern = "mnemonic <Vd>, <Ve>, <Vf><vm>"

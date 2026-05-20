@@ -289,13 +289,15 @@ class Instruction:
 
         src = src_line.text.strip()
 
-        # If a previous parse of this SourceLine stored the correct lmul as a tag,
-        # restore it now so make() sees the right value instead of whatever stale
-        # global state was left by a previous parse session.
+        # If a previous parse of this SourceLine stored the correct lmul/sew as
+        # tags, restore them now so make() sees the right values instead of
+        # whatever stale global state was left by a previous parse session.
         from slothy.targets.riscv import xuantie_c908
 
         if "lmul" in src_line._tags:
             xuantie_c908.lmul = src_line._tags["lmul"]
+        if "sew" in src_line._tags:
+            xuantie_c908.sew = src_line._tags["sew"]
 
         # Iterate through all derived classes and call their parser
         # until one of them hopefully succeeds
@@ -308,12 +310,16 @@ class Instruction:
             except ParsingException as e:
                 exceptions[inst_class.__name__] = e
 
-        # On the first parse, cache the lmul on the SourceLine so future re-parses
-        # use the correct value regardless of global state
+        # On the first parse, cache the lmul/sew on the SourceLine so future
+        # re-parses use the correct value regardless of global state
         if insts and "lmul" not in src_line._tags:
             lmul = getattr(insts[0], "_lmul", None)
             if lmul is not None:
                 src_line.set_tag("lmul", lmul)
+        if insts and "sew" not in src_line._tags:
+            sew = getattr(insts[0], "_sew", None)
+            if sew is not None:
+                src_line.set_tag("sew", sew)
 
         for i in insts:
             i.source_line = src_line

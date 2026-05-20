@@ -44,12 +44,18 @@ WARNING: The data in this module is approximate and may contain errors.
 ########################################################################################  # noqa: E266
 
 from enum import Enum
+import logging
+import math
 from slothy.targets.riscv.riscv import *  # noqa: F403
+from slothy.targets.riscv.riscv_super_instructions import RISCVVectorInstruction
 from slothy.targets.riscv.rv32_64_i_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_m_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_b_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_v_instructions import *  # noqa: F403
 from slothy.targets.riscv.rv32_64_pseudo_instructions import *  # noqa: F403
+from slothy.targets.riscv.helpers.lmul_helper import _get_lmul_value, _get_sew_value
+import os
+import pandas as pd
 
 # XuanTie C908 can issue up to 2 instructions per cycle (dual-issue)
 issue_rate = 2
@@ -59,6 +65,22 @@ lmul = None
 sew = None
 tpol = None
 mpol = None
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+ods_path = os.path.join(script_dir, "helpers/riscv_v_instr_benchmarks.ods")
+# Build a (mnemonic, masked) -> throughput-row lookup. The sheet's "instruction"
+# column holds full operand-form strings (e.g. "vadd.vv v8,v16,v24[,v0.t]"); we
+# key on the mnemonic and whether the row is the masked variant.
+vector_instr_throughput = pd.read_excel(
+    ods_path, sheet_name="vl=VMAX tu mu", engine="odf"
+)
+vector_instr_throughput["_mnemonic"] = (
+    vector_instr_throughput["instruction"].str.split().str[0]
+)
+vector_instr_throughput["_masked"] = vector_instr_throughput[
+    "instruction"
+].str.contains("v0.t", regex=False)
+vector_instr_throughput = vector_instr_throughput.set_index(["_mnemonic", "_masked"])
 
 
 class ExecutionUnit(Enum):
@@ -616,4 +638,25 @@ def get_inverse_throughput(src) -> int:
     """
     if src.is_32_bit():
         return lookup_multidict(rv32_inverse_throughput, src)
+    if isinstance(src, RISCVVectorInstruction):
+        # Mnemonic from the raw source line so <len>/<ew>/<nf> placeholders are
+        # already resolved (e.g. "vle8.v", not "vle<len>.v").
+        mnemonic = src.source_line.text.strip().split()[0]
+        masked = bool(src.vm)
+        key = (mnemonic, masked)
+        if key in vector_instr_throughput.index:
+            lmul_val = _get_lmul_value(src)
+            sew_val = _get_sew_value(src)
+            if sew_val is not None:
+                col = f"e{sew_val}m{lmul_val}"
+                if col in vector_instr_throughput.columns:
+                    tp = vector_instr_throughput.at[key, col]
+                    if not pd.isna(tp):
+                        return math.ceil(tp)
+        logging.warning(
+            "Vector instruction %r (masked=%s) not in throughput table; "
+            "falling back to multidict",
+            mnemonic,
+            masked,
+        )
     return lookup_multidict(inverse_throughput, src)

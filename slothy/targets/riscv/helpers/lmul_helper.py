@@ -1,8 +1,66 @@
-"""This module contains helper functions to deal with LMUL"""
+"""This module contains helper functions to deal with LMUL and SEW"""
 
 import itertools
 from slothy.targets.riscv.riscv import RegisterType
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
+
+
+def _get_sew_value(obj=None):
+    """Get SEW value for an instruction, mirroring _get_lmul_value.
+
+    Lookup order:
+    1. obj.sew   – the sew field parsed from the instruction's own text (vsetvli).
+    2. obj._sew  – sew cached on the object from a previous call to this function.
+    3. Module-level global set by the most recently parsed vsetvli – last resort.
+
+    The computed value is stored as obj._sew so subsequent calls skip the global
+    entirely, making re-parses independent of stale global state.
+
+    Returns the SEW as an int (8, 16, 32, 64, ...) or None when nothing is known.
+    """
+    import sys
+
+    if obj is not None:
+        sew = getattr(obj, "sew", None)
+        if sew is not None:
+            result = _parse_sew_string(sew)
+            if result is not None:
+                obj._sew = result
+            return result
+
+        cached = getattr(obj, "_sew", None)
+        if cached is not None:
+            return cached
+
+    for module_name, module in sys.modules.items():
+        if (
+            module_name.startswith("slothy.targets.riscv.")
+            and hasattr(module, "sew")
+            and module.sew is not None
+        ):
+            result = _parse_sew_string(module.sew)
+            if obj is not None and result is not None:
+                obj._sew = result
+            return result
+
+    return None  # No safe default for SEW
+
+
+def _parse_sew_string(sew):
+    """Parse SEW string (e.g., 'e8', 'e16', 'e32', 'e64') to integer.
+
+    Also accepts an already-parsed int (e.g. from a cached SourceLine tag)
+    and returns it unchanged when valid.
+    """
+    if isinstance(sew, int):
+        return sew if sew in [8, 16, 32, 64, 128, 256, 512, 1024] else None
+    if isinstance(sew, str) and sew.startswith("e"):
+        try:
+            value = int(sew[1:])
+        except ValueError:
+            return None
+        return value if value in [8, 16, 32, 64, 128, 256, 512, 1024] else None
+    return None
 
 
 def _get_lmul_value(obj=None):
