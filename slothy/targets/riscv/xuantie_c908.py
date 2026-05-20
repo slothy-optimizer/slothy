@@ -239,7 +239,7 @@ execution_units = {
         RISCVInstruction.classes_by_names["vmv.s.x"],
         RISCVInstruction.classes_by_names["vmv.x.s"],
         RISCVInstruction.classes_by_names["vmv.v.v"],
-    ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1], [vec0], vec1],
+    ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     (
         RISCVInstruction.classes_by_names["vle"],
         RISCVInstruction.classes_by_names["vlse"],
