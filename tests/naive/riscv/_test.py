@@ -137,12 +137,12 @@ class RISC_VTest(OptimizationRunner):
 
         slothy.config.allow_useless_instructions = True
 
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
-        slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 10
-        slothy.config.split_heuristic_repeat = 1
-        slothy.config.split_heuristic_stepsize = 0.2
+        # slothy.config.sw_pipelining.enabled = True
+        # slothy.config.sw_pipelining.halving_heuristic = True
+        # slothy.config.split_heuristic = True
+        # slothy.config.split_heuristic_factor = 10
+        # slothy.config.split_heuristic_repeat = 1
+        # slothy.config.split_heuristic_stepsize = 0.2
 
         outputs = [f"v{i}" for i in range(32)]
         outputs.extend([f"x{i}" for i in range(1, 32)])
