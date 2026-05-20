@@ -93,6 +93,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     add_shifted,
     VShiftImmediateRounding,
     VShiftImmediateBasic,
+    VShiftRegBasic,
     St3,
     St2,
     q_st1_4_with_postinc,
@@ -254,7 +255,7 @@ execution_units = {
     (Str_Q, Str_X): ExecutionUnit.STORE(),
     AArch64Move: ExecutionUnit.SCALAR(),
     (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
-    (VShiftImmediateRounding, VShiftImmediateBasic): [ExecutionUnit.ASIMD1],
+    (VShiftImmediateRounding, VShiftImmediateBasic, VShiftRegBasic): [ExecutionUnit.ASIMD1],
     (St4, St3, St2, q_st1_4_with_postinc): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     (q_ld1_2, Ld2, Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ld2_lane_s): [
         [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
@@ -307,6 +308,7 @@ inverse_throughput = {
     (add, add_imm, add_shifted): 1,
     (Ldr_D, Ldr_Q, Str_Q, Ldr_X, Str_X): 1,
     (VShiftImmediateRounding, VShiftImmediateBasic): 1,
+    VShiftRegBasic: 2,
     # TODO: this seems in accurate; revisiting may improve performance
     q_st1_4_with_postinc: 8,
     St2: 4,
@@ -379,6 +381,7 @@ default_latencies = {
     (add, add_imm, add_shifted): 2,
     VShiftImmediateRounding: 3,  # approx
     VShiftImmediateBasic: 3,
+    VShiftRegBasic: 4,
     AArch64Move: 1,
     # TODO: this seems in accurate; revisiting may improve performance
     q_st1_4_with_postinc: 8,

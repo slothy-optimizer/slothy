@@ -13,6 +13,7 @@ shl v0.16b, v1.16b, #4
 shl d2, d3, #8
 sshr v4.16b, v5.16b, #2
 ushr v6.16b, v7.16b, #3
+ushl v4.4s, v4.4s, v28.4s
 usra v4.2d, v5.2d, #3
 uxtl v8.8h, v9.8b
 ld1r {v11.2D}, [sp]

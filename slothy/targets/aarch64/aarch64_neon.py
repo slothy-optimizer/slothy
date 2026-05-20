@@ -4028,6 +4028,13 @@ class vurshr(VShiftImmediateRounding):
     inputs = ["Va"]
     outputs = ["Vd"]
 
+class VShiftRegBasic(AArch64Instruction):
+    pass
+
+class vushl_reg(VShiftRegBasic):
+    pattern = "ushl <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
+    outputs = ["Vd"]
 
 class AArch64NeonShiftInsert(AArch64Instruction):
     pass
