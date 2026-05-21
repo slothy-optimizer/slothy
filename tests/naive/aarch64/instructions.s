@@ -73,6 +73,7 @@ ldr d1, [x2], #32
 clz v0.16b, v0.16b
 cnt v0.16b, v0.16b
 tbl v16.16b, {v16.16b}, v24.16b
+tbl v5.16b, {v0.16b, v1.16b}, v25.16b
 fmov w12, s20
 fcsel d0, d1, d2, eq
 csel    x3, x13, x3, eq

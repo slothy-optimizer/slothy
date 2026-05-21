@@ -182,6 +182,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
     vtbl,
+    vtbl_2,
     sub_imm,
     vuaddlv_sform,
     fmov_s_form,  # from double/single to gen reg
@@ -292,6 +293,7 @@ execution_units = {
         vshrn,
         vxtn,
         vtbl,
+        vtbl_2,
         VShiftImmediateRounding,
         AArch64NeonLogical,
         vuaddlv_sform,
@@ -539,6 +541,7 @@ inverse_throughput = {
     vxtn: 1,
     vshrn: 2,
     vtbl: 1,  # N cycles (N = number of registers in the table)
+    vtbl_2: 2,
     (fcsel): 1,
     (csel, csel_xzr_ne): 1,
     (VecToGprMov, Mov_xtov_d, mov_wtov_s): 1,
@@ -642,6 +645,7 @@ default_latencies = {
     vxtn: 2,
     vshrn: 2,
     vtbl: 2,  # 2+N-1 cycles (N = number of registers in the table)
+    vtbl_2: 3,
     (vuxtl): 2,
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,

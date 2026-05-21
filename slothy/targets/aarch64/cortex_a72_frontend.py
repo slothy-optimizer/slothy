@@ -107,6 +107,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
     vtbl,
+    vtbl_2,
     sub_imm,
     vuaddlv_sform,
     fmov_s_form,  # from vec to gen reg
@@ -218,7 +219,7 @@ execution_units = {
         Vmlal,
         Vmull,
     ): [ExecutionUnit.ASIMD0],
-    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, vtbl): [
+    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, vtbl, vtbl_2): [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
@@ -255,7 +256,9 @@ execution_units = {
     (Str_Q, Str_X): ExecutionUnit.STORE(),
     AArch64Move: ExecutionUnit.SCALAR(),
     (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
-    (VShiftImmediateRounding, VShiftImmediateBasic, VShiftRegBasic): [ExecutionUnit.ASIMD1],
+    (VShiftImmediateRounding, VShiftImmediateBasic, VShiftRegBasic): [
+        ExecutionUnit.ASIMD1
+    ],
     (St4, St3, St2, q_st1_4_with_postinc): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     (q_ld1_2, Ld2, Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ld2_lane_s): [
         [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
@@ -323,6 +326,7 @@ inverse_throughput = {
     Q_Ld2_Lane_Post_Inc: 2,
     q_ld2_lane_s: 1,
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
+    vtbl_2: 1,
     AESInstruction: 1,
     (sub_imm, cmp, cmp_xzr, cmp_imm): 1,
     vuaddlv_sform: 1,
@@ -397,6 +401,7 @@ default_latencies = {
     Q_Ld2_Lane_Post_Inc: 9,
     q_ld2_lane_s: 8,
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
+    vtbl_2: 9,  # N = 2, 3 * N + 3 = 9
     AESInstruction: 3,
     (sub_imm, cmp_imm): 1,
     (cmp, cmp_xzr): 2,
