@@ -16,6 +16,9 @@ Functions
    :class: autosummary longtable
    :align: left
 
+   * - :py:obj:`_get_version <slothy.cli._get_version>`
+     - .. autodoc2-docstring:: slothy.cli._get_version
+          :summary:
    * - :py:obj:`validate_output_path <slothy.cli.validate_output_path>`
      - .. autodoc2-docstring:: slothy.cli.validate_output_path
           :summary:
@@ -25,6 +28,11 @@ Functions
 
 API
 ~~~
+
+.. py:function:: _get_version()
+   :canonical: slothy.cli._get_version
+
+   .. autodoc2-docstring:: slothy.cli._get_version
 
 .. py:exception:: CmdLineException()
    :canonical: slothy.cli.CmdLineException
