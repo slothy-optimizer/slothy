@@ -27,8 +27,16 @@ import argparse
 import logging
 import time
 import os
+from importlib.metadata import version, PackageNotFoundError
 
 from slothy import Slothy, Archery
+
+
+def _get_version():
+    try:
+        return version("slothy")
+    except PackageNotFoundError:
+        return "unknown"
 
 
 class CmdLineException(Exception):
@@ -51,6 +59,11 @@ def main():
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {_get_version()}",
     )
     parser.add_argument(
         "arch", type=str, choices=Archery.list_archs(), help="The target architecture"
