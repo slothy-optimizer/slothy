@@ -1481,6 +1481,9 @@ class q_ld1_2(AArch64Instruction):
         obj.increment = None
         obj.pre_index = None
         obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
         return obj
 
 

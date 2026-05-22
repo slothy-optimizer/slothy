@@ -259,11 +259,13 @@ execution_units = {
     (VShiftImmediateRounding, VShiftImmediateBasic, VShiftRegBasic): [
         ExecutionUnit.ASIMD1
     ],
-    (St4, St3, St2, q_st1_4_with_postinc): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
-    (q_ld1_2, Ld2, Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ld2_lane_s): [
+    q_st1_4_with_postinc: ExecutionUnit.STORE(),
+    (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
+    (Ld2, Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ld2_lane_s): [
         [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
         [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
     ],
+    q_ld1_2: ExecutionUnit.LOAD(),
     AESInstruction: [ExecutionUnit.ASIMD0],
     fmov_s_form: ExecutionUnit.LOAD(),  # from vec to gen reg
     fmov_d_form: ExecutionUnit.LOAD(),  # from vec to gen reg (64-bit)
