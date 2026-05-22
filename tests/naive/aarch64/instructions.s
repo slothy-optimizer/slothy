@@ -216,4 +216,13 @@ crc32ch w6, w6, w7
 crc32cw w6, w6, w7
 crc32cx w6, w6, x8
 fmov x5, d7
+
+asr x11, x12, x7
+asr x11, x12, #7
+csel x11, x10, xzr, eq
+csel x11, x10, xzr, ne
+csel x11, x10, xzr, lt
+csel x11, x10, xzr, gt
+cmp x3, xzr
+
 end:

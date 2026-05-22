@@ -123,10 +123,14 @@ from slothy.targets.aarch64.aarch64_neon import (
     q_ld2_lane_s,
     Ldp_W,
     cmp,
+    cmp_xzr,
     cmp_imm,
     csel,
+    csel_xzr_ne,
     q_ldp_with_inc,
     AArch64CRC32,
+    asr,
+    asr_imm,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -237,7 +241,7 @@ execution_units = {
     ],
     (AArch64NeonShiftInsert, vusra): [ExecutionUnit.ASIMD1],
     fcsel: ExecutionUnit.ASIMD(),
-    csel: ExecutionUnit.INT(),
+    (csel, csel_xzr_ne): ExecutionUnit.INT(),
     AArch64ConditionalCompare: ExecutionUnit.INT(),
     AArch64Logical: [ExecutionUnit.INT()],
     # 8B/8H occupies both F0, F1
@@ -262,11 +266,13 @@ execution_units = {
     lsr_imm: ExecutionUnit.INT(),
     lsr: ExecutionUnit.INT(),
     movk_imm_lsl: ExecutionUnit.INT(),
-    (sub_imm, cmp, cmp_imm): ExecutionUnit.INT(),
+    (sub_imm, cmp_imm): ExecutionUnit.INT(),
+    (cmp, cmp_xzr): ExecutionUnit.MINT(),
     Ldp_W: ExecutionUnit.LOAD(),
     q_ldp_with_inc: ExecutionUnit.LOAD(),
     Stp_W: ExecutionUnit.STORE(),
     AArch64CRC32: ExecutionUnit.MINT(),
+    (asr, asr_imm): ExecutionUnit.INT(),
 }
 
 inverse_throughput = {
@@ -291,7 +297,7 @@ inverse_throughput = {
     AArch64NeonLogical: 1,
     (AArch64NeonShiftInsert, vusra): 1,
     fcsel: 1,
-    csel: 1,
+    (csel, csel_xzr_ne): 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
     Vins: 1,
@@ -312,7 +318,7 @@ inverse_throughput = {
     q_ld2_lane_s: 1,
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     AESInstruction: 1,
-    (sub_imm, cmp, cmp_imm): 1,
+    (sub_imm, cmp, cmp_xzr, cmp_imm): 1,
     vuaddlv_sform: 1,
     fmov_s_form: 1,  # from vec to gen reg
     fmov_d_form: 1,  # from vec to gen reg (64-bit)
@@ -327,6 +333,8 @@ inverse_throughput = {
     Ldp_W: 1,
     Stp_W: 1,
     AArch64CRC32: 1,
+    asr: 1,
+    asr_imm: 1,
 }
 
 # REVISIT
@@ -358,7 +366,7 @@ default_latencies = {
     AArch64NeonShiftInsert: 3,
     vusra: 4,
     fcsel: 3,
-    csel: 1,
+    (csel, csel_xzr_ne): 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
     (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
@@ -381,7 +389,8 @@ default_latencies = {
     q_ld2_lane_s: 8,
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     AESInstruction: 3,
-    (sub_imm, cmp, cmp_imm): 1,
+    (sub_imm, cmp_imm): 1,
+    (cmp, cmp_xzr): 2,
     vuaddlv_sform: 6,  # 8B/8H
     fmov_s_form: 5,  # from vec to gen reg
     fmov_d_form: 5,  # from vec to gen reg (64-bit)
@@ -396,6 +405,8 @@ default_latencies = {
     Ldp_W: 4,
     Stp_W: 1,
     AArch64CRC32: 2,
+    asr: 1,
+    asr_imm: 1,
 }
 
 
