@@ -72,6 +72,8 @@ Classes
      -
    * - :py:obj:`q_ld1 <slothy.targets.aarch64.aarch64_neon.q_ld1>`
      -
+   * - :py:obj:`q_ld1_2 <slothy.targets.aarch64.aarch64_neon.q_ld1_2>`
+     -
    * - :py:obj:`prefetch <slothy.targets.aarch64.aarch64_neon.prefetch>`
      -
    * - :py:obj:`q_ldr_with_imm_hint <slothy.targets.aarch64.aarch64_neon.q_ldr_with_imm_hint>`
@@ -139,6 +141,8 @@ Classes
    * - :py:obj:`q_stp_with_postinc <slothy.targets.aarch64.aarch64_neon.q_stp_with_postinc>`
      -
    * - :py:obj:`q_st1_2_with_postinc <slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc>`
+     -
+   * - :py:obj:`q_st1_4_with_postinc <slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc>`
      -
    * - :py:obj:`Ldr_X <slothy.targets.aarch64.aarch64_neon.Ldr_X>`
      -
@@ -540,6 +544,8 @@ Classes
      -
    * - :py:obj:`vtbl <slothy.targets.aarch64.aarch64_neon.vtbl>`
      -
+   * - :py:obj:`vtbl_2 <slothy.targets.aarch64.aarch64_neon.vtbl_2>`
+     -
    * - :py:obj:`vand <slothy.targets.aarch64.aarch64_neon.vand>`
      -
    * - :py:obj:`vbic <slothy.targets.aarch64.aarch64_neon.vbic>`
@@ -651,6 +657,10 @@ Classes
    * - :py:obj:`vsrshr <slothy.targets.aarch64.aarch64_neon.vsrshr>`
      -
    * - :py:obj:`vurshr <slothy.targets.aarch64.aarch64_neon.vurshr>`
+     -
+   * - :py:obj:`VShiftRegBasic <slothy.targets.aarch64.aarch64_neon.VShiftRegBasic>`
+     -
+   * - :py:obj:`vushl_reg <slothy.targets.aarch64.aarch64_neon.vushl_reg>`
      -
    * - :py:obj:`AArch64NeonShiftInsert <slothy.targets.aarch64.aarch64_neon.AArch64NeonShiftInsert>`
      -
@@ -1618,6 +1628,33 @@ API
       :canonical: slothy.targets.aarch64.aarch64_neon.q_ld1.make
       :classmethod:
 
+.. py:class:: q_ld1_2(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.q_ld1_2
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_ld1_2.pattern
+      :value: 'ld1 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_ld1_2.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_ld1_2.inputs
+      :value: ['Xc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_ld1_2.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_ld1_2.outputs
+      :value: ['Va', 'Vb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_ld1_2.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_ld1_2.make
+      :classmethod:
+
 .. py:class:: prefetch(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.prefetch
 
@@ -2447,6 +2484,33 @@ API
 
    .. py:method:: make(src)
       :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_2_with_postinc.make
+      :classmethod:
+
+.. py:class:: q_st1_4_with_postinc(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc.pattern
+      :value: 'st1 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc.inputs
+      :value: ['Va', 'Vb', 'Vc', 'Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc.in_outs
+      :value: ['Xc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc.in_outs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.q_st1_4_with_postinc.make
       :classmethod:
 
 .. py:class:: Ldr_X(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
@@ -7051,6 +7115,33 @@ API
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vtbl.outputs
 
+.. py:class:: vtbl_2(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.vtbl_2
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.vtbl_2.pattern
+      :value: 'tbl <Vd>.<dt>, {<Va>.<dt>, <Vb>.<dt>}, <Vc>.<dt>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vtbl_2.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vtbl_2.inputs
+      :value: ['Va', 'Vb', 'Vc']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vtbl_2.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vtbl_2.outputs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vtbl_2.outputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.aarch64.aarch64_neon.vtbl_2.make
+      :classmethod:
+
 .. py:class:: vand(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.vand
 
@@ -8284,6 +8375,34 @@ API
       :value: ['Vd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vurshr.outputs
+
+.. py:class:: VShiftRegBasic(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.VShiftRegBasic
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64Instruction`
+
+.. py:class:: vushl_reg(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.vushl_reg
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.VShiftRegBasic`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.vushl_reg.pattern
+      :value: 'ushl <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vushl_reg.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vushl_reg.inputs
+      :value: ['Va', 'Vb']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vushl_reg.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vushl_reg.outputs
+      :value: ['Vd']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vushl_reg.outputs
 
 .. py:class:: AArch64NeonShiftInsert(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.AArch64NeonShiftInsert
