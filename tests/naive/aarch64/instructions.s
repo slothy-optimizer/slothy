@@ -13,15 +13,18 @@ shl v0.16b, v1.16b, #4
 shl d2, d3, #8
 sshr v4.16b, v5.16b, #2
 ushr v6.16b, v7.16b, #3
+ushl v4.4s, v4.4s, v28.4s
 usra v4.2d, v5.2d, #3
 uxtl v8.8h, v9.8b
 ld1r {v11.2D}, [sp]
+ld1 {v0.16b, v1.16b}, [x1]
 ldr x16, [sp, #4]
 str x16, [sp, #4]
 ld2 { v0.S, v1.S }[1], [x1], #8
 ld2 { v0.S, v1.S}[1], [x1], #8
 ld2 {v0.S, v1.S }[1], [x1], #8
 ld2 {v0.S, v1.S}[1], [x1], #8
+st1 {v4.4s, v5.4s, v6.4s, v7.4s}, [x0], #64
 st2 { v0.S, v1.S }[1], [x1], #8
 st2 {v0.s, v1.s }[0], [x11], #8
 st2 { v0.s, v1.s}[0], [x11], #8
@@ -70,6 +73,7 @@ ldr d1, [x2], #32
 clz v0.16b, v0.16b
 cnt v0.16b, v0.16b
 tbl v16.16b, {v16.16b}, v24.16b
+tbl v5.16b, {v0.16b, v1.16b}, v25.16b
 fmov w12, s20
 fcsel d0, d1, d2, eq
 csel    x3, x13, x3, eq

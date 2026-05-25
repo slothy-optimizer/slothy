@@ -1470,6 +1470,23 @@ class q_ld1(Ldr_Q):
         return obj
 
 
+class q_ld1_2(AArch64Instruction):
+    pattern = "ld1 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>]"
+    inputs = ["Xc"]
+    outputs = ["Va", "Vb"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = None
+        obj.addr = obj.args_in[0]
+        obj.args_out_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
+        return obj
+
+
 class prefetch(Ldr_Q):
     pattern = "prfm pld1lkeep, [<Xc>, <imm>]"
     inputs = ["Xc"]
@@ -1988,6 +2005,26 @@ class q_st1_2_with_postinc(Stp_Q):
 
         obj.args_in_combinations = [
             ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
+        return obj
+
+
+class q_st1_4_with_postinc(AArch64Instruction):
+    pattern = "st1 {<Va>.<dt>, <Vb>.<dt>, <Vc>.<dt>, <Vd>.<dt>}, [<Xc>], <imm>"
+    inputs = ["Va", "Vb", "Vc", "Vd"]
+    in_outs = ["Xc"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.increment = obj.immediate
+        obj.pre_index = None
+        obj.addr = obj.args_in_out[0]
+        obj.args_in_combinations = [
+            (
+                [0, 1, 2, 3],
+                [[f"v{i}", f"v{i+1}", f"v{i+2}", f"v{i+3}"] for i in range(0, 29)],
+            )
         ]
         return obj
 
@@ -3527,6 +3564,20 @@ class vtbl(AArch64Instruction):
     outputs = ["Vd"]
 
 
+class vtbl_2(AArch64Instruction):
+    pattern = "tbl <Vd>.<dt>, {<Va>.<dt>, <Vb>.<dt>}, <Vc>.<dt>"
+    inputs = ["Va", "Vb", "Vc"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = AArch64Instruction.build(cls, src)
+        obj.args_in_combinations = [
+            ([0, 1], [[f"v{i}", f"v{i+1}"] for i in range(0, 31)])
+        ]
+        return obj
+
+
 class vand(AArch64NeonLogical):
     pattern = "and <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
@@ -3998,6 +4049,16 @@ class vsrshr(VShiftImmediateRounding):
 class vurshr(VShiftImmediateRounding):
     pattern = "urshr <Vd>.<dt>, <Va>.<dt>, <imm>"
     inputs = ["Va"]
+    outputs = ["Vd"]
+
+
+class VShiftRegBasic(AArch64Instruction):
+    pass
+
+
+class vushl_reg(VShiftRegBasic):
+    pattern = "ushl <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
+    inputs = ["Va", "Vb"]
     outputs = ["Vd"]
 
 

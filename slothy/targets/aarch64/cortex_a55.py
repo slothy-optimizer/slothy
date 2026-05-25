@@ -86,6 +86,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Vmull,
     Vmlal,
     vushr,
+    vushl_reg,
     vsshr,
     vuxtl,
     vshl_d,
@@ -97,6 +98,8 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ld3,
     St2,
     Ld2,
+    q_st1_4_with_postinc,
+    q_ld1_2,
     sxtb,
     uxtb,
     umov_d,
@@ -179,6 +182,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64NeonLogical,
     AArch64NeonShiftInsert,
     vtbl,
+    vtbl_2,
     sub_imm,
     vuaddlv_sform,
     fmov_s_form,  # from double/single to gen reg
@@ -289,6 +293,7 @@ execution_units = {
         vshrn,
         vxtn,
         vtbl,
+        vtbl_2,
         VShiftImmediateRounding,
         AArch64NeonLogical,
         vuaddlv_sform,
@@ -330,7 +335,20 @@ execution_units = {
         ]
         + ExecutionUnit.SCALAR()
     ],
+    q_st1_4_with_postinc: [
+        [
+            ExecutionUnit.VEC0,
+            ExecutionUnit.VEC1,
+            ExecutionUnit.SCALAR_LOAD,
+            ExecutionUnit.SCALAR_STORE,
+        ]
+        + ExecutionUnit.SCALAR()
+    ],
     Ld2: [
+        [ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD]
+        + ExecutionUnit.SCALAR()
+    ],
+    q_ld1_2: [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1, ExecutionUnit.SCALAR_LOAD]
         + ExecutionUnit.SCALAR()
     ],
@@ -386,6 +404,7 @@ execution_units = {
     is_dform_form_of(vshrn): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vushr): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vushr): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+    is_qform_form_of(vushl_reg): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_qform_form_of(vsshr): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
     is_dform_form_of(vsshr): [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
     is_qform_form_of(vmla): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
@@ -500,7 +519,7 @@ inverse_throughput = {
         vmls,
         vmls_lane,
     ): 1,
-    (vshl, vshl_d, vsshr, vushr, vuxtl): 1,
+    (vshl, vshl_d, vsshr, vushr, vushl_reg, vuxtl): 1,
     (trn2, trn1, ASimdCompare): 1,
     (Ldr_D): 1,
     (Ldr_Q): 2,
@@ -513,13 +532,16 @@ inverse_throughput = {
     St4: 5,
     St3: 3,
     St2: 2,
+    q_st1_4_with_postinc: 4,
     Ld4: 9,
     Ld3: 6,
     Ld2: 4,
+    q_ld1_2: 4,
     q_ldp_with_inc: 4,
     vxtn: 1,
     vshrn: 2,
     vtbl: 1,  # N cycles (N = number of registers in the table)
+    vtbl_2: 2,
     (fcsel): 1,
     (csel, csel_xzr_ne): 1,
     (VecToGprMov, Mov_xtov_d, mov_wtov_s): 1,
@@ -614,13 +636,16 @@ default_latencies = {
     St4: 5,
     St3: 3,
     St2: 2,
+    q_st1_4_with_postinc: 4,
     # TODO: Add distinction between Q/D and B/H vs. D/S
+    q_ld1_2: 6,
     Ld2: 6,
     Ld3: 8,
     Ld4: 11,
     vxtn: 2,
     vshrn: 2,
     vtbl: 2,  # 2+N-1 cycles (N = number of registers in the table)
+    vtbl_2: 3,
     (vuxtl): 2,
     (Str_X, Ldr_X): 4,
     Ldp_X: 4,
@@ -668,6 +693,7 @@ default_latencies = {
     ): 1,
     (asr_wform, asr_imm): 2,
     (bfi, ubfx): 2,
+    vushl_reg: 2,
     VShiftImmediateRounding: 3,
     VShiftImmediateBasic: 2,
     AArch64NeonShiftInsert: 2,

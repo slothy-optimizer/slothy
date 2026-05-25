@@ -61,6 +61,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Transpose,
     AArch64NeonLogical,
     VShiftImmediateBasic,
+    VShiftRegBasic,
     AArch64BasicArithmetic,
     AArch64ConditionalSelect,
     AArch64ConditionalCompare,
@@ -74,6 +75,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64Multiply,
     AArch64CRC32,
     VecToGprMov,
+    q_st1_4_with_postinc,
     St3,
     St4,
     Vzip,
@@ -95,6 +97,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vext,
     AArch64NeonShiftInsert,
     vtbl,
+    vtbl_2,
     vuaddlv_sform,
     fmov_s_form,  # from vec to gen reg
     fmov_d_form,  # from vec to gen reg (64-bit)
@@ -108,6 +111,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     Ld4,
     Ld3,
     Ld2,
+    q_ld1_2,
     St2,
     mov_wtov_s,
     mov_vtov_d,
@@ -199,6 +203,7 @@ execution_units = {
         Ld4,
         Ld3,
         Ld2,
+        q_ld1_2,
     ): ExecutionUnit.LSU(),
     # TODO: The following would be more accurate, but does not
     #       necessarily lead to better results, while making the
@@ -210,11 +215,13 @@ execution_units = {
     #          [ExecutionUnit.VEC1, ExecutionUnit.LSU0],
     #          [ExecutionUnit.VEC1, ExecutionUnit.LSU1]],
     # TODO: As above, this should somehow occupy both V and L
+    q_st1_4_with_postinc: ExecutionUnit.V(),
     St2: ExecutionUnit.V(),
     St3: ExecutionUnit.V(),
     St4: ExecutionUnit.V(),
     ASimdCompare: ExecutionUnit.V(),
     vtbl: ExecutionUnit.V(),
+    vtbl_2: ExecutionUnit.V(),
     (Vzip, Vrev, uaddlp): ExecutionUnit.V(),
     AArch64NeonCount: ExecutionUnit.V(),
     (vmov): ExecutionUnit.V(),
@@ -224,6 +231,7 @@ execution_units = {
     (vadd, vsub): ExecutionUnit.V(),
     (vxtn): ExecutionUnit.V(),
     VShiftImmediateBasic: ExecutionUnit.V1(),
+    VShiftRegBasic: ExecutionUnit.V1(),
     (
         AArch64NeonShiftInsert,
         vsrshr,
@@ -288,10 +296,12 @@ inverse_throughput = {
     (vmovi): 1,
     (vxtn): 1,
     VShiftImmediateBasic: 1,
+    VShiftRegBasic: 1,
     (AArch64NeonShiftInsert, vsrshr): 1,
     (Vmul, Vmla, Vqdmulh): 2,
     vusra: 1,
     vtbl: 1,
+    vtbl_2: 1,
     (Vmull, Vmlal): 1,
     (
         AArch64BasicArithmetic,
@@ -324,7 +334,9 @@ inverse_throughput = {
     Ld4: 10,
     Ld3: 4,
     Ld2: 2,
+    q_ld1_2: 1,
     St2: 2,
+    q_st1_4_with_postinc: 4,
     mov_wtov_s: 1,
     mov_vtov_d: 1,
     lsr: 1,
@@ -342,6 +354,7 @@ default_latencies = {
     Ld4: 10,
     Ld3: 8,
     Ld2: 7,
+    q_ld1_2: 5,
     (Vzip, Vrev, uaddlp): 2,
     VecToGprMov: 2,
     ASimdCompare: 2,
@@ -358,6 +371,7 @@ default_latencies = {
     vusra: 4,  # TODO: Add fwd path
     (Vmull, Vmlal): 4,
     VShiftImmediateBasic: 2,
+    VShiftRegBasic: 2,
     AArch64NeonShiftInsert: 2,
     (vsrshr): 4,
     (
@@ -385,10 +399,12 @@ default_latencies = {
     (vdup, vdup_w): 3,
     umull_wform: 2,
     vtbl: 2,
+    vtbl_2: 2,
     vuaddlv_sform: 5,  # 8B/8H
     q_ldr1_stack: 7,
     Q_Ld2_Lane_Post_Inc: 7,
     q_ld2_lane_s: 7,
+    q_st1_4_with_postinc: 5,
     St2: 4,
     mov_wtov_s: 5,
     mov_vtov_d: 2,
