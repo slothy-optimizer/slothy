@@ -13,10 +13,10 @@ Subpackages
    :titlesonly:
    :maxdepth: 3
 
-   slothy.targets.arm_v7m
+   slothy.targets.arm_v81m
    slothy.targets.riscv
    slothy.targets.aarch64
-   slothy.targets.arm_v81m
+   slothy.targets.arm_v7m
 
 Submodules
 ----------
@@ -25,5 +25,5 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
-   slothy.targets.query
    slothy.targets.exceptions
+   slothy.targets.query
