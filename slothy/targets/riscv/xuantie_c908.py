@@ -239,7 +239,11 @@ execution_units = {
         RISCVInstruction.classes_by_names["vmv.s.x"],
         RISCVInstruction.classes_by_names["vmv.x.s"],
         RISCVInstruction.classes_by_names["vmv.v.v"],
-    ): [[ExecutionUnit.VEC0, ExecutionUnit.VEC1]],
+    ): [
+        [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+        [ExecutionUnit.VEC0],
+        [ExecutionUnit.VEC1],
+    ],
     (
         RISCVInstruction.classes_by_names["vle"],
         RISCVInstruction.classes_by_names["vlse"],
@@ -592,7 +596,7 @@ rv32_latencies = {
 }
 
 
-def get_latency(src, out_idx: int, dst) -> int:
+def get_latency(src, out_idx: int, dst):
     """Get instruction latency for XuanTie C908.
 
     :param src: Source instruction
@@ -610,6 +614,27 @@ def get_latency(src, out_idx: int, dst) -> int:
         latency = lookup_multidict(rv32_latencies, src)
         return latency
     latency = lookup_multidict(default_latencies, src)
+
+    units = get_units(src)
+    if units == [
+        [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+        [ExecutionUnit.VEC0],
+        [ExecutionUnit.VEC1],
+    ]:
+        # An instruction that may run on both vector pipes simultaneously or on
+        # a single pipe: on a single pipe the latency doubles.
+        #
+        # The 3-element return `(latency, exception, True)` selects the core path
+        # where the standard `latency` is always enforced as a lower bound and
+        # `exception` (the doubled latency) is added as an additional constraint,
+        # reified via `OnlyEnforceIf` on the single-pipe assignment, i.e. only
+        # when the instruction did not pick the both-pipes execution-unit choice.
+        return (
+            latency,
+            lambda t_src, t_dst: t_dst.cycle_start_var
+            >= t_src.cycle_start_var + latency * 2,
+            True,
+        )
 
     return latency
 
