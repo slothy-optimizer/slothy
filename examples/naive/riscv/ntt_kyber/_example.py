@@ -229,8 +229,8 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 20
         slothy.config.split_heuristic_repeat = 1
-        slothy.config.split_heuristic_stepsize = 0.3
-        slothy.config.split_heuristic_estimate_performance = True
+        slothy.config.split_heuristic_stepsize = 0.2
+        slothy.config.split_heuristic_estimate_performance = False
         slothy.config.constraints.stalls_maximum_attempt = 4096
 
         r = slothy.config.reserved_regs
