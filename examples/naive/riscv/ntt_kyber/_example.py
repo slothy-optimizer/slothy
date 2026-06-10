@@ -227,7 +227,7 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         # slothy.config.sw_pipelining.enabled = True
         # slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 13
+        slothy.config.split_heuristic_factor = 20
         slothy.config.split_heuristic_repeat = 1
         slothy.config.split_heuristic_stepsize = 0.3
         slothy.config.split_heuristic_estimate_performance = True
