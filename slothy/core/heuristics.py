@@ -961,14 +961,21 @@ class Heuristics:
             conf2.constraints.allow_renaming = False
             conf2.constraints.allow_reordering = False
             conf2.variable_size = True
-            stall_res = Heuristics.optimize_binsearch(
-                res.code, logger.getChild("split_estimtate_perf"), conf2
-            )
-            if stall_res.success is False:
-                log.error(
-                    "Stall-estimate for final code after split heuristic failed"
-                    " -- should not happen? Maybe increase timeout?"
-                    " Just returning the result without stall-estimate."
+            conf2.timeout = None
+            conf2.retry_timeout = None
+            stall_res = None
+            try:
+                stall_res = Heuristics.optimize_binsearch(
+                    res.code, logger.getChild("split_estimate_perf"), conf2
+                )
+            except SlothyException:
+                pass
+
+            if stall_res is None or stall_res.success is False:
+                log.warning(
+                    "Stall-estimate for final code after split heuristic"
+                    " failed -- returning the optimized result without"
+                    " stall-estimate."
                 )
             else:
                 res2 = Result(conf2)
