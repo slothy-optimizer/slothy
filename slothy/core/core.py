@@ -2642,22 +2642,28 @@ class SlothyBase(LockAttributes):
             return
 
         for t in self._get_nodes():
-            cycles_unit_occupied = self.target.get_inverse_throughput(t.inst)
+            tp = self.target.get_inverse_throughput(t.inst)
+            # The target may return a fixed int, or a callable mapping a choice
+            # (the list of units it occupies) to its inverse throughput -- so the
+            # *model* decides under which condition a different throughput applies.
+            throughput_for = tp if callable(tp) else (lambda _units, _tp=tp: _tp)
             units = self.target.get_units(t.inst)
             if len(units) == 1:  # [[...]]
                 if isinstance(units[0], list):  # [[U1, U2,...]]
                     # multiple execution units in use
+                    dur = throughput_for(units[0])
                     for unit in units[0]:
                         t.exec_unit_choices = None
                         t.exec = self._NewIntervalVar(
-                            t.cycle_start_var, cycles_unit_occupied, t.cycle_end_var, ""
+                            t.cycle_start_var, dur, t.cycle_end_var, ""
                         )  # ensures instr start + inverse throughput == instr end
                         self._model.intervals_for_unit[unit].append(t.exec)
                 else:  # [[U1]]
                     t.exec_unit_choices = None
                     unit = units[0]
+                    dur = throughput_for([unit])
                     t.exec = self._NewIntervalVar(
-                        t.cycle_start_var, cycles_unit_occupied, t.cycle_end_var, ""
+                        t.cycle_start_var, dur, t.cycle_end_var, ""
                     )
                     self._model.intervals_for_unit[unit].append(t.exec)
             else:  # [[U1...], [U2...],...]
@@ -2676,11 +2682,12 @@ class SlothyBase(LockAttributes):
                     t.exec_unit_choices[key] = choice_var
                     # When this choice is active the instruction occupies ALL of
                     # its units; one optional interval per unit, gated by the
-                    # same choice_var.
+                    # same choice_var. The model decides the per-choice duration.
+                    dur = throughput_for(unit_choices)
                     for unit in unit_choices:
                         t.exec = self._NewOptionalIntervalVar(
                             t.cycle_start_var,
-                            cycles_unit_occupied,
+                            dur,
                             t.cycle_end_var,
                             choice_var,
                             f"{t.varname}_usage_{key}_{unit}",

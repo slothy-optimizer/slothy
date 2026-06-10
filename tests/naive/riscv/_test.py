@@ -149,6 +149,9 @@ class RISC_VTest(OptimizationRunner):
         outputs.extend(["vtype_csr"])
         slothy.config.outputs = outputs
         slothy.optimize(start="start_label", end="end_label")
+        slothy.optimize(start="start_label0", end="end_label0")
+        slothy.optimize(start="start_label1", end="end_label1")
+        slothy.optimize(start="start_label2", end="end_label2")
 
 
 class RISC_V_lmul_test(OptimizationRunner):

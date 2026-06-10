@@ -107,6 +107,21 @@ class ExecutionUnit(Enum):
 def add_further_constraints(slothy):
     if slothy.config.constraints.functional_only:
         return
+    add_vector_singleissue_constraint(slothy)
+
+
+def add_vector_singleissue_constraint(slothy):
+    """C908 can dual-issue scalar instructions, but vector instructions are single-issue."""
+
+    def is_vec_pair(inst_a, inst_b):
+        return isinstance(inst_a.inst, RISCVVectorInstruction) and isinstance(
+            inst_b.inst, RISCVVectorInstruction
+        )
+
+    for t0, t1 in slothy.get_inst_pairs(cond=is_vec_pair):
+        if t0 is t1:
+            continue
+        slothy._Add(t0.cycle_start_var != t1.cycle_start_var)
 
 
 # Opaque function called by SLOTHY to add further microarchitecture-
@@ -653,16 +668,23 @@ def get_units(src) -> list:
     return [units]
 
 
-def get_inverse_throughput(src) -> int:
+def get_inverse_throughput(src):
     """Get inverse throughput (cycles between issuing same instruction type).
+
+    For instructions whose throughput depends on the chosen execution units
+    (e.g. running on both vector pipes or on a single one), a callable mapping a
+    choice (the list of units it occupies) to its inverse throughput is returned,
+    so the model itself expresses the condition for the differing throughput.
+    Otherwise a plain int is returned.
 
     :param src: Source instruction
 
-    :return: Inverse throughput in cycles
-    :rtype: int
+    :return: Inverse throughput in cycles, or a callable ``units -> int``
+    :rtype: int | callable
     """
+    base_tp = None
     if src.is_32_bit():
-        return lookup_multidict(rv32_inverse_throughput, src)
+        base_tp = lookup_multidict(rv32_inverse_throughput, src)
     if isinstance(src, RISCVVectorInstruction):
         # Mnemonic from the raw source line so <len>/<ew>/<nf> placeholders are
         # already resolved (e.g. "vle8.v", not "vle<len>.v").
@@ -677,11 +699,16 @@ def get_inverse_throughput(src) -> int:
                 if col in vector_instr_throughput.columns:
                     tp = vector_instr_throughput.at[key, col]
                     if not pd.isna(tp):
-                        return math.ceil(tp)
-        logging.warning(
-            "Vector instruction %r (masked=%s) not in throughput table; "
-            "falling back to multidict",
-            mnemonic,
-            masked,
-        )
-    return lookup_multidict(inverse_throughput, src)
+                        base_tp = math.ceil(tp)
+
+    if base_tp is None:
+        base_tp = lookup_multidict(inverse_throughput, src)
+    if get_units(src) == [
+        [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
+        [ExecutionUnit.VEC0],
+        [ExecutionUnit.VEC1],
+    ]:
+        # Condition and value live entirely in the model: a single pipe doubles
+        # the inverse throughput, both pipes keep the base value.
+        return lambda units: base_tp * 2 if len(units) == 1 else base_tp
+    return base_tp
