@@ -1730,6 +1730,8 @@ class SlothyBase(LockAttributes):
 
         # - Objective
         self._add_objective()
+        # - Search strategy
+        self._add_search_strategy()
         self._result = Result(self.config)
 
         # Do the actual work
@@ -3990,6 +3992,22 @@ class SlothyBase(LockAttributes):
             self.logger.info("Objective: None (any satisfying solution is fine)")
             self._model.objective_name = "no objective"
 
+    def _add_search_strategy(self):
+        # See Config.solver_search_strategy for the rationale.
+        strategy = self.config.solver_search_strategy
+        if strategy == "auto":
+            return
+        var_strategy = {
+            "program_order": cp_model.CHOOSE_FIRST,
+            "lowest_min": cp_model.CHOOSE_LOWEST_MIN,
+        }[strategy]
+        position_vars = [t.program_start_var for t in self._get_nodes()]
+        if len(position_vars) == 0:
+            return
+        self._AddDecisionStrategy(
+            position_vars, var_strategy, cp_model.SELECT_MIN_VALUE
+        )
+
     #
     # Dummy wrappers around CP-SAT
     #
@@ -4005,7 +4023,7 @@ class SlothyBase(LockAttributes):
     def _init_external_model_and_solver(self):
         self._model.cp_model = cp_model.CpModel()
         self._model.cp_solver = cp_model.CpSolver()
-        self._model.cp_solver.random_seed = self.config.solver_random_seed
+        self._model.cp_solver.parameters.random_seed = self.config.solver_random_seed
 
     def _NewIntVar(self, minval, maxval, name=""):
         r = self._model.cp_model.NewIntVar(minval, maxval, name)
@@ -4056,6 +4074,11 @@ class SlothyBase(LockAttributes):
 
     def _AddMaxEquality(self, varlist, var):
         return self._model.cp_model.AddMaxEquality(varlist, var)
+
+    def _AddDecisionStrategy(self, varlist, var_strategy, value_strategy):
+        return self._model.cp_model.AddDecisionStrategy(
+            varlist, var_strategy, value_strategy
+        )
 
     def _export_model(self):
         if self.config.log_model is None:

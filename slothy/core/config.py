@@ -334,6 +334,29 @@ class Config(NestedPrint, LockAttributes):
         return self._variable_size
 
     @property
+    def solver_search_strategy(self):
+        """Decision strategy to register with the CP-SAT solver.
+
+        CP-SAT's "fixed" subsolver follows decision strategies registered in the
+        model. Guiding it explicitly makes solve times reproducible and fast for
+        SLOTHY's scheduling models; without a strategy, OR-Tools >= 9.8 relies on
+        its internal scheduling heuristic, whose randomized tie-breaking makes
+        solve times on large models highly variable, frequently exceeding
+        timeouts.
+
+        Valid values:
+
+        - "lowest_min" (default): branch on the instruction with the earliest
+          possible position, trying the earliest position first. This mimics a
+          greedy earliest-first scheduling pass.
+        - "program_order": branch on instruction positions in original program
+          order, trying the earliest position first.
+        - "auto": do not register a strategy; leave the search entirely to the
+          solver's internal heuristics (previous behavior).
+        """
+        return self._solver_search_strategy
+
+    @property
     def keep_tags(self):
         """Indicates whether tags in the input source should be kept or removed.
 
@@ -1460,6 +1483,7 @@ class Config(NestedPrint, LockAttributes):
         self.mirror_char = "~"
 
         self.solver_random_seed = 42
+        self._solver_search_strategy = "lowest_min"
 
         self._log_dir = "."
         self._log_model = None
@@ -1523,6 +1547,15 @@ class Config(NestedPrint, LockAttributes):
     @variable_size.setter
     def variable_size(self, val):
         self._variable_size = val
+
+    @solver_search_strategy.setter
+    def solver_search_strategy(self, val):
+        if val not in ["program_order", "lowest_min", "auto"]:
+            raise InvalidConfig(
+                "Invalid solver_search_strategy: "
+                f"{val} (expected 'program_order', 'lowest_min', or 'auto')"
+            )
+        self._solver_search_strategy = val
 
     @selftest.setter
     def selftest(self, val):
