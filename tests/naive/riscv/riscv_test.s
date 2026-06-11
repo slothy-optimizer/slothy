@@ -1,81 +1,50 @@
-/// Copyright (c) 2026 Amin Abdulrahman (amin@abdulrahman.de)
-/// Copyright (c) 2026 Justus Bergermann (mail@justus-bergermann.de)
-///
-/// SPDX-License-Identifier: MIT
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to deal
-/// in the Software without restriction, including without limitation the rights
-/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-/// copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in all
-/// copies or substantial portions of the Software.
-///
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-/// SOFTWARE.
+//LMUL=1:   vadd,vadd,vadd,vadd:
+//    EX1: a1 a2 a3 a4
+//    EX2: a1 a2 a3 a4
 
-.macro save_regs
-  sd s0,  0*8(sp)
-  sd s1,  1*8(sp)
-  sd s2,  2*8(sp)
-  sd s3,  3*8(sp)
-  sd s4,  4*8(sp)
-  sd s5,  5*8(sp)
-  sd s6,  6*8(sp)
-  sd s7,  7*8(sp)
-  sd s8,  8*8(sp)
-  sd s9,  9*8(sp)
-  sd s10, 10*8(sp)
-  sd s11, 11*8(sp)
-  sd gp,  12*8(sp)
-  sd tp,  13*8(sp)
-  sd ra,  14*8(sp)
-.endm
+//vadd.vv latency = 4
+start_label:
+    vsetivli a7, 4, e16, m1, tu, mu
+    vadd.vv  v8, v4, v0
+    vadd.vv  v16, v8, v26
+    vadd.vv  v20, v16, v24
+    vadd.vv v21, v20, v25
+end_label:
 
-.macro restore_regs
-  ld s0,  0*8(sp)
-  ld s1,  1*8(sp)
-  ld s2,  2*8(sp)
-  ld s3,  3*8(sp)
-  ld s4,  4*8(sp)
-  ld s5,  5*8(sp)
-  ld s6,  6*8(sp)
-  ld s7,  7*8(sp)
-  ld s8,  8*8(sp)
-  ld s9,  9*8(sp)
-  ld s10, 10*8(sp)
-  ld s11, 11*8(sp)
-  ld gp,  12*8(sp)
-  ld tp,  13*8(sp)
-  ld ra,  14*8(sp)
-.endm
+//LMUL=1:   vadd,vadd,vadd,vadd:
+//    EX1: a1 a2 a3 a4
+//    EX2: a1 a2 a3 a4
 
-.globl test
-.align 2
-test:
-    // raw boilerplate code: 38 cycles
-    addi sp, sp, -8*15
-    save_regs
-    nop
-    nop
-    nop
-    nop
-    .rept 100
-        start_label:
-        add x0, x0, x0
-        end_label:
-    .endr
-    nop
-    nop
-    nop
-    nop
-    restore_regs
-    addi sp, sp, 8*15
-    ret
+//vadd.vv latency = 4
+start_label0:
+    vsetivli a7, 4, e16, m1, tu, mu
+    vadd.vv  v8, v4, v0
+    vadd.vv  v16, v15, v26
+    vadd.vv  v20, v17, v24
+    vadd.vv v21, v22, v25
+end_label0:
+
+
+//LMUL=1:   vsll,vadd,vsll,vadd:
+//    EX1: s1 s1 s2 s2
+//    EX2:    a1 a1 a2 a2
+
+start_label1:
+    vsetivli a7, 4, e16, m1, tu, mu
+    vsll.vv  v8, v4, v0
+    vadd.vv  v16, v10, v26
+    vsll.vv  v20, v22, v24
+    vadd.vv v21, v23, v25
+end_label1:
+
+//LMUL=1:   vsll,vsll,vsll,vsll:
+//     EX1:  s1 s1 s2 s2 s3 s3 s4 s4
+//     EX2:
+
+start_label2:
+    vsetivli a7, 4, e16, m1, tu, mu
+    vsll.vv  v8, v4, v0
+    vsll.vv  v16, v10, v26
+    vsll.vv  v20, v22, v24
+    vsll.vv v21, v23, v25
+end_label2:
