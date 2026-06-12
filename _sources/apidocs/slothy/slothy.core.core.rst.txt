@@ -834,6 +834,11 @@ API
 
       .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_objective
 
+   .. py:method:: _add_search_strategy()
+      :canonical: slothy.core.core.SlothyBase._add_search_strategy
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._add_search_strategy
+
    .. py:method:: _describe_solver()
       :canonical: slothy.core.core.SlothyBase._describe_solver
 
@@ -918,6 +923,11 @@ API
       :canonical: slothy.core.core.SlothyBase._AddMaxEquality
 
       .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddMaxEquality
+
+   .. py:method:: _AddDecisionStrategy(varlist, var_strategy, value_strategy)
+      :canonical: slothy.core.core.SlothyBase._AddDecisionStrategy
+
+      .. autodoc2-docstring:: slothy.core.core.SlothyBase._AddDecisionStrategy
 
    .. py:method:: _export_model()
       :canonical: slothy.core.core.SlothyBase._export_model

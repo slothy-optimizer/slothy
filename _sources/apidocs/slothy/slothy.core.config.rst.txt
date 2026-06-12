@@ -120,6 +120,11 @@ API
 
       .. autodoc2-docstring:: slothy.core.config.Config.variable_size
 
+   .. py:property:: solver_search_strategy
+      :canonical: slothy.core.config.Config.solver_search_strategy
+
+      .. autodoc2-docstring:: slothy.core.config.Config.solver_search_strategy
+
    .. py:property:: keep_tags
       :canonical: slothy.core.config.Config.keep_tags
 
