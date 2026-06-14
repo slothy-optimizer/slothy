@@ -3607,6 +3607,11 @@ class vorr(AArch64NeonLogical):
     outputs = ["Vd"]
 
 
+class vorr_imm(AArch64NeonLogical):
+    pattern = "orr <Vda>.<dt>, <imm>"
+    in_outs = ["Vda"]
+
+
 class vorn(AArch64NeonLogical):
     pattern = "orn <Vd>.<dt>, <Va>.<dt>, <Vb>.<dt>"
     inputs = ["Va", "Vb"]
