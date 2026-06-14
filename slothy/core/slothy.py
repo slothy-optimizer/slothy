@@ -394,7 +394,9 @@ class Slothy:
                 pre, body, post, "ORIGINAL", indentation
             )
 
-        early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
+        early, core, late, num_exceptional, result = Heuristics.periodic(
+            body, logger, c
+        )
 
         if self.config.with_llvm_mca_before is True:
             core = core + orig_stats
@@ -435,6 +437,11 @@ class Slothy:
 
         self.source = pre + optimized_source + post
         assert SourceLine.is_source(self.source)
+
+        # Expose the optimization result so that callers (e.g. tests) can inspect
+        # SLOTHY's performance estimate, such as result.cycles and result.stalls.
+        self.last_result = result
+        self.success = True
 
     def get_loop_input_output(
         self, loop_lbl: str, forced_loop_type: any = None
@@ -632,7 +639,7 @@ class Slothy:
                 early, body, late, "ORIGINAL", indentation
             )
 
-        preamble_code, kernel_code, postamble_code, num_exceptional = (
+        preamble_code, kernel_code, postamble_code, num_exceptional, result = (
             Heuristics.periodic(body, logger, c)
         )
 
@@ -745,6 +752,14 @@ class Slothy:
         self.last_result.kernel_input_output = list(
             DFG(kernel_code, logger.getChild("dfg_kernel_deps"), dfgc).inputs
         )
+
+        # Expose SLOTHY's performance estimate for the loop kernel so that callers
+        # (e.g. tests) can inspect it. These refer to a single kernel iteration.
+        if result is not None:
+            self.last_result.cycles = result.cycles
+            self.last_result.stalls = result.stalls
+            self.last_result.codesize = result.codesize
+            self.last_result.codesize_with_bubbles = result.codesize_with_bubbles
 
         self.source = early + optimized_code + late
         self.success = True
