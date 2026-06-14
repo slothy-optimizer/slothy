@@ -54,6 +54,8 @@ dev = [
     "black==26.5.1",
     "pydoclint==0.8.5",
     "flake8==7.3.0",
+    "pytest==8.4.2",
+    "pyyaml==6.0.2",
 ]
 docs = [
     "sphinx==8.2.3; python_version >= '3.11'",
@@ -77,3 +79,7 @@ slothy-cli = "slothy.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["slothy*"]
+
+[tool.pytest.ini_options]
+# Pytest covers tests/pytest; the legacy suite in tests/naive is run by test.py.
+testpaths = ["tests/pytest"]
