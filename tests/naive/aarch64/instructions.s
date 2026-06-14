@@ -44,6 +44,7 @@ bic v0.8h, 0xf0, lsl #8
 
 mvn v22.16b, v23.16b
 orr v24.16b, v25.16b, v26.16b
+orr v0.4s, #1
 orn v27.16b, v28.16b, v29.16b
 eor v30.16b, v31.16b, v0.16b
 ext v0.16b, v1.16b, v2.16b, #8
