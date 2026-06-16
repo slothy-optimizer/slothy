@@ -556,6 +556,8 @@ Classes
      -
    * - :py:obj:`vorr <slothy.targets.aarch64.aarch64_neon.vorr>`
      -
+   * - :py:obj:`vorr_imm <slothy.targets.aarch64.aarch64_neon.vorr_imm>`
+     -
    * - :py:obj:`vorn <slothy.targets.aarch64.aarch64_neon.vorn>`
      -
    * - :py:obj:`veor <slothy.targets.aarch64.aarch64_neon.veor>`
@@ -7250,6 +7252,23 @@ API
       :value: ['Vd']
 
       .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vorr.outputs
+
+.. py:class:: vorr_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.aarch64.aarch64_neon.vorr_imm
+
+   Bases: :py:obj:`slothy.targets.aarch64.aarch64_neon.AArch64NeonLogical`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.aarch64.aarch64_neon.vorr_imm.pattern
+      :value: 'orr <Vda>.<dt>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vorr_imm.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.aarch64.aarch64_neon.vorr_imm.in_outs
+      :value: ['Vda']
+
+      .. autodoc2-docstring:: slothy.targets.aarch64.aarch64_neon.vorr_imm.in_outs
 
 .. py:class:: vorn(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.aarch64.aarch64_neon.vorn
