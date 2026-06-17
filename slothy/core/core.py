@@ -2644,39 +2644,55 @@ class SlothyBase(LockAttributes):
             return
 
         for t in self._get_nodes():
-            cycles_unit_occupied = self.target.get_inverse_throughput(t.inst)
+            tp = self.target.get_inverse_throughput(t.inst)
+            # The target may return a fixed int, or a callable mapping a choice
+            # (the list of units it occupies) to its inverse throughput -- so the
+            # *model* decides under which condition a different throughput applies.
+            throughput_for = tp if callable(tp) else (lambda _units, _tp=tp: _tp)
             units = self.target.get_units(t.inst)
-            if len(units) == 1:
-                if isinstance(units[0], list):
+            if len(units) == 1:  # [[...]]
+                if isinstance(units[0], list):  # [[U1, U2,...]]
                     # multiple execution units in use
+                    dur = throughput_for(units[0])
                     for unit in units[0]:
                         t.exec_unit_choices = None
                         t.exec = self._NewIntervalVar(
-                            t.cycle_start_var, cycles_unit_occupied, t.cycle_end_var, ""
-                        )
+                            t.cycle_start_var, dur, t.cycle_end_var, ""
+                        )  # ensures instr start + inverse throughput == instr end
                         self._model.intervals_for_unit[unit].append(t.exec)
-                else:
+                else:  # [[U1]]
                     t.exec_unit_choices = None
                     unit = units[0]
+                    dur = throughput_for([unit])
                     t.exec = self._NewIntervalVar(
-                        t.cycle_start_var, cycles_unit_occupied, t.cycle_end_var, ""
+                        t.cycle_start_var, dur, t.cycle_end_var, ""
                     )
                     self._model.intervals_for_unit[unit].append(t.exec)
-            else:
+            else:  # [[U1...], [U2...],...]
                 t.unique_unit = False
+                # One BoolVar per *choice*, keyed by the (hashable) tuple of the
+                # choice's units. This keeps a multi-unit choice (e.g.
+                # (VEC0, VEC1), occupying both pipes at once) distinct from the
+                # single-unit choices (VEC0,) / (VEC1,) -- keying by unit would
+                # collide when a unit appears in several choices.
                 t.exec_unit_choices = {}
-                for unit_choices in units:
+                for unit_choices in units:  # combinations of Units inside list
                     if not isinstance(unit_choices, list):
-                        unit_choices = [unit_choices]
+                        unit_choices = [unit_choices]  # U1 -> [U1]
+                    key = tuple(unit_choices)
+                    choice_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{key}")
+                    t.exec_unit_choices[key] = choice_var
+                    # When this choice is active the instruction occupies ALL of
+                    # its units; one optional interval per unit, gated by the
+                    # same choice_var. The model decides the per-choice duration.
+                    dur = throughput_for(unit_choices)
                     for unit in unit_choices:
-                        unit_var = self._NewBoolVar(f"[{t.inst}].unit_choice.{unit}")
-                        t.exec_unit_choices[unit] = unit_var
                         t.exec = self._NewOptionalIntervalVar(
                             t.cycle_start_var,
-                            cycles_unit_occupied,
+                            dur,
                             t.cycle_end_var,
-                            unit_var,
-                            f"{t.varname}_usage_{unit}",
+                            choice_var,
+                            f"{t.varname}_usage_{key}_{unit}",
                         )
                         self._model.intervals_for_unit[unit].append(t.exec)
 
@@ -3615,20 +3631,57 @@ class SlothyBase(LockAttributes):
                 # be used as an alternative to the latency constraint.
                 #
                 # This mechanism is e.g. used to model very constrained forwarding paths
-                exception = latency[1]
-                latency = latency[0]
-                self._add_path_constraint_from(
-                    t,
-                    i.src,
-                    [
+                if len(latency) == 2:
+                    exception = latency[1]
+                    latency = latency[0]
+                    self._add_path_constraint_from(
+                        t,
+                        i.src,
+                        [
+                            lambda t=t, i=i, latency=latency: self._Add(
+                                t.cycle_start_var >= i.src.cycle_start_var + latency
+                            ),
+                            lambda t=t, i=i, exception=exception: self._Add(
+                                exception(i.src, t)
+                            ),
+                        ],
+                    )
+                elif len(latency) == 3 and latency[2] is True:
+                    # Unlike the `len == 2` forwarding case (an optional
+                    # alternative the solver may pick), here the standard latency
+                    # is _always_ enforced as a lower bound and the exception
+                    # (e.g. a doubled latency) is enforced only when its condition
+                    # holds, reified via `OnlyEnforceIf`. Models a forced penalty.
+                    exception = latency[1]
+                    latency = latency[0]
+                    # Standard latency: always (lower bound).
+                    # TODO: this could also be modeled like above when we say latency*2
+                    #  is the default case
+                    # and the alternative is normal latency but then it must choose
+                    # that the instr runs on both units
+                    self._add_path_constraint(
+                        t,
+                        i.src,
                         lambda t=t, i=i, latency=latency: self._Add(
                             t.cycle_start_var >= i.src.cycle_start_var + latency
                         ),
-                        lambda t=t, i=i, exception=exception: self._Add(
-                            exception(i.src, t)
-                        ),
-                    ],
-                )
+                    )
+                    # Doubled latency: only when the producer runs on a single
+                    # pipe, i.e. when it did NOT pick the multi-unit choice. That
+                    # choice is the `exec_unit_choices` entry whose tuple key holds
+                    # more than one unit. Requires functional units to be modeled.
+                    choices = getattr(i.src, "exec_unit_choices", None) or {}
+                    both_var = next((v for k, v in choices.items() if len(k) > 1), None)
+                    if both_var is not None:
+                        self._add_path_constraint(
+                            t,
+                            i.src,
+                            lambda t=t, i=i, exception=exception, both_var=both_var: self._Add(  # noqa: E501
+                                exception(i.src, t)
+                            ).OnlyEnforceIf(
+                                both_var.Not()
+                            ),
+                        )
 
     # ================================================================#
     #               CONSTRAINTS (Functional correctness)              #

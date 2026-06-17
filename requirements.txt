@@ -4,6 +4,7 @@ unicorn==2.1.4
 black==26.5.1
 pydoclint==0.8.5
 flake8==7.3.0
+odfpy==1.4.1
 
 # Optional dependencies for documentation (only for Python >= 3.11)
 sphinx==8.2.3 ; python_version >= "3.11"

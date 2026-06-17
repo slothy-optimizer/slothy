@@ -25,7 +25,10 @@
 
 """This module creates the RV3264 pseudo instructions"""
 
-from slothy.targets.riscv.riscv_super_instructions import RISCVIntegerRegister
+from slothy.targets.riscv.riscv_super_instructions import (
+    RISCVIntegerRegister,
+    RISCVectorVectorMasked,
+)
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
 
@@ -43,6 +46,7 @@ class RISCVULaPseudo(RISCVInstruction):
 pseudo_instrs = [
     (["li"], RISCVLiPseudo),
     (["neg", "not", "mv"], RISCVIntegerRegister),
+    (["vnot.v"], RISCVectorVectorMasked),
     (["la"], RISCVULaPseudo),
     # translates to auipc + addi instruction; uses information
     # during compilation that are not easily
