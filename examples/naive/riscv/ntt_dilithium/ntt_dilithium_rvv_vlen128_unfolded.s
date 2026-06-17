@@ -732,9 +732,8 @@
 .globl ntt_rvv_vlen128
 .align 2
 ntt_rvv_vlen128:
-    vsetivli t2, 4, e32, m1, tu, mu
 start:
-
+    vsetivli t2, 4, e32, m1, tu, mu
     li t0, q
     lw   t2, (_ZETA_EXP_0TO3_L0+0)*4(a1)
     lw   t1, (_ZETA_EXP_0TO3_L0+1)*4(a1)
