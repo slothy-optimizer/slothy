@@ -159,10 +159,10 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         slothy.config.inputs_are_outputs = True
 
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 45
-        slothy.config.split_heuristic_stepsize = 0.1
+        slothy.config.split_heuristic_factor = 30
+        slothy.config.split_heuristic_stepsize = 0.05
         slothy.config.timeout = 180
-        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_repeat = 3
         slothy.config.split_heuristic_estimate_performance = False
 
         slothy.config.with_preprocessor = True

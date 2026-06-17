@@ -721,6 +721,44 @@
     vse32.v v31, (a3)
 .endm
 
+.macro save_regs
+  addi sp, sp, -8*15
+  sd s0,  0*8(sp)
+  sd s1,  1*8(sp)
+  sd s2,  2*8(sp)
+  sd s3,  3*8(sp)
+  sd s4,  4*8(sp)
+  sd s5,  5*8(sp)
+  sd s6,  6*8(sp)
+  sd s7,  7*8(sp)
+  sd s8,  8*8(sp)
+  sd s9,  9*8(sp)
+  sd s10, 10*8(sp)
+  sd s11, 11*8(sp)
+  sd gp,  12*8(sp)
+  sd tp,  13*8(sp)
+  sd ra,  14*8(sp)
+.endm
+
+.macro restore_regs
+  ld s0,  0*8(sp)
+  ld s1,  1*8(sp)
+  ld s2,  2*8(sp)
+  ld s3,  3*8(sp)
+  ld s4,  4*8(sp)
+  ld s5,  5*8(sp)
+  ld s6,  6*8(sp)
+  ld s7,  7*8(sp)
+  ld s8,  8*8(sp)
+  ld s9,  9*8(sp)
+  ld s10, 10*8(sp)
+  ld s11, 11*8(sp)
+  ld gp,  12*8(sp)
+  ld tp,  13*8(sp)
+  ld ra,  14*8(sp)
+  addi sp, sp, 8*15
+.endm
+
 // q * qinv = 1 mod 2^32, used for Montgomery arithmetic
 .equ q, 8380417
 .equ qinv, 58728449
@@ -733,6 +771,7 @@
 .align 2
 ntt_rvv_vlen128:
 start:
+    save_regs
     vsetivli t2, 4, e32, m1, tu, mu
     li t0, q
     lw   t2, (_ZETA_EXP_0TO3_L0+0)*4(a1)
@@ -3171,6 +3210,7 @@ start:
     vadd.vv  v28, v28, v4
     vadd.vv  v30, v30, v6
     vs8r.v v24, (a3)
+    restore_regs
 end:
 
 ret
