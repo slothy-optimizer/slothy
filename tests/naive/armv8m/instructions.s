@@ -22,6 +22,9 @@ ldr r1, [r13, #8]
 ldr r0, [sp, #4]
 ldr r1, [r13, 8]
 
+str r0, [sp, #4]
+str r1, [r13, #4]
+
 vmulh.u8 q2, q0, q1
 vmulh.u16 q2, q0, q1
 vmulh.u32 q2, q0, q1
@@ -151,6 +154,8 @@ vdup.u32 q0, r0
 
 vmov r0, r1, q0[2], q0[0]
 vmov r0, r1, q0[3], q0[1]
+vmov q1[2], q1[0], r0, r1
+vmov q1[3], q1[1], r2, r3
 
 mov r0, #16
 
@@ -418,6 +423,15 @@ lsl r5, r5, #2
 
 eor r0, r1, r2 
 eor r5, r5, r8, lsl #7
+
+bic r0, r1, r2 
+bic r5, r5, r8, lsl #7
+
+ror r0, r1, r2 
+ror r5, r5, #2
+cmp r0, r1
+cmp r0, #2
+
 
 
 ldrb r0, [r0, #16]

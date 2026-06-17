@@ -1042,6 +1042,42 @@ class eor_shifted(MVEInstruction):
     outputs = ["Rd"]
 
 
+class bic(MVEInstruction):
+    pattern = "bic <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class bic_shifted(MVEInstruction):
+    pattern = "bic <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class ror(MVEInstruction):
+    pattern = "ror <Rd>, <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class ror_imm(MVEInstruction):
+    pattern = "ror <Rd>, <Rn>, <imm>"
+    inputs = ["Rn"]
+    outputs = ["Rd"]
+
+
+class cmp_reg(MVEInstruction):
+    pattern = "cmp <Rn>, <Rm>"
+    inputs = ["Rn", "Rm"]
+    modifiesFlags = True
+
+
+class cmp_imm(MVEInstruction):
+    pattern = "cmp <Rn>, <imm>"
+    inputs = ["Rn"]
+    modifiesFlags = True
+
+
 class sub(MVEInstruction):
     pattern = "sub <Rd>, <Rn>, <Rm>"
     inputs = ["Rn", "Rm"]
@@ -1296,6 +1332,19 @@ class strd_with_post(MVEInstruction):
         return obj
 
 
+class str_reg(MVEInstruction):
+    pattern = "str <Rt>, [<Rn>, <imm>]"
+    inputs = ["Rn", "Rt"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.increment = None
+        obj.pre_index = obj.immediate
+        obj.addr = obj.args_in[0]
+        return obj
+
+
 class vrshr(MVEInstruction):
     pattern = "vrshr.<dt> <Qd>, <Qm>, <imm>"
     inputs = ["Qm"]
@@ -1346,6 +1395,18 @@ class vmov_double_v2r(MVEInstruction):
     pattern = "vmov <Rt0>, <Rt1>, <Qd>[<index0>], <Qa>[<index1>]"
     inputs = ["Qd", "Qa"]
     outputs = ["Rt0", "Rt1"]
+
+
+class vmov_double_r2v(MVEInstruction):
+    pattern = "vmov <Qd>[<index0>], <Qa>[<index1>], <Rt0>, <Rt1>"
+    inputs = ["Rt0", "Rt1"]
+    in_outs = ["Qd", "Qa"]
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.detected_vmov_double_r2v_pair = False
+        return obj
 
 
 class mov(MVEInstruction):
@@ -1444,6 +1505,12 @@ class vshllt(MVEInstruction):
 
 class vsli(MVEInstruction):
     pattern = "vsli.<dt> <Qd>, <Qm>, <imm>"
+    inputs = ["Qm"]
+    in_outs = ["Qd"]
+
+
+class vsri(MVEInstruction):
+    pattern = "vsri.<dt> <Qd>, <Qm>, <imm>"
     inputs = ["Qm"]
     in_outs = ["Qd"]
 
@@ -2659,6 +2726,97 @@ def vqdmlsdh_vqdmladhx_parsing_cb(this_class, other_class):
 
 vqdmlsdh.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmlsdh, vqdmladhx)
 vqdmladhx.global_parsing_cb = vqdmlsdh_vqdmladhx_parsing_cb(vqdmladhx, vqdmlsdh)
+
+
+def vmov_double_r2v_parsing_cb(this_class):
+    def mark_outputs_only(inst):
+        inst.num_out = len(inst.args_in_out)
+        inst.args_out = list(inst.args_in_out)
+        inst.arg_types_out = [RegisterType.MVE for _ in inst.args_in_out]
+        inst.args_out_restrictions = list(inst.args_in_out_restrictions)
+        inst.outputs = list(inst.in_outs)
+        inst.pattern_outputs = list(inst.pattern_in_outs)
+
+        inst.num_in_out = 0
+        inst.args_in_out = []
+        inst.in_outs = []
+        inst.pattern_in_outs = []
+        inst.arg_types_in_out = []
+        inst.args_in_out_restrictions = []
+
+        inst.detected_vmov_double_r2v_pair = True
+
+    def core(inst, t, log=None):
+        # Special-case two back-to-back vmov r2v that jointly overwrite q*.
+        # Conditions:
+        #  - Both vmovs target the same vector register
+        #       (Qd==Qa, and equal across the pair)
+        #  - The two vmovs jointly cover all lanes {0,1,2,3}
+
+        assert isinstance(inst, this_class)
+        if getattr(inst, "detected_vmov_double_r2v_pair", False):
+            return False
+
+        def _is_match(node):
+            return isinstance(node.inst, this_class) and getattr(
+                node.inst, "args_in_out", None
+            ) == getattr(inst, "args_in_out", None)
+
+        deps = [d for dep_list in getattr(t, "dst_in_out", []) for d in dep_list]
+        later_matches = [
+            d
+            for d in deps
+            if _is_match(d)
+            and isinstance(getattr(d, "id", None), int)
+            and isinstance(getattr(t, "id", None), int)
+            and d.id > t.id
+        ]
+        succ = min(later_matches, key=lambda n: n.id) if later_matches else None
+        if succ is None:
+            any_matches = [d for d in deps if _is_match(d)]
+            succ = any_matches[0] if any_matches else None
+        if succ is None:
+            if isinstance(getattr(inst, "index", None), list) and len(inst.index) == 2:
+                mark_outputs_only(inst)
+                return True
+            return False
+
+        same_q_this = (
+            hasattr(inst, "args_in_out")
+            and len(inst.args_in_out) == 2
+            and inst.args_in_out[0] == inst.args_in_out[1]
+        )
+        same_q_next = (
+            hasattr(succ.inst, "args_in_out")
+            and len(succ.inst.args_in_out) == 2
+            and succ.inst.args_in_out[0] == succ.inst.args_in_out[1]
+        )
+        same_q_across = (
+            same_q_this
+            and same_q_next
+            and (inst.args_in_out[0] == succ.inst.args_in_out[0])
+        )
+
+        idx_this = getattr(inst, "index", None)
+        idx_next = getattr(succ.inst, "index", None)
+        full_cover = (
+            isinstance(idx_this, list)
+            and isinstance(idx_next, list)
+            and len(idx_this) == 2
+            and len(idx_next) == 2
+            and set(idx_this + idx_next) == {0, 1, 2, 3}
+        )
+
+        if not (same_q_across and full_cover):
+            return False
+
+        mark_outputs_only(inst)
+        return True
+
+    return core
+
+
+vmov_double_r2v.global_parsing_cb = vmov_double_r2v_parsing_cb(vmov_double_r2v)
 
 
 # Returns the list of all subclasses of a class which don't have
