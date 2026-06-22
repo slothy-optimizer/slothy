@@ -287,7 +287,8 @@ class RISCVVectorIntegerVectorVector(RISCVVectorInstruction):  # done
     @classmethod
     def make(cls, src):
         obj = RISCVInstruction.build(cls, src)
-        if "gather" in src:
+        if "gather" in src or "compress" in src:
+            # vrgather/vcompress: destination must not overlap either source
             obj.args_in_out_different = [(0, 0), (0, 1)]  # Can't have Rd==Ra
         lmul = _get_lmul_value(obj)
         _get_sew_value(obj)

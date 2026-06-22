@@ -913,10 +913,49 @@
     addi a0, a0, 8*16
 .endm
 
+.macro save_regs
+  addi sp, sp, -8*15
+  sd s0,  0*8(sp)
+  sd s1,  1*8(sp)
+  sd s2,  2*8(sp)
+  sd s3,  3*8(sp)
+  sd s4,  4*8(sp)
+  sd s5,  5*8(sp)
+  sd s6,  6*8(sp)
+  sd s7,  7*8(sp)
+  sd s8,  8*8(sp)
+  sd s9,  9*8(sp)
+  sd s10, 10*8(sp)
+  sd s11, 11*8(sp)
+  sd gp,  12*8(sp)
+  sd tp,  13*8(sp)
+  sd ra,  14*8(sp)
+.endm
+
+.macro restore_regs
+  ld s0,  0*8(sp)
+  ld s1,  1*8(sp)
+  ld s2,  2*8(sp)
+  ld s3,  3*8(sp)
+  ld s4,  4*8(sp)
+  ld s5,  5*8(sp)
+  ld s6,  6*8(sp)
+  ld s7,  7*8(sp)
+  ld s8,  8*8(sp)
+  ld s9,  9*8(sp)
+  ld s10, 10*8(sp)
+  ld s11, 11*8(sp)
+  ld gp,  12*8(sp)
+  ld tp,  13*8(sp)
+  ld ra,  14*8(sp)
+  addi sp, sp, 8*15
+.endm
+
 // void cbd2_rvv_vlen128(int16_t *r, const uint8_t *buf, const int16_t *table)
 .globl cbd2_rvv_vlen128
 .align 2
 cbd2_rvv_vlen128:
+    save_regs
     li t0, 0x55
     li t1, 0x33
     vsetivli a7, 16, e8, m1, tu, mu
@@ -935,4 +974,5 @@ cbd2_rvv_vlen128_loop:
         v30, v31, t0, t1
     addi a4, a4, -1
     bnez a4, cbd2_rvv_vlen128_loop
+    restore_regs
 ret

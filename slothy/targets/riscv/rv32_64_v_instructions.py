@@ -207,6 +207,12 @@ v_instrs = [
     (["vmv.s.x"], RISCVVectorScalar),
     (["vmv.v.v"], RISCVVectorVector),
     (["vnmsac.vx"], RISCVVectorScalarVector),
+    # vcpop.m rd, vs2 : population count of mask vs2 into scalar rd
+    # (vector/mask in -> scalar out, same shape as vmv.x.s)
+    (["vcpop.m"], RISCVScalarVector),
+    # vcompress.vm vd, vs2, vs1 : compress vs2 elements selected by mask vs1 into vd
+    # (vd, vs2, vs1 ; vd must not overlap vs2/vs1 -- handled in make() below)
+    (["vcompress.vm"], RISCVVectorIntegerVectorVector),
 ]
 
 
