@@ -82,7 +82,7 @@ class RISC_V_ntt_dualissue_plant_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_factor = 23
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
         # slothy.config.split_heuristic_factor = 10
@@ -254,6 +254,7 @@ class RISC_V_intt_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
 
+
         slothy.config.outputs = ["x17"]  # TODO: this does not do anything
         r = slothy.config.reserved_regs
         r += ["x3"]
@@ -295,6 +296,7 @@ class RISC_V_kyber_normal2ntt_order_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
+        slothy.config.sw_pipelining.halving_heuristic = True
 
         slothy.config.allow_useless_instructions = True
         slothy.config.outputs = ["x17"]
@@ -336,6 +338,7 @@ class RISC_V_kyber_ntt2normal_order_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
+        slothy.config.sw_pipelining.halving_heuristic = True
 
         slothy.config.allow_useless_instructions = True
         slothy.config.outputs = ["x17"]
