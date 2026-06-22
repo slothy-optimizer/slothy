@@ -389,6 +389,41 @@ class RISCVectorVectorMasked(RISCVVectorInstruction):
     outputs = ["Vd"]
 
 
+class RISCVVectorWidenExtend(RISCVVectorInstruction):  # done
+    """Widening integer extend: vsext.vf2 / vzext.vf2 vd, vs2.
+
+    Sign/zero-extends each element of vs2 to twice its width into vd. The
+    destination uses the current vtype LMUL, while the source has the narrower
+    EMUL = LMUL/2. We therefore expand the destination by LMUL but leave the
+    source unexpanded (correct while LMUL <= 2, i.e. source EMUL == 1, which is
+    how the Kyber CBD samplers use it). Destination LMUL > 2 would need the
+    source expanded by LMUL/2 and is rejected explicitly rather than modeled
+    wrongly.
+    """
+
+    pattern = "mnemonic <Vd>, <Va><vm>"
+    inputs = ["Va"]
+    outputs = ["Vd"]
+
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        lmul = _get_lmul_value(obj)  # destination LMUL
+        _get_sew_value(obj)
+        if lmul > 2:
+            raise ValueError(
+                "vsext/vzext.vf2 with destination LMUL>2 needs asymmetric source "
+                "expansion (EMUL=LMUL/2), which is not modeled yet."
+            )
+        # Expand only the destination by LMUL; the source stays a single register
+        # (EMUL = LMUL/2 == 1 for LMUL <= 2).
+        return _add_vtype_input(
+            _expand_vector_registers_generic(
+                obj, lmul, expand_output_indices=[0], expand_input_indices=[]
+            )
+        )
+
+
 # Vector Integer Multiply-Add
 
 

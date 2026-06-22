@@ -44,6 +44,7 @@ from slothy.targets.riscv.riscv_super_instructions import (
     RISCVVectorScalar,
     RISCVVectorVector,
     RISCVVectorScalarVector,
+    RISCVVectorWidenExtend,
 )
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
 
@@ -213,6 +214,8 @@ v_instrs = [
     # vcompress.vm vd, vs2, vs1 : compress vs2 elements selected by mask vs1 into vd
     # (vd, vs2, vs1 ; vd must not overlap vs2/vs1 -- handled in make() below)
     (["vcompress.vm"], RISCVVectorIntegerVectorVector),
+    # vsext.vf2 / vzext.vf2 vd, vs2 : widening sign/zero-extend (dest 2x source width)
+    (["vsext.vf2", "vzext.vf2"], RISCVVectorWidenExtend),
 ]
 
 

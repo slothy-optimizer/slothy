@@ -214,6 +214,8 @@ execution_units = {
         RISCVInstruction.classes_by_names["remu"],
     ): ExecutionUnit.SCALAR_MUL,
     (
+        RISCVInstruction.classes_by_names["vsext.vf2"],
+        RISCVInstruction.classes_by_names["vzext.vf2"],
         RISCVInstruction.classes_by_names["vadd.vv"],
         RISCVInstruction.classes_by_names["vsub.vv"],
         RISCVInstruction.classes_by_names["vrsub.vv"],
@@ -521,6 +523,8 @@ inverse_throughput = {
     RISCVInstruction.classes_by_names["vrgatherei16.vv"]: 4,
     RISCVInstruction.classes_by_names["vcompress.vm"]: 4,  # TODO: estimated
     RISCVInstruction.classes_by_names["vcpop.m"]: 6,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsext.vf2"]: 1,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vzext.vf2"]: 1,  # TODO: estimated
     RISCVInstruction.classes_by_names["vsetvli"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vsetivli"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vsetvl"]: 2,  # TODO: estimated
@@ -590,6 +594,8 @@ default_latencies = {
     RISCVInstruction.classes_by_names["vmv.x.s"]: 3,  # TODO: estimated
     RISCVInstruction.classes_by_names["vcpop.m"]: 3,  # TODO: estimated
     RISCVInstruction.classes_by_names["vcompress.vm"]: 4,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsext.vf2"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vzext.vf2"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vmv.v.v"]: 3,  # TODO: estimated
     RISCVInstruction.classes_by_names["vnot.v"]: 4,
     RISCVInstruction.classes_by_names["vnmsac.vx"]: 4,  # TODO: estimated
