@@ -59,6 +59,7 @@ class RegisterType(Enum):
     BASE_INT = 1  # 32 scalar x-registers, 32-bit width + additional pc register
     VECT = 2  # 32 vector v-registers, VLEN width
     CSR = 3
+    HINT = 4  # virtual "hint" registers for @slothy:reads/writes memory deps
 
     def __str__(self):
         return self.name
@@ -83,10 +84,16 @@ class RegisterType(Enum):
         # TODO: check for reserved regs
         vector_regs = [f"v{i}" for i in range(32)]
         csr = ["vstart", "vxsat", "vxrm", "vcsr", "vtype_csr", "vl", "vlenb"]
+        # Virtual hint registers (memory-dependency tracking via
+        # @slothy:reads/writes). Named hint_* so they never collide with the
+        # x/v/ABI register names; actual hints (e.g. hint_transpose_buf) are
+        # recognized by the "hint_" prefix in find_type().
+        hints = [f"hint_{i}" for i in range(128)]
         return {
             RegisterType.BASE_INT: base_int,
             RegisterType.VECT: vector_regs,
             RegisterType.CSR: csr,
+            RegisterType.HINT: hints,
         }[reg_type]
 
     list_registers = staticmethod(_list_registers)
@@ -95,8 +102,8 @@ class RegisterType(Enum):
     def find_type(r):
         """Find type of architectural register"""
 
-        # if r.startswith("hint_"):
-        #    return RegisterType.HINT
+        if r.startswith("hint_"):
+            return RegisterType.HINT
 
         for ty in RegisterType:
             if r in RegisterType.list_registers(ty):
@@ -107,8 +114,8 @@ class RegisterType(Enum):
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
 
-        # if ty == RegisterType.HINT:
-        #    return False
+        if ty == RegisterType.HINT:
+            return False
         return True
 
     @staticmethod

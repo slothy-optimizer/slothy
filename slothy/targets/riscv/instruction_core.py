@@ -95,6 +95,9 @@ class Instruction:
     def extract_read_writes(self):
         """Extracts 'reads'/'writes' clauses from the source line of the instruction"""
 
+        # Local import to avoid a circular import (riscv imports this module).
+        from slothy.targets.riscv.riscv import RegisterType
+
         src_line = self.source_line
 
         def hint_register_name(tag):
@@ -105,15 +108,13 @@ class Instruction:
             self.num_out += 1
             self.args_out_restrictions.append(None)
             self.args_out.append(hint_register_name(tag))
-
-        # self.arg_types_out.append(RegisterType.HINT)
+            self.arg_types_out.append(RegisterType.HINT)
 
         def add_memory_read(tag):
             self.num_in += 1
             self.args_in_restrictions.append(None)
             self.args_in.append(hint_register_name(tag))
-
-        # self.arg_types_in.append(RegisterType.HINT)
+            self.arg_types_in.append(RegisterType.HINT)
 
         write_tags = src_line.tags.get("writes", [])
         read_tags = src_line.tags.get("reads", [])
