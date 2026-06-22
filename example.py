@@ -101,6 +101,10 @@ from examples.naive.riscv.kyber_basemul._example import (
     example_instances as example_instances_riscv_kyber_basemul,
 )
 
+from examples.naive.riscv.kyber_sampling._example import (
+    example_instances as example_instances_riscv_kyber_sampling
+)
+
 from examples.naive.riscv.keccak._example import (
     example_instances as example_instances_riscv_keccak,
 )
@@ -125,6 +129,7 @@ def main():
         + example_instances_riscv_dilithium_basemul
         + example_instances_riscv_ntt_kyber
         + example_instances_riscv_kyber_basemul
+        + example_instances_riscv_kyber_sampling
         + example_instances_riscv_keccak
     )
 
