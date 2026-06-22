@@ -250,10 +250,10 @@ class RISC_V_intt_rvv_vlen128(OptimizationRunner):
 
         slothy.config.allow_useless_instructions = True
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_factor = 23
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-
+        slothy.config.timeout = 180
 
         slothy.config.outputs = ["x17"]  # TODO: this does not do anything
         r = slothy.config.reserved_regs
