@@ -37,6 +37,7 @@ from slothy.targets.arm_v7m.arch_v7m import (
     ldm_interval,
     ldm_interval_inc_writeback,
     vldm_interval_inc_writeback,
+    vldm_interval,
     str_with_imm,
     str_with_imm_stack,
     str_with_postinc,
@@ -44,15 +45,21 @@ from slothy.targets.arm_v7m.arch_v7m import (
     strh_with_imm,
     strh_with_postinc,
     stm_interval_inc_writeback,
+    movs_imm,
     movw_imm,
     movt_imm,
+    mov,
+    mov_imm,
     adds,
     add,
     add_short,
     add_imm,
     add_imm_short,
     mul,
+    muls,
     mul_short,
+    umull,
+    umaal,
     smull,
     smlal,
     mla,
@@ -85,6 +92,7 @@ from slothy.targets.arm_v7m.arch_v7m import (
     bne,
     vmov_gpr,
     vmov_gpr2,
+    vmov_gpr_dual,
     vmov_gpr2_dual,
     pkhbt,
     pkhtb,
@@ -168,7 +176,9 @@ def add_mac_slot_constraint(slothy):
     slothy.restrict_slots_for_instructions_by_class(
         [
             mul,
+            muls,
             mul_short,
+            umull,
             smull,
             smlal,
             mla,
@@ -255,9 +265,13 @@ execution_units = {
         vldr_with_imm,
         vldr_with_postinc,  # TODO: also FPU?
     ): ExecutionUnit.LOAD(),
-    (Ldrd, ldm_interval, ldm_interval_inc_writeback, vldm_interval_inc_writeback): [
-        ExecutionUnit.LOAD()
-    ],
+    (
+        Ldrd,
+        ldm_interval,
+        ldm_interval_inc_writeback,
+        vldm_interval_inc_writeback,
+        vldm_interval,
+    ): [ExecutionUnit.LOAD()],
     (
         str_with_imm,
         str_with_imm_stack,
@@ -268,8 +282,11 @@ execution_units = {
         stm_interval_inc_writeback,
     ): [[ExecutionUnit.STORE, ExecutionUnit.MAC]],
     (
+        movs_imm,
         movw_imm,
         movt_imm,
+        mov,
+        mov_imm,
         adds,
         add,
         add_short,
@@ -298,7 +315,10 @@ execution_units = {
     ],
     (
         mul,
+        muls,
         mul_short,
+        umull,
+        umaal,
         smull,
         smlal,
         mla,
@@ -318,7 +338,7 @@ execution_units = {
         smuadx,
         smmulr,
     ): [ExecutionUnit.MAC],
-    (vmov_gpr, vmov_gpr2, vmov_gpr2_dual): [ExecutionUnit.FPU],
+    (vmov_gpr, vmov_gpr2, vmov_gpr_dual, vmov_gpr2_dual): [ExecutionUnit.FPU],
     (uadd16, sadd16, usub16, ssub16): list(
         map(list, product(ExecutionUnit.ALU(), [ExecutionUnit.SIMD]))
     ),
@@ -344,8 +364,12 @@ inverse_throughput = {
         ldm_interval,
         ldm_interval_inc_writeback,
         vldm_interval_inc_writeback,
+        vldm_interval,
+        movs_imm,
         movw_imm,
         movt_imm,
+        mov,
+        mov_imm,
         adds,
         add,
         add_short,
@@ -361,7 +385,10 @@ inverse_throughput = {
         usub16,
         ssub16,
         mul,
+        muls,
         mul_short,
+        umull,
+        umaal,
         smull,
         smlal,
         mla,
@@ -403,6 +430,7 @@ inverse_throughput = {
         cmp_imm,
         vmov_gpr,
         vmov_gpr2,
+        vmov_gpr_dual,
         vmov_gpr2_dual,  # verify for dual
         pkhbt,
         pkhtb,
@@ -416,13 +444,16 @@ inverse_throughput = {
         strh_with_postinc,
         bne,
     ): 1,
-    (stm_interval_inc_writeback, vmov_gpr2_dual): 2,  # actually not, just placeholder
+    (stm_interval_inc_writeback): 2,  # actually not, just placeholder
 }
 
 default_latencies = {
     (
+        movs_imm,
         movw_imm,
         movt_imm,
+        mov,
+        mov_imm,
         adds,
         add,
         add_short,
@@ -467,6 +498,7 @@ default_latencies = {
         ldm_interval,
         ldm_interval_inc_writeback,
         vldm_interval_inc_writeback,
+        vldm_interval,
         str_with_imm,
         str_with_imm_stack,
         str_with_postinc,
@@ -477,7 +509,10 @@ default_latencies = {
     ): 1,
     (
         mul,
+        muls,
         mul_short,
+        umull,
+        umaal,
         smull,
         smlal,
         mla,
@@ -512,7 +547,7 @@ default_latencies = {
     ): 2,
     (Ldrd): 3,
     (vmov_gpr2, vmov_gpr2_dual): 3,
-    (vmov_gpr): 1,
+    (vmov_gpr, vmov_gpr_dual): 1,
 }
 
 
@@ -545,9 +580,10 @@ def get_latency(src, out_idx, dst):
                 latency = latency - 1
 
     # Multiply accumulate chain latency is 1
+    # TODO: verify this for umaal
     if (
         instclass_src in [smlal]
-        and instclass_dst in [smlal]
+        and instclass_dst in [smlal, umaal]
         and src.args_in_out[0] == dst.args_in_out[0]
         and src.args_in_out[1] == dst.args_in_out[1]
     ):
@@ -593,6 +629,7 @@ def get_latency(src, out_idx, dst):
         ldm_interval_inc_writeback,
         stm_interval_inc_writeback,
         vldm_interval_inc_writeback,
+        vldm_interval,
     ]:
         latency = src.num_out
 
@@ -647,6 +684,7 @@ def get_inverse_throughput(src):
         ldm_interval_inc_writeback,
         stm_interval_inc_writeback,
         vldm_interval_inc_writeback,
+        vldm_interval,
     ]:
         itp = src.num_out
 
