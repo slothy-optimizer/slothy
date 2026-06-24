@@ -123,7 +123,7 @@ class RISC_V_ntt_dualissue_l32_plant_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 23
+        slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
         # slothy.config.split_heuristic_factor = 10
