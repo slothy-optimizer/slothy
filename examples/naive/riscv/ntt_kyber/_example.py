@@ -249,8 +249,8 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
 
         slothy.config.allow_useless_instructions = True
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 10
-        slothy.config.split_heuristic_repeat = 3
+        slothy.config.split_heuristic_factor = 20
+        slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
         # slothy.config.split_heuristic_preprocess_naive_interleaving = True
         slothy.config.split_heuristic_estimate_performance = False
@@ -287,6 +287,7 @@ class RISC_V_intt_rvv_vlen128(OptimizationRunner):
     def core(self, slothy):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.constraints.stalls_maximum_attempt = 2048
         slothy.config.inputs_are_outputs = True
 
         slothy.config.allow_useless_instructions = True
@@ -404,46 +405,3 @@ example_instances = [
     RISC_V_kyber_normal2ntt_order_rvv_vlen128(),
     RISC_V_kyber_ntt2normal_order_rvv_vlen128(),
 ]
-
-class RISC_V_ntt_rvv_vlen256(OptimizationRunner):
-    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_kyber_rvv_vlen256"
-        infile = name #+ "_unfolded"
-
-        if var != "":
-            name += f"_{var}"
-            infile += f"_{var}"
-        # name += f"_{target_label_dict[target]}"
-
-        super().__init__(
-            infile,
-            name,
-            subfolder=SUBFOLDER,
-            rename=True,
-            arch=arch,
-            target=target,
-            funcname="ntt_rvv_vlen256",
-            timeout=timeout,
-        )
-
-    def core(self, slothy):
-        #        import slothy.targets.riscv.xuantie_c908 as target_module
-
-        slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 32
-        slothy.config.inputs_are_outputs = True
-
-        slothy.config.allow_useless_instructions = True
-        slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 10
-        slothy.config.split_heuristic_repeat = 3
-        slothy.config.split_heuristic_stepsize = 0.05
-        # slothy.config.split_heuristic_preprocess_naive_interleaving = True
-        slothy.config.split_heuristic_estimate_performance = False
-        slothy.config.constraints.stalls_maximum_attempt = 4096
-
-        r = slothy.config.reserved_regs
-        r += ["x3"]
-        slothy.config.outputs = ["x17"]
-        slothy.config.reserved_regs = r
-        slothy.optimize("start", "end")
