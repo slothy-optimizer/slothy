@@ -222,7 +222,7 @@ class RISC_V_intt_dualissue_plant_rv64im(OptimizationRunner):
 class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "ntt_kyber_rvv_vlen128"
-        infile = name + "_unfolded"
+        infile = name #+ "_unfolded"
 
         if var != "":
             name += f"_{var}"

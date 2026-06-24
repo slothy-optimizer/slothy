@@ -913,14 +913,54 @@
     addi a0, a0, 8*16
 .endm
 
+.macro save_regs
+  addi sp, sp, -8*15
+  sd s0,  0*8(sp)
+  sd s1,  1*8(sp)
+  sd s2,  2*8(sp)
+  sd s3,  3*8(sp)
+  sd s4,  4*8(sp)
+  sd s5,  5*8(sp)
+  sd s6,  6*8(sp)
+  sd s7,  7*8(sp)
+  sd s8,  8*8(sp)
+  sd s9,  9*8(sp)
+  sd s10, 10*8(sp)
+  sd s11, 11*8(sp)
+  sd gp,  12*8(sp)
+  sd tp,  13*8(sp)
+  sd ra,  14*8(sp)
+.endm
+
+.macro restore_regs
+  ld s0,  0*8(sp)
+  ld s1,  1*8(sp)
+  ld s2,  2*8(sp)
+  ld s3,  3*8(sp)
+  ld s4,  4*8(sp)
+  ld s5,  5*8(sp)
+  ld s6,  6*8(sp)
+  ld s7,  7*8(sp)
+  ld s8,  8*8(sp)
+  ld s9,  9*8(sp)
+  ld s10, 10*8(sp)
+  ld s11, 11*8(sp)
+  ld gp,  12*8(sp)
+  ld tp,  13*8(sp)
+  ld ra,  14*8(sp)
+  addi sp, sp, 8*15
+.endm
+
 .globl ntt_rvv_vlen128
 .align 2
 ntt_rvv_vlen128:
 start:
+    save_regs
     li t0, 3329
     li t1, -3327
     ntt_rvv_level0
     ntt_rvv_level1to6 0, _ZETAS_EXP_1TO6_P0_L1, _ZETAS_EXP_1TO6_P0_L3
     ntt_rvv_level1to6 1, _ZETAS_EXP_1TO6_P1_L1, _ZETAS_EXP_1TO6_P1_L3
+    restore_regs
 end:
 ret
