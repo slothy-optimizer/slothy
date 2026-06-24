@@ -841,8 +841,8 @@
 .globl ntt_rvv_vlen128
 .align 2
 ntt_rvv_vlen128:
+start:
     vsetivli t2, 4, e32, m1, tu, mu
-    start:
     li t0, q
     ntt_level0to3_rvv 0
     ntt_level0to3_rvv 1
@@ -860,5 +860,5 @@ ntt_rvv_vlen128:
     ntt_level4to7_rvv 3, \
         _ZETA_EXP_4TO7_P3_L4, _ZETA_EXP_4TO7_P3_L5, \
         _ZETA_EXP_4TO7_P3_L6, _ZETA_EXP_4TO7_P3_L7
-    end:
+end:
 ret

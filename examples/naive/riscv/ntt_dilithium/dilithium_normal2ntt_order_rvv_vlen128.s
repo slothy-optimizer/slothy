@@ -841,7 +841,6 @@
 .globl normal2ntt_order_rvv_vlen128
 .align 2
 normal2ntt_order_rvv_vlen128:
-start:
     vsetivli a7, 4, e32, m1, tu, mu
     # for vgather
     li t0, _MASK_0101*4

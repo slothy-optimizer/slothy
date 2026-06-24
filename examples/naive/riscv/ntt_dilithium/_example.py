@@ -134,7 +134,7 @@ class RISC_V_intt8l_plant_rv64im(OptimizationRunner):
 
 class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_dilithium_rvv_vlen128_unfolded"
+        name = "ntt_dilithium_rvv_vlen128"
         infile = name
 
         if var != "":
@@ -179,7 +179,7 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
 
 class RISC_V_normal2ntt_order_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "dilithium_normal2ntt_order_rvv_vlen128_unfolded"
+        name = "dilithium_normal2ntt_order_rvv_vlen128"
         infile = name
 
         if var != "":
@@ -220,8 +220,8 @@ class RISC_V_normal2ntt_order_rvv_vlen128(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        # slothy.optimize_loop("normal2ntt_order_rvv_vlen128_loop")
-        slothy.optimize("start", "end")
+        slothy.optimize_loop("normal2ntt_order_rvv_vlen128_loop")
+        #slothy.optimize("start", "end")
 
 
 class RISC_V_ntt2normal_order_rvv_vlen128(OptimizationRunner):
