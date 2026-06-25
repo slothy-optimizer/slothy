@@ -1,0 +1,58 @@
+* Example: kyber_poly_tomont_rvv_vlen128_c908...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop:SLOTHY version: unknown
+INFO:kyber_poly_tomont_rvv_vlen128_c908:Optimizing loop poly_tomont_rvv_vlen128_loop (15 instructions) ...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Perform internal binary search for minimal number of stalls...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Attempt optimization with max 32 stalls...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Objective: minimize cycles
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[3.3193s]: Found 1 solutions so far... objective (minimize cycles): currently  (Cycles ~ 39.0, IPC ~ 0.38), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[3.5034s]: Found 2 solutions so far... objective (minimize cycles): currently  (Cycles ~ 38.0, IPC ~ 0.39), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[3.7453s]: Found 3 solutions so far... objective (minimize cycles): currently  (Cycles ~ 36.0, IPC ~ 0.42), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[3.8072s]: Found 4 solutions so far... objective (minimize cycles): currently  (Cycles ~ 35.0, IPC ~ 0.43), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[3.8733s]: Found 5 solutions so far... objective (minimize cycles): currently  (Cycles ~ 34.0, IPC ~ 0.44), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[3.9957s]: Found 6 solutions so far... objective (minimize cycles): currently  (Cycles ~ 33.0, IPC ~ 0.45), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[4.2161s]: Found 7 solutions so far... objective (minimize cycles): currently  (Cycles ~ 29.0, IPC ~ 0.52), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[4.6966s]: Found 8 solutions so far... objective (minimize cycles): currently  (Cycles ~ 26.0, IPC ~ 0.58), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[4.8370s]: Found 9 solutions so far... objective (minimize cycles): currently  (Cycles ~ 25.0, IPC ~ 0.60), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[5.0033s]: Found 10 solutions so far... objective (minimize cycles): currently  (Cycles ~ 24.0, IPC ~ 0.62), bound  (Cycles ~ 10.0, IPC ~ 1.50)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[5.8550s]: Found 11 solutions so far... objective (minimize cycles): currently  (Cycles ~ 23.0, IPC ~ 0.65), bound  (Cycles ~ 11.0, IPC ~ 1.36)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:OPTIMAL, wall time: 134.438238 s
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Booleans in result: 427
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Number of early instructions: 1
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy.selfcheck:OK!
+WARNING:kyber_poly_tomont_rvv_vlen128_c908:LLVM (llvm-mc, llvm-nm, llvm-readobj) not found, disabling selftest. Consider installing LLVM.
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Minimum number of stalls: 15
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Optimize again with minimal number of 15 stalls, with objective...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Objective: minimize iteration overlapping
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Invoking external constraint solver...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:[3.2168s]: Found 1 solutions so far... objective (minimize iteration overlapping): currently 1.0, bound 0.0
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:OPTIMAL, wall time: 5.064671 s
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy:Number of early instructions: 1
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.slothy.selfcheck:OK!
+WARNING:kyber_poly_tomont_rvv_vlen128_c908:LLVM (llvm-mc, llvm-nm, llvm-readobj) not found, disabling selftest. Consider installing LLVM.
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:Perform internal binary search for minimal number of stalls...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:Attempt optimization with max 32 stalls...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:Objective: minimize cycles
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:[3.7811s]: Found 1 solutions so far... objective (minimize cycles): currently  (Cycles ~ 1.0, IPC ~ 1.00), bound  (Cycles ~ 1.0, IPC ~ 1.00)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:Closer than 0 stalls to theoretical optimum... stop
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:OPTIMAL, wall time: 4.513433 s
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:Booleans in result: 0
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy.selfcheck:OK!
+WARNING:kyber_poly_tomont_rvv_vlen128_c908:LLVM (llvm-mc, llvm-nm, llvm-readobj) not found, disabling selftest. Consider installing LLVM.
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.preamble.slothy:Minimum number of stalls: 0
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:Perform internal binary search for minimal number of stalls...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:Attempt optimization with max 32 stalls...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:Objective: minimize cycles
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:[4.6978s]: Found 1 solutions so far... objective (minimize cycles): currently  (Cycles ~ 27.0, IPC ~ 0.52), bound  (Cycles ~ 17.0, IPC ~ 0.82)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:[4.8464s]: Found 2 solutions so far... objective (minimize cycles): currently  (Cycles ~ 26.0, IPC ~ 0.54), bound  (Cycles ~ 17.0, IPC ~ 0.82)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:[4.8948s]: Found 3 solutions so far... objective (minimize cycles): currently  (Cycles ~ 24.0, IPC ~ 0.58), bound  (Cycles ~ 17.0, IPC ~ 0.82)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:[4.9293s]: Found 4 solutions so far... objective (minimize cycles): currently  (Cycles ~ 23.0, IPC ~ 0.61), bound  (Cycles ~ 17.0, IPC ~ 0.82)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:[4.9660s]: Found 5 solutions so far... objective (minimize cycles): currently  (Cycles ~ 22.0, IPC ~ 0.64), bound  (Cycles ~ 17.0, IPC ~ 0.82)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:[5.0306s]: Found 6 solutions so far... objective (minimize cycles): currently  (Cycles ~ 21.0, IPC ~ 0.67), bound  (Cycles ~ 17.0, IPC ~ 0.82)
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:OPTIMAL, wall time: 6.263159 s
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:Booleans in result: 0
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy.selfcheck:OK!
+WARNING:kyber_poly_tomont_rvv_vlen128_c908:LLVM (llvm-mc, llvm-nm, llvm-readobj) not found, disabling selftest. Consider installing LLVM.
+INFO:kyber_poly_tomont_rvv_vlen128_c908.poly_tomont_rvv_vlen128_loop.postamble.slothy:Minimum number of stalls: 14

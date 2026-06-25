@@ -1,0 +1,16 @@
+* Example: kyber_poly_reduce_rvv_vlen128_c908...
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop:SLOTHY version: unknown
+INFO:kyber_poly_reduce_rvv_vlen128_c908:Optimizing loop poly_reduce_rvv_vlen128_loop (11 instructions) ...
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:Perform internal binary search for minimal number of stalls...
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:Attempt optimization with max 32 stalls...
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:Objective: minimize cycles
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:[1.4998s]: Found 1 solutions so far... objective (minimize cycles): currently  (Cycles ~ 31.0, IPC ~ 0.35), bound  (Cycles ~ 17.0, IPC ~ 0.65)
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:[1.5158s]: Found 2 solutions so far... objective (minimize cycles): currently  (Cycles ~ 22.0, IPC ~ 0.50), bound  (Cycles ~ 17.0, IPC ~ 0.65)
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:[1.5954s]: Found 3 solutions so far... objective (minimize cycles): currently  (Cycles ~ 21.0, IPC ~ 0.52), bound  (Cycles ~ 17.0, IPC ~ 0.65)
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:[1.6117s]: Found 4 solutions so far... objective (minimize cycles): currently  (Cycles ~ 19.0, IPC ~ 0.58), bound  (Cycles ~ 17.0, IPC ~ 0.65)
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:OPTIMAL, wall time: 1.811521 s
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:Booleans in result: 0
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy.selfcheck:OK!
+WARNING:kyber_poly_reduce_rvv_vlen128_c908:LLVM (llvm-mc, llvm-nm, llvm-readobj) not found, disabling selftest. Consider installing LLVM.
+INFO:kyber_poly_reduce_rvv_vlen128_c908.poly_reduce_rvv_vlen128_loop.slothy:Minimum number of stalls: 13

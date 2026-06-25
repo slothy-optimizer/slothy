@@ -1,0 +1,41 @@
+* Example: kyber_poly_basemul_rvv_vlen128_c908...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop:SLOTHY version: unknown
+INFO:kyber_poly_basemul_rvv_vlen128_c908:Optimizing loop poly_basemul_rvv_vlen128_loop (168 instructions) ...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Perform internal binary search for minimal number of stalls...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Attempt optimization with max 32 stalls...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Objective: minimize cycles
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:INFEASIBLE, wall time: 23.757846 s
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Attempt optimization with max 64 stalls...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Objective: minimize cycles
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:INFEASIBLE, wall time: 200.161769 s
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Attempt optimization with max 128 stalls...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Objective: minimize cycles
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:INFEASIBLE, wall time: 371.354340 s
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Attempt optimization with max 256 stalls...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Objective: minimize cycles
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:Invoking external constraint solver (OR-Tools CP-SAT v9.7.2996) ...
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19618.9861s]: Found 1 solutions so far... objective (minimize cycles): currently  (Cycles ~ 336.0, IPC ~ 0.50), bound  (Cycles ~ 205.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19742.5863s]: Found 2 solutions so far... objective (minimize cycles): currently  (Cycles ~ 303.0, IPC ~ 0.55), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19749.9782s]: Found 3 solutions so far... objective (minimize cycles): currently  (Cycles ~ 298.0, IPC ~ 0.56), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19761.8010s]: Found 4 solutions so far... objective (minimize cycles): currently  (Cycles ~ 276.0, IPC ~ 0.61), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19777.4579s]: Found 5 solutions so far... objective (minimize cycles): currently  (Cycles ~ 275.0, IPC ~ 0.61), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19787.4591s]: Found 6 solutions so far... objective (minimize cycles): currently  (Cycles ~ 273.0, IPC ~ 0.62), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19800.7050s]: Found 7 solutions so far... objective (minimize cycles): currently  (Cycles ~ 269.0, IPC ~ 0.62), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19831.2196s]: Found 8 solutions so far... objective (minimize cycles): currently  (Cycles ~ 268.0, IPC ~ 0.63), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19848.7032s]: Found 9 solutions so far... objective (minimize cycles): currently  (Cycles ~ 267.0, IPC ~ 0.63), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19853.5559s]: Found 10 solutions so far... objective (minimize cycles): currently  (Cycles ~ 266.0, IPC ~ 0.63), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19857.8695s]: Found 11 solutions so far... objective (minimize cycles): currently  (Cycles ~ 265.0, IPC ~ 0.63), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19916.6980s]: Found 12 solutions so far... objective (minimize cycles): currently  (Cycles ~ 264.0, IPC ~ 0.64), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19927.8979s]: Found 13 solutions so far... objective (minimize cycles): currently  (Cycles ~ 261.0, IPC ~ 0.64), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19932.8697s]: Found 14 solutions so far... objective (minimize cycles): currently  (Cycles ~ 260.0, IPC ~ 0.65), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[19972.5024s]: Found 15 solutions so far... objective (minimize cycles): currently  (Cycles ~ 259.0, IPC ~ 0.65), bound  (Cycles ~ 206.0, IPC ~ 0.82)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[20326.8914s]: Found 16 solutions so far... objective (minimize cycles): currently  (Cycles ~ 258.0, IPC ~ 0.65), bound  (Cycles ~ 207.0, IPC ~ 0.81)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[20506.3568s]: Found 17 solutions so far... objective (minimize cycles): currently  (Cycles ~ 257.0, IPC ~ 0.65), bound  (Cycles ~ 209.0, IPC ~ 0.80)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[20697.3647s]: Found 18 solutions so far... objective (minimize cycles): currently  (Cycles ~ 256.0, IPC ~ 0.66), bound  (Cycles ~ 210.0, IPC ~ 0.80)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[20743.6780s]: Found 19 solutions so far... objective (minimize cycles): currently  (Cycles ~ 255.0, IPC ~ 0.66), bound  (Cycles ~ 210.0, IPC ~ 0.80)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[21542.3360s]: Found 20 solutions so far... objective (minimize cycles): currently  (Cycles ~ 254.0, IPC ~ 0.66), bound  (Cycles ~ 222.0, IPC ~ 0.76)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[23727.6465s]: Found 21 solutions so far... objective (minimize cycles): currently  (Cycles ~ 253.0, IPC ~ 0.66), bound  (Cycles ~ 243.0, IPC ~ 0.69)
+INFO:kyber_poly_basemul_rvv_vlen128_c908.poly_basemul_rvv_vlen128_loop.slothy:[33143.6712s]: Found 22 solutions so far... objective (minimize cycles): currently  (Cycles ~ 252.0, IPC ~ 0.67), bound  (Cycles ~ 247.0, IPC ~ 0.68)

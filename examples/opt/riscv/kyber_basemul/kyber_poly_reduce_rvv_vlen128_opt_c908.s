@@ -55,30 +55,30 @@ poly_reduce_rvv_vlen128_opt_c908:
     slli t3, a7, 2
     slli a7, a7, 1
 poly_reduce_rvv_vlen128_loop:
-                                      // Instructions:    11
-                                      // Expected cycles: 19
-                                      // Expected IPC:    0.58
-                                      //
-                                      // Cycle bound:     19.0
-                                      // IPC bound:       0.58
-                                      //
-                                      // Wall time:     0.25s
-                                      // User time:     0.25s
-                                      //
-                                      // ----- cycle (expected) ------>
-                                      // 0                        25
-                                      // |------------------------|----
-        vle16.v v0, (x10)             // *............................. // @slothy:lmul=8
-        add x7, x10, x17              // *.............................
-        vle16.v v16, (x7)             // ..*........................... // @slothy:lmul=8
-        vmulh.vx v8, v0, x16          // ....*......................... // @slothy:lmul=8
-        vmulh.vx v24, v16, x16        // ......*....................... // @slothy:lmul=8
-        vmul.vx v8, v8, x5            // ........*..................... // @slothy:lmul=8
-        vmul.vx v24, v24, x5          // ..........*................... // @slothy:lmul=8
-        vsub.vv v8, v0, v8            // ............*................. // @slothy:lmul=8
-        vsub.vv v16, v16, v24         // ..............*............... // @slothy:lmul=8
-        vse16.v v8, (x10)             // ................*............. // @slothy:lmul=8
-        vse16.v v16, (x7)             // ..................*........... // @slothy:lmul=8
+                                     // Instructions:    11
+                                     // Expected cycles: 19
+                                     // Expected IPC:    0.58
+                                     //
+                                     // Cycle bound:     19.0
+                                     // IPC bound:       0.58
+                                     //
+                                     // Wall time:     1.81s
+                                     // User time:     1.81s
+                                     //
+                                     // ----- cycle (expected) ------>
+                                     // 0                        25
+                                     // |------------------------|----
+        vle16.v v8, (x10)            // *............................. // @slothy:lmul=8
+        add x8, x10, x17             // *.............................
+        vle16.v v16, (x8)            // ..*........................... // @slothy:lmul=8
+        vmulh.vx v24, v8, x16        // ....*......................... // @slothy:lmul=8
+        vmulh.vx v0, v16, x16        // ......*....................... // @slothy:lmul=8
+        vmul.vx v24, v24, x5         // ........*..................... // @slothy:lmul=8
+        vmul.vx v0, v0, x5           // ..........*................... // @slothy:lmul=8
+        vsub.vv v8, v8, v24          // ............*................. // @slothy:lmul=8
+        vsub.vv v16, v16, v0         // ..............*............... // @slothy:lmul=8
+        vse16.v v8, (x10)            // ................*............. // @slothy:lmul=8
+        vse16.v v16, (x8)            // ..................*........... // @slothy:lmul=8
 
                                       // ------ cycle (expected) ------>
                                       // 0                        25
