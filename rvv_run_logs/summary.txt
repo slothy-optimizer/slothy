@@ -1,15 +1,1 @@
-PASS  dilithium_poly_basemul_acc_rvv_vlen128_c908          12s
-PASS  dilithium_poly_basemul_rvv_vlen128_c908              20s
-PASS  kyber_poly_reduce_rvv_vlen128_c908                   41s
-PASS  kyber_poly_tomont_rvv_vlen128_c908                  276s
-PASS  kyber_rej_uniform_rvv_vlen128_c908                  321s
-PASS  dilithium_normal2ntt_order_rvv_vlen128_c908         496s
-PASS  dilithium_poly_reduce_rvv_vlen128_c908              938s
-FAIL  ntt_dilithium_rvv_vlen128_c908                     2419s (rc=1, see /home/justus.bergerman/slothy/rvv_run_logs/ntt_dilithium_rvv_vlen128_c908.log)
-FAIL  intt_kyber_rvv_vlen128_c908                        2902s (rc=1, see /home/justus.bergerman/slothy/rvv_run_logs/intt_kyber_rvv_vlen128_c908.log)
-PASS  dilithium_ntt2normal_order_rvv_vlen128_c908        3345s
-FAIL  ntt_kyber_rvv_vlen128_c908                         3929s (rc=1, see /home/justus.bergerman/slothy/rvv_run_logs/ntt_kyber_rvv_vlen128_c908.log)
-PASS  kyber_normal2ntt_order_rvv_vlen128_c908            5421s
-PASS  kyber_ntt2normal_order_rvv_vlen128_c908            7396s
-PASS  kyber_cbd3_rvv_vlen128_c908                        9403s
-PASS  kyber_cbd2_rvv_vlen128_c908                        18338s
+PASS  ntt_kyber_rvv_vlen128_c908                         11987s
