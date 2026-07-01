@@ -155,7 +155,7 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
 
     def core(self, slothy):
         slothy.config.variable_size = True
-        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.constraints.stalls_first_attempt = 34
         slothy.config.constraints.stalls_maximum_attempt = 2048
         slothy.config.inputs_are_outputs = True
 
@@ -164,7 +164,7 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_stepsize = 0.05
         slothy.config.timeout = 180
         slothy.config.split_heuristic_repeat = 2
-        slothy.config.split_heuristic_estimate_performance = True
+        slothy.config.split_heuristic_estimate_performance = False
 
         slothy.config.with_preprocessor = True
         r = slothy.config.reserved_regs
