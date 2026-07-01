@@ -281,8 +281,8 @@ class AddiLoop(Loop):
         yield f"{indent}addi {other['cnt']}, {other['cnt']}, {self.parsed_imm}"
         if other["end"] is not None:
             yield (
-                f"{indent}{other['branch_type']}"
-                f"{other['cnt']}, {other['end']} {self.lbl}"
+                f"{indent}{other['branch_type']} "
+                f"{other['cnt']}, {other['end']}, {self.lbl}"
             )
         else:
             yield f"{indent}{other['branch_type']} {other['cnt']}, {self.lbl}"
