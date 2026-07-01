@@ -41,7 +41,7 @@
   ld ra,  14*8(sp)
 .endm
 
-.globl poly_tomont_rvv_vlen128
+.globl poly_tomont_rvv_vlen128_opt_c908
 .align 2
 poly_tomont_rvv_vlen128_opt_c908:
     addi sp, sp, -8*15

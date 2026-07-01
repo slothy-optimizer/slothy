@@ -41,7 +41,7 @@
   ld ra,  14*8(sp)
 .endm
 
-.globl poly_reduce_rvv_vlen128
+.globl poly_reduce_rvv_vlen128_opt_c908
 .align 2
 poly_reduce_rvv_vlen128_opt_c908:
     addi sp, sp, -8*15
@@ -96,7 +96,7 @@ poly_reduce_rvv_vlen128_loop:
         // vse16.v v8,  (x11)         // ..................*............
 
         addi a0, a0, 256
-        bltua0, t4, poly_reduce_rvv_vlen128_loop
+        bltu a0, t4,  poly_reduce_rvv_vlen128_loop
     restore_regs
     addi sp, sp, 8*15
 ret
