@@ -888,7 +888,7 @@
 .endm
 
 // void cbd2_rvv_vlen128(int16_t *r, const uint8_t *buf, const int16_t *table)
-.globl cbd2_rvv_vlen128
+.globl cbd2_rvv_vlen128_opt_c908
 .align 2
 cbd2_rvv_vlen128_opt_c908:
     save_regs

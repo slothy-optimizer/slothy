@@ -888,7 +888,7 @@
 .endm
 
 // void rej_uniform_rvv_vlen128(int16_t *r, const uint8_t *buf, const int16_t *table, uint32_t *ctr_p, uint32_t *pos_p)
-.globl rej_uniform_rvv_vlen128
+.globl rej_uniform_rvv_vlen128_opt_c908
 .align 2
 rej_uniform_rvv_vlen128_opt_c908:
     save_regs
