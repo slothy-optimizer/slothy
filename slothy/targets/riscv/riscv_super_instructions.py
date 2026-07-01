@@ -415,6 +415,13 @@ class RISCVVectorWidenExtend(RISCVVectorInstruction):  # done
                 "vsext/vzext.vf2 with destination LMUL>2 needs asymmetric source "
                 "expansion (EMUL=LMUL/2), which is not modeled yet."
             )
+        # RVV overlap constraint for widening (dest EEW > src EEW): the source may
+        # only overlap the *highest*-numbered part of the destination group, so
+        # overlapping the low part (e.g. `vsext.vf2 v18,v18` at LMUL=2) is illegal
+        # and traps on a spec-compliant core. Forbid the source from overlapping
+        # the destination group entirely (safe; matches hand-written kernels).
+        # Set before expansion, mirroring vrgather/vcompress above.
+        obj.args_in_out_different = [(0, 0)]  # Vd (all parts) must differ from Va
         # Expand only the destination by LMUL; the source stays a single register
         # (EMUL = LMUL/2 == 1 for LMUL <= 2).
         return _add_vtype_input(
