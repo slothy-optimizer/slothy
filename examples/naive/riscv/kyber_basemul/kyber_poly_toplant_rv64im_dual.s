@@ -63,6 +63,7 @@
 .endm
 
 .macro save_regs
+  addi sp, sp, -8*15
   sd s0,  0*8(sp)
   sd s1,  1*8(sp)
   sd s2,  2*8(sp)
@@ -96,6 +97,7 @@
   ld gp,  12*8(sp)
   ld tp,  13*8(sp)
   ld ra,  14*8(sp)
+  addi sp, sp, 8*15
 .endm
 
 // a <- a*b*(-2^{-32}) mod+- q
@@ -630,8 +632,7 @@
 .global poly_toplant_rv64im_dual
 .align 2
 poly_toplant_rv64im_dual:
-  addi sp, sp, -8*1
-  sd   s0, 0(sp)
+  save_regs
   li t6, plantconst2
   li t5, q48
   addi t4, x0, 16
@@ -683,6 +684,5 @@ poly_toplant_rv64im_dual:
     addi a0, a0, 2*16
     addi t4, t4, -1
   bne t4, zero, poly_toplant_rv64im_loop
-  ld   s0, 0(sp)
-  addi sp, sp, 8*1
+  restore_regs
   ret
