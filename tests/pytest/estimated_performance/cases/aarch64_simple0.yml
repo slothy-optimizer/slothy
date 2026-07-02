@@ -1,0 +1,11 @@
+optimize:
+  call: optimize
+
+config:
+  variable_size: true
+  constraints.stalls_first_attempt: 32
+
+expected:
+  cortex_a55:
+    cycles: 28
+    stalls: 18
