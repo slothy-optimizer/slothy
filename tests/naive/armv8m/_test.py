@@ -130,6 +130,15 @@ class TagTest(OptimizationRunner):
         slothy.optimize()
 
 
+class IfElse(OptimizationRunner):
+    def __init__(self):
+        super().__init__("ifelse", base_dir="tests")
+
+    def core(self, slothy):
+        slothy.config.allow_useless_instructions = True
+        slothy.optimize(start="start", end="end")
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexM85r1),
@@ -141,4 +150,5 @@ test_instances = [
     LoopLetp(),
     HintTest(),
     TagTest(),
+    IfElse(),
 ]
