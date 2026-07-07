@@ -62,6 +62,7 @@ class RegisterType(Enum):
     StackMVE = (3,)
     StackGPR = (4,)
     HINT = (5,)
+    FLAGS = (6,)
 
     def __str__(self):
         return self.name
@@ -73,6 +74,8 @@ class RegisterType(Enum):
     def is_renamed(ty):
         """Indicate if register type should be subject to renaming"""
         if ty == RegisterType.HINT:
+            return False
+        if ty == RegisterType.FLAGS:
             return False
         return True
 
@@ -111,6 +114,7 @@ class RegisterType(Enum):
             RegisterType.StackMVE: qstack_locations,
             RegisterType.MVE: vregs,
             RegisterType.HINT: [],
+            RegisterType.FLAGS: ["flags"],
         }[reg_type]
 
     @staticmethod
@@ -133,6 +137,7 @@ class RegisterType(Enum):
             "mve": RegisterType.MVE,
             "gpr": RegisterType.GPR,
             "hint": RegisterType.HINT,
+            "flags": RegisterType.FLAGS,
         }.get(string, None)
 
     def default_aliases():
@@ -140,7 +145,9 @@ class RegisterType(Enum):
 
     def default_reserved():
         """Return the list of registers that should be reserved by default"""
-        return set(["r13", "r14"] + RegisterType.list_registers(RegisterType.HINT))
+        return set(
+            ["flags", "r13", "r14"] + RegisterType.list_registers(RegisterType.HINT)
+        )
 
 
 class LeLoop(Loop):
@@ -375,6 +382,7 @@ class Instruction:
                 strd,
                 strd_with_writeback,
                 strd_with_post,
+                str_reg,
                 qsave,
                 qrestore,
                 save,
@@ -715,14 +723,13 @@ class MVEInstruction(Instruction):
         arg_types_out = [MVEInstruction._infer_register_type(r) for r in outputs]
         arg_types_in_out = [MVEInstruction._infer_register_type(r) for r in in_outs]
 
-        # TODO: add flags
-        # if modifiesFlags:
-        #     arg_types_out += [RegisterType.FLAGS]
-        #     outputs += ["flags"]
+        if modifiesFlags:
+            arg_types_out += [RegisterType.FLAGS]
+            outputs += ["flags"]
 
-        # if dependsOnFlags:
-        #     arg_types_in += [RegisterType.FLAGS]
-        #     inputs += ["flags"]
+        if dependsOnFlags:
+            arg_types_in += [RegisterType.FLAGS]
+            inputs += ["flags"]
 
         super().__init__(
             mnemonic=pattern,
@@ -745,6 +752,8 @@ class MVEInstruction(Instruction):
 
     @staticmethod
     def _to_reg(ty, s):
+        if ty == RegisterType.FLAGS:
+            return "flags"
         if ty == RegisterType.GPR:
             c = "r"
         elif ty == RegisterType.MVE:
@@ -769,8 +778,8 @@ class MVEInstruction(Instruction):
 
     @staticmethod
     def _instantiate_pattern(s, ty, arg, out):
-        # if ty == RegisterType.FLAGS:
-        #   return out
+        if ty == RegisterType.FLAGS:
+            return out
         rep = MVEInstruction._build_pattern_replacement(s, ty, arg)
         res = out.replace(f"<{s}>", rep)
         if res == out:
@@ -808,15 +817,15 @@ class MVEInstruction(Instruction):
         group_to_attribute("barrel", "barrel")
 
         for s, ty in obj.pattern_inputs:
-            # if ty == RegisterType.FLAGS:
-            #     obj.args_in.append("flags")
-            # else:
-            obj.args_in.append(MVEInstruction._to_reg(ty, res[s]))
+            if ty == RegisterType.FLAGS:
+                obj.args_in.append("flags")
+            else:
+                obj.args_in.append(MVEInstruction._to_reg(ty, res[s]))
         for s, ty in obj.pattern_outputs:
-            # if ty == RegisterType.FLAGS:
-            #     obj.args_out.append("flags")
-            # else:
-            obj.args_out.append(MVEInstruction._to_reg(ty, res[s]))
+            if ty == RegisterType.FLAGS:
+                obj.args_out.append("flags")
+            else:
+                obj.args_out.append(MVEInstruction._to_reg(ty, res[s]))
 
         for s, ty in obj.pattern_in_outs:
             obj.args_in_out.append(MVEInstruction._to_reg(ty, res[s]))
@@ -1064,6 +1073,11 @@ class ror_imm(MVEInstruction):
     pattern = "ror <Rd>, <Rn>, <imm>"
     inputs = ["Rn"]
     outputs = ["Rd"]
+
+
+class ror_short(MVEInstruction):
+    pattern = "ror <Rd>, <imm>"
+    in_outs = ["Rd"]
 
 
 class cmp_reg(MVEInstruction):
@@ -2755,35 +2769,25 @@ def vmov_double_r2v_parsing_cb(this_class):
         inst.detected_vmov_double_r2v_pair = True
 
     def core(inst, t, log=None):
-        # Special-case two back-to-back vmov r2v that jointly overwrite q*.
+        # Special-case two vmov r2v that jointly overwrite q*.
         # Conditions:
         #  - Both vmovs target the same vector register
         #       (Qd==Qa, and equal across the pair)
         #  - The two vmovs jointly cover all lanes {0,1,2,3}
+        #  - The first vmov has exactly one in/out data-flow successor, which
+        #    is the second vmov. Unrelated intervening instructions are allowed;
+        #    intervening q-register consumers are not.
 
         assert isinstance(inst, this_class)
         if getattr(inst, "detected_vmov_double_r2v_pair", False):
             return False
+        if getattr(inst, "detected_vmov_double_r2v_pair_successor", False):
+            return False
 
-        def _is_match(node):
-            return isinstance(node.inst, this_class) and getattr(
-                node.inst, "args_in_out", None
-            ) == getattr(inst, "args_in_out", None)
-
-        deps = [d for dep_list in getattr(t, "dst_in_out", []) for d in dep_list]
-        later_matches = [
-            d
-            for d in deps
-            if _is_match(d)
-            and isinstance(getattr(d, "id", None), int)
-            and isinstance(getattr(t, "id", None), int)
-            and d.id > t.id
-        ]
-        succ = min(later_matches, key=lambda n: n.id) if later_matches else None
-        if succ is None:
-            any_matches = [d for d in deps if _is_match(d)]
-            succ = any_matches[0] if any_matches else None
-        if succ is None:
+        if len(t.dst_in_out) != 1 or len(t.dst_in_out[0]) != 1:
+            return False
+        succ = t.dst_in_out[0][0]
+        if not isinstance(succ.inst, this_class):
             return False
 
         same_q_this = hasattr(inst, "args_in_out") and len(inst.args_in_out) == 1
@@ -2810,6 +2814,7 @@ def vmov_double_r2v_parsing_cb(this_class):
             return False
 
         mark_outputs_only(inst)
+        succ.inst.detected_vmov_double_r2v_pair_successor = True
         return True
 
     return core

@@ -419,23 +419,26 @@ lsr r0, r0, #1
 vstrb.u8 q0, [r2], #16
 rsb r0, r0, #0
 and r1, r0, #1
-and r0, r1, r2 
+and r0, r1, r2
 and r8, r9, r5, lsr #7
 lsr r4, r4, r5
 lsl r5, r5, #2
 
 
-eor r0, r1, r2 
+eor r0, r1, r2
 eor r5, r5, r8, lsl #7
 
-bic r0, r1, r2 
+bic r0, r1, r2
 bic r5, r5, r8, lsl #7
 bic r5, r5, r8, ror #7
+bic r1, r5, r4, ror #24
 
-ror r0, r1, r2 
+ror r0, r1, r2
 ror r5, r5, #2
+ror r3, #10
 cmp r0, r1
 cmp r0, #2
+cmp r7, #0xFF
 
 
 
@@ -443,6 +446,7 @@ ldrb r0, [r0, #16]
 ldrb r0, [r0], #16
 ldrb r0, [r0, #16]!
 ldrb r5, [r12, r5]
+str r6, [r13, #0]
 
 sbfx r6, r5, #0, #1
 ubfx r9, r9, #8, #4
