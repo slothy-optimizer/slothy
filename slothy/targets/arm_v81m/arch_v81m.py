@@ -1405,6 +1405,14 @@ class vmov_double_r2v(MVEInstruction):
     @classmethod
     def make(cls, src):
         obj = MVEInstruction.build(cls, src)
+        if len(obj.args_in_out) == 2 and obj.args_in_out[0] == obj.args_in_out[1]:
+            obj.pattern = "vmov <Qd>[<index0>], <Qd>[<index1>], <Rt0>, <Rt1>"
+            obj.args_in_out = [obj.args_in_out[0]]
+            obj.arg_types_in_out = [obj.arg_types_in_out[0]]
+            obj.args_in_out_restrictions = [obj.args_in_out_restrictions[0]]
+            obj.in_outs = [obj.in_outs[0]]
+            obj.pattern_in_outs = [obj.pattern_in_outs[0]]
+            obj.num_in_out = 1
         obj.detected_vmov_double_r2v_pair = False
         return obj
 
@@ -2776,20 +2784,11 @@ def vmov_double_r2v_parsing_cb(this_class):
             any_matches = [d for d in deps if _is_match(d)]
             succ = any_matches[0] if any_matches else None
         if succ is None:
-            if isinstance(getattr(inst, "index", None), list) and len(inst.index) == 2:
-                mark_outputs_only(inst)
-                return True
             return False
 
-        same_q_this = (
-            hasattr(inst, "args_in_out")
-            and len(inst.args_in_out) == 2
-            and inst.args_in_out[0] == inst.args_in_out[1]
-        )
+        same_q_this = hasattr(inst, "args_in_out") and len(inst.args_in_out) == 1
         same_q_next = (
-            hasattr(succ.inst, "args_in_out")
-            and len(succ.inst.args_in_out) == 2
-            and succ.inst.args_in_out[0] == succ.inst.args_in_out[1]
+            hasattr(succ.inst, "args_in_out") and len(succ.inst.args_in_out) == 1
         )
         same_q_across = (
             same_q_this

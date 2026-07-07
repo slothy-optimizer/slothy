@@ -194,6 +194,10 @@ vsli.u8 q0, q1, #6
 vsli.u16 q0, q1, #8
 vsli.s8 q0, q1, #6
 vsli.s16 q0, q1, #8
+vsri.u8 q0, q1, #6
+vsri.u16 q0, q1, #8
+vsri.s8 q0, q1, #6
+vsri.s16 q0, q1, #8
 
 vmovlb.u8 q1, q0
 vmovlb.u16 q1, q0
@@ -426,6 +430,7 @@ eor r5, r5, r8, lsl #7
 
 bic r0, r1, r2 
 bic r5, r5, r8, lsl #7
+bic r5, r5, r8, ror #7
 
 ror r0, r1, r2 
 ror r5, r5, #2
