@@ -63,6 +63,20 @@ Classes
      -
    * - :py:obj:`eor_shifted <slothy.targets.arm_v81m.arch_v81m.eor_shifted>`
      -
+   * - :py:obj:`bic <slothy.targets.arm_v81m.arch_v81m.bic>`
+     -
+   * - :py:obj:`bic_shifted <slothy.targets.arm_v81m.arch_v81m.bic_shifted>`
+     -
+   * - :py:obj:`ror <slothy.targets.arm_v81m.arch_v81m.ror>`
+     -
+   * - :py:obj:`ror_imm <slothy.targets.arm_v81m.arch_v81m.ror_imm>`
+     -
+   * - :py:obj:`ror_short <slothy.targets.arm_v81m.arch_v81m.ror_short>`
+     -
+   * - :py:obj:`cmp_reg <slothy.targets.arm_v81m.arch_v81m.cmp_reg>`
+     -
+   * - :py:obj:`cmp_imm <slothy.targets.arm_v81m.arch_v81m.cmp_imm>`
+     -
    * - :py:obj:`sub <slothy.targets.arm_v81m.arch_v81m.sub>`
      -
    * - :py:obj:`vmulh <slothy.targets.arm_v81m.arch_v81m.vmulh>`
@@ -111,6 +125,8 @@ Classes
      -
    * - :py:obj:`strd_with_post <slothy.targets.arm_v81m.arch_v81m.strd_with_post>`
      -
+   * - :py:obj:`str_reg <slothy.targets.arm_v81m.arch_v81m.str_reg>`
+     -
    * - :py:obj:`vrshr <slothy.targets.arm_v81m.arch_v81m.vrshr>`
      -
    * - :py:obj:`vrshl <slothy.targets.arm_v81m.arch_v81m.vrshl>`
@@ -128,6 +144,8 @@ Classes
    * - :py:obj:`vdup <slothy.targets.arm_v81m.arch_v81m.vdup>`
      -
    * - :py:obj:`vmov_double_v2r <slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r>`
+     -
+   * - :py:obj:`vmov_double_r2v <slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v>`
      -
    * - :py:obj:`mov <slothy.targets.arm_v81m.arch_v81m.mov>`
      -
@@ -162,6 +180,8 @@ Classes
    * - :py:obj:`vshllt <slothy.targets.arm_v81m.arch_v81m.vshllt>`
      -
    * - :py:obj:`vsli <slothy.targets.arm_v81m.arch_v81m.vsli>`
+     -
+   * - :py:obj:`vsri <slothy.targets.arm_v81m.arch_v81m.vsri>`
      -
    * - :py:obj:`vmovlb <slothy.targets.arm_v81m.arch_v81m.vmovlb>`
      -
@@ -358,6 +378,9 @@ Functions
    * - :py:obj:`vqdmlsdh_vqdmladhx_parsing_cb <slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb
           :summary:
+   * - :py:obj:`vmov_double_r2v_parsing_cb <slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v_parsing_cb>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v_parsing_cb
+          :summary:
    * - :py:obj:`all_subclass_leaves <slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves
           :summary:
@@ -470,6 +493,12 @@ API
       :value: (5,)
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.HINT
+
+   .. py:attribute:: FLAGS
+      :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.FLAGS
+      :value: (6,)
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.RegisterType.FLAGS
 
    .. py:method:: __str__()
       :canonical: slothy.targets.arm_v81m.arch_v81m.RegisterType.__str__
@@ -995,6 +1024,161 @@ API
       :value: ['Rd']
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor_shifted.outputs
+
+.. py:class:: bic(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.bic
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.bic.pattern
+      :value: 'bic <Rd>, <Rn>, <Rm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.bic.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.bic.inputs
+      :value: ['Rn', 'Rm']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.bic.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.bic.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.bic.outputs
+
+.. py:class:: bic_shifted(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.bic_shifted
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.bic_shifted.pattern
+      :value: 'bic <Rd>, <Rn>, <Rm>, <barrel> <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.bic_shifted.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.bic_shifted.inputs
+      :value: ['Rn', 'Rm']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.bic_shifted.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.bic_shifted.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.bic_shifted.outputs
+
+.. py:class:: ror(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ror
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ror.pattern
+      :value: 'ror <Rd>, <Rn>, <Rm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ror.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ror.inputs
+      :value: ['Rn', 'Rm']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ror.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ror.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ror.outputs
+
+.. py:class:: ror_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ror_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ror_imm.pattern
+      :value: 'ror <Rd>, <Rn>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ror_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ror_imm.inputs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ror_imm.inputs
+
+   .. py:attribute:: outputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ror_imm.outputs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ror_imm.outputs
+
+.. py:class:: ror_short(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.ror_short
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ror_short.pattern
+      :value: 'ror <Rd>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ror_short.pattern
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.ror_short.in_outs
+      :value: ['Rd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ror_short.in_outs
+
+.. py:class:: cmp_reg(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.cmp_reg
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.cmp_reg.pattern
+      :value: 'cmp <Rn>, <Rm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.cmp_reg.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.cmp_reg.inputs
+      :value: ['Rn', 'Rm']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.cmp_reg.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v81m.arch_v81m.cmp_reg.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.cmp_reg.modifiesFlags
+
+.. py:class:: cmp_imm(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.cmp_imm
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.cmp_imm.pattern
+      :value: 'cmp <Rn>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.cmp_imm.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.cmp_imm.inputs
+      :value: ['Rn']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.cmp_imm.inputs
+
+   .. py:attribute:: modifiesFlags
+      :canonical: slothy.targets.arm_v81m.arch_v81m.cmp_imm.modifiesFlags
+      :value: True
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.cmp_imm.modifiesFlags
 
 .. py:class:: sub(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.sub
@@ -1602,6 +1786,27 @@ API
       :canonical: slothy.targets.arm_v81m.arch_v81m.strd_with_post.make
       :classmethod:
 
+.. py:class:: str_reg(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.str_reg
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.str_reg.pattern
+      :value: 'str <Rt>, [<Rn>, <imm>]'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.str_reg.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.str_reg.inputs
+      :value: ['Rn', 'Rt']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.str_reg.inputs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.str_reg.make
+      :classmethod:
+
 .. py:class:: vrshr(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.vrshr
 
@@ -1796,6 +2001,33 @@ API
       :value: ['Rt0', 'Rt1']
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_v2r.outputs
+
+.. py:class:: vmov_double_r2v(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v.pattern
+      :value: 'vmov <Qd>[<index0>], <Qa>[<index1>], <Rt0>, <Rt1>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v.inputs
+      :value: ['Rt0', 'Rt1']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v.in_outs
+      :value: ['Qd', 'Qa']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v.in_outs
+
+   .. py:method:: make(src)
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v.make
+      :classmethod:
 
 .. py:class:: mov(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.mov
@@ -2175,6 +2407,29 @@ API
       :value: ['Qd']
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsli.in_outs
+
+.. py:class:: vsri(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vsri
+
+   Bases: :py:obj:`slothy.targets.arm_v81m.arch_v81m.MVEInstruction`
+
+   .. py:attribute:: pattern
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vsri.pattern
+      :value: 'vsri.<dt> <Qd>, <Qm>, <imm>'
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsri.pattern
+
+   .. py:attribute:: inputs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vsri.inputs
+      :value: ['Qm']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsri.inputs
+
+   .. py:attribute:: in_outs
+      :canonical: slothy.targets.arm_v81m.arch_v81m.vsri.in_outs
+      :value: ['Qd']
+
+      .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vsri.in_outs
 
 .. py:class:: vmovlb(pattern, *, inputs=None, outputs=None, in_outs=None, modifiesFlags=False, dependsOnFlags=False)
    :canonical: slothy.targets.arm_v81m.arch_v81m.vmovlb
@@ -4474,6 +4729,11 @@ API
    :canonical: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vqdmlsdh_vqdmladhx_parsing_cb
+
+.. py:function:: vmov_double_r2v_parsing_cb(this_class)
+   :canonical: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v_parsing_cb
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.vmov_double_r2v_parsing_cb
 
 .. py:function:: all_subclass_leaves(c)
    :canonical: slothy.targets.arm_v81m.arch_v81m.all_subclass_leaves
