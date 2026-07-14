@@ -29,6 +29,24 @@ Functions
    * - :py:obj:`add_further_constraints <slothy.targets.arm_v81m.cortex_m55r1.add_further_constraints>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.add_further_constraints
           :summary:
+   * - :py:obj:`_get_inst <slothy.targets.arm_v81m.cortex_m55r1._get_inst>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1._get_inst
+          :summary:
+   * - :py:obj:`_is_same_base_scalar_str_ldr <slothy.targets.arm_v81m.cortex_m55r1._is_same_base_scalar_str_ldr>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1._is_same_base_scalar_str_ldr
+          :summary:
+   * - :py:obj:`_try_evaluate_immediate <slothy.targets.arm_v81m.cortex_m55r1._try_evaluate_immediate>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1._try_evaluate_immediate
+          :summary:
+   * - :py:obj:`try_get_base_and_imm <slothy.targets.arm_v81m.cortex_m55r1.try_get_base_and_imm>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.try_get_base_and_imm
+          :summary:
+   * - :py:obj:`m55_dtcm_bank <slothy.targets.arm_v81m.cortex_m55r1.m55_dtcm_bank>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.m55_dtcm_bank
+          :summary:
+   * - :py:obj:`is_same_bank_scalar_store_load_hazard <slothy.targets.arm_v81m.cortex_m55r1.is_same_bank_scalar_store_load_hazard>`
+     - .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.is_same_bank_scalar_store_load_hazard
+          :summary:
    * - :py:obj:`_add_st_ld_hazard <slothy.targets.arm_v81m.cortex_m55r1._add_st_ld_hazard>`
      - .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1._add_st_ld_hazard
           :summary:
@@ -140,6 +158,36 @@ API
    :canonical: slothy.targets.arm_v81m.cortex_m55r1.add_further_constraints
 
    .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.add_further_constraints
+
+.. py:function:: _get_inst(inst)
+   :canonical: slothy.targets.arm_v81m.cortex_m55r1._get_inst
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1._get_inst
+
+.. py:function:: _is_same_base_scalar_str_ldr(inst_a, inst_b)
+   :canonical: slothy.targets.arm_v81m.cortex_m55r1._is_same_base_scalar_str_ldr
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1._is_same_base_scalar_str_ldr
+
+.. py:function:: _try_evaluate_immediate(expr)
+   :canonical: slothy.targets.arm_v81m.cortex_m55r1._try_evaluate_immediate
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1._try_evaluate_immediate
+
+.. py:function:: try_get_base_and_imm(inst)
+   :canonical: slothy.targets.arm_v81m.cortex_m55r1.try_get_base_and_imm
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.try_get_base_and_imm
+
+.. py:function:: m55_dtcm_bank(imm)
+   :canonical: slothy.targets.arm_v81m.cortex_m55r1.m55_dtcm_bank
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.m55_dtcm_bank
+
+.. py:function:: is_same_bank_scalar_store_load_hazard(inst_a, inst_b)
+   :canonical: slothy.targets.arm_v81m.cortex_m55r1.is_same_bank_scalar_store_load_hazard
+
+   .. autodoc2-docstring:: slothy.targets.arm_v81m.cortex_m55r1.is_same_bank_scalar_store_load_hazard
 
 .. py:function:: _add_st_ld_hazard(slothy)
    :canonical: slothy.targets.arm_v81m.cortex_m55r1._add_st_ld_hazard

@@ -122,6 +122,24 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.cortex_m55r1.add_further_constraints" title="slothy.targets.arm_v81m.cortex_m55r1.add_further_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_further_constraints</span></code></a></p></td>
 <td></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.cortex_m55r1._get_inst" title="slothy.targets.arm_v81m.cortex_m55r1._get_inst"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_inst</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.cortex_m55r1._is_same_base_scalar_str_ldr" title="slothy.targets.arm_v81m.cortex_m55r1._is_same_base_scalar_str_ldr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_same_base_scalar_str_ldr</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.cortex_m55r1._try_evaluate_immediate" title="slothy.targets.arm_v81m.cortex_m55r1._try_evaluate_immediate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_try_evaluate_immediate</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.cortex_m55r1.try_get_base_and_imm" title="slothy.targets.arm_v81m.cortex_m55r1.try_get_base_and_imm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">try_get_base_and_imm</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.cortex_m55r1.m55_dtcm_bank" title="slothy.targets.arm_v81m.cortex_m55r1.m55_dtcm_bank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">m55_dtcm_bank</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.cortex_m55r1.is_same_bank_scalar_store_load_hazard" title="slothy.targets.arm_v81m.cortex_m55r1.is_same_bank_scalar_store_load_hazard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_same_bank_scalar_store_load_hazard</span></code></a></p></td>
+<td></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#slothy.targets.arm_v81m.cortex_m55r1._add_st_ld_hazard" title="slothy.targets.arm_v81m.cortex_m55r1._add_st_ld_hazard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_st_ld_hazard</span></code></a></p></td>
 <td></td>
 </tr>
@@ -226,6 +244,36 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="slothy.targets.arm_v81m.cortex_m55r1.add_further_constraints">
 <span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.cortex_m55r1.</span></span><span class="sig-name descname"><span class="pre">add_further_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slothy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.cortex_m55r1.add_further_constraints" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.cortex_m55r1._get_inst">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.cortex_m55r1.</span></span><span class="sig-name descname"><span class="pre">_get_inst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.cortex_m55r1._get_inst" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.cortex_m55r1._is_same_base_scalar_str_ldr">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.cortex_m55r1.</span></span><span class="sig-name descname"><span class="pre">_is_same_base_scalar_str_ldr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inst_b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.cortex_m55r1._is_same_base_scalar_str_ldr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.cortex_m55r1._try_evaluate_immediate">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.cortex_m55r1.</span></span><span class="sig-name descname"><span class="pre">_try_evaluate_immediate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.cortex_m55r1._try_evaluate_immediate" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.cortex_m55r1.try_get_base_and_imm">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.cortex_m55r1.</span></span><span class="sig-name descname"><span class="pre">try_get_base_and_imm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.cortex_m55r1.try_get_base_and_imm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.cortex_m55r1.m55_dtcm_bank">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.cortex_m55r1.</span></span><span class="sig-name descname"><span class="pre">m55_dtcm_bank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imm</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.cortex_m55r1.m55_dtcm_bank" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slothy.targets.arm_v81m.cortex_m55r1.is_same_bank_scalar_store_load_hazard">
+<span class="sig-prename descclassname"><span class="pre">slothy.targets.arm_v81m.cortex_m55r1.</span></span><span class="sig-name descname"><span class="pre">is_same_bank_scalar_store_load_hazard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inst_b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#slothy.targets.arm_v81m.cortex_m55r1.is_same_bank_scalar_store_load_hazard" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
