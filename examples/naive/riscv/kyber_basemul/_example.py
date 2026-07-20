@@ -245,7 +245,7 @@ class RISC_V_poly_plantard_rdc_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.halving_heuristic = True
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3", "x29"]  # x3=gp; x29=t4 is the loop counter, must not be reused
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_plantard_rdc_rv64im_loop")
 
@@ -275,7 +275,7 @@ class RISC_V_poly_toplant_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.halving_heuristic = True
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3", "x29"]  # x3=gp; x29=t4 is the loop counter, must not be reused
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_toplant_rv64im_loop")
 
