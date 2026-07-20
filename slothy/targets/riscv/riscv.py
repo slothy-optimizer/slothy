@@ -243,7 +243,6 @@ class AddiLoop(Loop):
         ]
 
         loop_cnt_alias = register_aliases[loop_cnt]
-
         addr_counter_mode = False
         body_code = [line for line in body_code if line.text != ""]
         for line in body_code:
@@ -282,7 +281,7 @@ class AddiLoop(Loop):
         if other["end"] is not None:
             yield (
                 f"{indent}{other['branch_type']} "
-                f"{other['cnt']}, {other['end']}, {self.lbl}"
+                f"{other['cnt']}, {other['end']} {self.lbl}"
             )
         else:
             yield f"{indent}{other['branch_type']} {other['cnt']}, {self.lbl}"
