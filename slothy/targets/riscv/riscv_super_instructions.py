@@ -30,6 +30,7 @@
 instructions which share the same pattern"""
 
 from slothy.targets.riscv.riscv_instruction_core import RISCVInstruction
+from slothy.targets.riscv.riscv import RegisterType
 from slothy.targets.riscv.helpers.lmul_helper import (
     _get_lmul_value,
     _get_sew_value,
@@ -44,6 +45,57 @@ def _add_vtype_input(obj):
     obj.arg_types_in.append(RISCVInstruction._infer_register_type("Cvtype"))
     obj.num_in += 1
     obj.args_in_restrictions.append(["vtype_csr"])
+    return obj
+
+
+def _append_fixed_vector_input(obj, reg):
+    """Append an implicit vector input that is fixed to ``reg`` (e.g. the ``v0``
+    mask). It is never renamed and never expanded, so it is added as the very
+    last input where the ``write`` machinery drops it again via truncation.
+    """
+    obj.args_in.append(reg)
+    obj.arg_types_in.append(RegisterType.VECT)
+    obj.num_in += 1
+    obj.args_in_restrictions.append([reg])
+    return obj
+
+
+def _promote_outputs_to_in_outs(obj):
+    """Turn all (already expanded) vector outputs into in/out operands.
+
+    For masked or tail/mask-undisturbed vector instructions the destination is
+    read-modify-written: masked-off / tail elements keep their previous value,
+    so the destination is a true in/out dependency rather than a pure output.
+    Output-group combination constraints and pattern metadata are carried over,
+    with combination indices shifted past any pre-existing in/out operands.
+    """
+    if obj.num_out == 0:
+        return obj
+
+    offset = len(obj.args_in_out)
+
+    obj.args_in_out = list(obj.args_in_out) + list(obj.args_out)
+    obj.arg_types_in_out = list(obj.arg_types_in_out) + list(obj.arg_types_out)
+    obj.pattern_in_outs = list(obj.pattern_in_outs) + list(obj.pattern_outputs)
+    obj.args_in_out_restrictions = list(obj.args_in_out_restrictions) + list(
+        obj.args_out_restrictions
+    )
+
+    if obj.args_out_combinations is not None:
+        shifted = [
+            ([i + offset for i in idx_lst], combos)
+            for idx_lst, combos in obj.args_out_combinations
+        ]
+        obj.args_in_out_combinations = (obj.args_in_out_combinations or []) + shifted
+
+    obj.num_in_out = len(obj.args_in_out)
+
+    obj.args_out = []
+    obj.arg_types_out = []
+    obj.pattern_outputs = []
+    obj.args_out_restrictions = []
+    obj.args_out_combinations = None
+    obj.num_out = 0
     return obj
 
 
@@ -199,24 +251,79 @@ class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
             # filter here.
         return _add_vtype_input(obj)
 
+class RISCVVectorDynamicMaskedInstruction(RISCVVectorInstruction):
+    """Vector instructions whose mask operand may or may not be present.
 
-class RISCVVectorLoadUnitStride(RISCVVectorInstruction):  # done
+    Handles the optional ``v0.t`` mask (the ``<vm>`` pattern element) uniformly
+    for every operand shape -- loads, stores and arithmetic alike -- so a single
+    class can back any instruction that is written with an optional mask.
+
+    Behaviour:
+
+    - All vector operands (inputs *and* outputs) are expanded into consecutive
+      register groups according to LMUL.
+    - If a mask is given, the vector destination (if any) is remodelled as an
+      in/out operand, because with masking the masked-off destination elements
+      keep their previous value (read-modify-write). Stores, which have no
+      destination register, are unaffected.
+    - The mask register ``v0`` is added as a fixed, implicit input; it is never
+      renamed nor expanded.
+    """
+
+    @classmethod
+    def make(cls, src):
+        obj = RISCVInstruction.build(cls, src)
+        obj.increment = None
+        if obj.args_in:
+            obj.addr = obj.args_in[0]
+
+        factor = _get_lmul_value(obj)
+        _get_sew_value(obj)
+
+        # Expand every vector operand (scalars/immediates are left untouched).
+        obj = _expand_vector_registers_generic(obj, factor)
+
+        masked = "v0.t" in src
+        if masked:
+            # Destination is read-modify-written under masking -> model in/out.
+            # No-op for instructions without a vector destination (e.g. stores).
+            _promote_outputs_to_in_outs(obj)
+            # The mask is architecturally fixed to v0.
+            _append_fixed_vector_input(obj, "v0")
+
+        return _add_vtype_input(obj)
+
+    def write(self):
+        factor = getattr(self, "_expansion_factor", None)
+        if factor is None:
+            factor = _get_lmul_value(self)
+        # Number of declared vector inputs that were expanded (excludes scalar
+        # operands, immediates, the implicit v0 mask and the vtype CSR, none of
+        # which appear as VECT entries in pattern_inputs).
+        num_expandable_vector_inputs = sum(
+            1 for _, ty in self.pattern_inputs if ty == RegisterType.VECT
+        )
+        return _write_expanded_instruction(
+            self, factor, num_expandable_vector_inputs
+        )
+
+class RISCVVectorLoadUnitStride(RISCVVectorDynamicMaskedInstruction):  # EDITED
     pattern = "mnemonic <Vd>, (<Xa>)<vm>"
     inputs = ["Xa"]
     outputs = ["Vd"]
     # TODO: declare input register if vm (mask) is used
 
 
-class RISCVVectorLoadStrided(RISCVVectorInstruction):  # done
+class RISCVVectorLoadStrided(RISCVVectorDynamicMaskedInstruction):  # done
     pattern = "mnemonic <Vd>, (<Xa>), <Xb><vm>"
     inputs = ["Xa", "Xb"]
     outputs = ["Vd"]
     # TODO: declare input register if vm (mask) is used
 
 
-class RISCVVectorLoadIndexed(RISCVVectorInstruction):  # done
-    def write(self):
-        return super().write(_num_expandable_vector_inputs=1)
+class RISCVVectorLoadIndexed(RISCVVectorDynamicMaskedInstruction):  # done
+    #def write(self):
+    #    return super().write(_num_expandable_vector_inputs=1)
 
     pattern = "mnemonic <Vd>, (<Xa>), <Ve><vm>"
     inputs = ["Xa", "Ve"]
@@ -280,7 +387,7 @@ class RISCVVectorStoreWholeRegister(RISCVVectorInstruction):  # done
 # Vector Integer Instructions ##
 
 
-class RISCVVectorIntegerVectorVector(RISCVVectorInstruction):  # done
+class RISCVVectorIntegerVectorVector(RISCVVectorInstruction):  # TODO: masked dynamic?
     def write(self):
         return super().write(_num_expandable_vector_inputs=2)
 
@@ -309,9 +416,9 @@ class RISCVVectorIntegerVectorVectorMasked(RISCVVectorFixedMaskedIstruction):  #
     outputs = ["Vd"]
 
 
-class RISCVVectorIntegerVectorScalar(RISCVVectorInstruction):  # maybe done
-    def write(self):
-        return super().write(_num_expandable_vector_inputs=1)
+class RISCVVectorIntegerVectorScalar(RISCVVectorDynamicMaskedInstruction):  # maybe done
+    #def write(self):
+    #    return super().write(_num_expandable_vector_inputs=1)
 
     # TODO: make method here?
 
@@ -332,9 +439,9 @@ class RISCVVectorIntegerVectorScalarMasked(
     outputs = ["Vd"]
 
 
-class RISCVVectorIntegerVectorImmediate(RISCVVectorInstruction):  # maybe done
-    def write(self):
-        return super().write(_num_expandable_vector_inputs=1)
+class RISCVVectorIntegerVectorImmediate(RISCVVectorDynamicMaskedInstruction):  # maybe done
+    #def write(self):
+    #    return super().write(_num_expandable_vector_inputs=1)
 
     pattern = "mnemonic <Vd>, <Ve>, <imm><vm>"
     inputs = ["Ve"]
@@ -380,16 +487,16 @@ class RISCVVectorVector(RISCVVectorInstruction):
     outputs = ["Vd"]
 
 
-class RISCVectorVectorMasked(RISCVVectorInstruction):
-    def write(self):
-        return super().write(_num_expandable_vector_inputs=1)
+class RISCVectorVectorMasked(RISCVVectorDynamicMaskedInstruction):
+    #def write(self):
+    #    return super().write(_num_expandable_vector_inputs=1)
 
     pattern = "mnemonic <Vd>, <Va><vm>"
     inputs = ["Va"]
     outputs = ["Vd"]
 
 
-class RISCVVectorWidenExtend(RISCVVectorInstruction):  # done
+class RISCVVectorWidenExtend(RISCVVectorInstruction):  # TODO: masked dynamic?
     """Widening integer extend: vsext.vf2 / vzext.vf2 vd, vs2.
 
     Sign/zero-extends each element of vs2 to twice its width into vd. The

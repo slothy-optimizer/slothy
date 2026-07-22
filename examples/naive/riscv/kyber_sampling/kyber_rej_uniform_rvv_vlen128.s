@@ -588,12 +588,12 @@
     vcpop.m   t3, \vf1
     vcompress.vm \vr0, \vt0, \vf0
     vcompress.vm \vr1, \vt1, \vf1
-    vse16.v \vr0, (a0)
+    vse16.v \vr0, (a0)  // @slothy:writes=out_mem
     add t2, t2, t2
     add t3, t3, t3
     
     add a0, a0, t2
-    vse16.v \vr1, (a0)
+    vse16.v \vr1, (a0)  // @slothy:writes=out_mem
     add a0, a0, t3
 .endm
 
@@ -638,12 +638,12 @@
     add t3, t3, t3
     add a0, a0, t2
     add t4, t4, t4
-    vse16.v \vr1, (a0)
+    vse16.v \vr1, (a0)  // @slothy:writes=out_mem
     add a0, a0, t3
-    vse16.v \vr2, (a0)
+    vse16.v \vr2, (a0)  // @slothy:writes=out_mem
     add a0, a0, t4
     add t5, t5, t5
-    vse16.v \vr3, (a0)
+    vse16.v \vr3, (a0)  // @slothy:writes=out_mem
     add a0, a0, t5
 .endm
 
