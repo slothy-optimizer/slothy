@@ -115,15 +115,15 @@ class RISC_V_rej_uniform_rvv_vlen128(OptimizationRunner):
         slothy.config.with_preprocessor = True
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        # x3 (gp) is reserved by convention. x15 (a5) and x16 (a6) hold the
+        # output/input buffer base pointers: they are set before the loop and
+        # read by the loop-bound checks after each region (sub t2,a0,a5 /
+        # sub t3,a1,a6), but are not used inside the optimized bodies. Without
+        # reserving them SLOTHY may allocate them as scratch, clobbering the
+        # bases so the loop miscounts and exits early.
+        r += ["x3", "x15", "x16"]
         slothy.config.reserved_regs = r
 
-        slothy.config.allow_useless_instructions = True
-
-        # Straight-line scheduling of the rejection-sampling bodies. The
-        # surrounding loops (data-dependent counter, multi-branch exits) are not
-        # SLOTHY-recognizable loops, so optimize only the branchless body regions
-        # (x4 is the hot path; x2/x1 are the tail).
         slothy.optimize(start="start", end="end")
         slothy.optimize(start="start_x2", end="end_x2")
         slothy.optimize(start="start_x1", end="end_x1")
