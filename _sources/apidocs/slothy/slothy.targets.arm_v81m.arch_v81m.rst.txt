@@ -986,7 +986,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.arm_v81m.arch_v81m.eor.pattern
-      :value: 'eor <Rd>, <Rn>, <Rm>'
+      :value: 'eor<width> <Rd>, <Rn>, <Rm>'
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor.pattern
 
@@ -1009,7 +1009,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.arm_v81m.arch_v81m.eor_shifted.pattern
-      :value: 'eor <Rd>, <Rn>, <Rm>, <barrel> <imm>'
+      :value: 'eor<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>'
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.eor_shifted.pattern
 
@@ -1631,7 +1631,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.arm_v81m.arch_v81m.ldr.pattern
-      :value: 'ldr <Rt>, [<Rn>, <imm>]'
+      :value: 'ldr<width> <Rt>, [<Rn>, <imm>]'
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.ldr.pattern
 
@@ -1793,7 +1793,7 @@ API
 
    .. py:attribute:: pattern
       :canonical: slothy.targets.arm_v81m.arch_v81m.str_reg.pattern
-      :value: 'str <Rt>, [<Rn>, <imm>]'
+      :value: 'str<width> <Rt>, [<Rn>, <imm>]'
 
       .. autodoc2-docstring:: slothy.targets.arm_v81m.arch_v81m.str_reg.pattern
 
