@@ -26,8 +26,20 @@
 from dataclasses import dataclass
 from types import SimpleNamespace
 
-from slothy.targets.arm_v81m.arch_v81m import eor, ldr, ldrd, qrestore, qsave
-from slothy.targets.arm_v81m.arch_v81m import str_reg, strd
+from slothy.targets.arm_v81m.arch_v81m import (
+    add_shifted,
+    bic_shifted,
+    eor,
+    eor_shifted,
+    ldr,
+    ldrd,
+    log_and_shifted,
+    orr_shifted,
+    qrestore,
+    qsave,
+    str_reg,
+    strd,
+)
 from slothy.targets.arm_v81m.cortex_m55r1 import (
     ExecutionUnit,
     add_further_constraints,
@@ -184,6 +196,34 @@ def test_scalar_str_model():
     assert get_latency(inst, 0, _consumer()) == 1
 
 
+def test_shifted_source_operand_needs_extra_cycle():
+    producer = eor.make("eor r1, r2, r3")
+    shifted_consumers = [
+        add_shifted.make("add r4, r5, r1, ror #13"),
+        eor_shifted.make("eor r4, r5, r1, ror #13"),
+        orr_shifted.make("orr r4, r5, r1, ror #13"),
+        log_and_shifted.make("and r4, r5, r1, ror #13"),
+        bic_shifted.make("bic r4, r5, r1, ror #13"),
+    ]
+
+    for consumer in shifted_consumers:
+        assert get_latency(producer, 0, consumer) == 2
+
+
+def test_unshifted_source_operand_keeps_default_latency():
+    producer = eor.make("eor r1, r2, r3")
+    unshifted_consumers = [
+        add_shifted.make("add r4, r1, r5, ror #13"),
+        eor_shifted.make("eor r4, r1, r5, ror #13"),
+        orr_shifted.make("orr r4, r1, r5, ror #13"),
+        log_and_shifted.make("and r4, r1, r5, ror #13"),
+        bic_shifted.make("bic r4, r1, r5, ror #13"),
+    ]
+
+    for consumer in unshifted_consumers:
+        assert get_latency(producer, 0, consumer) == 1
+
+
 def test_dtcm_bank_uses_address_bits_3_2():
     assert m55_dtcm_bank(0) == 0
     assert m55_dtcm_bank(4) == 1
@@ -247,6 +287,8 @@ def run_memory_model_tests():
     test_ldrd_model()
     test_strd_model()
     test_scalar_str_model()
+    test_shifted_source_operand_needs_extra_cycle()
+    test_unshifted_source_operand_keeps_default_latency()
     test_dtcm_bank_uses_address_bits_3_2()
     test_same_base_same_bank_scalar_str_ldr_adds_forbidden_distance()
     test_same_base_different_bank_scalar_str_ldr_has_no_model_hazard()

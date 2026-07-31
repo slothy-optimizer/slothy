@@ -911,6 +911,20 @@ def get_latency(src, out_idx, dst):
     # Check for latency exceptions
     #
 
+    # The shifter source operand needs to be available one cycle earlier.
+    if (
+        instclass_dst
+        in [
+            add_shifted,
+            eor_shifted,
+            orr_shifted,
+            log_and_shifted,
+            bic_shifted,
+        ]
+        and dst.args_in[1] in src.args_out
+    ):
+        return default_latency + 1
+
     # VMULx -> VSTR has single cycle latency
     if instclass_dst in [
         vstrw,
