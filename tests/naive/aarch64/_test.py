@@ -25,6 +25,8 @@
 # Author: Amin Abdulrahman <amin@abdulrahman.de>
 #
 
+import re
+
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.aarch64.aarch64_neon as AArch64_Neon
 import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
@@ -472,6 +474,191 @@ class AArch64Directives(OptimizationRunner):
         slothy.optimize(start="start_irp_single", end="end_irp_single")  # 1 instruction
 
 
+class AArch64PreferCallerSave(OptimizationRunner):
+    """Verify that prefer_caller_save_registers=True does not introduce
+    callee-saved NEON registers (v8-v15) when the input uses only caller-save
+    registers (v0-v7).  The snippet contains enough instructions for SLOTHY
+    to consider register renaming, so the absence of callee-saved registers in
+    the output is a meaningful behavioural check."""
+
+    def __init__(self, arch=AArch64_Neon, target=Target_CortexA55):
+        super().__init__(
+            "aarch64_prefer_caller_save",
+            rename=True,
+            arch=arch,
+            target=target,
+            base_dir="tests",
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.outputs = ["v0", "v1", "v5", "v7"]
+        slothy.config.constraints.prefer_caller_save_registers = True
+        slothy.optimize(start="start", end="end")
+
+        callee_saved_neon = {f"v{i}" for i in range(8, 16)}
+        source_text = "\n".join(
+            line.to_string(comments=False, tags=False)
+            for line in slothy.source
+            if line.text
+        )
+        found_vregs = {f"v{n}" for n in re.findall(r"\bv(\d+)", source_text)}
+        introduced = callee_saved_neon & found_vregs
+        if introduced:
+            raise Exception(
+                f"prefer_caller_save_registers=True introduced callee-saved "
+                f"NEON register(s): {', '.join(sorted(introduced))}"
+            )
+
+
+class AArch64PreferCallerSaveForced(OptimizationRunner):
+    """Verify that prefer_caller_save_registers=True still produces correct
+    code when callee-saved registers are unavoidable.
+
+    Three independent NTT butterflies all reuse v4, v5 as temporaries.
+    v7 and v16-v31 are reserved, leaving only v4 and v5 as free caller-save
+    scratch space.  Overlapping any two butterflies for ILP needs four
+    simultaneous temporaries, which exhausts the caller-save pool and forces
+    SLOTHY to introduce at least one callee-saved register (v8-v15).
+
+    The test asserts:
+      - the selftest passes (functional correctness is preserved), and
+      - at least one v8-v15 register appears in the output (confirming that
+        callee-saved registers were actually introduced when necessary)."""
+
+    def __init__(self, arch=AArch64_Neon, target=Target_CortexA55):
+        super().__init__(
+            "aarch64_prefer_caller_save_forced",
+            rename=True,
+            arch=arch,
+            target=target,
+            base_dir="tests",
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.outputs = ["v0", "v1", "v5", "v6"]
+        slothy.config.constraints.prefer_caller_save_registers = True
+        slothy.config.reserved_regs = ["v7"] + [f"v{i}" for i in range(16, 32)]
+        slothy.optimize(start="start", end="end")
+
+        source_text = "\n".join(
+            line.to_string(comments=False, tags=False)
+            for line in slothy.source
+            if line.text
+        )
+        found_callee_saved = {
+            f"v{n}" for n in re.findall(r"\bv(\d+)", source_text) if 8 <= int(n) <= 15
+        }
+        if not found_callee_saved:
+            raise Exception(
+                "Expected SLOTHY to introduce callee-saved NEON registers "
+                "(v8-v15) when caller-save scratch space is exhausted, but "
+                "none were found in the output"
+            )
+
+
+class AArch64ClobberComment(OptimizationRunner):
+    """Verify that emit_clobbered_callee_saves_comment=True prepends a comment
+    listing the callee-saved registers that the snippet clobbers.  The input
+    explicitly uses v8, v9 (callee-saved NEON) and x19 (callee-saved GPR),
+    so all three must appear in the comment.
+
+    Renaming is disabled so the output registers match the input exactly and
+    the assertion is not sensitive to which physical register SLOTHY happens
+    to allocate."""
+
+    def __init__(self, arch=AArch64_Neon, target=Target_CortexA55):
+        super().__init__(
+            "aarch64_clobber_comment",
+            rename=True,
+            arch=arch,
+            target=target,
+            base_dir="tests",
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.constraints.allow_renaming = False
+        slothy.config.outputs = ["v8", "x19"]
+        slothy.config.emit_clobbered_callee_saves_comment = True
+        slothy.optimize(start="start", end="end")
+
+        source_text = "\n".join(line.to_string() for line in slothy.source)
+        if "Clobbered callee-saved registers:" not in source_text:
+            raise Exception(
+                "emit_clobbered_callee_saves_comment=True did not produce "
+                "a clobber comment in the output"
+            )
+        # All three callee-saved registers used in the snippet must be listed.
+        for reg in ("v8", "v9", "x19"):
+            # The comment line contains the register names separated by ", "
+            comment_line = next(
+                (
+                    line.to_string()
+                    for line in slothy.source
+                    if "Clobbered callee-saved registers:" in line.to_string()
+                ),
+                "",
+            )
+            if reg not in comment_line:
+                raise Exception(
+                    f"Clobber comment is missing callee-saved register {reg}. "
+                    f"Full comment line: {comment_line!r}"
+                )
+
+
+class AArch64ClobberCommentSWP(OptimizationRunner):
+    """Verify that emit_clobbered_callee_saves_comment works through the SW
+    pipelining code path in Heuristics.periodic().
+
+    The loop uses callee-saved NEON registers v8, v9, v12.  Renaming is
+    disabled so the output registers are fixed.  minimize_overlapping is
+    disabled so the solver is free to move instructions across iteration
+    boundaries, producing non-empty preamble and postamble; the clobbered set
+    must be accumulated across kernel + preamble + postamble and appear in the
+    comment prepended to kernel_code."""
+
+    def __init__(self, arch=AArch64_Neon, target=Target_CortexA55):
+        super().__init__(
+            "aarch64_clobber_comment_swp",
+            rename=True,
+            arch=arch,
+            target=target,
+            base_dir="tests",
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.constraints.allow_renaming = False
+        slothy.config.inputs_are_outputs = True
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.minimize_overlapping = False
+        slothy.config.emit_clobbered_callee_saves_comment = True
+        slothy.optimize_loop("start")
+
+        source_text = "\n".join(line.to_string() for line in slothy.source)
+        if "Clobbered callee-saved registers:" not in source_text:
+            raise Exception(
+                "emit_clobbered_callee_saves_comment=True did not produce "
+                "a clobber comment through the SW pipelining code path"
+            )
+        comment_line = next(
+            line.to_string()
+            for line in slothy.source
+            if "Clobbered callee-saved registers:" in line.to_string()
+        )
+        for reg in ("v8", "v9"):
+            if reg not in comment_line:
+                raise Exception(
+                    f"Clobber comment missing {reg}. Full line: {comment_line!r}"
+                )
+
+
 test_instances = [
     Instructions(),
     Instructions(target=Target_CortexA72),
@@ -500,4 +687,8 @@ test_instances = [
     AArch64SelftestAddr(),
     AArch64SelftestInitialRegs(),
     AArch64Directives(),
+    AArch64PreferCallerSave(),
+    AArch64PreferCallerSaveForced(),
+    AArch64ClobberComment(),
+    AArch64ClobberCommentSWP(),
 ]

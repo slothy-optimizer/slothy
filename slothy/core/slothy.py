@@ -116,6 +116,17 @@ class Slothy:
         self.last_result = None
         self.success = None
 
+    def _prepend_clobber_comment(self, code, clobbered, indentation):
+        """Prepend a callee-saved clobber comment to code if the feature is on."""
+        if not (self.config.emit_clobbered_callee_saves_comment and clobbered):
+            return code
+        comment_text = "Clobbered callee-saved registers: " + ", ".join(
+            sorted(clobbered)
+        )
+        clobber_line = SourceLine("").add_comment(comment_text)
+        clobber_line = SourceLine.apply_indentation([clobber_line], indentation)[0]
+        return [clobber_line] + code
+
     def _get_version(self):
         try:
             from importlib.metadata import version
@@ -394,7 +405,11 @@ class Slothy:
                 pre, body, post, "ORIGINAL", indentation
             )
 
-        early, core, late, num_exceptional = Heuristics.periodic(body, logger, c)
+        early, core, late, num_exceptional, clobbered = Heuristics.periodic(
+            body, logger, c
+        )
+
+        core = self._prepend_clobber_comment(core, clobbered, indentation)
 
         if self.config.with_llvm_mca_before is True:
             core = core + orig_stats
@@ -632,9 +647,11 @@ class Slothy:
                 early, body, late, "ORIGINAL", indentation
             )
 
-        preamble_code, kernel_code, postamble_code, num_exceptional = (
+        preamble_code, kernel_code, postamble_code, num_exceptional, clobbered = (
             Heuristics.periodic(body, logger, c)
         )
+
+        kernel_code = self._prepend_clobber_comment(kernel_code, clobbered, indentation)
 
         # Remove branch instructions from preamble and postamble
         postamble_code = [
