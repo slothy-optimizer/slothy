@@ -1,0 +1,16 @@
+name: Pytest
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup-ubuntu
+    - name: Run pytest
+      run: |
+        python3 -m pytest tests/pytest

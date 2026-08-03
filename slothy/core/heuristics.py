@@ -361,11 +361,13 @@ class Heuristics:
         :param conf: The configuration to be applied.
         :type conf: any
 
-        :return: Tuple (preamble, kernel, postamble, num_exceptional_iterations)
-            of preamble, kernel and postamble (each as a list of SourceLine
-            objects), plus the number of iterations jointly accounted for by
-            the preamble and postamble (the caller will need this to adjust the
-            loop counter).
+        :return: Tuple (preamble, kernel, postamble, num_exceptional_iterations,
+            result) of preamble, kernel and postamble (each as a list of
+            SourceLine objects), the number of iterations jointly accounted for
+            by the preamble and postamble (the caller will need this to adjust
+            the loop counter), and the :class:`Result` object for the (kernel)
+            optimization. The result is ``None`` if no single representative
+            result is available (currently the case for the halving heuristic).
         :rtype: any
         """
 
@@ -386,10 +388,13 @@ class Heuristics:
         # the heuristics for linear optimization.
         if not conf.sw_pipelining.enabled:
             res = Heuristics.linear(body, logger=logger, conf=conf)
-            return [], res.code, [], 0
+            return [], res.code, [], 0, res
 
         if conf.sw_pipelining.halving_heuristic:
-            return Heuristics._periodic_halving(body, logger, conf)
+            preamble, kernel, postamble, num_exceptional = Heuristics._periodic_halving(
+                body, logger, conf
+            )
+            return preamble, kernel, postamble, num_exceptional, None
 
         # 'Normal' software pipelining
         #
@@ -437,7 +442,7 @@ class Heuristics:
             )
             postamble = res_postamble.code
 
-        return preamble, kernel, postamble, num_exceptional_iterations
+        return preamble, kernel, postamble, num_exceptional_iterations, result
 
     @staticmethod
     def linear(body: list, logger: any, conf: any) -> any:
