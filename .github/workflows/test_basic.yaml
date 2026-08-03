@@ -91,6 +91,14 @@ jobs:
     - name: Run examples
       run: |
         python3 example.py --examples ntt_kyber_123_4567_a55,ntt_dilithium_123_45678_a55 --timeout=300
+  examples_x25519_a55:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup-ubuntu
+    - name: Run examples
+      run: |
+        python3 example.py --examples x25519_scalarmult_ci_a55
   sqmag:
     runs-on: ubuntu-latest
     steps:
