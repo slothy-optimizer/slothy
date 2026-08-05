@@ -600,9 +600,9 @@
 // 4*15(sp): loop;
 // s0-s11, a2-a5: 16 coeffs; 
 // 7 twiddle factors: t0-t6
-.global ntt_rv64im
+.global ntt_dual_l32_rv64im
 .align 2
-ntt_rv64im:
+ntt_dual_l32_rv64im:
   addi sp, sp, -8*16
   save_regs
   li a6, q32        // q<<32
@@ -725,7 +725,7 @@ ntt_rv64im:
 // 4*15(sp): loop;
 // s0-s11, a2-a5: 16 coeffs; 
 // 7 twiddle factors: t0-t6
-.global intt_rv64im
+// .global intt_rv64im
 .align 2
 intt_rv64im:
   addi sp, sp, -8*16
@@ -848,7 +848,7 @@ intt_rv64im:
 // compute basemul and accumulate the 32-bit results into r
 // a0: r, a1: a, a2: b, a3: zetas
 // a5: q<<32, a6: loop control
-.global poly_basemul_acc_rv64im
+// .global poly_basemul_acc_rv64im
 .align 2
 poly_basemul_acc_rv64im:
     addi sp, sp, -8*15
@@ -980,7 +980,7 @@ ret
 // void poly_basemul_acc_end_rv64im(int16_t *r, const int16_t *a, const int16_t *b, uint64_t *zetas, int32_t *r_double)
 // compute basemul, accumulate the 32-bit results into r_double, and reduce r_double to r
 // a0: r, a1: a, a2: b, a3: zetas, a4: r_double
-.global poly_basemul_acc_end_rv64im
+// .global poly_basemul_acc_end_rv64im
 .align 2
 poly_basemul_acc_end_rv64im:
     addi sp, sp, -8*16
@@ -1123,7 +1123,7 @@ ret
 // compute basemul, cache bzeta into b_cache, and store the 32-bit results into r
 // a0: r, a1: a, a2: b, a3: b_cache, a4: zetas
 // a5: q<<32, a6: loop control
-.global poly_basemul_cache_init_rv64im
+// .global poly_basemul_cache_init_rv64im
 .align 2
 poly_basemul_cache_init_rv64im:
     addi sp, sp, -8*15
@@ -1243,7 +1243,7 @@ ret
 // compute basemul, cache bzeta into b_cache, and accumulate the 32-bit results into r
 // a0: r, a1: a, a2: b, a3: b_cache, a4: zetas
 // a5: q<<32, a6: loop control, a7: accumulated value
-.global poly_basemul_acc_cache_init_rv64im
+// .global poly_basemul_acc_cache_init_rv64im
 .align 2
 poly_basemul_acc_cache_init_rv64im:
     addi sp, sp, -8*15
@@ -1381,7 +1381,7 @@ ret
 // compute basemul, cache bzeta into b_cache, accumulate the 32-bit results into r_double, and reduce r_double to r
 // a0: r, a1: a, a2: b, a3: b_cache, a4: zetas, a5: r_double
 // a6: loop control
-.global poly_basemul_acc_cache_init_end_rv64im
+// .global poly_basemul_acc_cache_init_end_rv64im
 .align 2
 poly_basemul_acc_cache_init_end_rv64im:
     addi sp, sp, -8*16
@@ -1531,7 +1531,7 @@ ret
 // compute basemul using cached b_cache and accumulate the 32-bit results into r
 // a0: r, a1: a, a2: b, a3: b_cache
 // a5: q<<32, a6: loop control
-.global poly_basemul_acc_cached_rv64im
+// .global poly_basemul_acc_cached_rv64im
 .align 2
 poly_basemul_acc_cached_rv64im:
     addi sp, sp, -8*15
@@ -1658,7 +1658,7 @@ ret
 // compute basemul using cached b_cache, accumulate the 32-bit results into r_double, and reduce r_double to r
 // a0: r, a1: a, a2: b, a3: b_cache, a4: r_double
 // a5: q<<32, a6: loop control
-.global poly_basemul_acc_cache_end_rv64im
+// .global poly_basemul_acc_cache_end_rv64im
 .align 2
 poly_basemul_acc_cache_end_rv64im:
     addi sp, sp, -8*16
@@ -1793,7 +1793,7 @@ poly_basemul_acc_cached_end_rv64im_loop:
 ret
 
 // each coeff is multiplied by plantconst2 using plantard multiplication
-.global poly_plantard_rdc_rv64im
+// .global poly_plantard_rdc_rv64im
 .align 2
 poly_plantard_rdc_rv64im:
   addi sp, sp, -8*1
@@ -1854,7 +1854,7 @@ poly_plantard_rdc_rv64im:
   ret
 
 // plantard reduction to a poly
-.global poly_toplant_rv64im
+// .global poly_toplant_rv64im
 .align 2
 poly_toplant_rv64im:
   addi sp, sp, -8*1

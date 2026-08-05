@@ -107,7 +107,7 @@ class RISC_V_ntt_dualissue_l32_plant_rv64im(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname="ntt_dual_rv64im",
+            funcname="ntt_dual_l32_rv64im",
             timeout=timeout,
         )
 
