@@ -1000,16 +1000,49 @@ class restored(Instruction):
         return obj
 
 
+class ShiftedOperandInstruction(MVEInstruction):
+    """Instruction with a flexible shifted-register Operand2."""
+
+    shifted_operand = "Rm"
+
+    @classmethod
+    def make(cls, src):
+        obj = MVEInstruction.build(cls, src)
+        obj.barrel = obj.barrel.strip()
+        return obj
+
+    @property
+    def shifted_register(self):
+        """Return the register consumed by the inline barrel shifter."""
+        for index, (operand, register_type) in enumerate(self.pattern_inputs):
+            if operand == self.shifted_operand:
+                if register_type != RegisterType.GPR:
+                    raise FatalParsingException(
+                        f"Shifted operand {operand} is not a GPR in {self.pattern}"
+                    )
+                return self.args_in[index]
+        raise FatalParsingException(
+            f"No shifted operand {self.shifted_operand} in {self.pattern}"
+        )
+
+
 class add(MVEInstruction):
     pattern = "add <Rd>, <Rn>, <Rm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
 
-class add_shifted(MVEInstruction):
-    pattern = "add <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+class add_shifted(ShiftedOperandInstruction):
+    pattern = "add<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
+
+
+class adc_shifted(ShiftedOperandInstruction):
+    pattern = "adc<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+    dependsOnFlags = True
 
 
 class log_and(MVEInstruction):
@@ -1018,8 +1051,8 @@ class log_and(MVEInstruction):
     outputs = ["Rd"]
 
 
-class log_and_shifted(MVEInstruction):
-    pattern = "and <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+class log_and_shifted(ShiftedOperandInstruction):
+    pattern = "and<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
@@ -1036,8 +1069,14 @@ class orr(MVEInstruction):
     outputs = ["Rd"]
 
 
-class orr_shifted(MVEInstruction):
-    pattern = "orr <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+class orr_shifted(ShiftedOperandInstruction):
+    pattern = "orr<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class orn_shifted(ShiftedOperandInstruction):
+    pattern = "orn<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
 
@@ -1048,7 +1087,7 @@ class eor(MVEInstruction):
     outputs = ["Rd"]
 
 
-class eor_shifted(MVEInstruction):
+class eor_shifted(ShiftedOperandInstruction):
     pattern = "eor<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
@@ -1060,10 +1099,59 @@ class bic(MVEInstruction):
     outputs = ["Rd"]
 
 
-class bic_shifted(MVEInstruction):
-    pattern = "bic <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+class bic_shifted(ShiftedOperandInstruction):
+    pattern = "bic<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
     inputs = ["Rn", "Rm"]
     outputs = ["Rd"]
+
+
+class cmn_shifted(ShiftedOperandInstruction):
+    pattern = "cmn<width> <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    modifiesFlags = True
+
+
+class cmp_shifted(ShiftedOperandInstruction):
+    pattern = "cmp<width> <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    modifiesFlags = True
+
+
+class mvn_shifted(ShiftedOperandInstruction):
+    pattern = "mvn<width> <Rd>, <Rm>, <barrel> <imm>"
+    inputs = ["Rm"]
+    outputs = ["Rd"]
+
+
+class rsb_shifted(ShiftedOperandInstruction):
+    pattern = "rsb<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class sbc_shifted(ShiftedOperandInstruction):
+    pattern = "sbc<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+    dependsOnFlags = True
+
+
+class sub_shifted(ShiftedOperandInstruction):
+    pattern = "sub<width> <Rd>, <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    outputs = ["Rd"]
+
+
+class teq_shifted(ShiftedOperandInstruction):
+    pattern = "teq<width> <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    modifiesFlags = True
+
+
+class tst_shifted(ShiftedOperandInstruction):
+    pattern = "tst<width> <Rn>, <Rm>, <barrel> <imm>"
+    inputs = ["Rn", "Rm"]
+    modifiesFlags = True
 
 
 class ror(MVEInstruction):

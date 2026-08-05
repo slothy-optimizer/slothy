@@ -51,16 +51,12 @@ from slothy.targets.arm_v81m.arch_v81m import (
     mvn_imm,
     mov,
     add,
-    add_shifted,
+    ShiftedOperandInstruction,
     log_and,
-    log_and_shifted,
     mul,
     orr,
-    orr_shifted,
     eor,
-    eor_shifted,
     bic,
-    bic_shifted,
     ror,
     ror_imm,
     ror_short,
@@ -385,15 +381,11 @@ execution_units = {
     mov: ExecutionUnit.SCALAR,
     add: ExecutionUnit.SCALAR,
     mul: ExecutionUnit.SCALAR,
-    add_shifted: ExecutionUnit.SCALAR,
+    ShiftedOperandInstruction: ExecutionUnit.SCALAR,
     log_and: ExecutionUnit.SCALAR,
-    log_and_shifted: ExecutionUnit.SCALAR,
     orr: ExecutionUnit.SCALAR,
-    orr_shifted: ExecutionUnit.SCALAR,
     eor: ExecutionUnit.SCALAR,
-    eor_shifted: ExecutionUnit.SCALAR,
     bic: ExecutionUnit.SCALAR,
-    bic_shifted: ExecutionUnit.SCALAR,
     ror: ExecutionUnit.SCALAR,
     ror_imm: ExecutionUnit.SCALAR,
     ror_short: ExecutionUnit.SCALAR,
@@ -552,15 +544,11 @@ inverse_throughput = {
         mvn_imm,
         mov,
         add,
-        add_shifted,
+        ShiftedOperandInstruction,
         log_and,
-        log_and_shifted,
         orr,
-        orr_shifted,
         eor,
-        eor_shifted,
         bic,
-        bic_shifted,
         ror,
         ror_imm,
         ror_short,
@@ -845,13 +833,8 @@ default_latencies = {
         sbfx,
         ubfx,
     ): 1,
-    (
-        add_shifted,
-        eor_shifted,
-        orr_shifted,
-        log_and_shifted,
-        bic_shifted,
-    ): 2,  # NOTE: latency would be 1 if shift amount is 0 in m55
+    # TODO: Model the 1-cycle latency when the shift amount is zero.
+    ShiftedOperandInstruction: 2,
     (vld20, vld21): 2,
     (vld20_with_writeback, vld21_with_writeback): 2,
     (vld40, vld41, vld42, vld43): 2,
@@ -901,6 +884,12 @@ default_latencies = {
 }
 
 
+def _source_registers_at_index(src, out_idx):
+    return [
+        args[out_idx] for args in [src.args_out, src.args_in_out] if out_idx < len(args)
+    ]
+
+
 def get_latency(src, out_idx, dst):
     instclass_src = find_class(src)
     instclass_dst = find_class(dst)
@@ -912,17 +901,9 @@ def get_latency(src, out_idx, dst):
     #
 
     # The shifter source operand needs to be available one cycle earlier.
-    if (
-        instclass_dst
-        in [
-            add_shifted,
-            eor_shifted,
-            orr_shifted,
-            log_and_shifted,
-            bic_shifted,
-        ]
-        and dst.args_in[1] in src.args_out
-    ):
+    if isinstance(
+        dst, ShiftedOperandInstruction
+    ) and dst.shifted_register in _source_registers_at_index(src, out_idx):
         return default_latency + 1
 
     # VMULx -> VSTR has single cycle latency
