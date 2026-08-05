@@ -119,6 +119,7 @@ class RISC_V_ntt_dualissue_l32_plant_rv64im(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
+        slothy.config.reserved_regs_are_locked = False  # dual use of gp as loop ctr and scratch register
 
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True

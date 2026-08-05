@@ -247,8 +247,6 @@ class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
         else:
             # No expansion: Vg is the 3rd input (index 2); restrict it to v0
             obj.args_in_restrictions[len(obj.args_in) - 1] = ["v0"]
-            # TODO: May v0 be used in the other input/output registers? Potentially
-            # filter here.
         return _add_vtype_input(obj)
 
 class RISCVVectorDynamicMaskedInstruction(RISCVVectorInstruction):
