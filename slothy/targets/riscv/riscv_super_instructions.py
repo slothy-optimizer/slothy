@@ -231,7 +231,7 @@ class RISCVVectorFixedMaskedIstruction(RISCVVectorInstruction):
         obj = RISCVInstruction.build(cls, src)
         lmul = _get_lmul_value(obj)
         _get_sew_value(obj)
-
+        obj.args_in_out_different = [(0, len(obj.args_in)-1)]  # Vd!= Vg (v0)
         # Note: mask register (Vg) is not expanded, only vector operands
         obj = _expand_vector_registers_generic(
             obj, lmul, expand_input_indices=[i for i in range(len(obj.args_in) - 1)]

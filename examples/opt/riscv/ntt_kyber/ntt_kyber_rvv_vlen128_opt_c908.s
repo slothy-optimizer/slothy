@@ -887,7 +887,7 @@
   addi sp, sp, 8*15
 .endm
 
-.globl ntt_rvv_vlen128
+.globl ntt_rvv_vlen128_opt_c908
 .align 2
 ntt_rvv_vlen128_opt_c908:
         start:
