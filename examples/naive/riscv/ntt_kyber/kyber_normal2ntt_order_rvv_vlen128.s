@@ -1,4 +1,51 @@
-/ shuffle4
+#ifndef KYBER_NTT_RVV_VLEN128_CONSTS_H
+#define KYBER_NTT_RVV_VLEN128_CONSTS_H
+
+#define _MASK_45674567 0
+#define _MASK_01230123 8
+#define _MASK_01014545 16
+#define _MASK_23236767 24
+#define _MASK_10325476 32
+#define _REJ_UNIFORM_IDX8 40
+#define _REJ_UNIFORM_MASK_01 48
+#define _CBD2_MASK_E8_01 56
+#define _CBD2_IDX8_LOW 64
+#define _CBD2_IDX8_HIGH 72
+#define _CBD3_MASK_E8_0122 80
+#define _CBD3_IDX16_HIGH 88
+#define _CBD3_MASK_E16_1100 96
+#define _CBD3_IDX16_LOW 104
+#define _ZETAS_EXP 112
+#define _ZETAS_EXP_1TO6_P0_L1 114
+#define _ZETAS_EXP_1TO6_P0_L2 116
+#define _ZETAS_EXP_1TO6_P0_L3 120
+#define _ZETAS_EXP_1TO6_P0_L4 136
+#define _ZETAS_EXP_1TO6_P0_L5 152
+#define _ZETAS_EXP_1TO6_P0_L6 184
+#define _ZETAS_EXP_1TO6_P1_L1 216
+#define _ZETAS_EXP_1TO6_P1_L2 218
+#define _ZETAS_EXP_1TO6_P1_L3 224
+#define _ZETAS_EXP_1TO6_P1_L4 240
+#define _ZETAS_EXP_1TO6_P1_L5 256
+#define _ZETAS_EXP_1TO6_P1_L6 288
+#define _ZETAS_BASEMUL 320
+#define _ZETA_EXP_INTT_0TO5_P0_L0 448
+#define _ZETA_EXP_INTT_0TO5_P0_L1 480
+#define _ZETA_EXP_INTT_0TO5_P0_L2 512
+#define _ZETA_EXP_INTT_0TO5_P0_L3 528
+#define _ZETA_EXP_INTT_0TO5_P0_L4 544
+#define _ZETA_EXP_INTT_0TO5_P0_L5 560
+#define _ZETA_EXP_INTT_0TO5_P1_L0 568
+#define _ZETA_EXP_INTT_0TO5_P1_L1 600
+#define _ZETA_EXP_INTT_0TO5_P1_L2 632
+#define _ZETA_EXP_INTT_0TO5_P1_L3 648
+#define _ZETA_EXP_INTT_0TO5_P1_L4 664
+#define _ZETA_EXP_INTT_0TO5_P1_L5 680
+#define _ZETA_EXP_INTT_L6 682
+
+#endif
+
+// shuffle4
 // [a0~a3, a4~a7],[a8~a11, a12~a15] ->
 // [a0~a3, a8~a11],[a4~a7,  a12~a15]
 // shuffle2
@@ -29,9 +76,48 @@
     vmerge.vvm  \ou1_1, \in1_1, \ou1_1, v0
 .endm
 
+.macro save_regs
+  addi sp, sp, -8*15
+  sd s0,  0*8(sp)
+  sd s1,  1*8(sp)
+  sd s2,  2*8(sp)
+  sd s3,  3*8(sp)
+  sd s4,  4*8(sp)
+  sd s5,  5*8(sp)
+  sd s6,  6*8(sp)
+  sd s7,  7*8(sp)
+  sd s8,  8*8(sp)
+  sd s9,  9*8(sp)
+  sd s10, 10*8(sp)
+  sd s11, 11*8(sp)
+  sd gp,  12*8(sp)
+  sd tp,  13*8(sp)
+  sd ra,  14*8(sp)
+.endm
+
+.macro restore_regs
+  ld s0,  0*8(sp)
+  ld s1,  1*8(sp)
+  ld s2,  2*8(sp)
+  ld s3,  3*8(sp)
+  ld s4,  4*8(sp)
+  ld s5,  5*8(sp)
+  ld s6,  6*8(sp)
+  ld s7,  7*8(sp)
+  ld s8,  8*8(sp)
+  ld s9,  9*8(sp)
+  ld s10, 10*8(sp)
+  ld s11, 11*8(sp)
+  ld gp,  12*8(sp)
+  ld tp,  13*8(sp)
+  ld ra,  14*8(sp)
+  addi sp, sp, 8*15
+.endm
+
 .globl normal2ntt_order_rvv_vlen128
 .align 2
 normal2ntt_order_rvv_vlen128:
+    save_regs
     li a2, 2
 normal2ntt_order_rvv_vlen128_loop:
     addi a5, a0, 64*2
@@ -79,4 +165,5 @@ normal2ntt_order_rvv_vlen128_loop:
     vs4r.v v12, (a5)
     addi a2, a2, -1
     bnez a2, normal2ntt_order_rvv_vlen128_loop
+    restore_regs
 ret

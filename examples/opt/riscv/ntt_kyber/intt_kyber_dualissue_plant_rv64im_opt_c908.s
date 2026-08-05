@@ -574,9 +574,9 @@
 // 8*15(sp): loop;
 // s0-s11, a2-a5: 16 coeffs;
 // 7 twiddle factors: t0-t6
-.global intt_rv64im_opt_c908
+.global intt_dual_rv64im_opt_c908
 .align 2
-intt_rv64im_opt_c908:
+intt_dual_rv64im_opt_c908:
   addi sp, sp, -8*16
   save_regs
   li a6, q48 // q<<48

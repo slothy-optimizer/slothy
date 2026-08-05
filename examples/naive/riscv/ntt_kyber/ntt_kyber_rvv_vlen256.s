@@ -1,4 +1,39 @@
-#include "consts_vlen256.h"
+#ifndef KYBER_NTT_RVV_VLEN256_CONSTS_H
+#define KYBER_NTT_RVV_VLEN256_CONSTS_H
+
+#define _MASK_0_7x2 0
+#define _MASK_8_15x2 16
+#define _MASK_0_3x2_8_11x2 32
+#define _MASK_4_7x2_12_15x2 48
+#define _MASK_01014545 64
+#define _MASK_23236767 80
+#define _MASK_10325476 96
+#define _REJ_UNIFORM_IDX8 112
+#define _REJ_UNIFORM_MASK_01 128
+#define _CBD2_MASK_E8_01 144
+#define _CBD2_IDX8_LOW 160
+#define _CBD2_IDX8_HIGH 176
+#define _CBD3_MASK_E8_0122 192
+#define _CBD3_MASK_E16_1100 208
+#define _CBD3_IDX16_LOW 224
+#define _CBD3_IDX16_HIGH 240
+#define _ZETAS_EXP_L0 256
+#define _ZETAS_EXP_L1 258
+#define _ZETAS_EXP_L2 262
+#define _ZETAS_EXP_L3 272
+#define _ZETAS_EXP_L4 336
+#define _ZETAS_EXP_L5 400
+#define _ZETAS_EXP_L6 464
+#define _ZETAS_BASEMUL 592
+#define _ZETA_EXP_INTT_L0 720
+#define _ZETA_EXP_INTT_L1 848
+#define _ZETA_EXP_INTT_L2 912
+#define _ZETA_EXP_INTT_L3 976
+#define _ZETA_EXP_INTT_L4 1040
+#define _ZETA_EXP_INTT_L5 1104
+#define _ZETA_EXP_INTT_L6 1108
+
+#endif
 
 // shuffle8
 # a[0-7,8-15],a[16-23,24-31] -> a[0-7,16-23],a[8-15,24-31]

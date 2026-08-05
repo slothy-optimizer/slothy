@@ -193,7 +193,7 @@ class RISC_V_intt_dualissue_plant_rv64im(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname="intt_rv64im",
+            funcname="intt_dual_rv64im",
             timeout=timeout,
         )
 
@@ -344,7 +344,7 @@ class RISC_V_kyber_normal2ntt_order_rvv_vlen128(OptimizationRunner):
         slothy.config.allow_useless_instructions = True
         slothy.config.outputs = ["x17"]
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3", "x12"]
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
@@ -387,7 +387,7 @@ class RISC_V_kyber_ntt2normal_order_rvv_vlen128(OptimizationRunner):
         slothy.config.outputs = ["x17"]
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3", "x12"]
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
