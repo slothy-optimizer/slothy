@@ -258,13 +258,23 @@ class ntt_dilithium_123_456_78_symbolic(OptimizationRunner):
 
 
 class intt_dilithium_12_34_56_78(OptimizationRunner):
-    def __init__(self, var=""):
+    def __init__(
+        self,
+        var="",
+        target=Target_CortexM55r1,
+    ):
         super().__init__(
-            "intt_dilithium_12_34_56_78", rename=True, subfolder=SUBFOLDER, var=var
+            "intt_dilithium_12_34_56_78",
+            rename=True,
+            subfolder=SUBFOLDER,
+            var=var,
+            target=target,
         )
 
     def core(self, slothy):
         slothy.config.sw_pipelining.enabled = True
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 8
         slothy.optimize_loop("layer12_loop")
         slothy.optimize_loop("layer34_loop")
         slothy.optimize_loop("layer56_loop")
@@ -289,4 +299,6 @@ example_instances = [
     # Dilithium invNTT
     # Cortex-M55
     intt_dilithium_12_34_56_78(),
+    # Cortex-M85
+    intt_dilithium_12_34_56_78(target=Target_CortexM85r1),
 ]
