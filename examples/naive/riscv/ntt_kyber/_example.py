@@ -52,8 +52,8 @@ class RISC_V_ntt_singleissue_plant_rv64im(OptimizationRunner):
 
 class RISC_V_ntt_dualissue_plant_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_kyber_dualissue_plant_rv64im_no_sw"
-        infile = "ntt_kyber_dualissue_plant_rv64im"
+        name = "ntt_kyber_dualissue_plant_rv64im"
+        infile = name
 
         if var != "":
             name += f"_{var}"
@@ -79,8 +79,7 @@ class RISC_V_ntt_dualissue_plant_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
 
-        #slothy.config.sw_pipelining.enabled = True
-        #slothy.config.sw_pipelining.halving_heuristic = True
+        # software pipelining breaks the code due to dual use of gp as loop cnt and tmp reg
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 23
         slothy.config.split_heuristic_repeat = 2
