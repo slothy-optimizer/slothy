@@ -52,8 +52,8 @@ class RISC_V_ntt_singleissue_plant_rv64im(OptimizationRunner):
 
 class RISC_V_ntt_dualissue_plant_rv64im(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
-        name = "ntt_kyber_dualissue_plant_rv64im"
-        infile = name
+        name = "ntt_kyber_dualissue_plant_rv64im_no_sw"
+        infile = "ntt_kyber_dualissue_plant_rv64im"
 
         if var != "":
             name += f"_{var}"
@@ -78,9 +78,9 @@ class RISC_V_ntt_dualissue_plant_rv64im(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-        slothy.config.reserved_regs_are_locked = False  # dual use of gp as loop ctr and scratch register
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+
+        #slothy.config.sw_pipelining.enabled = True
+        #slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 23
         slothy.config.split_heuristic_repeat = 2
