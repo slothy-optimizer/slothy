@@ -879,8 +879,8 @@ normal2ntt_order_rvv_vlen128_loop:
         v24,v25,v26,v27,v28,v29,v30,v31,\
         v8, v9, v10,v11,v12,v13,v14,v15,v3
     vs8r.v v24, (t0)
-    addi a2, a2, -1
     addi a0, a0, 16*4*4
+    addi a2, a2, -1
     bnez a2, normal2ntt_order_rvv_vlen128_loop
 ret
 end:
