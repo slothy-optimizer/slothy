@@ -147,10 +147,12 @@ class RISC_V_poly_reduce_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
-        slothy.config.sw_pipelining.enabled = True
-
+        if self.var == "":
+            slothy.config.sw_pipelining.enabled = True
+        elif self.var == "dual":
+            slothy.config.sw_pipelining.enabled = False
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3", "x13"]
         slothy.config.reserved_regs = r
         slothy.config.outputs = ["x3"]
         slothy.optimize_loop("poly_reduce_rv64im_loop")
