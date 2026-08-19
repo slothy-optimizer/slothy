@@ -149,6 +149,7 @@ class RISC_V_poly_reduce_rv64im(OptimizationRunner):
         slothy.config.inputs_are_outputs = True
         if self.var == "":
             slothy.config.sw_pipelining.enabled = True
+            slothy.config.unsafe_address_offset_fixup = False
         elif self.var == "dual":
             slothy.config.sw_pipelining.enabled = False
         r = slothy.config.reserved_regs
