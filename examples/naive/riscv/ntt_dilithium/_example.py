@@ -80,15 +80,12 @@ class RISC_V_ntt8l_dualissue_plant_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
 
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.sw_pipelining.enabled = False  # breaks due to use of gp as temp reg
+        slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-        # slothy.config.split_heuristic_factor = 10
-        # slothy.config.split_heuristic_repeat = 1
-        # slothy.config.split_heuristic_stepsize = 0.3
         slothy.optimize_loop("ntt_8l_rv64im_loop1")
         slothy.optimize_loop("ntt_8l_rv64im_loop2")
 
