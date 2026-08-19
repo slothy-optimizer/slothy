@@ -257,6 +257,7 @@ execution_units = {
         RISCVInstruction.classes_by_names["vmv.x.s"],
         RISCVInstruction.classes_by_names["vcpop.m"],
         RISCVInstruction.classes_by_names["vmv.v.v"],
+        RISCVInstruction.classes_by_names["vmv.v.x"],
     ): [
         [ExecutionUnit.VEC0, ExecutionUnit.VEC1],
         [ExecutionUnit.VEC0],
@@ -328,6 +329,8 @@ execution_units = {
         RISCVInstruction.classes_by_names["vl<nf>r.v"],
         RISCVInstruction.classes_by_names["vs<nf>re<ew>.v"],
         RISCVInstruction.classes_by_names["vs<nf>r.v"],
+        RISCVInstruction.classes_by_names["vlseg<nf>e<ew>.v"],
+        RISCVInstruction.classes_by_names["vsseg<nf>e<ew>.v"],
         RISCVInstruction.classes_by_names["vnot.v"],
         RISCVInstruction.classes_by_names["vssrl.vv"],  # guessed
         RISCVInstruction.classes_by_names["vssra.vv"],  # guessed
@@ -530,10 +533,13 @@ inverse_throughput = {
     RISCVInstruction.classes_by_names["vsetvl"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vmv.s.x"]: 6,
     RISCVInstruction.classes_by_names["vmv.v.v"]: 2,
+    RISCVInstruction.classes_by_names["vmv.v.v"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vl<nf>re<ew>.v"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vl<nf>r.v"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vs<nf>re<ew>.v"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vs<nf>r.v"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vlseg<nf>e<ew>.v"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsseg<nf>e<ew>.v"]: 2,  # TODO: estimated
 }
 
 rv32_inverse_throughput = {
@@ -585,6 +591,8 @@ default_latencies = {
     RISCVVectorStoreStrided: 1,  # TODO: estimated
     RISCVVectorStoreIndexed: 1,  # TODO: estimated
     RISCVVectorStoreWholeRegister: 1,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vlseg<nf>e<ew>.v"]: 3,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vsseg<nf>e<ew>.v"]: 1,  # TODO: estimated
     RISCVInstruction.classes_by_names["vsetvli"]: 4,  # TODO: estimated
     RISCVInstruction.classes_by_names["vsetivli"]: 4,  # TODO: estimated
     RISCVInstruction.classes_by_names["vsetvl"]: 4,  # TODO: estimated
@@ -596,6 +604,7 @@ default_latencies = {
     RISCVInstruction.classes_by_names["vcompress.vm"]: 4,  # TODO: estimated
     RISCVInstruction.classes_by_names["vsext.vf2"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vzext.vf2"]: 2,  # TODO: estimated
+    RISCVInstruction.classes_by_names["vmv.v.v"]: 3,  # TODO: estimated
     RISCVInstruction.classes_by_names["vmv.v.v"]: 3,  # TODO: estimated
     RISCVInstruction.classes_by_names["vnot.v"]: 4,
     RISCVInstruction.classes_by_names["vnmsac.vx"]: 4,  # TODO: estimated

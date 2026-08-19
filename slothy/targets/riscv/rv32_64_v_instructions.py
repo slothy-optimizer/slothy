@@ -34,6 +34,8 @@ from slothy.targets.riscv.riscv_super_instructions import (
     RISCVVectorStoreStrided,
     RISCVVectorStoreIndexed,
     RISCVVectorStoreWholeRegister,
+    RISCVVectorLoadSegmented,
+    RISCVVectorStoreSegmented,
     RISCVVectorIntegerVectorVector,
     RISCVVectorIntegerVectorScalar,
     RISCVVectorIntegerVectorImmediate,
@@ -97,6 +99,8 @@ v_instrs = [
     (["vsse<len>.v"], RISCVVectorStoreStrided),
     (["vsuxei<len>.v", "vsoxei<len>.v"], RISCVVectorStoreIndexed),
     (["vs<nf>re<ew>.v", "vs<nf>r.v"], RISCVVectorStoreWholeRegister),
+    (["vlseg<nf>e<ew>.v"], RISCVVectorLoadSegmented),
+    (["vsseg<nf>e<ew>.v"], RISCVVectorStoreSegmented),
     (
         [
             "vadd.vv",
@@ -207,6 +211,7 @@ v_instrs = [
     (["vmv.x.s"], RISCVScalarVector),
     (["vmv.s.x"], RISCVVectorScalar),
     (["vmv.v.v"], RISCVVectorVector),
+    (["vmv.v.x"], RISCVVectorScalar),
     (["vnmsac.vx"], RISCVVectorScalarVector),
     # vcpop.m rd, vs2 : population count of mask vs2 into scalar rd
     # (vector/mask in -> scalar out, same shape as vmv.x.s)

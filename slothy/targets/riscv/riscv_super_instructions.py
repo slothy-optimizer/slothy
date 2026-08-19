@@ -382,6 +382,46 @@ class RISCVVectorStoreWholeRegister(RISCVVectorInstruction):  # done
     inputs = ["Vd", "Xa"]
 
 
+class RISCVVectorLoadSegmented(RISCVVectorInstruction):  # done
+    """Unit-stride segmented load, e.g. vlseg4e32.v vd, (rs1).
+
+    Loads nf fields into the nf consecutive vector registers vd..vd+nf-1.
+    For dataflow purposes this is identical to a whole-register load: nf
+    vector registers are written from the base address; the field
+    de-interleaving does not change register dependencies.
+    """
+
+    def write(self):
+        return super().write(nf=True)
+
+    @classmethod
+    def make(cls, src):
+        return super().make(src, nf=True)
+
+    pattern = "mnemonic <Vd>, (<Xa>)"
+    inputs = ["Xa"]
+    outputs = ["Vd"]
+
+
+class RISCVVectorStoreSegmented(RISCVVectorInstruction):  # done
+    """Unit-stride segmented store, e.g. vsseg4e32.v vd, (rs1).
+
+    Stores the nf consecutive vector registers vd..vd+nf-1 to the base
+    address. Mirror of the whole-register store, with nf taken from the
+    mnemonic (vsseg<nf>e<ew>.v).
+    """
+
+    def write(self):
+        return super().write(nf=True, _num_expandable_vector_inputs=1)
+
+    @classmethod
+    def make(cls, src):
+        return super().make(src, nf=True)
+
+    pattern = "mnemonic <Vd>, (<Xa>)"
+    inputs = ["Vd", "Xa"]
+
+
 # Vector Integer Instructions ##
 
 
