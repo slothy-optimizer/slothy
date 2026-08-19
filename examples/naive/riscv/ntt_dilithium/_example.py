@@ -115,9 +115,12 @@ class RISC_V_intt8l_plant_rv64im(OptimizationRunner):
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r
-
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        if self.var == "":
+            slothy.config.sw_pipelining.enabled = True
+            slothy.config.sw_pipelining.halving_heuristic = True
+        if self.var == "dual":   # sw pipelining breaks since gp is used both as loop cntr and temp reg
+            slothy.config.sw_pipelining.enabled = False
+            slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_repeat = 2
