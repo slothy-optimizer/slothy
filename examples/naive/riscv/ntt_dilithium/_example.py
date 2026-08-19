@@ -272,7 +272,7 @@ class RISC_V_normal2ntt_order_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.allow_reordering = False
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3", "x12"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("normal2ntt_order_rvv_vlen128_loop")
         #slothy.optimize("start", "end")
@@ -316,7 +316,7 @@ class RISC_V_ntt2normal_order_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_stepsize = 0.05
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3", "x12"]
         slothy.config.reserved_regs = r
         slothy.optimize_loop("ntt2normal_order_rvv_vlen128_loop")
 
