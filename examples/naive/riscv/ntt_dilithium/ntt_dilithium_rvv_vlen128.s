@@ -45,6 +45,7 @@
 #define _ZETA_EXP_INTT_4TO7_L7 (_ZETA_EXP_INTT_4TO7_L6 + 2 * 2)
 
 .macro save_regs
+  addi sp, sp, -8*15
   sd s0,  0*8(sp)
   sd s1,  1*8(sp)
   sd s2,  2*8(sp)
@@ -78,6 +79,7 @@
   ld gp,  12*8(sp)
   ld tp,  13*8(sp)
   ld ra,  14*8(sp)
+  addi sp, sp, 8*15
 .endm
 
 
@@ -925,7 +927,6 @@
 .globl ntt_rvv_vlen128
 .align 2
 ntt_rvv_vlen128:
-  addi sp, sp, -8*15
   save_regs
 start:
     vsetivli t2, 4, e32, m1, tu, mu
@@ -948,5 +949,4 @@ start:
         _ZETA_EXP_4TO7_P3_L6, _ZETA_EXP_4TO7_P3_L7
 end:
   restore_regs
-  addi sp, sp, 8*15
 ret
