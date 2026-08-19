@@ -153,6 +153,47 @@ class RISC_V_poly_reduce_rv64im(OptimizationRunner):
         slothy.config.outputs = ["x3"]
         slothy.optimize_loop("poly_reduce_rv64im_loop")
 
+class RISC_V_poly_reduce_rvv_vlen128(OptimizationRunner):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "dilithium_poly_reduce_rvv_vlen128"
+        infile = name
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+
+        super().__init__(
+            infile,
+            name,
+            subfolder=SUBFOLDER,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="poly_reduce_rvv_vlen128",
+            timeout=timeout,
+        )
+
+    def core(self, slothy):
+        import slothy.targets.riscv.xuantie_c908 as target_module
+
+        target_module.lmul = 8
+
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 32
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
+
+        r = slothy.config.reserved_regs
+        r += ["x3", "x13"]
+        slothy.config.reserved_regs = r
+        slothy.optimize_loop("poly_reduce_rvv_vlen128_loop")
+
 
 class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
@@ -232,4 +273,5 @@ example_instances = [
     # RVV
     RISC_V_poly_basemul_rvv_vlen128(),
     RISC_V_poly_basemul_acc_rvv_vlen128(),
+    RISC_V_poly_reduce_rvv_vlen128(),
 ]
