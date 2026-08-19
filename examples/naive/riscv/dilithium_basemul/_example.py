@@ -115,8 +115,10 @@ class RISC_V_poly_basemul_8l_acc_end_rv64im(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 32
         slothy.config.inputs_are_outputs = True
-        slothy.config.sw_pipelining.enabled = True
-
+        if self.var == "":
+            slothy.config.sw_pipelining.enabled = True
+        elif self.var == "dual":  # sw pipelining breaks due to dual use of gp
+            slothy.config.sw_pipelining.enabled = False
         r = slothy.config.reserved_regs
         r += ["x3"]
         slothy.config.reserved_regs = r

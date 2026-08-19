@@ -28,10 +28,49 @@
 .equ plantconst, 0x200801c0602            // (((-2**64) % q) * qinv) % (2**64)
 .equ plantconst2, 0xb7b9f10ccf939804      // (((-2**64) % q) * ((-2**64) % q) * qinv) % (2**64)
 
+.macro save_regs
+  addi sp, sp, -8*15
+  sd s0,  0*8(sp)
+  sd s1,  1*8(sp)
+  sd s2,  2*8(sp)
+  sd s3,  3*8(sp)
+  sd s4,  4*8(sp)
+  sd s5,  5*8(sp)
+  sd s6,  6*8(sp)
+  sd s7,  7*8(sp)
+  sd s8,  8*8(sp)
+  sd s9,  9*8(sp)
+  sd s10, 10*8(sp)
+  sd s11, 11*8(sp)
+  sd gp,  12*8(sp)
+  sd tp,  13*8(sp)
+  sd ra,  14*8(sp)
+.endm
+
+.macro restore_regs
+  ld s0,  0*8(sp)
+  ld s1,  1*8(sp)
+  ld s2,  2*8(sp)
+  ld s3,  3*8(sp)
+  ld s4,  4*8(sp)
+  ld s5,  5*8(sp)
+  ld s6,  6*8(sp)
+  ld s7,  7*8(sp)
+  ld s8,  8*8(sp)
+  ld s9,  9*8(sp)
+  ld s10, 10*8(sp)
+  ld s11, 11*8(sp)
+  ld gp,  12*8(sp)
+  ld tp,  13*8(sp)
+  ld ra,  14*8(sp)
+  addi sp, sp, 8*15
+.endm
+
 # void poly_reduce_rv64im(int32_t in[256]);
 .globl poly_reduce_rv64im_dual
 .align 2
 poly_reduce_rv64im_dual:
+    save_regs
     li a1, 4194304  # 1<<22
     li a2, q
     addi a3, a0, 64*4*4
@@ -62,4 +101,5 @@ poly_reduce_rv64im_loop:
     sw a7, 3*4(a0)
     addi a0, a0, 4*4
     bne a0, a3, poly_reduce_rv64im_loop
+    restore_regs
     ret
