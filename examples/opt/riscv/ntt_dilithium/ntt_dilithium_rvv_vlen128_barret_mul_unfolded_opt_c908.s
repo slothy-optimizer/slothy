@@ -230,7 +230,7 @@ roots:
     .global _ntt_dilithium_1234_5678
 .p2align 4
 
-.globl ntt_rvv_vlen128_barret_mul
+.globl ntt_rvv_vlen128_barret_mul_opt_c908
 ntt_rvv_vlen128_barret_mul_opt_c908:
 _ntt_rvv_vlen128_barret_mul_opt_c908:
     push_stack // save scalar regs here

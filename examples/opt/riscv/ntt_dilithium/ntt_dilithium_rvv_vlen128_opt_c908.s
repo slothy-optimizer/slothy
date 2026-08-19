@@ -1,3 +1,87 @@
+#define _ZETA_EXP_0TO3_L0 (0 * 2)
+#define _ZETA_EXP_0TO3_L1 (_ZETA_EXP_0TO3_L0 + 1 * 2)
+#define _ZETA_EXP_0TO3_L2 (_ZETA_EXP_0TO3_L1 + 2 * 2)
+#define _ZETA_EXP_0TO3_L3 (_ZETA_EXP_0TO3_L2 + 4 * 2)
+#define _ZETA_EXP_4TO7_P0_L4 (_ZETA_EXP_0TO3_L3 + 8 * 2)
+#define _ZETA_EXP_4TO7_P0_L5 (_ZETA_EXP_4TO7_P0_L4 + 4 * 2)
+#define _ZETA_EXP_4TO7_P0_L6 (_ZETA_EXP_4TO7_P0_L5 + 8 * 2)
+#define _ZETA_EXP_4TO7_P0_L7 (_ZETA_EXP_4TO7_P0_L6 + 16 * 2 * 2)
+#define _ZETA_EXP_4TO7_P1_L4 (_ZETA_EXP_4TO7_P0_L7 + 32 * 2)
+#define _ZETA_EXP_4TO7_P1_L5 (_ZETA_EXP_4TO7_P1_L4 + 4 * 2)
+#define _ZETA_EXP_4TO7_P1_L6 (_ZETA_EXP_4TO7_P1_L5 + 8 * 2)
+#define _ZETA_EXP_4TO7_P1_L7 (_ZETA_EXP_4TO7_P1_L6 + 16 * 2 * 2)
+#define _ZETA_EXP_4TO7_P2_L4 (_ZETA_EXP_4TO7_P1_L7 + 32 * 2)
+#define _ZETA_EXP_4TO7_P2_L5 (_ZETA_EXP_4TO7_P2_L4 + 4 * 2)
+#define _ZETA_EXP_4TO7_P2_L6 (_ZETA_EXP_4TO7_P2_L5 + 8 * 2)
+#define _ZETA_EXP_4TO7_P2_L7 (_ZETA_EXP_4TO7_P2_L6 + 16 * 2 * 2)
+#define _ZETA_EXP_4TO7_P3_L4 (_ZETA_EXP_4TO7_P2_L7 + 32 * 2)
+#define _ZETA_EXP_4TO7_P3_L5 (_ZETA_EXP_4TO7_P3_L4 + 4 * 2)
+#define _ZETA_EXP_4TO7_P3_L6 (_ZETA_EXP_4TO7_P3_L5 + 8 * 2)
+#define _ZETA_EXP_4TO7_P3_L7 (_ZETA_EXP_4TO7_P3_L6 + 16 * 2 * 2)
+#define _MASK_1100 (_ZETA_EXP_4TO7_P3_L7 + 32 * 2)
+#define _MASK_1010 (_MASK_1100 + 4)
+#define _MASK_0101 (_MASK_1010 + 4)
+#define _MASK_2323 (_MASK_0101 + 4)
+#define _MASK_1032 (_MASK_2323 + 4)
+#define _ZETA_EXP_INTT_0TO3_P0_L0 (_MASK_1032 + 4)
+#define _ZETA_EXP_INTT_0TO3_P0_L1 (_ZETA_EXP_INTT_0TO3_P0_L0 + 32 * 2)
+#define _ZETA_EXP_INTT_0TO3_P0_L2 (_ZETA_EXP_INTT_0TO3_P0_L1 + 16 * 2 * 2)
+#define _ZETA_EXP_INTT_0TO3_P0_L3 (_ZETA_EXP_INTT_0TO3_P0_L2 + 8 * 2)
+#define _ZETA_EXP_INTT_0TO3_P1_L0 (_ZETA_EXP_INTT_0TO3_P0_L3 + 4 * 2)
+#define _ZETA_EXP_INTT_0TO3_P1_L1 (_ZETA_EXP_INTT_0TO3_P1_L0 + 32 * 2)
+#define _ZETA_EXP_INTT_0TO3_P1_L2 (_ZETA_EXP_INTT_0TO3_P1_L1 + 16 * 2 * 2)
+#define _ZETA_EXP_INTT_0TO3_P1_L3 (_ZETA_EXP_INTT_0TO3_P1_L2 + 8 * 2)
+#define _ZETA_EXP_INTT_0TO3_P2_L0 (_ZETA_EXP_INTT_0TO3_P1_L3 + 4 * 2)
+#define _ZETA_EXP_INTT_0TO3_P2_L1 (_ZETA_EXP_INTT_0TO3_P2_L0 + 32 * 2)
+#define _ZETA_EXP_INTT_0TO3_P2_L2 (_ZETA_EXP_INTT_0TO3_P2_L1 + 16 * 2 * 2)
+#define _ZETA_EXP_INTT_0TO3_P2_L3 (_ZETA_EXP_INTT_0TO3_P2_L2 + 8 * 2)
+#define _ZETA_EXP_INTT_0TO3_P3_L0 (_ZETA_EXP_INTT_0TO3_P2_L3 + 4 * 2)
+#define _ZETA_EXP_INTT_0TO3_P3_L1 (_ZETA_EXP_INTT_0TO3_P3_L0 + 32 * 2)
+#define _ZETA_EXP_INTT_0TO3_P3_L2 (_ZETA_EXP_INTT_0TO3_P3_L1 + 16 * 2 * 2)
+#define _ZETA_EXP_INTT_0TO3_P3_L3 (_ZETA_EXP_INTT_0TO3_P3_L2 + 8 * 2)
+#define _ZETA_EXP_INTT_4TO7_L4 (_ZETA_EXP_INTT_0TO3_P3_L3 + 4 * 2)
+#define _ZETA_EXP_INTT_4TO7_L5 (_ZETA_EXP_INTT_4TO7_L4 + 8 * 2)
+#define _ZETA_EXP_INTT_4TO7_L6 (_ZETA_EXP_INTT_4TO7_L5 + 4 * 2)
+#define _ZETA_EXP_INTT_4TO7_L7 (_ZETA_EXP_INTT_4TO7_L6 + 2 * 2)
+
+.macro save_regs
+  sd s0,  0*8(sp)
+  sd s1,  1*8(sp)
+  sd s2,  2*8(sp)
+  sd s3,  3*8(sp)
+  sd s4,  4*8(sp)
+  sd s5,  5*8(sp)
+  sd s6,  6*8(sp)
+  sd s7,  7*8(sp)
+  sd s8,  8*8(sp)
+  sd s9,  9*8(sp)
+  sd s10, 10*8(sp)
+  sd s11, 11*8(sp)
+  sd gp,  12*8(sp)
+  sd tp,  13*8(sp)
+  sd ra,  14*8(sp)
+.endm
+
+.macro restore_regs
+  ld s0,  0*8(sp)
+  ld s1,  1*8(sp)
+  ld s2,  2*8(sp)
+  ld s3,  3*8(sp)
+  ld s4,  4*8(sp)
+  ld s5,  5*8(sp)
+  ld s6,  6*8(sp)
+  ld s7,  7*8(sp)
+  ld s8,  8*8(sp)
+  ld s9,  9*8(sp)
+  ld s10, 10*8(sp)
+  ld s11, 11*8(sp)
+  ld gp,  12*8(sp)
+  ld tp,  13*8(sp)
+  ld ra,  14*8(sp)
+.endm
+
+
+
 // [a0,a1,a2,a3]+[a4,a5,a6,a7] -> [a0,a1,a4,a5]+[a2,a3,a6,a7]
 // related masks are ready for using
 // v0: _MASK_1100, vm0/vm1: _MASK_0101/_MASK_2323
@@ -683,9 +767,11 @@
 // inv256qinv <- low(inv256*qinv)
 .equ inv256qinv, 4286571514
 
-.globl ntt_rvv_vlen128
+.globl ntt_rvv_vlen128_opt_c908
 .align 2
 ntt_rvv_vlen128_opt_c908:
+  addi sp, sp, -8*15
+  save_regs
         start:
                                                       // Instructions:    2406
                                                       // Expected cycles: 1203
@@ -5513,4 +5599,6 @@ ntt_rvv_vlen128_opt_c908:
 
         end:
 
+  restore_regs
+  addi sp, sp, 8*15
 ret

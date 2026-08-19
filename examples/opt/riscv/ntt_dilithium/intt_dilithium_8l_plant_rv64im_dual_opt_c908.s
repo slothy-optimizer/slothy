@@ -559,9 +559,9 @@
 // s0-s11, a2-a5: 16 coeffs;
 // 16+2+1+1=20 regs;
 // 8 twiddle factors: can be preloaded; t0-t6, tp; ra: tmp zeta.
-.global intt_dilithium_8l_plant_rv64im_opt_c908_dual
+.global intt_dilithium_8l_plant_rv64im_dual_opt_c908
 .align 2
-intt_dilithium_8l_plant_rv64im_dual:
+intt_dilithium_8l_plant_rv64im_dual_opt_c908:
   addi sp, sp, -8*16
   save_regs
   li a6, q32
