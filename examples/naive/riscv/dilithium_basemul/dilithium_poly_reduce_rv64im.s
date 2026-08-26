@@ -75,10 +75,10 @@ poly_reduce_rv64im:
     li a2, q
     addi a3, a0, 64*4*4
 poly_reduce_rv64im_loop:
-    lw a4, 0*4(a0)  // @slothy:reads=mem
-    lw a5, 1*4(a0)  // @slothy:reads=mem
-    lw a6, 2*4(a0)  // @slothy:reads=mem
-    lw a7, 3*4(a0)  // @slothy:reads=mem
+    lw a4, 0*4(a0)  // @slothy:reads=mem0
+    lw a5, 1*4(a0)  // @slothy:reads=mem1
+    lw a6, 2*4(a0)  // @slothy:reads=mem2
+    lw a7, 3*4(a0)  // @slothy:reads=mem3
     add  t0, a4, a1
     add  t1, a5, a1
     add  t2, a6, a1
@@ -95,10 +95,10 @@ poly_reduce_rv64im_loop:
     sub  a5, a5, t1
     sub  a6, a6, t2
     sub  a7, a7, t3
-    sw a4, 0*4(a0)  // @slothy:writes=mem
-    sw a5, 1*4(a0)  // @slothy:writes=mem
-    sw a6, 2*4(a0)  // @slothy:writes=mem
-    sw a7, 3*4(a0)  // @slothy:writes=mem
+    sw a4, 0*4(a0)  // @slothy:writes=mem0
+    sw a5, 1*4(a0)  // @slothy:writes=mem1
+    sw a6, 2*4(a0)  // @slothy:writes=mem2
+    sw a7, 3*4(a0)  // @slothy:writes=mem3
     addi a0, a0, 4*4
     bne a0, a3, poly_reduce_rv64im_loop
     restore_regs
