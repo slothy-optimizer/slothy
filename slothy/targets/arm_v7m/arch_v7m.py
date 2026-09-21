@@ -1452,6 +1452,19 @@ class movt_imm(Armv7mBasicArithmetic):
     in_outs = ["Rd"]
 
 
+class mov(Armv7mBasicArithmetic):
+    pattern = "mov<width> <Rd>, <Ra>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+
+
+class movs(Armv7mBasicArithmetic):
+    pattern = "movs<width> <Rd>, <Ra>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+    modifiesFlags = True
+
+
 # Addition
 class add(Armv7mBasicArithmetic):
     pattern = "add<width> <Rd>, <Ra>, <Rb>"
@@ -1692,6 +1705,17 @@ class log_and_shifted(Armv7mShiftedLogical):
     outputs = ["Rd"]
 
 
+class log_and_imm(Armv7mLogical):
+    pattern = "and<width> <Rd>, <Ra>, <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+
+
+class log_and_imm_short(Armv7mLogical):
+    pattern = "and<width> <Rd>, <imm>"
+    in_outs = ["Rd"]
+
+
 class log_or(Armv7mLogical):
     pattern = "orr<width> <Rd>, <Ra>, <Rb>"
     inputs = ["Ra", "Rb"]
@@ -1765,6 +1789,21 @@ class ubfx_imm(Armv7mLogical):
     outputs = ["Rd"]
 
 
+# bfi and bfc PRESERVE the bits of Rd outside the inserted/cleared field, so Rd
+# is both an input and an output. Declaring it as `outputs` only would let the
+# scheduler treat the previous value of Rd as dead and move the instruction
+# across its producer.
+class bfi(Armv7mLogical):
+    pattern = "bfi<width> <Rd>, <Ra>, <imm0>, <imm1>"
+    inputs = ["Ra"]
+    in_outs = ["Rd"]
+
+
+class bfc(Armv7mLogical):
+    pattern = "bfc<width> <Rd>, <imm0>, <imm1>"
+    in_outs = ["Rd"]
+
+
 class ror(Armv7mLogical):
     pattern = "ror<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
@@ -1784,6 +1823,12 @@ class rors_short(Armv7mLogical):
 
 class lsl(Armv7mLogical):
     pattern = "lsl<width> <Rd>, <Ra>, <imm>"
+    inputs = ["Ra"]
+    outputs = ["Rd"]
+
+
+class lsr(Armv7mLogical):
+    pattern = "lsr<width> <Rd>, <Ra>, <imm>"
     inputs = ["Ra"]
     outputs = ["Rd"]
 

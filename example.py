@@ -62,6 +62,9 @@ from examples.naive.armv7m.keccak._example import (
 from examples.naive.armv7m.kyber._example import (
     example_instances as example_instances_armv7m_kyber,
 )
+from examples.naive.armv7m.bitinterleaving._example import (
+    example_instances as example_instances_armv7m_bitinterleaving,
+)
 
 from examples.naive.armv8m.kyber._example import (
     example_instances as example_instances_armv8m_kyber,
@@ -111,6 +114,7 @@ def main():
         example_instances_armv7m_dilithium
         + example_instances_armv7m_keccak
         + example_instances_armv7m_kyber
+        + example_instances_armv7m_bitinterleaving
         + example_instances_armv8m_crt
         + example_instances_aarch64_dilithium
         + example_instances_aarch64_kyber
