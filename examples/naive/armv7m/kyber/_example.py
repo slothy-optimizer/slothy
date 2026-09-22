@@ -31,6 +31,7 @@ import os
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
+import slothy.targets.arm_v7m.cortex_m33 as Target_CortexM33
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
 
@@ -882,4 +883,13 @@ example_instances = [
     matacc_asm_cache_16_32_kyber(),
     matacc_asm_cache_32_32_kyber(),
     matacc_asm_cache_32_16_kyber(),
+    # Cortex-M33. These seven are the kernels the M33 model was validated
+    # against: predicted cycles versus measured, on a RP2350 at 150 MHz.
+    ntt_kyber(target=Target_CortexM33),
+    intt_kyber(target=Target_CortexM33),
+    add_kyber(target=Target_CortexM33),
+    sub_kyber(target=Target_CortexM33),
+    barrett_reduce_kyber(target=Target_CortexM33),
+    fromplant_kyber(target=Target_CortexM33),
+    basemul_kyber(target=Target_CortexM33),
 ]

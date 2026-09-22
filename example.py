@@ -30,6 +30,7 @@ import argparse
 from common.OptimizationRunner import OptimizationRunnerException
 
 import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
+import slothy.targets.arm_v7m.cortex_m33 as Target_CortexM33
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
@@ -159,6 +160,7 @@ def main():
         type=str,
         choices=[
             Target_CortexM7.__name__,
+            Target_CortexM33.__name__,
             Target_CortexM55r1.__name__,
             Target_CortexM85r1.__name__,
             Target_CortexA55.__name__,
