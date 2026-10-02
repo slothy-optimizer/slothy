@@ -30,6 +30,7 @@ import argparse
 from common.OptimizationRunner import OptimizationRunnerException
 
 import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
+import slothy.targets.arm_v7m.cortex_m33 as Target_CortexM33
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
@@ -61,6 +62,9 @@ from examples.naive.armv7m.keccak._example import (
 )
 from examples.naive.armv7m.kyber._example import (
     example_instances as example_instances_armv7m_kyber,
+)
+from examples.naive.armv7m.bitinterleaving._example import (
+    example_instances as example_instances_armv7m_bitinterleaving,
 )
 
 from examples.naive.armv8m.kyber._example import (
@@ -111,6 +115,7 @@ def main():
         example_instances_armv7m_dilithium
         + example_instances_armv7m_keccak
         + example_instances_armv7m_kyber
+        + example_instances_armv7m_bitinterleaving
         + example_instances_armv8m_crt
         + example_instances_aarch64_dilithium
         + example_instances_aarch64_kyber
@@ -155,6 +160,7 @@ def main():
         type=str,
         choices=[
             Target_CortexM7.__name__,
+            Target_CortexM33.__name__,
             Target_CortexM55r1.__name__,
             Target_CortexM85r1.__name__,
             Target_CortexA55.__name__,

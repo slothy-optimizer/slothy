@@ -34,6 +34,7 @@ from slothy import Slothy
 import slothy.targets.arm_v7m.arch_v7m as Arch_Armv7M
 import slothy.targets.arm_v81m.arch_v81m as Arch_Armv81M
 import slothy.targets.arm_v7m.cortex_m7 as Target_CortexM7
+import slothy.targets.arm_v7m.cortex_m33 as Target_CortexM33
 import slothy.targets.arm_v81m.cortex_m55r1 as Target_CortexM55r1
 import slothy.targets.arm_v81m.cortex_m85r1 as Target_CortexM85r1
 
@@ -53,6 +54,7 @@ target_label_dict = {
     Target_CortexA72: "a72",
     Target_NeoverseN1: "neoverse_n1",
     Target_CortexM7: "m7",
+    Target_CortexM33: "m33",
     Target_CortexM55r1: "m55",
     Target_CortexM85r1: "m85",
     Target_AppleM1_firestorm: "m1_firestorm",

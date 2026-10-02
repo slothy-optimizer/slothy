@@ -140,6 +140,30 @@ class Armv7mLoopLabels(OptimizationRunner):
         slothy.optimize_loop("1", forced_loop_type=Arch_Armv7M.SubsLoop)
 
 
+class Armv7mBitfield(OptimizationRunner):
+    """Bitfield, immediate-AND and register-move classes.
+
+    The selftest is what makes this test worth having: it assembles and runs
+    both the original and the scheduled code and compares the results, so a
+    wrong read-modify-write declaration on `bfi` or `bfc` shows up as a
+    different answer rather than passing quietly.
+    """
+
+    def __init__(self, var="", arch=Arch_Armv7M, target=Target_CortexM7):
+        name = "armv7m_bitfield"
+        infile = name
+
+        super().__init__(
+            infile, name, rename=True, arch=arch, target=target, base_dir="tests"
+        )
+
+    def core(self, slothy):
+        slothy.config.variable_size = True
+        slothy.config.inputs_are_outputs = True
+        slothy.optimize(start="start", end="end")
+        slothy.global_selftest("bitfield_func", {"r0": 1024})
+
+
 test_instances = [
     Armv7mLoopSubs(),
     Armv7mLoopCmp(),
@@ -148,4 +172,5 @@ test_instances = [
     Armv7mExample0(),
     Armv7mExample0Func(),
     Armv7mLoopLabels(),
+    Armv7mBitfield(),
 ]
