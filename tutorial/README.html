@@ -356,12 +356,12 @@ To reproduce the example above, you can place the following code into your own P
 <span class="n">slothy</span> <span class="o">=</span> <span class="n">Slothy</span><span class="p">(</span><span class="n">arch</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
 
 <span class="c1"># example</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;tests/naive/aarch64/aarch64_simple0.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">"tests/naive/aarch64/aarch64_simple0.s"</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
 
 <span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/aarch64_simple0_a55.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">"opt/aarch64_simple0_a55.s"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You will need to pass to SLOTHY both the architecture model (containing the instruction mnemonics and which registers
@@ -444,12 +444,12 @@ directives</a>.</p>
 <p>SLOTHY will then internally expand all macros and the resulting DFG will be exactly the same as before.
 To make this work, we have to slightly change the SLOTHY code:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># example</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../tests/naive/aarch64/aarch64_simple0_macros.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">"../tests/naive/aarch64/aarch64_simple0_macros.s"</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
 
-<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;end&quot;</span><span class="p">)</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/aarch64_simple0_macros_a55.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">"start"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"end"</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">"opt/aarch64_simple0_macros_a55.s"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The difference is that, we have to explicitly pass <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> labels to SLOTHY.
@@ -499,15 +499,15 @@ Consider the simple case of performing the code from the previous example within
 </pre></div>
 </div>
 <p>Let’s use SLOTHY to superoptimize this loop:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;tests/naive/aarch64/aarch64_simple0_loop.s&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">"tests/naive/aarch64/aarch64_simple0_loop.s"</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
 
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">optimize_preamble</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">optimize_postamble</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/aarch64_simple0_loop_a55.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">"start"</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">"opt/aarch64_simple0_loop_a55.s"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Software pipelining needs to be enabled by setting <code class="docutils literal notranslate"><span class="pre">slothy.config.sw_pipelining.enabled</span> <span class="pre">=</span> <span class="pre">True</span></code>.
@@ -643,7 +643,7 @@ refinement of microarchitectural models.</p>
 Analyzer</a>. If you have <code class="docutils literal notranslate"><span class="pre">llvm-mca</span></code> available in your PATH (you may have
 to compile LLVM &gt;= 18 yourself), you can make use of it in SLOTHY by setting the <code class="docutils literal notranslate"><span class="pre">with_llvm_mca</span></code> flag.
 Let’s look at the last example and enable LLVM MCA:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../examples/naive/aarch64/aarch64_simple0_loop.s&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">"../examples/naive/aarch64/aarch64_simple0_loop.s"</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span><span class="o">=</span><span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span><span class="o">=</span><span class="mi">32</span>
 
@@ -651,8 +651,8 @@ Let’s look at the last example and enable LLVM MCA:</p>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">optimize_preamble</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">optimize_postamble</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">with_llvm_mca</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;./aarch64_simple0_loop_mca_a55.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">"start"</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">"./aarch64_simple0_loop_mca_a55.s"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This will call LLVM MCA on both the original code and the optimized code and append the LLVM MCA statistics as a comment to the output.
@@ -883,16 +883,16 @@ The code consists of 2 main loops implementing layers 1+2+3 and 4+5+6+7 of the N
 The actual operations are wrapped in macros implementing butterflies on single vector registers.
 Note that this code performs very poorly: No consideration was given to the intricacies of the microarchitecture.</p>
 <p>Let’s run SLOTHY on this code:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;examples/naive/aarch64/kyber/ntt_kyber_123_4567.s&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">"examples/naive/aarch64/kyber/ntt_kyber_123_4567.s"</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">inputs_are_outputs</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sw_pipelining</span><span class="o">.</span><span class="n">minimize_overlapping</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">variable_size</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">reserved_regs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;x</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;x30&quot;</span><span class="p">,</span> <span class="s2">&quot;sp&quot;</span><span class="p">]</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">reserved_regs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"x</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"x30"</span><span class="p">,</span> <span class="s2">"sp"</span><span class="p">]</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">stalls_first_attempt</span> <span class="o">=</span> <span class="mi">64</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">&quot;layer123_start&quot;</span><span class="p">)</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">&quot;layer4567_start&quot;</span><span class="p">)</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/ntt_kyber_123_4567_opt_a55.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">"layer123_start"</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize_loop</span><span class="p">(</span><span class="s2">"layer4567_start"</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">"opt/ntt_kyber_123_4567_opt_a55.s"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We simply optimize both loops separately.
@@ -925,14 +925,14 @@ With this approach one loses the optimality guarantees as it may be that there i
 However, by repeatedly running SLOTHY using the <code class="docutils literal notranslate"><span class="pre">splitting</span></code> heuristic, we managed to outperform the state-of-the-art and get very close to optimal results (in terms of IPC).</p>
 <p>To demonstrate the splitting heuristic we can use the following SLOTHY call:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># example</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">&quot;../examples/naive/aarch64/x25519/X25519-AArch64-simple.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">load_source_from_file</span><span class="p">(</span><span class="s2">"../examples/naive/aarch64/x25519/X25519-AArch64-simple.s"</span><span class="p">)</span>
 
 <span class="c1"># first pass: replace symbolic register names by architectural registers</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">inputs_are_outputs</span><span class="o">=</span><span class="kc">True</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x0&quot;</span><span class="p">]</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="s2">"x0"</span><span class="p">]</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">functional_only</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">allow_reordering</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;mainloop&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;end_label&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">"mainloop"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"end_label"</span><span class="p">)</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">functional_only</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">allow_reordering</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -944,8 +944,8 @@ However, by repeatedly running SLOTHY using the <code class="docutils literal no
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">split_heuristic_factor</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">split_heuristic_repeat</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">slothy</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">split_heuristic_estimate_performance</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;mainloop&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;end_label&quot;</span><span class="p">)</span>
-<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">&quot;opt/X25519-AArch64-simple_opt.s&quot;</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">"mainloop"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"end_label"</span><span class="p">)</span>
+<span class="n">slothy</span><span class="o">.</span><span class="n">write_source_to_file</span><span class="p">(</span><span class="s2">"opt/X25519-AArch64-simple_opt.s"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">splitting</span></code> heuristic can be turned on by setting <code class="docutils literal notranslate"><span class="pre">slothy.config.split_heuristic</span> <span class="pre">=</span> <span class="pre">True</span></code>.
@@ -978,7 +978,7 @@ To understand what is needed for that, let’s look at the microarchitectural mo
 
 <span class="n">issue_rate</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExecutionUnit</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of execution units in Cortex-A55 model&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Enumeration of execution units in Cortex-A55 model"""</span>
     <span class="n">SCALAR_ALU0</span><span class="o">=</span><span class="mi">1</span>
     <span class="n">SCALAR_ALU1</span><span class="o">=</span><span class="mi">2</span>
     <span class="n">SCALAR_MAC</span><span class="o">=</span><span class="mi">3</span>

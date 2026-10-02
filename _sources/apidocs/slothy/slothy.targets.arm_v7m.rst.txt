@@ -13,6 +13,6 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
-   slothy.targets.arm_v7m.arch_v7m
    slothy.targets.arm_v7m.cortex_m7
+   slothy.targets.arm_v7m.arch_v7m
    slothy.targets.arm_v7m.cortex_m4
