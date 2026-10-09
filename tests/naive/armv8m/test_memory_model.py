@@ -26,8 +26,32 @@
 from dataclasses import dataclass
 from types import SimpleNamespace
 
-from slothy.targets.arm_v81m.arch_v81m import eor, ldr, ldrd, qrestore, qsave
-from slothy.targets.arm_v81m.arch_v81m import str_reg, strd
+from slothy.targets.arm_v81m.arch_v81m import (
+    adc_shifted,
+    add_shifted,
+    bic_shifted,
+    cmn_shifted,
+    cmp_reg,
+    cmp_shifted,
+    eor,
+    eor_shifted,
+    ldr,
+    ldrd,
+    log_and_shifted,
+    mvn_shifted,
+    orn_shifted,
+    orr_shifted,
+    qrestore,
+    qsave,
+    ror_short,
+    rsb_shifted,
+    sbc_shifted,
+    str_reg,
+    strd,
+    sub_shifted,
+    teq_shifted,
+    tst_shifted,
+)
 from slothy.targets.arm_v81m.cortex_m55r1 import (
     ExecutionUnit,
     add_further_constraints,
@@ -133,6 +157,33 @@ def _consumer():
     return eor.make("eor r4, r5, r6")
 
 
+_SHIFTED_CONSUMER_FORMS = [
+    (adc_shifted, "adc r4, {rn}, {rm}, ror #13"),
+    (add_shifted, "add r4, {rn}, {rm}, ror #13"),
+    (log_and_shifted, "and r4, {rn}, {rm}, ror #13"),
+    (bic_shifted, "bic r4, {rn}, {rm}, ror #13"),
+    (cmn_shifted, "cmn {rn}, {rm}, ror #13"),
+    (cmp_shifted, "cmp {rn}, {rm}, ror #13"),
+    (eor_shifted, "eor r4, {rn}, {rm}, ror #13"),
+    (mvn_shifted, "mvn r4, {rm}, ror #13"),
+    (orn_shifted, "orn r4, {rn}, {rm}, ror #13"),
+    (orr_shifted, "orr r4, {rn}, {rm}, ror #13"),
+    (rsb_shifted, "rsb r4, {rn}, {rm}, ror #13"),
+    (sbc_shifted, "sbc r4, {rn}, {rm}, ror #13"),
+    (sub_shifted, "sub r4, {rn}, {rm}, ror #13"),
+    (teq_shifted, "teq {rn}, {rm}, ror #13"),
+    (tst_shifted, "tst {rn}, {rm}, ror #13"),
+]
+
+
+def _shifted_consumers(rn="r5", rm="r1", include_unary=True):
+    return [
+        instruction_class.make(form.format(rn=rn, rm=rm))
+        for instruction_class, form in _SHIFTED_CONSUMER_FORMS
+        if include_unary or "{rn}" in form
+    ]
+
+
 def _scalar_str_ldr_pair(base, store_imm=0, load_imm=16):
     parse_base = "r13" if base == "sp" else base
     store = str_reg.make(f"str r2, [{parse_base}, #{store_imm}]")
@@ -182,6 +233,53 @@ def test_scalar_str_model():
     assert get_units(inst) == [ExecutionUnit.STORE]
     assert get_inverse_throughput(inst) == 1
     assert get_latency(inst, 0, _consumer()) == 1
+
+
+def test_shifted_operand_instruction_model():
+    for instruction in _shifted_consumers():
+        assert get_units(instruction) == [ExecutionUnit.SCALAR]
+        assert get_inverse_throughput(instruction) == 1
+        assert get_latency(instruction, 0, _consumer()) == 2
+
+
+def test_shifted_source_operand_needs_extra_cycle():
+    producer = eor.make("eor r1, r2, r3")
+
+    for consumer in _shifted_consumers():
+        assert get_latency(producer, 0, consumer) == 2
+
+
+def test_unshifted_source_operand_keeps_default_latency():
+    producer = eor.make("eor r1, r2, r3")
+
+    for consumer in _shifted_consumers(rn="r1", rm="r5", include_unary=False):
+        assert get_latency(producer, 0, consumer) == 1
+
+
+def test_shifted_latency_uses_the_selected_producer_output():
+    producer = ldrd.make("ldrd r0, r1, [r2, #16]")
+    consumer = eor_shifted.make("eor r4, r5, r1, ror #13")
+
+    assert get_latency(producer, 0, consumer) == 2
+    assert get_latency(producer, 1, consumer) == 3
+
+
+def test_in_out_producer_feeding_shifted_source_gets_extra_cycle():
+    producer = ror_short.make("ror r1, #10")
+    consumer = eor_shifted.make("eor r4, r5, r1, ror #13")
+
+    assert get_latency(producer, 0, consumer) == 2
+
+
+def test_flag_dependency_is_not_treated_as_shifted_register_dependency():
+    producer = cmp_reg.make("cmp r0, r1")
+    consumers = [
+        adc_shifted.make("adc r4, r5, r6, ror #13"),
+        sbc_shifted.make("sbc r4, r5, r6, ror #13"),
+    ]
+
+    for consumer in consumers:
+        assert get_latency(producer, 0, consumer) == 1
 
 
 def test_dtcm_bank_uses_address_bits_3_2():
@@ -247,6 +345,12 @@ def run_memory_model_tests():
     test_ldrd_model()
     test_strd_model()
     test_scalar_str_model()
+    test_shifted_operand_instruction_model()
+    test_shifted_source_operand_needs_extra_cycle()
+    test_unshifted_source_operand_keeps_default_latency()
+    test_shifted_latency_uses_the_selected_producer_output()
+    test_in_out_producer_feeding_shifted_source_gets_extra_cycle()
+    test_flag_dependency_is_not_treated_as_shifted_register_dependency()
     test_dtcm_bank_uses_address_bits_3_2()
     test_same_base_same_bank_scalar_str_ldr_adds_forbidden_distance()
     test_same_base_different_bank_scalar_str_ldr_has_no_model_hazard()

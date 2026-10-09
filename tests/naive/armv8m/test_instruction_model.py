@@ -178,6 +178,92 @@ def test_armv7m_width_suffix_and_expression_forms_parse():
     assert insts[2].write() == "eor.w r3, r3, r5"
 
 
+def test_flexible_shifted_operand2_forms_parse_and_round_trip():
+    cases = [
+        ("add.w r0, r1, r2, ror #7", Arch.add_shifted),
+        ("adc.w r0, r1, r2, ror #7", Arch.adc_shifted),
+        ("and.w r0, r1, r2, ror #7", Arch.log_and_shifted),
+        ("orr.w r0, r1, r2, ror #7", Arch.orr_shifted),
+        ("orn.w r0, r1, r2, ror #7", Arch.orn_shifted),
+        ("eor.w r0, r1, r2, ror #7", Arch.eor_shifted),
+        ("bic.w r0, r1, r2, ror #7", Arch.bic_shifted),
+        ("cmn.w r1, r2, ror #7", Arch.cmn_shifted),
+        ("cmp.w r1, r2, ror #7", Arch.cmp_shifted),
+        ("mvn.w r0, r2, ror #7", Arch.mvn_shifted),
+        ("rsb.w r0, r1, r2, ror #7", Arch.rsb_shifted),
+        ("sbc.w r0, r1, r2, ror #7", Arch.sbc_shifted),
+        ("sub.w r0, r1, r2, ror #7", Arch.sub_shifted),
+        ("teq.w r1, r2, ror #7", Arch.teq_shifted),
+        ("tst.w r1, r2, ror #7", Arch.tst_shifted),
+    ]
+
+    for source, expected_class in cases:
+        inst = Arch.Instruction.parser(SourceLine(source))[0]
+        assert type(inst) is expected_class
+        assert isinstance(inst, Arch.ShiftedOperandInstruction)
+        assert inst.shifted_register == "r2"
+        assert inst.width == ".w"
+        assert inst.write() == source
+
+        round_trip = Arch.Instruction.parser(SourceLine(inst.write()))[0]
+        assert type(round_trip) is expected_class
+        assert round_trip.shifted_register == "r2"
+        assert round_trip.width == ".w"
+
+
+def test_flexible_shifted_operand2_flag_semantics():
+    adc = Arch.adc_shifted.make("adc.w r0, r1, r2, lsl #3")
+    sbc = Arch.sbc_shifted.make("sbc.w r0, r1, r2, lsr #3")
+
+    for inst in [adc, sbc]:
+        assert inst.args_in == ["r1", "r2", "flags"]
+        assert inst.arg_types_in == [
+            Arch.RegisterType.GPR,
+            Arch.RegisterType.GPR,
+            Arch.RegisterType.FLAGS,
+        ]
+        assert inst.args_out == ["r0"]
+        assert inst.shifted_register == "r2"
+
+    for instruction_class, mnemonic in [
+        (Arch.cmn_shifted, "cmn"),
+        (Arch.cmp_shifted, "cmp"),
+        (Arch.teq_shifted, "teq"),
+        (Arch.tst_shifted, "tst"),
+    ]:
+        inst = instruction_class.make(f"{mnemonic}.w r1, r2, asr #3")
+        assert inst.args_in == ["r1", "r2"]
+        assert inst.args_out == ["flags"]
+        assert inst.arg_types_out == [Arch.RegisterType.FLAGS]
+        assert inst.shifted_register == "r2"
+
+    mvn = Arch.mvn_shifted.make("mvn.w r0, r2, ror #3")
+    assert mvn.args_in == ["r2"]
+    assert mvn.args_out == ["r0"]
+    assert mvn.shifted_register == "r2"
+
+
+def test_shifted_adc_and_sbc_consume_without_replacing_flags():
+    graph = _graph(
+        """
+        cmp r7, r8
+        adc.w r0, r1, r2, lsl #3
+        sbc.w r3, r4, r5, lsr #3
+        """,
+        outputs=["r0", "r3"],
+        allow_useless=False,
+    )
+
+    compare, adc, sbc = graph.nodes
+    assert adc.src_in[2].src is compare
+    assert sbc.src_in[2].src is compare
+
+
+def test_pkhbt_is_not_a_flexible_operand2_instruction():
+    inst = Arch.pkhbt_shifted.make("pkhbt r0, r1, r2, lsl #16")
+    assert not isinstance(inst, Arch.ShiftedOperandInstruction)
+
+
 def run_instruction_model_tests():
     test_adjacent_vmov_pair_rewrites_first_only()
     test_vmov_pair_rewrites_across_intervening_unrelated_instruction()
@@ -187,6 +273,10 @@ def run_instruction_model_tests():
     test_flags_can_be_declared_as_region_output()
     test_issue_419_reproducer_forms_parse()
     test_armv7m_width_suffix_and_expression_forms_parse()
+    test_flexible_shifted_operand2_forms_parse_and_round_trip()
+    test_flexible_shifted_operand2_flag_semantics()
+    test_shifted_adc_and_sbc_consume_without_replacing_flags()
+    test_pkhbt_is_not_a_flexible_operand2_instruction()
 
 
 if __name__ == "__main__":

@@ -440,6 +440,21 @@ cmp r0, r1
 cmp r0, #2
 cmp r7, #0xFF
 
+adc.w r0, r1, r2, lsl #1
+add.w r0, r1, r2, lsl #1
+and.w r0, r1, r2, lsl #1
+bic.w r0, r1, r2, lsl #1
+cmn.w r1, r2, lsl #1
+cmp.w r1, r2, lsl #1
+eor.w r0, r1, r2, lsl #1
+mvn.w r0, r2, lsl #1
+orn.w r0, r1, r2, lsl #1
+orr.w r0, r1, r2, lsl #1
+rsb.w r0, r1, r2, lsl #1
+sbc.w r0, r1, r2, lsl #1
+sub.w r0, r1, r2, lsl #1
+teq.w r1, r2, lsl #1
+tst.w r1, r2, lsl #1
 
 
 ldrb r0, [r0, #16]
