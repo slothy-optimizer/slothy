@@ -13,4 +13,3 @@ sphinx_mdinclude ; python_version >= "3.11"
 myst_parser ; python_version >= "3.11"
 sphinx-autobuild ; python_version >= "3.11"
 sphinx-autodoc2 ; python_version >= "3.11"
-
