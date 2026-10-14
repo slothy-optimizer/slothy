@@ -67,9 +67,9 @@
 .endm
 
 # void poly_reduce_rv64im(int32_t in[256]);
-.globl poly_reduce_rv64im_opt_c908_dual
+.globl poly_reduce_rv64im_dual_opt_c908
 .align 2
-poly_reduce_rv64im_dual:
+poly_reduce_rv64im_dual_opt_c908:
     save_regs
     li a1, 4194304  # 1<<22
     li a2, q
