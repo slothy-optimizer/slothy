@@ -81,7 +81,7 @@ class RISC_V_ntt_dualissue_plant_rv64im(OptimizationRunner):
 
         # software pipelining breaks the code due to dual use of gp as loop cnt and tmp reg
         slothy.config.split_heuristic = True
-        slothy.config.split_heuristic_factor = 23
+        slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
         # slothy.config.split_heuristic_factor = 10
