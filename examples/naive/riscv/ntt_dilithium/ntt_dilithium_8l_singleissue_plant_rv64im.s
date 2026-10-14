@@ -238,6 +238,7 @@ ntt_8l_rv64im:
     ct_bfu s10, s11, a7, a6, a7
     ld a7, 13*8(a1)
     ct_bfu a2,  a3,  a7, a6, a7
+
     ld a7, 14*8(a1)
     ct_bfu a4,  a5,  a7, a6, a7
 
