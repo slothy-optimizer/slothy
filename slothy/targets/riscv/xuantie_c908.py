@@ -577,6 +577,10 @@ default_latencies = {
     RISCVLiPseudo: 1,  # Pseudo-instruction
     RISCVULaPseudo: 1,  # Pseudo-instruction
     RISCVBranch: 3,  # guessed but also not important
+    # Specific vector entries must precede the generic vector classes below,
+    # as lookup_multidict returns the first match.
+    RISCVInstruction.classes_by_names["vrgather.vv"]: 5,  # measured on K230 (e16, m1)
+    RISCVInstruction.classes_by_names["vrgatherei16.vv"]: 5,  # assumed same as vrgather.vv
     RISCVVectorIntegerVectorImmediate: 4,
     RISCVVectorIntegerVectorScalar: 4,
     RISCVVectorIntegerVectorVector: 4,
