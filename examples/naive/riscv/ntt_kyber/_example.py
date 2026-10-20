@@ -165,12 +165,9 @@ class RISC_V_intt_singleissue_plant_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        # slothy.config.split_heuristic_factor = 5
-        # slothy.config.split_heuristic_repeat = 2
-        # slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.split_heuristic_factor = 10
-        slothy.config.split_heuristic_repeat = 1
-        slothy.config.split_heuristic_stepsize = 0.3
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
         slothy.optimize_loop("intt_rv64im_loop1")
         slothy.optimize_loop("intt_rv64im_loop2")
 
@@ -208,12 +205,9 @@ class RISC_V_intt_dualissue_plant_rv64im(OptimizationRunner):
         slothy.config.sw_pipelining.enabled = True
         slothy.config.sw_pipelining.halving_heuristic = True
         slothy.config.split_heuristic = True
-        # slothy.config.split_heuristic_factor = 5
-        # slothy.config.split_heuristic_repeat = 2
-        # slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.split_heuristic_factor = 10
-        slothy.config.split_heuristic_repeat = 1
-        slothy.config.split_heuristic_stepsize = 0.3
+        slothy.config.split_heuristic_factor = 5
+        slothy.config.split_heuristic_repeat = 2
+        slothy.config.split_heuristic_stepsize = 0.05
         slothy.optimize_loop("intt_rv64im_loop1")
         slothy.optimize_loop("intt_rv64im_loop2")
 
@@ -397,9 +391,9 @@ class RISC_V_kyber_ntt2normal_order_rvv_vlen128(OptimizationRunner):
 example_instances = [
     RISC_V_ntt_singleissue_plant_rv64im(target=Target_XuanTieC908, timeout=300),
     RISC_V_ntt_dualissue_plant_rv64im(timeout=300),
-    RISC_V_intt_dualissue_plant_rv64im(),
+    RISC_V_intt_dualissue_plant_rv64im(timeout=300),
     RISC_V_ntt_dualissue_l32_plant_rv64im(),
-    RISC_V_intt_singleissue_plant_rv64im(),
+    RISC_V_intt_singleissue_plant_rv64im(timeout=300),
     RISC_V_ntt_rvv_vlen128(target=Target_XuanTieC908, timeout=300),
     RISC_V_intt_rvv_vlen128(),
     RISC_V_kyber_normal2ntt_order_rvv_vlen128(),
