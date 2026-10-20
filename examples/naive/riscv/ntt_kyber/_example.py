@@ -202,8 +202,7 @@ class RISC_V_intt_dualissue_plant_rv64im(OptimizationRunner):
         r += ["x3"]
         slothy.config.reserved_regs = r
 
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # software pipelining breaks the code due to dual use of gp as loop cnt and tmp reg
         slothy.config.split_heuristic = True
         slothy.config.split_heuristic_factor = 5
         slothy.config.split_heuristic_repeat = 2
