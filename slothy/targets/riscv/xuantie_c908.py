@@ -339,7 +339,17 @@ execution_units = {
     ): [ExecutionUnit.VEC0],
 }
 
+# Whole-register loads/stores move their nf registers back to back, each costing
+# as much as one vle/vse (measured on K230, e16: vl8re16.v 16 cyc, vs4r.v 8 cyc;
+# last register of vl8re16.v available after ~17 cyc). As the instruction class
+# covers all nf, entries are keyed by a predicate on nf.
+def _whole_reg(cls, nf):
+    return lambda inst: isinstance(inst, cls) and inst.nf == str(nf)
+
+
 inverse_throughput = {
+    **{_whole_reg(RISCVVectorLoadWholeRegister, nf): 2 * nf for nf in (1, 2, 4, 8)},
+    **{_whole_reg(RISCVVectorStoreWholeRegister, nf): 2 * nf for nf in (1, 2, 4, 8)},
     (
         RISCVInstruction.classes_by_names["addi"],
         RISCVInstruction.classes_by_names["slti"],
@@ -534,6 +544,8 @@ inverse_throughput = {
     RISCVInstruction.classes_by_names["vmv.s.x"]: 6,
     RISCVInstruction.classes_by_names["vmv.v.v"]: 2,
     RISCVInstruction.classes_by_names["vmv.v.v"]: 2,  # TODO: estimated
+    # vl<nf>re<ew>.v / vl<nf>r.v / vs<nf>re<ew>.v / vs<nf>r.v: superseded by the
+    # nf-specific _whole_reg entries at the top of this table
     RISCVInstruction.classes_by_names["vl<nf>re<ew>.v"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vl<nf>r.v"]: 2,  # TODO: estimated
     RISCVInstruction.classes_by_names["vs<nf>re<ew>.v"]: 2,  # TODO: estimated
@@ -581,6 +593,7 @@ default_latencies = {
     # as lookup_multidict returns the first match.
     RISCVInstruction.classes_by_names["vrgather.vv"]: 5,  # measured on K230 (e16, m1)
     RISCVInstruction.classes_by_names["vrgatherei16.vv"]: 5,  # assumed same as vrgather.vv
+    **{_whole_reg(RISCVVectorLoadWholeRegister, nf): 2 * nf + 1 for nf in (1, 2, 4, 8)},
     RISCVVectorIntegerVectorImmediate: 4,
     RISCVVectorIntegerVectorScalar: 4,
     RISCVVectorIntegerVectorVector: 4,
