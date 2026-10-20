@@ -102,7 +102,7 @@ class RISC_V_intt8l_plant_rv64im(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname="intt_dilithium_8l_plant_rv64im",
+            funcname=name if var == "" else f"{name}_{var}",
             timeout=timeout,
             var=var,
         )

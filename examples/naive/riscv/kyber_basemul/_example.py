@@ -234,7 +234,7 @@ class RISC_V_poly_plantard_rdc_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_plantard_rdc_rv64im",
+            funcname="poly_plantard_rdc_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):
@@ -264,7 +264,7 @@ class RISC_V_poly_toplant_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_toplant_rv64im",
+            funcname="poly_toplant_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):
