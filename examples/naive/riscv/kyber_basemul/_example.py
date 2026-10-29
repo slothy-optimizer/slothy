@@ -315,8 +315,11 @@ class RISC_V_poly_basemul_acc_cache_init_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_factor = 7
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # No SW pipelining: BranchLoop keeps the loop branch in the body, so halving step 2
+        # ([B;A]) puts it mid-kernel and is (likely due to that) infeasible ("No solution found");
+        # without halving SLOTHY ignores split (one-shot, too slow).
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.timeout = 180
 
         import slothy.targets.riscv.xuantie_c908 as target_module
@@ -364,8 +367,11 @@ class RISC_V_poly_basemul_cache_init_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_factor = 7
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # No SW pipelining: BranchLoop keeps the loop branch in the body, so halving step 2
+        # ([B;A]) puts it mid-kernel and is (likely due to that) infeasible ("No solution found");
+        # without halving SLOTHY ignores split (one-shot, too slow).
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.timeout = 180
 
         import slothy.targets.riscv.xuantie_c908 as target_module
@@ -408,8 +414,11 @@ class RISC_V_poly_basemul_acc_cached_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_factor = 7
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # No SW pipelining: BranchLoop keeps the loop branch in the body, so halving step 2
+        # ([B;A]) puts it mid-kernel and is (likely due to that) infeasible ("No solution found");
+        # without halving SLOTHY ignores split (one-shot, too slow).
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.timeout = 180
 
         import slothy.targets.riscv.xuantie_c908 as target_module
@@ -452,8 +461,11 @@ class RISC_V_poly_basemul_cached_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_factor = 7
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # No SW pipelining: BranchLoop keeps the loop branch in the body, so halving step 2
+        # ([B;A]) puts it mid-kernel and is (likely due to that) infeasible ("No solution found");
+        # without halving SLOTHY ignores split (one-shot, too slow).
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.timeout = 180
         slothy.config.unsafe_address_offset_fixup = False
 
@@ -497,8 +509,11 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_factor = 7
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # No SW pipelining: BranchLoop keeps the loop branch in the body, so halving step 2
+        # ([B;A]) puts it mid-kernel and is (likely due to that) infeasible ("No solution found");
+        # without halving SLOTHY ignores split (one-shot, too slow).
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.timeout = 180
         slothy.config.unsafe_address_offset_fixup = False
 
@@ -541,8 +556,11 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_factor = 7
         slothy.config.split_heuristic_repeat = 2
         slothy.config.split_heuristic_stepsize = 0.05
-        slothy.config.sw_pipelining.enabled = True
-        slothy.config.sw_pipelining.halving_heuristic = True
+        # No SW pipelining: BranchLoop keeps the loop branch in the body, so halving step 2
+        # ([B;A]) puts it mid-kernel and is (likely due to that) infeasible ("No solution found");
+        # without halving SLOTHY ignores split (one-shot, too slow).
+        slothy.config.sw_pipelining.enabled = False
+        slothy.config.sw_pipelining.halving_heuristic = False
         slothy.config.timeout = 180
         slothy.config.unsafe_address_offset_fixup = False
 

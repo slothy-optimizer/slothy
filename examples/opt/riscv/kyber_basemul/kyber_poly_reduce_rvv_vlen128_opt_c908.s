@@ -1,6 +1,6 @@
 .macro barrettRdc in, vt0, const_v, const_q
     vmulh.vx \vt0, \in, \const_v
-    // vssra.vi \vt0, \vt0, 10
+    vssra.vi \vt0, \vt0, 10
     vmul.vx  \vt0, \vt0, \const_q
     vsub.vv  \in,  \in, \vt0
 .endm
@@ -55,30 +55,32 @@ poly_reduce_rvv_vlen128_opt_c908:
     slli t3, a7, 2
     slli a7, a7, 1
 poly_reduce_rvv_vlen128_loop:
-                                     // Instructions:    11
-                                     // Expected cycles: 19
-                                     // Expected IPC:    0.58
+                                     // Instructions:    13
+                                     // Expected cycles: 23
+                                     // Expected IPC:    0.57
                                      //
-                                     // Cycle bound:     19.0
-                                     // IPC bound:       0.58
+                                     // Cycle bound:     23.0
+                                     // IPC bound:       0.57
                                      //
-                                     // Wall time:     1.81s
-                                     // User time:     1.81s
+                                     // Wall time:     0.17s
+                                     // User time:     0.17s
                                      //
                                      // ----- cycle (expected) ------>
                                      // 0                        25
                                      // |------------------------|----
-        vle16.v v8, (x10)            // *............................. // @slothy:lmul=8
-        add x8, x10, x17             // *.............................
-        vle16.v v16, (x8)            // ..*........................... // @slothy:lmul=8
-        vmulh.vx v24, v8, x16        // ....*......................... // @slothy:lmul=8
-        vmulh.vx v0, v16, x16        // ......*....................... // @slothy:lmul=8
-        vmul.vx v24, v24, x5         // ........*..................... // @slothy:lmul=8
-        vmul.vx v0, v0, x5           // ..........*................... // @slothy:lmul=8
-        vsub.vv v8, v8, v24          // ............*................. // @slothy:lmul=8
-        vsub.vv v16, v16, v0         // ..............*............... // @slothy:lmul=8
-        vse16.v v8, (x10)            // ................*............. // @slothy:lmul=8
-        vse16.v v16, (x8)            // ..................*........... // @slothy:lmul=8
+        add x24, x10, x17            // *.............................
+        vle16.v v24, (x10)           // *............................. // @slothy:lmul=8
+        vle16.v v0, (x24)            // ..*........................... // @slothy:lmul=8
+        vmulh.vx v8, v24, x16        // ....*......................... // @slothy:lmul=8
+        vmulh.vx v16, v0, x16        // ......*....................... // @slothy:lmul=8
+        vssra.vi v8, v8, 10          // ........*..................... // @slothy:lmul=8
+        vssra.vi v16, v16, 10        // ..........*................... // @slothy:lmul=8
+        vmul.vx v8, v8, x5           // ............*................. // @slothy:lmul=8
+        vmul.vx v16, v16, x5         // ..............*............... // @slothy:lmul=8
+        vsub.vv v24, v24, v8         // ................*............. // @slothy:lmul=8
+        vsub.vv v8, v0, v16          // ..................*........... // @slothy:lmul=8
+        vse16.v v24, (x10)           // ....................*......... // @slothy:lmul=8
+        vse16.v v8, (x24)            // ......................*....... // @slothy:lmul=8
 
                                       // ------ cycle (expected) ------>
                                       // 0                        25
@@ -87,16 +89,18 @@ poly_reduce_rvv_vlen128_loop:
         // vle16.v v0,  (x10)         // *..............................
         // vle16.v v8,  (x11)         // ..*............................
         // vmulh.vx v16, v0, x16      // ....*..........................
-        // vmul.vx  v16, v16, x5      // ........*......................
-        // vsub.vv  v0,  v0, v16      // ............*..................
+        // vssra.vi v16, v16, 10      // ........*......................
+        // vmul.vx  v16, v16, x5      // ............*..................
+        // vsub.vv  v0,  v0, v16      // ................*..............
         // vmulh.vx v24, v8, x16      // ......*........................
-        // vmul.vx  v24, v24, x5      // ..........*....................
-        // vsub.vv  v8,  v8, v24      // ..............*................
-        // vse16.v v0,  (x10)         // ................*..............
-        // vse16.v v8,  (x11)         // ..................*............
+        // vssra.vi v24, v24, 10      // ..........*....................
+        // vmul.vx  v24, v24, x5      // ..............*................
+        // vsub.vv  v8,  v8, v24      // ..................*............
+        // vse16.v v0,  (x10)         // ....................*..........
+        // vse16.v v8,  (x11)         // ......................*........
 
         addi a0, a0, 256
-        bltu a0, t4,  poly_reduce_rvv_vlen128_loop
+        bltu a0, t4, poly_reduce_rvv_vlen128_loop
     restore_regs
     addi sp, sp, 8*15
 ret
