@@ -20,7 +20,7 @@ class RISC_V_poly_basemul_8l_init_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_8l_init_rv64im",
+            funcname="poly_basemul_8l_init_rv64im" + (f"_{var}" if var else ""),
             var=var,
         )
 
@@ -49,7 +49,7 @@ class RISC_V_poly_basemul_8l_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_8l_rv64im",
+            funcname="poly_basemul_8l_rv64im" + (f"_{var}" if var else ""),
             var=var,
         )
 
@@ -78,7 +78,7 @@ class RISC_V_poly_basemul_8l_acc_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_8l_acc_rv64im",
+            funcname="poly_basemul_8l_acc_rv64im" + (f"_{var}" if var else ""),
             var=var,
         )
 
@@ -107,7 +107,7 @@ class RISC_V_poly_basemul_8l_acc_end_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_basemul_8l_acc_end_rv64im",
+            funcname="poly_basemul_8l_acc_end_rv64im" + (f"_{var}" if var else ""),
             var=var,
         )
 
@@ -139,7 +139,7 @@ class RISC_V_poly_reduce_rv64im(OptimizationRunner):
             arch=arch,
             target=target,
             timeout=timeout,
-            funcname="poly_reduce_rv64im",
+            funcname="poly_reduce_rv64im" + (f"_{var}" if var else ""),
             var=var,
         )
 

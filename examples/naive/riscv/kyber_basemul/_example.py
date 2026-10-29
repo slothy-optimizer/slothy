@@ -22,7 +22,7 @@ class RISC_V_poly_basemul_acc_cache_end_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_basemul_acc_cache_end_rv64im",
+            funcname="poly_basemul_acc_cache_end_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):
@@ -56,7 +56,7 @@ class RISC_V_poly_basemul_acc_cache_init_end_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_basemul_acc_cache_init_end_rv64im",
+            funcname="poly_basemul_acc_cache_init_end_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):
@@ -87,7 +87,7 @@ class RISC_V_poly_basemul_acc_cache_init_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_basemul_acc_cache_init_rv64im",
+            funcname="poly_basemul_acc_cache_init_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):
@@ -116,7 +116,7 @@ class RISC_V_poly_basemul_acc_cached_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_basemul_acc_cached_rv64im",
+            funcname="poly_basemul_acc_cached_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):
@@ -145,7 +145,7 @@ class RISC_V_poly_basemul_acc_end_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_basemul_acc_end_rv64im",
+            funcname="poly_basemul_acc_end_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):
@@ -176,7 +176,7 @@ class RISC_V_poly_basemul_acc_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_basemul_acc_rv64im",
+            funcname="poly_basemul_acc_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):
@@ -205,7 +205,7 @@ class RISC_V_poly_basemul_cache_init_rv64im(OptimizationRunner):
             target=target,
             timeout=timeout,
             var=var,
-            funcname="poly_basemul_cache_init_rv64im",
+            funcname="poly_basemul_cache_init_rv64im" + (f"_{var}" if var else ""),
         )
 
     def core(self, slothy):

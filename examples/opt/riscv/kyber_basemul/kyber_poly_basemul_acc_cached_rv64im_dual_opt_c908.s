@@ -572,9 +572,9 @@
 // compute basemul using cached b_cache and accumulate the 32-bit results into r
 // a0: r, a1: a, a2: b, a3: b_cache
 // a5: q<<48, a6: loop control
-.global poly_basemul_acc_cached_rv64im_opt_c908_dual
+.global poly_basemul_acc_cached_rv64im_dual_opt_c908
 .align 2
-poly_basemul_acc_cached_rv64im_dual:
+poly_basemul_acc_cached_rv64im_dual_opt_c908:
     addi sp, sp, -8*15
     save_regs
     li a5, q48
