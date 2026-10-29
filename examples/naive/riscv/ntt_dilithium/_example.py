@@ -248,7 +248,7 @@ class RISC_V_intt_rvv_vlen128(OptimizationRunner):
             rename=True,
             arch=arch,
             target=target,
-            funcname="ntt_rvv_vlen128",
+            funcname="intt_rvv_vlen128",
             timeout=timeout,
         )
 
