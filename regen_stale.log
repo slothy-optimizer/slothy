@@ -1,0 +1,46 @@
+Traceback (most recent call last):
+  File "/home/justus.bergerman/slothy/example.py", line 30, in <module>
+    from common.OptimizationRunner import OptimizationRunnerException
+  File "/home/justus.bergerman/slothy/common/OptimizationRunner.py", line 32, in <module>
+    from slothy import Slothy
+  File "/home/justus.bergerman/slothy/slothy/__init__.py", line 4, in <module>
+    from slothy.targets.query import Archery
+  File "/home/justus.bergerman/slothy/slothy/targets/query.py", line 56, in <module>
+    from slothy.targets.riscv import xuantie_c908 as Target_XuanTie_C908
+  File "/home/justus.bergerman/slothy/slothy/targets/riscv/xuantie_c908.py", line 74, in <module>
+    vector_instr_throughput = pd.read_excel(
+                              ^^^^^^^^^^^^^^
+  File "/home/justus.bergerman/slothy/venv/lib/python3.11/site-packages/pandas/io/excel/_base.py", line 495, in read_excel
+    io = ExcelFile(
+         ^^^^^^^^^^
+  File "/home/justus.bergerman/slothy/venv/lib/python3.11/site-packages/pandas/io/excel/_base.py", line 1567, in __init__
+    self._reader = self._engines[engine](
+                   ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/justus.bergerman/slothy/venv/lib/python3.11/site-packages/pandas/io/excel/_odfreader.py", line 50, in __init__
+    super().__init__(
+  File "/home/justus.bergerman/slothy/venv/lib/python3.11/site-packages/pandas/io/excel/_base.py", line 573, in __init__
+    self.book = self.load_workbook(self.handles.handle, engine_kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/justus.bergerman/slothy/venv/lib/python3.11/site-packages/pandas/io/excel/_odfreader.py", line 67, in load_workbook
+    return load(filepath_or_buffer, **engine_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/justus.bergerman/slothy/venv/lib/python3.11/site-packages/odf/opendocument.py", line 989, in load
+    __loadxmlparts(z, manifest, doc, u'')
+  File "/home/justus.bergerman/slothy/venv/lib/python3.11/site-packages/odf/opendocument.py", line 916, in __loadxmlparts
+    parser.parse(inpsrc)
+  File "/usr/lib/python3.11/xml/sax/expatreader.py", line 111, in parse
+    xmlreader.IncrementalParser.parse(self, source)
+  File "/usr/lib/python3.11/xml/sax/xmlreader.py", line 125, in parse
+    self.feed(buffer)
+  File "/usr/lib/python3.11/xml/sax/expatreader.py", line 217, in feed
+    self._parser.Parse(data, isFinal)
+  File "../Modules/pyexpat.c", line 416, in StartElement
+  File "/usr/lib/python3.11/xml/sax/expatreader.py", line 369, in start_element_ns
+    self._cont_handler.startElementNS(pair, None,
+  File "/home/justus.bergerman/slothy/venv/lib/python3.11/site-packages/odf/load.py", line 76, in startElementNS
+    for (att,value) in attrs.items():
+                       ^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/xml/sax/xmlreader.py", line 333, in items
+    return list(self._attrs.items())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
