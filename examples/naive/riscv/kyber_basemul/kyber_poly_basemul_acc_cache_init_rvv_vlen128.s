@@ -80,35 +80,35 @@ poly_basemul_acc_cache_init_rvv_vlen128:
 poly_basemul_acc_cache_init_rvv_vlen128_loop:
     vle16.v v0, (a1)
     vle16.v v8,  (a2)
-    addi a1, a1, 32
+    add a1, a1, a7
     add a2, a2, a7
     vle16.v v4, (a1)
     vle16.v v12, (a2)
-    addi a1, a1, 32
+    add a1, a1, a7
     add a2, a2, a7
     vle16.v v1, (a1)
     vle16.v v9,  (a2)
-    addi a1, a1, 32
+    add a1, a1, a7
     add a2, a2, a7
     vle16.v v5, (a1)
     vle16.v v13, (a2)
-    addi a1, a1, 32
+    add a1, a1, a7
     add a2, a2, a7
     vle16.v v2, (a1)
     vle16.v v10, (a2)
-    addi a1, a1, 32
+    add a1, a1, a7
     add a2, a2, a7
     vle16.v v6, (a1)
     vle16.v v14, (a2)
-    addi a1, a1, 32
+    add a1, a1, a7
     add a2, a2, a7
     vle16.v v3, (a1)
     vle16.v v11, (a2)
-    addi a1, a1, 32
+    add a1, a1, a7
     add a2, a2, a7
     vle16.v v7, (a1)
     vle16.v v15, (a2)
-    addi a1, a1, 32
+    add a1, a1, a7
     add a2, a2, a7
     montmul_x4 v16, v17, v18, v19, v0, v1, v2, v3, v12, v13, v14, v15, t0, t1, v24, v25, v26, v27
     montmul_x4 v20, v21, v22, v23, v4, v5, v6, v7, v8,  v9,  v10, v11, t0, t1, v24, v25, v26, v27

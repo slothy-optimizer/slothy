@@ -1,4 +1,4 @@
-#define _ZETAS_BASEMUL 0
+#define _ZETAS_BASEMUL 320
 
 .macro montmul_x4 vr0, vr1, vr2, vr3, \
         va0, va1, va2, va3, \
