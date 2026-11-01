@@ -1,7 +1,7 @@
 ortools==9.15.6755
 sympy==1.14.0
 unicorn==2.1.4
-black==26.5.1
+black==26.10.1
 pydoclint==0.10.1
 flake8==7.4.1
 
