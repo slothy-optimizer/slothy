@@ -68,9 +68,12 @@ from slothy.targets.aarch64.aarch64_neon import (
     Stp_W,
     vadd,
     vmul,
+    vmov,
+    vshsub,
     St4,
     Vzip,
     vsub,
+    vneg,
     Vmull,
     Vmlal,
     vmul_lane,
@@ -82,6 +85,7 @@ from slothy.targets.aarch64.aarch64_neon import (
     vqrdmulh_lane,
     vqdmulh_lane,
     vqdmulh_vector,
+    Ldp_X,
     trn1,
     trn2,
     ASimdCompare,
@@ -89,18 +93,40 @@ from slothy.targets.aarch64.aarch64_neon import (
     umov_d,
     AArch64Move,
     add,
+    adds_twoarg,
+    adcs,
+    adcs_zero_r,
+    adc_zero2,
     add_imm,
+    add_imm_w,
     add_shifted,
     VShiftImmediateRounding,
     VShiftImmediateBasic,
     VShiftRegBasic,
+    Stp_Q,
+    Stp_X,
     St3,
     St2,
     q_st1_4_with_postinc,
+    q_st1_4,
+    q_st1_2_with_postinc,
+    q_st1_lane_with_postinc,
+    q_st1,
+    q_st1_with_postinc,
+    q_ld1,
+    q_ld1_with_postinc,
+    q_ld1_lane,
     q_ld1_2,
+    q_ld1_2_with_postinc,
+    q_ld1_4,
+    q_ld1_4_with_postinc,
+    q_ld1_4_with_reg_postinc,
     Ld2,
     Ld3,
     Ld4,
+    lsr,
+    lsl,
+    orr_shifted,
     AESInstruction,
     vext,
     AArch64NeonCount,
@@ -108,7 +134,11 @@ from slothy.targets.aarch64.aarch64_neon import (
     AArch64NeonShiftInsert,
     vtbl,
     vtbl_2,
+    vtbl_4,
     sub_imm,
+    subs_imm,
+    subs_wform,
+    b_cond,
     vuaddlv_sform,
     fmov_s_form,  # from vec to gen reg
     fmov_d_form,  # from vec to gen reg (64-bit)
@@ -122,19 +152,20 @@ from slothy.targets.aarch64.aarch64_neon import (
     vdup_w,
     mov_wtov_s,
     lsr_imm,
-    lsr,
     movk_imm_lsl,
     q_ld2_lane_s,
     Ldp_W,
     cmp,
     cmp_xzr,
     cmp_imm,
+    cmp_imm_w,
     csel,
     csel_xzr_ne,
     q_ldp_with_inc,
     AArch64CRC32,
     asr,
     asr_imm,
+    vxtn,
 )
 
 # From the A72 SWOG, Section "4.1 Dispatch Constraints"
@@ -153,6 +184,7 @@ class ExecutionUnit(Enum):
     LOAD1 = auto()
     STORE0 = auto()
     STORE1 = auto()
+    BRANCH = auto()
     INT0 = auto()
     INT1 = auto()
     SCALAR_MINT = auto()
@@ -204,6 +236,35 @@ def get_min_max_objective(slothy):
     _ = slothy
 
 
+def _is_ld1_d_lane(instruction):
+    return isinstance(instruction, q_ld1_lane) and instruction.datatype == "d"
+
+
+def _is_ld1_bhs_lane(instruction):
+    return isinstance(instruction, q_ld1_lane) and instruction.datatype in [
+        "b",
+        "h",
+        "s",
+    ]
+
+
+def _is_st1_d_lane(instruction):
+    return (
+        isinstance(instruction, q_st1_lane_with_postinc) and instruction.datatype == "d"
+    )
+
+
+def _is_st1_bhs_lane(instruction):
+    return isinstance(
+        instruction, q_st1_lane_with_postinc
+    ) and instruction.datatype in ["b", "h", "s"]
+
+
+# Timing source: Arm Cortex-A72 Software Optimization Guide, instruction tables.
+# https://documentation-service.arm.com/static/5ed75eeeca06a95ce53f93c7
+# The guide reports instructions per cycle; inverse_throughput below stores cycles
+# per instruction. Writeback forms also use an I0/I1 address-update micro-op, while
+# this model represents their primary LSU occupancy and total throughput.
 execution_units = {
     (
         vmul,
@@ -219,7 +280,21 @@ execution_units = {
         Vmlal,
         Vmull,
     ): [ExecutionUnit.ASIMD0],
-    (vadd, vsub, Vzip, trn1, trn2, ASimdCompare, vext, vtbl, vtbl_2): [
+    (
+        vadd,
+        vsub,
+        vneg,
+        vshsub,
+        vmov,
+        Vzip,
+        trn1,
+        trn2,
+        ASimdCompare,
+        vext,
+        vtbl,
+        vtbl_2,
+        vtbl_4,
+    ): [
         ExecutionUnit.ASIMD0,
         ExecutionUnit.ASIMD1,
     ],
@@ -246,41 +321,76 @@ execution_units = {
     (AArch64NeonShiftInsert, vusra): [ExecutionUnit.ASIMD1],
     fcsel: ExecutionUnit.ASIMD(),
     (csel, csel_xzr_ne): ExecutionUnit.INT(),
+    (lsr, lsr_imm, lsl, subs_imm, subs_wform): ExecutionUnit.INT(),
+    orr_shifted: ExecutionUnit.MINT(),
+    b_cond: ExecutionUnit.BRANCH,
     AArch64ConditionalCompare: ExecutionUnit.INT(),
     AArch64Logical: [ExecutionUnit.INT()],
     # 8B/8H occupies both F0, F1
     vuaddlv_sform: [[ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]],
     Vins: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     umov_d: ExecutionUnit.LOAD(),  # ???
-    (Ldr_D, Ldr_Q, Ldr_X): ExecutionUnit.LOAD(),
+    (Ldr_D, Ldr_Q, Ldr_X, Ldp_X): ExecutionUnit.LOAD(),
     (Str_Q, Str_X): ExecutionUnit.STORE(),
+    Stp_W: ExecutionUnit.STORE(),
+    Stp_X: ExecutionUnit.STORE(),
+    Stp_Q: ExecutionUnit.STORE(),
     AArch64Move: ExecutionUnit.SCALAR(),
-    (add, add_imm, add_shifted): ExecutionUnit.SCALAR(),
+    (
+        add,
+        add_imm,
+        add_imm_w,
+        adds_twoarg,
+        adcs,
+        adcs_zero_r,
+        adc_zero2,
+    ): ExecutionUnit.INT(),
+    add_shifted: ExecutionUnit.MINT(),
     (VShiftImmediateRounding, VShiftImmediateBasic, VShiftRegBasic): [
         ExecutionUnit.ASIMD1
     ],
-    q_st1_4_with_postinc: ExecutionUnit.STORE(),
+    (
+        q_st1,
+        q_st1_with_postinc,
+        q_st1_2_with_postinc,
+        q_st1_4,
+        q_st1_4_with_postinc,
+    ): ExecutionUnit.STORE(),
+    q_st1_lane_with_postinc: [
+        [ExecutionUnit.ASIMD0, ExecutionUnit.STORE0, ExecutionUnit.STORE1],
+        [ExecutionUnit.ASIMD1, ExecutionUnit.STORE0, ExecutionUnit.STORE1],
+    ],
     (St4, St3, St2): [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     (Ld2, Ld3, Ld4, q_ldr1_stack, Q_Ld2_Lane_Post_Inc, q_ld2_lane_s): [
         [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
         [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
     ],
-    q_ld1_2: ExecutionUnit.LOAD(),
+    (
+        q_ld1,
+        q_ld1_with_postinc,
+        q_ld1_2,
+        q_ld1_2_with_postinc,
+        q_ld1_4,
+        q_ld1_4_with_postinc,
+        q_ld1_4_with_reg_postinc,
+    ): ExecutionUnit.LOAD(),
+    q_ld1_lane: [
+        [ExecutionUnit.ASIMD0, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
+        [ExecutionUnit.ASIMD1, ExecutionUnit.LOAD0, ExecutionUnit.LOAD1],
+    ],
     AESInstruction: [ExecutionUnit.ASIMD0],
     fmov_s_form: ExecutionUnit.LOAD(),  # from vec to gen reg
     fmov_d_form: ExecutionUnit.LOAD(),  # from vec to gen reg (64-bit)
     eor_shifted: ExecutionUnit.SCALAR(),
     bic_shifted: ExecutionUnit.SCALAR(),
-    lsr_imm: ExecutionUnit.INT(),
-    lsr: ExecutionUnit.INT(),
     movk_imm_lsl: ExecutionUnit.INT(),
-    (sub_imm, cmp_imm): ExecutionUnit.INT(),
+    (sub_imm, cmp_imm, cmp_imm_w): ExecutionUnit.INT(),
     (cmp, cmp_xzr): ExecutionUnit.MINT(),
     Ldp_W: ExecutionUnit.LOAD(),
     q_ldp_with_inc: ExecutionUnit.LOAD(),
-    Stp_W: ExecutionUnit.STORE(),
     AArch64CRC32: ExecutionUnit.MINT(),
     (asr, asr_imm): ExecutionUnit.INT(),
+    vxtn: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
 }
 
 inverse_throughput = {
@@ -296,30 +406,48 @@ inverse_throughput = {
         vqdmulh_lane,
         vqdmulh_vector,
     ): 2,
+    (vadd, vsub, vneg, vshsub, vmov, trn1, trn2, vext): 1,
+    Ldp_X: 1,
     AArch64Move: 1,
     (Vmull, Vmlal): 1,
     AArch64NeonCount: 1,
     Vzip: 1,
     ASimdCompare: 1,
-    (vadd, vsub, trn1, trn2, vext): 1,
     AArch64NeonLogical: 1,
     (AArch64NeonShiftInsert, vusra): 1,
     fcsel: 1,
     (csel, csel_xzr_ne): 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
+    (lsr, lsr_imm, lsl, orr_shifted): 1,
     Vins: 1,
     umov_d: 1,
-    (add, add_imm, add_shifted): 1,
     (Ldr_D, Ldr_Q, Str_Q, Ldr_X, Str_X): 1,
+    (
+        add,
+        add_imm,
+        add_imm_w,
+        adds_twoarg,
+        adcs,
+        adcs_zero_r,
+        adc_zero2,
+        add_shifted,
+    ): 1,
+    Stp_W: 1,
+    Stp_X: 2,
+    Stp_Q: 4,
     (VShiftImmediateRounding, VShiftImmediateBasic): 1,
     VShiftRegBasic: 2,
-    # TODO: this seems in accurate; revisiting may improve performance
-    q_st1_4_with_postinc: 8,
+    (q_st1, q_st1_with_postinc): 2,
+    q_st1_lane_with_postinc: 1,
+    q_st1_2_with_postinc: 4,
+    (q_st1_4, q_st1_4_with_postinc): 8,
     St2: 4,
     St3: 6,
     St4: 8,
-    q_ld1_2: 2,
+    (q_ld1, q_ld1_with_postinc, q_ld1_lane): 1,
+    (q_ld1_2, q_ld1_2_with_postinc): 2,
+    (q_ld1_4, q_ld1_4_with_postinc, q_ld1_4_with_reg_postinc): 4,
     Ld2: 2,
     Ld3: 3,
     Ld4: 4,
@@ -330,7 +458,9 @@ inverse_throughput = {
     vtbl: 1,  # SWOG contains a blank throughput (approximating from AArch32)
     vtbl_2: 1,
     AESInstruction: 1,
-    (sub_imm, cmp, cmp_xzr, cmp_imm): 1,
+    (sub_imm, cmp, cmp_xzr, cmp_imm, cmp_imm_w): 1,
+    vtbl_4: 1,
+    (subs_imm, subs_wform): 1,
     vuaddlv_sform: 1,
     fmov_s_form: 1,  # from vec to gen reg
     fmov_d_form: 1,  # from vec to gen reg (64-bit)
@@ -339,14 +469,13 @@ inverse_throughput = {
     vdup_w: 1,
     mov_wtov_s: 1,
     mov_vtov_d: 1,
-    lsr_imm: 1,
-    lsr: 1,
     movk_imm_lsl: 1,
     Ldp_W: 1,
-    Stp_W: 1,
     AArch64CRC32: 1,
     asr: 1,
     asr_imm: 1,
+    vxtn: 1,
+    b_cond: 1,
 }
 
 # REVISIT
@@ -363,11 +492,16 @@ default_latencies = {
         vqdmulh_lane,
         vqdmulh_vector,
     ): 5,
-    (Vmull, Vmlal): 1,
+    vshsub: 3,
+    vmov: 3,
+    vxtn: 3,
+    Ldp_X: 4,
+    (Vmull, Vmlal): 4,
     AArch64NeonCount: 3,
     (
         vadd,
         vsub,
+        vneg,
         Vzip,
         trn1,
         trn2,
@@ -384,17 +518,30 @@ default_latencies = {
     (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
-    (add, add_imm, add_shifted): 2,
+    (add, add_imm, add_imm_w, adds_twoarg, adcs, adcs_zero_r, adc_zero2): 1,
+    add_shifted: 2,
+    Stp_W: 1,
+    Stp_X: 2,
+    Stp_Q: 4,
     VShiftImmediateRounding: 3,  # approx
     VShiftImmediateBasic: 3,
     VShiftRegBasic: 4,
     AArch64Move: 1,
-    # TODO: this seems in accurate; revisiting may improve performance
-    q_st1_4_with_postinc: 8,
+    (q_st1, q_st1_with_postinc): 2,
+    _is_st1_bhs_lane: 3,
+    _is_st1_d_lane: 1,
+    q_st1_2_with_postinc: 4,
+    (q_st1_4, q_st1_4_with_postinc): 8,
     St2: 4,
+    (lsr, lsr_imm, lsl): 1,
+    orr_shifted: 2,
     St3: 6,
     St4: 8,
-    q_ld1_2: 6,
+    (q_ld1, q_ld1_with_postinc): 5,
+    _is_ld1_bhs_lane: 8,
+    _is_ld1_d_lane: 5,
+    (q_ld1_2, q_ld1_2_with_postinc): 6,
+    (q_ld1_4, q_ld1_4_with_postinc, q_ld1_4_with_reg_postinc): 8,
     Ld2: 9,
     Ld3: 3,
     Ld4: 4,
@@ -405,8 +552,11 @@ default_latencies = {
     vtbl: 6,  # q-form: 3*N+3 cycles (N = number of registers in the table)
     vtbl_2: 9,  # N = 2, 3 * N + 3 = 9
     AESInstruction: 3,
-    (sub_imm, cmp_imm): 1,
+    (sub_imm, cmp_imm, cmp_imm_w): 1,
     (cmp, cmp_xzr): 2,
+    vtbl_4: 15,  # q-form: 3 * N + 3 cycles, N = 4
+    b_cond: 1,
+    (subs_imm, subs_wform): 1,
     vuaddlv_sform: 6,  # 8B/8H
     fmov_s_form: 5,  # from vec to gen reg
     fmov_d_form: 5,  # from vec to gen reg (64-bit)
@@ -415,11 +565,8 @@ default_latencies = {
     vdup_w: 8,
     mov_wtov_s: 8,
     mov_vtov_d: 3,
-    lsr_imm: 1,
-    lsr: 1,
     movk_imm_lsl: 1,
     Ldp_W: 4,
-    Stp_W: 1,
     AArch64CRC32: 2,
     asr: 1,
     asr_imm: 1,

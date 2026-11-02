@@ -31,6 +31,7 @@ import slothy.targets.aarch64.cortex_a55 as Target_CortexA55
 import slothy.targets.aarch64.cortex_a72_frontend as Target_CortexA72
 import slothy.targets.aarch64.neoverse_n1_experimental as Target_NeoverseN1
 import slothy.targets.aarch64.aarch64_big_experimental as Target_AArch64Big
+from tests.naive.aarch64.test_instruction_model import run_instruction_model_tests
 
 
 class Instructions(OptimizationRunner):
@@ -43,6 +44,28 @@ class Instructions(OptimizationRunner):
         slothy.config.variable_size = True
         slothy.config.constraints.stalls_first_attempt = 256
         slothy.optimize(start="start", end="end")
+
+
+class InstructionModelTest:
+    name = "instruction_model_a72"
+
+    def run(
+        self,
+        debug=False,
+        log_model=False,
+        log_model_dir="models",
+        dry_run=False,
+        silent=False,
+        timeout=0,
+        debug_logfile=None,
+        only_target=None,
+    ):
+        if only_target is not None and only_target != Target_CortexA72.__name__:
+            return
+
+        if not silent:
+            print(f"* Example: {self.name}...")
+        run_instruction_model_tests()
 
 
 class AArch64LoopSub(OptimizationRunner):
@@ -473,6 +496,7 @@ class AArch64Directives(OptimizationRunner):
 
 
 test_instances = [
+    InstructionModelTest(),
     Instructions(),
     Instructions(target=Target_CortexA72),
     Instructions(target=Target_NeoverseN1),
