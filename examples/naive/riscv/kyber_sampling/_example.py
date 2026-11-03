@@ -5,6 +5,9 @@ import slothy.targets.riscv.riscv as RISC_V
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
+# psABI callee-saved registers (ra, tp, s0-s11): reserved in the RVV kernels so that
+# they need no save/restore (the naive versions only use caller-saved registers)
+CALLEE_SAVED = ["x1", "x4", "x8", "x9"] + [f"x{i}" for i in range(18, 28)]
 
 
 class RISC_V_cbd2_rvv_vlen128(OptimizationRunner):
@@ -45,7 +48,7 @@ class RISC_V_cbd2_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_stepsize = 0.05
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3"] + CALLEE_SAVED
         slothy.config.reserved_regs = r
         slothy.optimize_loop("cbd2_rvv_vlen128_loop")
 
@@ -83,7 +86,7 @@ class RISC_V_cbd3_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_stepsize = 0.05
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3"] + CALLEE_SAVED
         slothy.config.reserved_regs = r
         slothy.optimize_loop("cbd3_rvv_vlen128_loop")
 
@@ -115,7 +118,7 @@ class RISC_V_rej_uniform_rvv_vlen128(OptimizationRunner):
         slothy.config.with_preprocessor = True
 
         r = slothy.config.reserved_regs
-        r += ["x3", "x13", "x14", "x15", "x16"]
+        r += ["x3", "x13", "x14", "x15", "x16"] + CALLEE_SAVED
         slothy.config.reserved_regs = r
 
         slothy.optimize(start="start", end="end")

@@ -5,6 +5,9 @@ import slothy.targets.riscv.riscv as RISC_V
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
+# psABI callee-saved registers (ra, tp, s0-s11): reserved in the RVV kernels so that
+# they need no save/restore (the naive versions only use caller-saved registers)
+CALLEE_SAVED = ["x1", "x4", "x8", "x9"] + [f"x{i}" for i in range(18, 28)]
 
 
 class RISC_V_ntt_singleissue_plant_rv64im(OptimizationRunner):
@@ -249,7 +252,7 @@ class RISC_V_ntt_rvv_vlen128(OptimizationRunner):
         slothy.config.constraints.stalls_maximum_attempt = 4096
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3"] + CALLEE_SAVED
         slothy.config.outputs = ["x17"]
         slothy.config.reserved_regs = r
         slothy.optimize("start", "end")
@@ -292,7 +295,7 @@ class RISC_V_intt_rvv_vlen128(OptimizationRunner):
 
         slothy.config.outputs = ["x17"]  # TODO: this does not do anything
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3"] + CALLEE_SAVED
 
         slothy.config.reserved_regs = r
         slothy.optimize("start", "end")
@@ -336,7 +339,7 @@ class RISC_V_kyber_normal2ntt_order_rvv_vlen128(OptimizationRunner):
         slothy.config.allow_useless_instructions = True
         slothy.config.outputs = ["x17"]
         r = slothy.config.reserved_regs
-        r += ["x3", "x12"]
+        r += ["x3", "x12"] + CALLEE_SAVED
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True
@@ -379,7 +382,7 @@ class RISC_V_kyber_ntt2normal_order_rvv_vlen128(OptimizationRunner):
         slothy.config.outputs = ["x17"]
 
         r = slothy.config.reserved_regs
-        r += ["x3", "x12"]
+        r += ["x3", "x12"] + CALLEE_SAVED
         slothy.config.reserved_regs = r
 
         slothy.config.sw_pipelining.enabled = True

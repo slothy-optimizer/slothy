@@ -5,6 +5,9 @@ import slothy.targets.riscv.riscv as RISC_V
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
 
 SUBFOLDER = os.path.basename(os.path.dirname(__file__)) + "/"
+# psABI callee-saved registers (ra, tp, s0-s11): reserved in the RVV kernels so that
+# they need no save/restore (the naive versions only use caller-saved registers)
+CALLEE_SAVED = ["x1", "x4", "x8", "x9"] + [f"x{i}" for i in range(18, 28)]
 
 
 class RISC_V_poly_basemul_8l_init_rv64im(OptimizationRunner):
@@ -191,7 +194,7 @@ class RISC_V_poly_reduce_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_stepsize = 0.05
 
         r = slothy.config.reserved_regs
-        r += ["x3", "x13"]
+        r += ["x3", "x13"] + CALLEE_SAVED
         slothy.config.reserved_regs = r
         slothy.optimize_loop("poly_reduce_rvv_vlen128_loop")
 
@@ -223,7 +226,7 @@ class RISC_V_poly_basemul_rvv_vlen128(OptimizationRunner):
         target_module.sew = 32
 
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3"] + CALLEE_SAVED
         slothy.config.reserved_regs = r
         slothy.config.outputs = ["x3"]
         slothy.optimize_loop("poly_basemul_rvv_vlen128_loop")
@@ -254,7 +257,7 @@ class RISC_V_poly_basemul_acc_rvv_vlen128(OptimizationRunner):
         target_module.lmul = 8
         target_module.sew = 32
         r = slothy.config.reserved_regs
-        r += ["x3"]
+        r += ["x3"] + CALLEE_SAVED
         slothy.config.reserved_regs = r
         slothy.config.outputs = ["x3"]
         slothy.optimize_loop("poly_basemul_acc_rvv_vlen128_loop")

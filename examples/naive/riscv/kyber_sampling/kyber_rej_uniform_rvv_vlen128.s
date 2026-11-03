@@ -913,49 +913,10 @@
     addi a0, a0, 8*16
 .endm
 
-.macro save_regs
-  addi sp, sp, -8*15
-  sd s0,  0*8(sp)
-  sd s1,  1*8(sp)
-  sd s2,  2*8(sp)
-  sd s3,  3*8(sp)
-  sd s4,  4*8(sp)
-  sd s5,  5*8(sp)
-  sd s6,  6*8(sp)
-  sd s7,  7*8(sp)
-  sd s8,  8*8(sp)
-  sd s9,  9*8(sp)
-  sd s10, 10*8(sp)
-  sd s11, 11*8(sp)
-  sd gp,  12*8(sp)
-  sd tp,  13*8(sp)
-  sd ra,  14*8(sp)
-.endm
-
-.macro restore_regs
-  ld s0,  0*8(sp)
-  ld s1,  1*8(sp)
-  ld s2,  2*8(sp)
-  ld s3,  3*8(sp)
-  ld s4,  4*8(sp)
-  ld s5,  5*8(sp)
-  ld s6,  6*8(sp)
-  ld s7,  7*8(sp)
-  ld s8,  8*8(sp)
-  ld s9,  9*8(sp)
-  ld s10, 10*8(sp)
-  ld s11, 11*8(sp)
-  ld gp,  12*8(sp)
-  ld tp,  13*8(sp)
-  ld ra,  14*8(sp)
-  addi sp, sp, 8*15
-.endm
-
 // void rej_uniform_rvv_vlen128(int16_t *r, const uint8_t *buf, const int16_t *table, uint32_t *ctr_p, uint32_t *pos_p)
 .globl rej_uniform_rvv_vlen128
 .align 2
 rej_uniform_rvv_vlen128:
-    save_regs
     li t0, 0xfff
     li t1, 3329
     vsetivli a7, 8, e16, m1, tu, mu
@@ -1010,5 +971,4 @@ end_x1:
 rej_uniform_rvv_vlen128_loopend_x1:
     sw t2, (a3)
     sw t3, (a4)
-    restore_regs
 ret

@@ -830,44 +830,6 @@
     vse32.v v31, (a3)
 .endm
 
-.macro save_regs
-  addi sp, sp, -8*15
-  sd s0,  0*8(sp)
-  sd s1,  1*8(sp)
-  sd s2,  2*8(sp)
-  sd s3,  3*8(sp)
-  sd s4,  4*8(sp)
-  sd s5,  5*8(sp)
-  sd s6,  6*8(sp)
-  sd s7,  7*8(sp)
-  sd s8,  8*8(sp)
-  sd s9,  9*8(sp)
-  sd s10, 10*8(sp)
-  sd s11, 11*8(sp)
-  sd gp,  12*8(sp)
-  sd tp,  13*8(sp)
-  sd ra,  14*8(sp)
-.endm
-
-.macro restore_regs
-  ld s0,  0*8(sp)
-  ld s1,  1*8(sp)
-  ld s2,  2*8(sp)
-  ld s3,  3*8(sp)
-  ld s4,  4*8(sp)
-  ld s5,  5*8(sp)
-  ld s6,  6*8(sp)
-  ld s7,  7*8(sp)
-  ld s8,  8*8(sp)
-  ld s9,  9*8(sp)
-  ld s10, 10*8(sp)
-  ld s11, 11*8(sp)
-  ld gp,  12*8(sp)
-  ld tp,  13*8(sp)
-  ld ra,  14*8(sp)
-  addi sp, sp, 8*15
-.endm
-
 # q * qinv = 1 mod 2^32, used for Montgomery arithmetic
 .equ q, 8380417
 .equ qinv, 58728449
@@ -879,7 +841,6 @@
 .globl poly_reduce_rvv_vlen128
 .align 2
 poly_reduce_rvv_vlen128:
-    save_regs
     li a7, 4*8
     li a3, 4
     vsetvli a7, a7, e32, m8, tu, mu
@@ -906,5 +867,4 @@ poly_reduce_rvv_vlen128_loop:
     addi a4, a4, 4*4*8*2
     addi a3, a3, -1
     bnez a3, poly_reduce_rvv_vlen128_loop
-    restore_regs
 ret
