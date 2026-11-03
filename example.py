@@ -115,6 +115,10 @@ from examples.naive.x86_64.intel._example import (
     example_instances as example_instances_x86_64_intel,
 )
 
+from examples.naive.x86_64.keccak._example import (
+    example_instances as example_instances_x86_64_keccak,
+)
+
 
 def main():
     examples = (
@@ -138,6 +142,7 @@ def main():
         + example_instances_riscv_keccak
         + example_instances_x86_64_simple
         + example_instances_x86_64_intel
+        + example_instances_x86_64_keccak
     )
 
     all_example_names = [e.name for e in examples]
