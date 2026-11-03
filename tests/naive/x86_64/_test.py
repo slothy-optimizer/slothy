@@ -29,6 +29,8 @@ from slothy.targets.x86_64.x86_translator import Intel_Code
 from tests.naive.x86_64.test_instruction_model import run_instruction_model_tests
 from tests.naive.x86_64.test_atom_model import run_atom_model_tests
 from tests.naive.x86_64.test_translator import run_translator_tests
+from tests.naive.x86_64.test_keccak_utilities import run_keccak_utilities_tests
+from tests.naive.x86_64.test_keccak_permutation import run_keccak_permutation_tests
 
 
 class Instructions(OptimizationRunner):
@@ -111,4 +113,6 @@ test_instances = [
     _UnitTests("instruction_model_x86_64", run_instruction_model_tests),
     _UnitTests("atom_model", run_atom_model_tests),
     _UnitTests("translator_x86_64", run_translator_tests),
+    _UnitTests("keccak_utilities_x86_64", run_keccak_utilities_tests),
+    _UnitTests("keccak_permutation_x86_64", run_keccak_permutation_tests),
 ]
