@@ -234,6 +234,56 @@ class RISC_V_ntt_rvv_vlen128_barret_mul(OptimizationRunner):
         slothy.optimize_loop("layer1234_start")
         slothy.optimize_loop("layer5678_start")
 
+
+class RISC_V_intt_rvv_vlen128_barret_mul(OptimizationRunner):
+    def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
+        name = "intt_dilithium_rvv_vlen128_barret_mul"
+        infile = "intt_dilithium_rvv_vlen128_barret_mul_unfolded"
+
+        if var != "":
+            name += f"_{var}"
+            infile += f"_{var}"
+
+        super().__init__(
+            infile,
+            name,
+            subfolder=SUBFOLDER,
+            rename=True,
+            arch=arch,
+            target=target,
+            funcname="intt_rvv_vlen128_barret_mul",
+            timeout=timeout,
+        )
+
+    def core(self, slothy):
+        import slothy.targets.riscv.xuantie_c908 as target_module
+
+        # as for the NTT: the vsetivli (e32, m1) is outside the loop kernels
+        target_module.lmul = 1
+        target_module.sew = 32
+
+        slothy.config.variable_size = True
+        slothy.config.constraints.stalls_first_attempt = 512
+        slothy.config.inputs_are_outputs = True
+
+        slothy.config.sw_pipelining.enabled = True
+        slothy.config.sw_pipelining.halving_heuristic = True
+        slothy.config.split_heuristic = True
+        slothy.config.split_heuristic_factor = 10  # layer4321 has ~350 instructions
+        slothy.config.split_heuristic_stepsize = 0.05
+        slothy.config.timeout = 180
+        slothy.config.split_heuristic_repeat = 2
+
+        slothy.config.with_preprocessor = True
+        r = slothy.config.reserved_regs
+        r += ["x3"] + CALLEE_SAVED
+        slothy.config.reserved_regs = r
+        slothy.config.compiler_include_paths = (
+            "examples/naive/riscv/ntt_dilithium/include"
+        )
+        slothy.optimize_loop("layer8765_start")
+        slothy.optimize_loop("layer4321_start")
+
 class RISC_V_intt_rvv_vlen128(OptimizationRunner):
     def __init__(self, var="", arch=RISC_V, target=Target_XuanTieC908, timeout=None):
         name = "intt_dilithium_rvv_vlen128"
@@ -372,6 +422,7 @@ example_instances = [
     RISC_V_intt8l_plant_rv64im(timeout=300, var="dual"),
     RISC_V_ntt_rvv_vlen128(target=Target_XuanTieC908),
     RISC_V_ntt_rvv_vlen128_barret_mul(target=Target_XuanTieC908),
+    RISC_V_intt_rvv_vlen128_barret_mul(target=Target_XuanTieC908),
     RISC_V_intt_rvv_vlen128(timeout=300),
     RISC_V_normal2ntt_order_rvv_vlen128(),
     RISC_V_ntt2normal_order_rvv_vlen128(),
