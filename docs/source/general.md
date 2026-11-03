@@ -10,7 +10,7 @@ SLOTHY is generic in the target architecture and microarchitecture. This reposit
 - Armv8.1-M+Helium: Cortex-M55, Cortex-M85
 - AArch64: Cortex-A55, and experimentally Cortex-A72, Cortex-X/Neoverse-V, Apple M1 (Firestorm, Icestorm)
 - RISC-V (RV{32,64}IMB): XuanTie C908  
-- x86_64 (AT&T syntax): experimentally Intel Atom (Bonnell)
+- x86_64 (AT&T syntax, Intel syntax via a translator): experimentally Intel Atom (Bonnell)
 
 SLOTHY is discussed in [Fast and Clean: Auditable high-performance assembly via constraint solving](https://eprint.iacr.org/2022/1303).
 

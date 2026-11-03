@@ -334,6 +334,22 @@ class Config(NestedPrint, LockAttributes):
         return self._variable_size
 
     @property
+    def syntax(self):
+        """Optional translator for the assembly syntax of the input source.
+
+        If set, SLOTHY translates the code it parses into the architecture's
+        native syntax, and translates the code it emits back. The object must
+        provide ``to_native(source)`` and ``from_native(source)``, each mapping a
+        list of SourceLine to a list of SourceLine.
+
+        Default: None, meaning the input is in the architecture's native syntax.
+
+        Example: ``slothy.targets.x86_64.x86_translator.Intel_Code`` for
+        Intel-syntax x86_64 assembly; SLOTHY's x86_64 model is natively AT&T.
+        """
+        return self._syntax
+
+    @property
     def solver_search_strategy(self):
         """Decision strategy to register with the CP-SAT solver.
 
@@ -865,12 +881,14 @@ class Config(NestedPrint, LockAttributes):
 
     def copy(self):
         """Make a deep copy of the configuration"""
-        # Temporarily unset references to Arch and Target for deepcopy
-        arch, target = self.arch, self.target
+        # Temporarily unset references to Arch, Target and the syntax translator
+        # (which may be a module) for deepcopy
+        arch, target, syntax = self.arch, self.target, self._syntax
         self.arch = self.target = None
+        self._syntax = None
         res = deepcopy(self)
-        res.arch, res.target = arch, target
-        self.arch, self.target = arch, target
+        res.arch, res.target, res._syntax = arch, target, syntax
+        self.arch, self.target, self._syntax = arch, target, syntax
         return res
 
     class SoftwarePipelining(NestedPrint, LockAttributes):
@@ -1393,12 +1411,14 @@ class Config(NestedPrint, LockAttributes):
         def order_hint_orig_order(self, val):
             self._order_hint_orig_order = val
 
-    def __init__(self, Arch, Target, logger):
+    def __init__(self, Arch, Target, logger, syntax=None):
         super().__init__()
 
         self._arch = Arch
         self._target = Target
         self.logger = logger
+        self._syntax = None
+        self.syntax = syntax
 
         self._sw_pipelining = Config.SoftwarePipelining()
         self._constraints = Config.Constraints()
@@ -1547,6 +1567,16 @@ class Config(NestedPrint, LockAttributes):
     @variable_size.setter
     def variable_size(self, val):
         self._variable_size = val
+
+    @syntax.setter
+    def syntax(self, val):
+        if val is not None and not (
+            hasattr(val, "to_native") and hasattr(val, "from_native")
+        ):
+            raise InvalidConfig(
+                "syntax must provide to_native() and from_native(), or be None"
+            )
+        self._syntax = val
 
     @solver_search_strategy.setter
     def solver_search_strategy(self, val):
