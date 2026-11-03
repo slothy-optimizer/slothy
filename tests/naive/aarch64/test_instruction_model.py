@@ -8,7 +8,6 @@ from slothy.targets.exceptions import UnknownInstruction
 import slothy.targets.aarch64.aarch64_neon as Arch
 import slothy.targets.aarch64.cortex_a72_frontend as Target
 
-
 PARSER_CASES = {
     "neg v0.4s, v1.4s": Arch.vneg,
     "ld1 {v0.4s, v1.4s, v2.4s, v3.4s}, [x0]": Arch.q_ld1_4,

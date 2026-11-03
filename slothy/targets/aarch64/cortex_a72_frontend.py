@@ -260,6 +260,24 @@ def _is_st1_bhs_lane(instruction):
     ) and instruction.datatype in ["b", "h", "s"]
 
 
+def _is_generic_ldr_q(instruction):
+    return isinstance(instruction, Ldr_Q) and not isinstance(
+        instruction, (q_ld1, q_ld1_with_postinc)
+    )
+
+
+def _is_generic_str_q(instruction):
+    return isinstance(instruction, Str_Q) and not isinstance(
+        instruction, q_st1_with_postinc
+    )
+
+
+def _is_generic_stp_q(instruction):
+    return isinstance(instruction, Stp_Q) and not isinstance(
+        instruction, q_st1_2_with_postinc
+    )
+
+
 # Timing source: Arm Cortex-A72 Software Optimization Guide, instruction tables.
 # https://documentation-service.arm.com/static/5ed75eeeca06a95ce53f93c7
 # The guide reports instructions per cycle; inverse_throughput below stores cycles
@@ -330,11 +348,11 @@ execution_units = {
     vuaddlv_sform: [[ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1]],
     Vins: [ExecutionUnit.ASIMD0, ExecutionUnit.ASIMD1],
     umov_d: ExecutionUnit.LOAD(),  # ???
-    (Ldr_D, Ldr_Q, Ldr_X, Ldp_X): ExecutionUnit.LOAD(),
-    (Str_Q, Str_X): ExecutionUnit.STORE(),
+    (Ldr_D, _is_generic_ldr_q, Ldr_X, Ldp_X): ExecutionUnit.LOAD(),
+    (_is_generic_str_q, Str_X): ExecutionUnit.STORE(),
     Stp_W: ExecutionUnit.STORE(),
     Stp_X: ExecutionUnit.STORE(),
-    Stp_Q: ExecutionUnit.STORE(),
+    _is_generic_stp_q: ExecutionUnit.STORE(),
     AArch64Move: ExecutionUnit.SCALAR(),
     (
         add,
@@ -422,7 +440,7 @@ inverse_throughput = {
     (lsr, lsr_imm, lsl, orr_shifted): 1,
     Vins: 1,
     umov_d: 1,
-    (Ldr_D, Ldr_Q, Str_Q, Ldr_X, Str_X): 1,
+    (Ldr_D, _is_generic_ldr_q, _is_generic_str_q, Ldr_X, Str_X): 1,
     (
         add,
         add_imm,
@@ -435,7 +453,7 @@ inverse_throughput = {
     ): 1,
     Stp_W: 1,
     Stp_X: 2,
-    Stp_Q: 4,
+    _is_generic_stp_q: 4,
     (VShiftImmediateRounding, VShiftImmediateBasic): 1,
     VShiftRegBasic: 2,
     (q_st1, q_st1_with_postinc): 2,
@@ -515,14 +533,14 @@ default_latencies = {
     (csel, csel_xzr_ne): 1,
     AArch64ConditionalCompare: 1,
     AArch64Logical: 1,
-    (Ldr_D, Ldr_Q, Ldr_X, Str_Q, Str_X): 4,  # approx
+    (Ldr_D, _is_generic_ldr_q, Ldr_X, _is_generic_str_q, Str_X): 4,  # approx
     Vins: 6,  # approx
     umov_d: 4,  # approx
     (add, add_imm, add_imm_w, adds_twoarg, adcs, adcs_zero_r, adc_zero2): 1,
     add_shifted: 2,
     Stp_W: 1,
     Stp_X: 2,
-    Stp_Q: 4,
+    _is_generic_stp_q: 4,
     VShiftImmediateRounding: 3,  # approx
     VShiftImmediateBasic: 3,
     VShiftRegBasic: 4,

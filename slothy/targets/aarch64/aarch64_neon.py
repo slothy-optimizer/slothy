@@ -36,6 +36,7 @@ Adding new instructions is simple thanks to the generic AArch64Instruction
 class which generates instruction parsers and writers from instruction templates
 similar to those used in the Arm ARM.
 """
+
 import logging
 import re
 import math
@@ -1548,7 +1549,7 @@ class q_ld1_4_with_reg_postinc(AArch64Instruction):
         return obj
 
 
-class q_ld1(AArch64Instruction):
+class q_ld1(Ldr_Q):
     pattern = "ld1 {<Va>.<dt>}, [<Xc>]"
     inputs = ["Xc"]
     outputs = ["Va"]
@@ -1909,7 +1910,7 @@ class q_ldr_with_postinc(Ldr_Q):
         return obj
 
 
-class q_ld1_with_postinc(AArch64Instruction):
+class q_ld1_with_postinc(Ldr_Q):
     pattern = "ld1 {<Va>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     outputs = ["Va"]
@@ -2119,7 +2120,7 @@ class q_st1(AArch64Instruction):
         return obj
 
 
-class q_st1_with_postinc(AArch64Instruction):
+class q_st1_with_postinc(Str_Q):
     pattern = "st1 {<Va>.<dt>}, [<Xc>], <imm>"
     in_outs = ["Xc"]
     inputs = ["Va"]
@@ -2174,7 +2175,7 @@ class q_stp(Stp_Q):
         return obj
 
 
-class q_st1_2_with_postinc(AArch64Instruction):
+class q_st1_2_with_postinc(Stp_Q):
     pattern = "st1 {<Va>.<dt>, <Vb>.<dt>}, [<Xc>], <imm>"
     inputs = ["Va", "Vb"]
     in_outs = ["Xc"]
