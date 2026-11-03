@@ -55,6 +55,9 @@ from slothy.targets.aarch64 import (
 from slothy.targets.riscv import riscv as Arch_RISC_V
 from slothy.targets.riscv import xuantie_c908 as Target_XuanTie_C908
 
+from slothy.targets.x86_64 import x86_64 as Arch_X86_64
+from slothy.targets.x86_64 import intel_atom as Target_Intel_Atom
+
 
 class UnknownTarget(Exception):
     """Exception raised when an unknown architecture or microarchitecture
@@ -69,6 +72,7 @@ class Archery:
         "Arm_v81M": Arch_Armv81M,
         "Arm_AArch64": AArch64_Neon,
         "RISC_V": Arch_RISC_V,
+        "X86_64": Arch_X86_64,
     }
 
     _targets = {
@@ -83,6 +87,7 @@ class Archery:
         "Apple_M1_firestorm_experimental": Target_AppleM1_Firestorm_Experimental,
         "Apple_M1_icestorm_experimental": Target_AppleM1_Icestorm_Experimental,
         "XuanTie_C908": Target_XuanTie_C908,
+        "Intel_Atom": Target_Intel_Atom,
     }
 
     @staticmethod

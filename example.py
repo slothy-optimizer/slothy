@@ -41,6 +41,8 @@ import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_i
 
 import slothy.targets.riscv.xuantie_c908 as Target_C908
 
+import slothy.targets.x86_64.intel_atom as Target_IntelAtom
+
 ##########################################################################################
 
 from examples.naive.aarch64.dilithium._example import (
@@ -105,6 +107,18 @@ from examples.naive.riscv.keccak._example import (
     example_instances as example_instances_riscv_keccak,
 )
 
+from examples.naive.x86_64.simple._example import (
+    example_instances as example_instances_x86_64_simple,
+)
+
+from examples.naive.x86_64.intel._example import (
+    example_instances as example_instances_x86_64_intel,
+)
+
+from examples.naive.x86_64.keccak._example import (
+    example_instances as example_instances_x86_64_keccak,
+)
+
 
 def main():
     examples = (
@@ -126,6 +140,9 @@ def main():
         + example_instances_riscv_ntt_kyber
         + example_instances_riscv_kyber_basemul
         + example_instances_riscv_keccak
+        + example_instances_x86_64_simple
+        + example_instances_x86_64_intel
+        + example_instances_x86_64_keccak
     )
 
     all_example_names = [e.name for e in examples]
@@ -163,6 +180,7 @@ def main():
             Target_AppleM1_icestorm.__name__,
             Target_AArch64Big.__name__,
             Target_C908.__name__,
+            Target_IntelAtom.__name__,
         ],
     )
     args = parser.parse_args()

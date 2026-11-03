@@ -48,6 +48,9 @@ import slothy.targets.aarch64.apple_m1_icestorm_experimental as Target_AppleM1_i
 import slothy.targets.riscv.riscv as RISCV
 import slothy.targets.riscv.xuantie_c908 as Target_XuanTieC908
 
+import slothy.targets.x86_64.x86_64 as X86_64
+import slothy.targets.x86_64.intel_atom as Target_IntelAtom
+
 target_label_dict = {
     Target_CortexA55: "a55",
     Target_CortexA72: "a72",
@@ -59,6 +62,7 @@ target_label_dict = {
     Target_AppleM1_icestorm: "m1_icestorm",
     Target_AArch64Big: "aarch64_big",
     Target_XuanTieC908: "c908",
+    Target_IntelAtom: "atom",
 }
 
 arch_label_dict = {
@@ -66,6 +70,7 @@ arch_label_dict = {
     Arch_Armv81M: "armv8m",
     AArch64_Neon: "aarch64",
     RISCV: "riscv",
+    X86_64: "x86_64",
 }
 
 

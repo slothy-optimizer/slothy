@@ -20,6 +20,7 @@ jobs:
           - slothy.targets.aarch64.apple_m1_icestorm_experimental
           - slothy.targets.aarch64.aarch64_big_experimental
           - slothy.targets.riscv.xuantie_c908
+          - slothy.targets.x86_64.intel_atom
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-ubuntu
@@ -41,6 +42,7 @@ jobs:
           - slothy.targets.aarch64.apple_m1_icestorm_experimental
           - slothy.targets.aarch64.aarch64_big_experimental
           - slothy.targets.riscv.xuantie_c908
+          - slothy.targets.x86_64.intel_atom
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/setup-ubuntu
