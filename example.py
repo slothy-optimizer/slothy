@@ -111,6 +111,10 @@ from examples.naive.x86_64.simple._example import (
     example_instances as example_instances_x86_64_simple,
 )
 
+from examples.naive.x86_64.intel._example import (
+    example_instances as example_instances_x86_64_intel,
+)
+
 
 def main():
     examples = (
@@ -133,6 +137,7 @@ def main():
         + example_instances_riscv_kyber_basemul
         + example_instances_riscv_keccak
         + example_instances_x86_64_simple
+        + example_instances_x86_64_intel
     )
 
     all_example_names = [e.name for e in examples]
