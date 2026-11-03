@@ -25,8 +25,10 @@
 from common.OptimizationRunner import OptimizationRunner
 import slothy.targets.x86_64.x86_64 as Arch_X86_64
 import slothy.targets.x86_64.intel_atom as Target_IntelAtom
+from slothy.targets.x86_64.x86_translator import Intel_Code
 from tests.naive.x86_64.test_instruction_model import run_instruction_model_tests
 from tests.naive.x86_64.test_atom_model import run_atom_model_tests
+from tests.naive.x86_64.test_translator import run_translator_tests
 
 
 class Instructions(OptimizationRunner):
@@ -64,6 +66,17 @@ class Equ(OptimizationRunner):
         slothy.optimize(start="start", end="end")
 
 
+class IntelSyntax(OptimizationRunner):
+    def __init__(self, arch=Arch_X86_64, target=Target_IntelAtom):
+        super().__init__("x86_64_intel", base_dir="tests", arch=arch, target=target)
+
+    def core(self, slothy):
+        slothy.config.syntax = Intel_Code
+        slothy.config.variable_size = True
+        slothy.config.outputs = ["xmm0"]
+        slothy.optimize(start="start", end="end")
+
+
 class _UnitTests:
     """Runs a module's plain test functions as part of test.py"""
 
@@ -94,6 +107,8 @@ test_instances = [
     Instructions(),
     InstructionsSubregisters(),
     Equ(),
+    IntelSyntax(),
     _UnitTests("instruction_model_x86_64", run_instruction_model_tests),
     _UnitTests("atom_model", run_atom_model_tests),
+    _UnitTests("translator_x86_64", run_translator_tests),
 ]
