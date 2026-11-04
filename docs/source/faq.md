@@ -19,8 +19,9 @@ It is thus independent of and potentially combinable with superoptimizers operat
 
 ## Does SLOTHY support x86?
 
-The core of SLOTHY is architecture- and microarchitecture-agnostic and can accommodate x86. As it stands, however,
-there is no model of the x86 architecture. Feel free to build one!
+Yes, partially. SLOTHY includes an x86_64 model (AT&T syntax natively, with Intel syntax via
+`slothy.targets.x86_64.x86_translator`) covering the instructions needed for Keccak, and a uArch model for
+Intel Atom (Bonnell). Loop optimization on x86_64 is not yet safe, because flag writes are only partially modelled.
 
 ## Does SLOTHY support RISC-V?
 

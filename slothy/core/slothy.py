@@ -96,7 +96,7 @@ class Slothy:
     arch = property(_get_arch)
     target = property(_get_target)
 
-    def __init__(self, arch, target, logger=None):
+    def __init__(self, arch, target, logger=None, syntax=None):
         # Configure default logging to stdout if no handlers are configured
         if logger is None:
             root_logger = logging.getLogger()
@@ -106,7 +106,7 @@ class Slothy:
         else:
             self.logger = logger
 
-        self.config = Config(arch, target, logger=logger)
+        self.config = Config(arch, target, logger=logger, syntax=syntax)
 
         # The source, once loaded, is represented as a list of strings
         self._source = None
@@ -324,6 +324,20 @@ class Slothy:
             stats = []
         return stats
 
+    def _to_native_syntax(self, code):
+        """Translate code from the configured input syntax (config.syntax) to the
+        architecture's native syntax; no-op if config.syntax is None"""
+        if self.config.syntax is None:
+            return code
+        return self.config.syntax.to_native(code)
+
+    def _from_native_syntax(self, code):
+        """Translate code from the architecture's native syntax back to the
+        configured input syntax (config.syntax); no-op if config.syntax is None"""
+        if self.config.syntax is None:
+            return code
+        return self.config.syntax.from_native(code)
+
     def optimize(
         self,
         start: str = None,
@@ -386,6 +400,7 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = AsmIfElse.process_instructions(body)
         body = SourceLine.apply_indentation(body, indentation)
+        body = self._to_native_syntax(body)
         logger.info("SLOTHY version: %s", self._get_version())
         self.logger.info("Instructions in body: %d", SourceLine.instruction_count(body))
 
@@ -433,6 +448,7 @@ class Slothy:
             optimized_source += indented(["// Postamble"])
             optimized_source += late
 
+        optimized_source = self._from_native_syntax(optimized_source)
         self.source = pre + optimized_source + post
         assert SourceLine.is_source(self.source)
 
@@ -453,6 +469,7 @@ class Slothy:
             self.arch, self.source, loop_lbl, forced_loop_type=forced_loop_type
         )
 
+        body = self._to_native_syntax(body)
         c = self.config.copy()
         dfgc = DFGConfig(c)
         dfgc.inputs_are_outputs = True
@@ -475,6 +492,7 @@ class Slothy:
             pre, body, inherit_comments=c.inherit_macro_comments
         )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        body = self._to_native_syntax(body)
         dfgc = DFGConfig(c)
         return list(DFG(body, logger.getChild("dfg_find_deps"), dfgc).inputs)
 
@@ -497,6 +515,7 @@ class Slothy:
             pre, body, inherit_comments=c.inherit_macro_comments
         )
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
+        body = self._to_native_syntax(body)
         dfgc = DFGConfig(c)
 
         if ssa is True:
@@ -508,7 +527,7 @@ class Slothy:
         dfg.apply_fusion_cbs()
         body = [ComputationNode.to_source_line(t) for t in dfg.nodes]
 
-        return body
+        return self._from_native_syntax(body)
 
     def fusion_region(self, start: str, end: str, **kwargs: any):  # noqa: DOC103
         """Run fusion callbacks on straightline code replacing certain
@@ -620,6 +639,7 @@ class Slothy:
         body = AsmAllocation.unfold_all_aliases(c.register_aliases, body)
         body = AsmIfElse.process_instructions(body)
         body = SourceLine.apply_indentation(body, indentation)
+        body = self._to_native_syntax(body)
         logger.info("SLOTHY version: %s", self._get_version())
         self.logger.info(
             "Optimizing loop %s (%d instructions) ...",
@@ -746,5 +766,6 @@ class Slothy:
             DFG(kernel_code, logger.getChild("dfg_kernel_deps"), dfgc).inputs
         )
 
+        optimized_code = self._from_native_syntax(optimized_code)
         self.source = early + optimized_code + late
         self.success = True
