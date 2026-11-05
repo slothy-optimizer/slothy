@@ -23,12 +23,14 @@
 
 // Inverse NTT for Dilithium (VLEN = 128) with Barrett multiplication, the counterpart of
 // ntt_rvv_vlen128_barret_mul (ntt_dilithium_rvv_vlen128_barret_mul.s). Input in the order of that
-// NTT (= upstream's NTT order), output as upstream's invntt_tomont: multiplied by 2^32, in (-q, q).
+// NTT (= upstream's NTT order), output as upstream's invntt_tomont: multiplied by 2^32, centered in
+// (-q/2, q/2] like the Montgomery output of upstream's and PQRV's INTT. Keypair relies on that:
+// t = intt(A*s1) + s2 must stay in (-q, q) for caddq/power2round.
 // Gentleman-Sande butterflies with plain roots (include/intt_dilithium_1234_5678_twiddles_barret_mul.s).
 //   layer8765: 16 blocks of 16 coefficients; levels 8, 7 (len 1, 2) on the transposed block
 //              (vlseg4e32), then levels 6, 5 (len 4, 8).
 //   layer4321: 4 x 64 coefficients (as layer1234 of the NTT); levels 4, 3, 2 (len 16, 32, 64) and
-//              level 1 (len 128) merged with the scaling by 2^32 / 256, then x >= q ? x - q : x.
+//              level 1 (len 128) merged with the scaling by 2^32 / 256, then centered.
 // Bounds: as in upstream's invntt_tomont the sums are not reduced (|input| < q rules out overflow);
 // Barrett products are in (-q/4, 5q/4).
 // Uses only caller-saved scalar registers, so nothing is saved. The SLOTHY config reserves the
@@ -39,6 +41,8 @@
     // == a0, first function arg (a1, the twiddle pointer, is not used)
     #define root_ptr  x5
     #define modulus   x6
+    #define xhalf     x11
+    // (q-1)/2 for center, set before layer4321 (a1, the unused twiddle pointer)
 
     #define data0  v0
     #define data1  v1
@@ -60,9 +64,9 @@
     #define vtmp0  v16
     // used by barret_mul
     #define vtmp1  v17
-    // used by gs_butterfly, gs_butterfly_scale, csubq
+    // used by gs_butterfly, gs_butterfly_scale, center
     #define vtmp2  v18
-    // used by gs_butterfly_scale, csubq
+    // used by gs_butterfly_scale
 
     // layer8765: twiddles of one block
     #define vroot1      v19
@@ -116,12 +120,12 @@
     barret_mul \b, vtmp2, \root_f, \barret_const
 .endm
 
-// a = a >= modulus ? a - modulus : a, for a in (-q/4, 5q/4)
-.macro csubq a
-    vsub.vx vtmp1, \a, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv \a, vtmp1, vtmp2
+// a = a > (q-1)/2 ? a - modulus : a: (-q/4, 5q/4) -> (-q/2, q/2]
+.macro center a
+    vrsub.vx vtmp1, \a, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv \a, \a, vtmp1
 .endm
 
 .macro transpose4 data, ptr
@@ -310,6 +314,7 @@ layer8765_start:
 
     addi in, in, -16*4*L_STRIDE_1   // reset in pointer (16 blocks of 64 bytes)
     li t2, 4                  // root_ptr now points to roots_l3210
+    li xhalf, 4190208         // (q-1)/2
 
     .p2align 2
 layer4321_start:
@@ -571,71 +576,71 @@ layer4321_start:
     vmulh.vx vtmp0, vtmp2, xbarretc               // t = (a * barret_const) >> 32
     vnmsac.vx data15, modulus, vtmp0                  // z = z - n * t
 
-    // (-q/4, 5q/4) -> (-q, q), as upstream's invntt_tomont
-    vsub.vx vtmp1, data0, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data0, vtmp1, vtmp2
-    vsub.vx vtmp1, data1, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data1, vtmp1, vtmp2
-    vsub.vx vtmp1, data2, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data2, vtmp1, vtmp2
-    vsub.vx vtmp1, data3, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data3, vtmp1, vtmp2
-    vsub.vx vtmp1, data4, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data4, vtmp1, vtmp2
-    vsub.vx vtmp1, data5, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data5, vtmp1, vtmp2
-    vsub.vx vtmp1, data6, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data6, vtmp1, vtmp2
-    vsub.vx vtmp1, data7, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data7, vtmp1, vtmp2
-    vsub.vx vtmp1, data8, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data8, vtmp1, vtmp2
-    vsub.vx vtmp1, data9, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data9, vtmp1, vtmp2
-    vsub.vx vtmp1, data10, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data10, vtmp1, vtmp2
-    vsub.vx vtmp1, data11, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data11, vtmp1, vtmp2
-    vsub.vx vtmp1, data12, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data12, vtmp1, vtmp2
-    vsub.vx vtmp1, data13, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data13, vtmp1, vtmp2
-    vsub.vx vtmp1, data14, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data14, vtmp1, vtmp2
-    vsub.vx vtmp1, data15, modulus                      // vtmp1 = a - q
-    vsra.vi vtmp2, vtmp1, 31                        // vtmp2 = a - q < 0 ? -1 : 0
-    vand.vx vtmp2, vtmp2, modulus                   // vtmp2 = a - q < 0 ? q : 0
-    vadd.vv data15, vtmp1, vtmp2
+    // (-q/4, 5q/4) -> (-q/2, q/2], as upstream's invntt_tomont
+    vrsub.vx vtmp1, data0, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data0, data0, vtmp1
+    vrsub.vx vtmp1, data1, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data1, data1, vtmp1
+    vrsub.vx vtmp1, data2, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data2, data2, vtmp1
+    vrsub.vx vtmp1, data3, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data3, data3, vtmp1
+    vrsub.vx vtmp1, data4, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data4, data4, vtmp1
+    vrsub.vx vtmp1, data5, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data5, data5, vtmp1
+    vrsub.vx vtmp1, data6, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data6, data6, vtmp1
+    vrsub.vx vtmp1, data7, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data7, data7, vtmp1
+    vrsub.vx vtmp1, data8, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data8, data8, vtmp1
+    vrsub.vx vtmp1, data9, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data9, data9, vtmp1
+    vrsub.vx vtmp1, data10, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data10, data10, vtmp1
+    vrsub.vx vtmp1, data11, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data11, data11, vtmp1
+    vrsub.vx vtmp1, data12, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data12, data12, vtmp1
+    vrsub.vx vtmp1, data13, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data13, data13, vtmp1
+    vrsub.vx vtmp1, data14, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data14, data14, vtmp1
+    vrsub.vx vtmp1, data15, xhalf                       // vtmp1 = (q-1)/2 - a
+    vsra.vi vtmp1, vtmp1, 31                        // vtmp1 = a > (q-1)/2 ? -1 : 0
+    vand.vx vtmp1, vtmp1, modulus                   // vtmp1 = a > (q-1)/2 ? q : 0
+    vsub.vv data15, data15, vtmp1
 
     vse32.v data0, (in)
     addi in, in, L_STRIDE_2
