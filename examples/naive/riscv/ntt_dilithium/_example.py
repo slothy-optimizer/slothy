@@ -276,7 +276,7 @@ class RISC_V_intt_rvv_vlen128_barret_mul(OptimizationRunner):
 
         slothy.config.with_preprocessor = True
         r = slothy.config.reserved_regs
-        r += ["x3"] + CALLEE_SAVED
+        r += ["x3", "x7"] + CALLEE_SAVED  # x7 = t2: loop counter
         slothy.config.reserved_regs = r
         slothy.config.compiler_include_paths = (
             "examples/naive/riscv/ntt_dilithium/include"

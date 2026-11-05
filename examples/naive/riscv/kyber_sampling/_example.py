@@ -48,7 +48,7 @@ class RISC_V_cbd2_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_stepsize = 0.05
 
         r = slothy.config.reserved_regs
-        r += ["x3"] + CALLEE_SAVED
+        r += ["x3", "x14"] + CALLEE_SAVED  # x14 = a4: loop counter
         slothy.config.reserved_regs = r
         slothy.optimize_loop("cbd2_rvv_vlen128_loop")
 
@@ -86,7 +86,7 @@ class RISC_V_cbd3_rvv_vlen128(OptimizationRunner):
         slothy.config.split_heuristic_stepsize = 0.05
 
         r = slothy.config.reserved_regs
-        r += ["x3"] + CALLEE_SAVED
+        r += ["x3", "x14"] + CALLEE_SAVED  # x14 = a4: loop counter
         slothy.config.reserved_regs = r
         slothy.optimize_loop("cbd3_rvv_vlen128_loop")
 
